@@ -1,0 +1,6 @@
+Makefile
+Makefile.in
+*amd64-linux*
+*.o
+*~
+.deps
