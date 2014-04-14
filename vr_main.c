@@ -59,19 +59,66 @@ static void vr_post_clo_init(void)
 
 
 static ULong fpOpCount;
-static void incrementFpOpCount (void) {
+static VG_REGPARM(0) void incrementFpOpCount (void) {
   fpOpCount++;
 }
 
-static void vr_handleOp (const char * title1, const char * title2, IRExpr * expr, IROp op, IRSB* sb) {
+
+static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res = *arg1 + *arg2;
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+
+static void vr_countFpOp (IRSB* sb) {
+  IRExpr** argv = mkIRExprVec_0();
+  IRDirty* di = unsafeIRDirty_0_N( 0, "incrementFpOpCount",
+                                   VG_(fnptr_to_fnentry)( &incrementFpOpCount ),
+                                   argv);
+  addStmtToIRSB (sb, IRStmt_Dirty (di));
+}
+
+static void vr_handleOp (const char * title1, const char * title2, IRExpr * expr, IROp op, IRStmt* stmt, IRSB* sb) {
     switch (op) {
       // FPU Operations
 
       //   Additions
       //     64bits
+    case Iop_Add64F0x2:  // 128b vector, lowest-lane only
+      VG_(printf) ("%s %s FP operation: ", title1, title2);
+      ppIRExpr (expr);
+      VG_(printf) ("\n");
+
+      vr_countFpOp (sb);
+
+      {
+        IRTemp arg1 = newIRTemp (sb->tyenv, Ity_I64);
+        addStmtToIRSB (sb, IRStmt_WrTmp (arg1, IRExpr_Unop (Iop_V128to64,
+                                                            expr->Iex.Binop.arg1)));
+
+        IRTemp arg2 = newIRTemp (sb->tyenv, Ity_I64);
+        addStmtToIRSB (sb, IRStmt_WrTmp (arg2, IRExpr_Unop (Iop_V128to64,
+                                                            expr->Iex.Binop.arg2)));
+
+        IRTemp res = newIRTemp (sb->tyenv, Ity_I64);
+        addStmtToIRSB (sb,
+                       IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
+                                                       "vr_Add64F", VG_(fnptr_to_fnentry)(vr_Add64F),
+                                                       mkIRExprVec_2 (IRExpr_RdTmp(arg1),
+                                                                      IRExpr_RdTmp(arg2)))));
+
+        addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                                         IRExpr_Binop (Iop_64HLtoV128,
+                                                       IRExpr_RdTmp(res),
+                                                       IRExpr_RdTmp(res))));
+      }
+      break;
+
     case Iop_AddF64:     // Standard
-    case Iop_Add64Fx2:   // SSE extension
-    case Iop_Add64F0x2:  // ...lowest-lane only
+    case Iop_Add64Fx2:   // 128b vector
 
       //     32bits
     case Iop_AddF32:
@@ -102,35 +149,23 @@ static void vr_handleOp (const char * title1, const char * title2, IRExpr * expr
       VG_(printf) ("%s %s FP operation: ", title1, title2);
       ppIRExpr (expr);
       VG_(printf) ("\n");
-
-      {
-        IRExpr** argv = mkIRExprVec_0();
-        IRDirty* di = unsafeIRDirty_0_N( 0, "incrementFpOpCount",
-                                         VG_(fnptr_to_fnentry)( &incrementFpOpCount ),
-                                         argv);
-        addStmtToIRSB (sb, IRStmt_Dirty (di));
-      }
-      break;
     default:
-      /* VG_(printf) ("%s Binary INT: ", title); */
-      /* ppIRExpr (expr); */
-      /* VG_(printf) ("\n"); */
+      addStmtToIRSB (sb, stmt);
       break;
     }
 
 }
 
-static void vr_handleExpr (const char * title, IRExpr* expr, IRSB* sb) {
+static void vr_handleExpr (const char * title, IRExpr* expr, IRStmt* stmt, IRSB* sb) {
   switch (expr->tag) {
   case Iex_Binop:
-    vr_handleOp (title, "Binop", expr, expr->Iex.Binop.op, sb);
+    vr_handleOp (title, "Binop", expr, expr->Iex.Binop.op, stmt, sb);
     break;
   case Iex_Triop:
-    vr_handleOp (title, "Triop", expr, expr->Iex.Triop.details->op, sb);
+    vr_handleOp (title, "Triop", expr, expr->Iex.Triop.details->op, stmt, sb);
     break;
   default:
-    /* ppIRExpr (expr); */
-    /* VG_(printf) ("\n"); */
+    addStmtToIRSB (sb, stmt);
     break;
   }
 }
@@ -163,21 +198,21 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     case Ist_Exit:
     case Ist_Put:
     case Ist_LLSC:
+      addStmtToIRSB (sbOut, sbIn->stmts[i]);
       break;
     case Ist_WrTmp:
-      vr_handleExpr ("WrTmp", st->Ist.WrTmp.data, sbOut);
+      vr_handleExpr ("WrTmp", st->Ist.WrTmp.data, st, sbOut);
       break;
     case Ist_Store:
-      vr_handleExpr ("Store", st->Ist.Store.data, sbOut);
+      vr_handleExpr ("Store", st->Ist.Store.data, st, sbOut);
       break;
     case Ist_StoreG:
-      vr_handleExpr ("StoreG", st->Ist.StoreG.details->data, sbOut);
+      vr_handleExpr ("StoreG", st->Ist.StoreG.details->data, st, sbOut);
       break;
     }
-
-    addStmtToIRSB (sbOut, sbIn->stmts[i]);
   }
 
+  // ppIRSB (sbOut);
   return sbOut;
 }
 
