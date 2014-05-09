@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
   void vr_fpOpsInit (void);
+  void vr_fpOpsFini (void);
 
   double vr_AddDouble (double a, double b);
   float  vr_AddFloat  (float  a, float  b);
