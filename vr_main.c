@@ -55,6 +55,39 @@
 #include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
+/* * Command-line options
+ */
+typedef struct _vr_CLO vr_CLO;
+struct _vr_CLO {
+  enum vr_RoundingMode roundingMode;
+};
+vr_CLO vr_clo;
+
+Bool vr_process_clo (const HChar *arg);
+Bool vr_process_clo (const HChar *arg) {
+  if      (VG_XACT_CLO (arg, "--rounding-mode=random",
+                        vr_clo.roundingMode, VR_RANDOM)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=average",
+                        vr_clo.roundingMode, VR_AVERAGE)) {}
+  return True;
+}
+
+void vr_clo_defaults (void);
+void vr_clo_defaults (void) {
+  vr_clo.roundingMode = VR_NEAREST;
+}
+
+void vr_print_usage (void);
+void vr_print_usage (void) {
+
+}
+
+void vr_print_debug_usage (void);
+void vr_print_debug_usage (void) {
+
+}
+
+
 /* * Floating-point operations counter
  */
 
@@ -520,7 +553,7 @@ static void vr_fini(Int exitcode)
 
 static void vr_post_clo_init(void)
 {
-   vr_fpOpsInit();
+   vr_fpOpsInit(vr_clo.roundingMode);
 }
 
 static void vr_pre_clo_init(void)
@@ -537,6 +570,10 @@ static void vr_pre_clo_init(void)
    VG_(basic_tool_funcs)        (vr_post_clo_init,
                                  vr_instrument,
                                  vr_fini);
+
+   VG_(needs_command_line_options)(vr_process_clo,
+                                   vr_print_usage,
+                                   vr_print_debug_usage);
 }
 
 VG_DETERMINE_INTERFACE_VERSION(vr_pre_clo_init)

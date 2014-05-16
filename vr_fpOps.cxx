@@ -11,18 +11,11 @@ extern "C" {
 #include "pub_tool_libcfile.h"
 }
 
+
+
 // * Global variables & parameters
 
-enum RoundingMode {
-  VR_NEAREST,
-  VR_UPWARD,
-  VR_DOWNWARD,
-  VR_ZERO,
-  VR_RANDOM, // Must be immediately after standard rounding modes
-  VR_AVERAGE
-};
-
-const RoundingMode ROUNDINGMODE = VR_UPWARD;
+vr_RoundingMode ROUNDINGMODE;
 const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
@@ -167,7 +160,7 @@ template <typename Real> int significantBits (const Real & x) {
 
 // * Operation implementation
 
-inline char const*const roundingModeName (RoundingMode mode) {
+inline char const*const roundingModeName (vr_RoundingMode mode) {
   switch (mode) {
   case VR_NEAREST:
     return "NEAREST";
@@ -187,10 +180,10 @@ inline char const*const roundingModeName (RoundingMode mode) {
 }
 
 template <typename REAL>
-inline RoundingMode getMode (RoundingMode mode, const REAL & err, const REAL & ulp) {
+inline vr_RoundingMode getMode (vr_RoundingMode mode, const REAL & err, const REAL & ulp) {
   switch(mode) {
   case VR_RANDOM:
-    return (RoundingMode)(rand()%VR_RANDOM);
+    return (vr_RoundingMode)(rand()%VR_RANDOM);
   case VR_AVERAGE: {
     int s = err>=0 ? 1 : -1;
 
@@ -252,7 +245,7 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   }
 }
 
-template <typename REAL, RoundingMode ROUND>
+template <typename REAL, vr_RoundingMode ROUND>
 class Sum {
 public:
   struct ValErr {
@@ -266,7 +259,7 @@ public:
       priest_ (a, b);
 
     const REAL u = ulp(ve.value);
-    const RoundingMode mode = getMode (ROUND, ve.error, u);
+    const vr_RoundingMode mode = getMode (ROUND, ve.error, u);
 
     if (ve.error > 0
         && (mode == VR_UPWARD
@@ -315,8 +308,10 @@ private:
 
 // * C interface
 
-void vr_fpOpsInit (void) {
-  if (ROUNDINGMODE == VR_RANDOM) {
+void vr_fpOpsInit (vr_RoundingMode mode) {
+  ROUNDINGMODE = mode;
+
+  if (ROUNDINGMODE >= VR_RANDOM) {
     srand (time (NULL));
   }
 
@@ -338,9 +333,37 @@ void vr_fpOpsFini (void) {
 }
 
 double vr_AddDouble (double a, double b) {
-  return Sum<double, ROUNDINGMODE>::apply (a, b);
+  switch (ROUNDINGMODE) {
+  case VR_NEAREST:
+    return Sum<double, VR_NEAREST>::apply (a, b);
+  case VR_UPWARD:
+    return Sum<double, VR_UPWARD>::apply (a, b);
+  case VR_DOWNWARD:
+    return Sum<double, VR_DOWNWARD>::apply (a, b);
+  case VR_ZERO:
+    return Sum<double, VR_ZERO>::apply (a, b);
+  case VR_RANDOM:
+    return Sum<double, VR_RANDOM>::apply (a, b);
+  case VR_AVERAGE:
+    return Sum<double, VR_AVERAGE>::apply (a, b);
+  }
+  return 0;
 }
 
 float vr_AddFloat (float a, float b) {
-  return Sum<float, ROUNDINGMODE>::apply (a, b);
+  switch (ROUNDINGMODE) {
+  case VR_NEAREST:
+    return Sum<float, VR_NEAREST>::apply (a, b);
+  case VR_UPWARD:
+    return Sum<float, VR_UPWARD>::apply (a, b);
+  case VR_DOWNWARD:
+    return Sum<float, VR_DOWNWARD>::apply (a, b);
+  case VR_ZERO:
+    return Sum<float, VR_ZERO>::apply (a, b);
+  case VR_RANDOM:
+    return Sum<float, VR_RANDOM>::apply (a, b);
+  case VR_AVERAGE:
+    return Sum<float, VR_AVERAGE>::apply (a, b);
+  }
+  return 0;
 }

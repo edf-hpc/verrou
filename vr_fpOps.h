@@ -5,7 +5,16 @@
 extern "C" {
 #endif
 
-  void vr_fpOpsInit (void);
+  enum vr_RoundingMode {
+    VR_NEAREST,
+    VR_UPWARD,
+    VR_DOWNWARD,
+    VR_ZERO,
+    VR_RANDOM, // Must be immediately after standard rounding modes
+    VR_AVERAGE
+  };
+
+  void vr_fpOpsInit (enum vr_RoundingMode mode);
   void vr_fpOpsFini (void);
 
   double vr_AddDouble (double a, double b);
