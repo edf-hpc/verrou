@@ -50,12 +50,32 @@
 #include "pub_tool_clientstate.h"
 #include "pub_tool_machine.h"      // VG_(fnptr_to_fnentry)
 
-
+#include "verrou.h"
 #include "vr_fpOps.h"
 #include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
 
-/* * Command-line options
+/* * Global features
+ */
+
+/* ** Start-stop instrumentation
+ */
+Bool vr_instrument_state = True;
+
+void vr_set_instrument_state (const HChar* reason, Bool state);
+void vr_set_instrument_state (const HChar* reason, Bool state) {
+  if (vr_instrument_state == state) {
+    VG_(message)(Vg_DebugMsg, "%s: instrumentation already %s\n",
+		 reason, state ? "ON" : "OFF");
+    return;
+  }
+
+  vr_instrument_state = state;
+  VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
+               reason, state ? "ON" : "OFF");
+}
+
+/* ** Command-line options
  */
 typedef struct _vr_CLO vr_CLO;
 struct _vr_CLO {
@@ -69,6 +89,9 @@ Bool vr_process_clo (const HChar *arg) {
                         vr_clo.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=average",
                         vr_clo.roundingMode, VR_AVERAGE)) {}
+
+  else if (VG_BOOL_CLO (arg, "--instr-atstart",
+                        vr_instrument_state)) {}
   return True;
 }
 
@@ -85,6 +108,25 @@ void vr_print_usage (void) {
 void vr_print_debug_usage (void);
 void vr_print_debug_usage (void) {
 
+}
+
+/* ** Client requests
+ */
+
+Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
+Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
+  if (!VG_IS_TOOL_USERREQ('V','R', args[0]))
+    return False;
+
+  switch (args[0]) {
+  case VR_USERREQ__START_INSTRUMENTATION:
+    vr_set_instrument_state ("Client Request", True);
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__STOP_INSTRUMENTATION:
+    vr_set_instrument_state ("Client Request", False);
+  }
+  return True;
 }
 
 
@@ -185,7 +227,7 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
   }
 
   argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
-                        mkIRExpr_HWord (1));
+                        mkIRExpr_HWord (increment));
 
   di = unsafeIRDirty_0_N( 2,
                           "vr_incOpCount",
@@ -527,6 +569,10 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Int i;
   IRSB* sbOut;
 
+  if (!vr_instrument_state) {
+    return sbIn;
+  }
+
   sbOut = deepCopyIRSBExceptStmts(sbIn);
 
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
@@ -574,6 +620,8 @@ static void vr_pre_clo_init(void)
    VG_(needs_command_line_options)(vr_process_clo,
                                    vr_print_usage,
                                    vr_print_debug_usage);
+
+   VG_(needs_client_requests)(vr_handle_client_request);
 }
 
 VG_DETERMINE_INTERFACE_VERSION(vr_pre_clo_init)

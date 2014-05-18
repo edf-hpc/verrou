@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.tool.am
 
 EXTRA_DIST = docs/vr-manual.xml
+pkginclude_HEADERS = verrou.h
 
 #----------------------------------------------------------------------------
 # verrou-<platform>
