@@ -43,6 +43,7 @@ Add verrou's sources to it:
 
 Configure valgrind:
 
+    ./autogen.sh
     ./configure --enable-only64bit
 
 

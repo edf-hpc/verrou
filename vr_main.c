@@ -85,13 +85,17 @@ vr_CLO vr_clo;
 
 Bool vr_process_clo (const HChar *arg);
 Bool vr_process_clo (const HChar *arg) {
+  Bool bool_val;
+
   if      (VG_XACT_CLO (arg, "--rounding-mode=random",
                         vr_clo.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=average",
                         vr_clo.roundingMode, VR_AVERAGE)) {}
 
   else if (VG_BOOL_CLO (arg, "--instr-atstart",
-                        vr_instrument_state)) {}
+                        bool_val)) {
+    vr_set_instrument_state ("Command Line", bool_val);
+  }
   return True;
 }
 
@@ -125,6 +129,8 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     break;
   case VR_USERREQ__STOP_INSTRUMENTATION:
     vr_set_instrument_state ("Client Request", False);
+    *ret = 0; /* meaningless */
+    break;
   }
   return True;
 }
