@@ -254,6 +254,11 @@ public:
   };
 
   static REAL apply (const REAL & a, const REAL & b) {
+    if (a == 0)
+      return b;
+    if (b == 0)
+      return a;
+
     ValErr ve = (std::abs(a) < std::abs(b)) ?
       priest_ (b, a):
       priest_ (a, b);
