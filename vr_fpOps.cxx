@@ -11,7 +11,7 @@ extern "C" {
 #include "pub_tool_libcfile.h"
 }
 
-
+#include "vr_fpRepr.hxx"
 
 // * Global variables & parameters
 
@@ -20,142 +20,6 @@ const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
 int vr_outFile;
-
-// * Real types storage
-
-// ** Internal functions
-
-// IEEE754-like binary floating point number representation:
-//
-// Real:     corresponding C type (float/double)
-// BitField: type of the corresponding bit field
-// SIGN:     number of sign bits
-// EXP:      number of exponent bits
-// MANT:     number of mantissa (aka fraction) bits
-template <typename Real, typename BitField, int SIGN, int EXP, int MANT>
-class FPRepr {
-
-public:
-  typedef Real RealType;
-
-  // Integer value of the exponent field of the given real
-  //
-  // Warning: this value is shifted. The real exponent of x is:
-  //    exponentField(x) - exponentShift()
-  //
-  // x: floating point value
-  static inline int exponentField (const Real & x) {
-    const BitField *xx = (BitField*)(&x);
-    return bitrange<MANT, EXP> (xx);
-  }
-
-  // Smallest floating point increment for a given value.
-  //
-  // x: floating point value around which to compute the ulp
-  static Real ulp (const Real & x) {
-    const int exponent = exponentField(x);
-
-    Real ret = 0;
-    BitField & ulp = *((BitField*)&ret);
-
-    const int exponentULP = exponent-MANT;
-    ulp += ((BitField)exponentULP) << MANT;
-
-#ifdef DEBUG
-    std::cerr << "ulp(" << x << ") = " << ret << std::endl;
-#endif
-
-    return ret;
-  }
-
-  static inline void pp (const Real & x) {
-    const BitField *xx = (BitField*)(&x);
-    const int sign = bitrange<MANT+EXP, SIGN> (xx);
-    const BitField mantissa = bitrange<0, MANT> (xx) + ((BitField)1<<MANT);
-    const int exponent = exponentField(x)-exponentShift();
-
-    char const * format;
-    switch (sizeof(BitField)) {
-    case 4:
-      format = "%s%d * 2**%d\n";
-      break;
-    case 8:
-      format = "%s%lu * 2**%d\n";
-      break;
-    default:
-      format = "error";
-    }
-    VG_(umsg)(format,
-              (sign==0?" ":"-"),
-              mantissa,
-              exponent);
-  }
-
-  static inline int significantBits () {
-    return MANT;
-  }
-
-private:
-  static inline int exponentShift () {
-    return (1 << (EXP-1)) - 1 + MANT;
-  }
-
-  // Return a range in a bit field.
-  //
-  // BitField: type of the bit field
-  // begin:    index of the first interesting bit
-  // size:     number of desired bits
-  // x:        pointer to the bit field
-  template <int BEGIN, int SIZE>
-  static inline BitField bitrange (BitField const*const x) {
-    BitField ret = *x;
-
-    const int leftShift = 8*sizeof(BitField)-BEGIN-SIZE;
-    if (leftShift > 0)
-      ret = ret << leftShift;
-
-    const int rightShift = BEGIN + leftShift;
-    if (rightShift > 0)
-      ret = ret >> rightShift;
-
-    return ret;
-  }
-
-
-};
-
-
-// ** Interface for simple & double precision FP numbers
-
-template <typename Real> struct FPType;
-
-template <> struct FPType<float> {
-  typedef FPRepr<float,  __uint32_t, 1,  8, 23>  Repr;
-};
-
-template <> struct FPType<double> {
-  typedef FPRepr<double, __uint64_t, 1, 11, 52>  Repr;
-};
-
-// Smallest floating point increments for IEE754 binary formats
-template <typename Real> Real ulp (const Real & x) {
-  return FPType<Real>::Repr::ulp (x);
-}
-
-// Pretty-print representation
-template <typename Real> void ppReal (const Real & x) {
-  FPType<Real>::Repr::pp (x);
-}
-
-// Exponent field
-template <typename Real> int exponentField (const Real & x) {
-  return FPType<Real>::Repr::exponentField (x);
-}
-
-// Number of significant bits
-template <typename Real> int significantBits (const Real & x) {
-  return FPType<Real>::Repr::significantBits();
-}
 
 
 // * Operation implementation
@@ -325,12 +189,6 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
   vr_outFile = VG_(fd_open)("vr.log",
                             VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
                             VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-
-  // double d = 42;
-  // ppReal (d);
-
-  // float f = 42;
-  // ppReal (f);
 }
 
 void vr_fpOpsFini (void) {
