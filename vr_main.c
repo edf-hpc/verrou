@@ -62,8 +62,7 @@
  */
 Bool vr_instrument_state = True;
 
-void vr_set_instrument_state (const HChar* reason, Bool state);
-void vr_set_instrument_state (const HChar* reason, Bool state) {
+static void vr_set_instrument_state (const HChar* reason, Bool state) {
   if (vr_instrument_state == state) {
     VG_(message)(Vg_DebugMsg, "%s: instrumentation already %s\n",
 		 reason, state ? "ON" : "OFF");
@@ -83,8 +82,7 @@ struct _vr_CLO {
 };
 vr_CLO vr_clo;
 
-Bool vr_process_clo (const HChar *arg);
-Bool vr_process_clo (const HChar *arg) {
+static Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
 
   if      (VG_XACT_CLO (arg, "--rounding-mode=random",
@@ -99,26 +97,22 @@ Bool vr_process_clo (const HChar *arg) {
   return True;
 }
 
-void vr_clo_defaults (void);
-void vr_clo_defaults (void) {
+static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
 }
 
-void vr_print_usage (void);
-void vr_print_usage (void) {
+static void vr_print_usage (void) {
 
 }
 
-void vr_print_debug_usage (void);
-void vr_print_debug_usage (void) {
+static void vr_print_debug_usage (void) {
 
 }
 
 /* ** Client requests
  */
 
-Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
-Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
+static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   if (!VG_IS_TOOL_USERREQ('V','R', args[0]))
     return False;
 
@@ -628,6 +622,8 @@ static void vr_pre_clo_init(void)
                                    vr_print_debug_usage);
 
    VG_(needs_client_requests)(vr_handle_client_request);
+
+   vr_clo_defaults();
 }
 
 VG_DETERMINE_INTERFACE_VERSION(vr_pre_clo_init)
