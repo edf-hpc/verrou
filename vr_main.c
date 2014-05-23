@@ -74,6 +74,50 @@ static void vr_set_instrument_state (const HChar* reason, Bool state) {
                reason, state ? "ON" : "OFF");
 }
 
+/* ** Enter/leave deterministic section
+ */
+HChar vr_deterministic_section[256];
+
+static VG_REGPARM(1) void vr_set_deterministic_section (const ULong addr) {
+  HChar fnname[256];
+  HChar filename[256];
+  UInt  linenum;
+
+  fnname[0] = 0;
+  VG_(get_fnname)(addr, fnname, 256);
+
+  filename[0] = 0;
+  VG_(get_filename_linenum)(addr,
+                            filename, 256,
+                            NULL,     0,
+                            NULL,
+                            &linenum);
+  VG_(snprintf)(vr_deterministic_section, 256,
+                "%s (%s:%d)", fnname, filename, linenum);
+}
+
+static void vr_start_deterministic_section (void) {
+  unsigned int hash = VG_(getpid)();
+  {
+    int i = 0;
+    while (vr_deterministic_section[i] != 0) {
+      hash += i * vr_deterministic_section[i];
+      ++i;
+    }
+  }
+
+  vr_fpOpsSeed (hash);
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
+               hash, vr_deterministic_section);
+}
+
+static void vr_stop_deterministic_section (void) {
+  VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
+               vr_deterministic_section);
+  vr_fpOpsRandom ();
+}
+
+
 /* ** Command-line options
  */
 typedef struct _vr_CLO vr_CLO;
@@ -123,6 +167,14 @@ static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     break;
   case VR_USERREQ__STOP_INSTRUMENTATION:
     vr_set_instrument_state ("Client Request", False);
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__START_DETERMINISTIC:
+    vr_start_deterministic_section ();
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__STOP_DETERMINISTIC:
+    vr_stop_deterministic_section ();
     *ret = 0; /* meaningless */
     break;
   }
@@ -587,7 +639,19 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  // ppIRSB (sbOut);
+  if (sbIn->jumpkind == Ijk_ClientReq) {
+    ULong addr;
+
+    tl_assert (sbIn->next->tag == Iex_Const);
+    addr = sbIn->next->Iex.Const.con->Ico.U64;
+
+    addStmtToIRSB
+      (sbOut,
+       IRStmt_Dirty
+       ( unsafeIRDirty_0_N ( 1, "vr_set_deterministic_section",
+                             VG_(fnptr_to_fnentry)(&vr_set_deterministic_section),
+                             mkIRExprVec_1 (mkIRExpr_HWord (addr)))));
+  }
   return sbOut;
 }
 

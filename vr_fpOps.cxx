@@ -20,6 +20,7 @@ const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
 int vr_outFile;
+unsigned int vr_seed;
 
 // * Real types storage
 
@@ -330,6 +331,15 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
 
 void vr_fpOpsFini (void) {
   VG_(close)(vr_outFile);
+}
+
+void vr_fpOpsSeed (unsigned int seed) {
+  vr_seed = rand();
+  srand (seed);
+}
+
+void vr_fpOpsRandom () {
+  srand (vr_seed);
 }
 
 double vr_AddDouble (double a, double b) {

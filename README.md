@@ -77,9 +77,30 @@ Build and install
     #include "valgrind/verrou.h"
 
 
+### Start/stop instrumenting
+
     // Start instrumenting
     VERROU_START_INSTRUMENTATION;
 
 
     // Stop instrumenting
     VERROU_STOP_INSTRUMENTATION;
+
+
+### Enter/leave deterministic sections
+
+    // Enter a deterministic section
+    VERROU_START_DETERMINISTIC;
+
+When encountering this client request, verrou generates a fixed seed for the
+pseudo-random number generator used by floating-point simulated operations. This
+seed deterministically depends on the location of the client request within the
+source files. This ensures that each time the same client request will be
+emitted, the same seed will be passed to the pRNG.
+
+
+    // Leave a deterministic section
+    VERROU_STOP_DETERMINISTIC;
+
+After this client request, the pRNG is re-seeded with a (pseudo-)random value,
+so as not to be perturbed by sourrounding deterministic sections.
