@@ -49,6 +49,8 @@
 #include "pub_tool_xarray.h"
 #include "pub_tool_clientstate.h"
 #include "pub_tool_machine.h"      // VG_(fnptr_to_fnentry)
+#include "pub_tool_stacktrace.h"
+#include "pub_tool_threadstate.h"
 
 #include "verrou.h"
 #include "vr_fpOps.h"
@@ -76,12 +78,22 @@ static void vr_set_instrument_state (const HChar* reason, Bool state) {
 
 /* ** Enter/leave deterministic section
  */
-HChar vr_deterministic_section[256];
 
-static VG_REGPARM(1) void vr_set_deterministic_section (const ULong addr) {
+static void vr_deterministic_section_name (unsigned int level,
+                                           HChar * name,
+                                           unsigned int len)
+{
+  Addr ips[8];
   HChar fnname[256];
   HChar filename[256];
   UInt  linenum;
+  Addr  addr;
+
+  VG_(get_StackTrace)(VG_(get_running_tid)(),
+                      ips, 8,
+                      NULL, NULL,
+                      0);
+  addr = ips[level];
 
   fnname[0] = 0;
   VG_(get_fnname)(addr, fnname, 256);
@@ -92,28 +104,40 @@ static VG_REGPARM(1) void vr_set_deterministic_section (const ULong addr) {
                             NULL,     0,
                             NULL,
                             &linenum);
-  VG_(snprintf)(vr_deterministic_section, 256,
+  VG_(snprintf)(name, len,
                 "%s (%s:%d)", fnname, filename, linenum);
 }
 
-static void vr_start_deterministic_section (void) {
+static unsigned int vr_deterministic_section_hash (HChar const*const name)
+{
   unsigned int hash = VG_(getpid)();
-  {
-    int i = 0;
-    while (vr_deterministic_section[i] != 0) {
-      hash += i * vr_deterministic_section[i];
-      ++i;
-    }
+  int i = 0;
+  while (name[i] != 0) {
+    hash += i * name[i];
+    ++i;
   }
-
-  vr_fpOpsSeed (hash);
-  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
-               hash, vr_deterministic_section);
+  return hash;
 }
 
-static void vr_stop_deterministic_section (void) {
+static void vr_start_deterministic_section (unsigned int level) {
+  HChar name[256];
+  unsigned int hash;
+
+  vr_deterministic_section_name (level, name, 256);
+
+  hash = vr_deterministic_section_hash (name);
+  vr_fpOpsSeed (hash);
+
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
+               hash, name);
+}
+
+static void vr_stop_deterministic_section (unsigned int level) {
+  HChar name[256];
+  vr_deterministic_section_name (level, name, 256);
+
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
-               vr_deterministic_section);
+               name);
   vr_fpOpsRandom ();
 }
 
@@ -170,11 +194,11 @@ static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__START_DETERMINISTIC:
-    vr_start_deterministic_section ();
+    vr_start_deterministic_section (args[1]);
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__STOP_DETERMINISTIC:
-    vr_stop_deterministic_section ();
+    vr_stop_deterministic_section (args[1]);
     *ret = 0; /* meaningless */
     break;
   }
@@ -639,19 +663,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  if (sbIn->jumpkind == Ijk_ClientReq) {
-    ULong addr;
-
-    tl_assert (sbIn->next->tag == Iex_Const);
-    addr = sbIn->next->Iex.Const.con->Ico.U64;
-
-    addStmtToIRSB
-      (sbOut,
-       IRStmt_Dirty
-       ( unsafeIRDirty_0_N ( 1, "vr_set_deterministic_section",
-                             VG_(fnptr_to_fnentry)(&vr_set_deterministic_section),
-                             mkIRExprVec_1 (mkIRExpr_HWord (addr)))));
-  }
   return sbOut;
 }
 

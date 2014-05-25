@@ -29,12 +29,12 @@ enum {
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_INSTRUMENTATION,  \
                                   0, 0, 0, 0, 0)
 
-#define VERROU_START_DETERMINISTIC                                   \
+#define VERROU_START_DETERMINISTIC(LEVEL)                            \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_DETERMINISTIC,   \
-                                  0, 0, 0, 0, 0)
+                                  LEVEL, 0, 0, 0, 0)
 
-#define VERROU_STOP_DETERMINISTIC                                    \
+#define VERROU_STOP_DETERMINISTIC(LEVEL)                             \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_DETERMINISTIC,    \
-                                  0, 0, 0, 0, 0)
+                                  LEVEL, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */
