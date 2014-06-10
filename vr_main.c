@@ -64,6 +64,9 @@
  */
 Bool vr_instrument_state = True;
 
+// Black magic from callgrind
+extern void VG_(discard_translations) ( Addr64 start, ULong range, const HChar* who );
+
 static void vr_set_instrument_state (const HChar* reason, Bool state) {
   if (vr_instrument_state == state) {
     VG_(message)(Vg_DebugMsg, "%s: instrumentation already %s\n",
@@ -74,6 +77,9 @@ static void vr_set_instrument_state (const HChar* reason, Bool state) {
   vr_instrument_state = state;
   VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
                reason, state ? "ON" : "OFF");
+
+  // Discard cached translations
+  VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
 }
 
 /* ** Enter/leave deterministic section
@@ -160,7 +166,7 @@ static Bool vr_process_clo (const HChar *arg) {
 
   else if (VG_BOOL_CLO (arg, "--instr-atstart",
                         bool_val)) {
-    vr_set_instrument_state ("Command Line", bool_val);
+    vr_instrument_state = bool_val;
   }
   return True;
 }
