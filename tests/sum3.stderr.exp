@@ -1,0 +1,16 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) 2014, F. Fevotte & B. Lathuiliere.
+
+Simulating AVERAGE rounding mode
+Client Request: instrumentation switched ON
+Client Request: instrumentation switched OFF
+
+    ------------------------------------
+    Operation
+     `- Precision
+         `- Vectorization          Count
+    ------------------------------------
+    add                   100000
+     `- flt                   100000
+         `- llo                   100000
+    ------------------------------------

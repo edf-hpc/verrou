@@ -1,0 +1,4 @@
+prog: sum
+args: 2
+vgopts: --instr-atstart=no --rounding-mode=random
+cleanup: rm vr.log

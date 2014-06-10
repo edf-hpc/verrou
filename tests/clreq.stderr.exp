@@ -1,0 +1,16 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) 2014, F. Fevotte & B. Lathuiliere.
+
+Simulating NEAREST rounding mode
+Client Request: instrumentation switched OFF
+Client Request: instrumentation switched ON
+
+    ------------------------------------
+    Operation
+     `- Precision
+         `- Vectorization          Count
+    ------------------------------------
+    add                      200
+     `- flt                      200
+         `- llo                      200
+    ------------------------------------
