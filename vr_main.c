@@ -49,6 +49,8 @@
 #include "pub_tool_xarray.h"
 #include "pub_tool_clientstate.h"
 #include "pub_tool_machine.h"      // VG_(fnptr_to_fnentry)
+#include "pub_tool_stacktrace.h"
+#include "pub_tool_threadstate.h"
 
 #include "verrou.h"
 #include "vr_fpOps.h"
@@ -62,8 +64,7 @@
  */
 Bool vr_instrument_state = True;
 
-void vr_set_instrument_state (const HChar* reason, Bool state);
-void vr_set_instrument_state (const HChar* reason, Bool state) {
+static void vr_set_instrument_state (const HChar* reason, Bool state) {
   if (vr_instrument_state == state) {
     VG_(message)(Vg_DebugMsg, "%s: instrumentation already %s\n",
 		 reason, state ? "ON" : "OFF");
@@ -75,6 +76,72 @@ void vr_set_instrument_state (const HChar* reason, Bool state) {
                reason, state ? "ON" : "OFF");
 }
 
+/* ** Enter/leave deterministic section
+ */
+
+static void vr_deterministic_section_name (unsigned int level,
+                                           HChar * name,
+                                           unsigned int len)
+{
+  Addr ips[8];
+  HChar fnname[256];
+  HChar filename[256];
+  UInt  linenum;
+  Addr  addr;
+
+  VG_(get_StackTrace)(VG_(get_running_tid)(),
+                      ips, 8,
+                      NULL, NULL,
+                      0);
+  addr = ips[level];
+
+  fnname[0] = 0;
+  VG_(get_fnname)(addr, fnname, 256);
+
+  filename[0] = 0;
+  VG_(get_filename_linenum)(addr,
+                            filename, 256,
+                            NULL,     0,
+                            NULL,
+                            &linenum);
+  VG_(snprintf)(name, len,
+                "%s (%s:%d)", fnname, filename, linenum);
+}
+
+static unsigned int vr_deterministic_section_hash (HChar const*const name)
+{
+  unsigned int hash = VG_(getpid)();
+  int i = 0;
+  while (name[i] != 0) {
+    hash += i * name[i];
+    ++i;
+  }
+  return hash;
+}
+
+static void vr_start_deterministic_section (unsigned int level) {
+  HChar name[256];
+  unsigned int hash;
+
+  vr_deterministic_section_name (level, name, 256);
+
+  hash = vr_deterministic_section_hash (name);
+  vr_fpOpsSeed (hash);
+
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
+               hash, name);
+}
+
+static void vr_stop_deterministic_section (unsigned int level) {
+  HChar name[256];
+  vr_deterministic_section_name (level, name, 256);
+
+  VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
+               name);
+  vr_fpOpsRandom ();
+}
+
+
 /* ** Command-line options
  */
 typedef struct _vr_CLO vr_CLO;
@@ -83,8 +150,7 @@ struct _vr_CLO {
 };
 vr_CLO vr_clo;
 
-Bool vr_process_clo (const HChar *arg);
-Bool vr_process_clo (const HChar *arg) {
+static Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
 
   if      (VG_XACT_CLO (arg, "--rounding-mode=random",
@@ -99,26 +165,22 @@ Bool vr_process_clo (const HChar *arg) {
   return True;
 }
 
-void vr_clo_defaults (void);
-void vr_clo_defaults (void) {
+static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
 }
 
-void vr_print_usage (void);
-void vr_print_usage (void) {
+static void vr_print_usage (void) {
 
 }
 
-void vr_print_debug_usage (void);
-void vr_print_debug_usage (void) {
+static void vr_print_debug_usage (void) {
 
 }
 
 /* ** Client requests
  */
 
-Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
-Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
+static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   if (!VG_IS_TOOL_USERREQ('V','R', args[0]))
     return False;
 
@@ -129,6 +191,14 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     break;
   case VR_USERREQ__STOP_INSTRUMENTATION:
     vr_set_instrument_state ("Client Request", False);
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__START_DETERMINISTIC:
+    vr_start_deterministic_section (args[1]);
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__STOP_DETERMINISTIC:
+    vr_stop_deterministic_section (args[1]);
     *ret = 0; /* meaningless */
     break;
   }
@@ -593,7 +663,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  // ppIRSB (sbOut);
   return sbOut;
 }
 
@@ -628,6 +697,8 @@ static void vr_pre_clo_init(void)
                                    vr_print_debug_usage);
 
    VG_(needs_client_requests)(vr_handle_client_request);
+
+   vr_clo_defaults();
 }
 
 VG_DETERMINE_INTERFACE_VERSION(vr_pre_clo_init)
