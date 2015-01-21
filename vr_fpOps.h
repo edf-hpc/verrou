@@ -22,6 +22,11 @@ extern "C" {
 
   double vr_AddDouble (double a, double b);
   float  vr_AddFloat  (float  a, float  b);
+  double vr_MulDouble (double a, double b);
+  float  vr_MulFloat  (float  a, float  b);
+  double vr_DivDouble (double a, double b);
+  float  vr_DivFloat  (float  a, float  b);
+
 
 #ifdef __cplusplus
 }

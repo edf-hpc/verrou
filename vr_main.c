@@ -224,6 +224,7 @@ typedef enum {
   VR_OP_ADD,    // Addition
   VR_OP_SUB,    // Subtraction
   VR_OP_MUL,    // Multiplication
+  VR_OP_DIV,    // Division
   VR_OP
 } Vr_Op;
 
@@ -235,6 +236,8 @@ static const char* vr_ppOp (Vr_Op op) {
     return "sub";
   case VR_OP_MUL:
     return "mul";
+  case VR_OP_DIV:
+    return "div";
   case VR_OP:
     break;
   }
@@ -405,6 +408,41 @@ static VG_REGPARM(2) Int vr_Sub32F (Long a, Long b) {
 }
 
 
+static VG_REGPARM(2) Long vr_Mul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res = vr_MulDouble (*arg1, *arg2);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(2) Long vr_Div64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res = vr_DivDouble (*arg1, *arg2);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+
+static VG_REGPARM(2) Int vr_Mul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res = vr_MulFloat (*arg1, *arg2);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(2) Int vr_Div32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res = vr_DivFloat (*arg1, *arg2);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+
+
 /* ** Code instrumentation
  */
 
@@ -495,9 +533,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I64,
+      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
                        "vr_Add64F", vr_Add64F,
-                       VR_VEC_LLO);
+                       VR_VEC_LLO);*/
+      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
@@ -514,9 +553,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Add32F", vr_Add32F,
-                       VR_VEC_LLO);
+                       VR_VEC_LLO);*/
+      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
@@ -534,10 +574,11 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO);
+      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO);     
       vr_replaceBinop (sb, stmt, expr, Ity_I64,
                        "vr_Sub64F", vr_Sub64F,
                        VR_VEC_LLO);
+      //	addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Sub64Fx2:
@@ -553,9 +594,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Sub32F", vr_Sub32F,
-                       VR_VEC_LLO);
+                       VR_VEC_LLO);*/
+      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
@@ -575,8 +617,15 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO);
+      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
+                       "vr_Mul64F", vr_Mul64F,
+                       VR_VEC_LLO);*/
+
       addStmtToIRSB (sb, stmt);
       break;
+
+      
+      
 
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
       vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL);
@@ -592,6 +641,9 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_LLO);
+      /*vr_replaceBinop (sb, stmt, expr, Ity_I32,
+                       "vr_Mul32F", vr_Mul32F,
+                       VR_VEC_LLO);*/
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -600,17 +652,56 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       addStmtToIRSB (sb, stmt);
       break;
 
+      
+    case Iop_DivF32:
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_Div32F0x4: // 128b vector, lowest-lane-only
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_LLO);
+      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+                       "vr_Div32F", vr_Div32F,
+                       VR_VEC_LLO);*/
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_Div32Fx4: // 128b vector, 4 lanes
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+
+    case Iop_DivF64: // Scalar
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_Div64F0x2: // 128b vector, lowest-lane-only
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO);
+      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
+                       "vr_Div64F", vr_Div64F,
+                       VR_VEC_LLO);*/
+
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      
+
+    case Iop_Div64Fx2: // 128b vector, 2 lanes
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+
 
       //   Other FP operations
     case Iop_Add32Fx2:
     case Iop_Sub32Fx2:
 
-    case Iop_DivF64:
-    case Iop_Div64F0x2:
-    case Iop_Div64Fx2:
-    case Iop_DivF32:
-    case Iop_Div32F0x4:
-    case Iop_Div32Fx4:
+      //    case Iop_DivF64:
+      //    case Iop_Div64F0x2:
+      //    case Iop_Div64Fx2:
 
       VG_(printf) ("Uncounted FP operation: ");
       ppIRStmt (stmt);

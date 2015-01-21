@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cmath>
 #include "vr_fpOps.h"
+#include "vr_DekkerOps.h"
 
 #include "pub_tool_vki.h"
 
@@ -81,7 +82,7 @@ void checkInsufficientPrecision (const REAL & a, const REAL & b) {
   const int emax = ea>eb ? ea : eb;
   const int emin = ea<eb ? ea : eb;
 
-  const int n = significantBits(a);
+  const int n = storedBits(a);
   const int dp = 1+emax-emin-n;
 
   char s[256];
@@ -104,42 +105,80 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   const int cancelled = emax - er;
 
   char s[256];
-  if (cancelled >= significantBits(a)) {
+  if (cancelled >= storedBits(a)) {
     const int l = VG_(sprintf)(s, "C  %d\n", cancelled);
     VG_(write)(vr_outFile, s, l);
   }
 }
 
-template <typename REAL, vr_RoundingMode ROUND>
-class Sum {
+template<class REAL,  vr_RoundingMode ROUND>
+class ValErr {
 public:
-  struct ValErr {
     REAL value;
     REAL error;
-  };
+  
+  void applyRounding(){
+    
+    const REAL u = ulp(value);
+    const vr_RoundingMode mode = getMode (ROUND, error, u);
 
+    if (error > 0
+        && (mode == VR_UPWARD
+            || (mode == VR_ZERO && value < 0)))
+      value += u;
+
+    if (error < 0
+        && (mode == VR_DOWNWARD
+            || (mode == VR_ZERO && value > 0)))
+      value -= u;
+
+  }
+
+  void applyRoundingProd(){
+    
+    const REAL u = ulp(value);
+    const vr_RoundingMode mode = getMode (ROUND, error, u);
+
+    if (error > 0
+        && (mode == VR_UPWARD
+            || (mode == VR_ZERO && value < 0)))
+      value += u;
+
+    if (error < 0
+        && (mode == VR_DOWNWARD
+            || (mode == VR_ZERO && value > 0)))
+      value -= u;
+
+
+    if(abs(u/2.) < abs(error) ){
+      VG_(umsg)("Probleme with Rounding u %f error %f\n", u, error);
+    }else{
+      VG_(umsg)("No Probleme with Rounding u %f error %f\n", u, error);
+    }
+  }
+
+
+    
+};
+
+
+template <vr_RoundingMode ROUND>
+class Sum {
+public:
+  template<typename REAL>
   static REAL apply (const REAL & a, const REAL & b) {
     if (a == 0)
       return b;
     if (b == 0)
       return a;
 
-    ValErr ve = (std::abs(a) < std::abs(b)) ?
-      priest_ (b, a):
-      priest_ (a, b);
-
-    const REAL u = ulp(ve.value);
-    const vr_RoundingMode mode = getMode (ROUND, ve.error, u);
-
-    if (ve.error > 0
-        && (mode == VR_UPWARD
-            || (mode == VR_ZERO && ve.value < 0)))
-      ve.value += u;
-
-    if (ve.error < 0
-        && (mode == VR_DOWNWARD
-            || (mode == VR_ZERO && ve.value > 0)))
-      ve.value -= u;
+    //    ValErr ve = (std::abs(a) < std::abs(b)) ?
+    //      priest_ (b, a):
+    //      priest_ (a, b);
+    ValErr<REAL,ROUND> ve;
+    //DekkerOp<REAL>::sum12(a,b,ve.value,ve.error);
+    DekkerOp<REAL>::priest(a,b,ve.value,ve.error);
+    ve.applyRounding();
 
     checkInsufficientPrecision (a, b);
     checkCancellation (a, b, ve.value);
@@ -155,7 +194,7 @@ private:
   // Department, University of California, Berkeley, CA, USA.
   //
   // ftp://ftp.icsi.berkeley.edu/pub/theory/priest-thesis.ps.Z
-  static ValErr priest_ (const REAL & a, const REAL & b) {
+  /* static ValErr priest_ (const REAL & a, const REAL & b) {
     REAL c = a + b;
     const REAL e = c - a;
     const REAL g = c - e;
@@ -172,8 +211,51 @@ private:
     s.value = c;
     s.error = d;
     return s;
-  }
+    }*/
 };
+
+
+
+template <vr_RoundingMode ROUND>
+class Mul {
+public:
+  template<typename REAL>
+  static REAL apply (const REAL & a, const REAL & b) {
+    if (a == 0)
+      return 0;
+    if (b == 0)
+      return 0;
+
+    ValErr<REAL,ROUND> ve;
+    DekkerOp<REAL>::mul12(a,b,ve.value,ve.error);
+    //    ve.applyRoundingProd();
+    ve.applyRounding();
+
+    return ve.value;
+  }
+
+};
+
+
+template <vr_RoundingMode ROUND>
+class Div {
+public:
+  template<typename REAL>
+  static REAL apply (const REAL & a, const REAL & b) {
+    if (a == 0)
+      return 0;
+
+    ValErr<REAL,ROUND> ve;
+    DekkerOp<REAL>::div12(a,b,ve.value,ve.error);
+    ve.applyRounding();
+
+    return ve.value;
+  }
+
+};
+
+
+
 
 
 // * C interface
@@ -205,38 +287,52 @@ void vr_fpOpsRandom () {
   srand (vr_seed);
 }
 
-double vr_AddDouble (double a, double b) {
+
+template<template<vr_RoundingMode> class OP >
+class OpWithSelectedRoundingMode{
+public:
+template<class REALTYPE>
+static REALTYPE apply(REALTYPE a, REALTYPE b){
   switch (ROUNDINGMODE) {
   case VR_NEAREST:
-    return Sum<double, VR_NEAREST>::apply (a, b);
+    return OP<VR_NEAREST>::apply (a, b);
   case VR_UPWARD:
-    return Sum<double, VR_UPWARD>::apply (a, b);
+    return OP<VR_UPWARD>::apply (a, b);
   case VR_DOWNWARD:
-    return Sum<double, VR_DOWNWARD>::apply (a, b);
+    return OP<VR_DOWNWARD>::apply (a, b);
   case VR_ZERO:
-    return Sum<double, VR_ZERO>::apply (a, b);
+    return OP<VR_ZERO>::apply (a, b);
   case VR_RANDOM:
-    return Sum<double, VR_RANDOM>::apply (a, b);
+    return OP<VR_RANDOM>::apply (a, b);
   case VR_AVERAGE:
-    return Sum<double, VR_AVERAGE>::apply (a, b);
+    return OP<VR_AVERAGE>::apply (a, b);
   }
   return 0;
 }
+};
+
+double vr_AddDouble (double a, double b) {
+  return OpWithSelectedRoundingMode<Sum>::apply(a,b);
+}
 
 float vr_AddFloat (float a, float b) {
-  switch (ROUNDINGMODE) {
-  case VR_NEAREST:
-    return Sum<float, VR_NEAREST>::apply (a, b);
-  case VR_UPWARD:
-    return Sum<float, VR_UPWARD>::apply (a, b);
-  case VR_DOWNWARD:
-    return Sum<float, VR_DOWNWARD>::apply (a, b);
-  case VR_ZERO:
-    return Sum<float, VR_ZERO>::apply (a, b);
-  case VR_RANDOM:
-    return Sum<float, VR_RANDOM>::apply (a, b);
-  case VR_AVERAGE:
-    return Sum<float, VR_AVERAGE>::apply (a, b);
-  }
-  return 0;
+  return OpWithSelectedRoundingMode<Sum>::apply(a,b);
+}
+
+
+double vr_MulDouble (double a, double b) {
+  return OpWithSelectedRoundingMode<Mul>::apply(a,b);
+}
+
+float vr_MulFloat (float a, float b) {
+  return OpWithSelectedRoundingMode<Mul>::apply(a,b);
+}
+
+
+double vr_DivDouble (double a, double b) {
+  return OpWithSelectedRoundingMode<Div>::apply(a,b);
+}
+
+float vr_DivFloat (float a, float b) {
+  return OpWithSelectedRoundingMode<Div>::apply(a,b);
 }

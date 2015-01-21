@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <sstream>
 
@@ -73,7 +74,7 @@ public:
     return oss.str();
   }
 
-  static inline int significantBits () {
+  static inline int storedBits () {
     return MANT;
   }
 
@@ -135,6 +136,6 @@ template <typename Real> int exponentField (const Real & x) {
 }
 
 // Number of significant bits
-template <typename Real> int significantBits (const Real & x) {
-  return FPType<Real>::Repr::significantBits();
+template <typename Real> int storedBits (const Real & x) {
+  return FPType<Real>::Repr::storedBits();
 }
