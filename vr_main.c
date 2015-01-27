@@ -55,6 +55,7 @@
 #include "verrou.h"
 #include "vr_fpOps.h"
 #include <fenv.h>
+#include "float.h"
 //#pragma STDC FENV_ACCESS ON
 
 /* * Global features
@@ -63,21 +64,25 @@
 /* ** Start-stop instrumentation
  */
 Bool vr_instrument_state = True;
+Bool vr_verbose= False;
 
 // Black magic from callgrind
 extern void VG_(discard_translations) ( Addr64 start, ULong range, const HChar* who );
 
 static void vr_set_instrument_state (const HChar* reason, Bool state) {
   if (vr_instrument_state == state) {
-    VG_(message)(Vg_DebugMsg, "%s: instrumentation already %s\n",
-		 reason, state ? "ON" : "OFF");
+    if(vr_verbose){
+      VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
+		   reason, state ? "ON" : "OFF");
+    }
     return;
   }
 
   vr_instrument_state = state;
-  VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
-               reason, state ? "ON" : "OFF");
-
+  if(vr_verbose){
+    VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
+		 reason, state ? "ON" : "OFF");
+  }
   // Discard cached translations
   VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
 }
@@ -163,6 +168,20 @@ static Bool vr_process_clo (const HChar *arg) {
                         vr_clo.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=average",
                         vr_clo.roundingMode, VR_AVERAGE)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=nearest",
+                        vr_clo.roundingMode, VR_NEAREST)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=upward",
+                        vr_clo.roundingMode, VR_UPWARD)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=downward",
+                        vr_clo.roundingMode, VR_DOWNWARD)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=toward_zero",
+                        vr_clo.roundingMode, VR_ZERO)) {}
+
+  else if (VG_BOOL_CLO (arg, "--verrou-verbose",
+                        bool_val)) {
+    vr_verbose = bool_val;
+  }
+
 
   else if (VG_BOOL_CLO (arg, "--instr-atstart",
                         bool_val)) {
@@ -383,11 +402,24 @@ static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
   return *c;
 }
 
+/*static void checkNorm(double value){
+  double limit= 2^DBL_MIN_EXP; 
+  double localValue=value;
+  if(value <0){
+    localValue=-value ;
+  }
+  if((localValue< limit)&&(value !=0)  ){
+    VG_(umsg)("Denormalized");
+  }
+
+  }*/
+
 static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res = vr_AddDouble (*arg1, -(*arg2));
   Long *c = (Long*)(&res);
+  //Long *c = (Long*)(&resNearest);
   return *c;
 }
 
@@ -533,10 +565,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO);
-      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
-                       "vr_Add64F", vr_Add64F,
-                       VR_VEC_LLO);*/
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinop (sb, stmt, expr, Ity_I64,
+		       "vr_Add64F", vr_Add64F,
+                       VR_VEC_LLO);
+      //      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
@@ -553,10 +585,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO);
-      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Add32F", vr_Add32F,
-                       VR_VEC_LLO);*/
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+      //      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
@@ -594,10 +626,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO);
-      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Sub32F", vr_Sub32F,
-                       VR_VEC_LLO);*/
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+	//addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
@@ -617,11 +649,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO);
-      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
+      vr_replaceBinop (sb, stmt, expr, Ity_I64,
                        "vr_Mul64F", vr_Mul64F,
-                       VR_VEC_LLO);*/
-
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+      //      addStmtToIRSB (sb, stmt);
       break;
 
       
@@ -641,10 +672,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_LLO);
-      /*vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Mul32F", vr_Mul32F,
-                       VR_VEC_LLO);*/
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+      //      addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
@@ -660,10 +691,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Div32F0x4: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_LLO);
-      /*      vr_replaceBinop (sb, stmt, expr, Ity_I32,
+      vr_replaceBinop (sb, stmt, expr, Ity_I32,
                        "vr_Div32F", vr_Div32F,
-                       VR_VEC_LLO);*/
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+      //addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
@@ -679,11 +710,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_Div64F0x2: // 128b vector, lowest-lane-only
       vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO);
-      /*vr_replaceBinop (sb, stmt, expr, Ity_I64,
+      vr_replaceBinop (sb, stmt, expr, Ity_I64,
                        "vr_Div64F", vr_Div64F,
-                       VR_VEC_LLO);*/
-
-      addStmtToIRSB (sb, stmt);
+                       VR_VEC_LLO);
+      //      addStmtToIRSB (sb, stmt);
       break;
 
       

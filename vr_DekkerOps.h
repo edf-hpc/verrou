@@ -2,6 +2,22 @@
 #include "vr_fpRepr.hxx" 
 
 
+template<class REALTYPE> 
+REALTYPE splitFactor(){
+  return 0./ 0.; //nan to be sur not used
+} 
+
+template<>
+double splitFactor<double>(){
+  return 134217729; //((2^27)+1); /*27 en double  sup(53/2) */ 
+}
+
+template<>
+float splitFactor<float>(){
+  return 4097; //((2^12)+1); /*24/2 en float*/ 
+}
+
+
 
 template<class REALTYPE>
 	   class DekkerOp {
@@ -30,6 +46,13 @@ public:
     
   };
   
+  static void twoSum(RealType a, RealType b, RealType& x, RealType& y){
+    x=a+b;
+    RealType z=x-a;
+    y=(a-(x-z)) + (b-z);
+  };
+
+
   
   static void priest(RealType a, RealType b, RealType& c, RealType& d){
     //version alternative de la somme : pour test
@@ -57,11 +80,8 @@ public:
 
   static void mul12(RealType x, RealType y, RealType& z, RealType& zz){
     RealType p;
-    //static
-    int t=(1+storedBits(p));
-    //int t=-2;//(storedBits(p));
-      //static
-    RealType constant=(2^(t-t/2))+1;
+
+    const RealType constant=splitFactor<RealType>();
     p= x*constant;
     RealType hx=x-p+p;
     RealType tx=x-hx;
@@ -76,11 +96,30 @@ public:
     z=p+q;
     zz=p-z+q+tx*ty;    
 
-    //    z*=2; //to ckeck explosion
   }
   
-
+  /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
+  static void split(RealType a, RealType& x, RealType& y){
+    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/ 
+    const RealType factor=splitFactor<RealType>();
+    RealType c=factor*a;
+    x=(c-(c-a));
+    y=(a-x);
+  }
   
+  static void twoProd(RealType a, RealType b, RealType& x, RealType& y){
+    RealType a1,a2;
+    RealType b1,b2;
+    x=a*b;
+    split(a,a1,a2);
+    split(b,b1,b2);
+    
+    //    y=( a2*b2-( ( (x-a1*b1) -a2*b1)- a1*b2 ));
+    y=((a1*b1-x)+a1*b2+a2*b1)+a2*b2;
+  }
+
+
+
   /*  static void mul2(RealType x, RealType xx, RealType y,RealType yy, RealType& z, RealType& zz){
     RealType c,cc;
     mul12(x,y,c,cc);
@@ -93,10 +132,12 @@ public:
   static void div12(RealType x, RealType y, RealType& z, RealType& zz){
     RealType c,cc,u,uu;
     c=x/y;
-    mul12(c,y,u,uu);
+    twoProd(c,y,u,uu);
     cc=( x-u-uu)/y ;
-    z=c+cc;
-    zz=c-z+cc;
+    z=c;
+    zz=cc;
+    /*    z=c+cc;
+	  zz=c-z+cc;*/
   }
 
 

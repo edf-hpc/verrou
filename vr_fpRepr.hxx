@@ -1,6 +1,13 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <math.h>
+#include <cfloat>
+#ifndef IGNOREVALGRIND
+extern "C" {
+#include "pub_tool_libcprint.h"
+}
+#endif
 
 // * Real types storage
 
@@ -53,8 +60,15 @@ public:
     return ret;
   }
 
-  static inline std::string pp (const Real & x) {
-    std::ostringstream oss;
+  static int sign(const Real& x){
+    const BitField *xx = (BitField*)(&x);
+    const int sign = bitrange<MANT+EXP, SIGN> (xx);
+    return sign;
+  }
+
+#ifndef IGNOREVALGRIND
+  static inline void pp (const Real & x) {
+    //    std::ostringstream oss;
 
     const BitField *xx = (BitField*)(&x);
     const int sign = bitrange<MANT+EXP, SIGN> (xx);
@@ -70,9 +84,15 @@ public:
       mantissa += ((BitField)1<<MANT);
     }
 
-    oss << (sign==0?" ":"-") << mantissa << " * 2**" << exponent;
-    return oss.str();
+    //    oss << (sign==0?" ":"-") << mantissa << " * 2**" << exponent;
+    VG_(printf)( (sign==0?" ":"-"));
+    VG_(printf)("%lu",mantissa);
+    VG_(printf)(" * 2**%d  ", exponent);
+    //    return oss.str();
   }
+
+#endif
+
 
   static inline int storedBits () {
     return MANT;
@@ -139,3 +159,49 @@ template <typename Real> int exponentField (const Real & x) {
 template <typename Real> int storedBits (const Real & x) {
   return FPType<Real>::Repr::storedBits();
 }
+
+// sign
+template <typename Real> int sign (const Real & x) {
+  return FPType<Real>::Repr::sign(x);
+}
+
+
+
+
+template<class REALTYPE> 
+REALTYPE nextAfter(REALTYPE a){
+  //std::cout <<"Problem"<<std::endl;
+  exit(42);
+};
+
+template<> 
+double nextAfter<double>(double a){
+  return nextafter(a,DBL_MAX );
+};
+
+
+template<> 
+float nextAfter<float>(float a){
+  return nextafterf(a,FLT_MAX    );
+};
+
+
+
+template<class REALTYPE> 
+REALTYPE nextPrev(REALTYPE a){
+  //std::cout <<"Problem"<<std::endl;
+  exit(42);
+};
+
+template<> 
+double nextPrev<double>(double a){
+  return nextafter(a,-DBL_MAX );
+};
+
+
+template<> 
+float nextPrev<float>(float a){
+  return nextafterf(a,-FLT_MAX    );
+};
+
+

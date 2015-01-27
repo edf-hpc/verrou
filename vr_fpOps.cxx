@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <ctime>
+//#include <iostream>
 #include <cmath>
 #include "vr_fpOps.h"
 #include "vr_DekkerOps.h"
@@ -10,6 +11,8 @@ extern "C" {
 #include <stdio.h>
 #include "pub_tool_libcprint.h"
 #include "pub_tool_libcfile.h"
+#include "pub_tool_libcassert.h"
+
 }
 
 #include "vr_fpRepr.hxx"
@@ -114,50 +117,116 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 template<class REAL,  vr_RoundingMode ROUND>
 class ValErr {
 public:
-    REAL value;
-    REAL error;
+  REAL value;
+  REAL error;
   
-  void applyRounding(){
+  void applyRoundingOrg(){
     
     const REAL u = ulp(value);
-    const vr_RoundingMode mode = getMode (ROUND, error, u);
-
-    if (error > 0
-        && (mode == VR_UPWARD
-            || (mode == VR_ZERO && value < 0)))
-      value += u;
-
-    if (error < 0
-        && (mode == VR_DOWNWARD
-            || (mode == VR_ZERO && value > 0)))
-      value -= u;
-
-  }
-
-  void applyRoundingProd(){
-    
-    const REAL u = ulp(value);
-    const vr_RoundingMode mode = getMode (ROUND, error, u);
-
-    if (error > 0
-        && (mode == VR_UPWARD
-            || (mode == VR_ZERO && value < 0)))
-      value += u;
-
-    if (error < 0
-        && (mode == VR_DOWNWARD
-            || (mode == VR_ZERO && value > 0)))
-      value -= u;
-
-
-    if(abs(u/2.) < abs(error) ){
-      VG_(umsg)("Probleme with Rounding u %f error %f\n", u, error);
+    /*    REAL u;
+	  if(error>0){
+      u=value-nextAfter<REAL>(value);
     }else{
-      VG_(umsg)("No Probleme with Rounding u %f error %f\n", u, error);
+      u=nextPrev<REAL>(value)-value;
+      }*/
+    
+
+    const vr_RoundingMode mode = getMode (ROUND, error, u);
+
+    if (error > 0
+        && (mode == VR_UPWARD
+            || (mode == VR_ZERO && value < 0))){
+      value += u;
+      //value+=value;
+    }
+    if (error < 0
+        && (mode == VR_DOWNWARD
+            || (mode == VR_ZERO && value > 0))){
+      //value=nextPrev<REAL>(value);
+      value -= u;
     }
   }
 
 
+
+  inline
+  void changeValue(){
+    if(error>0){
+      value=nextAfter<REAL>(value);
+      return;
+    }
+    if(error<0){ 
+      value=nextPrev<REAL>(value);
+      return;
+    }
+  }
+
+  void changeValue(REAL ulp){
+    if(error>0){
+      value+=ulp;
+      return;
+    }
+    if(error<0){ 
+      value-=ulp;
+      return;
+    }
+  }
+
+
+  inline void applyRounding(){
+    
+    //    const REAL u = ulp(value);
+    /*    REAL u;
+    if(error>0){
+      u=value-nextAfter<REAL>(value);
+    }else{
+      u=nextPrev<REAL>(value)-value;
+      }*/
+    
+
+    //    const vr_RoundingMode mode = getMode (ROUND, error, u);
+    if(ROUND==VR_NEAREST) return;
+
+
+    
+    if(ROUND==VR_RANDOM){
+      bool doNoChange=(rand()%2==0);
+      if(doNoChange){
+	return;
+      }
+      if(error!=0.){	
+	changeValue();return;
+      }
+    }
+
+    if(ROUND==VR_AVERAGE){
+      const int s = error>=0 ? 1 : -1;
+      const REAL u =ulp(value);      
+      bool doChange= (rand() * u < RAND_MAX * s * error);
+      // Probability: abs(err)/ulp
+      if(doChange){
+	changeValue(u);return;
+      }
+
+
+    }
+
+    if (error > 0
+        && (ROUND == VR_UPWARD
+            || (ROUND == VR_ZERO && value < 0))){
+      value =nextAfter<REAL>(value);
+      return;
+    }
+    if (error < 0
+        && (ROUND == VR_DOWNWARD
+            || (ROUND == VR_ZERO && value > 0))){
+      value =nextPrev<REAL>(value);
+      return;
+    }
+
+
+
+  }
     
 };
 
@@ -165,53 +234,28 @@ public:
 template <vr_RoundingMode ROUND>
 class Sum {
 public:
+
   template<typename REAL>
   static REAL apply (const REAL & a, const REAL & b) {
-    if (a == 0)
+    /*    if (a == 0)
       return b;
     if (b == 0)
-      return a;
+    return a;*/
 
     //    ValErr ve = (std::abs(a) < std::abs(b)) ?
     //      priest_ (b, a):
     //      priest_ (a, b);
     ValErr<REAL,ROUND> ve;
-    //DekkerOp<REAL>::sum12(a,b,ve.value,ve.error);
-    DekkerOp<REAL>::priest(a,b,ve.value,ve.error);
+    DekkerOp<REAL>::sum12(a,b,ve.value,ve.error);
+    //DekkerOp<REAL>::priest(a,b,ve.value,ve.error);
     ve.applyRounding();
-
+    //    ve.checkNearest("Add",a+b);
     checkInsufficientPrecision (a, b);
     checkCancellation (a, b, ve.value);
 
     return ve.value;
   }
 
-private:
-  // Priest's algorithm
-  //
-  // Priest, D. M.: 1992, "On Properties of Floating Point Arithmetics: Numerical
-  // Stability and the Cost of Accurate Computations". Ph.D. thesis, Mathematics
-  // Department, University of California, Berkeley, CA, USA.
-  //
-  // ftp://ftp.icsi.berkeley.edu/pub/theory/priest-thesis.ps.Z
-  /* static ValErr priest_ (const REAL & a, const REAL & b) {
-    REAL c = a + b;
-    const REAL e = c - a;
-    const REAL g = c - e;
-    const REAL h = g - a;
-    const REAL f = b - h;
-    REAL d = f - e;
-
-    if (d + e != f) {
-      c = a;
-      d = b;
-    }
-
-    ValErr s;
-    s.value = c;
-    s.error = d;
-    return s;
-    }*/
 };
 
 
@@ -221,16 +265,12 @@ class Mul {
 public:
   template<typename REAL>
   static REAL apply (const REAL & a, const REAL & b) {
-    if (a == 0)
-      return 0;
-    if (b == 0)
-      return 0;
 
     ValErr<REAL,ROUND> ve;
-    DekkerOp<REAL>::mul12(a,b,ve.value,ve.error);
+    DekkerOp<REAL>::twoProd(a,b,ve.value,ve.error);
     //    ve.applyRoundingProd();
     ve.applyRounding();
-
+    //ve.checkNearest("Mult",a*b);
     return ve.value;
   }
 
@@ -248,7 +288,7 @@ public:
     ValErr<REAL,ROUND> ve;
     DekkerOp<REAL>::div12(a,b,ve.value,ve.error);
     ve.applyRounding();
-
+    //    ve.checkNearest("Div",a/b);
     return ve.value;
   }
 
@@ -335,4 +375,13 @@ double vr_DivDouble (double a, double b) {
 
 float vr_DivFloat (float a, float b) {
   return OpWithSelectedRoundingMode<Div>::apply(a,b);
+}
+
+int vr_signDouble(double x){
+  return sign(x);
+}
+void vr_ppDouble(double x){
+  //  VG_(umsg)("Problems sign : %d %f\n", *arg1,*arg2);
+  FPType<double>::Repr::pp(x);
+
 }

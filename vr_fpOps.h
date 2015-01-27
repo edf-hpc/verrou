@@ -27,6 +27,9 @@ extern "C" {
   double vr_DivDouble (double a, double b);
   float  vr_DivFloat  (float  a, float  b);
 
+  int vr_signDouble(double x);
+
+  void vr_ppDouble(double x);
 
 #ifdef __cplusplus
 }
