@@ -75,16 +75,24 @@ static void vr_set_instrument_state (const HChar* reason, Bool state) {
       VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
 		   reason, state ? "ON" : "OFF");
     }
+    
     return;
   }
 
   vr_instrument_state = state;
+  if(vr_instrument_state){
+    vr_beginInstrumentation();
+  }else{
+    vr_endInstrumentation();
+  }
+
+  
   if(vr_verbose){
     VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
 		 reason, state ? "ON" : "OFF");
   }
   // Discard cached translations
-  VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
+  //  VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
 }
 
 /* ** Enter/leave deterministic section
@@ -772,9 +780,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Int i;
   IRSB* sbOut;
 
-  if (!vr_instrument_state) {
-    return sbIn;
-  }
+  //  if (!vr_instrument_state) {
+  //    return sbIn;
+    //  }
 
   sbOut = deepCopyIRSBExceptStmts(sbIn);
 

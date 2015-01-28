@@ -19,7 +19,10 @@ extern "C" {
 
 // * Global variables & parameters
 
+vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
+//Bool vr_instrument_state;
+
 const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
@@ -120,34 +123,6 @@ public:
   REAL value;
   REAL error;
   
-  void applyRoundingOrg(){
-    
-    const REAL u = ulp(value);
-    /*    REAL u;
-	  if(error>0){
-      u=value-nextAfter<REAL>(value);
-    }else{
-      u=nextPrev<REAL>(value)-value;
-      }*/
-    
-
-    const vr_RoundingMode mode = getMode (ROUND, error, u);
-
-    if (error > 0
-        && (mode == VR_UPWARD
-            || (mode == VR_ZERO && value < 0))){
-      value += u;
-      //value+=value;
-    }
-    if (error < 0
-        && (mode == VR_DOWNWARD
-            || (mode == VR_ZERO && value > 0))){
-      //value=nextPrev<REAL>(value);
-      value -= u;
-    }
-  }
-
-
 
   inline
   void changeValue(){
@@ -161,6 +136,7 @@ public:
     }
   }
 
+  inline
   void changeValue(REAL ulp){
     if(error>0){
       value+=ulp;
@@ -174,14 +150,6 @@ public:
 
 
   inline void applyRounding(){
-    
-    //    const REAL u = ulp(value);
-    /*    REAL u;
-    if(error>0){
-      u=value-nextAfter<REAL>(value);
-    }else{
-      u=nextPrev<REAL>(value)-value;
-      }*/
     
 
     //    const vr_RoundingMode mode = getMode (ROUND, error, u);
@@ -301,8 +269,9 @@ public:
 // * C interface
 
 void vr_fpOpsInit (vr_RoundingMode mode) {
-  ROUNDINGMODE = mode;
-
+  DEFAULTROUNDINGMODE = mode;
+  ROUNDINGMODE=mode;
+  
   if (ROUNDINGMODE >= VR_RANDOM) {
     srand (time (NULL));
   }
@@ -313,6 +282,16 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
                             VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
                             VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 }
+
+void vr_beginInstrumentation(){
+  ROUNDINGMODE=DEFAULTROUNDINGMODE;
+}
+
+void vr_endInstrumentation(){
+  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (VR_NEAREST));
+  ROUNDINGMODE= VR_NEAREST;
+}
+
 
 void vr_fpOpsFini (void) {
   VG_(close)(vr_outFile);

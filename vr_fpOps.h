@@ -17,6 +17,9 @@ extern "C" {
   void vr_fpOpsInit (enum vr_RoundingMode mode);
   void vr_fpOpsFini (void);
 
+  void vr_beginInstrumentation(void);
+  void vr_endInstrumentation(void);
+
   void vr_fpOpsSeed (unsigned int seed);
   void vr_fpOpsRandom (void);
 
