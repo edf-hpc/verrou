@@ -37,4 +37,7 @@ enum {
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_DETERMINISTIC,    \
                                   LEVEL, 0, 0, 0, 0)
 
+
+
+
 #endif /* __VERROU_H */

@@ -14,16 +14,24 @@ endif
 
 VERROU_SOURCES_COMMON = vr_main.c vr_fpOps.cxx
 
+# We use the test of fma normally use to configure check 
+if HAVE_FMA_INTRIN
+VERROU_FLAG_CXX = -march=native -mfma -DUSE_VERROU_FMA
+VERROU_FLAG_C= -DUSE_VERROU_FMA
+endif
+
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
 	$(AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS       = \
-	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)\
+	$(VERROU_FLAG_C)
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CXXFLAGS     = \
 	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)     \
-	-fno-exceptions -fno-rtti
+	-fno-exceptions -fno-rtti \
+	$(VERROU_FLAG_CXX)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
@@ -37,6 +45,10 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LINK = \
 	$(LINK) \
 	$(verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS) \
 	$(verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS)
+
+
+
+
 
 if VGCONF_HAVE_PLATFORM_SEC
 verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_SOURCES      = \

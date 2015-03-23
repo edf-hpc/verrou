@@ -169,39 +169,41 @@ template <typename Real> int sign (const Real & x) {
 
 
 template<class REALTYPE> 
-REALTYPE nextAfter(REALTYPE a){
+inline REALTYPE nextAfter(REALTYPE a){
   //std::cout <<"Problem"<<std::endl;
   exit(42);
 };
 
 template<> 
-double nextAfter<double>(double a){
+inline double nextAfter<double>(double a){
   return nextafter(a,DBL_MAX );
 };
 
 
 template<> 
-float nextAfter<float>(float a){
+inline float nextAfter<float>(float a){
   return nextafterf(a,FLT_MAX    );
 };
 
 
 
 template<class REALTYPE> 
-REALTYPE nextPrev(REALTYPE a){
-  //std::cout <<"Problem"<<std::endl;
+inline REALTYPE nextPrev(REALTYPE a){
   exit(42);
 };
 
 template<> 
-double nextPrev<double>(double a){
+inline double nextPrev<double>(double a){
   return nextafter(a,-DBL_MAX );
 };
 
 
 template<> 
-float nextPrev<float>(float a){
+inline float nextPrev<float>(float a){
   return nextafterf(a,-FLT_MAX    );
 };
+
+
+
 
 

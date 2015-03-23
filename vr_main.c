@@ -54,7 +54,7 @@
 
 #include "verrou.h"
 #include "vr_fpOps.h"
-#include <fenv.h>
+//#include <fenv.h>
 #include "float.h"
 //#pragma STDC FENV_ACCESS ON
 
@@ -65,6 +65,7 @@
  */
 Bool vr_instrument_state = True;
 Bool vr_verbose= False;
+
 
 // Black magic from callgrind
 extern void VG_(discard_translations) ( Addr64 start, ULong range, const HChar* who );
@@ -161,6 +162,17 @@ static void vr_stop_deterministic_section (unsigned int level) {
 }
 
 
+
+typedef enum {
+  VR_OP_ADD,    // Addition
+  VR_OP_SUB,    // Subtraction
+  VR_OP_MUL,    // Multiplication
+  VR_OP_DIV,    // Division
+  VR_OP_MADD,   // FMA ADD
+  VR_OP_MSUB,   // FMA SUB
+  VR_OP
+} Vr_Op;
+
 /* ** Command-line options
  */
 typedef struct _vr_CLO vr_CLO;
@@ -169,9 +181,13 @@ struct _vr_CLO {
 };
 vr_CLO vr_clo;
 
+Bool vr_count= False;
+Bool vr_instr_op[VR_OP];
+Bool vr_instr_scalar=False;
+
 static Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
-
+  //Option --rounding-mode=
   if      (VG_XACT_CLO (arg, "--rounding-mode=random",
                         vr_clo.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=average",
@@ -185,29 +201,82 @@ static Bool vr_process_clo (const HChar *arg) {
   else if (VG_XACT_CLO (arg, "--rounding-mode=toward_zero",
                         vr_clo.roundingMode, VR_ZERO)) {}
 
-  else if (VG_BOOL_CLO (arg, "--verrou-verbose",
-                        bool_val)) {
+  //Options to choose op to instrument
+  else if (VG_XACT_CLO (arg, "--vr-instr=add",
+                        vr_instr_op[VR_OP_ADD] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=sub",
+                        vr_instr_op[VR_OP_SUB] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=mul",
+                        vr_instr_op[VR_OP_MUL] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=div",
+                        vr_instr_op[VR_OP_DIV] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=mAdd",
+                        vr_instr_op[VR_OP_MADD] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=mSub",
+                        vr_instr_op[VR_OP_MSUB] , True)) {}
+  
+  //Options to choose op to instrument
+  else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
+    vr_instr_scalar= bool_val;
+  }
+  
+  //Option --verrou-verbose (to avoid verbose of valgrind)
+  else if (VG_BOOL_CLO (arg, "--verrou-verbose", bool_val)) {
     vr_verbose = bool_val;
   }
+  //Option --count-op
+  else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
+    vr_count = bool_val;
+  }
 
+  
 
   else if (VG_BOOL_CLO (arg, "--instr-atstart",
                         bool_val)) {
     vr_instrument_state = bool_val;
+  }else{
+    return False;
   }
   return True;
 }
 
 static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
+  int opIt;
+  for(opIt=0; opIt< VR_OP;opIt++){
+    vr_instr_op[opIt]=False;
+  }
 }
 
 static void vr_print_usage (void) {
+  VG_(printf)("Verrou Options: \n");
+  VG_(printf)("    Rounding mode selection \n");
+  VG_(printf)("        --rounding-mode=random\n");
+  VG_(printf)("        --rounding-mode=average\n");
+  VG_(printf)("        --rounding-mode=nearest\n");
+  VG_(printf)("        --rounding-mode=upward\n");
+  VG_(printf)("        --rounding-mode=downward\n");
+  VG_(printf)("        --rounding-mode=toward_zero\n");
+  VG_(printf)("    Instrumented  operations  selection \n");  
+  VG_(printf)("         --vr-instr=add\n");
+  VG_(printf)("         --vr-instr=sub\n");
+  VG_(printf)("         --vr-instr=mul\n");
+  VG_(printf)("         --vr-instr=div\n");
+  VG_(printf)("         --vr-instr=mAdd\n");
+  VG_(printf)("         --vr-instr=mSub\n");
 
+  
+  VG_(printf)("    Other options \n");  
+  VG_(printf)("        --vr-instr-scalar=[yes|NO] : instrument scalar operation (x387)\n");
+  VG_(printf)("        --verrou-verbose=[yes|NO] : print each instrumentation switch\n");  
+  VG_(printf)("        --count-op=[yes|NO] : count flotting operations\n");  
+  VG_(printf)("        --instr-atstart=[YES|no] : intrumenation from the start (useful used with client request)\n");  
+
+  
 }
 
 static void vr_print_debug_usage (void) {
-
+  vr_print_usage();
 }
 
 /* ** Client requests
@@ -247,13 +316,6 @@ static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
 
 /* *** Operation type
  */
-typedef enum {
-  VR_OP_ADD,    // Addition
-  VR_OP_SUB,    // Subtraction
-  VR_OP_MUL,    // Multiplication
-  VR_OP_DIV,    // Division
-  VR_OP
-} Vr_Op;
 
 static const char* vr_ppOp (Vr_Op op) {
   switch (op) {
@@ -265,6 +327,11 @@ static const char* vr_ppOp (Vr_Op op) {
     return "mul";
   case VR_OP_DIV:
     return "div";
+  case VR_OP_MADD:
+    return "mAdd";
+  case VR_OP_MSUB:
+    return "mSub";
+
   case VR_OP:
     break;
   }
@@ -322,6 +389,10 @@ static VG_REGPARM(2) void vr_incOpCount (ULong* counter, Long increment) {
 }
 
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
+  if(!vr_count){
+    return;
+  }
+    
   IRExpr** argv;
   IRDirty* di;
   int increment = 1;
@@ -349,6 +420,7 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
 }
 
 static void vr_ppOpCount (void) {
+  if(!vr_count)return ;
   Vr_Op op;
   Vr_Prec prec;
   Vr_Vec vec;
@@ -410,24 +482,11 @@ static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
   return *c;
 }
 
-/*static void checkNorm(double value){
-  double limit= 2^DBL_MIN_EXP; 
-  double localValue=value;
-  if(value <0){
-    localValue=-value ;
-  }
-  if((localValue< limit)&&(value !=0)  ){
-    VG_(umsg)("Denormalized");
-  }
-
-  }*/
-
 static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res = vr_AddDouble (*arg1, -(*arg2));
   Long *c = (Long*)(&res);
-  //Long *c = (Long*)(&resNearest);
   return *c;
 }
 
@@ -465,6 +524,64 @@ static VG_REGPARM(2) Long vr_Div64F (Long a, Long b) {
 }
 
 
+static VG_REGPARM(3) Long vr_MAdd64F (Long a, Long b, Long c) {  
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res =vr_MAddDouble (*arg1, *arg2, *arg3);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res =vr_MAddFloat (*arg1, *arg2, *arg3);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+
+static VG_REGPARM(3) Long vr_MSub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res =vr_MAddDouble (*arg1, *arg2, -*arg3);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_MSub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res =vr_MAddFloat (*arg1, *arg2, -*arg3);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+
 static VG_REGPARM(2) Int vr_Mul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
@@ -489,75 +606,265 @@ static VG_REGPARM(2) Int vr_Div32F (Long a, Long b) {
 /* *** Helpers
  */
 
-/* Return the Lowest Lane of a given packed temporary register
- */
-static IRExpr* vr_getLL (IRSB* sb, IRType type, IRExpr* expr) {
-  IRTemp tmp = newIRTemp (sb->tyenv, type);
-
-  IROp op;
-  switch (type) {
-  case Ity_I32:
-    op = Iop_V128to32;
-    break;
-  case Ity_I64:
-    op = Iop_V128to64;
-    break;
-  default:
-    op = Iop_INVALID;
-  }
-  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (op, expr)));
-
+/* Return the Lowest Lane of a given packed temporary register */
+static IRExpr* vr_getLLFloat (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I32);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_V128to32, expr)));
   return IRExpr_RdTmp(tmp);
 }
+/* Return the Lowest Lane of a given packed temporary register */
+static IRExpr* vr_getLLDouble (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I64);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_V128to64, expr)));
+  return IRExpr_RdTmp(tmp);
+ }
 
-static IRExpr* vr_32to64 (IRSB* sb, IRExpr* expr) {
+/* Return the Highest Lane of a given packed temporary register */
+static IRExpr* vr_getHLDouble (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I64);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_V128HIto64, expr)));
+  return IRExpr_RdTmp(tmp);
+ }
+
+
+
+
+
+
+static IRExpr* vr_I32toI64 (IRSB* sb, IRExpr* expr) {
   IRTemp tmp = newIRTemp (sb->tyenv, Ity_I64);
   addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_32Uto64, expr)));
   return IRExpr_RdTmp (tmp);
 }
 
+static IRExpr* vr_I64toI32 (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I32);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_64to32, expr)));
+  return IRExpr_RdTmp (tmp);
+}
+
+
+
+static IRExpr* vr_F64toI64 (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I64);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_ReinterpF64asI64, expr)));
+  return IRExpr_RdTmp (tmp);
+}
+
+
+static IRExpr* vr_F32toI64 (IRSB* sb, IRExpr* expr) {
+  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I32);
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_ReinterpF32asI32, expr)));
+  return vr_I32toI64(sb, IRExpr_RdTmp (tmp));
+}
+
+
 
 /* Replace a given binary operation by a call to a function
  */
-static void vr_replaceBinop (IRSB* sb, IRStmt* stmt, IRExpr* expr, IRType type,
-                             const HChar* functionName, void* function,
-                             Vr_Vec vec) {
-  IRExpr * arg1 = expr->Iex.Binop.arg1;
-  IRExpr * arg2 = expr->Iex.Binop.arg2;
-  IRTemp res    = stmt->Ist.WrTmp.tmp;
 
+
+static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr, 
+			       const HChar* functionName, void* function,
+			       Vr_Op op,
+			       Vr_Prec prec,
+			       Vr_Vec vec) {
+  //instrumentation to count operation
+  vr_countOp (sb,  op, prec,vec);
+
+  if(!vr_instr_op[op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+  if(!vr_instr_scalar && vec==VR_VEC_SCAL) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+
+  //convertion before call
+  IRTemp res;   
+  IRExpr * arg1;
+  IRExpr * arg2;
   if (vec == VR_VEC_LLO) {
-    arg1 = vr_getLL (sb, type, arg1);
-    arg2 = vr_getLL (sb, type, arg2);
-    res = newIRTemp (sb->tyenv, type);
+    arg1 = expr->Iex.Binop.arg1;
+    arg2 = expr->Iex.Binop.arg2;
+    if (prec==VR_PREC_FLT) {
+      arg1 = vr_getLLFloat (sb, arg1);
+      arg2 = vr_getLLFloat (sb, arg2);
+      arg1 = vr_I32toI64 (sb, arg1);
+      arg2 = vr_I32toI64 (sb, arg2);
+      res= newIRTemp (sb->tyenv, Ity_I32);
+    }
+    if (prec==VR_PREC_DBL) {
+      arg1 = vr_getLLDouble (sb, arg1);
+      arg2 = vr_getLLDouble (sb, arg2);
+      res= newIRTemp (sb->tyenv, Ity_I64);
+    }
   }
 
-  if (type == Ity_I32) {
-    arg1 = vr_32to64 (sb, arg1);
-    arg2 = vr_32to64 (sb, arg2);
+  if(vec== VR_VEC_SCAL){
+    arg1 = expr->Iex.Triop.details->arg2;
+    //shift arg is not a bug :  IRRoundingMode(I32) x F64 x F64 -> F64 */ 
+    arg2 = expr->Iex.Triop.details->arg3;
+    
+    if (prec==VR_PREC_FLT) {
+      arg1=vr_F32toI64(sb,arg1);
+      arg2=vr_F32toI64(sb,arg2);    
+      res= newIRTemp (sb->tyenv, Ity_I32);
+    }
+    if (prec==VR_PREC_DBL) {
+      arg1=vr_F64toI64(sb,arg1);
+      arg2=vr_F64toI64(sb,arg2);
+      res= newIRTemp (sb->tyenv, Ity_I64);
+    }
   }
 
+  //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
                                                  functionName, VG_(fnptr_to_fnentry)(function),
                                                  mkIRExprVec_2 (arg1, arg2))));
 
+  //conversion after call
   if (vec == VR_VEC_LLO) {
-    IROp op;
-    switch (type) {
-    case Ity_I32:
-      op = Iop_32UtoV128;
-      break;
-    case Ity_I64:
-      op = Iop_64UtoV128;
-      break;
-    default:
-      op = Iop_INVALID;
-    }
+    IROp opReg;
+    if (prec==VR_PREC_FLT) opReg = Iop_32UtoV128;
+    if (prec==VR_PREC_DBL) opReg = Iop_64UtoV128;
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                     IRExpr_Unop (op, IRExpr_RdTmp(res))));
+                                     IRExpr_Unop (opReg, IRExpr_RdTmp(res))));
+  }
+  if (vec == VR_VEC_SCAL) {
+    if(prec==VR_PREC_FLT){   
+      IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
+      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				       IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+    }
+    if(prec==VR_PREC_DBL){   
+      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+    }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+static void vr_replaceBinFull2Op (IRSB* sb, IRStmt* stmt, IRExpr* expr, 
+			       const HChar* functionName, void* function,
+			       Vr_Op op,
+			       Vr_Prec prec,
+			       Vr_Vec vec) {
+  //instrumentation to count operation
+  vr_countOp (sb,  op, prec,vec);
+
+  if(!vr_instr_op[op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+  if (prec==VR_PREC_FLT) {
+    VG_(tool_panic) ( "VECT FULL and FLOAT not compatible \n");
+  }
+
+  //convertion before call
+  IRExpr * arg1 = expr->Iex.Triop.details->arg2;
+  IRExpr * arg2 = expr->Iex.Triop.details->arg3;
+
+  
+  IRExpr *arg1Lo=vr_getLLDouble (sb, arg1);
+  IRExpr *arg1Hi=vr_getHLDouble (sb, arg1);
+  IRExpr *arg2Lo=vr_getLLDouble (sb, arg2);
+  IRExpr *arg2Hi=vr_getHLDouble (sb, arg2);
+    
+  IRTemp resLo= newIRTemp (sb->tyenv, Ity_I64);
+  IRTemp resHi= newIRTemp (sb->tyenv, Ity_I64);
+
+  
+  //call
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (resLo, 2,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_2 (arg1Lo, arg2Lo))));
+
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (resHi, 2,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_2 (arg1Hi, arg2Hi))));
+
+
+  //conversion after call
+ 
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				   IRExpr_Binop (Iop_64HLtoV128,  
+						 IRExpr_RdTmp(resHi),
+						 IRExpr_RdTmp(resLo))
+				   ));
+}
+
+
+
+
+static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+			   const HChar* functionName, void* function,
+			   Vr_Op   Op,
+			   Vr_Prec Prec) {
+  vr_countOp (sb,  Op, Prec, VR_VEC_LLO);
+  if(!vr_instr_op[Op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+  
+#ifdef USE_VERROU_FMA
+  //  IRExpr * arg1 = expr->Iex.Qop.details->arg1; Rounding mode
+  IRExpr * arg2 = expr->Iex.Qop.details->arg2;
+  IRExpr * arg3 = expr->Iex.Qop.details->arg3;
+  IRExpr * arg4 = expr->Iex.Qop.details->arg4;
+  IRTemp res = newIRTemp (sb->tyenv, Ity_I64);
+  if(Prec== VR_PREC_DBL){     
+    arg2=vr_F64toI64(sb,arg2);
+    arg3=vr_F64toI64(sb,arg3);
+    arg4=vr_F64toI64(sb,arg4);
+
+  }
+  if(Prec==VR_PREC_FLT){
+    arg2=vr_F32toI64(sb,arg2);
+    arg3=vr_F32toI64(sb,arg3);
+    arg4=vr_F32toI64(sb,arg4);    
+  }
+
+  IRDirty* id= unsafeIRDirty_1_N (res, 3,
+				  functionName, VG_(fnptr_to_fnentry)(function),
+				  mkIRExprVec_3 (arg2, arg3,arg4));
+
+  addStmtToIRSB (sb,IRStmt_Dirty(id));
+
+  
+
+  if(Prec==VR_PREC_FLT){   
+    IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+    				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+  }
+  if(Prec==VR_PREC_DBL){   
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+  }
+#else //USE_VERROU_FMA
+  //should not happed
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif //USE_VERROU_FMA
+}
+
 
 static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     switch (op) {
@@ -565,38 +872,25 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       // Addition
 
       // - Double precision
-
     case Iop_AddF64: // Scalar
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F, VR_OP_ADD,VR_PREC_DBL,VR_VEC_SCAL);
       break;
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I64,
-		       "vr_Add64F", vr_Add64F,
-                       VR_VEC_LLO);
-      //      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_LLO);
       break;
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL);
       break;
 
       // - Single precision
-
     case Iop_AddF32: // Scalar
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_SCAL);
       break;
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
-                       "vr_Add32F", vr_Add32F,
-                       VR_VEC_LLO);
-      //      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_LLO);
       break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
@@ -609,35 +903,24 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       // - Double precision
     case Iop_SubF64: // Scalar
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB,VR_PREC_DBL,VR_VEC_SCAL);
       break;
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO);     
-      vr_replaceBinop (sb, stmt, expr, Ity_I64,
-                       "vr_Sub64F", vr_Sub64F,
-                       VR_VEC_LLO);
-      //	addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_LLO);
       break;
 
     case Iop_Sub64Fx2:
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL);
       break;
 
       // - Single precision
     case Iop_SubF32: // Scalar
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_SCAL);
       break;
 
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
-                       "vr_Sub32F", vr_Sub32F,
-                       VR_VEC_LLO);
-	//addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_LLO);
       break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
@@ -649,43 +932,23 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       // Multiplication
 
       // - Double precision
-
     case Iop_MulF64: // Scalar
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_SCAL);
       break;
-
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I64,
-                       "vr_Mul64F", vr_Mul64F,
-                       VR_VEC_LLO);
-      //      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
       break;
-
-      
-      
-
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL);
       break;
 
       // - Single precision
-
     case Iop_MulF32: // Scalar
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F,VR_OP_MUL, VR_PREC_FLT,VR_VEC_SCAL);
       break;
-
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
-                       "vr_Mul32F", vr_Mul32F,
-                       VR_VEC_LLO);
-      //      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
       break;
-
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
       vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL);
       addStmtToIRSB (sb, stmt);
@@ -693,16 +956,11 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       
     case Iop_DivF32:
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_SCAL);
       break;
 
     case Iop_Div32F0x4: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I32,
-                       "vr_Div32F", vr_Div32F,
-                       VR_VEC_LLO);
-      //addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_LLO);
       break;
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
@@ -712,32 +970,91 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
 
     case Iop_DivF64: // Scalar
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F, VR_OP_DIV,VR_PREC_DBL,VR_VEC_SCAL);
       break;
-
     case Iop_Div64F0x2: // 128b vector, lowest-lane-only
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO);
-      vr_replaceBinop (sb, stmt, expr, Ity_I64,
-                       "vr_Div64F", vr_Div64F,
-                       VR_VEC_LLO);
-      //      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
       break;
-
-      
-
     case Iop_Div64Fx2: // 128b vector, 2 lanes
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFull2Op(sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL);
       break;
 
+
+    case Iop_MAddF32:
+      vr_replaceFMA (sb, stmt, expr,"vr_MAdd32F", vr_MAdd32F, VR_OP_MADD, VR_PREC_FLT);
+      break;
+    case Iop_MSubF32:
+      vr_replaceFMA (sb, stmt, expr,"vr_MSub32F", vr_MSub32F, VR_OP_MADD, VR_PREC_FLT);
+      break;
+    case Iop_MAddF64:
+      vr_replaceFMA (sb, stmt, expr,"vr_MAdd64F", vr_MAdd64F, VR_OP_MADD, VR_PREC_DBL);
+      break;
+    case Iop_MSubF64:
+      vr_replaceFMA (sb, stmt, expr,"vr_MSub64F", vr_MSub64F,VR_OP_MADD,  VR_PREC_DBL);
+      break;
 
 
       //   Other FP operations
     case Iop_Add32Fx2:
     case Iop_Sub32Fx2:
+      //operation with 64bit register with 32bit rounding
+    case Iop_AddF64r32:
+    case Iop_SubF64r32:
+    case Iop_MulF64r32:
+    case Iop_DivF64r32: 
+    case Iop_MAddF64r32:
+    case Iop_MSubF64r32:
 
-      //    case Iop_DivF64:
+      //operation wit 128bit
+    case Iop_AddF128:
+    case Iop_SubF128:
+    case Iop_MulF128:
+    case Iop_DivF128:
+
+    case Iop_SqrtF128:
+    case Iop_SqrtF64:
+    case Iop_SqrtF32:
+    case Iop_Sqrt32Fx4:
+    case Iop_Sqrt64Fx2:
+    case  Iop_AtanF64:       /* FPATAN,  arctan(arg1/arg2)       */
+    case  Iop_Yl2xF64:       /* FYL2X,   arg1 * log2(arg2)       */
+    case  Iop_Yl2xp1F64:     /* FYL2XP1, arg1 * log2(arg2+1.0)   */
+    case  Iop_PRemF64:       /* FPREM,   non-IEEE remainder(arg1/arg2)    */
+    case  Iop_PRemC3210F64:  /* C3210 flags resulting from FPREM: :: I32 */
+    case  Iop_PRem1F64:      /* FPREM1,  IEEE remainder(arg1/arg2)    */
+    case  Iop_PRem1C3210F64: /* C3210 flags resulting from FPREM1, :: I32 */
+    case  Iop_ScaleF64:      /* FSCALE,  arg1 * (2^RoundTowardsZero(arg2)) */
+    case  Iop_SinF64:    /* FSIN */
+    case  Iop_CosF64:    /* FCOS */
+    case  Iop_TanF64:    /* FTAN */
+    case  Iop_2xm1F64:   /* (2^arg - 1.0) */
+
+    case Iop_RSqrtEst5GoodF64: /* reciprocal square root estimate, 5 good bits */
+
+    case Iop_RecipStep32Fx4:
+    case Iop_RSqrtEst32Fx4:
+    case Iop_RSqrtStep32Fx4:
+    case Iop_RecipEst32F0x4:
+    case Iop_Sqrt32F0x4:
+    case Iop_RSqrtEst32F0x4:
+
+      /*AVX*/
+    case Iop_Sqrt32Fx8:
+    case Iop_Sqrt64Fx4:
+    case Iop_RSqrtEst32Fx8:
+    case Iop_RecipEst32Fx8:
+	
+    case Iop_Add64Fx4:
+    case Iop_Sub64Fx4:
+    case Iop_Mul64Fx4:
+    case Iop_Div64Fx4:
+    case Iop_Add32Fx8:
+    case Iop_Sub32Fx8:
+    case Iop_Mul32Fx8:
+    case Iop_Div32Fx8:
+
+
+	//    case Iop_DivF64:
       //    case Iop_Div64F0x2:
       //    case Iop_Div64Fx2:
 
@@ -763,6 +1080,10 @@ static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
   case Iex_Triop:
     vr_instrumentOp (sb, stmt, expr, expr->Iex.Triop.details->op);
     break;
+  case Iex_Qop:
+    vr_instrumentOp (sb, stmt, expr, expr->Iex.Qop.details->op);
+    break;
+    
   default:
     addStmtToIRSB (sb, stmt);
     break;
@@ -810,6 +1131,28 @@ static void vr_fini(Int exitcode)
 static void vr_post_clo_init(void)
 {
    vr_fpOpsInit(vr_clo.roundingMode);
+
+   /*If no operation selected the default is all*/
+   Bool someThingInstr=False;
+   int opIt;
+   for(opIt=0; opIt< VR_OP ;opIt++){
+     if(vr_instr_op[opIt]) someThingInstr=True;
+   }
+   if(!someThingInstr){
+     for(opIt=0; opIt< VR_OP ;opIt++){
+       vr_instr_op[opIt]=True;
+     }
+   }
+   VG_(umsg)("Instrumented operations :\n");
+   for (opIt=0; opIt< VR_OP ;opIt++){
+     VG_(umsg)("\t%s : ", vr_ppOp(opIt));
+     if(vr_instr_op[opIt]==True) VG_(umsg)("yes\n");
+     else VG_(umsg)("no\n");
+   }  
+   VG_(umsg)("Instrumented scalar operations : ");
+   if(vr_instr_scalar==True) VG_(umsg)("yes\n");
+   else VG_(umsg)("no\n");
+   
 }
 
 static void vr_pre_clo_init(void)

@@ -1,9 +1,10 @@
 #include <cstdlib>
 #include <ctime>
 //#include <iostream>
-#include <cmath>
+//#include <cmath>
+#include "math.h"
 #include "vr_fpOps.h"
-#include "vr_DekkerOps.h"
+#include "vr_fma.h"
 
 #include "pub_tool_vki.h"
 
@@ -16,9 +17,13 @@ extern "C" {
 }
 
 #include "vr_fpRepr.hxx"
+#include "vr_rand.hxx"
+
+#include "vr_roundingOp.hxx"
+#include "vr_op.hxx"
+
 
 // * Global variables & parameters
-
 vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
 //Bool vr_instrument_state;
@@ -27,11 +32,12 @@ const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
 int vr_outFile;
+
 unsigned int vr_seed;
+vrRand vr_rand;
 
 
 // * Operation implementation
-
 inline char const*const roundingModeName (vr_RoundingMode mode) {
   switch (mode) {
   case VR_NEAREST:
@@ -51,32 +57,8 @@ inline char const*const roundingModeName (vr_RoundingMode mode) {
   return "undefined";
 }
 
-template <typename REAL>
-inline vr_RoundingMode getMode (vr_RoundingMode mode, const REAL & err, const REAL & ulp) {
-  switch(mode) {
-  case VR_RANDOM:
-    return (vr_RoundingMode)(rand()%VR_RANDOM);
-  case VR_AVERAGE: {
-    int s = err>=0 ? 1 : -1;
-
-    if (rand() * ulp < RAND_MAX * s * err) {
-      // Probability: abs(err)/ulp
-      if (s>0) {
-        return VR_UPWARD;
-      } else {
-        return VR_DOWNWARD;
-      }
-    } else {
-      return VR_NEAREST;
-    }
-  }
-  default:
-    return mode;
-  }
-}
 
 // ** Addition
-
 template <typename REAL>
 void checkInsufficientPrecision (const REAL & a, const REAL & b) {
   if (CHECK_IP == 0)
@@ -117,173 +99,32 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   }
 }
 
-template<class REAL,  vr_RoundingMode ROUND>
-class ValErr {
-public:
-  REAL value;
-  REAL error;
-  
-
-  inline
-  void changeValue(){
-    if(error>0){
-      value=nextAfter<REAL>(value);
-      return;
-    }
-    if(error<0){ 
-      value=nextPrev<REAL>(value);
-      return;
-    }
-  }
-
-  inline
-  void changeValue(REAL ulp){
-    if(error>0){
-      value+=ulp;
-      return;
-    }
-    if(error<0){ 
-      value-=ulp;
-      return;
-    }
-  }
-
-
-  inline void applyRounding(){
-    
-
-    //    const vr_RoundingMode mode = getMode (ROUND, error, u);
-    if(ROUND==VR_NEAREST) return;
-
-
-    
-    if(ROUND==VR_RANDOM){
-      bool doNoChange=(rand()%2==0);
-      if(doNoChange){
-	return;
-      }
-      if(error!=0.){	
-	changeValue();return;
-      }
-    }
-
-    if(ROUND==VR_AVERAGE){
-      const int s = error>=0 ? 1 : -1;
-      const REAL u =ulp(value);      
-      bool doChange= (rand() * u < RAND_MAX * s * error);
-      // Probability: abs(err)/ulp
-      if(doChange){
-	changeValue(u);return;
-      }
-
-
-    }
-
-    if (error > 0
-        && (ROUND == VR_UPWARD
-            || (ROUND == VR_ZERO && value < 0))){
-      value =nextAfter<REAL>(value);
-      return;
-    }
-    if (error < 0
-        && (ROUND == VR_DOWNWARD
-            || (ROUND == VR_ZERO && value > 0))){
-      value =nextPrev<REAL>(value);
-      return;
-    }
-
-
-
-  }
-    
-};
-
-
-template <vr_RoundingMode ROUND>
-class Sum {
-public:
-
-  template<typename REAL>
-  static REAL apply (const REAL & a, const REAL & b) {
-    /*    if (a == 0)
-      return b;
-    if (b == 0)
-    return a;*/
-
-    //    ValErr ve = (std::abs(a) < std::abs(b)) ?
-    //      priest_ (b, a):
-    //      priest_ (a, b);
-    ValErr<REAL,ROUND> ve;
-    DekkerOp<REAL>::sum12(a,b,ve.value,ve.error);
-    //DekkerOp<REAL>::priest(a,b,ve.value,ve.error);
-    ve.applyRounding();
-    //    ve.checkNearest("Add",a+b);
-    checkInsufficientPrecision (a, b);
-    checkCancellation (a, b, ve.value);
-
-    return ve.value;
-  }
-
-};
-
-
-
-template <vr_RoundingMode ROUND>
-class Mul {
-public:
-  template<typename REAL>
-  static REAL apply (const REAL & a, const REAL & b) {
-
-    ValErr<REAL,ROUND> ve;
-    DekkerOp<REAL>::twoProd(a,b,ve.value,ve.error);
-    //    ve.applyRoundingProd();
-    ve.applyRounding();
-    //ve.checkNearest("Mult",a*b);
-    return ve.value;
-  }
-
-};
-
-
-template <vr_RoundingMode ROUND>
-class Div {
-public:
-  template<typename REAL>
-  static REAL apply (const REAL & a, const REAL & b) {
-    if (a == 0)
-      return 0;
-
-    ValErr<REAL,ROUND> ve;
-    DekkerOp<REAL>::div12(a,b,ve.value,ve.error);
-    ve.applyRounding();
-    //    ve.checkNearest("Div",a/b);
-    return ve.value;
-  }
-
-};
-
-
-
 
 
 // * C interface
-
 void vr_fpOpsInit (vr_RoundingMode mode) {
   DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
   
-  if (ROUNDINGMODE >= VR_RANDOM) {
-    srand (time (NULL));
+  if (ROUNDINGMODE == VR_RANDOM) {
+    vr_rand.setTimeSeed();
   }
+  if (ROUNDINGMODE == VR_AVERAGE) {
+    vr_rand.setTimeSeed();
+  }
+	
 
   VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 
-  vr_outFile = VG_(fd_open)("vr.log",
-                            VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
-                            VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+  if (CHECK_IP != 0) {
+    vr_outFile = VG_(fd_open)("vr.log",
+			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+  }
 }
 
 void vr_beginInstrumentation(){
+  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (DEFAULTROUNDINGMODE));
   ROUNDINGMODE=DEFAULTROUNDINGMODE;
 }
 
@@ -298,69 +139,58 @@ void vr_fpOpsFini (void) {
 }
 
 void vr_fpOpsSeed (unsigned int seed) {
-  vr_seed = rand();
-  srand (seed);
+  vr_seed = vr_rand.getRandomInt();
+  vr_rand.setSeed(seed);
 }
 
 void vr_fpOpsRandom () {
-  srand (vr_seed);
+  vr_rand.setSeed(vr_seed);
 }
 
 
-template<template<vr_RoundingMode> class OP >
-class OpWithSelectedRoundingMode{
-public:
-template<class REALTYPE>
-static REALTYPE apply(REALTYPE a, REALTYPE b){
-  switch (ROUNDINGMODE) {
-  case VR_NEAREST:
-    return OP<VR_NEAREST>::apply (a, b);
-  case VR_UPWARD:
-    return OP<VR_UPWARD>::apply (a, b);
-  case VR_DOWNWARD:
-    return OP<VR_DOWNWARD>::apply (a, b);
-  case VR_ZERO:
-    return OP<VR_ZERO>::apply (a, b);
-  case VR_RANDOM:
-    return OP<VR_RANDOM>::apply (a, b);
-  case VR_AVERAGE:
-    return OP<VR_AVERAGE>::apply (a, b);
-  }
-  return 0;
-}
-};
+
+
+
 
 double vr_AddDouble (double a, double b) {
-  return OpWithSelectedRoundingMode<Sum>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
 float vr_AddFloat (float a, float b) {
-  return OpWithSelectedRoundingMode<Sum>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
 
 double vr_MulDouble (double a, double b) {
-  return OpWithSelectedRoundingMode<Mul>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
 float vr_MulFloat (float a, float b) {
-  return OpWithSelectedRoundingMode<Mul>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
 
 double vr_DivDouble (double a, double b) {
-  return OpWithSelectedRoundingMode<Div>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
 float vr_DivFloat (float a, float b) {
-  return OpWithSelectedRoundingMode<Div>::apply(a,b);
+  typedef OpWithSelectedRoundingMode<DivOp <float> > Op;
+  return Op::apply(Op::PackArgs(a,b));
 }
 
-int vr_signDouble(double x){
-  return sign(x);
-}
-void vr_ppDouble(double x){
-  //  VG_(umsg)("Problems sign : %d %f\n", *arg1,*arg2);
-  FPType<double>::Repr::pp(x);
+double vr_MAddDouble (double a, double b, double c){
+  typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
+  return Op::apply(Op::PackArgs(a,b,c));
+} 
 
-}
+float vr_MAddFloat (float a, float b, float c){
+  typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
+  return Op::apply(Op::PackArgs(a,b,c));
+} 
+
