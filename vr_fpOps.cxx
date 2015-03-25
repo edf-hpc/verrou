@@ -19,6 +19,12 @@ extern "C" {
 #include "vr_fpRepr.hxx"
 #include "vr_rand.hxx"
 
+// Forward declarations
+template <typename REAL>
+void checkInsufficientPrecision (const REAL & a, const REAL & b);
+template <typename REAL>
+void checkCancellation (const REAL & a, const REAL & b, const REAL & r);
+
 #include "vr_roundingOp.hxx"
 #include "vr_op.hxx"
 
