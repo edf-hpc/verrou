@@ -181,7 +181,7 @@ struct _vr_CLO {
 };
 vr_CLO vr_clo;
 
-Bool vr_count= False;
+Bool vr_count= True;
 Bool vr_instr_op[VR_OP];
 Bool vr_instr_scalar=False;
 
