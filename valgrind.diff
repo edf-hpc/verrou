@@ -1,0 +1,74 @@
+diff --git a/Makefile.am b/Makefile.am
+index 5c93ed0..7a6ac11 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -10,7 +10,8 @@ TOOLS =		memcheck \
+ 		lackey \
+ 		none \
+ 		helgrind \
+-		drd
++		drd \
++		verrou
+ 
+ EXP_TOOLS = 	exp-sgcheck \
+ 		exp-bbv \
+diff --git a/configure.ac b/configure.ac
+index 0fd2a41..12c4902 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2956,6 +2956,33 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+                [test x$ac_have_shared_pointer_annotation = xyes])
+ 
+ 
++#Verrou
++AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
++  [AC_ARG_ENABLE(verrou-fma,
++    [  --enable-verrou-fma          enables verrou to use fma],
++    [vg_cv_verrou_fma=$enableval],
++    [vg_cv_verrou_fma=no])])
++
++if test "$vg_cv_verrou_fma" = yes; then
++  # Check for fmaintrin.h
++  AC_MSG_CHECKING([for fmaintrin.h ])
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
++      #include  <immintrin.h>
++      #include  <fmaintrin.h>
++    ]], [[
++      return EXIT_SUCCESS;
++    ]])],
++    [
++      AC_MSG_RESULT([yes])
++      AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
++    ],[
++      AC_MSG_RESULT([no])
++      AC_MSG_ERROR([A compiler with fmaintrin.h is required for --enable-verrou-fma ])
++  ])
++else
++  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
++fi
++
+ #----------------------------------------------------------------------------
+ # Ok.  We're done checking.
+ #----------------------------------------------------------------------------
+@@ -3034,6 +3061,8 @@ AC_CONFIG_FILES([
+    exp-bbv/tests/arm-linux/Makefile
+    exp-dhat/Makefile
+    exp-dhat/tests/Makefile
++   verrou/Makefile
++   verrou/tests/Makefile
+    shared/Makefile
+ ])
+ AC_CONFIG_FILES([coregrind/link_tool_exe_linux],
+diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
+index 333e5b7..a0c471d 100644
+--- a/docs/xml/manual.xml
++++ b/docs/xml/manual.xml
+@@ -44,6 +44,8 @@
+       xmlns:xi="http://www.w3.org/2001/XInclude" />      
+   <xi:include href="../../lackey/docs/lk-manual.xml" parse="xml"  
+       xmlns:xi="http://www.w3.org/2001/XInclude" />
++  <xi:include href="../../verrou/docs/vr-manual.xml" parse="xml"
++      xmlns:xi="http://www.w3.org/2001/XInclude" />
+   <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
+       xmlns:xi="http://www.w3.org/2001/XInclude" />
+ 
