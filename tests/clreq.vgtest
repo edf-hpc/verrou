@@ -1,3 +1,2 @@
 prog: clreq
 vgopts:
-cleanup: rm vr.log

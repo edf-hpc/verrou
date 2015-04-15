@@ -63,25 +63,31 @@
 
 /* ** Start-stop instrumentation
  */
-Bool vr_instrument_state = True;
+typedef enum {
+  VR_INSTR_OFF,
+  VR_INSTR_ON,
+  VR_INSTR
+} Vr_Instr;
+
+Vr_Instr vr_instrument_state = VR_INSTR_ON;
 Bool vr_verbose= False;
 
 
 // Black magic from callgrind
 extern void VG_(discard_translations) ( Addr64 start, ULong range, const HChar* who );
 
-static void vr_set_instrument_state (const HChar* reason, Bool state) {
+static void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
   if (vr_instrument_state == state) {
     if(vr_verbose){
       VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
-		   reason, state ? "ON" : "OFF");
+		   reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
     }
     
     return;
   }
 
   vr_instrument_state = state;
-  if(vr_instrument_state){
+  if(vr_instrument_state == VR_INSTR_ON){
     vr_beginInstrumentation();
   }else{
     vr_endInstrumentation();
@@ -90,7 +96,7 @@ static void vr_set_instrument_state (const HChar* reason, Bool state) {
   
   if(vr_verbose){
     VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
-		 reason, state ? "ON" : "OFF");
+		 reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
   }
   // Discard cached translations
   //  VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
@@ -224,19 +230,22 @@ static Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--verrou-verbose", bool_val)) {
     vr_verbose = bool_val;
   }
+
   //Option --count-op
   else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
     vr_count = bool_val;
   }
 
-  
+  // Instrumentation at start
+  else if (VG_BOOL_CLO (arg, "--instr-atstart", bool_val)) {
+    vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+  }
 
-  else if (VG_BOOL_CLO (arg, "--instr-atstart",
-                        bool_val)) {
-    vr_instrument_state = bool_val;
-  }else{
+  // Unknown option
+  else{
     return False;
   }
+
   return True;
 }
 
@@ -383,9 +392,9 @@ static const char* vr_ppVec (Vr_Vec vec) {
 /* ** Counter handling
  */
 
-static ULong vr_opCount[VR_OP][VR_PREC][VR_VEC];
+static ULong vr_opCount[VR_OP][VR_PREC][VR_VEC][VR_INSTR];
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, Long increment) {
-  (*counter) += increment;
+  counter[vr_instrument_state] += increment;
 }
 
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
@@ -419,47 +428,72 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
   addStmtToIRSB (sb, IRStmt_Dirty (di));
 }
 
+static unsigned int vr_frac (ULong a, ULong b) {
+  unsigned int q = (100*a)/(a+b);
+  if (100*a - (a+b)*q > (a+b)/2) {q++;}
+  return q;
+}
+
 static void vr_ppOpCount (void) {
   if(!vr_count)return ;
   Vr_Op op;
   Vr_Prec prec;
   Vr_Vec vec;
 
-  VG_(umsg)("    ------------------------------------\n");
-  VG_(umsg)("    Operation\n");
-  VG_(umsg)("     `- Precision\n");
-  VG_(umsg)("         `- Vectorization          Count\n");
-  VG_(umsg)("    ------------------------------------\n");
+  VG_(umsg)(" ---------------------------------------------------------------------\n");
+  VG_(umsg)(" Operation                            Instruction count\n");
+  VG_(umsg)("  `- Precision\n");
+  VG_(umsg)("      `- Vectorization          Total             Instrumented\n");
+  VG_(umsg)(" ---------------------------------------------------------------------\n");
   for (op = 0 ; op<VR_OP ; ++op) {
-    ULong countOp = 0;
+    ULong countOp[VR_INSTR];
+    countOp[VR_INSTR_ON]  = 0;
+    countOp[VR_INSTR_OFF] = 0;
+
     for (prec = 0 ; prec < VR_PREC ; ++prec) {
-      for (vec = 0 ; vec < VR_VEC ; ++vec)
-        countOp += vr_opCount[op][prec][vec];
+      for (vec = 0 ; vec < VR_VEC ; ++vec) {
+        countOp[VR_INSTR_ON]  += vr_opCount[op][prec][vec][VR_INSTR_ON];
+        countOp[VR_INSTR_OFF] += vr_opCount[op][prec][vec][VR_INSTR_OFF];
+      }
     }
 
-    if (countOp > 0) {
-      VG_(umsg)("    %6s       %15llu\n",
-                vr_ppOp(op), countOp);
+    if (countOp[VR_INSTR_ON] + countOp[VR_INSTR_OFF] > 0) {
+      VG_(umsg)(" %6s       %15llu          %15llu          (%3u%%)\n",
+                vr_ppOp(op),
+                countOp[VR_INSTR_ON] + countOp[VR_INSTR_OFF],
+                countOp[VR_INSTR_ON],
+                vr_frac (countOp[VR_INSTR_ON], countOp[VR_INSTR_OFF]));
 
       for (prec = 0 ; prec<VR_PREC ; ++prec) {
-        ULong countPrec = 0;
-        for (vec = 0 ; vec<VR_VEC ; ++vec)
-          countPrec += vr_opCount[op][prec][vec];
+        ULong countPrec[VR_INSTR];
+        countPrec[VR_INSTR_ON]  = 0;
+        countPrec[VR_INSTR_OFF] = 0;
 
-        if (countPrec > 0) {
-          VG_(umsg)("     `- %6s       %15llu\n",
-                    vr_ppPrec(prec), countPrec);
+        for (vec = 0 ; vec<VR_VEC ; ++vec) {
+          countPrec[VR_INSTR_ON]  += vr_opCount[op][prec][vec][VR_INSTR_ON];
+          countPrec[VR_INSTR_OFF] += vr_opCount[op][prec][vec][VR_INSTR_OFF];
+        }
+
+        if (countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF] > 0) {
+          VG_(umsg)("  `- %6s       %15llu          %15llu      (%3u%%)\n",
+                    vr_ppPrec(prec),
+                    countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF],
+                    countPrec[VR_INSTR_ON],
+                    vr_frac (countPrec[VR_INSTR_ON], countPrec[VR_INSTR_OFF]));
 
           for (vec = 0 ; vec<VR_VEC ; ++vec) {
-            if (vr_opCount[op][prec][vec] > 0) {
-              VG_(umsg)("         `- %6s       %15llu\n",
+            ULong * count = vr_opCount[op][prec][vec];
+            if (count[VR_INSTR_ON] + count[VR_INSTR_OFF] > 0) {
+              VG_(umsg)("      `- %6s       %15llu          %15llu  (%3u%%)\n",
                         vr_ppVec(vec),
-                        vr_opCount[op][prec][vec]);
+                        vr_opCount[op][prec][vec][VR_INSTR_ON] + vr_opCount[op][prec][vec][VR_INSTR_OFF],
+                        vr_opCount[op][prec][vec][VR_INSTR_ON],
+                        vr_frac (vr_opCount[op][prec][vec][VR_INSTR_ON], vr_opCount[op][prec][vec][VR_INSTR_OFF]));
             }
           }
         }
       }
-      VG_(umsg)("    ------------------------------------\n");
+      VG_(umsg)(" ---------------------------------------------------------------------\n");
     }
   }
 }

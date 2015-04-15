@@ -2,15 +2,21 @@ Verrou, Check floating-point rounding errors
 Copyright (C) 2014, F. Fevotte & B. Lathuiliere.
 
 Simulating NEAREST rounding mode
-Client Request: instrumentation switched OFF
-Client Request: instrumentation switched ON
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+Instrumented scalar operations : no
 
-    ------------------------------------
-    Operation
-     `- Precision
-         `- Vectorization          Count
-    ------------------------------------
-    add                      200
-     `- flt                      200
-         `- llo                      200
-    ------------------------------------
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                      300                      200          ( 67%)
+  `- flt                      300                      200      ( 67%)
+      `- llo                      300                      200  ( 67%)
+ ---------------------------------------------------------------------

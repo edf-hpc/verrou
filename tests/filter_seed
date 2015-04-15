@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./filter_stderr \
+    | grep -v "First seed : "
