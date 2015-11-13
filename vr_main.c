@@ -274,14 +274,14 @@ static void vr_print_usage (void) {
   VG_(printf)("         --vr-instr=mAdd\n");
   VG_(printf)("         --vr-instr=mSub\n");
 
-  
-  VG_(printf)("    Other options \n");  
-  VG_(printf)("        --vr-instr-scalar=[yes|NO] : instrument scalar operation (x387)\n");
-  VG_(printf)("        --verrou-verbose=[yes|NO] : print each instrumentation switch\n");  
-  VG_(printf)("        --count-op=[yes|NO] : count flotting operations\n");  
-  VG_(printf)("        --instr-atstart=[YES|no] : intrumenation from the start (useful used with client request)\n");  
 
-  
+  VG_(printf)("    Other options \n");
+  VG_(printf)("        --vr-instr-scalar=[yes|NO] : instrument scalar operation (x387)\n");
+  VG_(printf)("        --verrou-verbose=[yes|NO] : print each instrumentation switch\n");
+  VG_(printf)("        --count-op=[yes|NO] : count floating point operations\n");
+  VG_(printf)("        --instr-atstart=[YES|no] : intrumenation from the start (useful used with client request)\n");
+
+
 }
 
 static void vr_print_debug_usage (void) {
@@ -1164,7 +1164,7 @@ static void vr_fini(Int exitcode)
 
 static void vr_post_clo_init(void)
 {
-   vr_fpOpsInit(vr_clo.roundingMode);
+   vr_fpOpsInit(vr_clo.roundingMode, VG_(getpid)());
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

@@ -14,7 +14,7 @@ extern "C" {
     VR_AVERAGE
   };
 
-  void vr_fpOpsInit (enum vr_RoundingMode mode);
+  void vr_fpOpsInit (enum vr_RoundingMode mode, unsigned int pid);
   void vr_fpOpsFini (void);
 
   void vr_beginInstrumentation(void);

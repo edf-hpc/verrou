@@ -16,13 +16,11 @@ public:
     currentRand_=rand();
    };
 
-  inline void setTimeSeed(){
-    unsigned int seed=time(NULL);
-    VG_(umsg)("First seed : %u\n",seed );
-    srand(time(NULL));
-    count_=0;
-    currentRand_=rand();
-   };
+  inline void setTimeSeed(unsigned int pid){
+    unsigned int seed=time(NULL) + pid;
+    VG_(umsg)("First seed : %u\n",seed);
+    setSeed(seed);
+  };
 
 
   inline bool getBool(){
