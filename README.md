@@ -20,14 +20,15 @@ Add verrou's sources to it:
 Configure valgrind:
 
     ./autogen.sh
-    ./configure --enable-only64bit
+    ./configure --enable-only64bit --prefix=PREFIX
 
 Build and install:
 
     make
     make install
 
-## Test
+
+## (optionally) Test
 
 Build the tests:
 
@@ -44,7 +45,24 @@ Build the tests:
 
 # Documentation
 
-Build the documentation and browse it:
+## Build the documentation
 
-    cd docs; make html-docs
-    iceweasel html/vr-manual.html
+Build the documentation
+
+    make -C docs html-docs
+
+This requires lots of tools which are not necessarily tested for in
+`configure`, including:
+    - xsltproc
+    - docbook-xsl
+
+## Read it
+
+Browse the documentation, either in place:
+
+    iceweasel docs/html/vr-manual.html
+
+or in the installation path:
+
+    make install
+    iceweasel PREFIX/share/doc/valgrind/html/vr-manual.html
