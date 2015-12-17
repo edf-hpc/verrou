@@ -15,9 +15,12 @@
 <title>Overview</title>
 
 <para>
-Verrou helps you looking for floating-point rounding errors in programs. It uses
-a derivative of the CESTAC method in that all floating-point operations are
-perturbed by randomly switching rounding modes.</para>
+Verrou helps you looking for floating-point round-off errors in programs. It
+implements a stochastic floating-point arithmetic based on random rounding: all
+floating-point operations are perturbed by randomly switching rounding modes. ,
+This can be seen as an asynchronous variant of the CESTAC method, or a subset
+of Monte Carlo Arithmetic, performing only output randomization.
+</para>
 
 <sect2 id="vr-manual.basic-usage" xreflabel="Basic Usage">
 <title>Basic usage</title>
@@ -134,19 +137,21 @@ rounding mode.
 <listitem>toward zero.</listitem>
 </itemizedlist>
 Verrou is also capable of randomly switching rounding mode at each
-floating-point operation, in a way similar to the CESTAC method. Two strategies
+floating-point operation, in order to implement the "random rounding" variant of
+Monte Carlo Arithmetic (MCA). Two strategies
 can be used to choose the rounding mode for a given operation:
 <variablelist>
 <varlistentry>
   <term><command>random:</command></term>
-  <listitem><para>Randomly pick one of the 4 standard rounding modes, with equal
-  probabilities.</para></listitem>
+  <listitem><para>Randomly pick one among upward and downward rounding, with equal
+  probabilities. This is a form of asynchronous CESTAC method.</para></listitem>
 </varlistentry>
 <varlistentry>
   <term><command>average:</command></term>
   <listitem><para>Randomly choose between upward and downward rounding mode, in
-  such a way that the expectation of the random result equals the correct
-  operation result (without rounding).</para></listitem>
+  such a way that the expectation of the random result equals the exact
+  operation result (without rounding). This is called "uniform_absolute output
+  randomization" in the MCA literature.</para></listitem>
 </varlistentry>
 </variablelist>
 
