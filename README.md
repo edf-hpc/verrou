@@ -12,7 +12,7 @@ Add verrou's sources to it:
     cd valgrind
     git clone /netdata/H55056/git/verrou.git verrou
 
-    patch -p0 <verrou/valgrind.diff
+    patch -p1 <verrou/valgrind.diff
 
 
 ## Configure and build
