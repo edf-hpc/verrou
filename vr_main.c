@@ -397,6 +397,10 @@ static VG_REGPARM(2) void vr_incOpCount (ULong* counter, Long increment) {
   counter[vr_instrument_state] += increment;
 }
 
+static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, Long increment) {
+  counter[VR_INSTR_OFF] += increment; 
+}
+
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
   if(!vr_count){
     return;
@@ -418,13 +422,25 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
     }
   }
 
-  argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
-                        mkIRExpr_HWord (increment));
-
-  di = unsafeIRDirty_0_N( 2,
+  if( vr_instr_op[op] && ( (vr_instr_scalar || !vec==VR_VEC_SCAL ))){
+    argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
+			  mkIRExpr_HWord (increment));
+    di = unsafeIRDirty_0_N( 2,
                           "vr_incOpCount",
-                          VG_(fnptr_to_fnentry)( &vr_incOpCount ),
-                          argv);
+			    VG_(fnptr_to_fnentry)( &vr_incOpCount ),
+			    argv);
+
+  }else{
+    argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
+			  mkIRExpr_HWord (increment));
+
+    di = unsafeIRDirty_0_N( 2,
+			    "vr_incUnstrumentedOpCount",
+			    VG_(fnptr_to_fnentry)( &vr_incUnstrumentedOpCount ),
+			    argv);
+
+  }
+
   addStmtToIRSB (sb, IRStmt_Dirty (di));
 }
 
