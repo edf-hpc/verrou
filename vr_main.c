@@ -722,6 +722,14 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //instrumentation to count operation
   vr_countOp (sb,  op, prec,vec);
 
+  if(vr_verbose && vec==VR_VEC_SCAL){
+    VG_(printf) ("Scalar Instruction : ");
+    ppIRStmt (stmt);
+    VG_(printf) ("\n");
+    VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
+    VG_(printf) ("\n");
+  }
+  
   if(!vr_instr_op[op] ) {
     addStmtToIRSB (sb, stmt);
     return;
@@ -1034,13 +1042,13 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceFMA (sb, stmt, expr,"vr_MAdd32F", vr_MAdd32F, VR_OP_MADD, VR_PREC_FLT);
       break;
     case Iop_MSubF32:
-      vr_replaceFMA (sb, stmt, expr,"vr_MSub32F", vr_MSub32F, VR_OP_MADD, VR_PREC_FLT);
+      vr_replaceFMA (sb, stmt, expr,"vr_MSub32F", vr_MSub32F, VR_OP_MSUB, VR_PREC_FLT);
       break;
     case Iop_MAddF64:
       vr_replaceFMA (sb, stmt, expr,"vr_MAdd64F", vr_MAdd64F, VR_OP_MADD, VR_PREC_DBL);
       break;
     case Iop_MSubF64:
-      vr_replaceFMA (sb, stmt, expr,"vr_MSub64F", vr_MSub64F,VR_OP_MADD,  VR_PREC_DBL);
+      vr_replaceFMA (sb, stmt, expr,"vr_MSub64F", vr_MSub64F,VR_OP_MSUB,  VR_PREC_DBL);
       break;
 
 
@@ -1111,8 +1119,12 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       VG_(printf) ("Uncounted FP operation: ");
       ppIRStmt (stmt);
       VG_(printf) ("\n");
+      if(vr_verbose){
+	VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
+      }
 
     default:
+      //      ppIRStmt (stmt);
       addStmtToIRSB (sb, stmt);
       break;
     }
