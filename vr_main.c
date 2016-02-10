@@ -1183,6 +1183,32 @@ static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
   }
 }
 
+typedef struct VR_Supp_ VR_Supp;
+struct VR_Supp_ {
+  HChar*   fnname;
+  Bool     encountered;
+  VR_Supp* next;
+};
+
+VR_Supp* vr_supp;
+
+static void vr_addSupp (HChar * fnname) {
+  VR_Supp * tmp = VG_(malloc)("vr.addSupp.1", sizeof(VR_Supp));
+  tmp->fnname = VG_(strdup)("vr.addSupp.2", fnname);
+  tmp->encountered = False;
+  tmp->next = vr_supp;
+  vr_supp = tmp;
+}
+
+static void vr_freeSupp (void) {
+  while (vr_supp != NULL) {
+    VR_Supp *next = vr_supp->next;
+    VG_(free)(vr_supp->fnname);
+    VG_(free)(vr_supp);
+    vr_supp = next;
+  }
+}
+
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
                       IRSB* sbIn,
@@ -1201,8 +1227,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   { // Don't instrument code in libm functions
     Addr  ips[8];
     HChar fnname[256];
-    HChar filename[256];
-    UInt  linenum;
+    HChar objname[256];
     Addr  addr;
 
     VG_(get_StackTrace)(VG_(get_running_tid)(),
@@ -1212,52 +1237,20 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     addr = ips[0];
 
     fnname[0] = 0;
-    VG_(get_fnname)(addr, fnname, 256);
+    VG_(get_fnname)(addr, fnname, 255);
 
-    filename[0] = 0;
-    VG_(get_filename_linenum)(addr,
-                              filename, 256,
-                              NULL,     0,
-                              NULL,
-                            &linenum);
+    VG_(get_objname)(addr, objname, 255);
 
     // Uncomment this line to list all functions (useful to generate the suppression list)
-    // VG_(printf)("vrSym %s (%s:%d)\n", fnname, filename, linenum);
+    if (fnname[0] != 0) VG_(printf)("vrSym %s (%s)\n", fnname, objname);
 
-    // WARNING: This list MUST be terminated by ""
-    const char *suppress[] = {"__exp1",
-                              "__ieee754_exp",
-                              "__ieee754_expf",
-                              "__ieee754_log",
-                              "__ieee754_logf",
-                              "__ieee754_pow",
-                              "__ieee754_powf",
-                              "__ieee754_rem_pio2f",
-                              "__kernel_cosf",
-                              "__kernel_sinf",
-                              "__kernel_tanf",
-                              "__signArctan",
-                              "atan",
-                              "atanf",
-                              "cos",
-                              "cosf",
-                              "exp",
-                              "expf",
-                              "fesetenv",
-                              "fesetround",
-                              "log",
-                              "logf",
-                              "pow",
-                              "powf",
-                              "sin",
-                              "sincos",
-                              "sincosf",
-                              "sinf",
-                              "tan",
-                              "tanf",
-                              ""};
-    for (i=0 ; suppress[i][0] != 0 ; ++i) {
-      if (VG_(strcmp)(fnname, suppress[i]) == 0) {
+    VR_Supp *supp;
+    for (supp = vr_supp; supp != NULL ; supp = supp->next) {
+      if (VG_(strcmp)(fnname, supp->fnname) == 0) {
+        if (!supp->encountered) {
+          VG_(umsg)("Avoid instrumenting function `%s' (%s)\n", fnname, objname);
+          supp->encountered = True;
+        }
         return sbIn;
       }
     }
@@ -1283,6 +1276,7 @@ static void vr_fini(Int exitcode)
 {
   vr_fpOpsFini ();
   vr_ppOpCount ();
+  vr_freeSupp ();
 }
 
 static void vr_post_clo_init(void)
@@ -1309,7 +1303,39 @@ static void vr_post_clo_init(void)
    VG_(umsg)("Instrumented scalar operations : ");
    if(vr_instr_scalar==True) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
-   
+
+
+   vr_supp = NULL;
+   vr_addSupp("__exp1");
+   vr_addSupp("__ieee754_exp");
+   vr_addSupp("__ieee754_expf");
+   vr_addSupp("__ieee754_log");
+   vr_addSupp("__ieee754_logf");
+   vr_addSupp("__ieee754_pow");
+   vr_addSupp("__ieee754_powf");
+   vr_addSupp("__ieee754_rem_pio2f");
+   vr_addSupp("__kernel_cosf");
+   vr_addSupp("__kernel_sinf");
+   vr_addSupp("__kernel_tanf");
+   vr_addSupp("__signArctan");
+   vr_addSupp("atan");
+   vr_addSupp("atanf");
+   vr_addSupp("cos");
+   vr_addSupp("cosf");
+   vr_addSupp("exp");
+   vr_addSupp("expf");
+   vr_addSupp("fesetenv");
+   vr_addSupp("fesetround");
+   vr_addSupp("log");
+   vr_addSupp("logf");
+   vr_addSupp("pow");
+   vr_addSupp("powf");
+   vr_addSupp("sin");
+   vr_addSupp("sincos");
+   vr_addSupp("sincosf");
+   vr_addSupp("sinf");
+   vr_addSupp("tan");
+   vr_addSupp("tanf");
 }
 
 static void vr_pre_clo_init(void)
