@@ -372,7 +372,8 @@ static const char* vr_ppPrec (Vr_Prec prec) {
 typedef enum {
   VR_VEC_SCAL,  // Scalar operation
   VR_VEC_LLO,   // Vector operation, lowest lane only
-  VR_VEC_FULL,  // Vector operation
+  VR_VEC_FULL2,  // Vector operation
+  VR_VEC_FULL4,  // Vector operation
   VR_VEC
 } Vr_Vec;
 
@@ -382,8 +383,10 @@ static const char* vr_ppVec (Vr_Vec vec) {
     return "scal";
   case VR_VEC_LLO:
     return "llo ";
-  case VR_VEC_FULL:
-    return "vec ";
+  case VR_VEC_FULL2:
+    return "vec2 ";
+  case VR_VEC_FULL4:
+    return "vec4 ";
   default:
     return "unknown";
   }
@@ -409,20 +412,14 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
   IRExpr** argv;
   IRDirty* di;
   int increment = 1;
-  if (vec == VR_VEC_FULL) {
-    switch (prec) {
-    case VR_PREC_FLT:
-      increment = 4;
-      break;
-    case VR_PREC_DBL:
-      increment = 2;
-      break;
-    case VR_PREC:
-      increment = 0;
-    }
+  if (vec == VR_VEC_FULL2) {
+    increment =2;
   }
-
-  if( vr_instr_op[op] && ( (vr_instr_scalar || !vec==VR_VEC_SCAL ))){
+  if(vec == VR_VEC_FULL4) {
+    increment =4;
+  }
+   
+  if( vr_instr_op[op] && ( (vr_instr_scalar || !vec==VR_VEC_SCAL ))&& (vec!=VR_VEC_FULL4) ){
     argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
 			  mkIRExpr_HWord (increment));
     di = unsafeIRDirty_0_N( 2,
@@ -829,8 +826,12 @@ static void vr_replaceBinFull2Op (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     return;
   }
 
+  if(vec!=VR_VEC_FULL2){
+    VG_(tool_panic) ( "vec != VECT FULL2 in vr_replaceBinFull2Op  \n");
+  }
+  
   if (prec==VR_PREC_FLT) {
-    VG_(tool_panic) ( "VECT FULL and FLOAT not compatible \n");
+    VG_(tool_panic) ( "VECT FULL2 and FLOAT not compatible \n");
   }
 
   //convertion before call
@@ -939,7 +940,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -952,7 +953,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL);
+      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -969,7 +970,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub64Fx2:
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -982,7 +983,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL);
+      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -997,7 +998,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
       break;
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL);
+      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -1008,7 +1009,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
       break;
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL);
+      vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL4);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -1022,7 +1023,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL);
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL4);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -1034,7 +1035,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
       break;
     case Iop_Div64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op(sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL);
+      vr_replaceBinFull2Op(sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
 
@@ -1054,7 +1055,40 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       //   Other FP operations
     case Iop_Add32Fx2:
+      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL2);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      
     case Iop_Sub32Fx2:
+      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL2);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      
+      /*AVX double*/
+    case Iop_Add64Fx4:
+      vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      
+    case Iop_Sub64Fx4:
+      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_Mul64Fx4:
+      vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_Div64Fx4:
+      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      
       //operation with 64bit register with 32bit rounding
     case Iop_AddF64r32:
     case Iop_SubF64r32:
@@ -1102,10 +1136,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_RSqrtEst32Fx8:
     case Iop_RecipEst32Fx8:
 	
-    case Iop_Add64Fx4:
-    case Iop_Sub64Fx4:
-    case Iop_Mul64Fx4:
-    case Iop_Div64Fx4:
+
     case Iop_Add32Fx8:
     case Iop_Sub32Fx8:
     case Iop_Mul32Fx8:
