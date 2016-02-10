@@ -1196,10 +1196,74 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
   //  if (!vr_instrument_state) {
   //    return sbIn;
-    //  }
+  //  }
+
+  { // Don't instrument code in libm functions
+    Addr  ips[8];
+    HChar fnname[256];
+    HChar filename[256];
+    UInt  linenum;
+    Addr  addr;
+
+    VG_(get_StackTrace)(VG_(get_running_tid)(),
+                        ips, 8,
+                        NULL, NULL,
+                        0);
+    addr = ips[0];
+
+    fnname[0] = 0;
+    VG_(get_fnname)(addr, fnname, 256);
+
+    filename[0] = 0;
+    VG_(get_filename_linenum)(addr,
+                              filename, 256,
+                              NULL,     0,
+                              NULL,
+                            &linenum);
+
+    // Uncomment this line to list all functions (useful to generate the suppression list)
+    // VG_(printf)("vrSym %s (%s:%d)\n", fnname, filename, linenum);
+
+    // WARNING: This list MUST be terminated by ""
+    const char *suppress[] = {"__exp1",
+                              "__ieee754_exp",
+                              "__ieee754_expf",
+                              "__ieee754_log",
+                              "__ieee754_logf",
+                              "__ieee754_pow",
+                              "__ieee754_powf",
+                              "__ieee754_rem_pio2f",
+                              "__kernel_cosf",
+                              "__kernel_sinf",
+                              "__kernel_tanf",
+                              "__signArctan",
+                              "atan",
+                              "atanf",
+                              "cos",
+                              "cosf",
+                              "exp",
+                              "expf",
+                              "fesetenv",
+                              "fesetround",
+                              "log",
+                              "logf",
+                              "pow",
+                              "powf",
+                              "sin",
+                              "sincos",
+                              "sincosf",
+                              "sinf",
+                              "tan",
+                              "tanf",
+                              ""};
+    for (i=0 ; suppress[i][0] != 0 ; ++i) {
+      if (VG_(strcmp)(fnname, suppress[i]) == 0) {
+        return sbIn;
+      }
+    }
+  }
 
   sbOut = deepCopyIRSBExceptStmts(sbIn);
-
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
 
