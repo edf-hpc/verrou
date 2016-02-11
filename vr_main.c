@@ -419,6 +419,96 @@ static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
 }
 
 
+// ** Handle errors and suppressions
+
+typedef enum {
+  VR_ERROR_UNCOUNTED,
+  VR_ERROR
+} Vr_Error;
+
+static const HChar* vr_error_name (Vr_Error kind) {
+  switch (kind) {
+  case VR_ERROR_UNCOUNTED:
+    return "Uncounted operation";
+  default:
+    return NULL;
+  }
+}
+
+static const HChar* vr_get_error_name (Error* err) {
+  return vr_error_name (VG_(get_error_kind)(err));
+}
+
+static Bool vr_recognised_suppression (const HChar* name, Supp* su) {
+  Vr_Error kind;
+  for (kind = 0 ; kind < VR_ERROR ; ++kind) {
+    const HChar* errorName = vr_error_name(kind);
+    if (errorName && VG_(strcmp)(name, errorName) == 0)
+      break;
+  }
+
+  if (kind == VR_ERROR) {
+    return False;
+  } else {
+    VG_(set_supp_kind)(su, 0);
+    return True;
+  }
+}
+
+static void vr_before_pp_Error (Error* err) {}
+
+static void vr_pp_Error (Error* err) {
+  IROp *op = VG_(get_error_extra)(err);
+
+  VG_(umsg)("%s: ", vr_get_error_name(err));
+  VG_(message_flush)();
+  ppIROp (*op);
+  VG_(printf)(" (%s)", VG_(get_error_string)(err));
+  VG_(umsg)("\n");
+  VG_(pp_ExeContext)(VG_(get_error_where)(err));
+}
+
+static Bool vr_eq_Error (VgRes res, Error* e1, Error* e2) {
+  return VG_(get_error_address)(e1) == VG_(get_error_address)(e2);
+}
+
+static UInt vr_update_extra (Error* err) {
+  return sizeof(IROp);
+}
+
+static Bool vr_error_matches_suppression (Error* err, Supp* su) {
+  if (VG_(get_error_kind)(err) != VG_(get_supp_kind)(su)) {
+    return False;
+  }
+
+  if (VG_(strcmp)(VG_(get_error_string)(err), VG_(get_supp_string)(su)) != 0) {
+    return False;
+  }
+
+  return True;
+}
+
+static Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
+                                            Int* lineno, Supp* su) {
+  VG_(get_line)(fd, bufpp, nBufp, lineno);
+  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", *bufpp));
+  return True;
+}
+
+static Bool vr_print_extra_suppression_info (Error* err,
+                                             /*OUT*/HChar* buf, Int nBuf) {
+  VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
+  return True;
+}
+
+static Bool vr_print_extra_suppression_use (Supp* su,
+                                            /*OUT*/HChar* buf, Int nBuf) {
+  return False;
+}
+
+static void vr_update_extra_suppression_use (Error* err, Supp* su) {}
+
+
 // * Floating-point operations counter
 
 
@@ -1249,11 +1339,19 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       //    case Iop_Div64F0x2:
       //    case Iop_Div64Fx2:
 
-      VG_(printf) ("Uncounted FP operation: ");
-      ppIRStmt (stmt);
-      VG_(printf) ("\n");
-      if(vr_verbose){
-	VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
+      {
+        ThreadId tid = VG_(get_running_tid)();
+        Addr addr;
+        VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
+
+        HChar string[10];
+        VG_(snprintf)(string, 10, "%d", op);
+
+        VG_(maybe_record_error)(tid,
+                                VR_ERROR_UNCOUNTED,
+                                addr,
+                                string,
+                                /*extra*/ &op);
       }
 
     default:
@@ -1417,6 +1515,19 @@ static void vr_pre_clo_init(void)
                                    vr_print_debug_usage);
 
    VG_(needs_client_requests)(vr_handle_client_request);
+
+   VG_(needs_tool_errors)(vr_eq_Error,
+                          vr_before_pp_Error,
+                          vr_pp_Error,
+                          /*show_ThreadIDs_for_errors*/False,
+                          vr_update_extra,
+                          vr_recognised_suppression,
+                          vr_read_extra_suppression_info,
+                          vr_error_matches_suppression,
+                          vr_get_error_name,
+                          vr_print_extra_suppression_info,
+                          vr_print_extra_suppression_use,
+                          vr_update_extra_suppression_use);
 
    vr_clo_defaults();
 }
