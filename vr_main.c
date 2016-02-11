@@ -187,23 +187,82 @@ struct VR_Exclude_ {
   VR_Exclude* next;
 };
 
-VR_Exclude* vr_supp;
+VR_Exclude* vr_excludes;
 
 static void vr_addExclude (HChar * fnname) {
   VR_Exclude * tmp = VG_(malloc)("vr.addExclude.1", sizeof(VR_Exclude));
   tmp->fnname = VG_(strdup)("vr.addExclude.2", fnname);
   tmp->encountered = False;
-  tmp->next = vr_supp;
-  vr_supp = tmp;
+  tmp->next = vr_excludes;
+  vr_excludes = tmp;
 }
 
-static void vr_freeExclude (void) {
-  while (vr_supp != NULL) {
-    VR_Exclude *next = vr_supp->next;
-    VG_(free)(vr_supp->fnname);
-    VG_(free)(vr_supp);
-    vr_supp = next;
+static VR_Exclude * vr_findExclude (HChar * fnname) {
+  VR_Exclude * exclude = vr_excludes ;
+  while (exclude != NULL && VG_(strcmp)(exclude->fnname, fnname) != 0) {
+    exclude = exclude->next;
   }
+
+  return exclude;
+}
+
+static void vr_freeExcludes (void) {
+  while (vr_excludes != NULL) {
+    VR_Exclude *next = vr_excludes->next;
+    VG_(free)(vr_excludes->fnname);
+    VG_(free)(vr_excludes);
+    vr_excludes = next;
+  }
+}
+
+static void vr_dumpExcludes (HChar * fname) {
+  Int fd = VG_(fd_open)(fname,
+                        VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
+                        VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
+  if (fd == -1) {
+    VG_(umsg)("WARNING: could not open exclusions file for writing: `%s'\n", fname);
+    return;
+  }
+
+  HChar eol[] = "\n";
+  VR_Exclude * exclude;
+  for (exclude = vr_excludes ; exclude != NULL ; exclude = exclude->next) {
+    VG_(write)(fd, exclude->fnname, VG_(strlen)(exclude->fnname));
+    VG_(write)(fd, eol, 1);
+  }
+  VG_(close)(fd);
+}
+
+static void vr_loadExcludes (HChar * fname) {
+  Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
+  if (fd == -1) {
+    VG_(umsg)("WARNING: could not open exclusion file for reading: `%s'\n", fname);
+    return;
+  }
+
+  SizeT nLine = 256;
+  HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
+  Int lineno = 0;
+
+  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
+    vr_addExclude (line);
+  }
+
+  VG_(free)(line);
+  VG_(close)(fd);
+}
+
+static Bool vr_aboveMain (Addr * ips, UInt nips) {
+  HChar fnname[10];
+  UInt i;
+  for (i = 1 ; i<nips ; ++i) {
+    VG_(get_fnname)(ips[i], fnname, 10);
+    if (VG_(strcmp)(fnname, "main") == 0) {
+      return True;
+    }
+  }
+
+  return False;
 }
 
 
@@ -212,6 +271,8 @@ static void vr_freeExclude (void) {
 typedef struct _vr_CLO vr_CLO;
 struct _vr_CLO {
   enum vr_RoundingMode roundingMode;
+  Bool genExcludes;
+  HChar * excludesFile;
 };
 vr_CLO vr_clo;
 
@@ -221,6 +282,8 @@ Bool vr_instr_scalar=False;
 
 static Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
+  const HChar * str;
+
   //Option --rounding-mode=
   if      (VG_XACT_CLO (arg, "--rounding-mode=random",
                         vr_clo.roundingMode, VR_RANDOM)) {}
@@ -269,6 +332,16 @@ static Bool vr_process_clo (const HChar *arg) {
     vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
+  else if (VG_STR_CLO (arg, "--gen-excludes", str)) {
+    vr_clo.excludesFile = VG_(strdup)("vr.process_clo.1", str);
+    vr_clo.genExcludes = True;
+  }
+
+  else if (VG_STR_CLO (arg, "--excludes", str)) {
+    vr_clo.excludesFile = VG_(strdup)("vr.process_clo.2", str);
+    vr_clo.genExcludes = False;
+  }
+
   // Unknown option
   else{
     return False;
@@ -279,6 +352,7 @@ static Bool vr_process_clo (const HChar *arg) {
 
 static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
+  vr_clo.genExcludes = False;
   int opIt;
   for(opIt=0; opIt< VR_OP;opIt++){
     vr_instr_op[opIt]=False;
@@ -308,8 +382,8 @@ static void vr_print_usage (void) {
   VG_(printf)("        --verrou-verbose=[yes|NO] : print each instrumentation switch\n");
   VG_(printf)("        --count-op=[yes|NO] : count floating point operations\n");
   VG_(printf)("        --instr-atstart=[YES|no] : intrumenation from the start (useful used with client request)\n");
-
-
+  VG_(printf)("        --gen-excludes=FILE : generate exclusions list in FILE\n");
+  VG_(printf)("        --excludes=FILE : read exclusions list in FILE\n");
 }
 
 static void vr_print_debug_usage (void) {
@@ -1221,23 +1295,20 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  Int i;
-  IRSB* sbOut;
-
   //  if (!vr_instrument_state) {
   //    return sbIn;
   //  }
 
   { // Don't instrument code in libm functions
-    Addr  ips[8];
+    Addr  ips[256];
     HChar fnname[256];
     HChar objname[256];
     Addr  addr;
 
-    VG_(get_StackTrace)(VG_(get_running_tid)(),
-                        ips, 8,
-                        NULL, NULL,
-                        0);
+    UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
+                                    ips, 256,
+                                    NULL, NULL,
+                                    0);
     addr = ips[0];
 
     fnname[0] = 0;
@@ -1245,22 +1316,29 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     VG_(get_objname)(addr, objname, 255);
 
-    // Uncomment this line to list all functions (useful to generate the suppression list)
-    if (fnname[0] != 0) VG_(printf)("vrSym %s (%s)\n", fnname, objname);
-
-    VR_Exclude *supp;
-    for (supp = vr_supp; supp != NULL ; supp = supp->next) {
-      if (VG_(strcmp)(fnname, supp->fnname) == 0) {
-        if (!supp->encountered) {
-          VG_(umsg)("Avoid instrumenting function `%s' (%s)\n", fnname, objname);
-          supp->encountered = True;
+    if (fnname[0] != 0) {
+      if (vr_clo.genExcludes)
+        {
+          if (vr_aboveMain(ips, nips) && vr_findExclude (fnname) == NULL) {
+            vr_addExclude (fnname);
+          }
         }
-        return sbIn;
-      }
+      else
+        {
+          VR_Exclude *exclude = vr_findExclude (fnname);
+          if (exclude != NULL) {
+            if (!exclude->encountered) {
+              VG_(umsg)("Avoid instrumenting function `%s' (%s)\n", fnname, objname);
+              exclude->encountered = True;
+            }
+            return sbIn;
+          }
+        }
     }
   }
 
-  sbOut = deepCopyIRSBExceptStmts(sbIn);
+  UInt i;
+  IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
 
@@ -1280,7 +1358,12 @@ static void vr_fini(Int exitcode)
 {
   vr_fpOpsFini ();
   vr_ppOpCount ();
-  vr_freeExclude ();
+
+  if (vr_clo.genExcludes) {
+    vr_dumpExcludes(vr_clo.excludesFile);
+  }
+  vr_freeExcludes ();
+  VG_(free)(vr_clo.excludesFile);
 }
 
 static void vr_post_clo_init(void)
@@ -1308,38 +1391,10 @@ static void vr_post_clo_init(void)
    if(vr_instr_scalar==True) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
 
-
-   vr_supp = NULL;
-   vr_addExclude("__exp1");
-   vr_addExclude("__ieee754_exp");
-   vr_addExclude("__ieee754_expf");
-   vr_addExclude("__ieee754_log");
-   vr_addExclude("__ieee754_logf");
-   vr_addExclude("__ieee754_pow");
-   vr_addExclude("__ieee754_powf");
-   vr_addExclude("__ieee754_rem_pio2f");
-   vr_addExclude("__kernel_cosf");
-   vr_addExclude("__kernel_sinf");
-   vr_addExclude("__kernel_tanf");
-   vr_addExclude("__signArctan");
-   vr_addExclude("atan");
-   vr_addExclude("atanf");
-   vr_addExclude("cos");
-   vr_addExclude("cosf");
-   vr_addExclude("exp");
-   vr_addExclude("expf");
-   vr_addExclude("fesetenv");
-   vr_addExclude("fesetround");
-   vr_addExclude("log");
-   vr_addExclude("logf");
-   vr_addExclude("pow");
-   vr_addExclude("powf");
-   vr_addExclude("sin");
-   vr_addExclude("sincos");
-   vr_addExclude("sincosf");
-   vr_addExclude("sinf");
-   vr_addExclude("tan");
-   vr_addExclude("tanf");
+   vr_excludes = NULL;
+   if (!vr_clo.genExcludes && vr_clo.excludesFile) {
+     vr_loadExcludes (vr_clo.excludesFile);
+   }
 }
 
 static void vr_pre_clo_init(void)
