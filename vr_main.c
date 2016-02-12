@@ -179,18 +179,15 @@ typedef enum {
 } Vr_Op;
 
 
-// ** Handle exclusions
-
-
-
 // ** Command-line options
+
+Vr_Exclude * vr_exclude;
 
 typedef struct _vr_CLO vr_CLO;
 struct _vr_CLO {
   enum vr_RoundingMode roundingMode;
-  Bool genExcludeFun;
-  HChar * excludeFunFile;
-  HChar * excludeObjFile;
+  Bool genExclude;
+  HChar * excludeFile;
 };
 vr_CLO vr_clo;
 
@@ -250,18 +247,14 @@ static Bool vr_process_clo (const HChar *arg) {
     vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
-  else if (VG_STR_CLO (arg, "--gen-exclude-sym", str)) {
-    vr_clo.excludeFunFile = VG_(strdup)("vr.process_clo.1", str);
-    vr_clo.genExcludeFun = True;
+  else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
+    vr_clo.excludeFile = VG_(strdup)("vr.process_clo.1", str);
+    vr_clo.genExclude = True;
   }
 
-  else if (VG_STR_CLO (arg, "--exclude-fun", str)) {
-    vr_clo.excludeFunFile = VG_(strdup)("vr.process_clo.2", str);
-    vr_clo.genExcludeFun = False;
-  }
-
-  else if (VG_STR_CLO (arg, "--exclude-obj", str)) {
-    vr_clo.excludeObjFile = VG_(strdup)("vr.process_clo.3", str);
+  else if (VG_STR_CLO (arg, "--exclude", str)) {
+    vr_clo.excludeFile = VG_(strdup)("vr.process_clo.2", str);
+    vr_clo.genExclude = False;
   }
 
   // Unknown option
@@ -274,7 +267,7 @@ static Bool vr_process_clo (const HChar *arg) {
 
 static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
-  vr_clo.genExcludeFun = False;
+  vr_clo.genExclude = False;
   int opIt;
   for(opIt=0; opIt< VR_OP;opIt++){
     vr_instr_op[opIt]=False;
@@ -1321,7 +1314,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  if (vr_excludedIRSB (vr_exclude, vr_clo.genExcludeFun))
+  if (vr_excludeIRSB (&vr_exclude, vr_clo.genExclude))
     return sbIn;
 
   UInt i;
@@ -1346,13 +1339,11 @@ static void vr_fini(Int exitcode)
   vr_fpOpsFini ();
   vr_ppOpCount ();
 
-  if (vr_clo.genExcludeFun) {
-    vr_dumpExcludeList("functions", vr_exclude.fun, vr_clo.excludeFunFile);
+  if (vr_clo.genExclude) {
+    vr_dumpExcludeList(vr_exclude, vr_clo.excludeFile);
   }
-  vr_freeExcludeList (vr_exclude.fun);
-  vr_freeExcludeList (vr_exclude.obj);
-  VG_(free)(vr_clo.excludeFunFile);
-  VG_(free)(vr_clo.excludeObjFile);
+  vr_freeExcludeList (vr_exclude);
+  VG_(free)(vr_clo.excludeFile);
 }
 
 static void vr_post_clo_init(void)
@@ -1380,14 +1371,9 @@ static void vr_post_clo_init(void)
    if(vr_instr_scalar==True) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
 
-   vr_exclude.fun = NULL;
-   if (!vr_clo.genExcludeFun && vr_clo.excludeFunFile) {
-     vr_exclude.fun = vr_loadExcludeList ("functions", vr_exclude.fun, vr_clo.excludeFunFile);
-   }
-
-   vr_exclude.obj = NULL;
-   if (vr_clo.excludeObjFile) {
-     vr_exclude.obj = vr_loadExcludeList ("objects", vr_exclude.obj, vr_clo.excludeObjFile);
+   vr_exclude = NULL;
+   if (!vr_clo.genExclude && vr_clo.excludeFile) {
+     vr_exclude = vr_loadExcludeList (vr_exclude, vr_clo.excludeFile);
    }
 }
 
