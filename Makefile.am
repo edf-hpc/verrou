@@ -12,9 +12,9 @@ if VGCONF_HAVE_PLATFORM_SEC
 noinst_PROGRAMS += verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
-VERROU_SOURCES_COMMON = vr_main.c vr_fpOps.cxx
+VERROU_SOURCES_COMMON = vr_main.c vr_exclude.c vr_fpOps.cxx
 
-# We use the test of fma normally use to configure check 
+# We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
 VERROU_FLAG_CXX = -march=native -mfma -DUSE_VERROU_FMA
 VERROU_FLAG_C= -DUSE_VERROU_FMA

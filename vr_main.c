@@ -54,6 +54,7 @@
 
 #include "verrou.h"
 #include "vr_fpOps.h"
+#include "vr_exclude.h"
 //#include <fenv.h>
 #include "float.h"
 //#pragma STDC FENV_ACCESS ON
@@ -180,90 +181,6 @@ typedef enum {
 
 // ** Handle exclusions
 
-typedef struct VR_Exclude_ VR_Exclude;
-struct VR_Exclude_ {
-  HChar*   fnname;
-  Bool     encountered;
-  VR_Exclude* next;
-};
-
-VR_Exclude* vr_excludes;
-
-static void vr_addExclude (HChar * fnname) {
-  VR_Exclude * tmp = VG_(malloc)("vr.addExclude.1", sizeof(VR_Exclude));
-  tmp->fnname = VG_(strdup)("vr.addExclude.2", fnname);
-  tmp->encountered = False;
-  tmp->next = vr_excludes;
-  vr_excludes = tmp;
-}
-
-static VR_Exclude * vr_findExclude (HChar * fnname) {
-  VR_Exclude * exclude = vr_excludes ;
-  while (exclude != NULL && VG_(strcmp)(exclude->fnname, fnname) != 0) {
-    exclude = exclude->next;
-  }
-
-  return exclude;
-}
-
-static void vr_freeExcludes (void) {
-  while (vr_excludes != NULL) {
-    VR_Exclude *next = vr_excludes->next;
-    VG_(free)(vr_excludes->fnname);
-    VG_(free)(vr_excludes);
-    vr_excludes = next;
-  }
-}
-
-static void vr_dumpExcludes (HChar * fname) {
-  Int fd = VG_(fd_open)(fname,
-                        VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
-                        VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
-  if (fd == -1) {
-    VG_(umsg)("WARNING: could not open exclusions file for writing: `%s'\n", fname);
-    return;
-  }
-
-  HChar eol[] = "\n";
-  VR_Exclude * exclude;
-  for (exclude = vr_excludes ; exclude != NULL ; exclude = exclude->next) {
-    VG_(write)(fd, exclude->fnname, VG_(strlen)(exclude->fnname));
-    VG_(write)(fd, eol, 1);
-  }
-  VG_(close)(fd);
-}
-
-static void vr_loadExcludes (HChar * fname) {
-  Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
-  if (fd == -1) {
-    VG_(umsg)("WARNING: could not open exclusion file for reading: `%s'\n", fname);
-    return;
-  }
-
-  SizeT nLine = 256;
-  HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
-  Int lineno = 0;
-
-  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
-    vr_addExclude (line);
-  }
-
-  VG_(free)(line);
-  VG_(close)(fd);
-}
-
-static Bool vr_aboveMain (Addr * ips, UInt nips) {
-  HChar fnname[10];
-  UInt i;
-  for (i = 1 ; i<nips ; ++i) {
-    VG_(get_fnname)(ips[i], fnname, 10);
-    if (VG_(strcmp)(fnname, "main") == 0) {
-      return True;
-    }
-  }
-
-  return False;
-}
 
 
 // ** Command-line options
@@ -271,8 +188,9 @@ static Bool vr_aboveMain (Addr * ips, UInt nips) {
 typedef struct _vr_CLO vr_CLO;
 struct _vr_CLO {
   enum vr_RoundingMode roundingMode;
-  Bool genExcludes;
-  HChar * excludesFile;
+  Bool genExcludeFun;
+  HChar * excludeFunFile;
+  HChar * excludeObjFile;
 };
 vr_CLO vr_clo;
 
@@ -332,14 +250,18 @@ static Bool vr_process_clo (const HChar *arg) {
     vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
-  else if (VG_STR_CLO (arg, "--gen-excludes", str)) {
-    vr_clo.excludesFile = VG_(strdup)("vr.process_clo.1", str);
-    vr_clo.genExcludes = True;
+  else if (VG_STR_CLO (arg, "--gen-exclude-sym", str)) {
+    vr_clo.excludeFunFile = VG_(strdup)("vr.process_clo.1", str);
+    vr_clo.genExcludeFun = True;
   }
 
-  else if (VG_STR_CLO (arg, "--excludes", str)) {
-    vr_clo.excludesFile = VG_(strdup)("vr.process_clo.2", str);
-    vr_clo.genExcludes = False;
+  else if (VG_STR_CLO (arg, "--exclude-fun", str)) {
+    vr_clo.excludeFunFile = VG_(strdup)("vr.process_clo.2", str);
+    vr_clo.genExcludeFun = False;
+  }
+
+  else if (VG_STR_CLO (arg, "--exclude-obj", str)) {
+    vr_clo.excludeObjFile = VG_(strdup)("vr.process_clo.3", str);
   }
 
   // Unknown option
@@ -352,7 +274,7 @@ static Bool vr_process_clo (const HChar *arg) {
 
 static void vr_clo_defaults (void) {
   vr_clo.roundingMode = VR_NEAREST;
-  vr_clo.genExcludes = False;
+  vr_clo.genExcludeFun = False;
   int opIt;
   for(opIt=0; opIt< VR_OP;opIt++){
     vr_instr_op[opIt]=False;
@@ -360,7 +282,7 @@ static void vr_clo_defaults (void) {
 }
 
 static void vr_print_usage (void) {
-  VG_(printf)("Verrou Options: \n");
+  VG_(printf)("\n");
   VG_(printf)("    Rounding mode selection \n");
   VG_(printf)("        --rounding-mode=random\n");
   VG_(printf)("        --rounding-mode=average\n");
@@ -368,22 +290,28 @@ static void vr_print_usage (void) {
   VG_(printf)("        --rounding-mode=upward\n");
   VG_(printf)("        --rounding-mode=downward\n");
   VG_(printf)("        --rounding-mode=toward_zero\n");
-  VG_(printf)("    Instrumented  operations  selection \n");
-  VG_(printf)("         --vr-instr=add\n");
-  VG_(printf)("         --vr-instr=sub\n");
-  VG_(printf)("         --vr-instr=mul\n");
-  VG_(printf)("         --vr-instr=div\n");
-  VG_(printf)("         --vr-instr=mAdd\n");
-  VG_(printf)("         --vr-instr=mSub\n");
 
+  VG_(printf)("\n");
+  VG_(printf)("    Instrumented operations selection \n");
+  VG_(printf)("        --vr-instr=add\n");
+  VG_(printf)("        --vr-instr=sub\n");
+  VG_(printf)("        --vr-instr=mul\n");
+  VG_(printf)("        --vr-instr=div\n");
+  VG_(printf)("        --vr-instr=mAdd\n");
+  VG_(printf)("        --vr-instr=mSub\n");
 
+  VG_(printf)("\n");
   VG_(printf)("    Other options \n");
-  VG_(printf)("        --vr-instr-scalar=[yes|NO] : instrument scalar operation (x387)\n");
-  VG_(printf)("        --verrou-verbose=[yes|NO] : print each instrumentation switch\n");
-  VG_(printf)("        --count-op=[yes|NO] : count floating point operations\n");
-  VG_(printf)("        --instr-atstart=[YES|no] : intrumenation from the start (useful used with client request)\n");
-  VG_(printf)("        --gen-excludes=FILE : generate exclusions list in FILE\n");
-  VG_(printf)("        --excludes=FILE : read exclusions list in FILE\n");
+  VG_(printf)("        --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n");
+  VG_(printf)("        --verrou-verbose=[yes|NO]  print each instrumentation switch\n");
+  VG_(printf)("        --count-op=[yes|NO]        count floating point operations\n");
+  VG_(printf)("        --instr-atstart=[YES|no]   intrumenation from the start (useful when\n"
+              "                                     used with client requests)\n");
+  VG_(printf)("        --gen-exclude-fun=FILE     generate excluded functions list in FILE\n");
+  VG_(printf)("        --exclude-fun=FILE         read excluded functions list from FILE\n");
+  VG_(printf)("                                     (--gen-exclude-fun and --exclude-fun are\n"
+              "                                     mutually exclusive)\n");
+  VG_(printf)("        --exclude-obj=FILE         read excluded objects list from FILE\n");
 }
 
 static void vr_print_debug_usage (void) {
@@ -1393,47 +1321,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  //  if (!vr_instrument_state) {
-  //    return sbIn;
-  //  }
-
-  { // Don't instrument code in libm functions
-    Addr  ips[256];
-    HChar fnname[256];
-    HChar objname[256];
-    Addr  addr;
-
-    UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
-                                    ips, 256,
-                                    NULL, NULL,
-                                    0);
-    addr = ips[0];
-
-    fnname[0] = 0;
-    VG_(get_fnname)(addr, fnname, 255);
-
-    VG_(get_objname)(addr, objname, 255);
-
-    if (fnname[0] != 0) {
-      if (vr_clo.genExcludes)
-        {
-          if (vr_aboveMain(ips, nips) && vr_findExclude (fnname) == NULL) {
-            vr_addExclude (fnname);
-          }
-        }
-      else
-        {
-          VR_Exclude *exclude = vr_findExclude (fnname);
-          if (exclude != NULL) {
-            if (!exclude->encountered) {
-              VG_(umsg)("Avoid instrumenting function `%s' (%s)\n", fnname, objname);
-              exclude->encountered = True;
-            }
-            return sbIn;
-          }
-        }
-    }
-  }
+  if (vr_excludedIRSB (vr_exclude, vr_clo.genExcludeFun))
+    return sbIn;
 
   UInt i;
   IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
@@ -1457,11 +1346,13 @@ static void vr_fini(Int exitcode)
   vr_fpOpsFini ();
   vr_ppOpCount ();
 
-  if (vr_clo.genExcludes) {
-    vr_dumpExcludes(vr_clo.excludesFile);
+  if (vr_clo.genExcludeFun) {
+    vr_dumpExcludeList("functions", vr_exclude.fun, vr_clo.excludeFunFile);
   }
-  vr_freeExcludes ();
-  VG_(free)(vr_clo.excludesFile);
+  vr_freeExcludeList (vr_exclude.fun);
+  vr_freeExcludeList (vr_exclude.obj);
+  VG_(free)(vr_clo.excludeFunFile);
+  VG_(free)(vr_clo.excludeObjFile);
 }
 
 static void vr_post_clo_init(void)
@@ -1489,9 +1380,14 @@ static void vr_post_clo_init(void)
    if(vr_instr_scalar==True) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
 
-   vr_excludes = NULL;
-   if (!vr_clo.genExcludes && vr_clo.excludesFile) {
-     vr_loadExcludes (vr_clo.excludesFile);
+   vr_exclude.fun = NULL;
+   if (!vr_clo.genExcludeFun && vr_clo.excludeFunFile) {
+     vr_exclude.fun = vr_loadExcludeList ("functions", vr_exclude.fun, vr_clo.excludeFunFile);
+   }
+
+   vr_exclude.obj = NULL;
+   if (vr_clo.excludeObjFile) {
+     vr_exclude.obj = vr_loadExcludeList ("objects", vr_exclude.obj, vr_clo.excludeObjFile);
    }
 }
 
