@@ -248,11 +248,11 @@ static Bool vr_process_clo (const HChar *arg) {
     vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
+  // Exclusion files
   else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
     vr_clo.excludeFile = VG_(strdup)("vr.process_clo.1", str);
     vr_clo.genExclude = True;
   }
-
   else if (VG_STR_CLO (arg, "--exclude", str)) {
     vr_clo.excludeFile = VG_(strdup)("vr.process_clo.2", str);
     vr_clo.genExclude = False;
@@ -299,13 +299,12 @@ static void vr_print_usage (void) {
   VG_(printf)("        --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n");
   VG_(printf)("        --verrou-verbose=[yes|NO]  print each instrumentation switch\n");
   VG_(printf)("        --count-op=[yes|NO]        count floating point operations\n");
-  VG_(printf)("        --instr-atstart=[YES|no]   intrumenation from the start (useful when\n"
+  VG_(printf)("        --instr-atstart=[YES|no]   instrumentation from the start (useful when\n"
               "                                     used with client requests)\n");
-  VG_(printf)("        --gen-exclude-fun=FILE     generate excluded functions list in FILE\n");
-  VG_(printf)("        --exclude-fun=FILE         read excluded functions list from FILE\n");
-  VG_(printf)("                                     (--gen-exclude-fun and --exclude-fun are\n"
+  VG_(printf)("        --gen-exclude=FILE         generate excluded functions list in FILE\n");
+  VG_(printf)("        --exclude=FILE             read excluded functions list from FILE\n");
+  VG_(printf)("                                     (--gen-exclude and --exclude are\n"
               "                                     mutually exclusive)\n");
-  VG_(printf)("        --exclude-obj=FILE         read excluded objects list from FILE\n");
 }
 
 static void vr_print_debug_usage (void) {
