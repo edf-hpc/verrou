@@ -55,6 +55,7 @@
 #include "verrou.h"
 #include "vr_fpOps.h"
 #include "vr_exclude.h"
+#include "vr_error.h"
 //#include <fenv.h>
 #include "float.h"
 //#pragma STDC FENV_ACCESS ON
@@ -338,96 +339,6 @@ static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   }
   return True;
 }
-
-
-// ** Handle errors and suppressions
-
-typedef enum {
-  VR_ERROR_UNCOUNTED,
-  VR_ERROR
-} Vr_Error;
-
-static const HChar* vr_error_name (Vr_Error kind) {
-  switch (kind) {
-  case VR_ERROR_UNCOUNTED:
-    return "Uncounted operation";
-  default:
-    return NULL;
-  }
-}
-
-static const HChar* vr_get_error_name (Error* err) {
-  return vr_error_name (VG_(get_error_kind)(err));
-}
-
-static Bool vr_recognised_suppression (const HChar* name, Supp* su) {
-  Vr_Error kind;
-  for (kind = 0 ; kind < VR_ERROR ; ++kind) {
-    const HChar* errorName = vr_error_name(kind);
-    if (errorName && VG_(strcmp)(name, errorName) == 0)
-      break;
-  }
-
-  if (kind == VR_ERROR) {
-    return False;
-  } else {
-    VG_(set_supp_kind)(su, 0);
-    return True;
-  }
-}
-
-static void vr_before_pp_Error (Error* err) {}
-
-static void vr_pp_Error (Error* err) {
-  IROp *op = VG_(get_error_extra)(err);
-
-  VG_(umsg)("%s: ", vr_get_error_name(err));
-  VG_(message_flush)();
-  ppIROp (*op);
-  VG_(printf)(" (%s)", VG_(get_error_string)(err));
-  VG_(umsg)("\n");
-  VG_(pp_ExeContext)(VG_(get_error_where)(err));
-}
-
-static Bool vr_eq_Error (VgRes res, Error* e1, Error* e2) {
-  return VG_(get_error_address)(e1) == VG_(get_error_address)(e2);
-}
-
-static UInt vr_update_extra (Error* err) {
-  return sizeof(IROp);
-}
-
-static Bool vr_error_matches_suppression (Error* err, Supp* su) {
-  if (VG_(get_error_kind)(err) != VG_(get_supp_kind)(su)) {
-    return False;
-  }
-
-  if (VG_(strcmp)(VG_(get_error_string)(err), VG_(get_supp_string)(su)) != 0) {
-    return False;
-  }
-
-  return True;
-}
-
-static Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
-                                            Int* lineno, Supp* su) {
-  VG_(get_line)(fd, bufpp, nBufp, lineno);
-  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", *bufpp));
-  return True;
-}
-
-static Bool vr_print_extra_suppression_info (Error* err,
-                                             /*OUT*/HChar* buf, Int nBuf) {
-  VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
-  return True;
-}
-
-static Bool vr_print_extra_suppression_use (Supp* su,
-                                            /*OUT*/HChar* buf, Int nBuf) {
-  return False;
-}
-
-static void vr_update_extra_suppression_use (Error* err, Supp* su) {}
 
 
 // * Floating-point operations counter
@@ -819,11 +730,31 @@ static IRExpr* vr_F32toI64 (IRSB* sb, IRExpr* expr) {
 }
 
 
+/* Get the operation from an expression
+   return False if the expression is not an operation
+ */
+static Bool vr_getOp (IRExpr * expr, /*OUT*/ IROp * op) {
+  switch (expr->tag) {
+  case Iex_Unop:
+    *op = expr->Iex.Unop.op;
+    break;
+  case Iex_Binop:
+    *op = expr->Iex.Binop.op;
+    break;
+  case Iex_Triop:
+    *op = expr->Iex.Triop.details->op;
+    break;
+  case Iex_Qop:
+    *op = expr->Iex.Qop.details->op;
+    break;
+  default:
+    return False;
+  }
+  return True;
+}
 
 /* Replace a given binary operation by a call to a function
  */
-
-
 static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			       const HChar* functionName, void* function,
 			       Vr_Op op,
@@ -833,11 +764,9 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   vr_countOp (sb,  op, prec,vec);
 
   if(vr_verbose && vec==VR_VEC_SCAL){
-    VG_(printf) ("Scalar Instruction : ");
-    ppIRStmt (stmt);
-    VG_(printf) ("\n");
-    VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
-    VG_(printf) ("\n");
+    IROp irop;
+    if (vr_getOp (expr, &irop))
+      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
   if(!vr_instr_op[op] ) {
@@ -1259,21 +1188,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 	//    case Iop_DivF64:
       //    case Iop_Div64F0x2:
       //    case Iop_Div64Fx2:
-
-      {
-        ThreadId tid = VG_(get_running_tid)();
-        Addr addr;
-        VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
-
-        HChar string[10];
-        VG_(snprintf)(string, 10, "%d", op);
-
-        VG_(maybe_record_error)(tid,
-                                VR_ERROR_UNCOUNTED,
-                                addr,
-                                string,
-                                /*extra*/ &op);
-      }
+      vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
 
     default:
       //      ppIRStmt (stmt);
@@ -1284,23 +1199,11 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 }
 
 static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
-  switch (expr->tag) {
-  case Iex_Unop:
-    vr_instrumentOp (sb, stmt, expr, expr->Iex.Unop.op);
-    break;
-  case Iex_Binop:
-    vr_instrumentOp (sb, stmt, expr, expr->Iex.Binop.op);
-    break;
-  case Iex_Triop:
-    vr_instrumentOp (sb, stmt, expr, expr->Iex.Triop.details->op);
-    break;
-  case Iex_Qop:
-    vr_instrumentOp (sb, stmt, expr, expr->Iex.Qop.details->op);
-    break;
-
-  default:
+  IROp op;
+  if (vr_getOp (expr, &op)) {
+    vr_instrumentOp (sb, stmt, expr, op);
+  } else {
     addStmtToIRSB (sb, stmt);
-    break;
   }
 }
 
