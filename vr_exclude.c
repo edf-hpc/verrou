@@ -1,22 +1,4 @@
-#include "pub_tool_basics.h"
-#include "pub_tool_vki.h"
-#include "pub_tool_debuginfo.h"
-#include "pub_tool_libcbase.h"
-#include "pub_tool_libcassert.h"
-#include "pub_tool_libcfile.h"
-#include "pub_tool_libcprint.h"
-#include "pub_tool_libcproc.h"
-#include "pub_tool_machine.h"
-#include "pub_tool_mallocfree.h"
-#include "pub_tool_options.h"
-#include "pub_tool_oset.h"
-#include "pub_tool_tooliface.h"
-#include "pub_tool_xarray.h"
-#include "pub_tool_clientstate.h"
-#include "pub_tool_machine.h"      // VG_(fnptr_to_fnentry)
-#include "pub_tool_stacktrace.h"
-#include "pub_tool_threadstate.h"
-#include "vr_exclude.h"
+#include "vr_main.h"
 
 Vr_Exclude* vr_addExclude (Vr_Exclude* list, HChar * fnname, HChar * objname) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));

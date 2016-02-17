@@ -28,317 +28,11 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "pub_tool_basics.h"
-#include "pub_tool_tooliface.h"
-
-
-// From cachegrind/cg_main.c
-#include "pub_tool_basics.h"
-#include "pub_tool_vki.h"
-#include "pub_tool_debuginfo.h"
-#include "pub_tool_libcbase.h"
-#include "pub_tool_libcassert.h"
-#include "pub_tool_libcfile.h"
-#include "pub_tool_libcprint.h"
-#include "pub_tool_libcproc.h"
-#include "pub_tool_machine.h"
-#include "pub_tool_mallocfree.h"
-#include "pub_tool_options.h"
-#include "pub_tool_oset.h"
-#include "pub_tool_tooliface.h"
-#include "pub_tool_xarray.h"
-#include "pub_tool_clientstate.h"
-#include "pub_tool_machine.h"      // VG_(fnptr_to_fnentry)
-#include "pub_tool_stacktrace.h"
-#include "pub_tool_threadstate.h"
-
-#include "verrou.h"
-#include "vr_fpOps.h"
-#include "vr_exclude.h"
-#include "vr_error.h"
-//#include <fenv.h>
+#include "vr_main.h"
 #include "float.h"
 //#pragma STDC FENV_ACCESS ON
 
-// * Global features
-
-// ** Start-stop instrumentation
-
-typedef enum {
-  VR_INSTR_OFF,
-  VR_INSTR_ON,
-  VR_INSTR
-} Vr_Instr;
-
-Vr_Instr vr_instrument_state = VR_INSTR_ON;
-Bool vr_verbose= False;
-
-
-// Black magic from callgrind
-extern void VG_(discard_translations) ( Addr64 start, ULong range, const HChar* who );
-
-static void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
-  if (vr_instrument_state == state) {
-    if(vr_verbose){
-      VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
-		   reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
-    }
-
-    return;
-  }
-
-  vr_instrument_state = state;
-  if(vr_instrument_state == VR_INSTR_ON){
-    vr_beginInstrumentation();
-  }else{
-    vr_endInstrumentation();
-  }
-
-
-  if(vr_verbose){
-    VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
-		 reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
-  }
-  // Discard cached translations
-  //  VG_(discard_translations)( (Addr64)0x1000, (ULong) ~0xfffl, "verrou");
-}
-
-// ** Enter/leave deterministic section
-
-static void vr_deterministic_section_name (unsigned int level,
-                                           HChar * name,
-                                           unsigned int len)
-{
-  Addr ips[8];
-  HChar fnname[256];
-  HChar filename[256];
-  UInt  linenum;
-  Addr  addr;
-
-  VG_(get_StackTrace)(VG_(get_running_tid)(),
-                      ips, 8,
-                      NULL, NULL,
-                      0);
-  addr = ips[level];
-
-  fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname, 256);
-
-  filename[0] = 0;
-  VG_(get_filename_linenum)(addr,
-                            filename, 256,
-                            NULL,     0,
-                            NULL,
-                            &linenum);
-  VG_(snprintf)(name, len,
-                "%s (%s:%d)", fnname, filename, linenum);
-}
-
-static unsigned int vr_deterministic_section_hash (HChar const*const name)
-{
-  unsigned int hash = VG_(getpid)();
-  int i = 0;
-  while (name[i] != 0) {
-    hash += i * name[i];
-    ++i;
-  }
-  return hash;
-}
-
-static void vr_start_deterministic_section (unsigned int level) {
-  HChar name[256];
-  unsigned int hash;
-
-  vr_deterministic_section_name (level, name, 256);
-
-  hash = vr_deterministic_section_hash (name);
-  vr_fpOpsSeed (hash);
-
-  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
-               hash, name);
-}
-
-static void vr_stop_deterministic_section (unsigned int level) {
-  HChar name[256];
-  vr_deterministic_section_name (level, name, 256);
-
-  VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
-               name);
-  vr_fpOpsRandom ();
-}
-
-
-
-typedef enum {
-  VR_OP_ADD,    // Addition
-  VR_OP_SUB,    // Subtraction
-  VR_OP_MUL,    // Multiplication
-  VR_OP_DIV,    // Division
-  VR_OP_MADD,   // FMA ADD
-  VR_OP_MSUB,   // FMA SUB
-  VR_OP
-} Vr_Op;
-
-
-// ** Command-line options
-
-Vr_Exclude * vr_exclude;
-
-typedef struct _vr_CLO vr_CLO;
-struct _vr_CLO {
-  enum vr_RoundingMode roundingMode;
-  Bool genExclude;
-  HChar * excludeFile;
-};
-vr_CLO vr_clo;
-
-Bool vr_count= True;
-Bool vr_instr_op[VR_OP];
-Bool vr_instr_scalar=False;
-
-static Bool vr_process_clo (const HChar *arg) {
-  Bool bool_val;
-  const HChar * str;
-
-  //Option --rounding-mode=
-  if      (VG_XACT_CLO (arg, "--rounding-mode=random",
-                        vr_clo.roundingMode, VR_RANDOM)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=average",
-                        vr_clo.roundingMode, VR_AVERAGE)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=nearest",
-                        vr_clo.roundingMode, VR_NEAREST)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=upward",
-                        vr_clo.roundingMode, VR_UPWARD)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=downward",
-                        vr_clo.roundingMode, VR_DOWNWARD)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=toward_zero",
-                        vr_clo.roundingMode, VR_ZERO)) {}
-
-  //Options to choose op to instrument
-  else if (VG_XACT_CLO (arg, "--vr-instr=add",
-                        vr_instr_op[VR_OP_ADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=sub",
-                        vr_instr_op[VR_OP_SUB] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mul",
-                        vr_instr_op[VR_OP_MUL] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=div",
-                        vr_instr_op[VR_OP_DIV] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mAdd",
-                        vr_instr_op[VR_OP_MADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mSub",
-                        vr_instr_op[VR_OP_MSUB] , True)) {}
-
-  //Options to choose op to instrument
-  else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
-    vr_instr_scalar= bool_val;
-  }
-
-  //Option --verrou-verbose (to avoid verbose of valgrind)
-  else if (VG_BOOL_CLO (arg, "--verrou-verbose", bool_val)) {
-    vr_verbose = bool_val;
-  }
-
-  //Option --count-op
-  else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
-    vr_count = bool_val;
-  }
-
-  // Instrumentation at start
-  else if (VG_BOOL_CLO (arg, "--instr-atstart", bool_val)) {
-    vr_instrument_state = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
-  }
-
-  // Exclusion files
-  else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
-    vr_clo.excludeFile = VG_(strdup)("vr.process_clo.1", str);
-    vr_clo.genExclude = True;
-  }
-  else if (VG_STR_CLO (arg, "--exclude", str)) {
-    vr_clo.excludeFile = VG_(strdup)("vr.process_clo.2", str);
-    vr_clo.genExclude = False;
-  }
-
-  // Unknown option
-  else{
-    return False;
-  }
-
-  return True;
-}
-
-static void vr_clo_defaults (void) {
-  vr_clo.roundingMode = VR_NEAREST;
-  vr_clo.genExclude = False;
-  int opIt;
-  for(opIt=0; opIt< VR_OP;opIt++){
-    vr_instr_op[opIt]=False;
-  }
-}
-
-static void vr_print_usage (void) {
-  VG_(printf)("\n");
-  VG_(printf)("    Rounding mode selection \n");
-  VG_(printf)("        --rounding-mode=random\n");
-  VG_(printf)("        --rounding-mode=average\n");
-  VG_(printf)("        --rounding-mode=nearest\n");
-  VG_(printf)("        --rounding-mode=upward\n");
-  VG_(printf)("        --rounding-mode=downward\n");
-  VG_(printf)("        --rounding-mode=toward_zero\n");
-
-  VG_(printf)("\n");
-  VG_(printf)("    Instrumented operations selection \n");
-  VG_(printf)("        --vr-instr=add\n");
-  VG_(printf)("        --vr-instr=sub\n");
-  VG_(printf)("        --vr-instr=mul\n");
-  VG_(printf)("        --vr-instr=div\n");
-  VG_(printf)("        --vr-instr=mAdd\n");
-  VG_(printf)("        --vr-instr=mSub\n");
-
-  VG_(printf)("\n");
-  VG_(printf)("    Other options \n");
-  VG_(printf)("        --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n");
-  VG_(printf)("        --verrou-verbose=[yes|NO]  print each instrumentation switch\n");
-  VG_(printf)("        --count-op=[yes|NO]        count floating point operations\n");
-  VG_(printf)("        --instr-atstart=[YES|no]   instrumentation from the start (useful when\n"
-              "                                     used with client requests)\n");
-  VG_(printf)("        --gen-exclude=FILE         generate excluded functions list in FILE\n");
-  VG_(printf)("        --exclude=FILE             read excluded functions list from FILE\n");
-  VG_(printf)("                                     (--gen-exclude and --exclude are\n"
-              "                                     mutually exclusive)\n");
-}
-
-static void vr_print_debug_usage (void) {
-  vr_print_usage();
-}
-
-// ** Client requests
-
-
-static Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
-  if (!VG_IS_TOOL_USERREQ('V','R', args[0]))
-    return False;
-
-  switch (args[0]) {
-  case VR_USERREQ__START_INSTRUMENTATION:
-    vr_set_instrument_state ("Client Request", True);
-    *ret = 0; /* meaningless */
-    break;
-  case VR_USERREQ__STOP_INSTRUMENTATION:
-    vr_set_instrument_state ("Client Request", False);
-    *ret = 0; /* meaningless */
-    break;
-  case VR_USERREQ__START_DETERMINISTIC:
-    vr_start_deterministic_section (args[1]);
-    *ret = 0; /* meaningless */
-    break;
-  case VR_USERREQ__STOP_DETERMINISTIC:
-    vr_stop_deterministic_section (args[1]);
-    *ret = 0; /* meaningless */
-    break;
-  }
-  return True;
-}
-
+Vr_State vr;
 
 // * Floating-point operations counter
 
@@ -420,7 +114,7 @@ static const char* vr_ppVec (Vr_Vec vec) {
 
 static ULong vr_opCount[VR_OP][VR_PREC][VR_VEC][VR_INSTR];
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, Long increment) {
-  counter[vr_instrument_state] += increment;
+  counter[vr.instrument] += increment;
 }
 
 static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, Long increment) {
@@ -428,7 +122,7 @@ static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, Long increm
 }
 
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
-  if(!vr_count){
+  if(!vr.count){
     return;
   }
 
@@ -442,7 +136,7 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
     increment =4;
   }
 
-  if( vr_instr_op[op] && ( (vr_instr_scalar || !vec==VR_VEC_SCAL ))&& (vec!=VR_VEC_FULL4) ){
+  if( vr.instr_op[op] && ( (vr.instr_scalar || !vec==VR_VEC_SCAL ))&& (vec!=VR_VEC_FULL4) ){
     argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
 			  mkIRExpr_HWord (increment));
     di = unsafeIRDirty_0_N( 2,
@@ -470,8 +164,8 @@ static unsigned int vr_frac (ULong a, ULong b) {
   return q;
 }
 
-static void vr_ppOpCount (void) {
-  if(!vr_count)return ;
+void vr_ppOpCount (void) {
+  if(!vr.count)return ;
   Vr_Op op;
   Vr_Prec prec;
   Vr_Vec vec;
@@ -762,17 +456,17 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //instrumentation to count operation
   vr_countOp (sb,  op, prec,vec);
 
-  if(vr_verbose && vec==VR_VEC_SCAL){
+  if(vr.verbose && vec==VR_VEC_SCAL){
     IROp irop;
     if (vr_getOp (expr, &irop))
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  if(!vr_instr_op[op] ) {
+  if(!vr.instr_op[op] ) {
     addStmtToIRSB (sb, stmt);
     return;
   }
-  if(!vr_instr_scalar && vec==VR_VEC_SCAL) {
+  if(!vr.instr_scalar && vec==VR_VEC_SCAL) {
     addStmtToIRSB (sb, stmt);
     return;
   }
@@ -862,7 +556,7 @@ static void vr_replaceBinFull2Op (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //instrumentation to count operation
   vr_countOp (sb,  op, prec,vec);
 
-  if(!vr_instr_op[op] ) {
+  if(!vr.instr_op[op] ) {
     addStmtToIRSB (sb, stmt);
     return;
   }
@@ -918,7 +612,7 @@ static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   Vr_Op   Op,
 			   Vr_Prec Prec) {
   vr_countOp (sb,  Op, Prec, VR_VEC_LLO);
-  if(!vr_instr_op[Op] ) {
+  if(!vr.instr_op[Op] ) {
     addStmtToIRSB (sb, stmt);
     return;
   }
@@ -1216,7 +910,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  if (vr_excludeIRSB (&vr_exclude, vr_clo.genExclude))
+  if (vr_excludeIRSB (&vr.exclude, vr.genExclude))
     return sbIn;
 
   UInt i;
@@ -1241,41 +935,41 @@ static void vr_fini(Int exitcode)
   vr_fpOpsFini ();
   vr_ppOpCount ();
 
-  if (vr_clo.genExclude) {
-    vr_dumpExcludeList(vr_exclude, vr_clo.excludeFile);
+  if (vr.genExclude) {
+    vr_dumpExcludeList(vr.exclude, vr.excludeFile);
   }
-  vr_freeExcludeList (vr_exclude);
-  VG_(free)(vr_clo.excludeFile);
+  vr_freeExcludeList (vr.exclude);
+  VG_(free)(vr.excludeFile);
 }
 
 static void vr_post_clo_init(void)
 {
-   vr_fpOpsInit(vr_clo.roundingMode, VG_(getpid)());
+   vr_fpOpsInit(vr.roundingMode, VG_(getpid)());
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;
    int opIt;
    for(opIt=0; opIt< VR_OP ;opIt++){
-     if(vr_instr_op[opIt]) someThingInstr=True;
+     if(vr.instr_op[opIt]) someThingInstr=True;
    }
    if(!someThingInstr){
      for(opIt=0; opIt< VR_OP ;opIt++){
-       vr_instr_op[opIt]=True;
+       vr.instr_op[opIt]=True;
      }
    }
    VG_(umsg)("Instrumented operations :\n");
    for (opIt=0; opIt< VR_OP ;opIt++){
      VG_(umsg)("\t%s : ", vr_ppOp(opIt));
-     if(vr_instr_op[opIt]==True) VG_(umsg)("yes\n");
+     if(vr.instr_op[opIt]==True) VG_(umsg)("yes\n");
      else VG_(umsg)("no\n");
    }
    VG_(umsg)("Instrumented scalar operations : ");
-   if(vr_instr_scalar==True) VG_(umsg)("yes\n");
+   if(vr.instr_scalar) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
 
-   vr_exclude = NULL;
-   if (!vr_clo.genExclude && vr_clo.excludeFile) {
-     vr_exclude = vr_loadExcludeList (vr_exclude, vr_clo.excludeFile);
+   vr.exclude = NULL;
+   if (!vr.genExclude && vr.excludeFile) {
+     vr.exclude = vr_loadExcludeList (vr.exclude, vr.excludeFile);
    }
 }
 
