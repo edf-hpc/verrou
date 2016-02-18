@@ -131,9 +131,9 @@ static Bool vr_handle_monitor_help (void) {
   VG_(gdb_printf)("\n");
   VG_(gdb_printf)("verrou monitor commands:\n");
   VG_(gdb_printf)("  help                     : print this help\n");
+  VG_(gdb_printf)("  count                    : print instruction counters\n");
   VG_(gdb_printf)("  instrumentation          : get instrumentation state\n");
   VG_(gdb_printf)("  instrumentation [on|off] : set instrumentation state\n");
-  VG_(gdb_printf)("  count                    : print instruction counters\n");
   VG_(gdb_printf)("\n");
   return True;
 }
@@ -185,6 +185,10 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     break;
   case VR_USERREQ__STOP_DETERMINISTIC:
     vr_stop_deterministic_section (args[1]);
+    *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__DISPLAY_COUNTERS:
+    vr_ppOpCount();
     *ret = 0; /* meaningless */
     break;
   case VG_USERREQ__GDB_MONITOR_COMMAND:

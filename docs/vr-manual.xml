@@ -1,187 +1,215 @@
 <?xml version="1.0"?> <!-- -*- sgml -*- -->
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 
 
 <chapter id="vr-manual" xreflabel="Verrou">
-<title>Verrou: a floating-point rounding errors checker</title>
+  <title>Verrou: a floating-point rounding errors checker</title>
 
-<para>
-  To use this tool, you must specify <option>--tool=verrou</option> on the
-  Valgrind command line.
-</para>
+  <para>
+    To use this tool, you must specify <option>--tool=verrou</option> on the
+    Valgrind command line.
+  </para>
 
-<sect1 id="vr-manual.overview" xreflabel="Overview">
-<title>Overview</title>
+  <sect1 id="vr-manual.overview" xreflabel="Overview">
+    <title>Overview</title>
 
-<para>
-Verrou helps you looking for floating-point round-off errors in programs. It
-implements a stochastic floating-point arithmetic based on random rounding: all
-floating-point operations are perturbed by randomly switching rounding modes. ,
-This can be seen as an asynchronous variant of the CESTAC method, or a subset
-of Monte Carlo Arithmetic, performing only output randomization.
-</para>
+    <para>
+      Verrou helps you look for floating-point round-off errors in programs. It
+      implements a stochastic floating-point arithmetic based on random rounding: all
+      floating-point operations are perturbed by randomly switching rounding modes.
+      This can be seen as an asynchronous variant of the CESTAC method, or a subset
+      of Monte Carlo Arithmetic, performing only output randomization.
+    </para>
 
-<sect2 id="vr-manual.basic-usage" xreflabel="Basic Usage">
-<title>Basic usage</title>
-<para>
-As with many other Valgrind tools, you probably want to recompile your program
-with debugging info (the <option>-g</option> option) and with optimization
-turned on.
-</para>
+    <sect2 id="vr-manual.basic-usage" xreflabel="Basic Usage">
+      <title>Basic usage</title>
+      <para>
+        As with many other Valgrind tools, you probably want to recompile your program
+        with debugging info (the <option>-g</option> option) and with optimization
+        turned on.
+      </para>
 
-<para>
-  To start a floating-point check for a program, execute:
-  <screen>valgrind --tool=verrou [verrou options] your-program [program options]</screen>
-</para>
+      <para>
+        To start a floating-point check for a program, execute:
+        <screen>valgrind --tool=verrou [verrou options] your-program [program options]</screen>
+      </para>
 
-<para>
-  During program execution, floating-point operations will be perturbed by
-  constantly and randomly switching the rounding-mode. This makes you program
-  output (hopefully slightly) different results than in a normal execution. See
-  <xref linkend="vr-manual.feat.rounding-mode"/> for more details on the different
-  rounding-mode switching strategies.
-</para>
+      <para>
+        During program execution, floating-point operations will be perturbed by
+        constantly and randomly switching the rounding-mode. This makes you program
+        output (hopefully slightly) different results than in a normal execution. See
+        <xref linkend="vr-manual.feat.rounding-mode"/> for more details on the different
+        rounding-mode switching strategies.
+      </para>
 
-<para>
-After program termination, a summary of floating point operations will be
-printed on screen (see <xref linkend="vr-manual.feat.instr"/> below).
-</para>
-</sect2>
-
-
-<sect2 id="vr-manual.feat" xreflabel="Features">
-<title>Features</title>
-
-<sect3 id="vr-manual.feat.count" xreflabel="Floating-point instructions counting">
-<title>Floating-point instructions counting</title>
-<para>
-Verrou detects and counts floating-point operations. A summary is printed after
-each program execution, listing the number of floating-point operations executed
-by the program, broken down into categories according to various criteria :
-</para>
-<variablelist>
-<varlistentry>
-  <term><command>Operation type:</command></term>
-  <listitem><para>
-    <itemizedlist>
-      <listitem><command>add</command>: addition</listitem>
-      <listitem><command>sub</command>: subtraction</listitem>
-      <listitem><command>mul</command>: multiplication</listitem>
-      <listitem><command>div</command>: division</listitem>
-    </itemizedlist>
-  </para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><command>Floating-point precision:</command></term>
-  <listitem><para>
-    <itemizedlist>
-      <listitem><command>flt</command>: IEEE-754 single precision
-      (<computeroutput>float</computeroutput>)</listitem>
-      <listitem><command>dbl</command>: IEEE-754 double precision</listitem>
-    </itemizedlist>
-  </para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><command>Vector nature of the instruction:</command></term>
-  <listitem><para>
-    <itemizedlist>
-      <listitem><command>scal</command>: scalar instruction</listitem>
-      <listitem><command>llo</command>: lowest-lane-only vector instruction</listitem>
-      <listitem><command>vec</command>: full vector instruction</listitem>
-    </itemizedlist>
-  </para></listitem>
-</varlistentry>
-</variablelist>
-
-<para>Below is an example output of Verrou's summary of floating-point operations:
-<screen>
-==14508==     ------------------------------------
-==14508==     Operation
-==14508==      `- Precision
-==14508==          `- Vectorization          Count
-==14508==     ------------------------------------
-==14508==     add                500869335
-==14508==      `- flt                400695468
-==14508==          `- llo                400695468
-==14508==      `- dbl                100173867
-==14508==          `- llo                100173867
-==14508==     ------------------------------------
-==14508==     sub                763127660
-==14508==      `- flt                763127660
-==14508==          `- llo                763127660
-==14508==     ------------------------------------
-==14508==     mul               1202086563
-==14508==      `- flt               1101912537
-==14508==          `- llo               1101912537
-==14508==      `- dbl                100174026
-==14508==          `- llo                100174026
-==14508==     ------------------------------------
-</screen>
-</para>
-</sect3>
+      <para>
+        After program termination, a summary of floating point operations will be
+        printed on screen (see <xref linkend="vr-manual.feat.count"/> below).
+      </para>
+    </sect2>
 
 
-<sect3 id="vr-manual.feat.rounding-mode" xreflabel="Rounding-mode switching">
-<title>Rounding-mode switching</title>
-<para>
-When the instrumented program performs a floating-point operation, Verrou can
-replace it with a perturbed version of the same operation, using another
-rounding mode.
-</para>
-<para>Verrou can simulate any of the four IEEE-754 standard rounding modes:
-<itemizedlist>
-<listitem>nearest (default),</listitem>
-<listitem>upward,</listitem>
-<listitem>downward,</listitem>
-<listitem>toward zero.</listitem>
-</itemizedlist>
-Verrou is also capable of randomly switching rounding mode at each
-floating-point operation, in order to implement the "random rounding" variant of
-Monte Carlo Arithmetic (MCA). Two strategies
-can be used to choose the rounding mode for a given operation:
-<variablelist>
-<varlistentry>
-  <term><command>random:</command></term>
-  <listitem><para>Randomly pick one among upward and downward rounding, with equal
-  probabilities. This is a form of asynchronous CESTAC method.</para></listitem>
-</varlistentry>
-<varlistentry>
-  <term><command>average:</command></term>
-  <listitem><para>Randomly choose between upward and downward rounding mode, in
-  such a way that the expectation of the random result equals the exact
-  operation result (without rounding). This is called "uniform_absolute output
-  randomization" in the MCA literature.</para></listitem>
-</varlistentry>
-</variablelist>
+    <sect2 id="vr-manual.feat" xreflabel="Features">
+      <title>Standard features</title>
 
-</para>
-<para>
-The <option><xref linkend="vr-opt.rounding-mode"/></option> command-line option
-allows choosing between these strategies.
-</para>
-</sect3>
+      <sect3 id="vr-manual.feat.count" xreflabel="Floating-point instructions counting">
+        <title>Floating-point instructions counting</title>
+        <para>
+          Verrou detects and counts floating-point operations. A summary is printed after
+          each program execution, listing the number of floating-point operations executed
+          by the program, broken down into categories according to various criteria :
+        </para>
+        <variablelist>
+          <varlistentry>
+            <term><command>Operation type:</command></term>
+            <listitem><para>
+                <itemizedlist>
+                  <listitem><command>add</command>: addition</listitem>
+                  <listitem><command>sub</command>: subtraction</listitem>
+                  <listitem><command>mul</command>: multiplication</listitem>
+                  <listitem><command>div</command>: division</listitem>
+                </itemizedlist>
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><command>Floating-point precision:</command></term>
+            <listitem><para>
+                <itemizedlist>
+                  <listitem><command>flt</command>: IEEE-754 single precision
+                    (<computeroutput>float</computeroutput>)</listitem>
+                  <listitem><command>dbl</command>: IEEE-754 double precision</listitem>
+                </itemizedlist>
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><command>Vector nature of the instruction:</command></term>
+            <listitem><para>
+                <itemizedlist>
+                  <listitem><command>scal</command>: scalar instruction</listitem>
+                  <listitem><command>llo</command>: lowest-lane-only vector instruction</listitem>
+                  <listitem><command>vec</command>: full vector instruction</listitem>
+                </itemizedlist>
+            </para></listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Below is an example output of Verrou's summary of floating-point operations:
+          <screen>
+==19788==  ---------------------------------------------------------------------
+==19788==  Operation                            Instruction count
+==19788==   `- Precision
+==19788==       `- Vectorization          Total             Instrumented
+==19788==  ---------------------------------------------------------------------
+==19788==  add                     9392                     9392          (100%)
+==19788==   `- flt                       85                       85      (100%)
+==19788==       `- llo                       85                       85  (100%)
+==19788==   `- dbl                     9307                     9307      (100%)
+==19788==       `- llo                     9307                     9307  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  sub                     4342                     4342          (100%)
+==19788==   `- flt                       77                       77      (100%)
+==19788==       `- llo                       77                       77  (100%)
+==19788==   `- dbl                     4265                     4265      (100%)
+==19788==       `- llo                     4265                     4265  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  mul                     9966                     9966          (100%)
+==19788==   `- flt                      134                      134      (100%)
+==19788==       `- llo                      134                      134  (100%)
+==19788==   `- dbl                     9832                     9832      (100%)
+==19788==       `- llo                     9832                     9832  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  div                       35                       35          (100%)
+==19788==   `- flt                        5                        5      (100%)
+==19788==       `- llo                        5                        5  (100%)
+==19788==   `- dbl                       30                       30      (100%)
+==19788==       `- llo                       30                       30  (100%)
+==19788==  ---------------------------------------------------------------------</screen>
+        </para>
+
+        <para>The set of columns labeled "Total" shows the total number of
+          floating-point instructions as seen by Verrou. In the second set of
+          columns (labeled "Instrumented"), instructions are only accounted for
+          if they come from <xref linkend="vr-manual.feat.instr"/>. The last
+          column shows the fraction of instrumented instructions. Instructions
+          coming from <xref linkend="vr-manual.feat.exclude"/> are never
+          accounted for.
+        </para>
+
+        <para>These counters can be displayed at any point during the program
+        execution using
+        the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
+        client request or the <computeroutput><xref linkend="vr.monitor_count"/></computeroutput>
+        monitor command.
+        </para>
+      </sect3>
 
 
-<sect3 id="vr-manual.feat.instr" xreflabel="Instrumented sections">
-<title>Instrumented sections</title>
-<para>
-It is often desirable to only instrument part of the program, either to save
-time or more precisely determine the source of floating-point errors. This can
-be achieved by toggling instrumentation on and off around the parts which need
-closer inspection.
-</para>
-<para>
-Instrumentation can be toggled off at program start using
-the <option><xref linkend="vr-opt.instr-atstart"/></option> command-line
-option. Furthermore, it can be (de)activated programatically using
-the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
-and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
-client requests.
-</para>
-<para>This feature is greatly inspired by Callgrind's one (see the
-  <xref linkend="cl-manual"/>). Below is an example use:
-<programlisting>
+      <sect3 id="vr-manual.feat.rounding-mode" xreflabel="Rounding-mode switching">
+        <title>Rounding-mode switching</title>
+        <para>
+          When the instrumented program performs a floating-point operation, Verrou can
+          replace it with a perturbed version of the same operation, using another
+          rounding mode.
+        </para>
+        <para>Verrou can simulate any of the four IEEE-754 standard rounding modes:
+          <itemizedlist>
+            <listitem>nearest (default),</listitem>
+            <listitem>upward,</listitem>
+            <listitem>downward,</listitem>
+            <listitem>toward zero.</listitem>
+          </itemizedlist>
+          Verrou is also capable of randomly switching rounding mode at each
+          floating-point operation, in order to implement the "random rounding" variant of
+          Monte Carlo Arithmetic (MCA). Two strategies
+          can be used to choose the rounding mode for a given operation:
+          <variablelist>
+            <varlistentry>
+              <term><command>random:</command></term>
+              <listitem><para>Randomly pick one among upward and downward rounding, with equal
+                  probabilities. This is a form of asynchronous CESTAC method.</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><command>average:</command></term>
+              <listitem><para>Randomly choose between upward and downward rounding mode, in
+                  such a way that the expectation of the random result equals the exact
+                  operation result (without rounding). This is called "uniform_absolute output
+                  randomization" in the MCA literature.</para></listitem>
+            </varlistentry>
+          </variablelist>
+
+        </para>
+        <para>
+          The <option><xref linkend="vr-opt.rounding-mode"/></option> command-line option
+          allows choosing between these strategies.
+        </para>
+      </sect3>
+
+    </sect2>
+  </sect1>
+
+  <sect1 id="vr-manual.advanced" xreflabel="Advanced features">
+    <title>Advanced features</title>
+
+    <sect2 id="vr-manual.feat.instr" xreflabel="Instrumented sections">
+      <title>Instrumented sections</title>
+      <para>
+        It is often desirable to only instrument part of the program, either to save
+        time or more precisely determine the source of floating-point errors. This can
+        be achieved by toggling instrumentation on and off around the parts which need
+        closer inspection.
+      </para>
+      <para>
+        Instrumentation can be toggled off at program start using
+        the <option><xref linkend="vr-opt.instr-atstart"/></option> command-line
+        option. Furthermore, it can be (de)activated programatically using
+        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
+        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
+        client requests.
+      </para>
+      <para>This feature is greatly inspired by Callgrind's one (see the
+        <xref linkend="cl-manual"/>). Below is an example use:
+        <programlisting>
 #include &lt;valgrind/verrou.h&gt;
 #include &lt;stdio.h&gt;
 
@@ -193,24 +221,127 @@ int main () {
   VERROU_STOP_INSTRUMENTATION;
 
   fprintf (stdout, "result = %f", result);
-}
-</programlisting>
-This program should be run in Verrou using the following command:
-<screen>valgrind --tool=verrou --instr-atstart=no program</screen>
-</para>
-</sect3>
+} </programlisting>
+        This program should be run in Verrou using the following command:
+        <screen>valgrind --tool=verrou --instr-atstart=no program</screen>
+      </para>
+      <para>
+        The same thing can be achieved interactively using
+        the <computeroutput><xref linkend="vr.monitor_instrumentation"/></computeroutput>
+        monitor command.
+      </para>
+    </sect2>
 
-<sect3 id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
-<title>Deterministic sections</title>
-<para>
-Sometimes you want a part of your program to be instrumented and perturbed by
-rounding-mode switches, but you don't want to lose determinism. For example, in
-the following program, <function>det</function> is called twice with the same
-arguments, and the correct execution relies on the strong hypothesis that both
-calls will return the same result.
+    <sect2 id="vr-manual.feat.exclude" xreflabel="Excluded code blocks">
+      <title>Excluded code blocks</title>
+      <para> Instead of explicitly toggling instrumentation state with client
+        requests in the source code, it is possible to entirely exclude
+        instruction blocks (Intermediate Representation SuperBlocks in Valgrind
+        terminology) from the instrumentation process, based on either the
+        function name, the object name, or both.
+      </para>
+      <para>
+        This can be done by providing an exclusion file via
+        the <option><xref linkend="vr-opt.exclude"/></option> command-line
+        option. The file should have the following format:
+          <itemizedlist>
+            <listitem>one rule per line,</listitem>
+            <listitem>each rule of the form <computeroutput>FNNAME
+            OBJNAME</computeroutput>,
+            where <computeroutput>FNNAME</computeroutput> is the function name,
+            and <computeroutput>OBJNAME</computeroutput> is the symbol name (the
+            name of the executable or the shared library). Either can be
+            replaced by a star (<computeroutput>*</computeroutput>) to match
+            anything. The two columns can be separated by any number of spaces
+            and tabulations (<computeroutput>\t</computeroutput>)</listitem>
+          </itemizedlist> 
+      </para>
+      <para>
+        When verrou finds a block of instructions whose address matches
+        the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+        specification, the whole chunk is left uninstrumented. Please note that
+        this differs from
+        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
+        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
+        client requests mentioned above in that floating-point instructions in
+        these parts are not accounted for in the operations count.
+      </para>
+      <para>
+        Here are a few examples of exclusion rules for mathematics functions:
+        <itemizedlist>
+          <listitem>exclude the whole <computeroutput>libm</computeroutput>
+          (beware that the path is the canonical one; <computeroutput>readlink
+          -f</computeroutput> can help finding it):
+            <screen>*	/lib/libm-2.11.3.so</screen>
+          </listitem>
+          <listitem>exclude specific functions based on their names only (beware
+          to list all functions in which the program will pass; not only
+          top-level ones):
+            <screen>exp            *
+__ieee754_exp  *
+__exp1         * </screen>
+          </listitem>
+          <listitem>exclude a specific function of a specific library:
+            <screen>exp  /lib/libm.so.6</screen>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
+        command-line option can help producing the complete list of
+        <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+        pairs through which a given program passes. This can allow generating
+        exclusion lists by building a small program built in the same way as
+        your target application, which calls the functions you want to exclude
+        from the instrumentation.
+      </para>
+      <para>For example, the following program can be instrumented to generate an
+      exclusion list for a selected number of single-precision mathematics functions:
+        <programlisting>
+#include &lt;math.h&gt;
+
+int main () {
+  /* volatile: don't compute anything at compile-time */
+  volatile float f = 42.;
+
+  return cosf(f) + sinf(f) + tanf(f) + atanf(f) + powf(f, 3.) + expf(f) + logf(f);
+} </programlisting>
+
+        <screen>
+$ gcc -O3 -o myprog myprog.c
+$ valgrind --tool=verrou --gen-exclude=libm-float.exclude
+$ cat libm-float.exclude</screen>
+        <screen>
+__ieee754_logf       /lib/libm-2.11.3.so
+logf                 /lib/libm-2.11.3.so
+fesetenv             /lib/libm-2.11.3.so
+fesetround           /lib/libm-2.11.3.so
+__ieee754_expf       /lib/libm-2.11.3.so
+expf                 /lib/libm-2.11.3.so
+__ieee754_powf       /lib/libm-2.11.3.so
+powf                 /lib/libm-2.11.3.so
+atanf                /lib/libm-2.11.3.so
+__kernel_tanf        /lib/libm-2.11.3.so
+tanf                 /lib/libm-2.11.3.so
+__kernel_cosf        /lib/libm-2.11.3.so
+sinf                 /lib/libm-2.11.3.so
+__kernel_sinf        /lib/libm-2.11.3.so
+__ieee754_rem_pio2f  /lib/libm-2.11.3.so
+cosf                 /lib/libm-2.11.3.so</screen>
 </para>
 
-<programlisting>
+    </sect2>
+    
+    <sect2 id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
+      <title>Deterministic sections</title>
+      <para>
+        Sometimes you want a part of your program to be instrumented and perturbed by
+        rounding-mode switches, but you don't want to lose determinism. For example, in
+        the following program, <function>det</function> is called twice with the same
+        arguments, and the correct execution relies on the strong hypothesis that both
+        calls will return the same result.
+      </para>
+
+      <programlisting>
 float det (float x) {
   return 2*x;
 }
@@ -219,43 +350,42 @@ int main () {
   float x1 = det (42);
   float x2 = det (42);
   assert (x1 == x2);
-}
-</programlisting>
+} </programlisting>
 
-<para>
-In this situation, you know that <function>det</function> can contain
-floating-point errors, which you want to quantify. However, you also know that
-whatever these errors, <function>det</function> will remain deterministic and
-the assertion only fails due to the instrumentation added by
-Verrou. The <computeroutput><xref linkend="vr-cr.start-deterministic"/></computeroutput>
-client request can help dealing with such problems.
-</para>
+      <para>
+        In this situation, you know that <function>det</function> can contain
+        floating-point errors, which you want to quantify. However, you also know that
+        whatever these errors, <function>det</function> will remain deterministic and
+        the assertion only fails due to the instrumentation added by
+        Verrou. The <computeroutput><xref linkend="vr-cr.start-deterministic"/></computeroutput>
+        client request can help dealing with such problems.
+      </para>
 
-<para>
-At the beginning of a deterministic section, the pseudo-random number generator
-(pRNG) used for random rounding mode switching is seeded with a new value. This
-value is computed deterministically from the location in the program source
-code. This ensures that each time the instrumented program enters the same
-deterministic section (same location in the source code), the pRNG is seeded
-with the same value, leading to the same sequence of rounding mode switches. The
-seed value also depends on the PID of the current process, so that different
-program executions lead to different results.
-</para>
+      <para>
+        At the beginning of a deterministic section, the pseudo-random number generator
+        (pRNG) used for random rounding mode switching is seeded with a new value. This
+        value is computed deterministically from the location in the program source
+        code. This ensures that each time the instrumented program enters the same
+        deterministic section (same location in the source code), the pRNG is seeded
+        with the same value, leading to the same sequence of rounding mode switches. The
+        seed value also depends on the PID of the current process, so that different
+        program executions lead to different results.
+      </para>
 
-<sect4>
-<title>Basic usage</title>
+      <sect3>
+        <title>Basic usage</title>
 
-<para>
-Use the <computeroutput>VERROU_START_DETERMINISTIC(0)</computeroutput> client
-request to mark the beginning of a deterministic section. Similarly, put
-a <computeroutput>VERROU_STOP_DETERMINISTIC(0)</computeroutput> client request
-at the end of the deterministic section to go back to (pseudo-)random rounding
-mode switching.
-</para>
+        <para>
+          Use the <computeroutput>VERROU_START_DETERMINISTIC(0)</computeroutput> client
+          request to mark the beginning of a deterministic section. Similarly, put
+          a <computeroutput>VERROU_STOP_DETERMINISTIC(0)</computeroutput> client request
+          at the end of the deterministic section to go back to (pseudo-)random rounding
+          mode switching.
+        </para>
 
-<para>
-Here is an example instrumented program:
-<programlisting>
+        <para>
+          Here is an example instrumented program:
+          <programlisting>
 #include &lt;valgrind/verrou.h&gt;
 
 float det (float x) {
@@ -269,32 +399,30 @@ int main () {
   float x1 = det (42);
   float x2 = det (42);
   assert (x1 == x2);
-}
-</programlisting>
-whose execution yields the following output:
-<screen>
+} </programlisting>
+          whose execution yields the following output:
+          <screen>
 --8523-- Entering deterministic section 70660: det() (deterministic.c:4)
 --8523-- Leaving deterministic section: det() (deterministic.c:6)
 --8523-- Entering deterministic section 70660: det() (deterministic.c:4)
---8523-- Leaving deterministic section: det() (deterministic.c:6)
-</screen>
+--8523-- Leaving deterministic section: det() (deterministic.c:6) </screen>
 
-Here we can see that both calls to the <function>det()</function> functions used
-the same value to seed the pRNG (based on the client request location in the
-source).
-</para>
-</sect4>
+          Here we can see that both calls to the <function>det()</function> functions used
+          the same value to seed the pRNG (based on the client request location in the
+          source).
+        </para>
+      </sect3>
 
-<sect4>
-<title>Advanced usage</title>
+      <sect3>
+        <title>Advanced usage</title>
 
-<para>
-Assume the following program, in which two distinct deterministic sections are
-instrumented, but the client requests have been abstracted out in separate
-function calls (this is actually required for example for Fortran programs,
-which have to call a C function to issue client requests):
+        <para>
+          Assume the following program, in which two distinct deterministic sections are
+          instrumented, but the client requests have been abstracted out in separate
+          function calls (this is actually required for example for Fortran programs,
+          which have to call a C function to issue client requests):
 
-<programlisting>
+          <programlisting>
 #include &lt;valgrind/verrou.h&gt;
 
 void verrou_startDeterministic() {
@@ -320,138 +448,191 @@ float det2 () {
 int main () {
   fprintf (stderr, "   det1\n");
   assert (det1() == det1());
-
+  
   fprintf (stderr, "   det2\n");
   assert (det2() == det2());
-}
-</programlisting>
+} </programlisting>
 
-Executing this program in Verrou yields the following output:
-<screen>
-   det1
+          Executing this program in Verrou yields the following output:
+          <screen>
+det1
 --2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
 --2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
 --2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
 --2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
-   det2
+det2
 --2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
 --2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
 --2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
---2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
-</screen>
-since the client requests are always issued from the same source location, the
-two deterministic sections are seeded with the same value.
-</para>
+--2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8) </screen>
+          since the client requests are always issued from the same source location, the
+          two deterministic sections are seeded with the same value.
+        </para>
 
-<para>
-It is possible to give
-the <computeroutput>VERROU_START_DETERMINISTIC</computeroutput> a non-0 LEVEL
-argument to look at the source location of a calling function in the stack. In
-the case described above, replacing
-the <function>verrou_startDeterminisic</function>
-and <function>verrou_stopDeterministic</function> function definitions like
-this:
-<programlisting>
+        <para>
+          It is possible to give
+          the <computeroutput>VERROU_START_DETERMINISTIC</computeroutput> a non-0 LEVEL
+          argument to look at the source location of a calling function in the stack. In
+          the case described above, replacing
+          the <function>verrou_startDeterminisic</function>
+          and <function>verrou_stopDeterministic</function> function definitions like
+          this:
+          <programlisting>
 void verrou_startDeterministic() {
   VERROU_START_DETERMINISTIC(1);
 }
 
 void verrou_stopDeterministic() {
   VERROU_STOP_DETERMINISTIC(1);
-}
-</programlisting>
-yields the following output:
-<screen>
-   det1
+} </programlisting>
+          yields the following output:
+          <screen>
+det1
 --4523-- Entering deterministic section 14298: det1() (deterministic2.c:12)
 --4523-- Leaving deterministic section: det1() (deterministic2.c:14)
 --4523-- Entering deterministic section 14298: det1() (deterministic2.c:12)
 --4523-- Leaving deterministic section: det1() (deterministic2.c:14)
-   det2
+det2
 --4523-- Entering deterministic section 65473: det() (deterministic2.c:18)
 --4523-- Leaving deterministic section: det2() (deterministic2.c:20)
 --4523-- Entering deterministic section 65473: det() (deterministic2.c:18)
---4523-- Leaving deterministic section: det2() (deterministic2.c:20)
-</screen>
-in which the pRNG is seeded using source locations one level up the stack from
-the client request.
-</para>
-<para>
-Since the source location is not needed to go back to (pseudo-)random rounding
-mode switching, the LEVEL argument
-to <computeroutput>VERROU_STOP_DETERMINISTIC</computeroutput> is only used for
-cosmetic and debug purposes.
-</para>
-</sect4>
-</sect3>
+--4523-- Leaving deterministic section: det2() (deterministic2.c:20) </screen>
+          in which the pRNG is seeded using source locations one level up the stack from
+          the client request.
+        </para>
+        <para>
+          Since the source location is not needed to go back to (pseudo-)random rounding
+          mode switching, the LEVEL argument
+          to <computeroutput>VERROU_STOP_DETERMINISTIC</computeroutput> is only used for
+          cosmetic and debug purposes.
+        </para>
+      </sect3>
+    </sect2>
+  </sect1>
 
-</sect2>
-</sect1>
+  <sect1 id="vr-manual.reference" xreflabel="Reference">
+    <title>Reference</title>
+    <sect2 id="vr-manual.clo" xreflabel="Command-line options">
+      <title>Command-line options</title>
 
-<sect1 id="vr-manual.clo" xreflabel="Command-line options">
-<title>Verrou command-line options</title>
+      <variablelist>
+        <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
+          <term><option><![CDATA[--rounding-mode=<random|average> [default=nearest]]]></option></term>
+          <listitem>
+            <para>Choose between the <command>random</command>
+              and <command>average</command> strategies for randomly
+              switching <link linkend="vr-manual.feat.rounding-mode">rounding
+              modes</link> for each floating-point operation.</para>
+            <para>If this option is not provided, Verrou always rounds to the nearest
+              floating-point.</para>
+          </listitem>
+        </varlistentry>
 
-<variablelist>
-<varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-<term><option><![CDATA[--rounding-mode=<random|average>]]></option></term>
-<listitem>
-<para>Choose between the <command>random</command>
-  and <command>average</command> strategies for randomly switching rounding
-  modes for each floating-point operation. See
-  <xref linkend="vr-manual.feat.rounding-mode"/> for details.</para>
-<para>If this option is not provided, Verrou always rounds to the nearest
-  floating-point.</para>
-</listitem>
-</varlistentry>
+        <varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
+          <term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
+          <listitem><para>Toggle <link linkend="vr-manual.feat.instr">instrumentation
+               state</link> on or off at program start.</para></listitem>
+        </varlistentry>
 
-<varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
-<term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
-<listitem><para>Toggle instrumentation state on or off at program start. See
-    <xref linkend="vr-manual.feat.instr"/> for details.</para></listitem>
-</varlistentry>
-</variablelist>
-</sect1>
+        <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
+          <term><option><![CDATA[--exclude=FILE]]></option></term>
+          <listitem><para>Read
+          an <link linkend="vr-manual.feat.exclude">excluded functions
+          list</link> from <computeroutput>FILE</computeroutput>.</para></listitem>
+        </varlistentry>
 
-<sect1 id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
-<title>Verrou specific client requests</title>
+        <varlistentry id="vr-opt.gen-exclude" xreflabel="--gen-exclude">
+          <term><option><![CDATA[--exclude=FILE]]></option></term>
+          <listitem><para>Generate
+              an <link linkend="vr-manual.feat.exclude">excluded functions
+              list</link> to <computeroutput>FILE</computeroutput>.
+          </para></listitem>
+        </varlistentry>
+      </variablelist>
+    </sect2>
 
-<para>Verrou provides the following client requests in
-  the <filename>valgrind/verrou.h</filename> header.</para>
-<variablelist>
+    <sect2 id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
+      <title>Client requests</title>
 
-<varlistentry id="vr-cr.start-instrumentation"
-xreflabel="VERROU_START_INSTRUMENTATION">
-<term><computeroutput>VERROU_START_INSTRUMENTATION</computeroutput></term>
-<listitem><para>Start full Verrou instrumentation (including rounding mode
-    switching) if not already enabled. See <xref linkend="vr-manual.feat.instr"/>
-    for details.</para></listitem>
-</varlistentry>
+      <para>Verrou provides the
+        following <link linkend="manual-core-adv.clientreq">client
+        requests</link> in the <filename>valgrind/verrou.h</filename>
+        header.
+      </para>
+      
+      <variablelist>
+        
+        <varlistentry id="vr-cr.display-counters"
+                      xreflabel="VERROU_DISPLAY_COUNTERS">
+          <term><computeroutput>VERROU_DISPLAY_COUNTERS</computeroutput></term>
+          <listitem><para>Display the
+              current <link linkend="vr-manual.feat.count">instructions
+              counters</link>.</para></listitem>
+        </varlistentry>
 
-<varlistentry id="vr-cr.stop-instrumentation"
-xreflabel="VERROU_STOP_INSTRUMENTATION">
-<term><computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput></term>
-<listitem><para>Stop full Verrou instrumentation (don't count floating-point
-    instructions and don't switch rounding modes) if not already disabled. See
-    <xref linkend="vr-manual.feat.instr"/> for details.</para></listitem>
-</varlistentry>
+        <varlistentry id="vr-cr.start-instrumentation"
+                      xreflabel="VERROU_START_INSTRUMENTATION">
+          <term><computeroutput>VERROU_START_INSTRUMENTATION</computeroutput></term>
+          <listitem><para>Start full
+              Verrou <link linkend="vr-manual.feat.instr">instrumentation</link>
+              (including rounding mode switching) if not already
+              enabled.</para></listitem>
+        </varlistentry>
 
-<varlistentry id="vr-cr.start-deterministic"
-xreflabel="VERROU_START_DETERMINISTIC(LEVEL)">
-<term><computeroutput>VERROU_START_DETERMINISTIC(LEVEL)</computeroutput></term>
-<listitem><para>Start a deterministic section, i.e. one in which floating point
-    operations are perturbed, but in a deterministic way. See
-    <xref linkend="vr-manual.feat.deterministic"/> for details.</para></listitem>
-</varlistentry>
+        <varlistentry id="vr-cr.stop-instrumentation"
+                      xreflabel="VERROU_STOP_INSTRUMENTATION">
+          <term><computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput></term>
+          <listitem><para>Stop full
+              Verrou <link linkend="vr-manual.feat.instr">instrumentation</link>
+              (don't switch rounding modes) if not already disabled.</para></listitem>
+        </varlistentry>
 
-<varlistentry id="vr-cr.stop-deterministic"
-xreflabel="VERROU_STOP_DETERMINISTIC(LEVEL)">
-<term><computeroutput>VERROU_STOP_DETERMINISTIC(LEVEL)</computeroutput></term>
-<listitem><para>Stop a deterministic section, i.e. resume rounding mode
-    switching in a (pseudo-)random way. See
-    <xref linkend="vr-manual.feat.deterministic"/> for details.</para></listitem>
-</varlistentry>
+        <varlistentry id="vr-cr.start-deterministic"
+                      xreflabel="VERROU_START_DETERMINISTIC(LEVEL)">
+          <term><computeroutput>VERROU_START_DETERMINISTIC(LEVEL)</computeroutput></term>
+          <listitem><para>Start
+              a <link linkend="vr-manual.feat.deterministic">deterministic
+              section</link>, i.e. one in which floating point operations are
+              perturbed, but in a deterministic way.</para></listitem>
+        </varlistentry>
 
-</variablelist>
-</sect1>
+        <varlistentry id="vr-cr.stop-deterministic"
+                      xreflabel="VERROU_STOP_DETERMINISTIC(LEVEL)">
+          <term><computeroutput>VERROU_STOP_DETERMINISTIC(LEVEL)</computeroutput></term>
+          <listitem><para>Stop
+              a <link linkend="vr-manual.feat.deterministic">deterministic
+              section</link>, i.e. resume rounding mode switching in a
+              (pseudo-)random way.</para></listitem>
+        </varlistentry>
+
+      </variablelist>
+    </sect2>
+
+    <sect2>
+      <title>Monitor commands</title>
+
+      See <xref linkend="manual-core-adv.gdbserver"/> to get more information
+      about the Valgrind gdbserver and monitor commands. Below is a list of
+      specific monitor commands provided by Verrou:      
+      <variablelist>
+        <varlistentry id="vr.monitor_count" xreflabel="count">
+          <term><computeroutput>count</computeroutput></term>
+          <listitem><para>Display the
+              current <link linkend="vr-manual.feat.count">instructions
+                counters</link>.
+          </para></listitem> 
+        </varlistentry>
+        <varlistentry id="vr.monitor_instrumentation" xreflabel="instrumentation">
+          <term><computeroutput>instrumentation [on|off]</computeroutput></term>
+          <listitem><para> Set the
+              current <link linkend="vr-manual.feat.instr">instrumentation
+              state</link> (or print it if
+              no <computeroutput>on</computeroutput>
+              / <computeroutput>off</computeroutput> parameter is given).
+          </para></listitem>
+        </varlistentry>
+      </variablelist>
+    </sect2>
+  </sect1>
 </chapter>
 
