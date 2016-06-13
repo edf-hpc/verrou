@@ -10,7 +10,7 @@ Fetch valgrind's sources:
 Add verrou's sources to it:
 
     cd valgrind
-    git clone /netdata/H55056/git/verrou.git verrou
+    git clone https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
 
