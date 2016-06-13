@@ -1,0 +1,9 @@
+#!/usr/bin/perl -i
+
+use Encode;
+$nbsp = decode("iso-8859-1", chr(160));
+
+while (<>) {
+    s/$nbsp/&nbsp;/g;
+    print;
+}

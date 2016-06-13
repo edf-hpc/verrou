@@ -28,7 +28,7 @@ Build and install:
     make install
 
 
-## (optionally) Test
+## Test (optional)
 
 Build the tests:
 
@@ -45,24 +45,23 @@ Build the tests:
 
 # Documentation
 
-## Build the documentation
+The documentation for verrou is available as a
+[chapter in valgrind's manual](//edf-hpc.github.com/verrou/vr-manual.html).
 
-Build the documentation
+<p>&nbsp;</p>
+
+You can also re-build it:
 
     make -C docs html-docs
 
-This requires lots of tools which are not necessarily tested for in
-`configure`, including:
-    - xsltproc
-    - docbook-xsl
-
-## Read it
-
-Browse the documentation, either in place:
+and browse it locally:
 
     iceweasel docs/html/vr-manual.html
 
-or in the installation path:
 
-    make install
-    iceweasel PREFIX/share/doc/valgrind/html/vr-manual.html
+Beware, this requires lots of tools which are not necessarily tested for in
+`configure`, including (but not necessarily limited to):
+
+  - xsltproc
+  - docbook-xsl
+
