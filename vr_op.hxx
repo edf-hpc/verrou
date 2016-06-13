@@ -1,3 +1,35 @@
+
+/*--------------------------------------------------------------------*/
+/*--- Verrou: a FPU instrumentation tool.                          ---*/
+/*--- Implementation of error estimation for all FP operations     ---*/
+/*---                                                    vr_op.hxx ---*/
+/*--------------------------------------------------------------------*/
+
+/*
+   This file is part of Verrou, a FPU instrumentation tool.
+
+   Copyright (C) 2014-2016
+     F. Févotte     <francois.fevotte@edf.fr>
+     B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307, USA.
+
+   The GNU General Public License is contained in the file COPYING.
+*/
+
 #pragma once
 
 
@@ -6,13 +38,13 @@ template<class REALTYPE, int NB>
 struct vr_packArg{
   static const int nb= NB;
   typedef REALTYPE RealType;
-  
+
   vr_packArg(const RealType& v1, const RealType& v2){
     args[0]=v1; args[1]=v2;
   };
 
   vr_packArg(const RealType& v1, RealType& v2, RealType& v3){
-    args[0]=v1; args[1]=v2; args[2]=v3; 
+    args[0]=v1; args[1]=v2; args[2]=v3;
   };
 
   RealType args[NB];
@@ -27,7 +59,7 @@ class AddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
-  
+
   static RealType inline nearestOp (const PackArgs&  p) {
     const RealType & a(p.args[0]);
     const RealType & b(p.args[1]);
@@ -45,7 +77,7 @@ public:
     return AddOp<RealType>::error(p,c);
   }
 
-  
+
   static inline void check(const PackArgs& p,const RealType & c){
     const RealType & a(p.args[0]);
     const RealType & b(p.args[1]);
@@ -60,25 +92,25 @@ public:
     y=AddOp<REAL>::error(p,x);
   }
 
-  
+
 };
 
 
 
 //splitFactor used by MulOp
-template<class REALTYPE> 
+template<class REALTYPE>
 REALTYPE splitFactor(){
   return 0./ 0.; //nan to make sure not used
-} 
+}
 
 template<>
 double splitFactor<double>(){
-  return 134217729; //((2^27)+1); /27 en double  sup(53/2) / 
+  return 134217729; //((2^27)+1); /27 en double  sup(53/2) /
 }
 
 template<>
 float splitFactor<float>(){
-  return 4097; //((2^12)+1); / 24/2 en float/ 
+  return 4097; //((2^12)+1); / 24/2 en float/
 }
 
 
@@ -112,15 +144,15 @@ public:
     MulOp<RealType>::split(a,a1,a2);
     MulOp<RealType>::split(b,b1,b2);
 
-    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);        
+    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
 #endif
   };
 
-  
+
 
 
   static inline void split(RealType a, RealType& x, RealType& y){
-    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/ 
+    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
     const RealType factor(splitFactor<RealType>());
     RealType c=factor*a;
     x=(c-(c-a));
@@ -132,7 +164,7 @@ public:
     return MulOp<RealType>::error(p,c);
   };
 
-  
+
   static inline void check(const PackArgs& p,const RealType & c){
   };
 
@@ -160,7 +192,7 @@ public:
   static inline RealType error (const PackArgs& p, const RealType& c) {
     const RealType & x(p.args[0]);
     const RealType & y(p.args[1]);
-#ifdef    USE_VERROU_FMA    
+#ifdef    USE_VERROU_FMA
     const RealType r=-vr_fma(c,y,-x);
     return r/y;
 #else
@@ -173,17 +205,17 @@ public:
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
     const RealType & x(p.args[0]);
     const RealType & y(p.args[1]);
-#ifdef    USE_VERROU_FMA    
+#ifdef    USE_VERROU_FMA
     const RealType r=-vr_fma(c,y,-x);
     return r*y;
 #else
     RealType u,uu;
     MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)*y ;   
+    return ( x-u-uu)*y ;
 #endif
   };
 
-  
+
   static inline void check(const PackArgs& p,const RealType & c){
   };
 
@@ -195,7 +227,7 @@ class MAddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
-  
+
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
     const RealType & a(p.args[0]);
@@ -216,23 +248,20 @@ public:
 
     RealType ph,pl;
     MulOp<RealType>::twoProd(a,x, ph,pl);
-    
+
     RealType uh,ul;
     AddOp<RealType>::twoSum(b,ph, uh,ul);
 
-    const RealType t(uh-z);    
+    const RealType t(uh-z);
     return (t+(pl+ul)) ;
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    return error(p,c) ;   
+    return error(p,c) ;
   };
 
-  
+
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
 };
-
-
-

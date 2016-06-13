@@ -1,3 +1,35 @@
+
+/*--------------------------------------------------------------------*/
+/*--- Verrou: a FPU instrumentation tool.                          ---*/
+/*--- Interface for floating-point operations overloading.         ---*/
+/*---                                                 vr_fpOps.cxx ---*/
+/*--------------------------------------------------------------------*/
+
+/*
+   This file is part of Verrou, a FPU instrumentation tool.
+
+   Copyright (C) 2014-2016
+     F. Févotte     <francois.fevotte@edf.fr>
+     B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307, USA.
+
+   The GNU General Public License is contained in the file COPYING.
+*/
+
 #include <cstdlib>
 #include <ctime>
 //#include <iostream>
@@ -111,12 +143,12 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 void vr_fpOpsInit (vr_RoundingMode mode, unsigned int pid) {
   DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
-  
+
   if (ROUNDINGMODE == VR_RANDOM
       or ROUNDINGMODE == VR_AVERAGE) {
     vr_rand.setTimeSeed(pid);
   }
-	
+
 
   VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 
@@ -191,10 +223,9 @@ float vr_DivFloat (float a, float b) {
 double vr_MAddDouble (double a, double b, double c){
   typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
   return Op::apply(Op::PackArgs(a,b,c));
-} 
+}
 
 float vr_MAddFloat (float a, float b, float c){
   typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
   return Op::apply(Op::PackArgs(a,b,c));
-} 
-
+}

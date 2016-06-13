@@ -1,13 +1,45 @@
+
+/*--------------------------------------------------------------------*/
+/*--- Verrou: a FPU instrumentation tool.                          ---*/
+/*--- This file contains low-level code calling FMA instructions.  ---*/
+/*---                                                   vr_fma.h ---*/
+/*--------------------------------------------------------------------*/
+
+/*
+   This file is part of Verrou, a FPU instrumentation tool.
+
+   Copyright (C) 2014-2016
+     F. Févotte     <francois.fevotte@edf.fr>
+     B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307, USA.
+
+   The GNU General Public License is contained in the file COPYING.
+*/
+
 #pragma once
 
 #ifdef    USE_VERROU_FMA
 #include  <immintrin.h>
 #include  <fmaintrin.h>
 
-template<class REALTYPE> 
+template<class REALTYPE>
 inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&){
   return 0./ 0.; //nan to be sur not used
-} 
+}
 
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
@@ -34,5 +66,3 @@ inline float vr_fma<float>(const float& a, const float& b, const float& c){
   return d;
 }
 #endif //USE_VERROU_FMA
-
-

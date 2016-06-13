@@ -6,7 +6,7 @@
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014
+   Copyright (C) 2014-2016
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
@@ -979,7 +979,7 @@ static void vr_pre_clo_init(void)
    VG_(details_version)         (NULL);
    VG_(details_description)     ("Check floating-point rounding errors");
    VG_(details_copyright_author)(
-      "Copyright (C) 2014, F. Fevotte & B. Lathuiliere.");
+      "Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.");
    VG_(details_bug_reports_to)  (VG_BUGS_TO);
 
    VG_(details_avg_translation_sizeB) ( 275 );
