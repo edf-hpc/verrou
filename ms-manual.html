@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>9. Massif: a heap profiler</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>9.&nbsp;Massif: a heap profiler</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="drd-manual.html" title="8. DRD: a thread error detector">
-<link rel="next" href="dh-manual.html" title="10. DHAT: a dynamic heap analysis tool">
+<link rel="prev" href="drd-manual.html" title="8.&nbsp;DRD: a thread error detector">
+<link rel="next" href="dh-manual.html" title="10.&nbsp;DHAT: a dynamic heap analysis tool">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,12 +17,12 @@
 <th align="center" valign="middle">Valgrind User Manual</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="dh-manual.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="9. Massif: a heap profiler">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="ms-manual"></a>9. Massif: a heap profiler</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="ms-manual"></a>9.&nbsp;Massif: a heap profiler</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
-<dl>
+<dl class="toc">
 <dt><span class="sect1"><a href="ms-manual.html#ms-manual.overview">9.1. Overview</a></span></dt>
 <dt><span class="sect1"><a href="ms-manual.html#ms-manual.using">9.2. Using Massif and ms_print</a></span></dt>
 <dd><dl>
@@ -46,9 +46,9 @@
 <p>To use this tool, you must specify
 <code class="option">--tool=massif</code> on the Valgrind
 command line.</p>
-<div class="sect1" title="9.1. Overview">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.overview"></a>9.1. Overview</h2></div></div></div>
+<a name="ms-manual.overview"></a>9.1.&nbsp;Overview</h2></div></div></div>
 <p>Massif is a heap profiler.  It measures how much heap memory your
 program uses.  This includes both the useful space, and the extra bytes
 allocated for book-keeping and alignment purposes.  It can also
@@ -57,7 +57,7 @@ default.</p>
 <p>Heap profiling can help you reduce the amount of memory your program
 uses.  On modern machines with virtual memory, this provides the following
 benefits:</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>It can speed up your program -- a smaller
     program will interact better with your machine's caches and
     avoid paging.</p></li>
@@ -76,18 +76,18 @@ program is using, it also gives very detailed information that indicates
 which parts of your program are responsible for allocating the heap memory.
 </p>
 </div>
-<div class="sect1" title="9.2. Using Massif and ms_print">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.using"></a>9.2. Using Massif and ms_print</h2></div></div></div>
+<a name="ms-manual.using"></a>9.2.&nbsp;Using Massif and ms_print</h2></div></div></div>
 <p>First off, as for the other Valgrind tools, you should compile with
 debugging info (the <code class="option">-g</code> option).  It shouldn't
 matter much what optimisation level you compile your program with, as this
 is unlikely to affect the heap memory usage.</p>
 <p>Then, you need to run Massif itself to gather the profiling
 information, and then run ms_print to present it in a readable way.</p>
-<div class="sect2" title="9.2.1. An Example Program">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.anexample"></a>9.2.1. An Example Program</h3></div></div></div>
+<a name="ms-manual.anexample"></a>9.2.1.&nbsp;An Example Program</h3></div></div></div>
 <p>An example will make things clear.  Consider the following C program
 (annotated with line numbers) which allocates a number of different blocks
 on the heap.</p>
@@ -126,9 +126,9 @@ on the heap.</p>
 32      }
 </pre>
 </div>
-<div class="sect2" title="9.2.2. Running Massif">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.running-massif"></a>9.2.2. Running Massif</h3></div></div></div>
+<a name="ms-manual.running-massif"></a>9.2.2.&nbsp;Running Massif</h3></div></div></div>
 <p>To gather heap profiling information about the program
 <code class="computeroutput">prog</code>, type:</p>
 <pre class="screen">
@@ -141,9 +141,9 @@ data is written to a file.  By default, this file is called
 <code class="filename">&lt;pid&gt;</code> is the process ID, although this filename
 can be changed with the <code class="option">--massif-out-file</code> option.</p>
 </div>
-<div class="sect2" title="9.2.3. Running ms_print">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.running-ms_print"></a>9.2.3. Running ms_print</h3></div></div></div>
+<a name="ms-manual.running-ms_print"></a>9.2.3.&nbsp;Running ms_print</h3></div></div></div>
 <p>To see the information gathered by Massif in an easy-to-read form, use
 ms_print.  If the output file's name is
 <code class="filename">massif.out.12345</code>, type:</p>
@@ -157,9 +157,9 @@ results is deliberate:  it separates the data gathering from its
 presentation, and means that new methods of presenting the data can be added in
 the future.</p>
 </div>
-<div class="sect2" title="9.2.4. The Output Preamble">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.theoutputpreamble"></a>9.2.4. The Output Preamble</h3></div></div></div>
+<a name="ms-manual.theoutputpreamble"></a>9.2.4.&nbsp;The Output Preamble</h3></div></div></div>
 <p>After running this program under Massif, the first part of ms_print's
 output contains a preamble which just states how the program, Massif and
 ms_print were each invoked:</p>
@@ -171,9 +171,9 @@ ms_print arguments: massif.out.12797
 --------------------------------------------------------------------------------
 </pre>
 </div>
-<div class="sect2" title="9.2.5. The Output Graph">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.theoutputgraph"></a>9.2.5. The Output Graph</h3></div></div></div>
+<a name="ms-manual.theoutputgraph"></a>9.2.5.&nbsp;The Output Graph</h3></div></div></div>
 <p>The next part is the graph that shows how memory consumption occurred
 as the program executed:</p>
 <pre class="screen">
@@ -273,7 +273,7 @@ a bar consisting of '#' characters.  The text at the bottom shows
 that snapshot 14 was the peak.</p>
 <p>Massif's determination of when the peak occurred can be wrong, for
 two reasons.</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>Peak snapshots are only ever taken after a deallocation
   happens.  This avoids lots of unnecessary peak snapshot recordings
   (imagine what happens if your program allocates a lot of heap blocks in
@@ -324,9 +324,9 @@ for memory measurements, these are based on a multiplier of 1024, rather
 than the standard SI multiplier of 1000.  Strictly speaking, they should be
 written KiB, MiB, GiB, etc.</p>
 </div>
-<div class="sect2" title="9.2.6. The Snapshot Details">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.thesnapshotdetails"></a>9.2.6. The Snapshot Details</h3></div></div></div>
+<a name="ms-manual.thesnapshotdetails"></a>9.2.6.&nbsp;The Snapshot Details</h3></div></div></div>
 <p>Returning to our example, the graph is followed by the detailed
 information for each snapshot.  The first nine snapshots are normal, so only
 a small amount of information is recorded for each one:</p>
@@ -345,7 +345,7 @@ a small amount of information is recorded for each one:</p>
   8          8,064            8,064            8,000            64            0
 </pre>
 <p>Each normal snapshot records several things.</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>Its number.</p></li>
 <li class="listitem"><p>The time it was taken. In this case, the time unit is
   bytes, due to the use of
@@ -495,9 +495,9 @@ thresholds can be changed with the
 <code class="option">--threshold</code> option that both Massif and
 ms_print support.</p>
 </div>
-<div class="sect2" title="9.2.7. Forking Programs">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.forkingprograms"></a>9.2.7. Forking Programs</h3></div></div></div>
+<a name="ms-manual.forkingprograms"></a>9.2.7.&nbsp;Forking Programs</h3></div></div></div>
 <p>If your program forks, the child will inherit all the profiling data that
 has been gathered for the parent.</p>
 <p>If the output file format string (controlled by
@@ -505,9 +505,9 @@ has been gathered for the parent.</p>
 the outputs from the parent and child will be intermingled in a single output
 file, which will almost certainly make it unreadable by ms_print.</p>
 </div>
-<div class="sect2" title="9.2.8. Measuring All Memory in a Process">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.not-measured"></a>9.2.8. Measuring All Memory in a Process</h3></div></div></div>
+<a name="ms-manual.not-measured"></a>9.2.8.&nbsp;Measuring All Memory in a Process</h3></div></div></div>
 <p>
 It is worth emphasising that by default Massif measures only heap memory, i.e.
 memory allocated with
@@ -573,9 +573,9 @@ like the memory allocators.  But for some programs having the full information
 about memory usage can be very useful.
 </p>
 </div>
-<div class="sect2" title="9.2.9. Acting on Massif's Information">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="ms-manual.acting"></a>9.2.9. Acting on Massif's Information</h3></div></div></div>
+<a name="ms-manual.acting"></a>9.2.9.&nbsp;Acting on Massif's Information</h3></div></div></div>
 <p>Massif's information is generally fairly easy to act upon.  The
 obvious place to start looking is the peak snapshot.</p>
 <p>It can also be useful to look at the overall shape of the graph, to
@@ -588,12 +588,12 @@ in a particular column, which makes following the allocation chains easier.
 </p>
 </div>
 </div>
-<div class="sect1" title="9.3. Massif Command-line Options">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.options"></a>9.3. Massif Command-line Options</h2></div></div></div>
+<a name="ms-manual.options"></a>9.3.&nbsp;Massif Command-line Options</h2></div></div></div>
 <p>Massif-specific command-line options are:</p>
 <div class="variablelist">
-<a name="ms.opts.list"></a><dl>
+<a name="ms.opts.list"></a><dl class="variablelist">
 <dt>
 <a name="opt.heap"></a><span class="term">
       <code class="option">--heap=&lt;yes|no&gt; [default: yes] </code>
@@ -764,13 +764,13 @@ in a particular column, which makes following the allocation chains easier.
 </dl>
 </div>
 </div>
-<div class="sect1" title="9.4. Massif Monitor Commands">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.monitor-commands"></a>9.4. Massif Monitor Commands</h2></div></div></div>
+<a name="ms-manual.monitor-commands"></a>9.4.&nbsp;Massif Monitor Commands</h2></div></div></div>
 <p>The Massif tool provides monitor commands handled by the Valgrind
-gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5. Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
+gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5.&nbsp;Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p><code class="varname">snapshot [&lt;filename&gt;]</code> requests
     to take a snapshot and save it in the given &lt;filename&gt;
     (default massif.vgdb.out).
@@ -781,22 +781,22 @@ gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbser
     </p></li>
 </ul></div>
 </div>
-<div class="sect1" title="9.5. Massif Client Requests">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.clientreqs"></a>9.5. Massif Client Requests</h2></div></div></div>
+<a name="ms-manual.clientreqs"></a>9.5.&nbsp;Massif Client Requests</h2></div></div></div>
 <p>Massif does not have a <code class="filename">massif.h</code> file, but it does
 implement two of the core client requests:
 <code class="function">VALGRIND_MALLOCLIKE_BLOCK</code> and
 <code class="function">VALGRIND_FREELIKE_BLOCK</code>;  they are described in 
-<a class="xref" href="manual-core-adv.html#manual-core-adv.clientreq" title="3.1. The Client Request mechanism">The Client Request mechanism</a>.
+<a class="xref" href="manual-core-adv.html#manual-core-adv.clientreq" title="3.1.&nbsp;The Client Request mechanism">The Client Request mechanism</a>.
 </p>
 </div>
-<div class="sect1" title="9.6. ms_print Command-line Options">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.ms_print-options"></a>9.6. ms_print Command-line Options</h2></div></div></div>
+<a name="ms-manual.ms_print-options"></a>9.6.&nbsp;ms_print Command-line Options</h2></div></div></div>
 <p>ms_print's options are:</p>
 <div class="variablelist">
-<a name="ms_print.opts.list"></a><dl>
+<a name="ms_print.opts.list"></a><dl class="variablelist">
 <dt><span class="term">
       <code class="option">-h --help </code>
     </span></dt>
@@ -821,9 +821,9 @@ implement two of the core client requests:
 </dl>
 </div>
 </div>
-<div class="sect1" title="9.7. Massif's Output File Format">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.fileformat"></a>9.7. Massif's Output File Format</h2></div></div></div>
+<a name="ms-manual.fileformat"></a>9.7.&nbsp;Massif's Output File Format</h2></div></div></div>
 <p>Massif's file format is plain text (i.e. not binary) and deliberately
 easy to read for both humans and machines.  Nonetheless, the exact format
 is not described here.  This is because the format is currently very
@@ -836,9 +836,9 @@ the format will be documented here.</p>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="drd-manual.html">&lt;&lt; 8. DRD: a thread error detector</a> </td>
+<a accesskey="p" href="drd-manual.html">&lt;&lt;&nbsp;8.&nbsp;DRD: a thread error detector</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dh-manual.html">10. DHAT: a dynamic heap analysis tool &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dh-manual.html">10.&nbsp;DHAT: a dynamic heap analysis tool&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

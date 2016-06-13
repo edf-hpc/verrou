@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>4. README</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>4.&nbsp;README</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.news.old.html" title="3. OLDER NEWS">
-<link rel="next" href="dist.readme-missing.html" title="5. README_MISSING_SYSCALL_OR_IOCTL">
+<link rel="prev" href="dist.news.old.html" title="3.&nbsp;OLDER NEWS">
+<link rel="next" href="dist.readme-missing.html" title="5.&nbsp;README_MISSING_SYSCALL_OR_IOCTL">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,118 +17,118 @@
 <th align="center" valign="middle">Valgrind Distribution Documents</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-missing.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="4. README">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="dist.readme"></a>4. README</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dist.readme"></a>4.&nbsp;README</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
-Release notes for Valgrind<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Release&nbsp;notes&nbsp;for&nbsp;Valgrind<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-If you are building a binary package of Valgrind for distribution,<br>
-please read README_PACKAGERS.  It contains some important information.<br>
+If&nbsp;you&nbsp;are&nbsp;building&nbsp;a&nbsp;binary&nbsp;package&nbsp;of&nbsp;Valgrind&nbsp;for&nbsp;distribution,<br>
+please&nbsp;read&nbsp;README_PACKAGERS.&nbsp;&nbsp;It&nbsp;contains&nbsp;some&nbsp;important&nbsp;information.<br>
 <br>
-If you are developing Valgrind, please read README_DEVELOPERS.  It contains<br>
-some useful information.<br>
+If&nbsp;you&nbsp;are&nbsp;developing&nbsp;Valgrind,&nbsp;please&nbsp;read&nbsp;README_DEVELOPERS.&nbsp;&nbsp;It&nbsp;contains<br>
+some&nbsp;useful&nbsp;information.<br>
 <br>
-For instructions on how to build/install, see the end of this file.<br>
+For&nbsp;instructions&nbsp;on&nbsp;how&nbsp;to&nbsp;build/install,&nbsp;see&nbsp;the&nbsp;end&nbsp;of&nbsp;this&nbsp;file.<br>
 <br>
-If you have problems, consult the FAQ to see if there are workarounds.<br>
+If&nbsp;you&nbsp;have&nbsp;problems,&nbsp;consult&nbsp;the&nbsp;FAQ&nbsp;to&nbsp;see&nbsp;if&nbsp;there&nbsp;are&nbsp;workarounds.<br>
 <br>
 <br>
-Executive Summary<br>
+Executive&nbsp;Summary<br>
 ~~~~~~~~~~~~~~~~~<br>
-Valgrind is a framework for building dynamic analysis tools. There are<br>
-Valgrind tools that can automatically detect many memory management<br>
-and threading bugs, and profile your programs in detail. You can also<br>
-use Valgrind to build new tools.<br>
+Valgrind&nbsp;is&nbsp;a&nbsp;framework&nbsp;for&nbsp;building&nbsp;dynamic&nbsp;analysis&nbsp;tools.&nbsp;There&nbsp;are<br>
+Valgrind&nbsp;tools&nbsp;that&nbsp;can&nbsp;automatically&nbsp;detect&nbsp;many&nbsp;memory&nbsp;management<br>
+and&nbsp;threading&nbsp;bugs,&nbsp;and&nbsp;profile&nbsp;your&nbsp;programs&nbsp;in&nbsp;detail.&nbsp;You&nbsp;can&nbsp;also<br>
+use&nbsp;Valgrind&nbsp;to&nbsp;build&nbsp;new&nbsp;tools.<br>
 <br>
-The Valgrind distribution currently includes six production-quality<br>
-tools: a memory error detector, two thread error detectors, a cache<br>
-and branch-prediction profiler, a call-graph generating cache abd<br>
-branch-prediction profiler, and a heap profiler. It also includes<br>
-three experimental tools: a heap/stack/global array overrun detector,<br>
-a different kind of heap profiler, and a SimPoint basic block vector<br>
+The&nbsp;Valgrind&nbsp;distribution&nbsp;currently&nbsp;includes&nbsp;six&nbsp;production-quality<br>
+tools:&nbsp;a&nbsp;memory&nbsp;error&nbsp;detector,&nbsp;two&nbsp;thread&nbsp;error&nbsp;detectors,&nbsp;a&nbsp;cache<br>
+and&nbsp;branch-prediction&nbsp;profiler,&nbsp;a&nbsp;call-graph&nbsp;generating&nbsp;cache&nbsp;abd<br>
+branch-prediction&nbsp;profiler,&nbsp;and&nbsp;a&nbsp;heap&nbsp;profiler.&nbsp;It&nbsp;also&nbsp;includes<br>
+three&nbsp;experimental&nbsp;tools:&nbsp;a&nbsp;heap/stack/global&nbsp;array&nbsp;overrun&nbsp;detector,<br>
+a&nbsp;different&nbsp;kind&nbsp;of&nbsp;heap&nbsp;profiler,&nbsp;and&nbsp;a&nbsp;SimPoint&nbsp;basic&nbsp;block&nbsp;vector<br>
 generator.<br>
 <br>
-Valgrind is closely tied to details of the CPU, operating system and to<br>
-a lesser extent, compiler and basic C libraries. This makes it difficult<br>
-to make it portable.  Nonetheless, it is available for the following<br>
-platforms: <br>
+Valgrind&nbsp;is&nbsp;closely&nbsp;tied&nbsp;to&nbsp;details&nbsp;of&nbsp;the&nbsp;CPU,&nbsp;operating&nbsp;system&nbsp;and&nbsp;to<br>
+a&nbsp;lesser&nbsp;extent,&nbsp;compiler&nbsp;and&nbsp;basic&nbsp;C&nbsp;libraries.&nbsp;This&nbsp;makes&nbsp;it&nbsp;difficult<br>
+to&nbsp;make&nbsp;it&nbsp;portable.&nbsp;&nbsp;Nonetheless,&nbsp;it&nbsp;is&nbsp;available&nbsp;for&nbsp;the&nbsp;following<br>
+platforms:&nbsp;<br>
 <br>
-- X86/Linux<br>
-- AMD64/Linux<br>
-- PPC32/Linux<br>
-- PPC64/Linux<br>
-- ARM/Linux<br>
-- x86/MacOSX<br>
-- AMD64/MacOSX<br>
-- S390X/Linux<br>
-- MIPS32/Linux<br>
-- MIPS64/Linux<br>
+-&nbsp;X86/Linux<br>
+-&nbsp;AMD64/Linux<br>
+-&nbsp;PPC32/Linux<br>
+-&nbsp;PPC64/Linux<br>
+-&nbsp;ARM/Linux<br>
+-&nbsp;x86/MacOSX<br>
+-&nbsp;AMD64/MacOSX<br>
+-&nbsp;S390X/Linux<br>
+-&nbsp;MIPS32/Linux<br>
+-&nbsp;MIPS64/Linux<br>
 <br>
-Note that AMD64 is just another name for x86_64, and Valgrind runs fine<br>
-on Intel processors.  Also note that the core of MacOSX is called<br>
-"Darwin" and this name is used sometimes.<br>
+Note&nbsp;that&nbsp;AMD64&nbsp;is&nbsp;just&nbsp;another&nbsp;name&nbsp;for&nbsp;x86_64,&nbsp;and&nbsp;Valgrind&nbsp;runs&nbsp;fine<br>
+on&nbsp;Intel&nbsp;processors.&nbsp;&nbsp;Also&nbsp;note&nbsp;that&nbsp;the&nbsp;core&nbsp;of&nbsp;MacOSX&nbsp;is&nbsp;called<br>
+"Darwin"&nbsp;and&nbsp;this&nbsp;name&nbsp;is&nbsp;used&nbsp;sometimes.<br>
 <br>
-Valgrind is licensed under the GNU General Public License, version 2. <br>
-Read the file COPYING in the source distribution for details.<br>
+Valgrind&nbsp;is&nbsp;licensed&nbsp;under&nbsp;the&nbsp;GNU&nbsp;General&nbsp;Public&nbsp;License,&nbsp;version&nbsp;2.&nbsp;<br>
+Read&nbsp;the&nbsp;file&nbsp;COPYING&nbsp;in&nbsp;the&nbsp;source&nbsp;distribution&nbsp;for&nbsp;details.<br>
 <br>
-However: if you contribute code, you need to make it available as GPL<br>
-version 2 or later, and not 2-only.<br>
+However:&nbsp;if&nbsp;you&nbsp;contribute&nbsp;code,&nbsp;you&nbsp;need&nbsp;to&nbsp;make&nbsp;it&nbsp;available&nbsp;as&nbsp;GPL<br>
+version&nbsp;2&nbsp;or&nbsp;later,&nbsp;and&nbsp;not&nbsp;2-only.<br>
 <br>
 <br>
 Documentation<br>
 ~~~~~~~~~~~~~<br>
-A comprehensive user guide is supplied.  Point your browser at<br>
-$PREFIX/share/doc/valgrind/manual.html, where $PREFIX is whatever you<br>
-specified with --prefix= when building.<br>
+A&nbsp;comprehensive&nbsp;user&nbsp;guide&nbsp;is&nbsp;supplied.&nbsp;&nbsp;Point&nbsp;your&nbsp;browser&nbsp;at<br>
+$PREFIX/share/doc/valgrind/manual.html,&nbsp;where&nbsp;$PREFIX&nbsp;is&nbsp;whatever&nbsp;you<br>
+specified&nbsp;with&nbsp;--prefix=&nbsp;when&nbsp;building.<br>
 <br>
 <br>
-Building and installing it<br>
+Building&nbsp;and&nbsp;installing&nbsp;it<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-To install from the Subversion repository :<br>
+To&nbsp;install&nbsp;from&nbsp;the&nbsp;Subversion&nbsp;repository&nbsp;:<br>
 <br>
-  0. Check out the code from SVN, following the instructions at<br>
-     http://www.valgrind.org/downloads/repository.html.<br>
+&nbsp;&nbsp;0.&nbsp;Check&nbsp;out&nbsp;the&nbsp;code&nbsp;from&nbsp;SVN,&nbsp;following&nbsp;the&nbsp;instructions&nbsp;at<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://www.valgrind.org/downloads/repository.html.<br>
 <br>
-  1. cd into the source directory.<br>
+&nbsp;&nbsp;1.&nbsp;cd&nbsp;into&nbsp;the&nbsp;source&nbsp;directory.<br>
 <br>
-  2. Run ./autogen.sh to setup the environment (you need the standard<br>
-     autoconf tools to do so).<br>
+&nbsp;&nbsp;2.&nbsp;Run&nbsp;./autogen.sh&nbsp;to&nbsp;setup&nbsp;the&nbsp;environment&nbsp;(you&nbsp;need&nbsp;the&nbsp;standard<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autoconf&nbsp;tools&nbsp;to&nbsp;do&nbsp;so).<br>
 <br>
-  3. Continue with the following instructions...<br>
+&nbsp;&nbsp;3.&nbsp;Continue&nbsp;with&nbsp;the&nbsp;following&nbsp;instructions...<br>
 <br>
-To install from a tar.bz2 distribution:<br>
+To&nbsp;install&nbsp;from&nbsp;a&nbsp;tar.bz2&nbsp;distribution:<br>
 <br>
-  4. Run ./configure, with some options if you wish.  The only interesting<br>
-     one is the usual --prefix=/where/you/want/it/installed.<br>
+&nbsp;&nbsp;4.&nbsp;Run&nbsp;./configure,&nbsp;with&nbsp;some&nbsp;options&nbsp;if&nbsp;you&nbsp;wish.&nbsp;&nbsp;The&nbsp;only&nbsp;interesting<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;one&nbsp;is&nbsp;the&nbsp;usual&nbsp;--prefix=/where/you/want/it/installed.<br>
 <br>
-  5. Run "make".<br>
+&nbsp;&nbsp;5.&nbsp;Run&nbsp;"make".<br>
 <br>
-  6. Run "make install", possibly as root if the destination permissions<br>
-     require that.<br>
+&nbsp;&nbsp;6.&nbsp;Run&nbsp;"make&nbsp;install",&nbsp;possibly&nbsp;as&nbsp;root&nbsp;if&nbsp;the&nbsp;destination&nbsp;permissions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;require&nbsp;that.<br>
 <br>
-  7. See if it works.  Try "valgrind ls -l".  Either this works, or it<br>
-     bombs out with some complaint.  In that case, please let us know<br>
-     (see www.valgrind.org).<br>
+&nbsp;&nbsp;7.&nbsp;See&nbsp;if&nbsp;it&nbsp;works.&nbsp;&nbsp;Try&nbsp;"valgrind&nbsp;ls&nbsp;-l".&nbsp;&nbsp;Either&nbsp;this&nbsp;works,&nbsp;or&nbsp;it<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bombs&nbsp;out&nbsp;with&nbsp;some&nbsp;complaint.&nbsp;&nbsp;In&nbsp;that&nbsp;case,&nbsp;please&nbsp;let&nbsp;us&nbsp;know<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(see&nbsp;www.valgrind.org).<br>
 <br>
-Important!  Do not move the valgrind installation into a place<br>
-different from that specified by --prefix at build time.  This will<br>
-cause things to break in subtle ways, mostly when Valgrind handles<br>
-fork/exec calls.<br>
+Important!&nbsp;&nbsp;Do&nbsp;not&nbsp;move&nbsp;the&nbsp;valgrind&nbsp;installation&nbsp;into&nbsp;a&nbsp;place<br>
+different&nbsp;from&nbsp;that&nbsp;specified&nbsp;by&nbsp;--prefix&nbsp;at&nbsp;build&nbsp;time.&nbsp;&nbsp;This&nbsp;will<br>
+cause&nbsp;things&nbsp;to&nbsp;break&nbsp;in&nbsp;subtle&nbsp;ways,&nbsp;mostly&nbsp;when&nbsp;Valgrind&nbsp;handles<br>
+fork/exec&nbsp;calls.<br>
 <br>
 <br>
-The Valgrind Developers<br>
+The&nbsp;Valgrind&nbsp;Developers<br>
 <br>
-    </p></div>
+&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.news.old.html">&lt;&lt; 3. OLDER NEWS</a> </td>
+<a accesskey="p" href="dist.news.old.html">&lt;&lt;&nbsp;3.&nbsp;OLDER NEWS</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-missing.html">5. README_MISSING_SYSCALL_OR_IOCTL &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-missing.html">5.&nbsp;README_MISSING_SYSCALL_OR_IOCTL&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

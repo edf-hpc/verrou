@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>8. README.S390</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>8.&nbsp;README.S390</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-packagers.html" title="7. README_PACKAGERS">
-<link rel="next" href="dist.readme-android.html" title="9. README.android">
+<link rel="prev" href="dist.readme-packagers.html" title="7.&nbsp;README_PACKAGERS">
+<link rel="next" href="dist.readme-android.html" title="9.&nbsp;README.android">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,70 +17,70 @@
 <th align="center" valign="middle">Valgrind Distribution Documents</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-android.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="8. README.S390">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="dist.readme-s390"></a>8. README.S390</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dist.readme-s390"></a>8.&nbsp;README.S390</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 Requirements<br>
 ------------<br>
-- You need GCC 3.4 or later to compile the s390 port.<br>
-- To run valgrind a z10 machine or any later model is needed.<br>
-  Older machine models down to and including z900 may work but have<br>
-  not been tested extensively.<br>
+-&nbsp;You&nbsp;need&nbsp;GCC&nbsp;3.4&nbsp;or&nbsp;later&nbsp;to&nbsp;compile&nbsp;the&nbsp;s390&nbsp;port.<br>
+-&nbsp;To&nbsp;run&nbsp;valgrind&nbsp;a&nbsp;z10&nbsp;machine&nbsp;or&nbsp;any&nbsp;later&nbsp;model&nbsp;is&nbsp;needed.<br>
+&nbsp;&nbsp;Older&nbsp;machine&nbsp;models&nbsp;down&nbsp;to&nbsp;and&nbsp;including&nbsp;z900&nbsp;may&nbsp;work&nbsp;but&nbsp;have<br>
+&nbsp;&nbsp;not&nbsp;been&nbsp;tested&nbsp;extensively.<br>
 <br>
 <br>
 Limitations<br>
 -----------<br>
-- 31-bit client programs are not supported.<br>
-- Hexadecimal floating point is not supported.<br>
-- memcheck, cachegrind, drd, helgrind, massif, lackey, and none are<br>
-  supported. <br>
-- On machine models predating z10, cachegrind will assume a z10 cache<br>
-  architecture. Otherwise, cachegrind will query the hosts cache system<br>
-  and use those parameters.<br>
-- callgrind and all experimental tools are currently not supported.<br>
-- Some gcc versions use mvc to copy 4/8 byte values. This will affect<br>
-  certain debug messages. For example, memcheck will complain about<br>
-  4 one-byte reads/writes instead of just a single read/write.<br>
+-&nbsp;31-bit&nbsp;client&nbsp;programs&nbsp;are&nbsp;not&nbsp;supported.<br>
+-&nbsp;Hexadecimal&nbsp;floating&nbsp;point&nbsp;is&nbsp;not&nbsp;supported.<br>
+-&nbsp;memcheck,&nbsp;cachegrind,&nbsp;drd,&nbsp;helgrind,&nbsp;massif,&nbsp;lackey,&nbsp;and&nbsp;none&nbsp;are<br>
+&nbsp;&nbsp;supported.&nbsp;<br>
+-&nbsp;On&nbsp;machine&nbsp;models&nbsp;predating&nbsp;z10,&nbsp;cachegrind&nbsp;will&nbsp;assume&nbsp;a&nbsp;z10&nbsp;cache<br>
+&nbsp;&nbsp;architecture.&nbsp;Otherwise,&nbsp;cachegrind&nbsp;will&nbsp;query&nbsp;the&nbsp;hosts&nbsp;cache&nbsp;system<br>
+&nbsp;&nbsp;and&nbsp;use&nbsp;those&nbsp;parameters.<br>
+-&nbsp;callgrind&nbsp;and&nbsp;all&nbsp;experimental&nbsp;tools&nbsp;are&nbsp;currently&nbsp;not&nbsp;supported.<br>
+-&nbsp;Some&nbsp;gcc&nbsp;versions&nbsp;use&nbsp;mvc&nbsp;to&nbsp;copy&nbsp;4/8&nbsp;byte&nbsp;values.&nbsp;This&nbsp;will&nbsp;affect<br>
+&nbsp;&nbsp;certain&nbsp;debug&nbsp;messages.&nbsp;For&nbsp;example,&nbsp;memcheck&nbsp;will&nbsp;complain&nbsp;about<br>
+&nbsp;&nbsp;4&nbsp;one-byte&nbsp;reads/writes&nbsp;instead&nbsp;of&nbsp;just&nbsp;a&nbsp;single&nbsp;read/write.<br>
 <br>
 <br>
-Hardware facilities<br>
+Hardware&nbsp;facilities<br>
 -------------------<br>
-Valgrind does not require that the host machine has the same hardware<br>
-facilities as the machine for which the client program was compiled.<br>
-This is convenient. The JIT compiler will translate the client instructions<br>
-according to the facilities available on the host.<br>
-This means, though, that probing for hardware facilities by issuing<br>
-instructions from that facility and observing whether SIGILL is thrown<br>
-may not work. As a consequence, programs that attempt to do so may<br>
-behave differently. It is believed that this is a rare use case.<br>
+Valgrind&nbsp;does&nbsp;not&nbsp;require&nbsp;that&nbsp;the&nbsp;host&nbsp;machine&nbsp;has&nbsp;the&nbsp;same&nbsp;hardware<br>
+facilities&nbsp;as&nbsp;the&nbsp;machine&nbsp;for&nbsp;which&nbsp;the&nbsp;client&nbsp;program&nbsp;was&nbsp;compiled.<br>
+This&nbsp;is&nbsp;convenient.&nbsp;The&nbsp;JIT&nbsp;compiler&nbsp;will&nbsp;translate&nbsp;the&nbsp;client&nbsp;instructions<br>
+according&nbsp;to&nbsp;the&nbsp;facilities&nbsp;available&nbsp;on&nbsp;the&nbsp;host.<br>
+This&nbsp;means,&nbsp;though,&nbsp;that&nbsp;probing&nbsp;for&nbsp;hardware&nbsp;facilities&nbsp;by&nbsp;issuing<br>
+instructions&nbsp;from&nbsp;that&nbsp;facility&nbsp;and&nbsp;observing&nbsp;whether&nbsp;SIGILL&nbsp;is&nbsp;thrown<br>
+may&nbsp;not&nbsp;work.&nbsp;As&nbsp;a&nbsp;consequence,&nbsp;programs&nbsp;that&nbsp;attempt&nbsp;to&nbsp;do&nbsp;so&nbsp;may<br>
+behave&nbsp;differently.&nbsp;It&nbsp;is&nbsp;believed&nbsp;that&nbsp;this&nbsp;is&nbsp;a&nbsp;rare&nbsp;use&nbsp;case.<br>
 <br>
 <br>
 Recommendations<br>
 ---------------<br>
-Applications should be compiled with -fno-builtin to avoid<br>
-false positives due to builtin string operations when running memcheck.<br>
+Applications&nbsp;should&nbsp;be&nbsp;compiled&nbsp;with&nbsp;-fno-builtin&nbsp;to&nbsp;avoid<br>
+false&nbsp;positives&nbsp;due&nbsp;to&nbsp;builtin&nbsp;string&nbsp;operations&nbsp;when&nbsp;running&nbsp;memcheck.<br>
 <br>
 <br>
-Reading Material<br>
+Reading&nbsp;Material<br>
 ----------------<br>
-(1) Linux for zSeries ELF ABI Supplement<br>
-    http://refspecs.linuxfoundation.org/ELF/zSeries/index.html<br>
-(2) z/Architecture Principles of Operation<br>
-    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf<br>
-(3) z/Architecture Reference Summary<br>
-    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zs007.pdf<br>
+(1)&nbsp;Linux&nbsp;for&nbsp;zSeries&nbsp;ELF&nbsp;ABI&nbsp;Supplement<br>
+&nbsp;&nbsp;&nbsp;&nbsp;http://refspecs.linuxfoundation.org/ELF/zSeries/index.html<br>
+(2)&nbsp;z/Architecture&nbsp;Principles&nbsp;of&nbsp;Operation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;http://publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf<br>
+(3)&nbsp;z/Architecture&nbsp;Reference&nbsp;Summary<br>
+&nbsp;&nbsp;&nbsp;&nbsp;http://publibfi.boulder.ibm.com/epubs/pdf/dz9zs007.pdf<br>
 <br>
-    </p></div>
+&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-packagers.html">&lt;&lt; 7. README_PACKAGERS</a> </td>
+<a accesskey="p" href="dist.readme-packagers.html">&lt;&lt;&nbsp;7.&nbsp;README_PACKAGERS</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-android.html">9. README.android &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-android.html">9.&nbsp;README.android&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

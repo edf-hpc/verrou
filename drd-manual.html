@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>8. DRD: a thread error detector</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>8.&nbsp;DRD: a thread error detector</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="hg-manual.html" title="7. Helgrind: a thread error detector">
-<link rel="next" href="ms-manual.html" title="9. Massif: a heap profiler">
+<link rel="prev" href="hg-manual.html" title="7.&nbsp;Helgrind: a thread error detector">
+<link rel="next" href="ms-manual.html" title="9.&nbsp;Massif: a heap profiler">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,12 +17,12 @@
 <th align="center" valign="middle">Valgrind User Manual</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="ms-manual.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="8. DRD: a thread error detector">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="drd-manual"></a>8. DRD: a thread error detector</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="drd-manual"></a>8.&nbsp;DRD: a thread error detector</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
-<dl>
+<dl class="toc">
 <dt><span class="sect1"><a href="drd-manual.html#drd-manual.overview">8.1. Overview</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.mt-progr-models">8.1.1. Multithreaded Programming Paradigms</a></span></dt>
@@ -59,22 +59,22 @@
 <p>To use this tool, you must specify
 <code class="option">--tool=drd</code>
 on the Valgrind command line.</p>
-<div class="sect1" title="8.1. Overview">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="drd-manual.overview"></a>8.1. Overview</h2></div></div></div>
+<a name="drd-manual.overview"></a>8.1.&nbsp;Overview</h2></div></div></div>
 <p>
 DRD is a Valgrind tool for detecting errors in multithreaded C and C++
 programs. The tool works for any program that uses the POSIX threading
 primitives or that uses threading concepts built on top of the POSIX threading
 primitives.
 </p>
-<div class="sect2" title="8.1.1. Multithreaded Programming Paradigms">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.mt-progr-models"></a>8.1.1. Multithreaded Programming Paradigms</h3></div></div></div>
+<a name="drd-manual.mt-progr-models"></a>8.1.1.&nbsp;Multithreaded Programming Paradigms</h3></div></div></div>
 <p>
 There are two possible reasons for using multithreading in a program:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       To model concurrent activities. Assigning one thread to each activity
       can be a great simplification compared to multiplexing the states of
@@ -94,7 +94,7 @@ Multithreaded programs can use one or more of the following programming
 paradigms. Which paradigm is appropriate depends e.g. on the application type.
 Some examples of multithreaded programming paradigms are:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       Locking. Data that is shared over threads is protected from concurrent
       accesses via locking. E.g. the POSIX threads library, the Qt library
@@ -137,9 +137,9 @@ e.g. Linux' futexes directly. Attempts to analyze such programs with
 DRD will cause DRD to report many false positives.
 </p>
 </div>
-<div class="sect2" title="8.1.2. POSIX Threads Programming Model">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.pthreads-model"></a>8.1.2. POSIX Threads Programming Model</h3></div></div></div>
+<a name="drd-manual.pthreads-model"></a>8.1.2.&nbsp;POSIX Threads Programming Model</h3></div></div></div>
 <p>
 POSIX threads, also known as Pthreads, is the most widely available
 threading library on Unix systems.
@@ -147,7 +147,7 @@ threading library on Unix systems.
 <p>
 The POSIX threads programming model is based on the following abstractions:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       A shared address space. All threads running within the same
       process share the same address space. All data, whether shared or
@@ -191,14 +191,14 @@ Specification version 3, also known as
 IEEE Std 1003.1</a>.
 </p>
 </div>
-<div class="sect2" title="8.1.3. Multithreaded Programming Problems">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.mt-problems"></a>8.1.3. Multithreaded Programming Problems</h3></div></div></div>
+<a name="drd-manual.mt-problems"></a>8.1.3.&nbsp;Multithreaded Programming Problems</h3></div></div></div>
 <p>
 Depending on which multithreading paradigm is being used in a program,
 one or more of the following problems can occur:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       Data races. One or more threads access the same memory location without
       sufficient locking. Most but not all data races are programming errors
@@ -235,9 +235,9 @@ software. DRD can detect these, as well as lock contention and
 improper use of the POSIX threads API.
 </p>
 </div>
-<div class="sect2" title="8.1.4. Data Race Detection">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.data-race-detection"></a>8.1.4. Data Race Detection</h3></div></div></div>
+<a name="drd-manual.data-race-detection"></a>8.1.4.&nbsp;Data Race Detection</h3></div></div></div>
 <p>
 The result of load and store operations performed by a multithreaded program
 depends on the order in which memory operations are performed. This order is
@@ -306,16 +306,16 @@ DRD is based on the happens-before algorithm.
 </p>
 </div>
 </div>
-<div class="sect1" title="8.2. Using DRD">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="drd-manual.using-drd"></a>8.2. Using DRD</h2></div></div></div>
-<div class="sect2" title="8.2.1. DRD Command-line Options">
+<a name="drd-manual.using-drd"></a>8.2.&nbsp;Using DRD</h2></div></div></div>
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.options"></a>8.2.1. DRD Command-line Options</h3></div></div></div>
+<a name="drd-manual.options"></a>8.2.1.&nbsp;DRD Command-line Options</h3></div></div></div>
 <p>The following command-line options are available for controlling the
 behavior of the DRD tool itself:</p>
 <div class="variablelist">
-<a name="drd.opts.list"></a><dl>
+<a name="drd.opts.list"></a><dl class="variablelist">
 <dt><span class="term">
       <code class="option">--check-stack-var=&lt;yes|no&gt; [default: no]</code>
     </span></dt>
@@ -362,7 +362,7 @@ behavior of the DRD tool itself:</p>
         Whether to report races between accessing memory and freeing
         memory. Enabling this option may cause DRD to run slightly
         slower. Notes:</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
 	    Don't enable this option when using custom memory allocators
 	    that use
@@ -459,7 +459,7 @@ The following options are available for monitoring the behavior of the
 client program:
 </p>
 <div class="variablelist">
-<a name="drd.debugopts.list"></a><dl>
+<a name="drd.debugopts.list"></a><dl class="variablelist">
 <dt><span class="term">
       <code class="option">--trace-addr=&lt;address&gt; [default: none]</code>
     </span></dt>
@@ -529,14 +529,14 @@ client program:
 </dl>
 </div>
 </div>
-<div class="sect2" title="8.2.2. Detected Errors: Data Races">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.data-races"></a>8.2.2. Detected Errors: Data Races</h3></div></div></div>
+<a name="drd-manual.data-races"></a>8.2.2.&nbsp;Detected Errors: Data Races</h3></div></div></div>
 <p>
 DRD prints a message every time it detects a data race. Please keep
 the following in mind when interpreting DRD's output:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       Every thread is assigned a <span class="emphasis"><em>thread ID</em></span> by the DRD
       tool. A thread ID is a number. Thread ID's start at one and are never
@@ -592,7 +592,7 @@ $ valgrind --tool=drd --read-var-info=yes drd/tests/rwlock_race
 <p>
 The above report has the following meaning:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       The number in the column on the left is the process ID of the
       process being analyzed by DRD.
@@ -663,9 +663,9 @@ The above report has the following meaning:
 <p>
 </p>
 </div>
-<div class="sect2" title="8.2.3. Detected Errors: Lock Contention">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.lock-contention"></a>8.2.3. Detected Errors: Lock Contention</h3></div></div></div>
+<a name="drd-manual.lock-contention"></a>8.2.3.&nbsp;Detected Errors: Lock Contention</h3></div></div></div>
 <p>
 Threads must be able to make progress without being blocked for too long by
 other threads. Sometimes a thread has to wait until a mutex or reader-writer
@@ -699,14 +699,14 @@ output reports that the lock acquired at line 51 in source file
 503 ms, while a threshold of 10 ms was specified to DRD.
 </p>
 </div>
-<div class="sect2" title="8.2.4. Detected Errors: Misuse of the POSIX threads API">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.api-checks"></a>8.2.4. Detected Errors: Misuse of the POSIX threads API</h3></div></div></div>
+<a name="drd-manual.api-checks"></a>8.2.4.&nbsp;Detected Errors: Misuse of the POSIX threads API</h3></div></div></div>
 <p>
   DRD is able to detect and report the following misuses of the POSIX
   threads API:
   </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
         Passing the address of one type of synchronization object
         (e.g. a mutex) to a POSIX API call that expects a pointer to
@@ -788,9 +788,9 @@ output reports that the lock acquired at line 51 in source file
 <p>
 </p>
 </div>
-<div class="sect2" title="8.2.5. Client Requests">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.clientreqs"></a>8.2.5. Client Requests</h3></div></div></div>
+<a name="drd-manual.clientreqs"></a>8.2.5.&nbsp;Client Requests</h3></div></div></div>
 <p>
 Just as for other Valgrind tools it is possible to let a client program
 interact with the DRD tool through client requests. In addition to the
@@ -802,7 +802,7 @@ The interface between client programs and the DRD tool is defined in
 the header file <code class="literal">&lt;valgrind/drd.h&gt;</code>. The
 available macros and client requests are:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       The macro <code class="literal">DRD_GET_VALGRIND_THREADID</code> and the
       corresponding client
@@ -1002,7 +1002,7 @@ available macros and client requests are:
       The macros <code class="literal">VALGRIND_MALLOCLIKE_BLOCK</code> and
       <code class="literal">VALGRIND_FREELIKE_BLOCK</code> from the Valgrind core are
       implemented;  they are described in 
-      <a class="xref" href="manual-core-adv.html#manual-core-adv.clientreq" title="3.1. The Client Request mechanism">The Client Request mechanism</a>.
+      <a class="xref" href="manual-core-adv.html#manual-core-adv.clientreq" title="3.1.&nbsp;The Client Request mechanism">The Client Request mechanism</a>.
     </p></li>
 </ul></div>
 <p>
@@ -1017,14 +1017,14 @@ another package with a name like <code class="literal">valgrind-devel</code>
 before Valgrind's header files are available.
 </p>
 </div>
-<div class="sect2" title="8.2.6. Debugging C++11 Programs">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.C++11"></a>8.2.6. Debugging C++11 Programs</h3></div></div></div>
+<a name="drd-manual.C++11"></a>8.2.6.&nbsp;Debugging C++11 Programs</h3></div></div></div>
 <p>If you want to use the C++11 class std::thread you will need to do the
   following to annotate the std::shared_ptr&lt;&gt; objects used in the
   implementation of that class:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p>Add the following code at the start of a common header or at the
     start of each source file, before any C++ header files are included:</p>
@@ -1048,9 +1048,9 @@ before Valgrind's header files are available.
 GNU C++ Library Manual, Debugging Support</em></span>
 (<a class="ulink" href="http://gcc.gnu.org/onlinedocs/libstdc++/manual/debug.html" target="_top">http://gcc.gnu.org/onlinedocs/libstdc++/manual/debug.html</a>).</p>
 </div>
-<div class="sect2" title="8.2.7. Debugging GNOME Programs">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.gnome"></a>8.2.7. Debugging GNOME Programs</h3></div></div></div>
+<a name="drd-manual.gnome"></a>8.2.7.&nbsp;Debugging GNOME Programs</h3></div></div></div>
 <p>
 GNOME applications use the threading primitives provided by the
 <code class="computeroutput">glib</code> and
@@ -1072,9 +1072,9 @@ following to the shell environment variables:
 Reference Manual</a> for more information.
 </p>
 </div>
-<div class="sect2" title="8.2.8. Debugging Boost.Thread Programs">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.boost.thread"></a>8.2.8. Debugging Boost.Thread Programs</h3></div></div></div>
+<a name="drd-manual.boost.thread"></a>8.2.8.&nbsp;Debugging Boost.Thread Programs</h3></div></div></div>
 <p>
 The Boost.Thread library is the threading library included with the
 cross-platform Boost Libraries. This threading library is an early
@@ -1086,7 +1086,7 @@ Applications that use the Boost.Thread library should run fine under DRD.
 <p>
 More information about Boost.Thread can be found here:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       Anthony Williams, <a class="ulink" href="http://www.boost.org/doc/libs/1_37_0/doc/html/thread.html" target="_top">Boost.Thread</a>
       Library Documentation, Boost website, 2007.
@@ -1100,9 +1100,9 @@ More information about Boost.Thread can be found here:
 <p>
 </p>
 </div>
-<div class="sect2" title="8.2.9. Debugging OpenMP Programs">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.openmp"></a>8.2.9. Debugging OpenMP Programs</h3></div></div></div>
+<a name="drd-manual.openmp"></a>8.2.9.&nbsp;Debugging OpenMP Programs</h3></div></div></div>
 <p>
 OpenMP stands for <span class="emphasis"><em>Open Multi-Processing</em></span>. The OpenMP
 standard consists of a set of compiler directives for C, C++ and Fortran
@@ -1188,9 +1188,9 @@ For more information about OpenMP, see also
 <a class="ulink" href="http://openmp.org/" target="_top">openmp.org</a>.
 </p>
 </div>
-<div class="sect2" title="8.2.10. DRD and Custom Memory Allocators">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.cust-mem-alloc"></a>8.2.10. DRD and Custom Memory Allocators</h3></div></div></div>
+<a name="drd-manual.cust-mem-alloc"></a>8.2.10.&nbsp;DRD and Custom Memory Allocators</h3></div></div></div>
 <p>
 DRD tracks all memory allocation events that happen via the
 standard memory allocation and deallocation functions
@@ -1200,7 +1200,7 @@ and exit of stack frames or that have been annotated with Valgrind's
 memory pool client requests. DRD uses memory allocation and deallocation
 information for two purposes:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       To know where the scope ends of POSIX objects that have not been
       destroyed explicitly. It is e.g. not required by the POSIX
@@ -1234,9 +1234,9 @@ the <a class="ulink" href="http://gcc.gnu.org/onlinedocs/libstdc++/manual/bk01pt
 manual</a>.
 </p>
 </div>
-<div class="sect2" title="8.2.11. DRD Versus Memcheck">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.drd-versus-memcheck"></a>8.2.11. DRD Versus Memcheck</h3></div></div></div>
+<a name="drd-manual.drd-versus-memcheck"></a>8.2.11.&nbsp;DRD Versus Memcheck</h3></div></div></div>
 <p>
 It is essential for correct operation of DRD that there are no memory
 errors such as dangling pointers in the client program. Which means that
@@ -1252,14 +1252,14 @@ alternatingly and to fix as many errors as possible after each run of
 each tool until none of the two tools prints any more error messages.
 </p>
 </div>
-<div class="sect2" title="8.2.12. Resource Requirements">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.resource-requirements"></a>8.2.12. Resource Requirements</h3></div></div></div>
+<a name="drd-manual.resource-requirements"></a>8.2.12.&nbsp;Resource Requirements</h3></div></div></div>
 <p>
 The requirements of DRD with regard to heap and stack memory and the
 effect on the execution time of client programs are as follows:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       When running a program under DRD with default DRD options,
       between 1.1 and 3.6 times more memory will be needed compared to
@@ -1282,13 +1282,13 @@ effect on the execution time of client programs are as follows:
 <p>
 </p>
 </div>
-<div class="sect2" title="8.2.13. Hints and Tips for Effective Use of DRD">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.effective-use"></a>8.2.13. Hints and Tips for Effective Use of DRD</h3></div></div></div>
+<a name="drd-manual.effective-use"></a>8.2.13.&nbsp;Hints and Tips for Effective Use of DRD</h3></div></div></div>
 <p>
 The following information may be helpful when using DRD:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       Make sure that debug information is present in the executable
       being analyzed, such that DRD can print function name and line
@@ -1301,7 +1301,7 @@ The following information may be helpful when using DRD:
       <code class="option">-O0</code>. This will reduce the amount of generated
       code, may reduce the amount of debug info and will speed up
       DRD's processing of the client program. For more information,
-      see also <a class="xref" href="manual-core.html#manual-core.started" title="2.2. Getting started">Getting started</a>.
+      see also <a class="xref" href="manual-core.html#manual-core.started" title="2.2.&nbsp;Getting started">Getting started</a>.
     </p></li>
 <li class="listitem"><p>
       If DRD reports any errors on libraries that are part of your
@@ -1341,17 +1341,17 @@ The following information may be helpful when using DRD:
 </p>
 </div>
 </div>
-<div class="sect1" title="8.3. Using the POSIX Threads API Effectively">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="drd-manual.Pthreads"></a>8.3. Using the POSIX Threads API Effectively</h2></div></div></div>
-<div class="sect2" title="8.3.1. Mutex types">
+<a name="drd-manual.Pthreads"></a>8.3.&nbsp;Using the POSIX Threads API Effectively</h2></div></div></div>
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.mutex-types"></a>8.3.1. Mutex types</h3></div></div></div>
+<a name="drd-manual.mutex-types"></a>8.3.1.&nbsp;Mutex types</h3></div></div></div>
 <p>
 The Single UNIX Specification version two defines the following four
 mutex types (see also the documentation of <a class="ulink" href="http://www.opengroup.org/onlinepubs/007908799/xsh/pthread_mutexattr_settype.html" target="_top"><code class="function">pthread_mutexattr_settype</code></a>):
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       <span class="emphasis"><em>normal</em></span>, which means that no error checking
       is performed, and that the mutex is non-recursive.
@@ -1384,9 +1384,9 @@ consistently check the return value of Pthread API mutex calls, or use
 the recursive mutex type.
 </p>
 </div>
-<div class="sect2" title="8.3.2. Condition variables">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.condvar"></a>8.3.2. Condition variables</h3></div></div></div>
+<a name="drd-manual.condvar"></a>8.3.2.&nbsp;Condition variables</h3></div></div></div>
 <p>
 A condition variable allows one thread to wake up one or more other
 threads. Condition variables are often used to notify one or more
@@ -1403,9 +1403,9 @@ also Wikipedia for more information about the <a class="ulink" href="http://en.w
 concept.
 </p>
 </div>
-<div class="sect2" title="8.3.3. pthread_cond_timedwait and timeouts">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.pctw"></a>8.3.3. pthread_cond_timedwait and timeouts</h3></div></div></div>
+<a name="drd-manual.pctw"></a>8.3.3.&nbsp;pthread_cond_timedwait and timeouts</h3></div></div></div>
 <p>
 Historically the function
 <code class="function">pthread_cond_timedwait</code> only allowed the
@@ -1418,7 +1418,7 @@ relative timeout as the third argument. This approach is incorrect
 since forward or backward clock adjustments by e.g. ntpd will affect
 the timeout. A more reliable approach is as follows:
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       When initializing a condition variable through
       <code class="function">pthread_cond_init</code>, specify that the timeout of
@@ -1442,11 +1442,11 @@ example.
 </p>
 </div>
 </div>
-<div class="sect1" title="8.4. Limitations">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="drd-manual.limitations"></a>8.4. Limitations</h2></div></div></div>
+<a name="drd-manual.limitations"></a>8.4.&nbsp;Limitations</h2></div></div></div>
 <p>DRD currently has the following limitations:</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
       DRD, just like Memcheck, will refuse to start on Linux
       distributions where all symbol information has been removed from
@@ -1474,9 +1474,9 @@ example.
     </p></li>
 </ul></div>
 </div>
-<div class="sect1" title="8.5. Feedback">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="drd-manual.feedback"></a>8.5. Feedback</h2></div></div></div>
+<a name="drd-manual.feedback"></a>8.5.&nbsp;Feedback</h2></div></div></div>
 <p>
 If you have any comments, suggestions, feedback or bug reports about
 DRD, feel free to either post a message on the Valgrind users mailing
@@ -1488,9 +1488,9 @@ list or to file a bug report. See also <a class="ulink" href="http://www.valgrin
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="hg-manual.html">&lt;&lt; 7. Helgrind: a thread error detector</a> </td>
+<a accesskey="p" href="hg-manual.html">&lt;&lt;&nbsp;7.&nbsp;Helgrind: a thread error detector</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="ms-manual.html">9. Massif: a heap profiler &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="ms-manual.html">9.&nbsp;Massif: a heap profiler&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

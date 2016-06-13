@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>2. Writing a New Valgrind Tool</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>2.&nbsp;Writing a New Valgrind Tool</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="tech-docs.html" title="Valgrind Technical Documentation">
-<link rel="prev" href="design-impl.html" title="1. The Design and Implementation of Valgrind">
-<link rel="next" href="cl-format.html" title="3. Callgrind Format Specification">
+<link rel="prev" href="design-impl.html" title="1.&nbsp;The Design and Implementation of Valgrind">
+<link rel="next" href="cl-format.html" title="3.&nbsp;Callgrind Format Specification">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,12 +17,12 @@
 <th align="center" valign="middle">Valgrind Technical Documentation</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="cl-format.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="2. Writing a New Valgrind Tool">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="manual-writing-tools"></a>2. Writing a New Valgrind Tool</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="manual-writing-tools"></a>2.&nbsp;Writing a New Valgrind Tool</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
-<dl>
+<dl class="toc">
 <dt><span class="sect1"><a href="manual-writing-tools.html#manual-writing-tools.intro">2.1. Introduction</a></span></dt>
 <dt><span class="sect1"><a href="manual-writing-tools.html#manual-writing-tools.writingatool">2.2. Basics</a></span></dt>
 <dd><dl>
@@ -52,9 +52,9 @@
 So you want to write a Valgrind tool?  Here are some instructions that may
 help.
 
-<div class="sect1" title="2.1. Introduction">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-writing-tools.intro"></a>2.1. Introduction</h2></div></div></div>
+<a name="manual-writing-tools.intro"></a>2.1.&nbsp;Introduction</h2></div></div></div>
 <p>The key idea behind Valgrind's architecture is the division
 between its <span class="emphasis"><em>core</em></span> and <span class="emphasis"><em>tools</em></span>.</p>
 <p>The core provides the common low-level infrastructure to
@@ -71,29 +71,29 @@ functions to indicate to the core that they would like to use
 certain services, or be notified when certain interesting events
 occur.  But the core takes care of all the hard work.</p>
 </div>
-<div class="sect1" title="2.2. Basics">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-writing-tools.writingatool"></a>2.2. Basics</h2></div></div></div>
-<div class="sect2" title="2.2.1. How tools work">
+<a name="manual-writing-tools.writingatool"></a>2.2.&nbsp;Basics</h2></div></div></div>
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.howtoolswork"></a>2.2.1. How tools work</h3></div></div></div>
+<a name="manual-writing-tools.howtoolswork"></a>2.2.1.&nbsp;How tools work</h3></div></div></div>
 <p>Tools must define various functions for instrumenting programs
 that are called by Valgrind's core. They are then linked against
 Valgrind's core to define a complete Valgrind tool which will be used
 when the <code class="option">--tool</code> option is used to select it.</p>
 </div>
-<div class="sect2" title="2.2.2. Getting the code">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.gettingcode"></a>2.2.2. Getting the code</h3></div></div></div>
+<a name="manual-writing-tools.gettingcode"></a>2.2.2.&nbsp;Getting the code</h3></div></div></div>
 <p>To write your own tool, you'll need the Valgrind source code.  You'll
 need a check-out of the Subversion repository for the automake/autoconf
 build instructions to work.  See the information about how to do check-out
 from the repository at <a class="ulink" href="http://www.valgrind.org/downloads/repository.html" target="_top">the Valgrind
 website</a>.</p>
 </div>
-<div class="sect2" title="2.2.3. Getting started">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.gettingstarted"></a>2.2.3. Getting started</h3></div></div></div>
+<a name="manual-writing-tools.gettingstarted"></a>2.2.3.&nbsp;Getting started</h3></div></div></div>
 <p>Valgrind uses GNU <code class="computeroutput">automake</code> and
 <code class="computeroutput">autoconf</code> for the creation of Makefiles
 and configuration.  But don't worry, these instructions should be enough
@@ -175,9 +175,9 @@ different names for your source files, and use a different
 <p>Now that we've setup, built and tested the simplest possible tool,
 onto the interesting stuff...</p>
 </div>
-<div class="sect2" title="2.2.4. Writing the code">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.writingcode"></a>2.2.4. Writing the code</h3></div></div></div>
+<a name="manual-writing-tools.writingcode"></a>2.2.4.&nbsp;Writing the code</h3></div></div></div>
 <p>A tool must define at least these four functions:</p>
 <pre class="programlisting">
   pre_clo_init()
@@ -193,9 +193,9 @@ The last three are registered using the
 provided by the core, it may have to define other functions and tell the
 core about them.</p>
 </div>
-<div class="sect2" title="2.2.5. Initialisation">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.init"></a>2.2.5. Initialisation</h3></div></div></div>
+<a name="manual-writing-tools.init"></a>2.2.5.&nbsp;Initialisation</h3></div></div></div>
 <p>Most of the initialisation should be done in
 <code class="function">pre_clo_init</code>.  Only use
 <code class="function">post_clo_init</code> if a tool provides command line
@@ -237,9 +237,9 @@ this happens.</p>
 can be found in
 <code class="filename">include/pub_tool_tooliface.h</code>.</p>
 </div>
-<div class="sect2" title="2.2.6. Instrumentation">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.instr"></a>2.2.6. Instrumentation</h3></div></div></div>
+<a name="manual-writing-tools.instr"></a>2.2.6.&nbsp;Instrumentation</h3></div></div></div>
 <p><code class="function">instrument</code> is the interesting one.  It
 allows you to instrument <span class="emphasis"><em>VEX IR</em></span>, which is
 Valgrind's RISC-like intermediate language.  VEX IR is described
@@ -251,16 +251,16 @@ functions when interesting things happen.  See the tool "Lackey"
 Cachegrind (<code class="filename">cachegrind/cg_main.c</code>) for a more
 complex example.</p>
 </div>
-<div class="sect2" title="2.2.7. Finalisation">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.fini"></a>2.2.7. Finalisation</h3></div></div></div>
+<a name="manual-writing-tools.fini"></a>2.2.7.&nbsp;Finalisation</h3></div></div></div>
 <p>This is where you can present the final results, such as a summary
 of the information collected.  Any log files should be written out at
 this point.</p>
 </div>
-<div class="sect2" title="2.2.8. Other Important Information">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.otherinfo"></a>2.2.8. Other Important Information</h3></div></div></div>
+<a name="manual-writing-tools.otherinfo"></a>2.2.8.&nbsp;Other Important Information</h3></div></div></div>
 <p>Please note that the core/tool split infrastructure is quite
 complex and not brilliantly documented.  Here are some important points,
 but there are undoubtedly many others that I should note but haven't
@@ -291,14 +291,14 @@ implementation in <code class="filename">docs/internals/</code>.  Much of it
 isn't that relevant to tool-writers, however.</p>
 </div>
 </div>
-<div class="sect1" title="2.3. Advanced Topics">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-writing-tools.advtopics"></a>2.3. Advanced Topics</h2></div></div></div>
+<a name="manual-writing-tools.advtopics"></a>2.3.&nbsp;Advanced Topics</h2></div></div></div>
 <p>Once a tool becomes more complicated, there are some extra
 things you may want/need to do.</p>
-<div class="sect2" title="2.3.1. Debugging Tips">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.advice"></a>2.3.1. Debugging Tips</h3></div></div></div>
+<a name="manual-writing-tools.advice"></a>2.3.1.&nbsp;Debugging Tips</h3></div></div></div>
 <p>Writing and debugging tools is not trivial.  Here are some
 suggestions for solving common problems.</p>
 <p>If you are getting segmentation faults in C functions used by your
@@ -321,9 +321,9 @@ using GDB.</p>
 <code class="computeroutput">valgrind --help-debug</code> for the
 list).</p>
 </div>
-<div class="sect2" title="2.3.2. Suppressions">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.suppressions"></a>2.3.2. Suppressions</h3></div></div></div>
+<a name="manual-writing-tools.suppressions"></a>2.3.2.&nbsp;Suppressions</h3></div></div></div>
 <p>If your tool reports errors and you want to suppress some common
 ones, you can add suppressions to the suppression files.  The relevant
 files are <code class="filename">*.supp</code>; the final suppression
@@ -336,9 +336,9 @@ and glibc on a system.</p>
 for the tool during initialisation with
 <code class="function">VG_(details_name)</code>.</p>
 </div>
-<div class="sect2" title="2.3.3. Documentation">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.docs"></a>2.3.3. Documentation</h3></div></div></div>
+<a name="manual-writing-tools.docs"></a>2.3.3.&nbsp;Documentation</h3></div></div></div>
 <p>If you are feeling conscientious and want to write some
 documentation for your tool, please use XML as the rest of Valgrind does.
 The file <code class="filename">docs/README</code> has more details on getting
@@ -410,9 +410,9 @@ make print-docs
 </li>
 </ol></div>
 </div>
-<div class="sect2" title="2.3.4. Regression Tests">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.regtests"></a>2.3.4. Regression Tests</h3></div></div></div>
+<a name="manual-writing-tools.regtests"></a>2.3.4.&nbsp;Regression Tests</h3></div></div></div>
 <p>Valgrind has some support for regression tests.  If you want to
 write regression tests for your tool:</p>
 <div class="orderedlist"><ol class="orderedlist" type="1">
@@ -438,9 +438,9 @@ write regression tests for your tool:</p>
     works correctly from any directory.</p></li>
 </ol></div>
 </div>
-<div class="sect2" title="2.3.5. Profiling">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.profiling"></a>2.3.5. Profiling</h3></div></div></div>
+<a name="manual-writing-tools.profiling"></a>2.3.5.&nbsp;Profiling</h3></div></div></div>
 <p>Lots of profiling tools have trouble running Valgrind.  For example,
 trying to use gprof is hopeless.</p>
 <p>Probably the best way to profile a tool is with OProfile on Linux.</p>
@@ -448,9 +448,9 @@ trying to use gprof is hopeless.</p>
 <code class="filename">README_DEVELOPERS</code> for details on running Valgrind under
 Valgrind;  it's a bit fragile but can usually be made to work.</p>
 </div>
-<div class="sect2" title="2.3.6. Other Makefile Hackery">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.mkhackery"></a>2.3.6. Other Makefile Hackery</h3></div></div></div>
+<a name="manual-writing-tools.mkhackery"></a>2.3.6.&nbsp;Other Makefile Hackery</h3></div></div></div>
 <p>If you add any directories under
 <code class="computeroutput">foobar/</code>, you will need to add
 an appropriate <code class="filename">Makefile.am</code> to it, and add a
@@ -463,9 +463,9 @@ example) you need to add them to the
 <code class="computeroutput">AC_OUTPUT</code> list in
 <code class="filename">configure.in</code>.</p>
 </div>
-<div class="sect2" title="2.3.7. The Core/tool Interface">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="manual-writing-tools.ifacever"></a>2.3.7. The Core/tool Interface</h3></div></div></div>
+<a name="manual-writing-tools.ifacever"></a>2.3.7.&nbsp;The Core/tool Interface</h3></div></div></div>
 <p>The core/tool interface evolves over time, but it's pretty stable.
 We deliberately do not provide backward compatibility with old interfaces,
 because it is too difficult and too restrictive.  We view this as a good
@@ -477,9 +477,9 @@ deliberately violate this property by, for example, changing the behaviour
 of a core function without changing its prototype.</p>
 </div>
 </div>
-<div class="sect1" title="2.4. Final Words">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-writing-tools.finalwords"></a>2.4. Final Words</h2></div></div></div>
+<a name="manual-writing-tools.finalwords"></a>2.4.&nbsp;Final Words</h2></div></div></div>
 <p>Writing a new Valgrind tool is not easy, but the tools you can write
 with Valgrind are among the most powerful programming tools there are.
 Happy programming!</p>
@@ -489,9 +489,9 @@ Happy programming!</p>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="design-impl.html">&lt;&lt; 1. The Design and Implementation of Valgrind</a> </td>
+<a accesskey="p" href="design-impl.html">&lt;&lt;&nbsp;1.&nbsp;The Design and Implementation of Valgrind</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="tech-docs.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="cl-format.html">3. Callgrind Format Specification &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="cl-format.html">3.&nbsp;Callgrind Format Specification&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

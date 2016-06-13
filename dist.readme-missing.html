@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>5. README_MISSING_SYSCALL_OR_IOCTL</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>5.&nbsp;README_MISSING_SYSCALL_OR_IOCTL</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme.html" title="4. README">
-<link rel="next" href="dist.readme-developers.html" title="6. README_DEVELOPERS">
+<link rel="prev" href="dist.readme.html" title="4.&nbsp;README">
+<link rel="next" href="dist.readme-developers.html" title="6.&nbsp;README_DEVELOPERS">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,204 +17,204 @@
 <th align="center" valign="middle">Valgrind Distribution Documents</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-developers.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="5. README_MISSING_SYSCALL_OR_IOCTL">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="dist.readme-missing"></a>5. README_MISSING_SYSCALL_OR_IOCTL</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dist.readme-missing"></a>5.&nbsp;README_MISSING_SYSCALL_OR_IOCTL</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
-Dealing with missing system call or ioctl wrappers in Valgrind<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Dealing&nbsp;with&nbsp;missing&nbsp;system&nbsp;call&nbsp;or&nbsp;ioctl&nbsp;wrappers&nbsp;in&nbsp;Valgrind<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-You're probably reading this because Valgrind bombed out whilst<br>
-running your program, and advised you to read this file.  The good<br>
-news is that, in general, it's easy to write the missing syscall or<br>
-ioctl wrappers you need, so that you can continue your debugging.  If<br>
-you send the resulting patches to me, then you'll be doing a favour to<br>
-all future Valgrind users too.<br>
+You're&nbsp;probably&nbsp;reading&nbsp;this&nbsp;because&nbsp;Valgrind&nbsp;bombed&nbsp;out&nbsp;whilst<br>
+running&nbsp;your&nbsp;program,&nbsp;and&nbsp;advised&nbsp;you&nbsp;to&nbsp;read&nbsp;this&nbsp;file.&nbsp;&nbsp;The&nbsp;good<br>
+news&nbsp;is&nbsp;that,&nbsp;in&nbsp;general,&nbsp;it's&nbsp;easy&nbsp;to&nbsp;write&nbsp;the&nbsp;missing&nbsp;syscall&nbsp;or<br>
+ioctl&nbsp;wrappers&nbsp;you&nbsp;need,&nbsp;so&nbsp;that&nbsp;you&nbsp;can&nbsp;continue&nbsp;your&nbsp;debugging.&nbsp;&nbsp;If<br>
+you&nbsp;send&nbsp;the&nbsp;resulting&nbsp;patches&nbsp;to&nbsp;me,&nbsp;then&nbsp;you'll&nbsp;be&nbsp;doing&nbsp;a&nbsp;favour&nbsp;to<br>
+all&nbsp;future&nbsp;Valgrind&nbsp;users&nbsp;too.<br>
 <br>
-Note that an "ioctl" is just a special kind of system call, really; so<br>
-there's not a lot of need to distinguish them (at least conceptually)<br>
-in the discussion that follows.<br>
+Note&nbsp;that&nbsp;an&nbsp;"ioctl"&nbsp;is&nbsp;just&nbsp;a&nbsp;special&nbsp;kind&nbsp;of&nbsp;system&nbsp;call,&nbsp;really;&nbsp;so<br>
+there's&nbsp;not&nbsp;a&nbsp;lot&nbsp;of&nbsp;need&nbsp;to&nbsp;distinguish&nbsp;them&nbsp;(at&nbsp;least&nbsp;conceptually)<br>
+in&nbsp;the&nbsp;discussion&nbsp;that&nbsp;follows.<br>
 <br>
-All this machinery is in coregrind/m_syswrap.<br>
+All&nbsp;this&nbsp;machinery&nbsp;is&nbsp;in&nbsp;coregrind/m_syswrap.<br>
 <br>
 <br>
-What are syscall/ioctl wrappers?  What do they do?<br>
+What&nbsp;are&nbsp;syscall/ioctl&nbsp;wrappers?&nbsp;&nbsp;What&nbsp;do&nbsp;they&nbsp;do?<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-Valgrind does what it does, in part, by keeping track of everything your<br>
-program does.  When a system call happens, for example a request to read<br>
-part of a file, control passes to the Linux kernel, which fulfills the<br>
-request, and returns control to your program.  The problem is that the<br>
-kernel will often change the status of some part of your program's memory<br>
-as a result, and tools (instrumentation plug-ins) may need to know about<br>
+Valgrind&nbsp;does&nbsp;what&nbsp;it&nbsp;does,&nbsp;in&nbsp;part,&nbsp;by&nbsp;keeping&nbsp;track&nbsp;of&nbsp;everything&nbsp;your<br>
+program&nbsp;does.&nbsp;&nbsp;When&nbsp;a&nbsp;system&nbsp;call&nbsp;happens,&nbsp;for&nbsp;example&nbsp;a&nbsp;request&nbsp;to&nbsp;read<br>
+part&nbsp;of&nbsp;a&nbsp;file,&nbsp;control&nbsp;passes&nbsp;to&nbsp;the&nbsp;Linux&nbsp;kernel,&nbsp;which&nbsp;fulfills&nbsp;the<br>
+request,&nbsp;and&nbsp;returns&nbsp;control&nbsp;to&nbsp;your&nbsp;program.&nbsp;&nbsp;The&nbsp;problem&nbsp;is&nbsp;that&nbsp;the<br>
+kernel&nbsp;will&nbsp;often&nbsp;change&nbsp;the&nbsp;status&nbsp;of&nbsp;some&nbsp;part&nbsp;of&nbsp;your&nbsp;program's&nbsp;memory<br>
+as&nbsp;a&nbsp;result,&nbsp;and&nbsp;tools&nbsp;(instrumentation&nbsp;plug-ins)&nbsp;may&nbsp;need&nbsp;to&nbsp;know&nbsp;about<br>
 this.<br>
 <br>
-Syscall and ioctl wrappers have two jobs: <br>
+Syscall&nbsp;and&nbsp;ioctl&nbsp;wrappers&nbsp;have&nbsp;two&nbsp;jobs:&nbsp;<br>
 <br>
-1. Tell a tool what's about to happen, before the syscall takes place.  A<br>
-   tool could perform checks beforehand, eg. if memory about to be written<br>
-   is actually writeable.  This part is useful, but not strictly<br>
-   essential.<br>
+1.&nbsp;Tell&nbsp;a&nbsp;tool&nbsp;what's&nbsp;about&nbsp;to&nbsp;happen,&nbsp;before&nbsp;the&nbsp;syscall&nbsp;takes&nbsp;place.&nbsp;&nbsp;A<br>
+&nbsp;&nbsp;&nbsp;tool&nbsp;could&nbsp;perform&nbsp;checks&nbsp;beforehand,&nbsp;eg.&nbsp;if&nbsp;memory&nbsp;about&nbsp;to&nbsp;be&nbsp;written<br>
+&nbsp;&nbsp;&nbsp;is&nbsp;actually&nbsp;writeable.&nbsp;&nbsp;This&nbsp;part&nbsp;is&nbsp;useful,&nbsp;but&nbsp;not&nbsp;strictly<br>
+&nbsp;&nbsp;&nbsp;essential.<br>
 <br>
-2. Tell a tool what just happened, after a syscall takes place.  This is<br>
-   so it can update its view of the program's state, eg. that memory has<br>
-   just been written to.  This step is essential.<br>
+2.&nbsp;Tell&nbsp;a&nbsp;tool&nbsp;what&nbsp;just&nbsp;happened,&nbsp;after&nbsp;a&nbsp;syscall&nbsp;takes&nbsp;place.&nbsp;&nbsp;This&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;so&nbsp;it&nbsp;can&nbsp;update&nbsp;its&nbsp;view&nbsp;of&nbsp;the&nbsp;program's&nbsp;state,&nbsp;eg.&nbsp;that&nbsp;memory&nbsp;has<br>
+&nbsp;&nbsp;&nbsp;just&nbsp;been&nbsp;written&nbsp;to.&nbsp;&nbsp;This&nbsp;step&nbsp;is&nbsp;essential.<br>
 <br>
-The "happenings" mostly involve reading/writing of memory.<br>
+The&nbsp;"happenings"&nbsp;mostly&nbsp;involve&nbsp;reading/writing&nbsp;of&nbsp;memory.<br>
 <br>
-So, let's look at an example of a wrapper for a system call which<br>
-should be familiar to many Unix programmers.<br>
+So,&nbsp;let's&nbsp;look&nbsp;at&nbsp;an&nbsp;example&nbsp;of&nbsp;a&nbsp;wrapper&nbsp;for&nbsp;a&nbsp;system&nbsp;call&nbsp;which<br>
+should&nbsp;be&nbsp;familiar&nbsp;to&nbsp;many&nbsp;Unix&nbsp;programmers.<br>
 <br>
 <br>
-The syscall wrapper for time()<br>
+The&nbsp;syscall&nbsp;wrapper&nbsp;for&nbsp;time()<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-The wrapper for the time system call looks like this:<br>
+The&nbsp;wrapper&nbsp;for&nbsp;the&nbsp;time&nbsp;system&nbsp;call&nbsp;looks&nbsp;like&nbsp;this:<br>
 <br>
-  PRE(sys_time)<br>
-  {<br>
-     /* time_t time(time_t *t); */<br>
-     PRINT("sys_time ( %p )",ARG1);<br>
-     PRE_REG_READ1(long, "time", int *, t);<br>
-     if (ARG1 != 0) {<br>
-        PRE_MEM_WRITE( "time(t)", ARG1, sizeof(vki_time_t) );<br>
-     }<br>
-  }<br>
+&nbsp;&nbsp;PRE(sys_time)<br>
+&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;time_t&nbsp;time(time_t&nbsp;*t);&nbsp;*/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRINT("sys_time&nbsp;(&nbsp;%p&nbsp;)",ARG1);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_REG_READ1(long,&nbsp;"time",&nbsp;int&nbsp;*,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(ARG1&nbsp;!=&nbsp;0)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_MEM_WRITE(&nbsp;"time(t)",&nbsp;ARG1,&nbsp;sizeof(vki_time_t)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
 <br>
-  POST(sys_time)<br>
-  {  <br>
-     if (ARG1 != 0) {<br>
-        POST_MEM_WRITE( ARG1, sizeof(vki_time_t) );<br>
-     }<br>
-  }<br>
+&nbsp;&nbsp;POST(sys_time)<br>
+&nbsp;&nbsp;{&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(ARG1&nbsp;!=&nbsp;0)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POST_MEM_WRITE(&nbsp;ARG1,&nbsp;sizeof(vki_time_t)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
 <br>
-The first thing we do happens before the syscall occurs, in the PRE() function.<br>
-The PRE() function typically starts with invoking to the PRINT() macro. This<br>
-PRINT() macro implements support for the --trace-syscalls command line option.<br>
-Next, the tool is told the return type of the syscall, that the syscall has<br>
-one argument, the type of the syscall argument and that the argument is being<br>
-read from a register:<br>
+The&nbsp;first&nbsp;thing&nbsp;we&nbsp;do&nbsp;happens&nbsp;before&nbsp;the&nbsp;syscall&nbsp;occurs,&nbsp;in&nbsp;the&nbsp;PRE()&nbsp;function.<br>
+The&nbsp;PRE()&nbsp;function&nbsp;typically&nbsp;starts&nbsp;with&nbsp;invoking&nbsp;to&nbsp;the&nbsp;PRINT()&nbsp;macro.&nbsp;This<br>
+PRINT()&nbsp;macro&nbsp;implements&nbsp;support&nbsp;for&nbsp;the&nbsp;--trace-syscalls&nbsp;command&nbsp;line&nbsp;option.<br>
+Next,&nbsp;the&nbsp;tool&nbsp;is&nbsp;told&nbsp;the&nbsp;return&nbsp;type&nbsp;of&nbsp;the&nbsp;syscall,&nbsp;that&nbsp;the&nbsp;syscall&nbsp;has<br>
+one&nbsp;argument,&nbsp;the&nbsp;type&nbsp;of&nbsp;the&nbsp;syscall&nbsp;argument&nbsp;and&nbsp;that&nbsp;the&nbsp;argument&nbsp;is&nbsp;being<br>
+read&nbsp;from&nbsp;a&nbsp;register:<br>
 <br>
-     PRE_REG_READ1(long, "time", int *, t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_REG_READ1(long,&nbsp;"time",&nbsp;int&nbsp;*,&nbsp;t);<br>
 <br>
-Next, if a non-NULL buffer is passed in as the argument, tell the tool that the<br>
-buffer is about to be written to:<br>
+Next,&nbsp;if&nbsp;a&nbsp;non-NULL&nbsp;buffer&nbsp;is&nbsp;passed&nbsp;in&nbsp;as&nbsp;the&nbsp;argument,&nbsp;tell&nbsp;the&nbsp;tool&nbsp;that&nbsp;the<br>
+buffer&nbsp;is&nbsp;about&nbsp;to&nbsp;be&nbsp;written&nbsp;to:<br>
 <br>
-     if (ARG1 != 0) {<br>
-        PRE_MEM_WRITE( "time", ARG1, sizeof(vki_time_t) );<br>
-     }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(ARG1&nbsp;!=&nbsp;0)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_MEM_WRITE(&nbsp;"time",&nbsp;ARG1,&nbsp;sizeof(vki_time_t)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 <br>
-Finally, the really important bit, after the syscall occurs, in the POST()<br>
-function:  if, and only if, the system call was successful, tell the tool that<br>
-the memory was written:<br>
+Finally,&nbsp;the&nbsp;really&nbsp;important&nbsp;bit,&nbsp;after&nbsp;the&nbsp;syscall&nbsp;occurs,&nbsp;in&nbsp;the&nbsp;POST()<br>
+function:&nbsp;&nbsp;if,&nbsp;and&nbsp;only&nbsp;if,&nbsp;the&nbsp;system&nbsp;call&nbsp;was&nbsp;successful,&nbsp;tell&nbsp;the&nbsp;tool&nbsp;that<br>
+the&nbsp;memory&nbsp;was&nbsp;written:<br>
 <br>
-     if (ARG1 != 0) {<br>
-        POST_MEM_WRITE( ARG1, sizeof(vki_time_t) );<br>
-     }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(ARG1&nbsp;!=&nbsp;0)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POST_MEM_WRITE(&nbsp;ARG1,&nbsp;sizeof(vki_time_t)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
 <br>
-The POST() function won't be called if the syscall failed, so you<br>
-don't need to worry about checking that in the POST() function.<br>
-(Note: this is sometimes a bug; some syscalls do return results when<br>
-they "fail" - for example, nanosleep returns the amount of unslept<br>
-time if interrupted. TODO: add another per-syscall flag for this<br>
+The&nbsp;POST()&nbsp;function&nbsp;won't&nbsp;be&nbsp;called&nbsp;if&nbsp;the&nbsp;syscall&nbsp;failed,&nbsp;so&nbsp;you<br>
+don't&nbsp;need&nbsp;to&nbsp;worry&nbsp;about&nbsp;checking&nbsp;that&nbsp;in&nbsp;the&nbsp;POST()&nbsp;function.<br>
+(Note:&nbsp;this&nbsp;is&nbsp;sometimes&nbsp;a&nbsp;bug;&nbsp;some&nbsp;syscalls&nbsp;do&nbsp;return&nbsp;results&nbsp;when<br>
+they&nbsp;"fail"&nbsp;-&nbsp;for&nbsp;example,&nbsp;nanosleep&nbsp;returns&nbsp;the&nbsp;amount&nbsp;of&nbsp;unslept<br>
+time&nbsp;if&nbsp;interrupted.&nbsp;TODO:&nbsp;add&nbsp;another&nbsp;per-syscall&nbsp;flag&nbsp;for&nbsp;this<br>
 case.)<br>
 <br>
-Note that we use the type 'vki_time_t'.  This is a copy of the kernel<br>
-type, with 'vki_' prefixed.  Our copies of such types are kept in the<br>
-appropriate vki*.h file(s).  We don't include kernel headers or glibc headers<br>
+Note&nbsp;that&nbsp;we&nbsp;use&nbsp;the&nbsp;type&nbsp;'vki_time_t'.&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;copy&nbsp;of&nbsp;the&nbsp;kernel<br>
+type,&nbsp;with&nbsp;'vki_'&nbsp;prefixed.&nbsp;&nbsp;Our&nbsp;copies&nbsp;of&nbsp;such&nbsp;types&nbsp;are&nbsp;kept&nbsp;in&nbsp;the<br>
+appropriate&nbsp;vki*.h&nbsp;file(s).&nbsp;&nbsp;We&nbsp;don't&nbsp;include&nbsp;kernel&nbsp;headers&nbsp;or&nbsp;glibc&nbsp;headers<br>
 directly.<br>
 <br>
 <br>
-Writing your own syscall wrappers (see below for ioctl wrappers)<br>
+Writing&nbsp;your&nbsp;own&nbsp;syscall&nbsp;wrappers&nbsp;(see&nbsp;below&nbsp;for&nbsp;ioctl&nbsp;wrappers)<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
-If Valgrind tells you that system call NNN is unimplemented, do the <br>
+If&nbsp;Valgrind&nbsp;tells&nbsp;you&nbsp;that&nbsp;system&nbsp;call&nbsp;NNN&nbsp;is&nbsp;unimplemented,&nbsp;do&nbsp;the&nbsp;<br>
 following:<br>
 <br>
-1.  Find out the name of the system call:<br>
+1.&nbsp;&nbsp;Find&nbsp;out&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;system&nbsp;call:<br>
 <br>
-       grep NNN /usr/include/asm/unistd*.h<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grep&nbsp;NNN&nbsp;/usr/include/asm/unistd*.h<br>
 <br>
-    This should tell you something like  __NR_mysyscallname.<br>
-    Copy this entry to include/vki/vki-scnums-$(VG_PLATFORM).h.<br>
-<br>
-<br>
-2.  Do 'man 2 mysyscallname' to get some idea of what the syscall<br>
-    does.  Note that the actual kernel interface can differ from this,<br>
-    so you might also want to check a version of the Linux kernel<br>
-    source.<br>
-<br>
-    NOTE: any syscall which has something to do with signals or<br>
-    threads is probably "special", and needs more careful handling.<br>
-    Post something to valgrind-developers if you aren't sure.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;should&nbsp;tell&nbsp;you&nbsp;something&nbsp;like&nbsp;&nbsp;__NR_mysyscallname.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Copy&nbsp;this&nbsp;entry&nbsp;to&nbsp;include/vki/vki-scnums-$(VG_PLATFORM).h.<br>
 <br>
 <br>
-3.  Add a case to the already-huge collection of wrappers in <br>
-    the coregrind/m_syswrap/syswrap-*.c files. <br>
-    For each in-memory parameter which is read or written by<br>
-    the syscall, do one of<br>
-    <br>
-      PRE_MEM_READ( ... )<br>
-      PRE_MEM_RASCIIZ( ... ) <br>
-      PRE_MEM_WRITE( ... ) <br>
-      <br>
-    for  that parameter.  Then do the syscall.  Then, if the syscall<br>
-    succeeds, issue suitable POST_MEM_WRITE( ... ) calls.<br>
-    (There's no need for POST_MEM_READ calls.)<br>
+2.&nbsp;&nbsp;Do&nbsp;'man&nbsp;2&nbsp;mysyscallname'&nbsp;to&nbsp;get&nbsp;some&nbsp;idea&nbsp;of&nbsp;what&nbsp;the&nbsp;syscall<br>
+&nbsp;&nbsp;&nbsp;&nbsp;does.&nbsp;&nbsp;Note&nbsp;that&nbsp;the&nbsp;actual&nbsp;kernel&nbsp;interface&nbsp;can&nbsp;differ&nbsp;from&nbsp;this,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;so&nbsp;you&nbsp;might&nbsp;also&nbsp;want&nbsp;to&nbsp;check&nbsp;a&nbsp;version&nbsp;of&nbsp;the&nbsp;Linux&nbsp;kernel<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source.<br>
 <br>
-    Also, add it to the syscall_table[] array; use one of GENX_, GENXY<br>
-    LINX_, LINXY, PLAX_, PLAXY.<br>
-    GEN* for generic syscalls (in syswrap-generic.c), LIN* for linux<br>
-    specific ones (in syswrap-linux.c) and PLA* for the platform<br>
-    dependant ones (in syswrap-$(PLATFORM)-linux.c).<br>
-    The *XY variant if it requires a PRE() and POST() function, and<br>
-    the *X_ variant if it only requires a PRE()<br>
-    function.  <br>
-    <br>
-    If you find this difficult, read the wrappers for other syscalls<br>
-    for ideas.  A good tip is to look for the wrapper for a syscall<br>
-    which has a similar behaviour to yours, and use it as a <br>
-    starting point.<br>
-<br>
-    If you need structure definitions and/or constants for your syscall,<br>
-    copy them from the kernel headers into include/vki.h and co., with<br>
-    the appropriate vki_*/VKI_* name mangling.  Don't #include any<br>
-    kernel headers.  And certainly don't #include any glibc headers.<br>
-<br>
-    Test it.<br>
-<br>
-    Note that a common error is to call POST_MEM_WRITE( ... )<br>
-    with 0 (NULL) as the first (address) argument.  This usually means<br>
-    your logic is slightly inadequate.  It's a sufficiently common bug<br>
-    that there's a built-in check for it, and you'll get a "probably<br>
-    sanity check failure" for the syscall wrapper you just made, if this<br>
-    is the case.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;any&nbsp;syscall&nbsp;which&nbsp;has&nbsp;something&nbsp;to&nbsp;do&nbsp;with&nbsp;signals&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;threads&nbsp;is&nbsp;probably&nbsp;"special",&nbsp;and&nbsp;needs&nbsp;more&nbsp;careful&nbsp;handling.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Post&nbsp;something&nbsp;to&nbsp;valgrind-developers&nbsp;if&nbsp;you&nbsp;aren't&nbsp;sure.<br>
 <br>
 <br>
-4.  Once happy, send us the patch.  Pretty please.<br>
+3.&nbsp;&nbsp;Add&nbsp;a&nbsp;case&nbsp;to&nbsp;the&nbsp;already-huge&nbsp;collection&nbsp;of&nbsp;wrappers&nbsp;in&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;coregrind/m_syswrap/syswrap-*.c&nbsp;files.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;each&nbsp;in-memory&nbsp;parameter&nbsp;which&nbsp;is&nbsp;read&nbsp;or&nbsp;written&nbsp;by<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;syscall,&nbsp;do&nbsp;one&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_MEM_READ(&nbsp;...&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_MEM_RASCIIZ(&nbsp;...&nbsp;)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PRE_MEM_WRITE(&nbsp;...&nbsp;)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;&nbsp;that&nbsp;parameter.&nbsp;&nbsp;Then&nbsp;do&nbsp;the&nbsp;syscall.&nbsp;&nbsp;Then,&nbsp;if&nbsp;the&nbsp;syscall<br>
+&nbsp;&nbsp;&nbsp;&nbsp;succeeds,&nbsp;issue&nbsp;suitable&nbsp;POST_MEM_WRITE(&nbsp;...&nbsp;)&nbsp;calls.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(There's&nbsp;no&nbsp;need&nbsp;for&nbsp;POST_MEM_READ&nbsp;calls.)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Also,&nbsp;add&nbsp;it&nbsp;to&nbsp;the&nbsp;syscall_table[]&nbsp;array;&nbsp;use&nbsp;one&nbsp;of&nbsp;GENX_,&nbsp;GENXY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LINX_,&nbsp;LINXY,&nbsp;PLAX_,&nbsp;PLAXY.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;GEN*&nbsp;for&nbsp;generic&nbsp;syscalls&nbsp;(in&nbsp;syswrap-generic.c),&nbsp;LIN*&nbsp;for&nbsp;linux<br>
+&nbsp;&nbsp;&nbsp;&nbsp;specific&nbsp;ones&nbsp;(in&nbsp;syswrap-linux.c)&nbsp;and&nbsp;PLA*&nbsp;for&nbsp;the&nbsp;platform<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dependant&nbsp;ones&nbsp;(in&nbsp;syswrap-$(PLATFORM)-linux.c).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;*XY&nbsp;variant&nbsp;if&nbsp;it&nbsp;requires&nbsp;a&nbsp;PRE()&nbsp;and&nbsp;POST()&nbsp;function,&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;*X_&nbsp;variant&nbsp;if&nbsp;it&nbsp;only&nbsp;requires&nbsp;a&nbsp;PRE()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;function.&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;you&nbsp;find&nbsp;this&nbsp;difficult,&nbsp;read&nbsp;the&nbsp;wrappers&nbsp;for&nbsp;other&nbsp;syscalls<br>
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;ideas.&nbsp;&nbsp;A&nbsp;good&nbsp;tip&nbsp;is&nbsp;to&nbsp;look&nbsp;for&nbsp;the&nbsp;wrapper&nbsp;for&nbsp;a&nbsp;syscall<br>
+&nbsp;&nbsp;&nbsp;&nbsp;which&nbsp;has&nbsp;a&nbsp;similar&nbsp;behaviour&nbsp;to&nbsp;yours,&nbsp;and&nbsp;use&nbsp;it&nbsp;as&nbsp;a&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;starting&nbsp;point.<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;you&nbsp;need&nbsp;structure&nbsp;definitions&nbsp;and/or&nbsp;constants&nbsp;for&nbsp;your&nbsp;syscall,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;copy&nbsp;them&nbsp;from&nbsp;the&nbsp;kernel&nbsp;headers&nbsp;into&nbsp;include/vki.h&nbsp;and&nbsp;co.,&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;appropriate&nbsp;vki_*/VKI_*&nbsp;name&nbsp;mangling.&nbsp;&nbsp;Don't&nbsp;#include&nbsp;any<br>
+&nbsp;&nbsp;&nbsp;&nbsp;kernel&nbsp;headers.&nbsp;&nbsp;And&nbsp;certainly&nbsp;don't&nbsp;#include&nbsp;any&nbsp;glibc&nbsp;headers.<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Test&nbsp;it.<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note&nbsp;that&nbsp;a&nbsp;common&nbsp;error&nbsp;is&nbsp;to&nbsp;call&nbsp;POST_MEM_WRITE(&nbsp;...&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;0&nbsp;(NULL)&nbsp;as&nbsp;the&nbsp;first&nbsp;(address)&nbsp;argument.&nbsp;&nbsp;This&nbsp;usually&nbsp;means<br>
+&nbsp;&nbsp;&nbsp;&nbsp;your&nbsp;logic&nbsp;is&nbsp;slightly&nbsp;inadequate.&nbsp;&nbsp;It's&nbsp;a&nbsp;sufficiently&nbsp;common&nbsp;bug<br>
+&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;there's&nbsp;a&nbsp;built-in&nbsp;check&nbsp;for&nbsp;it,&nbsp;and&nbsp;you'll&nbsp;get&nbsp;a&nbsp;"probably<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sanity&nbsp;check&nbsp;failure"&nbsp;for&nbsp;the&nbsp;syscall&nbsp;wrapper&nbsp;you&nbsp;just&nbsp;made,&nbsp;if&nbsp;this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;the&nbsp;case.<br>
+<br>
+<br>
+4.&nbsp;&nbsp;Once&nbsp;happy,&nbsp;send&nbsp;us&nbsp;the&nbsp;patch.&nbsp;&nbsp;Pretty&nbsp;please.<br>
 <br>
 <br>
 <br>
 <br>
-Writing your own ioctl wrappers<br>
+Writing&nbsp;your&nbsp;own&nbsp;ioctl&nbsp;wrappers<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 <br>
-Is pretty much the same as writing syscall wrappers, except that all<br>
-the action happens within PRE(ioctl) and POST(ioctl).<br>
+Is&nbsp;pretty&nbsp;much&nbsp;the&nbsp;same&nbsp;as&nbsp;writing&nbsp;syscall&nbsp;wrappers,&nbsp;except&nbsp;that&nbsp;all<br>
+the&nbsp;action&nbsp;happens&nbsp;within&nbsp;PRE(ioctl)&nbsp;and&nbsp;POST(ioctl).<br>
 <br>
-There's a default case, sometimes it isn't correct and you have to write a<br>
-more specific case to get the right behaviour.<br>
+There's&nbsp;a&nbsp;default&nbsp;case,&nbsp;sometimes&nbsp;it&nbsp;isn't&nbsp;correct&nbsp;and&nbsp;you&nbsp;have&nbsp;to&nbsp;write&nbsp;a<br>
+more&nbsp;specific&nbsp;case&nbsp;to&nbsp;get&nbsp;the&nbsp;right&nbsp;behaviour.<br>
 <br>
-As above, please create a bug report and attach the patch as described<br>
-on http://www.valgrind.org.<br>
+As&nbsp;above,&nbsp;please&nbsp;create&nbsp;a&nbsp;bug&nbsp;report&nbsp;and&nbsp;attach&nbsp;the&nbsp;patch&nbsp;as&nbsp;described<br>
+on&nbsp;http://www.valgrind.org.<br>
 <br>
 <br>
-    </p></div>
+&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme.html">&lt;&lt; 4. README</a> </td>
+<a accesskey="p" href="dist.readme.html">&lt;&lt;&nbsp;4.&nbsp;README</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-developers.html">6. README_DEVELOPERS &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-developers.html">6.&nbsp;README_DEVELOPERS&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

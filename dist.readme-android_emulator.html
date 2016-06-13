@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>10. README.android_emulator</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>10.&nbsp;README.android_emulator</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-android.html" title="9. README.android">
-<link rel="next" href="dist.readme-mips.html" title="11. README.mips">
+<link rel="prev" href="dist.readme-android.html" title="9.&nbsp;README.android">
+<link rel="next" href="dist.readme-mips.html" title="11.&nbsp;README.mips">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,101 +17,101 @@
 <th align="center" valign="middle">Valgrind Distribution Documents</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-mips.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="10. README.android_emulator">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="dist.readme-android_emulator"></a>10. README.android_emulator</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dist.readme-android_emulator"></a>10.&nbsp;README.android_emulator</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
-How to install and run an android emulator.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+How&nbsp;to&nbsp;install&nbsp;and&nbsp;run&nbsp;an&nbsp;android&nbsp;emulator.<br>
 <br>
-mkdir android # or any other place you prefer<br>
-cd android<br>
+mkdir&nbsp;android&nbsp;#&nbsp;or&nbsp;any&nbsp;other&nbsp;place&nbsp;you&nbsp;prefer<br>
+cd&nbsp;android<br>
 <br>
-# download java JDK<br>
-# http://www.oracle.com/technetwork/java/javase/downloads/index.html<br>
-# download android SDK<br>
-# http://developer.android.com/sdk/index.html<br>
-# download android NDK<br>
-# http://developer.android.com/sdk/ndk/index.html<br>
+#&nbsp;download&nbsp;java&nbsp;JDK<br>
+#&nbsp;http://www.oracle.com/technetwork/java/javase/downloads/index.html<br>
+#&nbsp;download&nbsp;android&nbsp;SDK<br>
+#&nbsp;http://developer.android.com/sdk/index.html<br>
+#&nbsp;download&nbsp;android&nbsp;NDK<br>
+#&nbsp;http://developer.android.com/sdk/ndk/index.html<br>
 <br>
-# versions I used:<br>
-#  jdk-7u4-linux-i586.tar.gz<br>
-#  android-ndk-r8-linux-x86.tar.bz2<br>
-#  android-sdk_r18-linux.tgz<br>
+#&nbsp;versions&nbsp;I&nbsp;used:<br>
+#&nbsp;&nbsp;jdk-7u4-linux-i586.tar.gz<br>
+#&nbsp;&nbsp;android-ndk-r8-linux-x86.tar.bz2<br>
+#&nbsp;&nbsp;android-sdk_r18-linux.tgz<br>
 <br>
-# install jdk<br>
-tar xzf jdk-7u4-linux-i586.tar.gz<br>
+#&nbsp;install&nbsp;jdk<br>
+tar&nbsp;xzf&nbsp;jdk-7u4-linux-i586.tar.gz<br>
 <br>
-# install sdk<br>
-tar xzf android-sdk_r18-linux.tgz<br>
+#&nbsp;install&nbsp;sdk<br>
+tar&nbsp;xzf&nbsp;android-sdk_r18-linux.tgz<br>
 <br>
-# install ndk<br>
-tar xjf android-ndk-r8-linux-x86.tar.bz2<br>
-<br>
-<br>
-# setup PATH to use the installed software:<br>
-export SDKROOT=$HOME/android/android-sdk-linux<br>
-export PATH=$PATH:$SDKROOT/tools:$SDKROOT/platform-tools<br>
-export NDKROOT=$HOME/android/android-ndk-r8<br>
-<br>
-# install android platforms you want by starting:<br>
-android <br>
-# (from $SDKROOT/tools)<br>
-<br>
-# select the platforms you need<br>
-# I selected and installed:<br>
-#   Android 4.0.3 (API 15)<br>
-# Upgraded then to the newer version available:<br>
-#     Android sdk 20<br>
-#     Android platform tools 12<br>
-<br>
-# then define a virtual device:<br>
-Tools -&gt; Manage AVDs...<br>
-# I define an AVD Name with 64 Mb SD Card, (4.0.3, api 15)<br>
-# rest is default<br>
+#&nbsp;install&nbsp;ndk<br>
+tar&nbsp;xjf&nbsp;android-ndk-r8-linux-x86.tar.bz2<br>
 <br>
 <br>
-# compile and make install Valgrind, following README.android<br>
+#&nbsp;setup&nbsp;PATH&nbsp;to&nbsp;use&nbsp;the&nbsp;installed&nbsp;software:<br>
+export&nbsp;SDKROOT=$HOME/android/android-sdk-linux<br>
+export&nbsp;PATH=$PATH:$SDKROOT/tools:$SDKROOT/platform-tools<br>
+export&nbsp;NDKROOT=$HOME/android/android-ndk-r8<br>
+<br>
+#&nbsp;install&nbsp;android&nbsp;platforms&nbsp;you&nbsp;want&nbsp;by&nbsp;starting:<br>
+android&nbsp;<br>
+#&nbsp;(from&nbsp;$SDKROOT/tools)<br>
+<br>
+#&nbsp;select&nbsp;the&nbsp;platforms&nbsp;you&nbsp;need<br>
+#&nbsp;I&nbsp;selected&nbsp;and&nbsp;installed:<br>
+#&nbsp;&nbsp;&nbsp;Android&nbsp;4.0.3&nbsp;(API&nbsp;15)<br>
+#&nbsp;Upgraded&nbsp;then&nbsp;to&nbsp;the&nbsp;newer&nbsp;version&nbsp;available:<br>
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Android&nbsp;sdk&nbsp;20<br>
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Android&nbsp;platform&nbsp;tools&nbsp;12<br>
+<br>
+#&nbsp;then&nbsp;define&nbsp;a&nbsp;virtual&nbsp;device:<br>
+Tools&nbsp;-&gt;&nbsp;Manage&nbsp;AVDs...<br>
+#&nbsp;I&nbsp;define&nbsp;an&nbsp;AVD&nbsp;Name&nbsp;with&nbsp;64&nbsp;Mb&nbsp;SD&nbsp;Card,&nbsp;(4.0.3,&nbsp;api&nbsp;15)<br>
+#&nbsp;rest&nbsp;is&nbsp;default<br>
 <br>
 <br>
-# Start your android emulator (it takes some time).<br>
-# You can use adb shell to get a shell on the device<br>
-# and see it is working. Note that I usually get<br>
-# one or two time out from adb shell before it works<br>
-adb shell<br>
-<br>
-# Once the emulator is ready, push your Valgrind to the emulator:<br>
-adb push Inst /<br>
+#&nbsp;compile&nbsp;and&nbsp;make&nbsp;install&nbsp;Valgrind,&nbsp;following&nbsp;README.android<br>
 <br>
 <br>
-# IMPORTANT: when running Valgrind, you may need give it the flag<br>
+#&nbsp;Start&nbsp;your&nbsp;android&nbsp;emulator&nbsp;(it&nbsp;takes&nbsp;some&nbsp;time).<br>
+#&nbsp;You&nbsp;can&nbsp;use&nbsp;adb&nbsp;shell&nbsp;to&nbsp;get&nbsp;a&nbsp;shell&nbsp;on&nbsp;the&nbsp;device<br>
+#&nbsp;and&nbsp;see&nbsp;it&nbsp;is&nbsp;working.&nbsp;Note&nbsp;that&nbsp;I&nbsp;usually&nbsp;get<br>
+#&nbsp;one&nbsp;or&nbsp;two&nbsp;time&nbsp;out&nbsp;from&nbsp;adb&nbsp;shell&nbsp;before&nbsp;it&nbsp;works<br>
+adb&nbsp;shell<br>
+<br>
+#&nbsp;Once&nbsp;the&nbsp;emulator&nbsp;is&nbsp;ready,&nbsp;push&nbsp;your&nbsp;Valgrind&nbsp;to&nbsp;the&nbsp;emulator:<br>
+adb&nbsp;push&nbsp;Inst&nbsp;/<br>
+<br>
+<br>
+#&nbsp;IMPORTANT:&nbsp;when&nbsp;running&nbsp;Valgrind,&nbsp;you&nbsp;may&nbsp;need&nbsp;give&nbsp;it&nbsp;the&nbsp;flag<br>
 #<br>
-#    --kernel-variant=android-emulator-no-hw-tls<br>
+#&nbsp;&nbsp;&nbsp;&nbsp;--kernel-variant=android-emulator-no-hw-tls<br>
 #<br>
-# since otherwise it may crash at startup.<br>
-# See README.android for details.<br>
+#&nbsp;since&nbsp;otherwise&nbsp;it&nbsp;may&nbsp;crash&nbsp;at&nbsp;startup.<br>
+#&nbsp;See&nbsp;README.android&nbsp;for&nbsp;details.<br>
 <br>
 <br>
-# if you need to debug:<br>
-# You have on the android side a gdbserver<br>
-# on the device side:<br>
-gdbserver :1234 your_exe<br>
+#&nbsp;if&nbsp;you&nbsp;need&nbsp;to&nbsp;debug:<br>
+#&nbsp;You&nbsp;have&nbsp;on&nbsp;the&nbsp;android&nbsp;side&nbsp;a&nbsp;gdbserver<br>
+#&nbsp;on&nbsp;the&nbsp;device&nbsp;side:<br>
+gdbserver&nbsp;:1234&nbsp;your_exe<br>
 <br>
-# on the host side:<br>
-adb forward tcp:1234 tcp:1234<br>
-$HOME/android/android-ndk-r8/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gdb your_exe<br>
-target remote :1234<br>
+#&nbsp;on&nbsp;the&nbsp;host&nbsp;side:<br>
+adb&nbsp;forward&nbsp;tcp:1234&nbsp;tcp:1234<br>
+$HOME/android/android-ndk-r8/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gdb&nbsp;your_exe<br>
+target&nbsp;remote&nbsp;:1234<br>
 <br>
 <br>
-    </p></div>
+&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-android.html">&lt;&lt; 9. README.android</a> </td>
+<a accesskey="p" href="dist.readme-android.html">&lt;&lt;&nbsp;9.&nbsp;README.android</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-mips.html">11. README.mips &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-mips.html">11.&nbsp;README.mips&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

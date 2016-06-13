@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>10. DHAT: a dynamic heap analysis tool</title>
-<link rel="stylesheet" href="vg_basic.css" type="text/css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<title>10.&nbsp;DHAT: a dynamic heap analysis tool</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="ms-manual.html" title="9. Massif: a heap profiler">
-<link rel="next" href="sg-manual.html" title="11. SGCheck: an experimental stack and global array overrun detector">
+<link rel="prev" href="ms-manual.html" title="9.&nbsp;Massif: a heap profiler">
+<link rel="next" href="sg-manual.html" title="11.&nbsp;SGCheck: an experimental stack and global array overrun detector">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -17,18 +17,18 @@
 <th align="center" valign="middle">Valgrind User Manual</th>
 <td width="22px" align="center" valign="middle"><a accesskey="n" href="sg-manual.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
-<div class="chapter" title="10. DHAT: a dynamic heap analysis tool">
-<div class="titlepage"><div><div><h2 class="title">
-<a name="dh-manual"></a>10. DHAT: a dynamic heap analysis tool</h2></div></div></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dh-manual"></a>10.&nbsp;DHAT: a dynamic heap analysis tool</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
-<dl>
+<dl class="toc">
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.overview">10.1. Overview</a></span></dt>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.understanding">10.2. Understanding DHAT's output</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="dh-manual.html#idp13070688">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp14437056">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp15876400">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp46114944">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp50727152">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp53295888">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.options">10.3. DHAT Command-line Options</a></span></dt>
 </dl>
@@ -36,16 +36,16 @@
 <p>To use this tool, you must specify
 <code class="option">--tool=exp-dhat</code> on the Valgrind
 command line.</p>
-<div class="sect1" title="10.1. Overview">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.overview"></a>10.1. Overview</h2></div></div></div>
+<a name="dh-manual.overview"></a>10.1.&nbsp;Overview</h2></div></div></div>
 <p>DHAT is a tool for examining how programs use their heap
 allocations.</p>
 <p>It tracks the allocated blocks, and inspects every memory access
 to find which block, if any, it is to.  The following data is
 collected and presented per allocation point (allocation
 stack):</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>Total allocation (number of bytes and
   blocks)</p></li>
 <li class="listitem"><p>maximum live volume (number of bytes and
@@ -61,7 +61,7 @@ stack):</p>
 </ul></div>
 <p>Using these statistics it is possible to identify allocation
 points with the following characteristics:</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>potential process-lifetime leaks: blocks allocated
    by the point just accumulate, and are freed only at the end of the
    run.</p></li>
@@ -82,17 +82,17 @@ as instruction counts.  This sounds a little odd at first, but it
 makes runs repeatable in a way which is not possible if CPU time is
 used.</p>
 </div>
-<div class="sect1" title="10.2. Understanding DHAT's output">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.understanding"></a>10.2. Understanding DHAT's output</h2></div></div></div>
+<a name="dh-manual.understanding"></a>10.2.&nbsp;Understanding DHAT's output</h2></div></div></div>
 <p>DHAT provides a lot of useful information on dynamic heap usage.
 Most of the art of using it is in interpretation of the resulting
 numbers.  That is best illustrated via a set of examples.</p>
-<div class="sect2" title="10.2.1. Interpreting the max-live, tot-alloc and deaths fields">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp13070688"></a>10.2.1. Interpreting the max-live, tot-alloc and deaths fields</h3></div></div></div>
-<div class="sect3" title="10.2.1.1. A simple example"><div class="titlepage"><div><div><h4 class="title">
-<a name="idp13071392"></a>10.2.1.1. A simple example</h4></div></div></div></div>
+<a name="idp46114944"></a>10.2.1.&nbsp;Interpreting the max-live, tot-alloc and deaths fields</h3></div></div></div>
+<div class="sect3"><div class="titlepage"><div><div><h4 class="title">
+<a name="idp46115648"></a>10.2.1.1.&nbsp;A simple example</h4></div></div></div></div>
 <pre class="screen">
    ======== SUMMARY STATISTICS ========
 
@@ -122,8 +122,8 @@ all allocated blocks were freed by the end of the program.</p>
 instructions.  From the summary statistics we see that the program ran
 for 1,045,339,534 instructions, and so the average age at death is
 about 2% of the program's total run time.</p>
-<div class="sect3" title="10.2.1.2. Example of a potential process-lifetime leak"><div class="titlepage"><div><div><h4 class="title">
-<a name="idp15166576"></a>10.2.1.2. Example of a potential process-lifetime leak</h4></div></div></div></div>
+<div class="sect3"><div class="titlepage"><div><div><h4 class="title">
+<a name="idp48550912"></a>10.2.1.2.&nbsp;Example of a potential process-lifetime leak</h4></div></div></div></div>
 <p>This next example (from a different program than the above)
 shows a potential process lifetime leak.  A process lifetime leak
 occurs when a program keeps allocating data, but only frees the
@@ -156,11 +156,11 @@ large part of the entire run.  One interpretation is, roughly, that
 all 254 blocks were allocated in the first half of the run, held onto
 for the second half, and then freed just before exit.</p>
 </div>
-<div class="sect2" title="10.2.2. Interpreting the acc-ratios fields">
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp14437056"></a>10.2.2. Interpreting the acc-ratios fields</h3></div></div></div>
-<div class="sect3" title="10.2.2.1. A fairly harmless allocation point record"><div class="titlepage"><div><div><h4 class="title">
-<a name="idp15168656"></a>10.2.2.1. A fairly harmless allocation point record</h4></div></div></div></div>
+<a name="idp50727152"></a>10.2.2.&nbsp;Interpreting the acc-ratios fields</h3></div></div></div>
+<div class="sect3"><div class="titlepage"><div><div><h4 class="title">
+<a name="idp50727904"></a>10.2.2.1.&nbsp;A fairly harmless allocation point record</h4></div></div></div></div>
 <pre class="screen">
    max-live:    49,398 in 808 blocks
    tot-alloc:   1,481,940 in 24,240 blocks (avg size 61.13)
@@ -192,8 +192,8 @@ unused areas are.  However, that isn't the case: the blocks have
 varying sizes, so DHAT can't perform such an analysis.  We can see
 that they must have varying sizes since the average block size, 61.13,
 isn't a whole number.</p>
-<div class="sect3" title="10.2.2.2. A more suspicious looking example"><div class="titlepage"><div><div><h4 class="title">
-<a name="idp17745968"></a>10.2.2.2. A more suspicious looking example</h4></div></div></div></div>
+<div class="sect3"><div class="titlepage"><div><div><h4 class="title">
+<a name="idp48528512"></a>10.2.2.2.&nbsp;A more suspicious looking example</h4></div></div></div></div>
 <pre class="screen">
    max-live:    180,224 in 22 blocks
    tot-alloc:   180,224 in 22 blocks (avg size 8192.00)
@@ -212,8 +212,8 @@ could be removed.</p>
 <p>Re-running with Memcheck does indeed report the same leak.  What
 DHAT can tell us, that Memcheck can't, is that not only are the blocks
 leaked, they are also never used.</p>
-<div class="sect3" title="10.2.2.3. Another suspicious example"><div class="titlepage"><div><div><h4 class="title">
-<a name="idp13458288"></a>10.2.2.3. Another suspicious example</h4></div></div></div></div>
+<div class="sect3"><div class="titlepage"><div><div><h4 class="title">
+<a name="idp47960960"></a>10.2.2.3.&nbsp;Another suspicious example</h4></div></div></div></div>
 <p>Here's one where blocks are allocated, written to,
 but never read from.  We see this immediately from the zero read
 access ratio.  They do get freed, though:</p>
@@ -239,9 +239,9 @@ between the end of an object's construction and the start of its
 destruction.  Unfortunately I do not know of a reliable way to
 determine when those transitions are made.</p>
 </div>
-<div class="sect2" title='10.2.3. Interpreting "Aggregated access counts by offset" data'>
+<div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp15876400"></a>10.2.3. Interpreting "Aggregated access counts by offset" data</h3></div></div></div>
+<a name="idp53295888"></a>10.2.3.&nbsp;Interpreting "Aggregated access counts by offset" data</h3></div></div></div>
 <p>For allocation points that always allocate blocks of the same
 size, and which are 4096 bytes or smaller, DHAT counts accesses
 per offset, for example:</p>
@@ -298,12 +298,12 @@ at all for this particular run.  Experience shows that's unlikely
 to be the case, but it could happen.</p>
 </div>
 </div>
-<div class="sect1" title="10.3. DHAT Command-line Options">
+<div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.options"></a>10.3. DHAT Command-line Options</h2></div></div></div>
+<a name="dh-manual.options"></a>10.3.&nbsp;DHAT Command-line Options</h2></div></div></div>
 <p>DHAT-specific command-line options are:</p>
 <div class="variablelist">
-<a name="dh.opts.list"></a><dl>
+<a name="dh.opts.list"></a><dl class="variablelist">
 <dt>
 <a name="opt.show-top-n"></a><span class="term">
       <code class="option">--show-top-n=&lt;number&gt;
@@ -350,9 +350,9 @@ number, to reduce the spreading.</p>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="ms-manual.html">&lt;&lt; 9. Massif: a heap profiler</a> </td>
+<a accesskey="p" href="ms-manual.html">&lt;&lt;&nbsp;9.&nbsp;Massif: a heap profiler</a>&nbsp;</td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="sg-manual.html">11. SGCheck: an experimental stack and global array overrun detector &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="sg-manual.html">11.&nbsp;SGCheck: an experimental stack and global array overrun detector&nbsp;&gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
