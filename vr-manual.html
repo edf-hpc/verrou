@@ -1,0 +1,698 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>14. Verrou: a floating-point rounding errors checker</title>
+<link rel="stylesheet" href="vg_basic.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<link rel="home" href="index.html" title="Valgrind Documentation">
+<link rel="up" href="manual.html" title="Valgrind User Manual">
+<link rel="prev" href="lk-manual.html" title="13. Lackey: an example tool">
+<link rel="next" href="nl-manual.html" title="15. Nulgrind: the minimal Valgrind tool">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
+<td width="22px" align="center" valign="middle"><a accesskey="p" href="lk-manual.html"><img src="images/prev.png" width="18" height="21" border="0" alt="Prev"></a></td>
+<td width="25px" align="center" valign="middle"><a accesskey="u" href="manual.html"><img src="images/up.png" width="21" height="18" border="0" alt="Up"></a></td>
+<td width="31px" align="center" valign="middle"><a accesskey="h" href="index.html"><img src="images/home.png" width="27" height="20" border="0" alt="Up"></a></td>
+<th align="center" valign="middle">Valgrind User Manual</th>
+<td width="22px" align="center" valign="middle"><a accesskey="n" href="nl-manual.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
+</tr></table></div>
+<div class="chapter" title="14. Verrou: a floating-point rounding errors checker">
+<div class="titlepage"><div><div><h2 class="title">
+<a name="vr-manual"></a>14. Verrou: a floating-point rounding errors checker</h2></div></div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="sect1"><a href="vr-manual.html#vr-manual.overview">14.1. Overview</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.basic-usage">14.1.1. Basic usage</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat">14.1.2. Standard features</a></span></dt>
+</dl></dd>
+<dt><span class="sect1"><a href="vr-manual.html#vr-manual.advanced">14.2. Advanced features</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.instr">14.2.1. Instrumented sections</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.exclude">14.2.2. Excluded code blocks</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.deterministic">14.2.3. Deterministic sections</a></span></dt>
+</dl></dd>
+<dt><span class="sect1"><a href="vr-manual.html#vr-manual.reference">14.3. Reference</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#idp16608992">14.3.3. Monitor commands</a></span></dt>
+</dl></dd>
+</dl>
+</div>
+<p>
+    To use this tool, you must specify <code class="option">--tool=verrou</code> on the
+    Valgrind command line.
+  </p>
+<div class="sect1" title="14.1. Overview">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="vr-manual.overview"></a>14.1. Overview</h2></div></div></div>
+<p>
+      Verrou helps you look for floating-point round-off errors in programs. It
+      implements a stochastic floating-point arithmetic based on random rounding: all
+      floating-point operations are perturbed by randomly switching rounding modes.
+      This can be seen as an asynchronous variant of the CESTAC method, or a subset
+      of Monte Carlo Arithmetic, performing only output randomization.
+    </p>
+<div class="sect2" title="14.1.1. Basic usage">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.basic-usage"></a>14.1.1. Basic usage</h3></div></div></div>
+<p>
+        As with many other Valgrind tools, you probably want to recompile your program
+        with debugging info (the <code class="option">-g</code> option) and with optimization
+        turned on.
+      </p>
+<p>
+        To start a floating-point check for a program, execute:
+        </p>
+<pre class="screen">valgrind --tool=verrou [verrou options] your-program [program options]</pre>
+<p>
+      </p>
+<p>
+        During program execution, floating-point operations will be perturbed by
+        constantly and randomly switching the rounding-mode. This makes you program
+        output (hopefully slightly) different results than in a normal execution. See
+        <a class="xref" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.1.2.2. Rounding-mode switching">Rounding-mode switching</a> for more details on the different
+        rounding-mode switching strategies.
+      </p>
+<p>
+        After program termination, a summary of floating point operations will be
+        printed on screen (see <a class="xref" href="vr-manual.html#vr-manual.feat.count" title="14.1.2.1. Floating-point instructions counting">Floating-point instructions counting</a> below).
+      </p>
+</div>
+<div class="sect2" title="14.1.2. Standard features">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.feat"></a>14.1.2. Standard features</h3></div></div></div>
+<div class="sect3" title="14.1.2.1. Floating-point instructions counting">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.feat.count"></a>14.1.2.1. Floating-point instructions counting</h4></div></div></div>
+<p>
+          Verrou detects and counts floating-point operations. A summary is printed after
+          each program execution, listing the number of floating-point operations executed
+          by the program, broken down into categories according to various criteria :
+        </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><span class="command"><strong>Operation type:</strong></span></span></dt>
+<dd>
+<p>
+                </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<span class="command"><strong>add</strong></span>: addition</li>
+<li class="listitem">
+<span class="command"><strong>sub</strong></span>: subtraction</li>
+<li class="listitem">
+<span class="command"><strong>mul</strong></span>: multiplication</li>
+<li class="listitem">
+<span class="command"><strong>div</strong></span>: division</li>
+</ul></div>
+<p>
+            </p>
+</dd>
+<dt><span class="term"><span class="command"><strong>Floating-point precision:</strong></span></span></dt>
+<dd>
+<p>
+                </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<span class="command"><strong>flt</strong></span>: IEEE-754 single precision
+                    (<code class="computeroutput">float</code>)</li>
+<li class="listitem">
+<span class="command"><strong>dbl</strong></span>: IEEE-754 double precision</li>
+</ul></div>
+<p>
+            </p>
+</dd>
+<dt><span class="term"><span class="command"><strong>Vector nature of the instruction:</strong></span></span></dt>
+<dd>
+<p>
+                </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<span class="command"><strong>scal</strong></span>: scalar instruction</li>
+<li class="listitem">
+<span class="command"><strong>llo</strong></span>: lowest-lane-only vector instruction</li>
+<li class="listitem">
+<span class="command"><strong>vec</strong></span>: full vector instruction</li>
+</ul></div>
+<p>
+            </p>
+</dd>
+</dl></div>
+<p>Below is an example output of Verrou's summary of floating-point operations:
+          </p>
+<pre class="screen">
+==19788==  ---------------------------------------------------------------------
+==19788==  Operation                            Instruction count
+==19788==   `- Precision
+==19788==       `- Vectorization          Total             Instrumented
+==19788==  ---------------------------------------------------------------------
+==19788==  add                     9392                     9392          (100%)
+==19788==   `- flt                       85                       85      (100%)
+==19788==       `- llo                       85                       85  (100%)
+==19788==   `- dbl                     9307                     9307      (100%)
+==19788==       `- llo                     9307                     9307  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  sub                     4342                     4342          (100%)
+==19788==   `- flt                       77                       77      (100%)
+==19788==       `- llo                       77                       77  (100%)
+==19788==   `- dbl                     4265                     4265      (100%)
+==19788==       `- llo                     4265                     4265  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  mul                     9966                     9966          (100%)
+==19788==   `- flt                      134                      134      (100%)
+==19788==       `- llo                      134                      134  (100%)
+==19788==   `- dbl                     9832                     9832      (100%)
+==19788==       `- llo                     9832                     9832  (100%)
+==19788==  ---------------------------------------------------------------------
+==19788==  div                       35                       35          (100%)
+==19788==   `- flt                        5                        5      (100%)
+==19788==       `- llo                        5                        5  (100%)
+==19788==   `- dbl                       30                       30      (100%)
+==19788==       `- llo                       30                       30  (100%)
+==19788==  ---------------------------------------------------------------------</pre>
+<p>
+        </p>
+<p>The set of columns labeled "Total" shows the total number of
+          floating-point instructions as seen by Verrou. In the second set of
+          columns (labeled "Instrumented"), instructions are only accounted for
+          if they come from <a class="xref" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1. Instrumented sections">Instrumented sections</a>. The last
+          column shows the fraction of instrumented instructions. Instructions
+          coming from <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2. Excluded code blocks">Excluded code blocks</a> are never
+          accounted for.
+        </p>
+<p>These counters can be displayed at any point during the program
+        execution using
+        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.display-counters">VERROU_DISPLAY_COUNTERS</a></code>
+        client request or the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr.monitor_count">count</a></code>
+        monitor command.
+        </p>
+</div>
+<div class="sect3" title="14.1.2.2. Rounding-mode switching">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.feat.rounding-mode"></a>14.1.2.2. Rounding-mode switching</h4></div></div></div>
+<p>
+          When the instrumented program performs a floating-point operation, Verrou can
+          replace it with a perturbed version of the same operation, using another
+          rounding mode.
+        </p>
+<p>Verrou can simulate any of the four IEEE-754 standard rounding modes:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">nearest (default),</li>
+<li class="listitem">upward,</li>
+<li class="listitem">downward,</li>
+<li class="listitem">toward zero.</li>
+</ul></div>
+<p>
+          Verrou is also capable of randomly switching rounding mode at each
+          floating-point operation, in order to implement the "random rounding" variant of
+          Monte Carlo Arithmetic (MCA). Two strategies
+          can be used to choose the rounding mode for a given operation:
+          </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><span class="command"><strong>random:</strong></span></span></dt>
+<dd><p>Randomly pick one among upward and downward rounding, with equal
+                  probabilities. This is a form of asynchronous CESTAC method.</p></dd>
+<dt><span class="term"><span class="command"><strong>average:</strong></span></span></dt>
+<dd><p>Randomly choose between upward and downward rounding mode, in
+                  such a way that the expectation of the random result equals the exact
+                  operation result (without rounding). This is called "uniform_absolute output
+                  randomization" in the MCA literature.</p></dd>
+</dl></div>
+<p>
+
+        </p>
+<p>
+          The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a></code> command-line option
+          allows choosing between these strategies.
+        </p>
+</div>
+</div>
+</div>
+<div class="sect1" title="14.2. Advanced features">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="vr-manual.advanced"></a>14.2. Advanced features</h2></div></div></div>
+<div class="sect2" title="14.2.1. Instrumented sections">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.feat.instr"></a>14.2.1. Instrumented sections</h3></div></div></div>
+<p>
+        It is often desirable to only instrument part of the program, either to save
+        time or more precisely determine the source of floating-point errors. This can
+        be achieved by toggling instrumentation on and off around the parts which need
+        closer inspection.
+      </p>
+<p>
+        Instrumentation can be toggled off at program start using
+        the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.instr-atstart">--instr-atstart</a></code> command-line
+        option. Furthermore, it can be (de)activated programatically using
+        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code>
+        and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code>
+        client requests.
+      </p>
+<p>This feature is greatly inspired by Callgrind's one (see the
+        <a class="xref" href="cl-manual.html" title="6. Callgrind: a call-graph generating cache and branch prediction profiler">Callgrind Manual</a>). Below is an example use:
+        </p>
+<pre class="programlisting">
+#include &lt;valgrind/verrou.h&gt;
+#include &lt;stdio.h&gt;
+
+float compute ();
+
+int main () {
+  VERROU_START_INSTRUMENTATION;
+  float result = compute();
+  VERROU_STOP_INSTRUMENTATION;
+
+  fprintf (stdout, "result = %f", result);
+} </pre>
+<p>
+        This program should be run in Verrou using the following command:
+        </p>
+<pre class="screen">valgrind --tool=verrou --instr-atstart=no program</pre>
+<p>
+      </p>
+<p>
+        The same thing can be achieved interactively using
+        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr.monitor_instrumentation">instrumentation</a></code>
+        monitor command.
+      </p>
+</div>
+<div class="sect2" title="14.2.2. Excluded code blocks">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.feat.exclude"></a>14.2.2. Excluded code blocks</h3></div></div></div>
+<p> Instead of explicitly toggling instrumentation state with client
+        requests in the source code, it is possible to entirely exclude
+        instruction blocks (Intermediate Representation SuperBlocks in Valgrind
+        terminology) from the instrumentation process, based on either the
+        function name, the object name, or both.
+      </p>
+<p>
+        This can be done by providing an exclusion file via
+        the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line
+        option. The file should have the following format:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">one rule per line,</li>
+<li class="listitem">each rule of the form <code class="computeroutput">FNNAME
+            OBJNAME</code>,
+            where <code class="computeroutput">FNNAME</code> is the function name,
+            and <code class="computeroutput">OBJNAME</code> is the symbol name (the
+            name of the executable or the shared library). Either can be
+            replaced by a star (<code class="computeroutput">*</code>) to match
+            anything. The two columns can be separated by any number of spaces
+            and tabulations (<code class="computeroutput">\t</code>)</li>
+</ul></div>
+<p> 
+      </p>
+<p>
+        When verrou finds a block of instructions whose address matches
+        the <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+        specification, the whole chunk is left uninstrumented. Please note that
+        this differs from
+        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code>
+        and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code>
+        client requests mentioned above in that floating-point instructions in
+        these parts are not accounted for in the operations count.
+      </p>
+<p>
+        Here are a few examples of exclusion rules for mathematics functions:
+        </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">exclude the whole <code class="computeroutput">libm</code>
+          (beware that the path is the canonical one; <code class="computeroutput">readlink
+          -f</code> can help finding it):
+            <pre class="screen">*	/lib/libm-2.11.3.so</pre>
+</li>
+<li class="listitem">exclude specific functions based on their names only (beware
+          to list all functions in which the program will pass; not only
+          top-level ones):
+            <pre class="screen">exp            *
+__ieee754_exp  *
+__exp1         * </pre>
+</li>
+<li class="listitem">exclude a specific function of a specific library:
+            <pre class="screen">exp  /lib/libm.so.6</pre>
+</li>
+</ul></div>
+<p>
+      </p>
+<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
+        command-line option can help producing the complete list of
+        <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+        pairs through which a given program passes. This can allow generating
+        exclusion lists by building a small program built in the same way as
+        your target application, which calls the functions you want to exclude
+        from the instrumentation.
+      </p>
+<p>For example, the following program can be instrumented to generate an
+      exclusion list for a selected number of single-precision mathematics functions:
+        </p>
+<pre class="programlisting">
+#include &lt;math.h&gt;
+
+int main () {
+  /* volatile: don't compute anything at compile-time */
+  volatile float f = 42.;
+
+  return cosf(f) + sinf(f) + tanf(f) + atanf(f) + powf(f, 3.) + expf(f) + logf(f);
+} </pre>
+<p>
+
+        </p>
+<pre class="screen">
+$ gcc -O3 -o myprog myprog.c
+$ valgrind --tool=verrou --gen-exclude=libm-float.exclude
+$ cat libm-float.exclude</pre>
+<p>
+        </p>
+<pre class="screen">
+__ieee754_logf       /lib/libm-2.11.3.so
+logf                 /lib/libm-2.11.3.so
+fesetenv             /lib/libm-2.11.3.so
+fesetround           /lib/libm-2.11.3.so
+__ieee754_expf       /lib/libm-2.11.3.so
+expf                 /lib/libm-2.11.3.so
+__ieee754_powf       /lib/libm-2.11.3.so
+powf                 /lib/libm-2.11.3.so
+atanf                /lib/libm-2.11.3.so
+__kernel_tanf        /lib/libm-2.11.3.so
+tanf                 /lib/libm-2.11.3.so
+__kernel_cosf        /lib/libm-2.11.3.so
+sinf                 /lib/libm-2.11.3.so
+__kernel_sinf        /lib/libm-2.11.3.so
+__ieee754_rem_pio2f  /lib/libm-2.11.3.so
+cosf                 /lib/libm-2.11.3.so</pre>
+<p>
+</p>
+</div>
+<div class="sect2" title="14.2.3. Deterministic sections">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.feat.deterministic"></a>14.2.3. Deterministic sections</h3></div></div></div>
+<p>
+        Sometimes you want a part of your program to be instrumented and perturbed by
+        rounding-mode switches, but you don't want to lose determinism. For example, in
+        the following program, <code class="function">det</code> is called twice with the same
+        arguments, and the correct execution relies on the strong hypothesis that both
+        calls will return the same result.
+      </p>
+<pre class="programlisting">
+float det (float x) {
+  return 2*x;
+}
+
+int main () {
+  float x1 = det (42);
+  float x2 = det (42);
+  assert (x1 == x2);
+} </pre>
+<p>
+        In this situation, you know that <code class="function">det</code> can contain
+        floating-point errors, which you want to quantify. However, you also know that
+        whatever these errors, <code class="function">det</code> will remain deterministic and
+        the assertion only fails due to the instrumentation added by
+        Verrou. The <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-deterministic">VERROU_START_DETERMINISTIC(LEVEL)</a></code>
+        client request can help dealing with such problems.
+      </p>
+<p>
+        At the beginning of a deterministic section, the pseudo-random number generator
+        (pRNG) used for random rounding mode switching is seeded with a new value. This
+        value is computed deterministically from the location in the program source
+        code. This ensures that each time the instrumented program enters the same
+        deterministic section (same location in the source code), the pRNG is seeded
+        with the same value, leading to the same sequence of rounding mode switches. The
+        seed value also depends on the PID of the current process, so that different
+        program executions lead to different results.
+      </p>
+<div class="sect3" title="14.2.3.1. Basic usage">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idp13526976"></a>14.2.3.1. Basic usage</h4></div></div></div>
+<p>
+          Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
+          request to mark the beginning of a deterministic section. Similarly, put
+          a <code class="computeroutput">VERROU_STOP_DETERMINISTIC(0)</code> client request
+          at the end of the deterministic section to go back to (pseudo-)random rounding
+          mode switching.
+        </p>
+<p>
+          Here is an example instrumented program:
+          </p>
+<pre class="programlisting">
+#include &lt;valgrind/verrou.h&gt;
+
+float det (float x) {
+  VERROU_START_DETERMINISTIC(0);
+  float result = 2*x;
+  VERROU_STOP_DETERMINISTIC(0);
+  return result;
+}
+
+int main () {
+  float x1 = det (42);
+  float x2 = det (42);
+  assert (x1 == x2);
+} </pre>
+<p>
+          whose execution yields the following output:
+          </p>
+<pre class="screen">
+--8523-- Entering deterministic section 70660: det() (deterministic.c:4)
+--8523-- Leaving deterministic section: det() (deterministic.c:6)
+--8523-- Entering deterministic section 70660: det() (deterministic.c:4)
+--8523-- Leaving deterministic section: det() (deterministic.c:6) </pre>
+<p>
+
+          Here we can see that both calls to the <code class="function">det()</code> functions used
+          the same value to seed the pRNG (based on the client request location in the
+          source).
+        </p>
+</div>
+<div class="sect3" title="14.2.3.2. Advanced usage">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idp12976112"></a>14.2.3.2. Advanced usage</h4></div></div></div>
+<p>
+          Assume the following program, in which two distinct deterministic sections are
+          instrumented, but the client requests have been abstracted out in separate
+          function calls (this is actually required for example for Fortran programs,
+          which have to call a C function to issue client requests):
+
+          </p>
+<pre class="programlisting">
+#include &lt;valgrind/verrou.h&gt;
+
+void verrou_startDeterministic() {
+  VERROU_START_DETERMINISTIC(0);
+}
+
+void verrou_stopDeterministic() {
+  VERROU_STOP_DETERMINISTIC(0);
+}
+
+float det1 () {
+  verrou_startDeterministic();
+  /* ... */
+  verrou_stopDeterministic();
+}
+
+float det2 () {
+  verrou_startDeterministic();
+  /* ... */
+  verrou_stopDeterministic();
+}
+
+int main () {
+  fprintf (stderr, "   det1\n");
+  assert (det1() == det1());
+  
+  fprintf (stderr, "   det2\n");
+  assert (det2() == det2());
+} </pre>
+<p>
+
+          Executing this program in Verrou yields the following output:
+          </p>
+<pre class="screen">
+det1
+--2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
+--2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
+--2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
+--2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
+det2
+--2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
+--2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8)
+--2909-- Entering deterministic section 82435: verrou_startDeterministic() (deterministic2.c:4)
+--2909-- Leaving deterministic section: verrou_stopDeterministic() (deterministic2.c:8) </pre>
+<p>
+          since the client requests are always issued from the same source location, the
+          two deterministic sections are seeded with the same value.
+        </p>
+<p>
+          It is possible to give
+          the <code class="computeroutput">VERROU_START_DETERMINISTIC</code> a non-0 LEVEL
+          argument to look at the source location of a calling function in the stack. In
+          the case described above, replacing
+          the <code class="function">verrou_startDeterminisic</code>
+          and <code class="function">verrou_stopDeterministic</code> function definitions like
+          this:
+          </p>
+<pre class="programlisting">
+void verrou_startDeterministic() {
+  VERROU_START_DETERMINISTIC(1);
+}
+
+void verrou_stopDeterministic() {
+  VERROU_STOP_DETERMINISTIC(1);
+} </pre>
+<p>
+          yields the following output:
+          </p>
+<pre class="screen">
+det1
+--4523-- Entering deterministic section 14298: det1() (deterministic2.c:12)
+--4523-- Leaving deterministic section: det1() (deterministic2.c:14)
+--4523-- Entering deterministic section 14298: det1() (deterministic2.c:12)
+--4523-- Leaving deterministic section: det1() (deterministic2.c:14)
+det2
+--4523-- Entering deterministic section 65473: det() (deterministic2.c:18)
+--4523-- Leaving deterministic section: det2() (deterministic2.c:20)
+--4523-- Entering deterministic section 65473: det() (deterministic2.c:18)
+--4523-- Leaving deterministic section: det2() (deterministic2.c:20) </pre>
+<p>
+          in which the pRNG is seeded using source locations one level up the stack from
+          the client request.
+        </p>
+<p>
+          Since the source location is not needed to go back to (pseudo-)random rounding
+          mode switching, the LEVEL argument
+          to <code class="computeroutput">VERROU_STOP_DETERMINISTIC</code> is only used for
+          cosmetic and debug purposes.
+        </p>
+</div>
+</div>
+</div>
+<div class="sect1" title="14.3. Reference">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="vr-manual.reference"></a>14.3. Reference</h2></div></div></div>
+<div class="sect2" title="14.3.1. Command-line options">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.clo"></a>14.3.1. Command-line options</h3></div></div></div>
+<div class="variablelist"><dl>
+<dt>
+<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average&gt; [default=nearest]</code></span>
+</dt>
+<dd>
+<p>Choose between the <span class="command"><strong>random</strong></span>
+              and <span class="command"><strong>average</strong></span> strategies for randomly
+              switching <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.1.2.2. Rounding-mode switching">rounding
+              modes</a> for each floating-point operation.</p>
+<p>If this option is not provided, Verrou always rounds to the nearest
+              floating-point.</p>
+</dd>
+<dt>
+<a name="vr-opt.instr-atstart"></a><span class="term"><code class="option">--instr-atstart=&lt;yes|no&gt; [default=yes]</code></span>
+</dt>
+<dd><p>Toggle <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1. Instrumented sections">instrumentation
+               state</a> on or off at program start.</p></dd>
+<dt>
+<a name="vr-opt.exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
+</dt>
+<dd><p>Read
+          an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2. Excluded code blocks">excluded functions
+          list</a> from <code class="computeroutput">FILE</code>.</p></dd>
+<dt>
+<a name="vr-opt.gen-exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
+</dt>
+<dd><p>Generate
+              an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2. Excluded code blocks">excluded functions
+              list</a> to <code class="computeroutput">FILE</code>.
+          </p></dd>
+</dl></div>
+</div>
+<div class="sect2" title="14.3.2. Client requests">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.client-requests"></a>14.3.2. Client requests</h3></div></div></div>
+<p>Verrou provides the
+        following <a class="link" href="manual-core-adv.html#manual-core-adv.clientreq" title="3.1. The Client Request mechanism">client
+        requests</a> in the <code class="filename">valgrind/verrou.h</code>
+        header.
+      </p>
+<div class="variablelist"><dl>
+<dt>
+<a name="vr-cr.display-counters"></a><span class="term"><code class="computeroutput">VERROU_DISPLAY_COUNTERS</code></span>
+</dt>
+<dd><p>Display the
+              current <a class="link" href="vr-manual.html#vr-manual.feat.count" title="14.1.2.1. Floating-point instructions counting">instructions
+              counters</a>.</p></dd>
+<dt>
+<a name="vr-cr.start-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_START_INSTRUMENTATION</code></span>
+</dt>
+<dd><p>Start full
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1. Instrumented sections">instrumentation</a>
+              (including rounding mode switching) if not already
+              enabled.</p></dd>
+<dt>
+<a name="vr-cr.stop-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_STOP_INSTRUMENTATION</code></span>
+</dt>
+<dd><p>Stop full
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1. Instrumented sections">instrumentation</a>
+              (don't switch rounding modes) if not already disabled.</p></dd>
+<dt>
+<a name="vr-cr.start-deterministic"></a><span class="term"><code class="computeroutput">VERROU_START_DETERMINISTIC(LEVEL)</code></span>
+</dt>
+<dd><p>Start
+              a <a class="link" href="vr-manual.html#vr-manual.feat.deterministic" title="14.2.3. Deterministic sections">deterministic
+              section</a>, i.e. one in which floating point operations are
+              perturbed, but in a deterministic way.</p></dd>
+<dt>
+<a name="vr-cr.stop-deterministic"></a><span class="term"><code class="computeroutput">VERROU_STOP_DETERMINISTIC(LEVEL)</code></span>
+</dt>
+<dd><p>Stop
+              a <a class="link" href="vr-manual.html#vr-manual.feat.deterministic" title="14.2.3. Deterministic sections">deterministic
+              section</a>, i.e. resume rounding mode switching in a
+              (pseudo-)random way.</p></dd>
+</dl></div>
+</div>
+<div class="sect2" title="14.3.3. Monitor commands">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idp16608992"></a>14.3.3. Monitor commands</h3></div></div></div>
+
+      See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2. Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
+      about the Valgrind gdbserver and monitor commands. Below is a list of
+      specific monitor commands provided by Verrou:      
+      <div class="variablelist"><dl>
+<dt>
+<a name="vr.monitor_count"></a><span class="term"><code class="computeroutput">count</code></span>
+</dt>
+<dd><p>Display the
+              current <a class="link" href="vr-manual.html#vr-manual.feat.count" title="14.1.2.1. Floating-point instructions counting">instructions
+                counters</a>.
+          </p></dd>
+<dt>
+<a name="vr.monitor_instrumentation"></a><span class="term"><code class="computeroutput">instrumentation [on|off]</code></span>
+</dt>
+<dd><p> Set the
+              current <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1. Instrumented sections">instrumentation
+              state</a> (or print it if
+              no <code class="computeroutput">on</code>
+              / <code class="computeroutput">off</code> parameter is given).
+          </p></dd>
+</dl></div>
+</div>
+</div>
+</div>
+<div>
+<br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
+<tr>
+<td rowspan="2" width="40%" align="left">
+<a accesskey="p" href="lk-manual.html">&lt;&lt; 13. Lackey: an example tool</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="nl-manual.html">15. Nulgrind: the minimal Valgrind tool &gt;&gt;</a>
+</td>
+</tr>
+<tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
+</table>
+</div>
+</body>
+</html>
