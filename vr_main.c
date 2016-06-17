@@ -910,18 +910,40 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  if (vr_excludeIRSB (&vr.exclude, vr.genExclude))
+  HChar fnname[256];
+  HChar objname[256];
+  if (vr_excludeIRSB (&vr.exclude, vr.genExclude, fnname, objname))
     return sbIn;
+
 
   UInt i;
   IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
+  Bool includeSource = True;
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
 
     switch (st->tag) {
-    case Ist_WrTmp:
-      vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data);
+    case Ist_IMark: {
+      HChar filename[256];
+      UInt  linenum;
+      Addr  addr;
+
+      addr = st->Ist.IMark.addr;
+
+      filename[0] = 0;
+      VG_(get_filename_linenum)(addr,
+                                filename, 256,
+                                NULL,     0,
+                                NULL,
+                                &linenum);
+      includeSource = vr_includeSource (&vr.includeSource, vr.genIncludeSource, fnname, filename, linenum);
+    }
       break;
+    case Ist_WrTmp:
+      if (includeSource) {
+        vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data);
+        break;
+      }
     default:
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
@@ -938,7 +960,13 @@ static void vr_fini(Int exitcode)
   if (vr.genExclude) {
     vr_dumpExcludeList(vr.exclude, vr.excludeFile);
   }
+
+  if (vr.genIncludeSource) {
+    vr_dumpIncludeSourceList (vr.includeSource, vr.includeSourceFile);
+  }
+
   vr_freeExcludeList (vr.exclude);
+  vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
 }
 
@@ -970,6 +998,11 @@ static void vr_post_clo_init(void)
    vr.exclude = NULL;
    if (!vr.genExclude && vr.excludeFile) {
      vr.exclude = vr_loadExcludeList (vr.exclude, vr.excludeFile);
+   }
+
+   vr.includeSource = NULL;
+   if (!vr.genIncludeSource && vr.includeSourceFile) {
+     vr.includeSource = vr_loadIncludeSourceList (vr.includeSource, vr.includeSourceFile);
    }
 }
 

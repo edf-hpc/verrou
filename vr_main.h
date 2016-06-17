@@ -83,6 +83,14 @@ struct Vr_Exclude_ {
   Vr_Exclude* next;
 };
 
+typedef struct Vr_IncludeSource_ Vr_IncludeSource;
+struct Vr_IncludeSource_ {
+  HChar*            fnname;
+  HChar*            filename;
+  UInt              linenum;
+  Vr_IncludeSource* next;
+};
+
 typedef struct {
   enum vr_RoundingMode roundingMode;
   Bool count;
@@ -94,6 +102,10 @@ typedef struct {
   Bool genExclude;
   HChar * excludeFile;
   Vr_Exclude * exclude;
+
+  Bool genIncludeSource;
+  HChar* includeSourceFile;
+  Vr_IncludeSource *includeSource;
 } Vr_State;
 
 extern Vr_State vr;
@@ -140,13 +152,15 @@ void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
 
 // ** vr_exclude.c
 
-Bool        vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips);
-Vr_Exclude* vr_findExclude (Vr_Exclude* list, HChar * fnname, HChar * objname);
-Vr_Exclude* vr_addExclude (Vr_Exclude* list, HChar * fnname, HChar * objname);
 void        vr_freeExcludeList (Vr_Exclude* list);
 void        vr_dumpExcludeList (Vr_Exclude * list, HChar * filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, HChar * filename);
-Bool        vr_excludeIRSB(Vr_Exclude ** list, Bool generate);
+Bool        vr_excludeIRSB(Vr_Exclude ** list, Bool generate, HChar* fnname, HChar* objname);
+
+void vr_freeIncludeSourceList (Vr_IncludeSource* list);
+void vr_dumpIncludeSourceList (Vr_IncludeSource * list, HChar * fname);
+Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, HChar * fname);
+Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, HChar* fnname, HChar* filename, UInt linenum);
 
 
 // ** vr_clo.c

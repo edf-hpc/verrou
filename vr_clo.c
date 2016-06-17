@@ -98,7 +98,7 @@ Bool vr_process_clo (const HChar *arg) {
     vr.instrument = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
-  // Exclusion files
+  // Exclusion of specified symbols
   else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
     vr.excludeFile = VG_(strdup)("vr.process_clo.1", str);
     vr.genExclude = True;
@@ -106,6 +106,16 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLO (arg, "--exclude", str)) {
     vr.excludeFile = VG_(strdup)("vr.process_clo.2", str);
     vr.genExclude = False;
+  }
+
+  // Instrumentation of only specified source lines
+  else if (VG_STR_CLO (arg, "--gen-source", str)) {
+    vr.includeSourceFile = VG_(strdup)("vr.process_clo.3", str);
+    vr.genIncludeSource = True;
+  }
+  else if (VG_STR_CLO (arg, "--source", str)) {
+    vr.includeSourceFile = VG_(strdup)("vr.process_clo.4", str);
+    vr.genIncludeSource = False;
   }
 
   // Unknown option
