@@ -44,8 +44,8 @@ public:
 
   inline void setSeed(unsigned int c){
     count_=0;
-    srand(c);
-    currentRand_=rand();
+    privatesrand(c);
+    currentRand_=privaterand();
    };
 
   inline void setTimeSeed(unsigned int pid){
@@ -57,7 +57,7 @@ public:
 
   inline bool getBool(){
      if(count_==nbReload){
-       currentRand_=rand();
+       currentRand_=privaterand();
        count_=0;
      }
      const bool res(((currentRand_>>(count_++))&1));
@@ -66,20 +66,40 @@ public:
    };
 
   inline bool getBoolNaive(){
-    return rand()%2 ;
+    return privaterand()%2 ;
   };
 
 
   inline int getRandomInt(){
-    return rand();
+    return privaterand();
   };
 
   inline int getRandomIntMax()const{
-    return RAND_MAX;
+    return privateRAND_MAX();
   };
 
 
 private:
   int currentRand_;
   int count_;
+
+
+  unsigned long int  vr_next_;
+
+  inline void privatesrand(unsigned int c){
+    //    srand(c);
+    vr_next_=c;
+  }
+  
+  inline int privaterand(){
+    //    rand();
+    vr_next_ = vr_next_ * 1103515245 + 12345;
+    return (unsigned int)(vr_next_/65536) % 32768;
+  }
+  
+  inline int privateRAND_MAX()const{
+    //    return RAND_MAX;
+    return 32767;
+  }
+
 };
