@@ -127,35 +127,43 @@ Bool vr_process_clo (const HChar *arg) {
 }
 
 void vr_print_usage (void) {
-  VG_(printf)("\n");
-  VG_(printf)("    Rounding mode selection \n");
-  VG_(printf)("        --rounding-mode=random\n");
-  VG_(printf)("        --rounding-mode=average\n");
-  VG_(printf)("        --rounding-mode=nearest\n");
-  VG_(printf)("        --rounding-mode=upward\n");
-  VG_(printf)("        --rounding-mode=downward\n");
-  VG_(printf)("        --rounding-mode=toward_zero\n");
-
-  VG_(printf)("\n");
-  VG_(printf)("    Instrumented operations selection \n");
-  VG_(printf)("        --vr-instr=add\n");
-  VG_(printf)("        --vr-instr=sub\n");
-  VG_(printf)("        --vr-instr=mul\n");
-  VG_(printf)("        --vr-instr=div\n");
-  VG_(printf)("        --vr-instr=mAdd\n");
-  VG_(printf)("        --vr-instr=mSub\n");
-
-  VG_(printf)("\n");
-  VG_(printf)("    Other options \n");
-  VG_(printf)("        --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n");
-  VG_(printf)("        --verrou-verbose=[yes|NO]  print each instrumentation switch\n");
-  VG_(printf)("        --count-op=[yes|NO]        count floating point operations\n");
-  VG_(printf)("        --instr-atstart=[YES|no]   instrumentation from the start (useful when\n"
-              "                                     used with client requests)\n");
-  VG_(printf)("        --gen-exclude=FILE         generate excluded functions list in FILE\n");
-  VG_(printf)("        --exclude=FILE             read excluded functions list from FILE\n");
-  VG_(printf)("                                     (--gen-exclude and --exclude are\n"
-              "                                     mutually exclusive)\n");
+  VG_(printf)
+    ("\n"
+     "    Rounding mode selection \n"
+     "      --rounding-mode=random\n"
+     "      --rounding-mode=average\n"
+     "      --rounding-mode=nearest\n"
+     "      --rounding-mode=upward\n"
+     "      --rounding-mode=downward\n"
+     "      --rounding-mode=toward_zero\n"
+     "\n"
+     "    Instrumented operations selection \n"
+     "      --vr-instr=add\n"
+     "      --vr-instr=sub\n"
+     "      --vr-instr=mul\n"
+     "      --vr-instr=div\n"
+     "      --vr-instr=mAdd\n"
+     "      --vr-instr=mSub\n"
+     "\n"
+     "    Restriction of instrumentation to specific code sections \n"
+     "      --exclude=FILE      symbols listed in FILE will be left uninstrumented\n"
+     "      --gen-exclude=FILE  generate in FILE a list of all encountered symbols\n"
+     "                            (--gen-exclude and --exclude are mutually exclusive)\n"
+     "      --source=FILE       when this option is present, only instructions coming\n"
+     "                            from source code lines listed in FILE are\n"
+     "                            instrumented.\n"
+     "      --gen-source=FILE   generate in FILE a list of all source code lines\n"
+     "                            encountered during program execution. This is in\n"
+     "                            combination with the --exclude switch.\n"
+     "                            (--source and --gen-source are mutually exclusive)\n"
+     "\n"
+     "    Other options \n"
+     "      --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n"
+     "      --verrou-verbose=[yes|NO]  print each instrumentation switch\n"
+     "      --count-op=[YES|no]        count floating point operations\n"
+     "      --instr-atstart=[YES|no]   instrumentation from the start (useful when\n"
+     "                                   used with client requests)\n"
+     );
 }
 
 void vr_print_debug_usage (void) {

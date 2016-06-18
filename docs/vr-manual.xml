@@ -232,71 +232,81 @@ int main () {
       </para>
     </sect2>
 
-    <sect2 id="vr-manual.feat.exclude" xreflabel="Excluded code blocks">
-      <title>Excluded code blocks</title>
+    <sect2 id="vr-manual.feat.restrict"
+           xreflabel="Restriction of instrumentation scope">
+      <title>Restriction of instrumentation scope</title>
       <para> Instead of explicitly toggling instrumentation state with client
         requests in the source code, it is possible to entirely exclude
-        instruction blocks (Intermediate Representation SuperBlocks in Valgrind
-        terminology) from the instrumentation process, based on either the
-        function name, the object name, or both.
+        instructions from the instrumentation process. Please note that this
+        differs from
+        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
+        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
+        client requests mentioned above, in that floating-point instructions
+        which are left uninstrumented are not even accounted for in the
+        operations count.
       </para>
-      <para>
-        This can be done by providing an exclusion file via
-        the <option><xref linkend="vr-opt.exclude"/></option> command-line
-        option. The file should have the following format:
+      
+      <sect3 id="vr-manual.feat.exclude" xreflabel="Excluded symbols">
+        <title>Excluded symbols</title>
+        <para> A first, rather coarse-grained, way to restrict the scope of
+          instrumentation is based on either the function (or rather symbol) name,
+          the object name, or both.
+        </para>
+        <para>
+          This can be done by providing an exclusion file via
+          the <option><xref linkend="vr-opt.exclude"/></option> command-line
+          option. The file should have the following format:
           <itemizedlist>
             <listitem>one rule per line,</listitem>
             <listitem>each rule of the form <computeroutput>FNNAME
-            OBJNAME</computeroutput>,
-            where <computeroutput>FNNAME</computeroutput> is the function name,
-            and <computeroutput>OBJNAME</computeroutput> is the symbol name (the
-            name of the executable or the shared library). Either can be
-            replaced by a star (<computeroutput>*</computeroutput>) to match
-            anything. The two columns can be separated by any number of spaces
-            and tabulations (<computeroutput>\t</computeroutput>)</listitem>
+                OBJNAME</computeroutput>,
+              where <computeroutput>FNNAME</computeroutput> is the function
+              name, and <computeroutput>OBJNAME</computeroutput> is the symbol
+              name (the name of the executable or the shared library). Either
+              can be replaced by a star (<computeroutput>*</computeroutput>)
+              to match anything. The two columns can be separated by any
+              number of spaces and tabulations
+              (<computeroutput>\t</computeroutput>)</listitem>
           </itemizedlist> 
-      </para>
-      <para>
-        When verrou finds a block of instructions whose address matches
-        the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-        specification, the whole chunk is left uninstrumented. Please note that
-        this differs from
-        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
-        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
-        client requests mentioned above in that floating-point instructions in
-        these parts are not accounted for in the operations count.
-      </para>
-      <para>
-        Here are a few examples of exclusion rules for mathematics functions:
-        <itemizedlist>
-          <listitem>exclude the whole <computeroutput>libm</computeroutput>
-          (beware that the path is the canonical one; <computeroutput>readlink
-          -f</computeroutput> can help finding it):
-            <screen>*	/lib/libm-2.11.3.so</screen>
-          </listitem>
-          <listitem>exclude specific functions based on their names only (beware
-          to list all functions in which the program will pass; not only
-          top-level ones):
-            <screen>exp            *
+        </para>
+        <para>
+          When verrou finds a block of instructions whose address matches
+          the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+          specification, the whole chunk is left uninstrumented.
+        </para>
+        <para>
+          Here are a few examples of exclusion rules for mathematics functions:
+          <itemizedlist>
+            <listitem>exclude the whole <computeroutput>libm</computeroutput>
+              (beware that the path is the canonical
+              one; <computeroutput>readlink -f</computeroutput> can help finding
+              it):
+              <screen>*	/lib/libm-2.11.3.so</screen>
+            </listitem>
+            <listitem>exclude specific functions based on their names only (beware
+              to list all functions in which the program will pass; not only
+              top-level ones):
+              <screen>exp            *
 __ieee754_exp  *
 __exp1         * </screen>
-          </listitem>
-          <listitem>exclude a specific function of a specific library:
-            <screen>exp  /lib/libm.so.6</screen>
-          </listitem>
-        </itemizedlist>
-      </para>
-      <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
-        command-line option can help producing the complete list of
-        <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-        pairs through which a given program passes. This can allow generating
-        exclusion lists by building a small program built in the same way as
-        your target application, which calls the functions you want to exclude
-        from the instrumentation.
-      </para>
-      <para>For example, the following program can be instrumented to generate an
-      exclusion list for a selected number of single-precision mathematics functions:
-        <programlisting>
+            </listitem>
+            <listitem>exclude a specific function of a specific library:
+              <screen>exp  /lib/libm.so.6</screen>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
+          command-line option can help producing the complete list of
+          <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+          pairs through which a given program passes. This can allow generating
+          exclusion lists by building a small program built in the same way as
+          your target application, which calls the functions you want to exclude
+          from the instrumentation.
+        </para>
+        <para>For example, the following program can be instrumented to generate
+          an exclusion list for a selected number of single-precision
+          mathematics functions:
+          <programlisting>
 #include &lt;math.h&gt;
 
 int main () {
@@ -306,11 +316,11 @@ int main () {
   return cosf(f) + sinf(f) + tanf(f) + atanf(f) + powf(f, 3.) + expf(f) + logf(f);
 } </programlisting>
 
-        <screen>
+          <screen>
 $ gcc -O3 -o myprog myprog.c
 $ valgrind --tool=verrou --gen-exclude=libm-float.exclude
 $ cat libm-float.exclude</screen>
-        <screen>
+          <screen>
 __ieee754_logf       /lib/libm-2.11.3.so
 logf                 /lib/libm-2.11.3.so
 fesetenv             /lib/libm-2.11.3.so
@@ -327,8 +337,51 @@ sinf                 /lib/libm-2.11.3.so
 __kernel_sinf        /lib/libm-2.11.3.so
 __ieee754_rem_pio2f  /lib/libm-2.11.3.so
 cosf                 /lib/libm-2.11.3.so</screen>
-</para>
+        </para>
+      </sect3>
 
+      <sect3 id="vr-manual.feat.source" xreflabel="Source code lines selection">
+        <title>Source code lines selection</title>
+        <para>A more fine-grained way to restrict the scope of instrumentation
+          is based on source code lines. In order to effectively use this
+          feature, the instrumented binary file must embed debugging information
+          (i.e. it must have been compiled with
+          the <computeroutput>-g</computeroutput> switch or something
+          equivalent).</para>
+        <para>This can be done by providing a list of source code lines to
+          instrument, via
+          the <option><xref linkend="vr-opt.source"/></option>
+          command-line option. The file should have the following format:
+          <itemizedlist>
+            <listitem>one item per line,</listitem>
+            <listitem>each item of the form <computeroutput>FILENAME LINENUM
+            [SYMNAME]</computeroutput>,
+            where <computeroutput>FILENAME</computeroutput> is the source file
+            name (not path!), <computeroutput>LINENUM</computeroutput> is the
+            line number within the source file,
+            and <computeroutput>SYMNAME</computeroutput> is optional and
+            indicates the symbol name in which the source code has been
+            compiled. The columns can be separated by any number of spaces and
+            tabulations (<computeroutput>\t</computeroutput>).</listitem>
+          </itemizedlist>
+        </para>
+        <para>When verrou finds an instruction coming from a listed source code
+          line, it instruments it. Only the source file name and line number are
+          considered during this selection. If
+          the <option><xref linkend="vr-opt.source"/></option> option is not
+          specified, or the list of instrumented source code lines is empty, all
+          instructions are instrumented.</para>
+        <para>The <option><xref linkend="vr-opt.gen-source"/></option>
+          command-line switch can help generate the list of all source code
+          lines encountered during program execution, for later filtering. It
+          can be wise to combine it with
+          the <option><xref linkend="vr-opt.exclude"/></option> switch in order
+          to restrict the source code lines list to a specific set of
+          symbols.</para>
+        <para>This fine-grained selection of code parts to instrument is
+          primarily meant to be used by automatic debugging tools, not directly
+          by humans.</para>
+      </sect3>
     </sect2>
     
     <sect2 id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
@@ -546,6 +599,21 @@ det2
           <listitem><para>Generate
               an <link linkend="vr-manual.feat.exclude">excluded functions
               list</link> to <computeroutput>FILE</computeroutput>.
+          </para></listitem>
+        </varlistentry>
+
+        <varlistentry id="vr-opt.source" xreflabel="--source">
+          <term><option><![CDATA[--source=FILE]]></option></term>
+          <listitem><para>Read from <computeroutput>FILE</computeroutput> a list
+              of <link linkend="vr-manual.feat.source">source code lines</link>
+              to instrument.</para></listitem>
+        </varlistentry>
+        
+        <varlistentry id="vr-opt.gen-source" xreflabel="--gen-source">
+          <term><option><![CDATA[--gen-source=FILE]]></option></term>
+          <listitem><para>Generate in <computeroutput>FILE</computeroutput> the
+              list of encountered <link linkend="vr-manual.feat.source">source
+              code lines</link>.
           </para></listitem>
         </varlistentry>
       </variablelist>
