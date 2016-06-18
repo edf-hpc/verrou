@@ -31,14 +31,14 @@
 <dt><span class="sect1"><a href="vr-manual.html#vr-manual.advanced">14.2. Advanced features</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.instr">14.2.1. Instrumented sections</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.exclude">14.2.2. Excluded code blocks</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.restrict">14.2.2. Restriction of instrumentation scope</a></span></dt>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.deterministic">14.2.3. Deterministic sections</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="vr-manual.html#vr-manual.reference">14.3. Reference</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#idp47107056">14.3.3. Monitor commands</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#idm45745237042336">14.3.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -180,7 +180,7 @@
           columns (labeled "Instrumented"), instructions are only accounted for
           if they come from <a class="xref" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1.&nbsp;Instrumented sections">Instrumented sections</a>. The last
           column shows the fraction of instrumented instructions. Instructions
-          coming from <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.&nbsp;Excluded code blocks">Excluded code blocks</a> are never
+          coming from <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">Excluded symbols</a> are never
           accounted for.
         </p>
 <p>These counters can be displayed at any point during the program
@@ -282,74 +282,85 @@ int main () {
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="vr-manual.feat.exclude"></a>14.2.2.&nbsp;Excluded code blocks</h3></div></div></div>
+<a name="vr-manual.feat.restrict"></a>14.2.2.&nbsp;Restriction of instrumentation scope</h3></div></div></div>
 <p> Instead of explicitly toggling instrumentation state with client
         requests in the source code, it is possible to entirely exclude
-        instruction blocks (Intermediate Representation SuperBlocks in Valgrind
-        terminology) from the instrumentation process, based on either the
-        function name, the object name, or both.
+        instructions from the instrumentation process. Please note that this
+        differs from
+        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code>
+        and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code>
+        client requests mentioned above, in that floating-point instructions
+        which are left uninstrumented are not even accounted for in the
+        operations count.
       </p>
+<div class="sect3">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.feat.exclude"></a>14.2.2.1.&nbsp;Excluded symbols</h4></div></div></div>
+<p> A first, rather coarse-grained, way to restrict the scope of
+          instrumentation is based on either the function (or rather symbol) name,
+          the object name, or both.
+        </p>
 <p>
-        This can be done by providing an exclusion file via
-        the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line
-        option. The file should have the following format:
+          This can be done by providing an exclusion file via
+          the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line
+          option. The file should have the following format:
           </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">one rule per line,</li>
 <li class="listitem">each rule of the form <code class="computeroutput">FNNAME
-            OBJNAME</code>,
-            where <code class="computeroutput">FNNAME</code> is the function name,
-            and <code class="computeroutput">OBJNAME</code> is the symbol name (the
-            name of the executable or the shared library). Either can be
-            replaced by a star (<code class="computeroutput">*</code>) to match
-            anything. The two columns can be separated by any number of spaces
-            and tabulations (<code class="computeroutput">\t</code>)</li>
+                OBJNAME</code>,
+              where <code class="computeroutput">FNNAME</code> is the function
+              name, and <code class="computeroutput">OBJNAME</code> is the symbol
+              name (the name of the executable or the shared library). Either
+              can be replaced by a star (<code class="computeroutput">*</code>)
+              to match anything. The two columns can be separated by any
+              number of spaces and tabulations
+              (<code class="computeroutput">\t</code>)</li>
 </ul></div>
 <p> 
-      </p>
-<p>
-        When verrou finds a block of instructions whose address matches
-        the <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
-        specification, the whole chunk is left uninstrumented. Please note that
-        this differs from
-        the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code>
-        and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code>
-        client requests mentioned above in that floating-point instructions in
-        these parts are not accounted for in the operations count.
-      </p>
-<p>
-        Here are a few examples of exclusion rules for mathematics functions:
         </p>
+<p>
+          When verrou finds a block of instructions (an IRSB, Intermediate
+          Representation SuperBlock in valgrind terminology) whose address
+          matches
+          the <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+          specification, the whole chunk is left uninstrumented.
+        </p>
+<p>
+          Here are a few examples of exclusion rules for mathematics functions:
+          </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">exclude the whole <code class="computeroutput">libm</code>
-          (beware that the path is the canonical one; <code class="computeroutput">readlink
-          -f</code> can help finding it):
-            <pre class="screen">*	/lib/libm-2.11.3.so</pre>
+              (beware that the path is the canonical
+              one; <code class="computeroutput">readlink -f</code> can help finding
+              it):
+              <pre class="screen">*	/lib/libm-2.11.3.so</pre>
 </li>
 <li class="listitem">exclude specific functions based on their names only (beware
-          to list all functions in which the program will pass; not only
-          top-level ones):
-            <pre class="screen">exp            *
+              to list all functions in which the program will pass; not only
+              top-level ones):
+              <pre class="screen">exp            *
 __ieee754_exp  *
 __exp1         * </pre>
 </li>
 <li class="listitem">exclude a specific function of a specific library:
-            <pre class="screen">exp  /lib/libm.so.6</pre>
+              <pre class="screen">exp  /lib/libm.so.6</pre>
 </li>
 </ul></div>
 <p>
-      </p>
-<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
-        command-line option can help producing the complete list of
-        <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
-        pairs through which a given program passes. This can allow generating
-        exclusion lists by building a small program built in the same way as
-        your target application, which calls the functions you want to exclude
-        from the instrumentation.
-      </p>
-<p>For example, the following program can be instrumented to generate an
-      exclusion list for a selected number of single-precision mathematics functions:
         </p>
+<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
+          command-line option can help producing the complete list of
+          <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+          pairs through which a given program passes. This can allow generating
+          exclusion lists by building a small program built in the same way as
+          your target application, which calls the functions you want to exclude
+          from the instrumentation.
+        </p>
+<p>For example, the following program can be instrumented to generate
+          an exclusion list for a selected number of single-precision
+          mathematics functions:
+          </p>
 <pre class="programlisting">
 #include &lt;math.h&gt;
 
@@ -361,13 +372,13 @@ int main () {
 } </pre>
 <p>
 
-        </p>
+          </p>
 <pre class="screen">
 $ gcc -O3 -o myprog myprog.c
 $ valgrind --tool=verrou --gen-exclude=libm-float.exclude
 $ cat libm-float.exclude</pre>
 <p>
-        </p>
+          </p>
 <pre class="screen">
 __ieee754_logf       /lib/libm-2.11.3.so
 logf                 /lib/libm-2.11.3.so
@@ -386,7 +397,53 @@ __kernel_sinf        /lib/libm-2.11.3.so
 __ieee754_rem_pio2f  /lib/libm-2.11.3.so
 cosf                 /lib/libm-2.11.3.so</pre>
 <p>
-</p>
+        </p>
+</div>
+<div class="sect3">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.feat.source"></a>14.2.2.2.&nbsp;Source code lines selection</h4></div></div></div>
+<p>A more fine-grained way to restrict the scope of instrumentation
+          is based on source code lines. In order to effectively use this
+          feature, the instrumented binary file must embed debugging information
+          (i.e. it must have been compiled with
+          the <code class="computeroutput">-g</code> switch or something
+          equivalent).</p>
+<p>This can be done by providing a list of source code lines to
+          instrument, via
+          the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.source">--source</a></code>
+          command-line option. The file should have the following format:
+          </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">one item per line,</li>
+<li class="listitem">each item of the form <code class="computeroutput">FILENAME LINENUM
+            [SYMNAME]</code>,
+            where <code class="computeroutput">FILENAME</code> is the source file
+            name (not path!), <code class="computeroutput">LINENUM</code> is the
+            line number within the source file,
+            and <code class="computeroutput">SYMNAME</code> is optional and
+            indicates the symbol name in which the source code has been
+            compiled. The columns can be separated by any number of spaces and
+            tabulations (<code class="computeroutput">\t</code>).</li>
+</ul></div>
+<p>
+        </p>
+<p>When verrou finds an instruction coming from a listed source code
+          line, it instruments it. Only the source file name and line number are
+          considered during this selection. If
+          the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.source">--source</a></code> option is not
+          specified, or the list of instrumented source code lines is empty, all
+          instructions are instrumented.</p>
+<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-source">--gen-source</a></code>
+          command-line switch can help generate the list of all source code
+          lines encountered during program execution, for later filtering. It
+          can be wise to combine it with
+          the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> switch in order
+          to restrict the source code lines list to a specific set of
+          symbols.</p>
+<p>This fine-grained selection of code parts to instrument is
+          primarily meant to be used by automatic debugging tools, not directly
+          by humans.</p>
+</div>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
@@ -428,7 +485,7 @@ int main () {
       </p>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp48453696"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
+<a name="idm45745240531328"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -471,7 +528,7 @@ int main () {
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp47161488"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
+<a name="idm45745238727616"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -599,14 +656,27 @@ det2
 <a name="vr-opt.exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
 </dt>
 <dd><p>Read
-          an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.&nbsp;Excluded code blocks">excluded functions
+          an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">excluded functions
           list</a> from <code class="computeroutput">FILE</code>.</p></dd>
 <dt>
 <a name="vr-opt.gen-exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
 </dt>
 <dd><p>Generate
-              an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.&nbsp;Excluded code blocks">excluded functions
+              an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">excluded functions
               list</a> to <code class="computeroutput">FILE</code>.
+          </p></dd>
+<dt>
+<a name="vr-opt.source"></a><span class="term"><code class="option">--source=FILE</code></span>
+</dt>
+<dd><p>Read from <code class="computeroutput">FILE</code> a list
+              of <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source code lines</a>
+              to instrument.</p></dd>
+<dt>
+<a name="vr-opt.gen-source"></a><span class="term"><code class="option">--gen-source=FILE</code></span>
+</dt>
+<dd><p>Generate in <code class="computeroutput">FILE</code> the
+              list of encountered <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source
+              code lines</a>.
           </p></dd>
 </dl></div>
 </div>
@@ -656,7 +726,7 @@ det2
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp47107056"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
+<a name="idm45745237042336"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2.&nbsp;Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
