@@ -34,14 +34,19 @@
 
 void vr_clo_defaults (void) {
   vr.roundingMode = VR_NEAREST;
-  vr.genExclude = False;
   vr.count = True;
   vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
 
+  vr.genExclude = False;
+  vr.exclude = NULL;
+
+  vr.genIncludeSource = False;
+  vr.includeSource = NULL;
+
   int opIt;
-  for(opIt=0; opIt< VR_OP;opIt++){
+  for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
   }
 }
@@ -104,18 +109,16 @@ Bool vr_process_clo (const HChar *arg) {
     vr.genExclude = True;
   }
   else if (VG_STR_CLO (arg, "--exclude", str)) {
-    vr.excludeFile = VG_(strdup)("vr.process_clo.2", str);
-    vr.genExclude = False;
+    vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
   // Instrumentation of only specified source lines
   else if (VG_STR_CLO (arg, "--gen-source", str)) {
-    vr.includeSourceFile = VG_(strdup)("vr.process_clo.3", str);
+    vr.includeSourceFile = VG_(strdup)("vr.process_clo.2", str);
     vr.genIncludeSource = True;
   }
   else if (VG_STR_CLO (arg, "--source", str)) {
-    vr.includeSourceFile = VG_(strdup)("vr.process_clo.4", str);
-    vr.genIncludeSource = False;
+    vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
   }
 
   // Unknown option

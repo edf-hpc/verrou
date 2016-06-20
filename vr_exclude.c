@@ -69,7 +69,7 @@ void vr_freeExcludeList (Vr_Exclude* list) {
   }
 }
 
-void vr_dumpExcludeList (Vr_Exclude * list, HChar * fname) {
+void vr_dumpExcludeList (Vr_Exclude * list, const HChar * fname) {
   Int fd = VG_(fd_open)(fname,
                         VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
                         VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -91,7 +91,7 @@ void vr_dumpExcludeList (Vr_Exclude * list, HChar * fname) {
   VG_(umsg)("OK.\n");
 }
 
-Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, HChar * fname) {
+Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   VG_(umsg)("Loading exclusions list from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
@@ -237,7 +237,7 @@ void vr_freeIncludeSourceList (Vr_IncludeSource* list) {
   }
 }
 
-void vr_dumpIncludeSourceList (Vr_IncludeSource * list, HChar * fname) {
+void vr_dumpIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   Int fd = VG_(fd_open)(fname,
                         VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
                         VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -263,7 +263,7 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list, HChar * fname) {
   VG_(umsg)("OK.\n");
 }
 
-Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, HChar * fname) {
+Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   VG_(umsg)("Loading list of included sources from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {

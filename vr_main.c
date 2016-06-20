@@ -994,16 +994,6 @@ static void vr_post_clo_init(void)
    VG_(umsg)("Instrumented scalar operations : ");
    if(vr.instr_scalar) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
-
-   vr.exclude = NULL;
-   if (!vr.genExclude && vr.excludeFile) {
-     vr.exclude = vr_loadExcludeList (vr.exclude, vr.excludeFile);
-   }
-
-   vr.includeSource = NULL;
-   if (!vr.genIncludeSource && vr.includeSourceFile) {
-     vr.includeSource = vr_loadIncludeSourceList (vr.includeSource, vr.includeSourceFile);
-   }
 }
 
 static void vr_pre_clo_init(void)
