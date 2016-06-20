@@ -32,6 +32,15 @@
 
 #include "vr_main.h"
 
+void vr_env_clo (const HChar* env, const HChar *clo) {
+  HChar* val = VG_(getenv)(env);
+  if (val) {
+    HChar tmp[256];
+    VG_(snprintf)(tmp, 255, "%s=%s", clo, val);
+    vr_process_clo(tmp);
+  }
+}
+
 void vr_clo_defaults (void) {
   vr.roundingMode = VR_NEAREST;
   vr.count = True;

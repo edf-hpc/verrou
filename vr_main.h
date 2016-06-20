@@ -165,6 +165,7 @@ Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, HChar* fnname, HC
 
 // ** vr_clo.c
 
+void vr_env_clo (const HChar* env, const HChar *clo);
 void vr_clo_defaults (void);
 Bool vr_process_clo (const HChar *arg);
 void vr_print_usage (void);

@@ -972,6 +972,14 @@ static void vr_fini(Int exitcode)
 
 static void vr_post_clo_init(void)
 {
+   // Values coming from the environment take precedence over CLOs
+   vr_env_clo("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
+   vr_env_clo("VERROU_EXCLUDE",       "--exclude");
+   vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
+   vr_env_clo("VERROU_SOURCE",        "--source");
+   vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
+
    vr_fpOpsInit(vr.roundingMode, VG_(getpid)());
 
    /*If no operation selected the default is all*/
