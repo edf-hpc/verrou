@@ -13,10 +13,19 @@ index 5c93ed0..7a6ac11 100644
  EXP_TOOLS = 	exp-sgcheck \
  		exp-bbv \
 diff --git a/configure.ac b/configure.ac
-index 0fd2a41..12c4902 100644
+index 0fd2a41..04aaabf 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2956,6 +2956,33 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+@@ -150,6 +150,8 @@ case "${is_clang}-${gcc_version}" in
+ 	;;
+ esac
+ 
++AM_PATH_PYTHON()
++
+ #----------------------------------------------------------------------------
+ # Arch/OS/platform tests.
+ #----------------------------------------------------------------------------
+@@ -2956,6 +2958,33 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -50,7 +59,7 @@ index 0fd2a41..12c4902 100644
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -3034,6 +3061,8 @@ AC_CONFIG_FILES([
+@@ -3034,6 +3063,8 @@ AC_CONFIG_FILES([
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
@@ -59,6 +68,20 @@ index 0fd2a41..12c4902 100644
     shared/Makefile
  ])
  AC_CONFIG_FILES([coregrind/link_tool_exe_linux],
+diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
+index 7d774e5..5c5c1e3 100644
+--- a/docs/xml/manpages-index.xml
++++ b/docs/xml/manpages-index.xml
+@@ -43,5 +43,9 @@
+ <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
+     parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+ 
++<!-- verrou_dd -->
++<xi:include href="../../verrou/docs/verrou_dd-manpage.xml"
++    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++
+ </set>
+ 
 diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
 index 333e5b7..a0c471d 100644
 --- a/docs/xml/manual.xml

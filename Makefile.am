@@ -1,11 +1,20 @@
 include $(top_srcdir)/Makefile.tool.am
 
-EXTRA_DIST = docs/vr-manual.xml
+EXTRA_DIST = \
+	docs/vr-manual.xml \
+	docs/verrou_dd-manpage.xml
+
 pkginclude_HEADERS = verrou.h
 
 #----------------------------------------------------------------------------
 # verrou-<platform>
 #----------------------------------------------------------------------------
+
+bin_SCRIPTS = verrou_dd
+pkgpython_PYTHON = DD.py
+install-exec-local:
+	mkdir -p ${pkgpythondir}
+	touch ${pkgpythondir}/__init__.py
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC

@@ -1,0 +1,81 @@
+#!/usr/bin/python
+
+import subprocess
+import sys
+import os
+import shutil
+from valgrind import DD
+import md5
+import copy
+
+def reference (run, dirname):
+    shutil.rmtree(dirname, ignore_errors=True)
+    os.mkdir(dirname)
+    with open(dirname + "/dd.run.out", "w") as fout, \
+         open(dirname + "/dd.run.err", "w") as ferr:
+        env = copy.deepcopy(os.environ)
+        env["VERROU_ROUNDING_MODE"] = "nearest"
+        env["VERROU_INSTR_ATSTART"] = "no"
+        env["VERROU_GEN_SOURCE"] = dirname + "/dd.source"
+        subprocess.call([run, dirname],
+                        env=env,
+                        stdout=fout,
+                        stderr=ferr)
+
+
+class DDline(DD.DD):
+    def __init__(self, run, compare, ref):
+        DD.DD.__init__(self)
+        self.run_     = run
+        self.compare_ = compare
+        self.ref_     = ref
+
+    def _test(self, deltas):
+        dirname = "dd.source." + md5.new("".join(deltas)).hexdigest()
+        shutil.rmtree(dirname, ignore_errors=True)
+        os.mkdir(dirname)
+
+        with open(dirname + "/dd.source", "w") as f:
+            f.write("__unknown__\t0\n")
+            for d in deltas:
+                f.write(d)
+
+        for run in xrange(1,6):
+            rundir = dirname + "/dd.run%i" % run
+            os.mkdir (rundir)
+            with open(rundir + "/dd.run.out", "w") as fout, \
+                 open(rundir + "/dd.run.err", "w") as ferr:
+                env = copy.deepcopy(os.environ)
+                env["VERROU_SOURCE"] = dirname + "/dd.source"
+                subprocess.call ([self.run_, rundir],
+                                 env=env,
+                                 stdout=fout,
+                                 stderr=ferr)
+            with open(rundir + "/dd.compare.out", "w") as fout, \
+                 open(rundir + "/dd.compare.err", "w") as ferr:
+                if subprocess.call ([self.compare_, self.ref_, rundir],
+                                    stdout=fout,
+                                    stderr=ferr) != 0:
+                    return self.FAIL
+        return self.PASS
+
+def ddLine (run, compare, ref):
+    dd = DDline(run, compare, ref)
+
+    with open (ref + "/dd.source", "r") as f:
+        deltas = f.readlines()
+    c = dd.ddmax(deltas)
+
+    c = [(f, int(l), s) for (f, l, s) in
+         [l.strip().split("\t") for l in c]]
+    print "ddmax:\n  " + "\n  ".join(["%s:%d (%s)" % e for e in c])
+
+    return c
+
+def main (run, compare):
+    ref = "dd.ref"
+    reference (run, ref)
+    ddLine (run, compare, ref)
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2])
