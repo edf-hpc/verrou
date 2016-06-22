@@ -4,31 +4,38 @@ import subprocess
 import sys
 import os
 import shutil
-from valgrind import DD
 import md5
 import copy
+from valgrind import DD
 
-def reference (run, dirname):
+def runCmd(cmd, fname, envvars=None):
+    """Run CMD, adding ENVVARS to the current environment, and redirecting standard
+    and error outputs to FNAME.out and FNAME.err respectively.
+
+    Returns CMD's exit code."""
+    if envvars is None: envvars = {}
+    with open("%s.out"%fname, "w") as fout, \
+         open("%s.err"%fname, "w") as ferr:
+        env = copy.deepcopy(os.environ)
+        for var in envvars:
+            env[var] = envvars[var]
+        return subprocess.call(cmd, env=env, stdout=fout, stderr=ferr)
+
+def reference(run, dirname):
     shutil.rmtree(dirname, ignore_errors=True)
     os.mkdir(dirname)
-    with open(dirname + "/dd.run.out", "w") as fout, \
-         open(dirname + "/dd.run.err", "w") as ferr:
-        env = copy.deepcopy(os.environ)
-        env["VERROU_ROUNDING_MODE"] = "nearest"
-        env["VERROU_INSTR_ATSTART"] = "no"
-        env["VERROU_GEN_SOURCE"] = dirname + "/dd.source"
-        subprocess.call([run, dirname],
-                        env=env,
-                        stdout=fout,
-                        stderr=ferr)
-
+    retval = runCmd([run, dirname],
+                    "%s/dd.run"%dirname,
+                    {"VERROU_ROUNDING_MODE": "nearest",
+                     "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
+    assert retval == 0, "Error during reference run"
 
 class DDline(DD.DD):
     def __init__(self, run, compare, ref):
         DD.DD.__init__(self)
-        self.run_     = run
+        self.run_ = run
         self.compare_ = compare
-        self.ref_     = ref
+        self.ref_ = ref
 
     def _test(self, deltas):
         dirname = "dd.source." + md5.new("".join(deltas)).hexdigest()
@@ -40,42 +47,35 @@ class DDline(DD.DD):
             for d in deltas:
                 f.write(d)
 
-        for run in xrange(1,6):
+        for run in xrange(1, 6):
             rundir = dirname + "/dd.run%i" % run
-            os.mkdir (rundir)
-            with open(rundir + "/dd.run.out", "w") as fout, \
-                 open(rundir + "/dd.run.err", "w") as ferr:
-                env = copy.deepcopy(os.environ)
-                env["VERROU_SOURCE"] = dirname + "/dd.source"
-                subprocess.call ([self.run_, rundir],
-                                 env=env,
-                                 stdout=fout,
-                                 stderr=ferr)
-            with open(rundir + "/dd.compare.out", "w") as fout, \
-                 open(rundir + "/dd.compare.err", "w") as ferr:
-                if subprocess.call ([self.compare_, self.ref_, rundir],
-                                    stdout=fout,
-                                    stderr=ferr) != 0:
-                    return self.FAIL
+            os.mkdir(rundir)
+            runCmd([self.run_, rundir],
+                   "%s/dd.run"%rundir,
+                   {"VERROU_SOURCE": "%s/dd.source"%dirname})
+            retval = runCmd([self.compare_, self.ref_, rundir],
+                            "%s/dd.compare"%rundir)
+            if retval != 0:
+                return self.FAIL
         return self.PASS
 
-def ddLine (run, compare, ref):
+def ddLine(run, compare, ref):
     dd = DDline(run, compare, ref)
 
-    with open (ref + "/dd.source", "r") as f:
+    with open(ref + "/dd.source", "r") as f:
         deltas = f.readlines()
-    c = dd.ddmax(deltas)
+        c = dd.ddmax(deltas)
 
-    c = [(f, int(l), s) for (f, l, s) in
+    c = [(f, int(l), s) for(f, l, s) in
          [l.strip().split("\t") for l in c]]
-    print "ddmax:\n  " + "\n  ".join(["%s:%d (%s)" % e for e in c])
+    print "ddmax:\n  " + "\n  ".join(["%s:%d(%s)" % e for e in c])
 
     return c
 
-def main (run, compare):
+def main(run, compare):
     ref = "dd.ref"
-    reference (run, ref)
-    ddLine (run, compare, ref)
+    reference(run, ref)
+    ddLine(run, compare, ref)
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
