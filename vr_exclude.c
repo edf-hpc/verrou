@@ -69,7 +69,7 @@ void vr_freeExcludeList (Vr_Exclude* list) {
   }
 }
 
-void vr_dumpExcludeList (Vr_Exclude * list, const HChar * fname) {
+void vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end, const HChar* fname) {
   Int fd = VG_(fd_open)(fname,
                         VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
                         VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -80,7 +80,7 @@ void vr_dumpExcludeList (Vr_Exclude * list, const HChar * fname) {
   }
 
   Vr_Exclude * exclude;
-  for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
+  for (exclude = list ; exclude != end ; exclude = exclude->next) {
     VG_(write)(fd, exclude->fnname, VG_(strlen)(exclude->fnname));
     VG_(write)(fd, "\t", 1);
     VG_(write)(fd, exclude->objname, VG_(strlen)(exclude->objname));
@@ -237,7 +237,8 @@ void vr_freeIncludeSourceList (Vr_IncludeSource* list) {
   }
 }
 
-void vr_dumpIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
+void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
+                               const HChar * fname) {
   Int fd = VG_(fd_open)(fname,
                         VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
                         VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -249,7 +250,7 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 
   HChar linenum_[256];
   Vr_IncludeSource * cell;
-  for (cell = list ; cell != NULL ; cell = cell->next) {
+  for (cell = list ; cell != end ; cell = cell->next) {
     VG_(write)(fd, cell->filename, VG_(strlen)(cell->filename));
     VG_(write)(fd, "\t", 1);
     VG_(snprintf)(linenum_, 255, "%d", cell->linenum);

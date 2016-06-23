@@ -102,10 +102,12 @@ typedef struct {
   Bool genExclude;
   HChar * excludeFile;
   Vr_Exclude * exclude;
+  Vr_Exclude * genExcludeUntil;
 
   Bool genIncludeSource;
   HChar* includeSourceFile;
   Vr_IncludeSource *includeSource;
+  Vr_IncludeSource *genIncludeSourceUntil;
 } Vr_State;
 
 extern Vr_State vr;
@@ -153,14 +155,18 @@ void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
 // ** vr_exclude.c
 
 void        vr_freeExcludeList (Vr_Exclude* list);
-void        vr_dumpExcludeList (Vr_Exclude * list, const HChar * filename);
+void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
+                                const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
-Bool        vr_excludeIRSB(Vr_Exclude ** list, Bool generate, HChar* fnname, HChar* objname);
+Bool        vr_excludeIRSB(Vr_Exclude** list, Bool generate,
+                           HChar* fnname, HChar* objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
-void vr_dumpIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
+void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,
+                               const HChar* fname);
 Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
-Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, HChar* fnname, HChar* filename, UInt linenum);
+Bool vr_includeSource (Vr_IncludeSource** list, Bool generate,
+                       HChar* fnname, HChar* filename, UInt linenum);
 
 
 // ** vr_clo.c

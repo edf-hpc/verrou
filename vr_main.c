@@ -958,11 +958,13 @@ static void vr_fini(Int exitcode)
   vr_ppOpCount ();
 
   if (vr.genExclude) {
-    vr_dumpExcludeList(vr.exclude, vr.excludeFile);
+    vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
+                       vr.excludeFile);
   }
 
   if (vr.genIncludeSource) {
-    vr_dumpIncludeSourceList (vr.includeSource, vr.includeSourceFile);
+    vr_dumpIncludeSourceList (vr.includeSource, vr.genIncludeSourceUntil,
+                              vr.includeSourceFile);
   }
 
   vr_freeExcludeList (vr.exclude);
@@ -979,6 +981,10 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
    vr_env_clo("VERROU_SOURCE",        "--source");
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
+
+   if (vr.genExclude) {
+     vr.genExcludeUntil = vr.exclude;
+   }
 
    vr_fpOpsInit(vr.roundingMode, VG_(getpid)());
 
