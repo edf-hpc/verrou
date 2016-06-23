@@ -13,7 +13,7 @@ index 5c93ed0..7a6ac11 100644
  EXP_TOOLS = 	exp-sgcheck \
  		exp-bbv \
 diff --git a/configure.ac b/configure.ac
-index 0fd2a41..04aaabf 100644
+index 0fd2a41..d8b96a6 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -150,6 +150,8 @@ case "${is_clang}-${gcc_version}" in
@@ -25,7 +25,7 @@ index 0fd2a41..04aaabf 100644
  #----------------------------------------------------------------------------
  # Arch/OS/platform tests.
  #----------------------------------------------------------------------------
-@@ -2956,6 +2958,33 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+@@ -2956,6 +2958,35 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -56,10 +56,12 @@ index 0fd2a41..04aaabf 100644
 +  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 +fi
 +
++AC_CONFIG_FILES([verrou/env.sh])
++
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -3034,6 +3063,8 @@ AC_CONFIG_FILES([
+@@ -3034,6 +3065,8 @@ AC_CONFIG_FILES([
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile

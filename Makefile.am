@@ -15,6 +15,7 @@ pkgpython_PYTHON = DD.py
 install-exec-local:
 	mkdir -p ${pkgpythondir}
 	touch ${pkgpythondir}/__init__.py
+	install -t ${prefix} -m 644 env.sh
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
