@@ -1,0 +1,71 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
+[ <!ENTITY % vg-entities SYSTEM "../../docs/xml/vg-entities.xml"> %vg-entities; ]>
+
+
+<refentry id="verrou-dd">
+
+<refmeta>
+  <refentrytitle>Verrou Delta-Debug</refentrytitle>
+  <manvolnum>1</manvolnum>
+  <refmiscinfo>Release &rel-version;</refmiscinfo>
+</refmeta>
+
+<refnamediv id="a-name">
+  <refname>verrou_dd</refname>
+  <refpurpose>Delta-Debugging tool for Verrou</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv id="a-synopsis">
+  <cmdsynopsis>
+    <command>verrou_dd</command>    
+    <!--<arg choice="opt"><replaceable>options</replaceable></arg>-->
+    <arg>run</arg>
+    <arg>compare</arg>
+  </cmdsynopsis>
+</refsynopsisdiv>
+
+
+<refsect1 id="a-description">
+<title>Description</title>
+
+<para><command>verrou_dd</command> takes two scripts describing how to run your
+program under Verrou and how to compare results with a reference. It then
+performs a Delta-Debugging algorithm to find numerical instabilities in the
+program.
+</para>
+
+</refsect1>
+
+
+<!-- <refsect1 id="a-options"> -->
+<!-- <title>Options</title> -->
+
+<!-- <xi:include href="cl-manual.xml" xpointer="callgrind_annotate.opts.list" -->
+<!--             xmlns:xi="http://www.w3.org/2001/XInclude" /> -->
+
+<!-- </refsect1> -->
+
+
+<refsect1 id="a-see_also">
+<title>See Also</title>
+
+<para>
+valgrind(1),
+<filename>&vg-docs-path;</filename> or
+<filename>&vg-docs-url;</filename>.
+</para>
+
+</refsect1>
+
+
+<refsect1 id="a-author">
+<title>Authors</title>
+
+<para>Fran&ccedil;ois F&eacute;votte and Bruno Lathuili&egrave;re.</para>
+
+</refsect1>
+
+
+</refentry>
