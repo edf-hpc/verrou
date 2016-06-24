@@ -13,7 +13,9 @@ def runCmd(cmd, fname, envvars=None):
     and error outputs to FNAME.out and FNAME.err respectively.
 
     Returns CMD's exit code."""
-    if envvars is None: envvars = {}
+    if envvars is None:
+        envvars = {}
+
     with open("%s.out"%fname, "w") as fout, \
          open("%s.err"%fname, "w") as ferr:
         env = copy.deepcopy(os.environ)
@@ -21,28 +23,125 @@ def runCmd(cmd, fname, envvars=None):
             env[var] = envvars[var]
         return subprocess.call(cmd, env=env, stdout=fout, stderr=ferr)
 
-def reference(run, dirname):
+def prepareOutput(dirname):
     shutil.rmtree(dirname, ignore_errors=True)
-    os.mkdir(dirname)
-    retval = runCmd([run, dirname],
-                    "%s/dd.run"%dirname,
-                    {"VERROU_ROUNDING_MODE": "nearest",
-                     "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
-    assert retval == 0, "Error during reference run"
+    os.makedirs(dirname)
 
-class DDline(DD.DD):
-    def __init__(self, run, compare, ref):
+def genExcludeFile(ref, dest, include):
+    with open("%s/dd.exclude"%ref, "r") as f:
+        excludes = f.readlines()
+    with open("%s/dd.include"%dest, "w") as f:
+        for d in include:
+            excludes.remove(d)
+            f.write(d)
+    with open("%s/dd.exclude"%dest, "w") as f:
+        for line in excludes:
+            f.write(line)
+
+class DDsym(DD.DD):
+    def __init__(self, run, compare):
         DD.DD.__init__(self)
+
         self.run_ = run
         self.compare_ = compare
-        self.ref_ = ref
+        self.ref_ = "dd.sym/ref"
+
+        self.reference()
+
+    def reference(self):
+        dirname = self.ref_
+        prepareOutput(dirname)
+
+        retval = runCmd([self.run_, dirname],
+                        "%s/dd"%dirname,
+                        {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_GEN_EXCLUDE":   "%s/dd.exclude"%dirname})
+        assert retval == 0, "Error during reference run"
+
+    def testName(self, deltas):
+        return "dd.sym/" + md5.new("".join(deltas)).hexdigest()
 
     def _test(self, deltas):
-        dirname = "dd.source." + md5.new("".join(deltas)).hexdigest()
-        shutil.rmtree(dirname, ignore_errors=True)
-        os.mkdir(dirname)
+        dirname = self.testName(deltas)
+        prepareOutput(dirname)
 
-        with open(dirname + "/dd.source", "w") as f:
+        genExcludeFile(self.ref_, dirname, deltas)
+
+        for run in xrange(1,6):
+            rundir = "%s/dd.run%i"%(dirname,run)
+            prepareOutput(rundir)
+
+            runCmd([self.run_, rundir],
+                   "%s/dd.run"%rundir,
+                   {"VERROU_EXCLUDE": "%s/dd.exclude"%dirname})
+            retval = runCmd([self.compare_, self.ref_, rundir],
+                            "%s/dd.compare"%rundir)
+            if retval != 0:
+                return self.FAIL
+        return self.PASS
+
+    def coerce(self, config):
+        return "\n  " + "  ".join(config)
+
+    def testSym (self, delta):
+        deltas = [delta]
+        dirname = self.testName(deltas)
+
+        if not os.path.exists(dirname):
+            self._test(deltas)
+
+        sym = delta.partition("\t")[0]
+        linkname = "dd.sym.%s"%sym
+        try:
+            os.remove(linkname)
+        except OSError:
+            pass
+        os.symlink(dirname, linkname)
+
+def ddSym(run, compare):
+    dd = DDsym(run, compare)
+
+    with open("%s/dd.exclude"%dd.ref_, "r") as f:
+        deltas = f.readlines()
+
+    conf = dd.ddmax(deltas)
+    print "ddmax:" + dd.coerce(conf)
+
+    for delta in conf:
+        dd.testSym(delta)
+
+    return (dd.ref_, conf)
+
+
+class DDline(DD.DD):
+    def __init__(self, run, compare, refSym, confSyms):
+        DD.DD.__init__(self)
+
+        self.run_ = run
+        self.compare_ = compare
+        self.ref_ = "dd.line/ref"
+
+        prepareOutput(self.ref_)
+        genExcludeFile(refSym, self.ref_, confSyms)
+        self.reference()
+
+    def reference(self):
+        dirname = self.ref_
+        retval = runCmd([self.run_, dirname],
+                        "%s/dd"%dirname,
+                        {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_EXCLUDE":       "%s/dd.exclude"%dirname,
+                         "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
+        assert retval == 0, "Error during reference run"
+
+    def testName(self, deltas):
+        return "dd.line/" + md5.new("".join(deltas)).hexdigest()
+
+    def _test(self, deltas):
+        dirname = self.testName(deltas)
+        prepareOutput(dirname)
+
+        with open("%s/dd.source"%dirname, "w") as f:
             f.write("__unknown__\t0\n")
             for d in deltas:
                 f.write(d)
@@ -59,23 +158,45 @@ class DDline(DD.DD):
                 return self.FAIL
         return self.PASS
 
-def ddLine(run, compare, ref):
-    dd = DDline(run, compare, ref)
+    def coerce(self, config):
+        return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
+                                      [(col[0], int(col[1]), col[2]) for col in
+                                       [(l.strip()+"\t\t").split("\t") for l in config]]])
 
-    with open(ref + "/dd.source", "r") as f:
+    def testLine (self, delta):
+        deltas = [delta]
+        dirname = self.testName(deltas)
+
+        if not os.path.exists(dirname):
+            self._test(deltas)
+
+        (filename, linenum) = delta.strip().split("\t")[0:2]
+        linkname = "dd.line.%s:%s"%(filename, linenum)
+        try:
+            os.remove(linkname)
+        except OSError:
+            pass
+        os.symlink(dirname, linkname)
+
+
+def ddLine(run, compare, refSym, confSyms):
+    dd = DDline(run, compare, refSym, confSyms)
+
+    with open(dd.ref_ + "/dd.source", "r") as f:
         deltas = f.readlines()
-        c = dd.ddmax(deltas)
 
-    c = [(f, int(l), s) for(f, l, s) in
-         [l.strip().split("\t") for l in c]]
-    print "ddmax:\n  " + "\n  ".join(["%s:%d(%s)" % e for e in c])
+    conf = dd.ddmax(deltas)
+    print "ddmax:" + dd.coerce(conf)
 
-    return c
+    for delta in conf:
+        dd.testLine(delta)
+
+    return conf
+
 
 def main(run, compare):
-    ref = "dd.ref"
-    reference(run, ref)
-    ddLine(run, compare, ref)
+    (refSym, confSyms) = ddSym (run, compare)
+    ddLine(run, compare, refSym, confSyms)
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
