@@ -245,7 +245,7 @@ int main () {
         which are left uninstrumented are not even accounted for in the
         operations count.
       </para>
-      
+
       <sect3 id="vr-manual.feat.exclude" xreflabel="Excluded symbols">
         <title>Excluded symbols</title>
         <para> A first, rather coarse-grained, way to restrict the scope of
@@ -267,10 +267,12 @@ int main () {
               to match anything. The two columns can be separated by any
               number of spaces and tabulations
               (<computeroutput>\t</computeroutput>)</listitem>
-          </itemizedlist> 
+          </itemizedlist>
         </para>
         <para>
-          When verrou finds a block of instructions whose address matches
+          When verrou finds a block of instructions (an IRSB, Intermediate
+          Representation SuperBlock in valgrind terminology) whose address
+          matches
           the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
           specification, the whole chunk is left uninstrumented.
         </para>
@@ -383,7 +385,7 @@ cosf                 /lib/libm-2.11.3.so</screen>
           by humans.</para>
       </sect3>
     </sect2>
-    
+
     <sect2 id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
       <title>Deterministic sections</title>
       <para>
@@ -501,7 +503,7 @@ float det2 () {
 int main () {
   fprintf (stderr, "   det1\n");
   assert (det1() == det1());
-  
+
   fprintf (stderr, "   det2\n");
   assert (det2() == det2());
 } </programlisting>
@@ -568,55 +570,118 @@ det2
     <sect2 id="vr-manual.clo" xreflabel="Command-line options">
       <title>Command-line options</title>
 
-      <variablelist>
-        <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-          <term><option><![CDATA[--rounding-mode=<random|average> [default=nearest]]]></option></term>
-          <listitem>
-            <para>Choose between the <command>random</command>
-              and <command>average</command> strategies for randomly
-              switching <link linkend="vr-manual.feat.rounding-mode">rounding
-              modes</link> for each floating-point operation.</para>
-            <para>If this option is not provided, Verrou always rounds to the nearest
-              floating-point.</para>
-          </listitem>
-        </varlistentry>
+      <sect3>
+        <title>General options</title>
+        <variablelist id="vr.opts.instr.list">
 
-        <varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
-          <term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
-          <listitem><para>Toggle <link linkend="vr-manual.feat.instr">instrumentation
-               state</link> on or off at program start.</para></listitem>
-        </varlistentry>
+          <varlistentry id="vr-opt.count-op" xreflabel="--count-op">
+            <term><option><![CDATA[--count-op=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle <link linkend="vr-manual.feat.count">floating-point
+                  operations counting</link>.
+            </para></listitem>
+          </varlistentry>
 
-        <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
-          <term><option><![CDATA[--exclude=FILE]]></option></term>
-          <listitem><para>Read
-          an <link linkend="vr-manual.feat.exclude">excluded functions
-          list</link> from <computeroutput>FILE</computeroutput>.</para></listitem>
-        </varlistentry>
+          <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
+            <term><option><![CDATA[--rounding-mode=<random|average> [default=nearest]]]></option></term>
+            <listitem>
+              <para>Choose between the <command>random</command>
+                and <command>average</command> strategies for randomly
+                switching <link linkend="vr-manual.feat.rounding-mode">rounding
+                modes</link> for each floating-point operation.</para>
+              <para>If this option is not provided, Verrou always rounds to the
+                nearest floating-point.</para>
+              <para>For debugging purposes, the other IEEE-754 standard rounding modes are
+                available: <command>upward</command>, <command>downward</command>
+                and <command>toward_zero</command></para>
+            </listitem>
+          </varlistentry>
 
-        <varlistentry id="vr-opt.gen-exclude" xreflabel="--gen-exclude">
-          <term><option><![CDATA[--exclude=FILE]]></option></term>
-          <listitem><para>Generate
-              an <link linkend="vr-manual.feat.exclude">excluded functions
-              list</link> to <computeroutput>FILE</computeroutput>.
-          </para></listitem>
-        </varlistentry>
+          <varlistentry id="vr-opt.instr" xreflabel="--vr-instr-">
+            <term><option><![CDATA[--vr-instr=<add|sub|mul|div|mAdd|mSub> [default=all]]]></option></term>
+            <listitem>
+              <para>Toggle instrumentation of floating-point additions,
+                subtractions, multiplications, divisions, fused multiply
+                additions, fused multiply subtractions respectively. This option
+                can be set multiple times to instrument multiple types of
+                operations.</para>
+              <para>If this option is not provided, all supported operations
+              types are instrumented.</para>
+            </listitem>
+          </varlistentry>
 
-        <varlistentry id="vr-opt.source" xreflabel="--source">
-          <term><option><![CDATA[--source=FILE]]></option></term>
-          <listitem><para>Read from <computeroutput>FILE</computeroutput> a list
-              of <link linkend="vr-manual.feat.source">source code lines</link>
-              to instrument.</para></listitem>
-        </varlistentry>
-        
-        <varlistentry id="vr-opt.gen-source" xreflabel="--gen-source">
-          <term><option><![CDATA[--gen-source=FILE]]></option></term>
-          <listitem><para>Generate in <computeroutput>FILE</computeroutput> the
-              list of encountered <link linkend="vr-manual.feat.source">source
-              code lines</link>.
-          </para></listitem>
-        </varlistentry>
-      </variablelist>
+          <varlistentry id="vr-opt.instr-scalar" xreflabel="--vr-instr-scalar-">
+            <term><option><![CDATA[--vr-instr-scalar=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of x387 scalar instructions.
+            </para></listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
+            <term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>Toggle <link linkend="vr-manual.feat.instr">instrumentation
+                  state</link> on or off at program start. Useful in combination
+                  with <link linkend="vr-cr.start-instrumentation">client
+                  requests</link>.
+            </para></listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.verbose" xreflabel="--vr-verbose">
+            <term><option><![CDATA[--vr-verbose=<yes|no> [default=no]]]></option></term>
+            <listitem><para>Toggle verbosity: prints messages for x387
+                instructions and client requests.
+            </para></listitem>
+          </varlistentry>
+
+        </variablelist>
+      </sect3>
+
+      <sect3>
+        <title>Restriction of instrumentation scope</title>
+
+        <variablelist id="vr.opts.scope.list">
+          <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
+            <term><option><![CDATA[--exclude=FILE]]></option></term>
+            <listitem><para>Symbols listed
+                in <computeroutput>FILE</computeroutput> will be
+                left <link linkend="vr-manual.feat.exclude">uninstrumented</link>.
+            </para></listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.gen-exclude" xreflabel="--gen-exclude">
+            <term><option><![CDATA[--gen-exclude=FILE]]></option></term>
+            <listitem>
+              <para>Generate in <computeroutput>FILE</computeroutput> a list of
+                all symbols encountered during program execution.</para>
+              <para>In combination
+              with <option><xref linkend="vr-opt.exclude"/></option>, only list
+              symbols which were not already present in the provided exclusion
+              list.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.source" xreflabel="--source">
+            <term><option><![CDATA[--source=FILE]]></option></term>
+            <listitem><para>When this option is present, only instructions
+                coming from <link linkend="vr-manual.feat.source">source code
+                lines</link> listed in <computeroutput>FILE</computeroutput>
+                are instrumented.</para></listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.gen-source" xreflabel="--gen-source">
+            <term><option><![CDATA[--gen-source=FILE]]></option></term>
+            <listitem>
+              <para>Generate in <computeroutput>FILE</computeroutput> the list
+                of all <link linkend="vr-manual.feat.source">source code
+                  lines</link> encountered during program execution.</para>
+              <para>In combination with
+                <option><xref linkend="vr-opt.source"/></option>, only list
+                source code lines which were not already present in the provided
+                list.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect3>
     </sect2>
 
     <sect2 id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
@@ -627,9 +692,9 @@ det2
         requests</link> in the <filename>valgrind/verrou.h</filename>
         header.
       </para>
-      
+
       <variablelist>
-        
+
         <varlistentry id="vr-cr.display-counters"
                       xreflabel="VERROU_DISPLAY_COUNTERS">
           <term><computeroutput>VERROU_DISPLAY_COUNTERS</computeroutput></term>
@@ -681,14 +746,14 @@ det2
 
       See <xref linkend="manual-core-adv.gdbserver"/> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
-      specific monitor commands provided by Verrou:      
+      specific monitor commands provided by Verrou:
       <variablelist>
         <varlistentry id="vr.monitor_count" xreflabel="count">
           <term><computeroutput>count</computeroutput></term>
           <listitem><para>Display the
               current <link linkend="vr-manual.feat.count">instructions
                 counters</link>.
-          </para></listitem> 
+          </para></listitem>
         </varlistentry>
         <varlistentry id="vr.monitor_instrumentation" xreflabel="instrumentation">
           <term><computeroutput>instrumentation [on|off]</computeroutput></term>
@@ -703,4 +768,3 @@ det2
     </sect2>
   </sect1>
 </chapter>
-

@@ -97,8 +97,8 @@ Bool vr_process_clo (const HChar *arg) {
     vr.instr_scalar= bool_val;
   }
 
-  //Option --verrou-verbose (to avoid verbose of valgrind)
-  else if (VG_BOOL_CLO (arg, "--verrou-verbose", bool_val)) {
+  //Option --vr-verbose (to avoid verbose of valgrind)
+  else if (VG_BOOL_CLO (arg, "--vr-verbose", bool_val)) {
     vr.verbose = bool_val;
   }
 
