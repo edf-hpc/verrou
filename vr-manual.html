@@ -38,7 +38,7 @@
 <dd><dl>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#idm45745237042336">14.3.3. Monitor commands</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#idm45496680854752">14.3.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -317,7 +317,7 @@ int main () {
               number of spaces and tabulations
               (<code class="computeroutput">\t</code>)</li>
 </ul></div>
-<p> 
+<p>
         </p>
 <p>
           When verrou finds a block of instructions (an IRSB, Intermediate
@@ -485,7 +485,7 @@ int main () {
       </p>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm45745240531328"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
+<a name="idm45496681886672"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -528,7 +528,7 @@ int main () {
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm45745238727616"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
+<a name="idm45496675742704"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -562,7 +562,7 @@ float det2 () {
 int main () {
   fprintf (stderr, "   det1\n");
   assert (det1() == det1());
-  
+
   fprintf (stderr, "   det2\n");
   assert (det2() == det2());
 } </pre>
@@ -635,50 +635,112 @@ det2
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="vr-manual.clo"></a>14.3.1.&nbsp;Command-line options</h3></div></div></div>
-<div class="variablelist"><dl class="variablelist">
+<div class="sect3">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm45496677733616"></a>14.3.1.1.&nbsp;General options</h4></div></div></div>
+<div class="variablelist">
+<a name="vr.opts.instr.list"></a><dl class="variablelist">
+<dt>
+<a name="vr-opt.count-op"></a><span class="term"><code class="option">--count-op=&lt;yes|no&gt; [default=yes]</code></span>
+</dt>
+<dd><p>
+                Toggle <a class="link" href="vr-manual.html#vr-manual.feat.count" title="14.1.2.1.&nbsp;Floating-point instructions counting">floating-point
+                  operations counting</a>.
+            </p></dd>
 <dt>
 <a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average&gt; [default=nearest]</code></span>
 </dt>
 <dd>
 <p>Choose between the <span class="command"><strong>random</strong></span>
-              and <span class="command"><strong>average</strong></span> strategies for randomly
-              switching <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.1.2.2.&nbsp;Rounding-mode switching">rounding
-              modes</a> for each floating-point operation.</p>
-<p>If this option is not provided, Verrou always rounds to the nearest
-              floating-point.</p>
+                and <span class="command"><strong>average</strong></span> strategies for randomly
+                switching <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.1.2.2.&nbsp;Rounding-mode switching">rounding
+                modes</a> for each floating-point operation.</p>
+<p>If this option is not provided, Verrou always rounds to the
+                nearest floating-point.</p>
+<p>For debugging purposes, the other IEEE-754 standard rounding modes are
+                available: <span class="command"><strong>upward</strong></span>, <span class="command"><strong>downward</strong></span>
+                and <span class="command"><strong>toward_zero</strong></span></p>
 </dd>
+<dt>
+<a name="vr-opt.instr"></a><span class="term"><code class="option">--vr-instr=&lt;add|sub|mul|div|mAdd|mSub&gt; [default=all]</code></span>
+</dt>
+<dd>
+<p>Toggle instrumentation of floating-point additions,
+                subtractions, multiplications, divisions, fused multiply
+                additions, fused multiply subtractions respectively. This option
+                can be set multiple times to instrument multiple types of
+                operations.</p>
+<p>If this option is not provided, all supported operations
+              types are instrumented.</p>
+</dd>
+<dt>
+<a name="vr-opt.instr-scalar"></a><span class="term"><code class="option">--vr-instr-scalar=&lt;yes|no&gt; [default=no]</code></span>
+</dt>
+<dd><p>
+                Toggle instrumentation of x387 scalar instructions.
+            </p></dd>
 <dt>
 <a name="vr-opt.instr-atstart"></a><span class="term"><code class="option">--instr-atstart=&lt;yes|no&gt; [default=yes]</code></span>
 </dt>
 <dd><p>Toggle <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="14.2.1.&nbsp;Instrumented sections">instrumentation
-               state</a> on or off at program start.</p></dd>
+                  state</a> on or off at program start. Useful in combination
+                  with <a class="link" href="vr-manual.html#vr-cr.start-instrumentation">client
+                  requests</a>.
+            </p></dd>
+<dt>
+<a name="vr-opt.verbose"></a><span class="term"><code class="option">--vr-verbose=&lt;yes|no&gt; [default=no]</code></span>
+</dt>
+<dd><p>Toggle verbosity: prints messages for x387
+                instructions and client requests.
+            </p></dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm45496677621216"></a>14.3.1.2.&nbsp;Restriction of instrumentation scope</h4></div></div></div>
+<div class="variablelist">
+<a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
 <a name="vr-opt.exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
 </dt>
-<dd><p>Read
-          an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">excluded functions
-          list</a> from <code class="computeroutput">FILE</code>.</p></dd>
+<dd><p>Symbols listed
+                in <code class="computeroutput">FILE</code> will be
+                left <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">uninstrumented</a>.
+            </p></dd>
 <dt>
-<a name="vr-opt.gen-exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
+<a name="vr-opt.gen-exclude"></a><span class="term"><code class="option">--gen-exclude=FILE</code></span>
 </dt>
-<dd><p>Generate
-              an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">excluded functions
-              list</a> to <code class="computeroutput">FILE</code>.
-          </p></dd>
+<dd>
+<p>Generate in <code class="computeroutput">FILE</code> a list of
+                all symbols encountered during program execution.</p>
+<p>In combination
+              with <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>, only list
+              symbols which were not already present in the provided exclusion
+              list.</p>
+</dd>
 <dt>
 <a name="vr-opt.source"></a><span class="term"><code class="option">--source=FILE</code></span>
 </dt>
-<dd><p>Read from <code class="computeroutput">FILE</code> a list
-              of <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source code lines</a>
-              to instrument.</p></dd>
+<dd><p>When this option is present, only instructions
+                coming from <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source code
+                lines</a> listed in <code class="computeroutput">FILE</code>
+                are instrumented.</p></dd>
 <dt>
 <a name="vr-opt.gen-source"></a><span class="term"><code class="option">--gen-source=FILE</code></span>
 </dt>
-<dd><p>Generate in <code class="computeroutput">FILE</code> the
-              list of encountered <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source
-              code lines</a>.
-          </p></dd>
-</dl></div>
+<dd>
+<p>Generate in <code class="computeroutput">FILE</code> the list
+                of all <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.2.2.2.&nbsp;Source code lines selection">source code
+                  lines</a> encountered during program execution.</p>
+<p>In combination with
+                <code class="option"><a class="xref" href="vr-manual.html#vr-opt.source">--source</a></code>, only list
+                source code lines which were not already present in the provided
+                list.</p>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
@@ -726,11 +788,11 @@ det2
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm45745237042336"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
+<a name="idm45496680854752"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2.&nbsp;Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
-      specific monitor commands provided by Verrou:      
+      specific monitor commands provided by Verrou:
       <div class="variablelist"><dl class="variablelist">
 <dt>
 <a name="vr.monitor_count"></a><span class="term"><code class="computeroutput">count</code></span>
