@@ -14,7 +14,7 @@ make install
 # Upload HTML documentation to github
 TMPDIR=$(mktemp -d)
 HASH=$(cd verrou;
-    git rev-parse HEAD)
+    git rev-parse --short=14 HEAD)
 (
     cd ${TMPDIR}
     git clone https://github.com/edf-hpc/verrou.git html
@@ -28,5 +28,6 @@ cp install/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
     git status
     echo "Updated documentation to ${HASH}" >../commit.msg
     git commit -t ../commit.msg
+    git push origin gh-pages
 )
 rm -rf "${TMPDIR}"
