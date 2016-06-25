@@ -572,7 +572,14 @@ det2
 
       <sect3>
         <title>General options</title>
-        <variablelist id="vr.opts.instr.list">
+        <variablelist id="vr.opts.general.list">
+
+          <varlistentry id="vr-opt.verbose" xreflabel="--vr-verbose">
+            <term><option><![CDATA[--vr-verbose=<yes|no> [default=no]]]></option></term>
+            <listitem><para>Toggle verbosity: prints messages for x387
+                instructions and client requests.
+            </para></listitem>
+          </varlistentry>
 
           <varlistentry id="vr-opt.count-op" xreflabel="--count-op">
             <term><option><![CDATA[--count-op=<yes|no> [default=yes]]]></option></term>
@@ -581,6 +588,13 @@ det2
                   operations counting</link>.
             </para></listitem>
           </varlistentry>
+
+        </variablelist>
+      </sect3>
+
+      <sect3>
+        <title>Perturbation of floating-point operations</title>
+        <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
             <term><option><![CDATA[--rounding-mode=<random|average> [default=nearest]]]></option></term>
@@ -617,6 +631,13 @@ det2
             </para></listitem>
           </varlistentry>
 
+        </variablelist>
+      </sect3>
+
+      <sect3>
+        <title>Restriction of instrumentation scope</title>
+        <variablelist id="vr.opts.scope.list">
+
           <varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
             <term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
             <listitem><para>Toggle <link linkend="vr-manual.feat.instr">instrumentation
@@ -626,20 +647,6 @@ det2
             </para></listitem>
           </varlistentry>
 
-          <varlistentry id="vr-opt.verbose" xreflabel="--vr-verbose">
-            <term><option><![CDATA[--vr-verbose=<yes|no> [default=no]]]></option></term>
-            <listitem><para>Toggle verbosity: prints messages for x387
-                instructions and client requests.
-            </para></listitem>
-          </varlistentry>
-
-        </variablelist>
-      </sect3>
-
-      <sect3>
-        <title>Restriction of instrumentation scope</title>
-
-        <variablelist id="vr.opts.scope.list">
           <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
             <term><option><![CDATA[--exclude=FILE]]></option></term>
             <listitem><para>Symbols listed

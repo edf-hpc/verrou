@@ -140,44 +140,9 @@ Bool vr_process_clo (const HChar *arg) {
 
 void vr_print_usage (void) {
   VG_(printf)
-    ("\n"
-     "    Rounding mode selection \n"
-     "      --rounding-mode=random\n"
-     "      --rounding-mode=average\n"
-     "      --rounding-mode=nearest\n"
-     "      --rounding-mode=upward\n"
-     "      --rounding-mode=downward\n"
-     "      --rounding-mode=toward_zero\n"
-     "\n"
-     "    Instrumented operations selection \n"
-     "      --vr-instr=add\n"
-     "      --vr-instr=sub\n"
-     "      --vr-instr=mul\n"
-     "      --vr-instr=div\n"
-     "      --vr-instr=mAdd\n"
-     "      --vr-instr=mSub\n"
-     "\n"
-     "    Restriction of instrumentation to specific code sections \n"
-     "      --exclude=FILE      symbols listed in FILE will be left uninstrumented\n"
-     "      --gen-exclude=FILE  generate in FILE a list of all encountered symbols.\n"
-     "                            In compination with --exclude, list all symbols not\n"
-     "                            already present in the provided exclusion list."
-     "      --source=FILE       when this option is present, only instructions coming\n"
-     "                            from source code lines listed in FILE are\n"
-     "                            instrumented.\n"
-     "      --gen-source=FILE   generate in FILE a list of all source code lines\n"
-     "                            encountered during program execution. This is in\n"
-     "                            combination with the --exclude switch.\n"
-     "                            In combination with --source, list all source lines\n"
-     "                            which are not already present in the provided list."
-     "\n"
-     "    Other options \n"
-     "      --vr-instr-scalar=[yes|NO] instrument scalar operation (x387)\n"
-     "      --verrou-verbose=[yes|NO]  print each instrumentation switch\n"
-     "      --count-op=[YES|no]        count floating point operations\n"
-     "      --instr-atstart=[YES|no]   instrumentation from the start (useful when\n"
-     "                                   used with client requests)\n"
-     );
+    (
+#include "vr_clo.txt"
+);
 }
 
 void vr_print_debug_usage (void) {

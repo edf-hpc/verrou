@@ -71,7 +71,7 @@ index 0fd2a41..d8b96a6 100644
  ])
  AC_CONFIG_FILES([coregrind/link_tool_exe_linux],
 diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
-index 7d774e5..5c5c1e3 100644
+index 7d774e5..e42f4f4 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
 @@ -43,5 +43,9 @@
@@ -79,8 +79,8 @@ index 7d774e5..5c5c1e3 100644
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  
 +<!-- verrou_dd -->
-+<xi:include href="../../verrou/docs/verrou_dd-manpage.xml"
-+    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++<!-- <xi:include href="../../verrou/docs/verrou_dd-manpage.xml" -->
++<!--     parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" /> -->
 +
  </set>
  
@@ -97,3 +97,16 @@ index 333e5b7..a0c471d 100644
    <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
  
+diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
+index a4b84ff..c7ee48c 100644
+--- a/docs/xml/valgrind-manpage.xml
++++ b/docs/xml/valgrind-manpage.xml
+@@ -230,6 +230,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
+ 
+ </refsect1>
+ 
++<xi:include href="../../verrou/docs/valgrind-manpage.xml"
++            xmlns:xi="http://www.w3.org/2001/XInclude" />
+ 
+ <refsect1 id="see_also">
+ <title>See Also</title>

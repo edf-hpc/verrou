@@ -1,0 +1,32 @@
+#!/bin/bash
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+cd ../..
+
+# Build and install documentation
+make -C docs html-docs man-pages
+make install
+./verrou/docs/fix-encoding install/share/doc/valgrind/html/*.html
+
+# Update usage string in source files
+./verrou/docs/update-vr-clo >verrou/vr_clo.txt
+
+# Upload HTML documentation to github
+TMPDIR=$(mktemp -d)
+HASH=$(cd verrou;
+    git rev-parse HEAD)
+(
+    cd ${TMPDIR}
+    git clone https://github.com/edf-hpc/verrou.git html
+    cd html
+    git checkout gh-pages
+)
+cp install/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
+(
+    cd ${TMPDIR}/html
+    git add -u
+    git status
+    echo "Updated documentation to ${HASH}" >../commit.msg
+    git commit -t ../commit.msg
+)
+rm -rf "${TMPDIR}"
