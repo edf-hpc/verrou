@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -u
 
 import subprocess
 import sys
@@ -38,13 +38,44 @@ def genExcludeFile(ref, dest, include):
         for line in excludes:
             f.write(line)
 
-class DDsym(DD.DD):
-    def __init__(self, run, compare):
-        DD.DD.__init__(self)
+def symlink(src, dst):
+    if os.path.exists(dst):
+        os.remove(dst)
+    os.symlink(src, dst)
 
+
+class DDvr(DD.DD):
+    def __init__(self, prefix):
+        DD.DD.__init__(self)
+        self.cache_outcomes = False
+        self.prefix_ = prefix
+        self.ref_ = "%s/ref"%prefix
+
+    def testName(self, deltas):
+        return self.prefix_ + "/" + md5.new("".join(deltas)).hexdigest()
+
+    def alreadyDone(self, dirname):
+        print dirname,
+        if os.path.exists(dirname):
+            res = os.path.exists("%s/dd.pass"%dirname)
+            print " --(cache)-> ",
+            if res:
+                print "PASS"
+                return self.PASS
+            else:
+                print "FAIL"
+                return self.FAIL
+
+        print " --( run )-> ",
+        prepareOutput(dirname)
+        return None
+
+
+class DDsym(DDvr):
+    def __init__(self, run, compare):
+        DDvr.__init__(self, "dd.sym")
         self.run_ = run
         self.compare_ = compare
-        self.ref_ = "dd.sym/ref"
 
         self.reference()
 
@@ -58,17 +89,16 @@ class DDsym(DD.DD):
                          "VERROU_GEN_EXCLUDE":   "%s/dd.exclude"%dirname})
         assert retval == 0, "Error during reference run"
 
-    def testName(self, deltas):
-        return "dd.sym/" + md5.new("".join(deltas)).hexdigest()
-
     def _test(self, deltas):
         dirname = self.testName(deltas)
-        prepareOutput(dirname)
+        done = self.alreadyDone(dirname)
+        if done is not None:
+            return done
 
         genExcludeFile(self.ref_, dirname, deltas)
 
-        for run in xrange(1,6):
-            rundir = "%s/dd.run%i"%(dirname,run)
+        for run in xrange(1, 6):
+            rundir = "%s/dd.run%i"%(dirname, run)
             prepareOutput(rundir)
 
             runCmd([self.run_, rundir],
@@ -77,25 +107,25 @@ class DDsym(DD.DD):
             retval = runCmd([self.compare_, self.ref_, rundir],
                             "%s/dd.compare"%rundir)
             if retval != 0:
+                print "FAIL"
                 return self.FAIL
+
+        with open("%s/dd.pass"%dirname, "w") as f:
+            f.write("OK\n")
+
+        print "PASS"
         return self.PASS
 
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
-    def testSym (self, delta):
+    def testSym(self, delta):
         deltas = [delta]
         dirname = self.testName(deltas)
-
-        if not os.path.exists(dirname):
-            self._test(deltas)
+        self._test(deltas)
 
         sym = delta.partition("\t")[0]
-        linkname = "dd.sym.%s"%sym
-        try:
-            os.remove(linkname)
-        except OSError:
-            pass
+        linkname = "%s.%s"%(self.prefix_, sym)
         os.symlink(dirname, linkname)
 
 def ddSym(run, compare):
@@ -113,13 +143,11 @@ def ddSym(run, compare):
     return (dd.ref_, conf)
 
 
-class DDline(DD.DD):
+class DDline(DDvr):
     def __init__(self, run, compare, refSym, confSyms):
-        DD.DD.__init__(self)
-
+        DDvr.__init__(self, "dd.line")
         self.run_ = run
         self.compare_ = compare
-        self.ref_ = "dd.line/ref"
 
         prepareOutput(self.ref_)
         genExcludeFile(refSym, self.ref_, confSyms)
@@ -134,12 +162,11 @@ class DDline(DD.DD):
                          "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
         assert retval == 0, "Error during reference run"
 
-    def testName(self, deltas):
-        return "dd.line/" + md5.new("".join(deltas)).hexdigest()
-
     def _test(self, deltas):
         dirname = self.testName(deltas)
-        prepareOutput(dirname)
+        done = self.alreadyDone(dirname)
+        if done is not None:
+            return done
 
         with open("%s/dd.source"%dirname, "w") as f:
             f.write("__unknown__\t0\n")
@@ -155,7 +182,12 @@ class DDline(DD.DD):
             retval = runCmd([self.compare_, self.ref_, rundir],
                             "%s/dd.compare"%rundir)
             if retval != 0:
+                print "FAIL"
                 return self.FAIL
+
+        with open("%s/dd.pass"%dirname, "w") as f:
+            f.write("OK\n")
+        print "PASS"
         return self.PASS
 
     def coerce(self, config):
@@ -163,19 +195,13 @@ class DDline(DD.DD):
                                       [(col[0], int(col[1]), col[2]) for col in
                                        [(l.strip()+"\t\t").split("\t") for l in config]]])
 
-    def testLine (self, delta):
+    def testLine(self, delta):
         deltas = [delta]
         dirname = self.testName(deltas)
-
-        if not os.path.exists(dirname):
-            self._test(deltas)
+        self._test(deltas)
 
         (filename, linenum) = delta.strip().split("\t")[0:2]
-        linkname = "dd.line.%s:%s"%(filename, linenum)
-        try:
-            os.remove(linkname)
-        except OSError:
-            pass
+        linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
         os.symlink(dirname, linkname)
 
 
@@ -195,7 +221,7 @@ def ddLine(run, compare, refSym, confSyms):
 
 
 def main(run, compare):
-    (refSym, confSyms) = ddSym (run, compare)
+    (refSym, confSyms) = ddSym(run, compare)
     ddLine(run, compare, refSym, confSyms)
 
 if __name__ == "__main__":
