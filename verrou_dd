@@ -208,16 +208,25 @@ class DDline(DDvr):
 def ddLine(run, compare, refSym, confSyms):
     dd = DDline(run, compare, refSym, confSyms)
 
-    with open(dd.ref_ + "/dd.source", "r") as f:
-        deltas = f.readlines()
+    confLines = []
+    for sym in confSyms:
+        symname = sym.partition("\t")[0]
+        print "ddLine: testing %s"%symname
+        deltas = []
+        with open(dd.ref_ + "/dd.source", "r") as f:
+            for line in f:
+                if line.endswith("\t%s\n"%symname):
+                    deltas.append(line)
 
-    conf = dd.ddmax(deltas)
-    print "ddmax:" + dd.coerce(conf)
+        conf = dd.ddmax(deltas)
+        confLines += conf
+        print "ddmax (%s):"%symname + dd.coerce(conf)
 
-    for delta in conf:
-        dd.testLine(delta)
+        for delta in conf:
+            dd.testLine(delta)
 
-    return conf
+    print "ddmax (global):" + dd.coerce(confLines)
+    return confLines
 
 
 def main(run, compare):
