@@ -38,7 +38,7 @@
 <dd><dl>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#idm46698744841936">14.3.3. Monitor commands</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#idp79905232">14.3.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -485,7 +485,7 @@ int main () {
       </p>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm46698744399664"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
+<a name="idp77700464"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -528,7 +528,7 @@ int main () {
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm46698744826352"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
+<a name="idp77526496"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -637,7 +637,7 @@ det2
 <a name="vr-manual.clo"></a>14.3.1.&nbsp;Command-line options</h3></div></div></div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm46698743919376"></a>14.3.1.1.&nbsp;General options</h4></div></div></div>
+<a name="idp73059456"></a>14.3.1.1.&nbsp;General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -658,7 +658,7 @@ det2
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm46698744228160"></a>14.3.1.2.&nbsp;Perturbation of floating-point operations</h4></div></div></div>
+<a name="idp80288032"></a>14.3.1.2.&nbsp;Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
@@ -698,7 +698,7 @@ det2
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm46698750451472"></a>14.3.1.3.&nbsp;Restriction of instrumentation scope</h4></div></div></div>
+<a name="idp73033984"></a>14.3.1.3.&nbsp;Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
@@ -725,7 +725,17 @@ det2
 <p>In combination
               with <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>, only list
               symbols which were not already present in the provided exclusion
-              list.</p>
+                list.</p>
+<p>
+                WARNING: in order to generate a correct list, the whole binary
+                (including symbols listed in the list provided
+                using <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>) must be
+                instrumented. When using
+                both <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
+                and <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>, it is
+                advised to avoid perturbating rounding-modes
+                using <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a>=nearest</code>.
+              </p>
 </dd>
 <dt>
 <a name="vr-opt.source"></a><span class="term"><code class="option">--source=FILE</code></span>
@@ -796,7 +806,7 @@ det2
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm46698744841936"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
+<a name="idp79905232"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2.&nbsp;Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
