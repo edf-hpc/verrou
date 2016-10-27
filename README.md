@@ -52,7 +52,7 @@ The documentation for verrou is available as a
 
 You can also re-build it:
 
-    make -C docs html-docs
+    make -C docs html-docs man-pages
 
 and browse it locally:
 

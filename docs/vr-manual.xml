@@ -663,7 +663,17 @@ det2
               <para>In combination
               with <option><xref linkend="vr-opt.exclude"/></option>, only list
               symbols which were not already present in the provided exclusion
-              list.</para>
+                list.</para>
+              <para>
+                WARNING: in order to generate a correct list, the whole binary
+                (including symbols listed in the list provided
+                using <option><xref linkend="vr-opt.exclude"/></option>) must be
+                instrumented. When using
+                both <option><xref linkend="vr-opt.gen-exclude"/></option>
+                and <option><xref linkend="vr-opt.exclude"/></option>, it is
+                advised to avoid perturbating rounding-modes
+                using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
+              </para>
             </listitem>
           </varlistentry>
 
