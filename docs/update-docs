@@ -27,6 +27,8 @@ cp install/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
     git add -u
     git status
     echo "Updated documentation to ${HASH}" >../commit.msg
+    git config user.name "François Févotte"
+    git config user.email "francois.fevotte@edf.fr"
     git commit -t ../commit.msg
     git push origin gh-pages
 )
