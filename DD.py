@@ -620,7 +620,8 @@ class DD:
 	# We replace the tail recursion from the paper by a loop
 	while 1:
             tc = self.test(c)
-            assert tc == self.FAIL or tc == self.UNRESOLVED
+            if tc != self.FAIL and tc != self.UNRESOLVED:
+                print "WARNING: assertion error: test([all deltas]) == PASS"
 
             if n > len(c):
                 # No further minimizing

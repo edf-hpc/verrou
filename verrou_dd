@@ -126,7 +126,7 @@ class DDsym(DDvr):
 
         sym = delta.partition("\t")[0]
         linkname = "%s.%s"%(self.prefix_, sym)
-        os.symlink(dirname, linkname)
+        symlink(dirname, linkname)
 
 def ddSym(run, compare):
     dd = DDsym(run, compare)
@@ -202,7 +202,7 @@ class DDline(DDvr):
 
         (filename, linenum) = delta.strip().split("\t")[0:2]
         linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
-        os.symlink(dirname, linkname)
+        symlink(dirname, linkname)
 
 
 def ddLine(run, compare, refSym, confSyms):
