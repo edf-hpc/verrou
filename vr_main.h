@@ -178,4 +178,6 @@ void vr_print_usage (void);
 void vr_print_debug_usage (void);
 
 
+#define VR_FNNAME_BUFSIZE 4096
+
 #endif /*ndef __VR_MAIN_H*/

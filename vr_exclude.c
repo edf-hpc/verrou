@@ -157,7 +157,10 @@ Bool vr_excludeIRSB (Vr_Exclude** list, Bool generate, HChar* fnname, HChar *obj
   Addr addr = ips[0];
 
   fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname, 255);
+  VG_(get_fnname)(addr, fnname, VR_FNNAME_BUFSIZE);
+  if (VG_(strlen)(fnname) == VR_FNNAME_BUFSIZE-1) {
+    VG_(umsg)("WARNING: Function name too long: %s\n", fnname);
+  }
 
   objname[0] = 0;
   VG_(get_objname)(addr, objname, 255);
