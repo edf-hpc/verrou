@@ -50,6 +50,7 @@ void vr_clo_defaults (void) {
 
   vr.genExclude = False;
   vr.exclude = NULL;
+  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
@@ -114,8 +115,11 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Exclusion of specified symbols
   else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
-    vr.excludeFile = VG_(strdup)("vr.process_clo.1", str);
+    vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
     vr.genExclude = True;
+  }
+  else if (VG_STR_CLO (arg, "--gen-above", str)) {
+    vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str);
   }
   else if (VG_STR_CLO (arg, "--exclude", str)) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
@@ -123,7 +127,7 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Instrumentation of only specified source lines
   else if (VG_STR_CLO (arg, "--gen-source", str)) {
-    vr.includeSourceFile = VG_(strdup)("vr.process_clo.2", str);
+    vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.genIncludeSource = True;
   }
   else if (VG_STR_CLO (arg, "--source", str)) {
