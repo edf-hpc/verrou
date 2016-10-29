@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>14.&nbsp;Verrou: a floating-point rounding errors checker</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="lk-manual.html" title="13.&nbsp;Lackey: an example tool">
@@ -38,7 +38,7 @@
 <dd><dl>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
 <dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#idp79905232">14.3.3. Monitor commands</a></span></dt>
+<dt><span class="sect2"><a href="vr-manual.html#idm6243">14.3.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -300,11 +300,14 @@ int main () {
           instrumentation is based on either the function (or rather symbol) name,
           the object name, or both.
         </p>
+<div class="sect4">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="idm5999"></a>14.2.2.1.1.&nbsp;Exclusion files</h5></div></div></div>
 <p>
-          This can be done by providing an exclusion file via
-          the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line
-          option. The file should have the following format:
-          </p>
+            This can be done by providing an exclusion file via
+            the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line
+            option. The file should have the following format:
+            </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">one rule per line,</li>
 <li class="listitem">each rule of the form <code class="computeroutput">FNNAME
@@ -318,49 +321,53 @@ int main () {
               (<code class="computeroutput">\t</code>)</li>
 </ul></div>
 <p>
-        </p>
-<p>
-          When verrou finds a block of instructions (an IRSB, Intermediate
-          Representation SuperBlock in valgrind terminology) whose address
-          matches
-          the <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
-          specification, the whole chunk is left uninstrumented.
-        </p>
-<p>
-          Here are a few examples of exclusion rules for mathematics functions:
           </p>
+<p>
+            When verrou finds a block of instructions (an IRSB, Intermediate
+            Representation SuperBlock in valgrind terminology) whose address
+            matches
+            the <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+            specification, the whole chunk is left uninstrumented.
+          </p>
+<p>
+            Here are a few examples of exclusion rules for mathematics functions:
+            </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">exclude the whole <code class="computeroutput">libm</code>
-              (beware that the path is the canonical
-              one; <code class="computeroutput">readlink -f</code> can help finding
-              it):
-              <pre class="screen">*	/lib/libm-2.11.3.so</pre>
+                (beware that the path is the canonical
+                one; <code class="computeroutput">readlink -f</code> can help finding
+                it):
+                <pre class="screen">*	/lib/libm-2.11.3.so</pre>
 </li>
 <li class="listitem">exclude specific functions based on their names only (beware
-              to list all functions in which the program will pass; not only
-              top-level ones):
-              <pre class="screen">exp            *
+                to list all functions in which the program will pass; not only
+                top-level ones):
+                <pre class="screen">exp            *
 __ieee754_exp  *
 __exp1         * </pre>
 </li>
 <li class="listitem">exclude a specific function of a specific library:
-              <pre class="screen">exp  /lib/libm.so.6</pre>
+                <pre class="screen">exp  /lib/libm.so.6</pre>
 </li>
 </ul></div>
 <p>
-        </p>
-<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
-          command-line option can help producing the complete list of
-          <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
-          pairs through which a given program passes. This can allow generating
-          exclusion lists by building a small program built in the same way as
-          your target application, which calls the functions you want to exclude
-          from the instrumentation.
-        </p>
-<p>For example, the following program can be instrumented to generate
-          an exclusion list for a selected number of single-precision
-          mathematics functions:
           </p>
+</div>
+<div class="sect4">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="idm6025"></a>14.2.2.1.2.&nbsp;Exclusion list generation</h5></div></div></div>
+<p>The <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
+            command-line option can help producing the complete list of
+            <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
+            pairs through which a given program passes. This can allow
+            generating exclusion lists by building a small program built in the
+            same way as your target application, which calls the functions you
+            want to exclude from the instrumentation.
+          </p>
+<p>For example, the following program can be instrumented to
+          generate an exclusion list for a selected number of single-precision
+            mathematics functions:
+            </p>
 <pre class="programlisting">
 #include &lt;math.h&gt;
 
@@ -372,13 +379,13 @@ int main () {
 } </pre>
 <p>
 
-          </p>
+            </p>
 <pre class="screen">
 $ gcc -O3 -o myprog myprog.c
 $ valgrind --tool=verrou --gen-exclude=libm-float.exclude
 $ cat libm-float.exclude</pre>
 <p>
-          </p>
+            </p>
 <pre class="screen">
 __ieee754_logf       /lib/libm-2.11.3.so
 logf                 /lib/libm-2.11.3.so
@@ -397,7 +404,18 @@ __kernel_sinf        /lib/libm-2.11.3.so
 __ieee754_rem_pio2f  /lib/libm-2.11.3.so
 cosf                 /lib/libm-2.11.3.so</pre>
 <p>
-        </p>
+          </p>
+</div>
+<div class="sect4">
+<div class="titlepage"><div><div><h5 class="title">
+<a name="idm6036"></a>14.2.2.1.3.&nbsp;Note on C++ and symbol name mangling</h5></div></div></div>
+<p>When debugging C++ programs, it is advised to also use
+            the <code class="option"><a class="xref" href="manual-core.html#opt.demangle">--demangle</a>=no</code> option in order
+            for C++ symbol names compared in their mangled form. Symbol names in
+            the exclusion list can still be demangled using an external program
+            such as <code class="computeroutput">c++filt</code>.
+          </p>
+</div>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
@@ -485,7 +503,7 @@ int main () {
       </p>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp77700464"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
+<a name="idm6077"></a>14.2.3.1.&nbsp;Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -528,7 +546,7 @@ int main () {
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp77526496"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
+<a name="idm6086"></a>14.2.3.2.&nbsp;Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -637,7 +655,7 @@ det2
 <a name="vr-manual.clo"></a>14.3.1.&nbsp;Command-line options</h3></div></div></div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp73059456"></a>14.3.1.1.&nbsp;General options</h4></div></div></div>
+<a name="idm6103"></a>14.3.1.1.&nbsp;General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -658,7 +676,7 @@ det2
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp80288032"></a>14.3.1.2.&nbsp;Perturbation of floating-point operations</h4></div></div></div>
+<a name="idm6117"></a>14.3.1.2.&nbsp;Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
@@ -698,7 +716,7 @@ det2
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp73033984"></a>14.3.1.3.&nbsp;Restriction of instrumentation scope</h4></div></div></div>
+<a name="idm6144"></a>14.3.1.3.&nbsp;Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
@@ -715,17 +733,19 @@ det2
 <dd><p>Symbols listed
                 in <code class="computeroutput">FILE</code> will be
                 left <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">uninstrumented</a>.
-            </p></dd>
+              </p></dd>
 <dt>
 <a name="vr-opt.gen-exclude"></a><span class="term"><code class="option">--gen-exclude=FILE</code></span>
 </dt>
 <dd>
 <p>Generate in <code class="computeroutput">FILE</code> a list of
-                all symbols encountered during program execution.</p>
+                all symbols encountered during program execution. This is useful
+                to build an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.2.2.1.&nbsp;Excluded symbols">exclusion
+                list</a>.</p>
 <p>In combination
               with <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>, only list
               symbols which were not already present in the provided exclusion
-                list.</p>
+              list.</p>
 <p>
                 WARNING: in order to generate a correct list, the whole binary
                 (including symbols listed in the list provided
@@ -736,6 +756,22 @@ det2
                 advised to avoid perturbating rounding-modes
                 using <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a>=nearest</code>.
               </p>
+</dd>
+<dt>
+<a name="vr-opt.gen-above"></a><span class="term"><code class="option">--gen-above=SYMNAME [default=main]</code></span>
+</dt>
+<dd>
+<p>When generating the list of encountered symbols, only
+              consider those that are
+              above <code class="computeroutput">SYMNAME</code> (i.e. which are
+              encountered in a call stack in
+              which <code class="computeroutput">SYMNAME</code> appears). For
+              example, <code class="option">--gen-above=Py_Main</code> is
+              useful to analyse Python programs.</p>
+<p>As a special case,
+              if <code class="computeroutput">SYMNAME</code> is left blank, output
+              all encountered symbols, regardless of their position in the call
+              tree.</p>
 </dd>
 <dt>
 <a name="vr-opt.source"></a><span class="term"><code class="option">--source=FILE</code></span>
@@ -806,7 +842,7 @@ det2
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp79905232"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
+<a name="idm6243"></a>14.3.3.&nbsp;Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2.&nbsp;Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
