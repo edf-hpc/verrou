@@ -174,6 +174,39 @@ public:
 
 
 
+template<class OP>
+class RoundingFarthest{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p) ;
+    OP::check(p,res);
+    const RealType error=OP::error(p,res);
+    if(error==0.){
+      return res;
+    }
+    if(error>0){
+      RealType newRes=nextAfter<RealType>(res);
+      RealType ulp(newRes-res);
+      if(2*error < ulp ){
+	return newRes;
+      }else{
+	return res;
+      }
+    }else{//error<0
+      RealType newRes=nextPrev<RealType>(res);
+      RealType ulp(res-newRes);
+      if(-2*error < ulp ){
+	return newRes;
+      }else{
+	return res;
+      }
+    }
+  }
+};
+
 
 template<class OP>
 class OpWithSelectedRoundingMode{
@@ -197,6 +230,8 @@ public:
       return RoundingRandom<OP>::apply (p);
     case VR_AVERAGE:
       return RoundingAverage<OP>::apply (p);
+    case VR_FARTHEST:
+      return RoundingFarthest<OP>::apply (p);
     }
     return 0;
   }

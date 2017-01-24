@@ -90,6 +90,8 @@ inline char const*const roundingModeName (vr_RoundingMode mode) {
     return "RANDOM";
   case VR_AVERAGE:
     return "AVERAGE";
+  case VR_FARTHEST:
+    return "FARTHEST";
   }
 
   return "undefined";

@@ -43,7 +43,8 @@ extern "C" {
     VR_DOWNWARD,
     VR_ZERO,
     VR_RANDOM, // Must be immediately after standard rounding modes
-    VR_AVERAGE
+    VR_AVERAGE,
+    VR_FARTHEST
   };
 
   void vr_fpOpsInit (enum vr_RoundingMode mode, unsigned int pid);
