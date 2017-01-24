@@ -57,7 +57,14 @@ static const char* vr_ppOp (Vr_Op op) {
     return "mAdd";
   case VR_OP_MSUB:
     return "mSub";
-
+  case VR_OP_CMP:
+    return "cmp";
+  case VR_OP_CONV:
+    return "conv";
+  case VR_OP_MAX:
+    return "max";
+  case VR_OP_MIN:
+    return "min";
   case VR_OP:
     break;
   }
@@ -69,6 +76,12 @@ static const char* vr_ppOp (Vr_Op op) {
 typedef enum {
   VR_PREC_FLT,  // Single
   VR_PREC_DBL,  // Double
+  VR_PREC_DBL_TO_FLT,
+  VR_PREC_FLT_TO_DBL,
+  VR_PREC_DBL_TO_INT,
+  VR_PREC_DBL_TO_SHT,
+  VR_PREC_FLT_TO_INT,
+  VR_PREC_FLT_TO_SHT,
   VR_PREC
 } Vr_Prec;
 
@@ -78,6 +91,18 @@ static const char* vr_ppPrec (Vr_Prec prec) {
     return "flt";
   case VR_PREC_DBL:
     return "dbl";
+  case VR_PREC_DBL_TO_FLT:
+    return "dbl=>flt";
+  case VR_PREC_FLT_TO_DBL:
+    return "flt=>dbl";
+  case VR_PREC_DBL_TO_INT:
+    return "dbl=>int";
+  case VR_PREC_FLT_TO_INT:
+    return "flt=>int";
+  case VR_PREC_DBL_TO_SHT:
+    return "dbl=>sht";
+  case VR_PREC_FLT_TO_SHT:
+    return "flt=>sht";
   case VR_PREC:
     break;
   }
@@ -205,7 +230,7 @@ void vr_ppOpCount (void) {
         }
 
         if (countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF] > 0) {
-          VG_(umsg)("  `- %6s       %15llu          %15llu      (%3u%%)\n",
+          VG_(umsg)("  `- %8s     %15llu          %15llu      (%3u%%)\n",
                     vr_ppPrec(prec),
                     countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF],
                     countPrec[VR_INSTR_ON],
@@ -823,6 +848,81 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       addStmtToIRSB (sb, stmt);
       break;
 
+    case Iop_CmpF64:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_CmpF32:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F32toF64:  /*                       F32 -> F64 */
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_FLT_TO_DBL, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F64toF32:
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F64toI64S: /* IRRoundingMode(I32) x F64 -> signed I64 */
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F64toI64U: /* IRRoundingMode(I32) x F64 -> unsigned I64 */
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F64toI32S: /* IRRoundingMode(I32) x F64 -> signed I32 */
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_F64toI32U: /* IRRoundingMode(I32) x F64 -> unsigned I32 */
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+      /******/
+    case Iop_Max32Fx4:
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Max32F0x4:
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_LLO);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Max64Fx2:
+        vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_FULL2);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Max64F0x2:
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_LLO);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+
+    case Iop_Min32Fx4:
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_FULL4);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Min32F0x4:
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_LLO);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Min64Fx2:
+        vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_FULL2);
+      addStmtToIRSB (sb, stmt);
+      break;
+    case Iop_Min64F0x2:
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_LLO);
+      addStmtToIRSB (sb, stmt);
+      break;
 
       //operation with 64bit register with 32bit rounding
     case Iop_AddF64r32:
@@ -877,10 +977,44 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_Mul32Fx8:
     case Iop_Div32Fx8:
 
+    case Iop_RoundF64toF64_NEAREST: /* frin */
+    case Iop_RoundF64toF64_NegINF:  /* frim */
+    case Iop_RoundF64toF64_PosINF:  /* frip */
+    case Iop_RoundF64toF64_ZERO:    /* friz */
 
-	//    case Iop_DivF64:
-      //    case Iop_Div64F0x2:
-      //    case Iop_Div64Fx2:
+    case Iop_F128toF64:  /* IRRoundingMode(I32) x F128 -> F64         */
+    case Iop_F128toF32:  /* IRRoundingMode(I32) x F128 -> F32         */
+    case Iop_F64toI16S: /* IRRoundingMode(I32) x F64 -> signed I16 */
+
+    case Iop_ReinterpF64asI64:
+     //    case Iop_ReinterpI64asF64:
+    case Iop_ReinterpF32asI32:
+      //    case Iop_ReinterpI32asF32:
+
+    case Iop_CmpF128:
+    case Iop_NegF64:
+    case Iop_AbsF64:
+    case Iop_NegF32:
+    case Iop_AbsF32:
+
+
+    case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
+    case Iop_CmpEQ64Fx2: case Iop_CmpLT64Fx2:
+    case Iop_CmpLE32Fx4: case Iop_CmpUN32Fx4:
+    case Iop_CmpLE64Fx2: case Iop_CmpUN64Fx2:
+    case Iop_CmpGT32Fx4: case Iop_CmpGE32Fx4:
+    case Iop_CmpEQ32F0x4: case Iop_CmpLT32F0x4:
+    case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
+    case Iop_CmpLE32F0x4: case Iop_CmpUN32F0x4:
+    case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
+
+
+    case Iop_PwMax32Fx4: case Iop_PwMin32Fx4:
+
+    case Iop_Abs64Fx2:
+    case Iop_Neg64Fx2:
+
+
       vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
 
     default:
@@ -995,7 +1129,7 @@ static void vr_post_clo_init(void)
      if(vr.instr_op[opIt]) someThingInstr=True;
    }
    if(!someThingInstr){
-     for(opIt=0; opIt< VR_OP ;opIt++){
+     for(opIt=0; opIt<  VR_OP_CMP ;opIt++){ // Instruction after VR_OP_CMP (included) are not instrumented
        vr.instr_op[opIt]=True;
      }
    }

@@ -72,8 +72,12 @@ typedef enum {
   VR_OP_DIV,    // Division
   VR_OP_MADD,   // FMA ADD
   VR_OP_MSUB,   // FMA SUB
+  VR_OP_CMP,    // Comparison
+  VR_OP_CONV,    // Conversion
+  VR_OP_MAX,    // Maximum
+  VR_OP_MIN,    // Minimum
   VR_OP
-} Vr_Op;
+} Vr_Op; //Warning : Operation after   VR_OP_CMP are not instrumented
 
 typedef struct Vr_Exclude_ Vr_Exclude;
 struct Vr_Exclude_ {
