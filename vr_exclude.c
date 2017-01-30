@@ -135,11 +135,17 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 }
 
 static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
-  HChar fnname[10];
+  // always return True when ancestor==""
+  // The semantic is that an empty ancestor means the top of the call tree.
+  if (ancestor[0] == 0) {
+    return True;
+  }
+
+  HChar fnname[VR_FNNAME_BUFSIZE];
   UInt i;
-  for (i = 1 ; i<nips ; ++i) {
-    VG_(get_fnname)(ips[i], fnname, 10);
-    if (VG_(strcmp)(fnname, ancestor) == 0) {
+  for (i = 0 ; i<nips ; ++i) {
+    VG_(get_fnname)(ips[i], fnname, VR_FNNAME_BUFSIZE);
+    if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) {
       return True;
     }
   }
@@ -148,7 +154,7 @@ static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
 }
 
 
-Bool vr_excludeIRSB (Vr_Exclude** list, Bool generate, HChar* fnname, HChar *objname) {
+Bool vr_excludeIRSB (HChar* fnname, HChar *objname) {
   Addr ips[256];
   UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
                                   ips, 256,
@@ -157,7 +163,10 @@ Bool vr_excludeIRSB (Vr_Exclude** list, Bool generate, HChar* fnname, HChar *obj
   Addr addr = ips[0];
 
   fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname, 255);
+  VG_(get_fnname)(addr, fnname, VR_FNNAME_BUFSIZE);
+  if (VG_(strlen)(fnname) == VR_FNNAME_BUFSIZE-1) {
+    VG_(umsg)("WARNING: Function name too long: %s\n", fnname);
+  }
 
   objname[0] = 0;
   VG_(get_objname)(addr, objname, 255);
@@ -174,17 +183,17 @@ Bool vr_excludeIRSB (Vr_Exclude** list, Bool generate, HChar* fnname, HChar *obj
 
 
   // Never exclude functions / objects unless they are explicitly listed
-  Vr_Exclude *exclude = vr_findExclude (*list, fnname, objname);
+  Vr_Exclude *exclude = vr_findExclude (vr.exclude, fnname, objname);
   if (exclude == NULL) {
-    if (generate && vr_aboveFunction("main", ips, nips)) {
-      *list = vr_addExclude (*list, fnname, objname);
+    if (vr.genExclude && vr_aboveFunction(vr.genAbove, ips, nips)) {
+      vr.exclude = vr_addExclude (vr.exclude, fnname, objname);
     }
     return False;
   }
 
 
   // Never exclude anything when generating the list
-  if (generate)
+  if (vr.genExclude)
     return False;
 
 

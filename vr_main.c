@@ -1044,9 +1044,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  HChar fnname[256];
+  HChar fnname[VR_FNNAME_BUFSIZE];
   HChar objname[256];
-  if (vr_excludeIRSB (&vr.exclude, vr.genExclude, fnname, objname))
+  if (vr_excludeIRSB (fnname, objname))
     return sbIn;
 
 
@@ -1104,6 +1104,7 @@ static void vr_fini(Int exitcode)
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
+  VG_(free)(vr.genAbove);
 }
 
 static void vr_post_clo_init(void)
@@ -1113,11 +1114,16 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
    vr_env_clo("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
+   vr_env_clo("VERROU_GEN_ABOVE",     "--gen-above");
    vr_env_clo("VERROU_SOURCE",        "--source");
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
 
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
+   }
+
+   if (vr.genAbove == NULL) {
+     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    }
 
    vr_fpOpsInit(vr.roundingMode, VG_(getpid)());

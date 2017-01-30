@@ -252,11 +252,12 @@ int main () {
           instrumentation is based on either the function (or rather symbol) name,
           the object name, or both.
         </para>
-        <para>
-          This can be done by providing an exclusion file via
-          the <option><xref linkend="vr-opt.exclude"/></option> command-line
-          option. The file should have the following format:
-          <itemizedlist>
+        <sect4><title>Exclusion files</title>
+          <para>
+            This can be done by providing an exclusion file via
+            the <option><xref linkend="vr-opt.exclude"/></option> command-line
+            option. The file should have the following format:
+            <itemizedlist>
             <listitem>one rule per line,</listitem>
             <listitem>each rule of the form <computeroutput>FNNAME
                 OBJNAME</computeroutput>,
@@ -267,48 +268,50 @@ int main () {
               to match anything. The two columns can be separated by any
               number of spaces and tabulations
               (<computeroutput>\t</computeroutput>)</listitem>
-          </itemizedlist>
-        </para>
-        <para>
-          When verrou finds a block of instructions (an IRSB, Intermediate
-          Representation SuperBlock in valgrind terminology) whose address
-          matches
-          the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-          specification, the whole chunk is left uninstrumented.
-        </para>
-        <para>
-          Here are a few examples of exclusion rules for mathematics functions:
-          <itemizedlist>
-            <listitem>exclude the whole <computeroutput>libm</computeroutput>
-              (beware that the path is the canonical
-              one; <computeroutput>readlink -f</computeroutput> can help finding
-              it):
-              <screen>*	/lib/libm-2.11.3.so</screen>
-            </listitem>
-            <listitem>exclude specific functions based on their names only (beware
-              to list all functions in which the program will pass; not only
-              top-level ones):
-              <screen>exp            *
+            </itemizedlist>
+          </para>
+          <para>
+            When verrou finds a block of instructions (an IRSB, Intermediate
+            Representation SuperBlock in valgrind terminology) whose address
+            matches
+            the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+            specification, the whole chunk is left uninstrumented.
+          </para>
+          <para>
+            Here are a few examples of exclusion rules for mathematics functions:
+            <itemizedlist>
+              <listitem>exclude the whole <computeroutput>libm</computeroutput>
+                (beware that the path is the canonical
+                one; <computeroutput>readlink -f</computeroutput> can help finding
+                it):
+                <screen>*	/lib/libm-2.11.3.so</screen>
+              </listitem>
+              <listitem>exclude specific functions based on their names only (beware
+                to list all functions in which the program will pass; not only
+                top-level ones):
+                <screen>exp            *
 __ieee754_exp  *
 __exp1         * </screen>
-            </listitem>
-            <listitem>exclude a specific function of a specific library:
-              <screen>exp  /lib/libm.so.6</screen>
-            </listitem>
-          </itemizedlist>
-        </para>
-        <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
-          command-line option can help producing the complete list of
-          <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-          pairs through which a given program passes. This can allow generating
-          exclusion lists by building a small program built in the same way as
-          your target application, which calls the functions you want to exclude
-          from the instrumentation.
-        </para>
-        <para>For example, the following program can be instrumented to generate
-          an exclusion list for a selected number of single-precision
-          mathematics functions:
-          <programlisting>
+              </listitem>
+              <listitem>exclude a specific function of a specific library:
+                <screen>exp  /lib/libm.so.6</screen>
+              </listitem>
+            </itemizedlist>
+          </para>
+        </sect4>
+        <sect4><title>Exclusion list generation</title>
+          <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
+            command-line option can help producing the complete list of
+            <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
+            pairs through which a given program passes. This can allow
+            generating exclusion lists by building a small program built in the
+            same way as your target application, which calls the functions you
+            want to exclude from the instrumentation.
+          </para>
+          <para>For example, the following program can be instrumented to
+          generate an exclusion list for a selected number of single-precision
+            mathematics functions:
+            <programlisting>
 #include &lt;math.h&gt;
 
 int main () {
@@ -318,11 +321,11 @@ int main () {
   return cosf(f) + sinf(f) + tanf(f) + atanf(f) + powf(f, 3.) + expf(f) + logf(f);
 } </programlisting>
 
-          <screen>
+            <screen>
 $ gcc -O3 -o myprog myprog.c
 $ valgrind --tool=verrou --gen-exclude=libm-float.exclude
 $ cat libm-float.exclude</screen>
-          <screen>
+            <screen>
 __ieee754_logf       /lib/libm-2.11.3.so
 logf                 /lib/libm-2.11.3.so
 fesetenv             /lib/libm-2.11.3.so
@@ -339,7 +342,17 @@ sinf                 /lib/libm-2.11.3.so
 __kernel_sinf        /lib/libm-2.11.3.so
 __ieee754_rem_pio2f  /lib/libm-2.11.3.so
 cosf                 /lib/libm-2.11.3.so</screen>
-        </para>
+          </para>
+        </sect4>
+        <sect4>
+          <title>Note on C++ and symbol name mangling</title>
+          <para>When debugging C++ programs, it is advised to also use
+            the <option><xref linkend="opt.demangle"/>=no</option> option in order
+            for C++ symbol names compared in their mangled form. Symbol names in
+            the exclusion list can still be demangled using an external program
+            such as <computeroutput>c++filt</computeroutput>.
+          </para>
+        </sect4>
       </sect3>
 
       <sect3 id="vr-manual.feat.source" xreflabel="Source code lines selection">
@@ -652,18 +665,48 @@ det2
             <listitem><para>Symbols listed
                 in <computeroutput>FILE</computeroutput> will be
                 left <link linkend="vr-manual.feat.exclude">uninstrumented</link>.
-            </para></listitem>
+              </para>
+            </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.gen-exclude" xreflabel="--gen-exclude">
             <term><option><![CDATA[--gen-exclude=FILE]]></option></term>
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> a list of
-                all symbols encountered during program execution.</para>
+                all symbols encountered during program execution. This is useful
+                to build an <link linkend="vr-manual.feat.exclude">exclusion
+                list</link>.</para>
               <para>In combination
               with <option><xref linkend="vr-opt.exclude"/></option>, only list
               symbols which were not already present in the provided exclusion
               list.</para>
+              <para>
+                WARNING: in order to generate a correct list, the whole binary
+                (including symbols listed in the list provided
+                using <option><xref linkend="vr-opt.exclude"/></option>) must be
+                instrumented. When using
+                both <option><xref linkend="vr-opt.gen-exclude"/></option>
+                and <option><xref linkend="vr-opt.exclude"/></option>, it is
+                advised to avoid perturbating rounding-modes
+                using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.gen-above" xreflabel="--gen-above">
+            <term><option><![CDATA[--gen-above=SYMNAME [default=main]]]></option></term>
+            <listitem>
+              <para>When generating the list of encountered symbols, only
+              consider those that are
+              above <computeroutput>SYMNAME</computeroutput> (i.e. which are
+              encountered in a call stack in
+              which <computeroutput>SYMNAME</computeroutput> appears). For
+              example, <option><![CDATA[--gen-above=Py_Main]]></option> is
+              useful to analyse Python programs.</para>
+              <para>As a special case,
+              if <computeroutput>SYMNAME</computeroutput> is left blank, output
+              all encountered symbols, regardless of their position in the call
+              tree.</para>
             </listitem>
           </varlistentry>
 

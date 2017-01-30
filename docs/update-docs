@@ -1,32 +1,53 @@
 #!/bin/bash
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
-cd ../..
+SRCDIR=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")"
+    cd ../..
+    pwd)
+echo "SRCDIR=${SRCDIR}"
+
+BUILDDIR="${PWD}"
+echo "BUILDDIR=${BUILDDIR}"
+
+INSTALLDIR="${BUILDDIR}/install"
+echo "INSTALLDIR=${INSTALLDIR}"
+
+HASH=$(cd ${SRCDIR}/verrou;
+       git rev-parse --short=14 HEAD)
+echo "HASH=${HASH}"
+
+echo "Press a key to continue (Ctrl+C to abort)"
+read
 
 # Build and install documentation
 make -C docs html-docs man-pages
 make install
-./verrou/docs/fix-encoding install/share/doc/valgrind/html/*.html
+${SRCDIR}/verrou/docs/fix-encoding ${INSTALLDIR}/share/doc/valgrind/html/*.html
+
 
 # Update usage string in source files
-./verrou/docs/update-vr-clo >verrou/vr_clo.txt
+${SRCDIR}/verrou/docs/update-vr-clo >${SRCDIR}/verrou/vr_clo.txt
 
 # Upload HTML documentation to github
 TMPDIR=$(mktemp -d)
-HASH=$(cd verrou;
-    git rev-parse --short=14 HEAD)
 (
     cd ${TMPDIR}
     git clone https://github.com/edf-hpc/verrou.git html
     cd html
     git checkout gh-pages
 )
-cp install/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
+cp ${INSTALLDIR}/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
 (
     cd ${TMPDIR}/html
     git add -u
     git status
-    echo "Updated documentation to ${HASH}" >../commit.msg
+    (
+        echo "Updated documentation to ${HASH}"
+        echo ""
+        echo "REMOVE THIS LINE"
+    ) >../commit.msg
+    git config user.name "François Févotte"
+    git config user.email "francois.fevotte@edf.fr"
     git commit -t ../commit.msg
     git push origin gh-pages
 )
