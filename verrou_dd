@@ -8,6 +8,8 @@ import md5
 import copy
 from valgrind import DD
 
+nbRUN=5
+
 def runCmd(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
     and error outputs to FNAME.out and FNAME.err respectively.
@@ -48,8 +50,8 @@ class DDvr(DD.DD):
     def __init__(self, prefix):
         DD.DD.__init__(self)
         self.cache_outcomes = False
-        self.prefix_ = prefix
-        self.ref_ = "%s/ref"%prefix
+        self.prefix_ = os.getcwd()+"/"+prefix
+        self.ref_ = "%s/ref"%self.prefix_
 
     def testName(self, deltas):
         return self.prefix_ + "/" + md5.new("".join(deltas)).hexdigest()
@@ -97,7 +99,7 @@ class DDsym(DDvr):
 
         genExcludeFile(self.ref_, dirname, deltas)
 
-        for run in xrange(1, 6):
+        for run in xrange(1, nbRUN+1):
             rundir = "%s/dd.run%i"%(dirname, run)
             prepareOutput(rundir)
 
@@ -173,7 +175,7 @@ class DDline(DDvr):
             for d in deltas:
                 f.write(d)
 
-        for run in xrange(1, 6):
+        for run in xrange(1, nbRUN+1):
             rundir = dirname + "/dd.run%i" % run
             os.mkdir(rundir)
             runCmd([self.run_, rundir],
