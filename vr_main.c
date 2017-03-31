@@ -992,10 +992,12 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       //    case Iop_ReinterpI32asF32:
 
     case Iop_CmpF128:
-    case Iop_NegF64:
-    case Iop_AbsF64:
-    case Iop_NegF32:
-    case Iop_AbsF32:
+
+    /* [FF] these should not generate any rounding error */
+    /* case Iop_NegF64: */
+    /* case Iop_AbsF64: */
+    /* case Iop_NegF32: */
+    /* case Iop_AbsF32: */
 
 
     case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
