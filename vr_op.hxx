@@ -33,7 +33,6 @@
 #pragma once
 
 
-
 template<class REALTYPE, int NB>
 struct vr_packArg{
   static const int nb= NB;
@@ -235,8 +234,7 @@ public:
     const RealType & c(p.args[2]);
     return vr_fma(a,b,c);
 #else
-    VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-    return 0.;
+    return 0./0.;
 #endif
   };
 

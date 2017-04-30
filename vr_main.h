@@ -138,20 +138,20 @@ typedef enum {
   VR_ERROR
 } Vr_ErrorKind;
 
-const HChar* vr_get_error_name (Error* err);
+const HChar* vr_get_error_name (const Error* err);
 Bool vr_recognised_suppression (const HChar* name, Supp* su);
-void vr_before_pp_Error (Error* err) ;
-void vr_pp_Error (Error* err);
-Bool vr_eq_Error (VgRes res, Error* e1, Error* e2);
-UInt vr_update_extra (Error* err);
-Bool vr_error_matches_suppression (Error* err, Supp* su);
+void vr_before_pp_Error (const Error* err) ;
+void vr_pp_Error (const Error* err);
+Bool vr_eq_Error (VgRes res, const Error* e1, const Error* e2);
+UInt vr_update_extra (const Error* err);
+Bool vr_error_matches_suppression (const Error* err, const Supp* su);
 Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBuf,
                                      Int* lineno, Supp* su);
-Bool vr_print_extra_suppression_info (Error* er,
+SizeT vr_print_extra_suppression_info (const Error* er,
                                       /*OUT*/HChar* buf, Int nBuf);
-Bool vr_print_extra_suppression_use (Supp* s,
+SizeT vr_print_extra_suppression_use (const Supp* s,
                                      /*OUT*/HChar* buf, Int nBuf);
-void vr_update_extra_suppression_use (Error* err, Supp* su);
+void vr_update_extra_suppression_use (const Error* err, const Supp* su);
 
 
 void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
@@ -163,14 +163,14 @@ void        vr_freeExcludeList (Vr_Exclude* list);
 void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
                                 const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
-Bool        vr_excludeIRSB(HChar* fnname, HChar* objname);
+Bool        vr_excludeIRSB(const HChar* fnname, const HChar* objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
 void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,
                                const HChar* fname);
 Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
 Bool vr_includeSource (Vr_IncludeSource** list, Bool generate,
-                       HChar* fnname, HChar* filename, UInt linenum);
+                       const HChar* fnname, const HChar* filename, UInt linenum);
 
 
 // ** vr_clo.c

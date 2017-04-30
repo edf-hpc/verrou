@@ -74,7 +74,7 @@ void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op) {
                           &extra);
 }
 
-static void vr_pp_ErrorOp (Error* err) {
+static void vr_pp_ErrorOp (const Error* err) {
   Vr_Error *extra = VG_(get_error_extra)(err);
 
   VG_(umsg)("%s: ", vr_get_error_name(err));
@@ -88,7 +88,7 @@ static void vr_pp_ErrorOp (Error* err) {
 
 // * Standard tools interface
 
-const HChar* vr_get_error_name (Error* err) {
+const HChar* vr_get_error_name (const Error* err) {
   return vr_error_name (VG_(get_error_kind)(err));
 }
 
@@ -108,9 +108,9 @@ Bool vr_recognised_suppression (const HChar* name, Supp* su) {
   }
 }
 
-void vr_before_pp_Error (Error* err) {}
+void vr_before_pp_Error (const Error* err) {}
 
-void vr_pp_Error (Error* err) {
+void vr_pp_Error (const Error* err) {
   switch (VG_(get_error_kind)(err)) {
   case VR_ERROR_UNCOUNTED:
   case VR_ERROR_SCALAR:
@@ -119,15 +119,15 @@ void vr_pp_Error (Error* err) {
   }
 }
 
-Bool vr_eq_Error (VgRes res, Error* e1, Error* e2) {
+Bool vr_eq_Error (VgRes res, const Error* e1, const Error* e2) {
   return VG_(get_error_address)(e1) == VG_(get_error_address)(e2);
 }
 
-UInt vr_update_extra (Error* err) {
+UInt vr_update_extra (const Error* err) {
   return sizeof(Vr_Error);
 }
 
-Bool vr_error_matches_suppression (Error* err, Supp* su) {
+Bool vr_error_matches_suppression (const Error* err, const Supp* su) {
   if (VG_(get_error_kind)(err) != VG_(get_supp_kind)(su)) {
     return False;
   }
@@ -146,15 +146,16 @@ Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
   return True;
 }
 
-Bool vr_print_extra_suppression_info (Error* err,
+SizeT vr_print_extra_suppression_info (const Error* err,
                                       /*OUT*/HChar* buf, Int nBuf) {
-  VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
-  return True;
+  HChar* res=VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
+  SizeT len=VG_(strlen)(res);
+  return len ;
 }
 
-Bool vr_print_extra_suppression_use (Supp* su,
+SizeT vr_print_extra_suppression_use (const Supp* su,
                                      /*OUT*/HChar* buf, Int nBuf) {
-  return False;
+  return (SizeT)0; //False
 }
 
-void vr_update_extra_suppression_use (Error* err, Supp* su) {}
+void vr_update_extra_suppression_use (const Error* err, const Supp* su) {}

@@ -33,7 +33,7 @@
 
 #include "vr_main.h"
 
-static Vr_Exclude* vr_addExclude (Vr_Exclude* list, HChar * fnname, HChar * objname) {
+static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
   cell->objname = VG_(strdup)("vr.addExclude.3", objname);
@@ -42,7 +42,7 @@ static Vr_Exclude* vr_addExclude (Vr_Exclude* list, HChar * fnname, HChar * objn
   return cell;
 }
 
-static Vr_Exclude * vr_findExclude (Vr_Exclude* list, HChar * fnname, HChar * objname) {
+static Vr_Exclude * vr_findExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
   Vr_Exclude * exclude;
   for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
     if (exclude->fnname[0] != '*'
@@ -141,10 +141,10 @@ static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
     return True;
   }
 
-  HChar fnname[VR_FNNAME_BUFSIZE];
+  const HChar* fnname;
   UInt i;
   for (i = 0 ; i<nips ; ++i) {
-    VG_(get_fnname)(ips[i], fnname, VR_FNNAME_BUFSIZE);
+    VG_(get_fnname)(ips[i], &fnname);
     if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) {
       return True;
     }
@@ -154,7 +154,7 @@ static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
 }
 
 
-Bool vr_excludeIRSB (HChar* fnname, HChar *objname) {
+Bool vr_excludeIRSB (const HChar* fnname, const HChar *objname) {
   Addr ips[256];
   UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
                                   ips, 256,
@@ -162,14 +162,14 @@ Bool vr_excludeIRSB (HChar* fnname, HChar *objname) {
                                   0);
   Addr addr = ips[0];
 
-  fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname, VR_FNNAME_BUFSIZE);
+  //fnname[0] = 0;
+  VG_(get_fnname)(addr, &fnname);
   if (VG_(strlen)(fnname) == VR_FNNAME_BUFSIZE-1) {
     VG_(umsg)("WARNING: Function name too long: %s\n", fnname);
   }
 
-  objname[0] = 0;
-  VG_(get_objname)(addr, objname, 255);
+  //  objname[0] = 0;
+  VG_(get_objname)(addr, &objname);
 
 
   // Never exclude unnamed functions
@@ -211,8 +211,8 @@ Bool vr_excludeIRSB (HChar* fnname, HChar *objname) {
 
 
 
-static Vr_IncludeSource* vr_addIncludeSource (Vr_IncludeSource* list, HChar* fnname,
-                                              HChar * filename, UInt linenum) {
+static Vr_IncludeSource* vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
+                                              const HChar * filename, UInt linenum) {
   Vr_IncludeSource * cell = VG_(malloc)("vr.addIncludeSource.1", sizeof(Vr_IncludeSource));
   cell->fnname   = VG_(strdup)("vr.addIncludeSource.2", fnname);
   cell->filename = VG_(strdup)("vr.addIncludeSource.3", filename);
@@ -221,7 +221,7 @@ static Vr_IncludeSource* vr_addIncludeSource (Vr_IncludeSource* list, HChar* fnn
   return cell;
 }
 
-static Vr_IncludeSource * vr_findIncludeSource (Vr_IncludeSource* list, HChar * filename, UInt linenum) {
+static Vr_IncludeSource * vr_findIncludeSource (Vr_IncludeSource* list, const HChar * filename, UInt linenum) {
   Vr_IncludeSource * cell;
   for (cell = list ; cell != NULL ; cell = cell->next) {
     if (VG_(strcmp)(cell->filename, filename) != 0)
@@ -340,7 +340,7 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
   return list;
 }
 
-Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, HChar* fnname, HChar* filename, UInt linenum) {
+Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, const HChar* fnname, const HChar* filename, UInt linenum) {
   if (generate) {
     if (filename[0] != 0
         && vr_findIncludeSource(*list, filename, linenum) == NULL) {

@@ -64,8 +64,8 @@ static void vr_deterministic_section_name (unsigned int level,
                                            unsigned int len)
 {
   Addr ips[8];
-  HChar fnname[256];
-  HChar filename[256];
+  const HChar* fnname;
+  const HChar* filename;
   UInt  linenum;
   Addr  addr;
 
@@ -75,13 +75,12 @@ static void vr_deterministic_section_name (unsigned int level,
                       0);
   addr = ips[level];
 
-  fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname, 256);
+  //fnname[0] = 0;
+  VG_(get_fnname)(addr, &fnname);
 
-  filename[0] = 0;
+  //  filename[0] = 0;
   VG_(get_filename_linenum)(addr,
-                            filename, 256,
-                            NULL,     0,
+                            &filename,
                             NULL,
                             &linenum);
   VG_(snprintf)(name, len,
