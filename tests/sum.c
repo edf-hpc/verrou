@@ -47,7 +47,7 @@ int main (int argc, char **argv) {
   else if (!strcmp (argv[1], "3")) {
 
     // res should be close to ref
-    float threshold = 0.2*N*epsilon;
+    float threshold = 0.2f * (float)N * epsilon;
     if (fabs(res-ref) < threshold) {
       printf ("OK\n");
     } else {

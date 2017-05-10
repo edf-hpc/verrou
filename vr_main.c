@@ -213,7 +213,7 @@ void vr_ppOpCount (void) {
     }
 
     if (countOp[VR_INSTR_ON] + countOp[VR_INSTR_OFF] > 0) {
-      VG_(umsg)(" %6s       %15llu          %15llu          (%3u%%)\n",
+      VG_(umsg)(" %-6s       %15llu          %15llu          (%3u%%)\n",
                 vr_ppOp(op),
                 countOp[VR_INSTR_ON] + countOp[VR_INSTR_OFF],
                 countOp[VR_INSTR_ON],
@@ -230,7 +230,7 @@ void vr_ppOpCount (void) {
         }
 
         if (countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF] > 0) {
-          VG_(umsg)("  `- %8s     %15llu          %15llu      (%3u%%)\n",
+          VG_(umsg)("  `- %-8s     %15llu          %15llu      (%3u%%)\n",
                     vr_ppPrec(prec),
                     countPrec[VR_INSTR_ON] + countPrec[VR_INSTR_OFF],
                     countPrec[VR_INSTR_ON],
@@ -239,7 +239,7 @@ void vr_ppOpCount (void) {
           for (vec = 0 ; vec<VR_VEC ; ++vec) {
             ULong * count = vr_opCount[op][prec][vec];
             if (count[VR_INSTR_ON] + count[VR_INSTR_OFF] > 0) {
-              VG_(umsg)("      `- %6s       %15llu          %15llu  (%3u%%)\n",
+              VG_(umsg)("      `- %-6s       %15llu          %15llu  (%3u%%)\n",
                         vr_ppVec(vec),
                         vr_opCount[op][prec][vec][VR_INSTR_ON] + vr_opCount[op][prec][vec][VR_INSTR_OFF],
                         vr_opCount[op][prec][vec][VR_INSTR_ON],

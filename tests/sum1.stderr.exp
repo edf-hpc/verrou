@@ -1,5 +1,5 @@
 Verrou, Check floating-point rounding errors
-Copyright (C) 2014, F. Fevotte & B. Lathuiliere.
+Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
 
 Simulating NEAREST rounding mode
 Instrumented operations :
@@ -9,6 +9,10 @@ Instrumented operations :
 	div : yes
 	mAdd : yes
 	mSub : yes
+	cmp : no
+	conv : no
+	max : no
+	min : no
 Instrumented scalar operations : no
 
  ---------------------------------------------------------------------
@@ -24,3 +28,14 @@ Instrumented scalar operations : no
   `- flt                        1                        0      (  0%)
       `- llo                        1                        0  (  0%)
  ---------------------------------------------------------------------
+ cmp                        2                        0          (  0%)
+  `- dbl                        2                        0      (  0%)
+      `- scal                       2                        0  (  0%)
+ ---------------------------------------------------------------------
+ conv                       5                        0          (  0%)
+  `- dbl=>flt                   1                        0      (  0%)
+      `- scal                       1                        0  (  0%)
+  `- flt=>dbl                   4                        0      (  0%)
+      `- scal                       4                        0  (  0%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
