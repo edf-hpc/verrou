@@ -38,15 +38,18 @@
 #include "vr_fpOps.h"
 #include "vr_fma.h"
 
-#include "pub_tool_vki.h"
+//#include "pub_tool_vki.h"
 
 extern "C" {
 #include <stdio.h>
-#include "pub_tool_libcprint.h"
-#include "pub_tool_libcfile.h"
-#include "pub_tool_libcassert.h"
 
+#include "pub_tool_libcprint.h"
+
+  //#include "pub_tool_libcassert.h"
 }
+
+#include "pub_tool_basics.h"
+#include "pub_tool_libcfile.h"
 
 #include "vr_fpRepr.hxx"
 #include "vr_rand.hxx"
@@ -69,14 +72,14 @@ vr_RoundingMode ROUNDINGMODE;
 const int CHECK_IP = 0;
 const int CHECK_C  = 0;
 
-int vr_outFile;
+VgFile * vr_outFile;
 
 unsigned int vr_seed;
 vrRand vr_rand;
 
 
 // * Operation implementation
-inline char const*const roundingModeName (vr_RoundingMode mode) {
+inline const HChar*  roundingModeName (vr_RoundingMode mode) {
   switch (mode) {
   case VR_NEAREST:
     return "NEAREST";
@@ -113,10 +116,8 @@ void checkInsufficientPrecision (const REAL & a, const REAL & b) {
   const int n = storedBits(a);
   const int dp = 1+emax-emin-n;
 
-  char s[256];
   if (dp>0) {
-    const int l = VG_(sprintf)(s, "IP %d\n", dp);
-    VG_(write)(vr_outFile, s, l);
+    VG_(fprintf)(vr_outFile, "IP %d\n", dp);
   }
 }
 
@@ -132,10 +133,8 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   const int emax = ea>eb ? ea : eb;
   const int cancelled = emax - er;
 
-  char s[256];
   if (cancelled >= storedBits(a)) {
-    const int l = VG_(sprintf)(s, "C  %d\n", cancelled);
-    VG_(write)(vr_outFile, s, l);
+    VG_(fprintf)(vr_outFile, "C  %d\n", cancelled);
   }
 }
 
@@ -155,7 +154,7 @@ void vr_fpOpsInit (vr_RoundingMode mode, unsigned int pid) {
   VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 
   if (CHECK_IP != 0) {
-    vr_outFile = VG_(fd_open)("vr.log",
+    vr_outFile = VG_(fopen)("vr.log",
 			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
   }
@@ -173,8 +172,10 @@ void vr_endInstrumentation(){
 
 
 void vr_fpOpsFini (void) {
-  VG_(close)(vr_outFile);
-}
+  if (CHECK_IP != 0) {
+    VG_(fclose)(vr_outFile);
+  }
+  }
 
 void vr_fpOpsSeed (unsigned int seed) {
   vr_seed = vr_rand.getRandomInt();

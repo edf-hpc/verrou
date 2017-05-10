@@ -43,7 +43,7 @@ Vr_State vr;
 // *** Operation type
 
 
-static const char* vr_ppOp (Vr_Op op) {
+static const HChar* vr_ppOp (Vr_Op op) {
   switch (op) {
   case VR_OP_ADD:
     return "add";
@@ -85,7 +85,7 @@ typedef enum {
   VR_PREC
 } Vr_Prec;
 
-static const char* vr_ppPrec (Vr_Prec prec) {
+static const HChar* vr_ppPrec (Vr_Prec prec) {
   switch (prec) {
   case VR_PREC_FLT:
     return "flt";
@@ -119,7 +119,7 @@ typedef enum {
   VR_VEC
 } Vr_Vec;
 
-static const char* vr_ppVec (Vr_Vec vec) {
+static const HChar* vr_ppVec (Vr_Vec vec) {
   switch (vec) {
   case VR_VEC_SCAL:
     return "scal";
@@ -138,11 +138,11 @@ static const char* vr_ppVec (Vr_Vec vec) {
 
 
 static ULong vr_opCount[VR_OP][VR_PREC][VR_VEC][VR_INSTR];
-static VG_REGPARM(2) void vr_incOpCount (ULong* counter, Long increment) {
+static VG_REGPARM(2) void vr_incOpCount (ULong* counter, SizeT increment) {
   counter[vr.instrument] += increment;
 }
 
-static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, Long increment) {
+static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT increment) {
   counter[VR_INSTR_OFF] += increment;
 }
 
@@ -153,7 +153,7 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
 
   IRExpr** argv;
   IRDirty* di;
-  int increment = 1;
+  SizeT increment = 1;
   if (vec == VR_VEC_FULL2) {
     increment =2;
   }
@@ -451,7 +451,7 @@ static IRExpr* vr_F32toI64 (IRSB* sb, IRExpr* expr) {
 /* Get the operation from an expression
    return False if the expression is not an operation
  */
-static Bool vr_getOp (IRExpr * expr, /*OUT*/ IROp * op) {
+static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
   switch (expr->tag) {
   case Iex_Unop:
     *op = expr->Iex.Unop.op;
@@ -1013,11 +1013,9 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_PwMax32Fx4: case Iop_PwMin32Fx4:
 
-    case Iop_Abs64Fx2:
-    case Iop_Neg64Fx2:
-
-
       vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
+      //  case Iop_Abs64Fx2:
+      //  case Iop_Neg64Fx2:
 
     default:
       //      ppIRStmt (stmt);
@@ -1041,9 +1039,9 @@ static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
                       IRSB* sbIn,
-                      VexGuestLayout* layout,
-                      VexGuestExtents* vge,
-                      VexArchInfo* archinfo_host,
+                      const VexGuestLayout* layout,
+                      const VexGuestExtents* vge,
+                      const VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
   HChar fnname[VR_FNNAME_BUFSIZE];
@@ -1060,16 +1058,16 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      HChar filename[256];
+      //      HChar filename[256];
+      const HChar *filename;
       UInt  linenum;
       Addr  addr;
 
       addr = st->Ist.IMark.addr;
 
-      filename[0] = 0;
+      //      filename[0] = 0;
       VG_(get_filename_linenum)(addr,
-                                filename, 256,
-                                NULL,     0,
+                                &filename,
                                 NULL,
                                 &linenum);
       includeSource = vr_includeSource (&vr.includeSource, vr.genIncludeSource, fnname, filename, linenum);
@@ -1163,6 +1161,14 @@ static void vr_pre_clo_init(void)
 
    VG_(details_avg_translation_sizeB) ( 275 );
 
+
+   VG_(clo_vex_control).iropt_register_updates_default
+     = VG_(clo_px_file_backed)
+     = VexRegUpdSpAtMemAccess; // overridable by the user.
+
+   VG_(clo_vex_control).iropt_unroll_thresh = 0;   // cannot be overriden.
+   VG_(clo_vex_control).guest_chase_thresh = 0;    // cannot be overriden.
+
    VG_(basic_tool_funcs)        (vr_post_clo_init,
                                  vr_instrument,
                                  vr_fini);
@@ -1176,7 +1182,7 @@ static void vr_pre_clo_init(void)
    VG_(needs_tool_errors)(vr_eq_Error,
                           vr_before_pp_Error,
                           vr_pp_Error,
-                          /*show_ThreadIDs_for_errors*/False,
+			  False,                          //show_ThreadIDs_for_errors
                           vr_update_extra,
                           vr_recognised_suppression,
                           vr_read_extra_suppression_info,

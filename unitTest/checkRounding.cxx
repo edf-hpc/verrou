@@ -353,14 +353,14 @@ int main(int argc, char** argv){
     test5<RealType> t5; t5.run();
   }
 
-    {
+  /*    {
     typedef long double RealType;
     test1<RealType> t1; t1.run();
     test2<RealType> t2; t2.run();
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();
     //test5<RealType> t5; t5.run();
-    }
+    }*/
 
 
   return EXIT_SUCCESS;

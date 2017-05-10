@@ -4,8 +4,8 @@
 
 Fetch valgrind's sources:
 
-    svn co svn://svn.valgrind.org/valgrind/tags/VALGRIND_3_10_1 valgrind
-
+    #svn co svn://svn.valgrind.org/valgrind/tags/VALGRIND_3_10_1 valgrind
+    svn co svn://svn.valgrind.org/valgrind/trunk valgrind
 
 Add verrou's sources to it:
 

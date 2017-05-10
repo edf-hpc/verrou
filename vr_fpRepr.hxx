@@ -65,7 +65,7 @@ public:
   //
   // x: floating point value
   static inline int exponentField (const Real & x) {
-    const BitField *xx = (BitField*)(&x);
+    const BitField *xx = (const BitField*)(&x);
     return bitrange<MANT, EXP> (xx);
   }
 

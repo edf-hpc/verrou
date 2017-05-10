@@ -72,7 +72,7 @@ class cmdPrepare:
             if rounding=="memcheck":
                 cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
             else:
-                cmd=self.valgrindPath + " --tool=verrou --verrou-verbose=no --rounding-mode=" + rounding+ " " +self.execPath +" valgrind"
+                cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --rounding-mode=" + rounding+ " " +self.execPath +" valgrind"
 
         return runCmd(cmd)
         # print cmd
@@ -375,7 +375,7 @@ if __name__=='__main__':
             
     # printRes(allResult[("fenv" ,"toward_zero")])
     # printRes(allResult[("valgrind" ,"toward_zero")])
-    typeTab=["<double>","<float>","<long double>"]
+    typeTab=["<double>","<float>"]#,"<long double>"]
 
     eCount=errorCounter()
 
