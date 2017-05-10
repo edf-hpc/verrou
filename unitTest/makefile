@@ -2,8 +2,8 @@ SOURCE=checkRounding.cxx
 EXEC1=checkRounding
 EXEC2=checkRoundingNative
 
-VALGRINDPATH=$(shell ../../config.status --config | sed "s/.*--prefix=//" | sed "s/'//")
-FLAGS +=-I$(VALGRINDPATH)/include/valgrind
+export INSTALLPATH = $(shell bash installpath)
+FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
 
 FLAGS1 = $(FLAGS) -mfpmath=sse

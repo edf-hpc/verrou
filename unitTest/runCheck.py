@@ -59,7 +59,7 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
 
 class cmdPrepare:
     def __init__(self,arg):
-        self.valgrindPath=self.getValgrindPath()
+        self.valgrindPath=os.path.join(os.environ["INSTALLPATH"], "bin", "valgrind")
         self.execPath=arg
     
     def run(self,env="fenv", rounding="nearest"):
@@ -85,16 +85,6 @@ class cmdPrepare:
             return True
         print "Failure in checkRounding"
         sys.exit(-1)
-        
-    
-    def getValgrindPath(self):
-        (res,err)=runCmd("../../config.status --version", printCwd=False)
-        for line in res:
-            if "--prefix" in line:
-                m = re.search(".*'--prefix=(.*)'.*", line)
-                prefix=m.group(1)   
-                return os.path.join(prefix, "bin", "valgrind")
-        return None
 
 
 

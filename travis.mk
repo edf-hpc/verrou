@@ -26,3 +26,6 @@ check:
 check-error:
 	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
 	@false
+
+unit-test:
+	cd ../valgrind+verrou/verrou/unitTest && make

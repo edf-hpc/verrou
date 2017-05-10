@@ -1,0 +1,3 @@
+#!/bin/bash
+
+source ../env.sh; readlink -f $(dirname $(which valgrind))/..
