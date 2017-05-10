@@ -1,4 +1,6 @@
 language: cpp
+dist: trusty
+sudo: false
 env:
   - VALGRIND_VERSION=tags/VALGRIND_3_12_0
   - VALGRIND_VERSION=trunk
