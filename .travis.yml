@@ -1,7 +1,10 @@
 language: cpp
 env:
-  - VALGRIND_VERSION=tags/VALGRIND_3_12_0/
+  - VALGRIND_VERSION=tags/VALGRIND_3_12_0
   - VALGRIND_VERSION=trunk
+matrix:
+  allow_failures:
+    - env: VALGRIND_VERSION=trunk
 install:
   - make -f travis.mk download-valgrind
   - make -f travis.mk patch-valgrind
