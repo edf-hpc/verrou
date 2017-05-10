@@ -11,14 +11,17 @@ float compute () {
 }
 
 int main () {
-  printf ("%f\n", compute ());
+  if (compute() == (float)4950.)
+    printf ("OK\n");
 
   // Uninstrumented part
   VERROU_STOP_INSTRUMENTATION;
-  printf ("%f\n", compute ());
+  if (compute() == (float)4950.)
+    printf ("OK\n");
   VERROU_START_INSTRUMENTATION;
 
-  printf ("%f\n", compute ());
+  if (compute() == (float)4950.)
+    printf ("OK\n");
 
   return RUNNING_ON_VALGRIND;
 }

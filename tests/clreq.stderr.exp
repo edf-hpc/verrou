@@ -28,10 +28,10 @@ Instrumented scalar operations : no
   `- dbl                        6                        0      (  0%)
       `- scal                       6                        0  (  0%)
  ---------------------------------------------------------------------
- conv                     303                        0          (  0%)
+ conv                     312                        0          (  0%)
   `- dbl=>flt                 300                        0      (  0%)
       `- scal                     300                        0  (  0%)
-  `- flt=>dbl                   3                        0      (  0%)
-      `- scal                       3                        0  (  0%)
+  `- flt=>dbl                  12                        0      (  0%)
+      `- scal                      12                        0  (  0%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
