@@ -1,21 +1,29 @@
-# Installation
+# Verrou [![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou)
 
-## Get the sources
+Verrou helps you look for floating-point round-off errors in programs. It
+implements a stochastic floating-point arithmetic based on random rounding: all
+floating-point operations are perturbed by randomly switching rounding
+modes. This can be seen as an asynchronous variant of the CESTAC method, or a
+subset of Monte Carlo Arithmetic, performing only output randomization through
+random rounding.
+
+## Installation
+
+### Get the sources
 
 Fetch valgrind's sources:
 
-    #svn co svn://svn.valgrind.org/valgrind/tags/VALGRIND_3_10_1 valgrind
-    svn co svn://svn.valgrind.org/valgrind/trunk valgrind
+    svn co svn://svn.valgrind.org/valgrind/tags/VALGRIND_3_12_0 valgrind
 
 Add verrou's sources to it:
 
     cd valgrind
-    git clone https://github.com/edf-hpc/verrou.git verrou
+    git clone --branch=valgrind-update https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
 
 
-## Configure and build
+### Configure and build
 
 Configure valgrind:
 
@@ -28,7 +36,7 @@ Build and install:
     make install
 
 
-## Test (optional)
+### Test (optional)
 
 Build the tests:
 
@@ -43,7 +51,7 @@ Build the tests:
     perl tests/vg_regtest verrou
 
 
-# Documentation
+## Documentation
 
 The documentation for verrou is available as a
 [chapter in valgrind's manual](//edf-hpc.github.com/verrou/vr-manual.html).
