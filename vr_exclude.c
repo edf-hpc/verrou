@@ -154,7 +154,7 @@ static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
 }
 
 
-Bool vr_excludeIRSB (const HChar* fnname, const HChar *objname) {
+Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
   Addr ips[256];
   UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
                                   ips, 256,
@@ -163,30 +163,30 @@ Bool vr_excludeIRSB (const HChar* fnname, const HChar *objname) {
   Addr addr = ips[0];
 
   //fnname[0] = 0;
-  VG_(get_fnname)(addr, &fnname);
-  if (VG_(strlen)(fnname) == VR_FNNAME_BUFSIZE-1) {
-    VG_(umsg)("WARNING: Function name too long: %s\n", fnname);
+  VG_(get_fnname)(addr, fnname);
+  if (VG_(strlen)(*fnname) == VR_FNNAME_BUFSIZE-1) {
+    VG_(umsg)("WARNING: Function name too long: %s\n", *fnname);
   }
 
   //  objname[0] = 0;
-  VG_(get_objname)(addr, &objname);
+  VG_(get_objname)(addr, objname);
 
 
   // Never exclude unnamed functions
-  if (fnname[0] == 0)
+  if (**fnname == 0)
     return False;
 
   // Never exclude unnamed objects (maybe paranoia... does it even exist?)
-  if (objname[0] == 0) {
+  if (**objname == 0) {
     return False;
   }
 
 
   // Never exclude functions / objects unless they are explicitly listed
-  Vr_Exclude *exclude = vr_findExclude (vr.exclude, fnname, objname);
+  Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnname, *objname);
   if (exclude == NULL) {
     if (vr.genExclude && vr_aboveFunction(vr.genAbove, ips, nips)) {
-      vr.exclude = vr_addExclude (vr.exclude, fnname, objname);
+      vr.exclude = vr_addExclude (vr.exclude, *fnname, *objname);
     }
     return False;
   }
@@ -213,6 +213,7 @@ Bool vr_excludeIRSB (const HChar* fnname, const HChar *objname) {
 
 static Vr_IncludeSource* vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
                                               const HChar * filename, UInt linenum) {
+  VG_(umsg)("AddIncludeSource %s %d %s\n", filename, linenum, fnname);
   Vr_IncludeSource * cell = VG_(malloc)("vr.addIncludeSource.1", sizeof(Vr_IncludeSource));
   cell->fnname   = VG_(strdup)("vr.addIncludeSource.2", fnname);
   cell->filename = VG_(strdup)("vr.addIncludeSource.3", filename);

@@ -163,7 +163,7 @@ void        vr_freeExcludeList (Vr_Exclude* list);
 void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
                                 const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
-Bool        vr_excludeIRSB(const HChar* fnname, const HChar* objname);
+Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
 void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,

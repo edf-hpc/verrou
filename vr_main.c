@@ -1044,9 +1044,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       const VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  HChar fnname[VR_FNNAME_BUFSIZE];
-  HChar objname[256];
-  if (vr_excludeIRSB (fnname, objname))
+  const HChar * fnname;
+  const HChar * objname;
+  if (vr_excludeIRSB (&fnname, &objname))
     return sbIn;
 
 
