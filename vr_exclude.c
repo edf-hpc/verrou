@@ -213,7 +213,6 @@ Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
 
 static Vr_IncludeSource* vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
                                               const HChar * filename, UInt linenum) {
-  VG_(umsg)("AddIncludeSource %s %d %s\n", filename, linenum, fnname);
   Vr_IncludeSource * cell = VG_(malloc)("vr.addIncludeSource.1", sizeof(Vr_IncludeSource));
   cell->fnname   = VG_(strdup)("vr.addIncludeSource.2", fnname);
   cell->filename = VG_(strdup)("vr.addIncludeSource.3", filename);
