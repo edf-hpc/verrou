@@ -8,7 +8,12 @@ import md5
 import copy
 from valgrind import DD
 
+
 nbRUN=5
+try:
+    nbRUN = int(os.environ["VERROU_DD_NRUNS"])
+except:
+    pass
 
 def runCmd(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -109,7 +114,7 @@ class DDsym(DDvr):
             retval = runCmd([self.compare_, self.ref_, rundir],
                             "%s/dd.compare"%rundir)
             if retval != 0:
-                print "FAIL"
+                print "FAIL(%d)" % run
                 return self.FAIL
 
         with open("%s/dd.pass"%dirname, "w") as f:
@@ -184,7 +189,7 @@ class DDline(DDvr):
             retval = runCmd([self.compare_, self.ref_, rundir],
                             "%s/dd.compare"%rundir)
             if retval != 0:
-                print "FAIL"
+                print "FAIL(%d)" % run
                 return self.FAIL
 
         with open("%s/dd.pass"%dirname, "w") as f:

@@ -40,6 +40,8 @@
 #
 # Andreas Zeller
 
+import sys
+import os
 
 # Start with some helpers.
 class OutcomeCache:
@@ -621,7 +623,12 @@ class DD:
 	while 1:
             tc = self.test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
-                print "WARNING: assertion error: test([all deltas]) == PASS"
+                if "VERROU_DD_UNSAFE" in os.environ:
+                    print "WARNING: test([all deltas]) == PASS"
+                else:
+                    print "ERROR: test([all deltas]) == PASS"
+                    sys.exit(1)
+
 
             if n > len(c):
                 # No further minimizing
