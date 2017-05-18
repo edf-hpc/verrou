@@ -7,6 +7,12 @@ modes. This can be seen as an asynchronous variant of the CESTAC method, or a
 subset of Monte Carlo Arithmetic, performing only output randomization through
 random rounding.
 
+**NB:** This is the *development* version of Verrou. It is the version to
+install on relatively recent systems. A more stable version (but only supporting
+older systems) can be found in
+the [`master`](https://github.com/edf-hpc/verrou/) branch.
+
+
 ## Installation
 
 ### Get the sources
@@ -38,17 +44,25 @@ Build and install:
 
 ### Test (optional)
 
-Build the tests:
+#### General tests
+
+You can test the whole platform:
 
     make check
-
-... and run them:
-
-    # run all tests:
     perl tests/vg_regtest --all
+    
+or only verrou:
 
-    # or test only verrou:
+    make -C tests check
+    make -C verrou check
     perl tests/vg_regtest verrou
+    
+    
+#### Specific tests
+
+These tests are more closely related to the arithmetic part in Verrou:
+
+    make -C verrou/unitTest
 
 
 ## Documentation
