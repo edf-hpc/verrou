@@ -49,7 +49,7 @@ public:
    };
 
   inline void setTimeSeed(unsigned int pid){
-    unsigned int seed=time(NULL) + pid;
+    unsigned int seed=/* time(NULL) + */ pid;
     VG_(umsg)("First seed : %u\n",seed);
     setSeed(seed);
   };
