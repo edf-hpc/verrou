@@ -7,6 +7,13 @@ modes. This can be seen as an asynchronous variant of the CESTAC method, or a
 subset of Monte Carlo Arithmetic, performing only output randomization through
 random rounding.
 
+**NB:** This is the *development* version of Verrou, currently based on the
+latest stable release of Valgrind, v3.12.0.
+
+For more stable versions, please consult the list of
+[released versions](https://github.com/edf-hpc/verrou/releases).
+
+
 ## Installation
 
 ### Get the sources
@@ -30,25 +37,45 @@ Configure valgrind:
     ./autogen.sh
     ./configure --enable-only64bit --prefix=PREFIX
 
+(you can also add the `--enable-verrou-fma=yes` flag to the configuration above
+if your system supports FMA instructions)
+
+
 Build and install:
 
     make
     make install
 
 
+### Load the environment
+
+In order to actually use Verrou, you must load the correct environment. This can
+be done using:
+
+    source PREFIX/env.sh
+
+
 ### Test (optional)
 
-Build the tests:
+#### General tests
+
+You can test the whole platform:
 
     make check
-
-... and run them:
-
-    # run all tests:
     perl tests/vg_regtest --all
+    
+or only verrou:
 
-    # or test only verrou:
+    make -C tests check
+    make -C verrou check
     perl tests/vg_regtest verrou
+    
+    
+#### Specific tests
+
+These tests are more closely related to the arithmetic part in Verrou:
+
+    make -C verrou/unitTest
 
 
 ## Documentation
