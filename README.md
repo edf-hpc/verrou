@@ -7,10 +7,11 @@ modes. This can be seen as an asynchronous variant of the CESTAC method, or a
 subset of Monte Carlo Arithmetic, performing only output randomization through
 random rounding.
 
-**NB:** This is the *development* version of Verrou. It is the version to
-install on relatively recent systems. A more stable version (but only supporting
-older systems) can be found in
-the [`master`](https://github.com/edf-hpc/verrou/) branch.
+**NB:** This is the *development* version of Verrou, currently based on the
+latest stable release of Valgrind, v3.12.0.
+
+For more stable versions, please consult the list of
+[released versions](https://github.com/edf-hpc/verrou/releases).
 
 
 ## Installation
