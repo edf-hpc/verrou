@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 
-## [UNRELEASED]
+## v1.0.0 - 2017-05-19
 
 This version is based on Valgrind-3.12.0.
 

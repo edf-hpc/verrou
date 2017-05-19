@@ -1,4 +1,4 @@
-# Verrou [![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou)
+# Verrou
 
 Verrou helps you look for floating-point round-off errors in programs. It
 implements a stochastic floating-point arithmetic based on random rounding: all
@@ -7,10 +7,9 @@ modes. This can be seen as an asynchronous variant of the CESTAC method, or a
 subset of Monte Carlo Arithmetic, performing only output randomization through
 random rounding.
 
-**NB:** This is the *development* version of Verrou. It is the version to
-install on relatively recent systems. A more stable version (but only supporting
-older systems) can be found in
-the [`master`](https://github.com/edf-hpc/verrou/) branch.
+**NB:** This is released version 1.0.0 of Verrou, based on Valgrind-3.12.0. The
+development version can always be found in the
+[`master`](https://github.com/edf-hpc/verrou/) branch.
 
 
 ## Installation
