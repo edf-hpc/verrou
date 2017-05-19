@@ -32,6 +32,9 @@
 
 #pragma once
 
+extern "C" {
+#include "pub_tool_libcproc.h"
+}
 
 class vrRand{
 public:
@@ -49,7 +52,9 @@ public:
    };
 
   inline void setTimeSeed(unsigned int pid){
-    unsigned int seed=time(NULL) + pid;
+    struct vki_timeval now;
+    VG_(gettimeofday)(&now, NULL);
+    unsigned int seed = now.tv_usec + pid;
     VG_(umsg)("First seed : %u\n",seed);
     setSeed(seed);
   };
@@ -90,13 +95,13 @@ private:
     //    srand(c);
     vr_next_=c;
   }
-  
+
   inline int privaterand(){
     //    rand();
     vr_next_ = vr_next_ * 1103515245 + 12345;
     return (unsigned int)(vr_next_/65536) % 32768;
   }
-  
+
   inline int privateRAND_MAX()const{
     //    return RAND_MAX;
     return 32767;

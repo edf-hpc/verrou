@@ -45,6 +45,14 @@ Build and install:
     make install
 
 
+### Load the environment
+
+In order to actually use Verrou, you must load the correct environment. This can
+be done using:
+
+    source PREFIX/env.sh
+
+
 ### Test (optional)
 
 #### General tests

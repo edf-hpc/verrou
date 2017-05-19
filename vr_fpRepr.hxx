@@ -208,13 +208,19 @@ inline REALTYPE nextAfter(REALTYPE a){
 
 template<>
 inline double nextAfter<double>(double a){
-  return nextafter(a,DBL_MAX );
+  double res=a;
+  __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
+  (*resU)+=1;
+  return res;
 };
 
 
 template<>
 inline float nextAfter<float>(float a){
-  return nextafterf(a,FLT_MAX    );
+  float res=a;
+  __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
+  (*resU)+=1;
+  return res;
 };
 
 
@@ -226,11 +232,17 @@ inline REALTYPE nextPrev(REALTYPE a){
 
 template<>
 inline double nextPrev<double>(double a){
-  return nextafter(a,-DBL_MAX );
+    double res=a;
+  __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
+  (*resU)-=1;
+  return res;
 };
 
 
 template<>
 inline float nextPrev<float>(float a){
-  return nextafterf(a,-FLT_MAX    );
+  float res=a;
+  __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
+  (*resU)-=1;
+  return res;
 };

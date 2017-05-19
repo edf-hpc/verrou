@@ -16,7 +16,12 @@ This version is based on Valgrind-3.12.0.
 - Continuous integration using the Travis system.
 - Improve Delta-Debugging customization through environment variables.
 
+### Changed
 
+- There is no need anymore for an external, statically compiled libc/libm.
+
+
+---
 
 ## v0.9.0 - 2017-03-31
 
