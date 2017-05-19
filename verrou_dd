@@ -23,12 +23,12 @@ def runCmd(cmd, fname, envvars=None):
     if envvars is None:
         envvars = {}
 
-    with open("%s.out"%fname, "w") as fout, \
-         open("%s.err"%fname, "w") as ferr:
-        env = copy.deepcopy(os.environ)
-        for var in envvars:
-            env[var] = envvars[var]
-        return subprocess.call(cmd, env=env, stdout=fout, stderr=ferr)
+    with open("%s.out"%fname, "w") as fout:
+        with open("%s.err"%fname, "w") as ferr:
+            env = copy.deepcopy(os.environ)
+            for var in envvars:
+                env[var] = envvars[var]
+            return subprocess.call(cmd, env=env, stdout=fout, stderr=ferr)
 
 def prepareOutput(dirname):
     shutil.rmtree(dirname, ignore_errors=True)
