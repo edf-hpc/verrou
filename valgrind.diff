@@ -1,8 +1,8 @@
-diff --git a/Makefile.am b/Makefile.am
-index 5c93ed0..7a6ac11 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -10,7 +10,8 @@ TOOLS =		memcheck \
+Index: Makefile.am
+===================================================================
+--- Makefile.am	(revision 16353)
++++ Makefile.am	(working copy)
+@@ -10,7 +10,8 @@
  		lackey \
  		none \
  		helgrind \
@@ -12,11 +12,20 @@ index 5c93ed0..7a6ac11 100644
  
  EXP_TOOLS = 	exp-sgcheck \
  		exp-bbv \
-diff --git a/configure.ac b/configure.ac
-index 0fd2a41..d8b96a6 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -150,6 +150,8 @@ case "${is_clang}-${gcc_version}" in
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 16353)
++++ configure.ac	(working copy)
+@@ -8,7 +8,7 @@
+ ##------------------------------------------------------------##
+ 
+ # Process this file with autoconf to produce a configure script.
+-AC_INIT([Valgrind],[3.12.0],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.12.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
+ AC_CONFIG_SRCDIR(coregrind/m_main.c)
+ AC_CONFIG_HEADERS([config.h])
+ AM_INIT_AUTOMAKE([foreign subdir-objects])
+@@ -172,6 +172,8 @@
  	;;
  esac
  
@@ -25,7 +34,7 @@ index 0fd2a41..d8b96a6 100644
  #----------------------------------------------------------------------------
  # Arch/OS/platform tests.
  #----------------------------------------------------------------------------
-@@ -2956,6 +2958,35 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+@@ -4331,6 +4333,35 @@
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -61,33 +70,33 @@ index 0fd2a41..d8b96a6 100644
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -3034,6 +3065,8 @@ AC_CONFIG_FILES([
+@@ -4422,6 +4453,8 @@
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
 +   verrou/Makefile
 +   verrou/tests/Makefile
     shared/Makefile
+    solaris/Makefile
  ])
- AC_CONFIG_FILES([coregrind/link_tool_exe_linux],
-diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
-index 7d774e5..e42f4f4 100644
---- a/docs/xml/manpages-index.xml
-+++ b/docs/xml/manpages-index.xml
+Index: docs/xml/manpages-index.xml
+===================================================================
+--- docs/xml/manpages-index.xml	(revision 16353)
++++ docs/xml/manpages-index.xml	(working copy)
 @@ -43,5 +43,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  
 +<!-- verrou_dd -->
-+<!-- <xi:include href="../../verrou/docs/verrou_dd-manpage.xml" -->
-+<!--     parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" /> -->
++<xi:include href="../../verrou/docs/verrou_dd-manpage.xml"
++    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 +
  </set>
  
-diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
-index 333e5b7..a0c471d 100644
---- a/docs/xml/manual.xml
-+++ b/docs/xml/manual.xml
+Index: docs/xml/manual.xml
+===================================================================
+--- docs/xml/manual.xml	(revision 16353)
++++ docs/xml/manual.xml	(working copy)
 @@ -44,6 +44,8 @@
        xmlns:xi="http://www.w3.org/2001/XInclude" />      
    <xi:include href="../../lackey/docs/lk-manual.xml" parse="xml"  
@@ -97,11 +106,11 @@ index 333e5b7..a0c471d 100644
    <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
  
-diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
-index a4b84ff..c7ee48c 100644
---- a/docs/xml/valgrind-manpage.xml
-+++ b/docs/xml/valgrind-manpage.xml
-@@ -230,6 +230,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
+Index: docs/xml/valgrind-manpage.xml
+===================================================================
+--- docs/xml/valgrind-manpage.xml	(revision 16353)
++++ docs/xml/valgrind-manpage.xml	(working copy)
+@@ -230,6 +230,8 @@
  
  </refsect1>
  
@@ -110,3 +119,16 @@ index a4b84ff..c7ee48c 100644
  
  <refsect1 id="see_also">
  <title>See Also</title>
+Index: docs/xml/vg-entities.xml
+===================================================================
+--- docs/xml/vg-entities.xml	(revision 16353)
++++ docs/xml/vg-entities.xml	(working copy)
+@@ -6,7 +6,7 @@
+ 
+ <!-- valgrind release + version stuff -->
+ <!ENTITY rel-type    "Release">
+-<!ENTITY rel-version "3.12.0">
++<!ENTITY rel-version "3.12.0+verrou-dev">
+ <!ENTITY rel-date    "20 October 2016">
+ 
+ <!-- where the docs are installed -->
