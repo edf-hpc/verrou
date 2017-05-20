@@ -8,10 +8,8 @@ subset of Monte Carlo Arithmetic, performing only output randomization through
 random rounding.
 
 **NB:** This is the *development* version of Verrou, currently based on the
-latest stable release of Valgrind, v3.12.0.
-
-For more stable versions, please consult the list of
-[released versions](https://github.com/edf-hpc/verrou/releases).
+latest stable release of Valgrind, v3.12.0. For other versions, please consult
+the list of [releases](https://github.com/edf-hpc/verrou/releases).
 
 
 ## Installation
@@ -25,7 +23,7 @@ Fetch valgrind's sources:
 Add verrou's sources to it:
 
     cd valgrind
-    git clone --branch=valgrind-update https://github.com/edf-hpc/verrou.git verrou
+    git clone --branch=master --single-branch https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
 
