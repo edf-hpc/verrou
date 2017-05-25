@@ -1,0 +1,194 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<section id="vr-manual.overview" xreflabel="Overview">
+  <title>Overview</title>
+
+  <section>
+    <title>Basic usage</title>
+    <para>
+      Verrou helps you look for floating-point round-off errors in programs. It implements a
+      stochastic floating-point arithmetic based on random rounding: all floating-point operations
+      are perturbed by randomly switching rounding modes.  This can be seen as an asynchronous
+      variant of the CESTAC method, or a subset of Monte Carlo Arithmetic, performing only output
+      randomization.
+    </para>
+    
+    <para>
+      As with many other Valgrind tools, you probably want to recompile your program with debugging
+      info (the <option>-g</option> option) and with optimization turned on.
+    </para>
+    
+    <para>
+      To start a floating-point check for a program, execute:
+      <screen><cmdsynopsis><command>valgrind</command><arg choice="plain">--tool=verrou</arg><arg choice="opt"><replaceable>verrou options</replaceable></arg><arg choice="req"><replaceable>program</replaceable></arg><arg choice="opt"><replaceable>program options</replaceable></arg></cmdsynopsis></screen>
+    </para>
+
+    <para>For example:<screen>
+<prompt>$</prompt> valgrind --tool=verrou --rounding-mode=random python
+==18644== Verrou, Check floating-point rounding errors
+==18644== Copyright (C) 2014-2016, F. Fevotte &amp; B. Lathuiliere.
+==18644== Using Valgrind-3.12.0+verrou-1.0.0 and LibVEX; rerun with -h for copyright info
+==18644== Command: python
+==18644== 
+==18644== First seed : 194638
+==18644== Simulating RANDOM rounding mode
+==18644== Instrumented operations :
+==18644==       add : yes
+==18644==       sub : yes
+==18644==       mul : yes
+==18644==       div : yes
+==18644==       mAdd : yes
+==18644==       mSub : yes
+==18644==       cmp : no
+==18644==       conv : no
+==18644==       max : no
+==18644==       min : no
+==18644== Instrumented scalar operations : no
+Python 2.7.12+ (default, Sep  1 2016, 20:27:38) 
+[GCC 6.2.0 20160822] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49949.99999999988
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49950.00000000036
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49949.99999999983
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49950.00000000032
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49949.99999999976
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49949.99999999981
+<prompt>>>></prompt> sum([0.1*i for i in xrange(1000)])
+49949.999999999854
+<prompt>>>></prompt> exit()
+==18913== 
+==18913==  ---------------------------------------------------------------------
+==18913==  Operation                            Instruction count
+==18913==   `- Precision
+==18913==       `- Vectorization          Total             Instrumented
+==18913==  ---------------------------------------------------------------------
+==18913==  add                     7044                     7044          (100%)
+==18913==   `- dbl                     7044                     7044      (100%)
+==18913==       `- llo                     7044                     7044  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  sub                       21                       21          (100%)
+==18913==   `- dbl                       21                       21      (100%)
+==18913==       `- llo                       21                       21  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  mul                     7073                     7073          (100%)
+==18913==   `- dbl                     7073                     7073      (100%)
+==18913==       `- llo                     7073                     7073  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  div                        7                        7          (100%)
+==18913==   `- dbl                        7                        7      (100%)
+==18913==       `- llo                        7                        7  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  cmp                       78                        0          (  0%)
+==18913==   `- dbl                       78                        0      (  0%)
+==18913==       `- scal                      78                        0  (  0%)
+==18913==  ---------------------------------------------------------------------
+==18913==  conv                   14042                        0          (  0%)
+==18913==   `- dbl=>int                  28                        0      (  0%)
+==18913==       `- scal                      28                        0  (  0%)
+==18913==   `- dbl=>sht               14014                        0      (  0%)
+==18913==       `- scal                   14014                        0  (  0%)
+==18913==  ---------------------------------------------------------------------
+==18913== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)</screen>
+    </para>
+    
+    <para>
+      First, Verrou will output a header indicating which floating-point instructions will be
+      perturbed, and how. By default, nothing will be perturbed. The <option><xref
+      linkend="vr-opt.rounding-mode"/>=random</option> command-line option is the most standard way
+      to perturb floating-point rounding-modes; see <xref linkend="vr-manual.feat.rounding-mode"/>
+      for more details.
+    </para>
+
+    <para>
+      During program execution, floating-point operations will be perturbed by constantly and
+      randomly switching the rounding-mode. This makes you program output (hopefully slightly)
+      different results than in a normal execution. See Rounding-mode switching for more details on
+      the different rounding-mode switching strategies. In the example above, the same python
+      calculation performed several times yields varying results, whose analysis show that the first
+      14 decimal digits are always the same, and are thus probably reliable.
+    </para>
+
+    <para>
+      After program termination, a summary of floating point operations will be printed on
+      screen. See <xref linkend="vr-manual.feat.count"/> for more details.
+    </para>
+  </section>
+
+  <section id="vr-manual.overview.scope">
+    <title>Restriction of the perturbations scope</title>
+
+    <para>
+      Some algorithms are specifically and carefully designed to work in IEEE nearest rounding, and
+      do not behave well when Verrou perturbs floating-point rounding modes.
+    </para>
+
+    <para>
+      This is for example the case of the douple-precision cosine implementation of the Gnu
+      mathematical library (<literal>libm</literal>). Getting back to the previous python example:
+    </para> 
+    <screen>
+Python 2.7.12+ (default, Sep  1 2016, 20:27:38) 
+[GCC 6.2.0 20160822] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+<prompt>>>></prompt> import math
+<prompt>>>></prompt> math.cos(42.)
+-1.0050507702291946
+<prompt>>>></prompt> math.cos(42.)
+-0.3999853149883513
+<prompt>>>></prompt> math.cos(42.)
+-1.0050507702291946
+<prompt>>>></prompt> math.cos(42.)
+-0.9972351459047304</screen>
+
+    <para>
+      Here, we see that the same calculation performed several times did not only produce different
+      results; it also produced completely wrong values, well outside the expected
+      <mathphrase>[-1;1]</mathphrase> interval.
+    </para>
+
+    <para>
+      In such cases, where random rounding will almost always yield false positives, it might be a
+      good idea to temporarily disable the perturbations during the execution of functions which are
+      known to be correct. This can be performed by adding a <option><xref
+      linkend="vr-opt.exclude"/>=<replaceable>LIST</replaceable></option> command-line switch in the
+      following way:
+    </para>
+    <screen>valgrind --tool=verrou --rounding-mode=random --exclude=libm.ex python</screen>
+    <para>
+      where the file <filename>libm.ex</filename> contains a list of functions to be left
+      unperturbed. For example, in order to disable random rounding modes in the whole
+      <literal>libm</literal>:
+    </para>
+    <screen>
+# sym  lib
+*      /lib/x86_64-linux-gnu/libm-2.23.so
+    </screen>
+
+    <warning>
+      <para>
+        The library name listed in the second column of an exclusion file must be identified by a
+        fully canonical path, as produced by <command>readlink -f</command>
+      </para>
+    </warning>
+    
+    <para>
+      When the <literal>libm</literal> is excluded from perturbations in such a way, the python
+      example above works as expected: the cosine is accurately computed, as usual. See <xref
+      linkend="vr-manual.feat.exclude"/> for more details about exclusion lists.
+    </para>
+  </section>
+</section>
+
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- fill-column: 100 -->
+<!-- End: -->

@@ -2,7 +2,6 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
           "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 
-
 <chapter id="vr-manual" xreflabel="Verrou">
   <title>Verrou: a floating-point rounding errors checker</title>
 
@@ -11,395 +10,133 @@
     Valgrind command line.
   </para>
 
-  <sect1 id="vr-manual.overview" xreflabel="Overview">
-    <title>Overview</title>
+  <xi:include href="vr-overview.xml"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-    <para>
-      Verrou helps you look for floating-point round-off errors in programs. It
-      implements a stochastic floating-point arithmetic based on random rounding: all
-      floating-point operations are perturbed by randomly switching rounding modes.
-      This can be seen as an asynchronous variant of the CESTAC method, or a subset
-      of Monte Carlo Arithmetic, performing only output randomization.
-    </para>
+  <xi:include href="vr-std.xml"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-    <sect2 id="vr-manual.basic-usage" xreflabel="Basic Usage">
-      <title>Basic usage</title>
-      <para>
-        As with many other Valgrind tools, you probably want to recompile your program
-        with debugging info (the <option>-g</option> option) and with optimization
-        turned on.
-      </para>
-
-      <para>
-        To start a floating-point check for a program, execute:
-        <screen>valgrind --tool=verrou [verrou options] your-program [program options]</screen>
-      </para>
-
-      <para>
-        During program execution, floating-point operations will be perturbed by
-        constantly and randomly switching the rounding-mode. This makes you program
-        output (hopefully slightly) different results than in a normal execution. See
-        <xref linkend="vr-manual.feat.rounding-mode"/> for more details on the different
-        rounding-mode switching strategies.
-      </para>
-
-      <para>
-        After program termination, a summary of floating point operations will be
-        printed on screen (see <xref linkend="vr-manual.feat.count"/> below).
-      </para>
-    </sect2>
+  <xi:include href="vr-scope.xml"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
 
 
-    <sect2 id="vr-manual.feat" xreflabel="Features">
-      <title>Standard features</title>
-
-      <sect3 id="vr-manual.feat.count" xreflabel="Floating-point instructions counting">
-        <title>Floating-point instructions counting</title>
+    <section id="vr-manual.localization" xreflabel="Error localization">
+    <title>Error localization</title>
+    
+    <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
+      <title>Delta-debugging with the <command>verrou_dd</command> command</title>
+      
+      <section><title>Synopsis</title>
+        <cmdsynopsis>
+          <command>verrou_dd</command>    
+          <arg choice="req"><replaceable>RUN_SCRIPT</replaceable></arg>
+          <arg choice="req"><replaceable>CMP_SCRIPT</replaceable></arg>
+        </cmdsynopsis>
+      </section>
+      
+      <section><title>Description</title>
+        
         <para>
-          Verrou detects and counts floating-point operations. A summary is printed after
-          each program execution, listing the number of floating-point operations executed
-          by the program, broken down into categories according to various criteria :
-        </para>
-        <variablelist>
-          <varlistentry>
-            <term><command>Operation type:</command></term>
-            <listitem><para>
-                <itemizedlist>
-                  <listitem><command>add</command>: addition</listitem>
-                  <listitem><command>sub</command>: subtraction</listitem>
-                  <listitem><command>mul</command>: multiplication</listitem>
-                  <listitem><command>div</command>: division</listitem>
-                </itemizedlist>
-            </para></listitem>
-          </varlistentry>
-          <varlistentry>
-            <term><command>Floating-point precision:</command></term>
-            <listitem><para>
-                <itemizedlist>
-                  <listitem><command>flt</command>: IEEE-754 single precision
-                    (<computeroutput>float</computeroutput>)</listitem>
-                  <listitem><command>dbl</command>: IEEE-754 double precision</listitem>
-                </itemizedlist>
-            </para></listitem>
-          </varlistentry>
-          <varlistentry>
-            <term><command>Vector nature of the instruction:</command></term>
-            <listitem><para>
-                <itemizedlist>
-                  <listitem><command>scal</command>: scalar instruction</listitem>
-                  <listitem><command>llo</command>: lowest-lane-only vector instruction</listitem>
-                  <listitem><command>vec</command>: full vector instruction</listitem>
-                </itemizedlist>
-            </para></listitem>
-          </varlistentry>
-        </variablelist>
+          Arguments passed to <command>verrou_dd</command> are scripts, which
+          must be identified by an absolute path. These scripts will be called
+          during the delta-debugging process to automate the tasks of running
+          your program under Verrou, and verifying the results. The scripts will
+          be called with the following arguments:
 
-        <para>Below is an example output of Verrou's summary of floating-point operations:
-          <screen>
-==19788==  ---------------------------------------------------------------------
-==19788==  Operation                            Instruction count
-==19788==   `- Precision
-==19788==       `- Vectorization          Total             Instrumented
-==19788==  ---------------------------------------------------------------------
-==19788==  add                     9392                     9392          (100%)
-==19788==   `- flt                       85                       85      (100%)
-==19788==       `- llo                       85                       85  (100%)
-==19788==   `- dbl                     9307                     9307      (100%)
-==19788==       `- llo                     9307                     9307  (100%)
-==19788==  ---------------------------------------------------------------------
-==19788==  sub                     4342                     4342          (100%)
-==19788==   `- flt                       77                       77      (100%)
-==19788==       `- llo                       77                       77  (100%)
-==19788==   `- dbl                     4265                     4265      (100%)
-==19788==       `- llo                     4265                     4265  (100%)
-==19788==  ---------------------------------------------------------------------
-==19788==  mul                     9966                     9966          (100%)
-==19788==   `- flt                      134                      134      (100%)
-==19788==       `- llo                      134                      134  (100%)
-==19788==   `- dbl                     9832                     9832      (100%)
-==19788==       `- llo                     9832                     9832  (100%)
-==19788==  ---------------------------------------------------------------------
-==19788==  div                       35                       35          (100%)
-==19788==   `- flt                        5                        5      (100%)
-==19788==       `- llo                        5                        5  (100%)
-==19788==   `- dbl                       30                       30      (100%)
-==19788==       `- llo                       30                       30  (100%)
-==19788==  ---------------------------------------------------------------------</screen>
-        </para>
-
-        <para>The set of columns labeled "Total" shows the total number of
-          floating-point instructions as seen by Verrou. In the second set of
-          columns (labeled "Instrumented"), instructions are only accounted for
-          if they come from <xref linkend="vr-manual.feat.instr"/>. The last
-          column shows the fraction of instrumented instructions. Instructions
-          coming from <xref linkend="vr-manual.feat.exclude"/> are never
-          accounted for.
-        </para>
-
-        <para>These counters can be displayed at any point during the program
-        execution using
-        the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
-        client request or the <computeroutput><xref linkend="vr.monitor_count"/></computeroutput>
-        monitor command.
-        </para>
-      </sect3>
-
-
-      <sect3 id="vr-manual.feat.rounding-mode" xreflabel="Rounding-mode switching">
-        <title>Rounding-mode switching</title>
-        <para>
-          When the instrumented program performs a floating-point operation, Verrou can
-          replace it with a perturbed version of the same operation, using another
-          rounding mode.
-        </para>
-        <para>Verrou can simulate any of the four IEEE-754 standard rounding modes:
-          <itemizedlist>
-            <listitem>nearest (default),</listitem>
-            <listitem>upward,</listitem>
-            <listitem>downward,</listitem>
-            <listitem>toward zero.</listitem>
-          </itemizedlist>
-          Verrou is also capable of randomly switching rounding mode at each
-          floating-point operation, in order to implement the "random rounding" variant of
-          Monte Carlo Arithmetic (MCA). Two strategies
-          can be used to choose the rounding mode for a given operation:
           <variablelist>
             <varlistentry>
-              <term><command>random:</command></term>
-              <listitem><para>Randomly pick one among upward and downward rounding, with equal
-                  probabilities. This is a form of asynchronous CESTAC method.</para></listitem>
+              <term><command>RUN_SCRIPT</command> [<varname>dir</varname>]</term>
+              <listitem><para> Should run your program under Verrou, and put the
+                  results somewhere under the <varname>dir</varname> directory.
+              </para></listitem>
             </varlistentry>
             <varlistentry>
-              <term><command>average:</command></term>
-              <listitem><para>Randomly choose between upward and downward rounding mode, in
-                  such a way that the expectation of the random result equals the exact
-                  operation result (without rounding). This is called "uniform_absolute output
-                  randomization" in the MCA literature.</para></listitem>
+              <term><command>CMP_SCRIPT</command>
+                [<varname>ref_dir</varname>]
+                [<varname>run_dir</varname>]</term>
+              <listitem><para> Should check whether program results
+                  in <varname>run_dir</varname> (as stored by a previous call
+                  to <command>RUN_SCRIPT</command>) are "valid". The precise
+                  meaning of "valid" is left for the user to determine,
+                  depending on the program being analyzed. If a comparison to
+                  reference results is needed,
+                  directory <varname>ref_dir</varname> contains the results
+                  produced by an uninstrumented run of the program.
+                </para><para>
+                  <command>CMP_SCRIPT</command> should return 0 if and only if the
+                  results are "valid".
+              </para></listitem>
             </varlistentry>
           </variablelist>
-
         </para>
+        
         <para>
-          The <option><xref linkend="vr-opt.rounding-mode"/></option> command-line option
-          allows choosing between these strategies.
+          <command>verrou_dd</command> stores many intermediate results within
+          the <computeroutput>dd.sym</computeroutput>
+          and <computeroutput>dd.line</computeroutput> directories. Synthetic
+          results are present in the form of symbolic links named in the
+          following way:
+          <variablelist>
+            <varlistentry>
+              <term>dd.sym.<varname>SYMNAME</varname></term>
+              <listitem>The presence of such a symbolic link indicates that the
+              function associated to symbol <varname>SYMNAME</varname> has been
+              detected as unstable. When the <option>--demangle=no</option>
+              option was provided in the verrou command line
+              in <command>RUN_SCRIPT</command>, <varname>SYMNAME</varname> is in
+              mangled form. In this case, the huma-readable name of the function
+              can be retrieved using <command>c++filt</command>.</listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>dd.sym.<varname>FILENAME</varname>:<varname>LINENO</varname></term>
+              <listitem>
+                Such a symbolic link indicated that an instability was found in
+                line <varname>LINENO</varname> of
+                file <varname>FILENAME</varname>.
+              </listitem>
+            </varlistentry>
+          </variablelist>
         </para>
-      </sect3>
+      </section>
 
-    </sect2>
-  </sect1>
+      <section>
+        <title>Environment Variables</title>
 
-  <sect1 id="vr-manual.advanced" xreflabel="Advanced features">
+        <variablelist>
+          <varlistentry>
+            <term>
+              <computeroutput>VERROU_DD_NRUNS</computeroutput>
+            </term>
+            <listitem>
+              <para>An integer setting the required number successful runs
+                needed to consider a configuration as stable. If this
+                environment variable is not set, the default value is 5.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>
+              <computeroutput>VERROU_DD_UNSAFE</computeroutput>
+            </term>
+            <listitem>
+              <para>If this variable is set (whatever its value), some
+                Delta-Debugging assertions are transformed in mere
+                warnings. This allows getting a result faster, at the price of
+                said result being potentially incorrect (functions/lines listed
+                as stable when they are not, or vice versa).
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </section>
+    </section>
+  </section>
+
+  
+  <section id="vr-manual.advanced" xreflabel="Advanced features">
     <title>Advanced features</title>
 
-    <sect2 id="vr-manual.feat.instr" xreflabel="Instrumented sections">
-      <title>Instrumented sections</title>
-      <para>
-        It is often desirable to only instrument part of the program, either to save
-        time or more precisely determine the source of floating-point errors. This can
-        be achieved by toggling instrumentation on and off around the parts which need
-        closer inspection.
-      </para>
-      <para>
-        Instrumentation can be toggled off at program start using
-        the <option><xref linkend="vr-opt.instr-atstart"/></option> command-line
-        option. Furthermore, it can be (de)activated programatically using
-        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
-        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
-        client requests.
-      </para>
-      <para>This feature is greatly inspired by Callgrind's one (see the
-        <xref linkend="cl-manual"/>). Below is an example use:
-        <programlisting>
-#include &lt;valgrind/verrou.h&gt;
-#include &lt;stdio.h&gt;
-
-float compute ();
-
-int main () {
-  VERROU_START_INSTRUMENTATION;
-  float result = compute();
-  VERROU_STOP_INSTRUMENTATION;
-
-  fprintf (stdout, "result = %f", result);
-} </programlisting>
-        This program should be run in Verrou using the following command:
-        <screen>valgrind --tool=verrou --instr-atstart=no program</screen>
-      </para>
-      <para>
-        The same thing can be achieved interactively using
-        the <computeroutput><xref linkend="vr.monitor_instrumentation"/></computeroutput>
-        monitor command.
-      </para>
-    </sect2>
-
-    <sect2 id="vr-manual.feat.restrict"
-           xreflabel="Restriction of instrumentation scope">
-      <title>Restriction of instrumentation scope</title>
-      <para> Instead of explicitly toggling instrumentation state with client
-        requests in the source code, it is possible to entirely exclude
-        instructions from the instrumentation process. Please note that this
-        differs from
-        the <computeroutput><xref linkend="vr-cr.start-instrumentation"/></computeroutput>
-        and <computeroutput><xref linkend="vr-cr.stop-instrumentation"/></computeroutput>
-        client requests mentioned above, in that floating-point instructions
-        which are left uninstrumented are not even accounted for in the
-        operations count.
-      </para>
-
-      <sect3 id="vr-manual.feat.exclude" xreflabel="Excluded symbols">
-        <title>Excluded symbols</title>
-        <para> A first, rather coarse-grained, way to restrict the scope of
-          instrumentation is based on either the function (or rather symbol) name,
-          the object name, or both.
-        </para>
-        <sect4><title>Exclusion files</title>
-          <para>
-            This can be done by providing an exclusion file via
-            the <option><xref linkend="vr-opt.exclude"/></option> command-line
-            option. The file should have the following format:
-            <itemizedlist>
-            <listitem>one rule per line,</listitem>
-            <listitem>each rule of the form <computeroutput>FNNAME
-                OBJNAME</computeroutput>,
-              where <computeroutput>FNNAME</computeroutput> is the function
-              name, and <computeroutput>OBJNAME</computeroutput> is the symbol
-              name (the name of the executable or the shared library). Either
-              can be replaced by a star (<computeroutput>*</computeroutput>)
-              to match anything. The two columns can be separated by any
-              number of spaces and tabulations
-              (<computeroutput>\t</computeroutput>)</listitem>
-            </itemizedlist>
-          </para>
-          <para>
-            When verrou finds a block of instructions (an IRSB, Intermediate
-            Representation SuperBlock in valgrind terminology) whose address
-            matches
-            the <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-            specification, the whole chunk is left uninstrumented.
-          </para>
-          <para>
-            Here are a few examples of exclusion rules for mathematics functions:
-            <itemizedlist>
-              <listitem>exclude the whole <computeroutput>libm</computeroutput>
-                (beware that the path is the canonical
-                one; <computeroutput>readlink -f</computeroutput> can help finding
-                it):
-                <screen>*	/lib/libm-2.11.3.so</screen>
-              </listitem>
-              <listitem>exclude specific functions based on their names only (beware
-                to list all functions in which the program will pass; not only
-                top-level ones):
-                <screen>exp            *
-__ieee754_exp  *
-__exp1         * </screen>
-              </listitem>
-              <listitem>exclude a specific function of a specific library:
-                <screen>exp  /lib/libm.so.6</screen>
-              </listitem>
-            </itemizedlist>
-          </para>
-        </sect4>
-        <sect4><title>Exclusion list generation</title>
-          <para>The <option><xref linkend="vr-opt.gen-exclude"/></option>
-            command-line option can help producing the complete list of
-            <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-            pairs through which a given program passes. This can allow
-            generating exclusion lists by building a small program built in the
-            same way as your target application, which calls the functions you
-            want to exclude from the instrumentation.
-          </para>
-          <para>For example, the following program can be instrumented to
-          generate an exclusion list for a selected number of single-precision
-            mathematics functions:
-            <programlisting>
-#include &lt;math.h&gt;
-
-int main () {
-  /* volatile: don't compute anything at compile-time */
-  volatile float f = 42.;
-
-  return cosf(f) + sinf(f) + tanf(f) + atanf(f) + powf(f, 3.) + expf(f) + logf(f);
-} </programlisting>
-
-            <screen>
-$ gcc -O3 -o myprog myprog.c
-$ valgrind --tool=verrou --gen-exclude=libm-float.exclude
-$ cat libm-float.exclude</screen>
-            <screen>
-__ieee754_logf       /lib/libm-2.11.3.so
-logf                 /lib/libm-2.11.3.so
-fesetenv             /lib/libm-2.11.3.so
-fesetround           /lib/libm-2.11.3.so
-__ieee754_expf       /lib/libm-2.11.3.so
-expf                 /lib/libm-2.11.3.so
-__ieee754_powf       /lib/libm-2.11.3.so
-powf                 /lib/libm-2.11.3.so
-atanf                /lib/libm-2.11.3.so
-__kernel_tanf        /lib/libm-2.11.3.so
-tanf                 /lib/libm-2.11.3.so
-__kernel_cosf        /lib/libm-2.11.3.so
-sinf                 /lib/libm-2.11.3.so
-__kernel_sinf        /lib/libm-2.11.3.so
-__ieee754_rem_pio2f  /lib/libm-2.11.3.so
-cosf                 /lib/libm-2.11.3.so</screen>
-          </para>
-        </sect4>
-        <sect4>
-          <title>Note on C++ and symbol name mangling</title>
-          <para>When debugging C++ programs, it is advised to also use
-            the <option><xref linkend="opt.demangle"/>=no</option> option in order
-            for C++ symbol names compared in their mangled form. Symbol names in
-            the exclusion list can still be demangled using an external program
-            such as <computeroutput>c++filt</computeroutput>.
-          </para>
-        </sect4>
-      </sect3>
-
-      <sect3 id="vr-manual.feat.source" xreflabel="Source code lines selection">
-        <title>Source code lines selection</title>
-        <para>A more fine-grained way to restrict the scope of instrumentation
-          is based on source code lines. In order to effectively use this
-          feature, the instrumented binary file must embed debugging information
-          (i.e. it must have been compiled with
-          the <computeroutput>-g</computeroutput> switch or something
-          equivalent).</para>
-        <para>This can be done by providing a list of source code lines to
-          instrument, via
-          the <option><xref linkend="vr-opt.source"/></option>
-          command-line option. The file should have the following format:
-          <itemizedlist>
-            <listitem>one item per line,</listitem>
-            <listitem>each item of the form <computeroutput>FILENAME LINENUM
-            [SYMNAME]</computeroutput>,
-            where <computeroutput>FILENAME</computeroutput> is the source file
-            name (not path!), <computeroutput>LINENUM</computeroutput> is the
-            line number within the source file,
-            and <computeroutput>SYMNAME</computeroutput> is optional and
-            indicates the symbol name in which the source code has been
-            compiled. The columns can be separated by any number of spaces and
-            tabulations (<computeroutput>\t</computeroutput>).</listitem>
-          </itemizedlist>
-        </para>
-        <para>When verrou finds an instruction coming from a listed source code
-          line, it instruments it. Only the source file name and line number are
-          considered during this selection. If
-          the <option><xref linkend="vr-opt.source"/></option> option is not
-          specified, or the list of instrumented source code lines is empty, all
-          instructions are instrumented.</para>
-        <para>The <option><xref linkend="vr-opt.gen-source"/></option>
-          command-line switch can help generate the list of all source code
-          lines encountered during program execution, for later filtering. It
-          can be wise to combine it with
-          the <option><xref linkend="vr-opt.exclude"/></option> switch in order
-          to restrict the source code lines list to a specific set of
-          symbols.</para>
-        <para>This fine-grained selection of code parts to instrument is
-          primarily meant to be used by automatic debugging tools, not directly
-          by humans.</para>
-      </sect3>
-    </sect2>
-
-    <sect2 id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
+    <section id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
       <title>Deterministic sections</title>
       <para>
         Sometimes you want a part of your program to be instrumented and perturbed by
@@ -440,7 +177,7 @@ int main () {
         program executions lead to different results.
       </para>
 
-      <sect3>
+      <section>
         <title>Basic usage</title>
 
         <para>
@@ -479,9 +216,9 @@ int main () {
           the same value to seed the pRNG (based on the client request location in the
           source).
         </para>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Advanced usage</title>
 
         <para>
@@ -574,16 +311,16 @@ det2
           to <computeroutput>VERROU_STOP_DETERMINISTIC</computeroutput> is only used for
           cosmetic and debug purposes.
         </para>
-      </sect3>
-    </sect2>
-  </sect1>
+      </section>
+    </section>
+  </section>
 
-  <sect1 id="vr-manual.reference" xreflabel="Reference">
+  <section id="vr-manual.reference" xreflabel="Reference">
     <title>Reference</title>
-    <sect2 id="vr-manual.clo" xreflabel="Command-line options">
+    <section id="vr-manual.clo" xreflabel="Command-line options">
       <title>Command-line options</title>
 
-      <sect3>
+      <section>
         <title>General options</title>
         <variablelist id="vr.opts.general.list">
 
@@ -603,9 +340,9 @@ det2
           </varlistentry>
 
         </variablelist>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Perturbation of floating-point operations</title>
         <variablelist id="vr.opts.instr.list">
 
@@ -645,9 +382,9 @@ det2
           </varlistentry>
 
         </variablelist>
-      </sect3>
+      </section>
 
-      <sect3>
+      <section>
         <title>Restriction of instrumentation scope</title>
         <variablelist id="vr.opts.scope.list">
 
@@ -731,10 +468,10 @@ det2
             </listitem>
           </varlistentry>
         </variablelist>
-      </sect3>
-    </sect2>
+      </section>
+    </section>
 
-    <sect2 id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
+    <section id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
       <title>Client requests</title>
 
       <para>Verrou provides the
@@ -789,9 +526,9 @@ det2
         </varlistentry>
 
       </variablelist>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Monitor commands</title>
 
       See <xref linkend="manual-core-adv.gdbserver"/> to get more information
@@ -815,6 +552,6 @@ det2
           </para></listitem>
         </varlistentry>
       </variablelist>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </chapter>

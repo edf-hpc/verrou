@@ -1,0 +1,160 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<section id="vr-manual.feat" xreflabel="Features">
+  <title>Standard features</title>
+  
+  <section id="vr-manual.feat.count" xreflabel="Floating-point instructions counting">
+    <title>Floating-point instructions counting</title>
+    <para>
+      Verrou detects and counts floating-point operations. A summary is printed after each program
+      execution, listing the number of floating-point operations executed by the program, broken
+      down into categories according to various criteria :
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term><command>Operation type:</command></term>
+        <listitem><para>
+            <itemizedlist>
+              <listitem><simpara><command>add</command>: addition</simpara></listitem>
+              <listitem><simpara><command>sub</command>: subtraction</simpara></listitem>
+              <listitem><simpara><command>mul</command>: multiplication</simpara></listitem>
+              <listitem><simpara><command>div</command>: division</simpara></listitem>
+              <listitem><simpara><command>mAdd</command>: Fused Multiply-Add (FMA)</simpara></listitem>
+              <listitem><simpara><command>mSub</command>: Fused Multiply-Sub</simpara></listitem>
+              <listitem><simpara><command>cmp</command>: comparison</simpara></listitem>
+              <listitem><simpara><command>conv</command>: conversion (or cast)</simpara></listitem>
+            </itemizedlist>
+        </para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><command>Floating-point precision:</command></term>
+        <listitem><para>
+            <itemizedlist>
+              <listitem><simpara><command>flt</command>: half precision (IEEE-754
+              <computeroutput>binary16</computeroutput>)</simpara></listitem>
+              <listitem><simpara><command>flt</command>: single precision (C
+              <computeroutput>float</computeroutput> / IEEE-754
+              <computeroutput>binary32</computeroutput>)</simpara></listitem>
+              <listitem><simpara><command>dbl</command>: double precision (C
+              <computeroutput>double</computeroutput> / IEEE-754
+              <computeroutput>binary64</computeroutput>)</simpara></listitem>
+            </itemizedlist>
+        </para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><command>Vector nature of the instruction:</command></term>
+        <listitem><para>
+            <itemizedlist>
+              <listitem><simpara><command>scal</command>: scalar instruction</simpara></listitem>
+              <listitem><simpara><command>llo</command>: lowest-lane-only (unpacked) instruction
+              (<foreignphrase>i.e.</foreignphrase> scalar instruction from the SSE set, such as
+              <computeroutput>addss</computeroutput>)</simpara></listitem>
+              <listitem><simpara><command>vec</command>: full (packed) vector instruction (such as
+              <computeroutput>addps</computeroutput>)</simpara></listitem>
+            </itemizedlist>
+        </para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Below is an example output of Verrou's summary of floating-point
+      operations: <screen>
+==18913==  ---------------------------------------------------------------------
+==18913==  Operation                            Instruction count
+==18913==   `- Precision
+==18913==       `- Vectorization          Total             Instrumented
+==18913==  ---------------------------------------------------------------------
+==18913==  add                     7044                     7044          (100%)
+==18913==   `- dbl                     7044                     7044      (100%)
+==18913==       `- llo                     7044                     7044  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  sub                       21                       21          (100%)
+==18913==   `- dbl                       21                       21      (100%)
+==18913==       `- llo                       21                       21  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  mul                     7073                     7073          (100%)
+==18913==   `- dbl                     7073                     7073      (100%)
+==18913==       `- llo                     7073                     7073  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  div                        7                        7          (100%)
+==18913==   `- dbl                        7                        7      (100%)
+==18913==       `- llo                        7                        7  (100%)
+==18913==  ---------------------------------------------------------------------
+==18913==  cmp                       78                        0          (  0%)
+==18913==   `- dbl                       78                        0      (  0%)
+==18913==       `- scal                      78                        0  (  0%)
+==18913==  ---------------------------------------------------------------------
+==18913==  conv                   14042                        0          (  0%)
+==18913==   `- dbl=>int                  28                        0      (  0%)
+==18913==       `- scal                      28                        0  (  0%)
+==18913==   `- dbl=>sht               14014                        0      (  0%)
+==18913==       `- scal                   14014                        0  (  0%)
+==18913==  ---------------------------------------------------------------------
+==18913== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)</screen>
+    </para>
+
+    <para>
+      The set of columns labeled "Total" shows the total number of floating-point instructions as
+      seen by Verrou. In the second set of columns (labeled "Instrumented"), instructions are only
+      accounted for if they come from <xref linkend="vr-manual.feat.instr"/>. The last column shows
+      the fraction of instrumented instructions.
+    </para>
+
+    <note><para> Instructions coming from <xref linkend="vr-manual.feat.exclude"/> appear neither in
+    the "Total" nor the "Instrumented" count: they are simply not seen by Verrou.  </para></note>
+
+    <para>
+      Floating-point instructions counters can be displayed at any point during the program
+      execution using the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
+      client request or the <computeroutput><xref linkend="vr.monitor_count"/></computeroutput>
+      monitor command. It is also possible to disable this feature using the <option><xref
+      linkend="vr-opt.count-op"/>=no</option>.
+    </para>
+  </section>
+
+  <section id="vr-manual.feat.rounding-mode" xreflabel="Rounding-mode switching">
+    <title>Rounding-mode switching</title>
+    <para>
+      When the instrumented program performs a floating-point operation, Verrou can replace it with
+      a perturbed version of the same operation, using another rounding mode. The <option><xref
+      linkend="vr-opt.rounding-mode"/></option> command-line option allows choosing between
+      different rounding strategies, described hereafter.
+    </para>
+    <para>
+      Verrou can simulate any of the four IEEE-754 standard rounding modes:
+      <itemizedlist>
+        <listitem><simpara><command>nearest</command> (default),</simpara></listitem>
+        <listitem><simpara><command>upward,</command></simpara></listitem>
+        <listitem><simpara><command>downward,</command></simpara></listitem>
+        <listitem><simpara><command>toward zero,</command></simpara></listitem>
+      </itemizedlist>
+      as well as another (non-IEEE-754) deterministic mode:
+      <itemizedlist>
+        <listitem><para><command>farthest</command>: in this mode, all non-exact results are rounded
+        in the opposite way to IEEE-754 nearest rounding mode.</para></listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      Finally, the main use for Verrou is to randomly switch rounding mode at each floating-point
+      operation, in order to implement the "random rounding" variant of Monte Carlo Arithmetic
+      (MCA). Two strategies can be used to choose the rounding mode for a given operation:
+      <itemizedlist>
+        <listitem><para><command>random:</command> Randomly pick one among upward and downward
+        rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
+        </listitem>
+        <listitem><para><command>average:</command> Randomly choose between upward and downward
+        rounding mode, in such a way that the expectation of the random result equals the exact
+        operation result (without rounding). This is called "uniform_absolute output randomization"
+        in the MCA literature.</para></listitem>
+      </itemizedlist>
+    </para>
+  </section>
+</section>
+
+
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- fill-column: 100 -->
+<!-- End: -->
