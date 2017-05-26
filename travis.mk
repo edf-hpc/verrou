@@ -7,8 +7,9 @@ patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
 	cd ../valgrind+verrou && patch -p0 <verrou/valgrind.diff
 patch-error:
-	cd ../valgrind+verrou && tail -n+1 *.rej
-	@false
+	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
+	# try to build verrou anyway if we check the development version of Valgrind
+	test "$(VALGRIND_VERSION)" = "trunk"
 
 configure:
 	cd ../valgrind+verrou && ./autogen.sh
