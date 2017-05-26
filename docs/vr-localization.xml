@@ -1,0 +1,184 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<section id="vr-manual.localization" xreflabel="Error localization">
+  <title>Debugging and error localization</title>
+
+  <para>
+    We describe in this section techniques which can help determining the origin of numerical errors
+    in the source code of the analyzed program.
+  </para>
+  
+  <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
+    <title>Delta-debugging with the <command>verrou_dd</command> command</title>
+
+    <para>
+      The first technique builds upon Verrou's <xref linkend="vr-manual.feat.exclude"/> feature in
+      order to perform a search of functions and source code lines whose perturbation produces the
+      most important errors in final results. The idea is the following:
+      <itemizedlist>
+        <listitem><simpara>First, a complete list of all symbols is generated. It is expected that
+        perturbing all functions in this list will produce inexact results. On the other hand,
+        excluding all symbols from the scope of perturbations should produce unperturbed
+        results.</simpara></listitem>
+        <listitem><simpara>By splitting the symbols list in two parts, and perturbing each half
+        separately, it is possible to determine whether each perturbed half produces inexact
+        results.</simpara></listitem>
+        <listitem><simpara>Going on like this and performing a bisection of the list of symbols, the
+        algorithm eventually finds a subset of functions whose only perturbation is enough to
+        produce inexact results.</simpara></listitem>
+        <listitem><simpara>The same process can be iterated over all source code lines belonging to
+        the identified unstable symbols (provided that the binary embeds debugging
+        information).</simpara></listitem>
+      </itemizedlist>
+    </para>
+
+    <para>
+      This algorithm is called <emphasis>Delta-Debugging</emphasis>, and is for example used in
+      <command>git bisect</command>. It is automated by the <command>verrou_dd</command> command,
+      which can be used in the following way:
+    </para>
+    
+    <simplesect>
+      <title>Synopsis</title>
+
+      <screen><cmdsynopsis id="vr-manual.verrou_dd.synopsis">
+        <command>verrou_dd</command>    
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
+    </simplesect>
+    <simplesect>
+      <title>Description</title>
+        
+      <para id="vr-manual.verrou_dd.desc">
+        Arguments passed to <command>verrou_dd</command> are scripts, which must be identified by an
+        absolute path. These scripts will be called during the delta-debugging process to automate
+        the tasks of running your program under Verrou, and verifying the results. The scripts will
+        be called with the following arguments:
+        
+        <variablelist>
+          <varlistentry>
+            <term>
+              <command><replaceable>run_script</replaceable></command>
+              <arg choice="req"><replaceable>dir</replaceable></arg>
+            </term>
+            <listitem><para> Should run your program under Verrou, and put the results somewhere
+            under the <replaceable>dir</replaceable> directory. A minimal example could look like
+            the following:</para>
+            <programlisting>
+#!/bin/bash
+DIR="$1"
+valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replaceable> &gt; ${DIR}/results.dat</programlisting>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>
+              <command><replaceable>cmp_script</replaceable></command>
+              <arg choice="req"><replaceable>ref_dir</replaceable></arg>
+              <arg choice="req"><replaceable>run_dir</replaceable></arg>
+            </term>
+            <listitem>
+              <simpara>
+                Should check whether program results in <replaceable>run_dir</replaceable> (as
+                stored by a previous call to
+                <command><replaceable>run_script</replaceable></command>) are "valid". The precise
+                meaning of "valid" is left for the user to determine, depending on the program being
+                analyzed. If a comparison to reference results is needed, directory
+                <replaceable>ref_dir</replaceable> contains the results produced by an
+                uninstrumented run of the
+                program. <command><replaceable>cmp_script</replaceable></command> should return 0 if
+                and only if the results are "valid".
+              </simpara>
+              <simpara>
+                A minimal example could look like the following:
+              </simpara>
+              <programlisting>
+#!/bin/bash 
+REF="$1"
+RUN="$2"
+diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </para>
+
+      <warning>
+        <para>
+          The scripts passed to <command>verrou_dd</command> will be run from various
+          directories. They must therefore be identified by an <emphasis>absolute path</emphasis>
+          (or be in the <computeroutput>PATH</computeroutput>).
+        </para>
+      </warning>
+    </simplesect>
+    
+    <simplesect>
+      <title>Environment Variables</title>
+      
+      <para>
+        The following environment variables affect the behaviour of <command>verrou_dd</command>:
+      </para>
+      
+      <variablelist id="vr-manual.verrou_dd.envvars">
+        <varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_NRUNS</computeroutput>
+          </term>
+          <listitem>
+            <para>An integer setting the required number successful runs needed to consider a
+            configuration as stable. If this environment variable is not set, the default value is
+            5.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_UNSAFE</computeroutput>
+          </term>
+          <listitem>
+            <para>If this variable is set (whatever its value), some Delta-Debugging assertions
+            are transformed in mere warnings. This allows getting a result faster, at the price of
+            said result being potentially incorrect (functions/lines listed as stable when they
+            are not, or vice versa).
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </simplesect>
+    
+    <simplesect>
+      <title>Results</title>
+      <para id="vr-manual.verrou_dd.results">
+        <command>verrou_dd</command> stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> and <computeroutput>dd.line</computeroutput>
+        directories. Synthetic results are present in the form of symbolic links named in the
+        following way:
+        <variablelist>
+          <varlistentry>
+              <term>dd.sym.<replaceable>SYMNAME</replaceable></term>
+              <listitem><simpara>The presence of such a symbolic link indicates that the function
+              associated to symbol <replaceable>SYMNAME</replaceable> has been detected as
+              unstable. When the <option><xref linkend="opt.demangle"/>=no</option> option was
+              provided in the verrou command line in
+              <command><replaceable>run_script</replaceable></command>,
+              <replaceable>SYMNAME</replaceable> is in mangled form. In this case, the
+              human-readable name of the function can be retrieved using
+              <command>c++filt</command>.</simpara></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>dd.sym.<replaceable>FILENAME</replaceable>:<replaceable>LINENO</replaceable></term>
+            <listitem><simpara>Such a symbolic link indicates that an instability was found in line
+            <replaceable>LINENO</replaceable> of file
+            <replaceable>FILENAME</replaceable>.</simpara></listitem>
+          </varlistentry>
+        </variablelist>
+      </para>
+    </simplesect>
+  </section>
+</section>
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- fill-column: 100 -->
+<!-- End: -->
