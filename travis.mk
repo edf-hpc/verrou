@@ -6,6 +6,9 @@ download-valgrind:
 patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
 	cd ../valgrind+verrou && patch -p0 <verrou/valgrind.diff
+patch-error:
+	cd ../valgrind+verrou && tail -n+1 *.rej
+	@false
 
 configure:
 	cd ../valgrind+verrou && ./autogen.sh

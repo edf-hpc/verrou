@@ -12,7 +12,7 @@ before_install:
   - sudo apt-get install -y libc-dbg
 install:
   - make -f travis.mk download-valgrind
-  - make -f travis.mk patch-valgrind
+  - make -f travis.mk patch-valgrind || make -f travis.mk patch-error
   - make -f travis.mk configure
   - make -f travis.mk build
 script:
