@@ -1,9 +1,12 @@
-#!/usr/bin/perl -i
+#!/bin/bash
 
-use Encode;
-$nbsp = decode("iso-8859-1", chr(160));
+TMP=$(mktemp)
+trap "{ echo 'cleaning up'; rm -f ${TMP};}" EXIT
 
-while (<>) {
-    s/$nbsp/&nbsp;/g;
-    print;
-}
+while [ ! -z "$1" ]; do
+    FILE="$1"
+    echo "Fixing encoding of file ${FILE}"
+    iconv -f iso-8859-1 -t utf-8 -o ${TMP} ${FILE}
+    sed 's/iso-8859-1/utf-8/i' ${TMP} >${FILE}
+    shift
+done

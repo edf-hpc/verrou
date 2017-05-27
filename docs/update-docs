@@ -1,8 +1,9 @@
 #!/bin/bash
 
+set -e
+
 SRCDIR=$(
-    cd "$(dirname "${BASH_SOURCE[0]}")"
-    cd ../..
+    cd "$(dirname "${BASH_SOURCE[0]}")"/../..
     pwd)
 echo "SRCDIR=${SRCDIR}"
 
@@ -11,6 +12,19 @@ echo "BUILDDIR=${BUILDDIR}"
 
 INSTALLDIR="${BUILDDIR}/install"
 echo "INSTALLDIR=${INSTALLDIR}"
+
+[ -r "${INSTALLDIR}/env.sh" ] || (
+    echo "Could not find ${INSTALLDIR}/env.sh"
+    false
+)
+
+(
+    cd ${SRCDIR}/verrou;
+    git diff --no-ext-diff --ignore-submodules --quiet --exit-code
+) || (
+    echo "Please commit your local changes"
+    false
+)
 
 HASH=$(cd ${SRCDIR}/verrou;
        git rev-parse --short=14 HEAD)
@@ -30,25 +44,31 @@ ${SRCDIR}/verrou/docs/update-vr-clo >${SRCDIR}/verrou/vr_clo.txt
 
 # Upload HTML documentation to github
 TMPDIR=$(mktemp -d)
+trap "echo -e '\n\nCleaning up...'; rm -rf ${TMPDIR}" EXIT
 (
     cd ${TMPDIR}
-    git clone https://github.com/edf-hpc/verrou.git html
+    git clone --branch gh-pages --single-branch https://github.com/edf-hpc/verrou.git html
     cd html
-    git checkout gh-pages
 )
-cp ${INSTALLDIR}/share/doc/valgrind/html/vr-manual.html ${TMPDIR}/html
+rsync -av --delete --exclude .git ${INSTALLDIR}/share/doc/valgrind/html/ ${TMPDIR}/html/
 (
     cd ${TMPDIR}/html
-    git add -u
+    git add .
     git status
     (
         echo "Updated documentation to ${HASH}"
         echo ""
-        echo "REMOVE THIS LINE"
+        echo "REMOVE THIS LINE TO COMMIT THESE CHANGES AND UPLOAD THEM"
     ) >../commit.msg
-    git config user.name "François Févotte"
+    (
+        echo "echo 'Staged changes'"
+        echo "git status --porcelain | grep '^??'"
+        echo "git diff --staged --stat"
+    ) >../bashrc
+    git config user.name  "François Févotte"
     git config user.email "francois.fevotte@edf.fr"
+    x-terminal-emulator -e "bash --init-file ../bashrc" &
+    firefox --new-window "vr-manual.html" &
     git commit -t ../commit.msg
     git push origin gh-pages
 )
-rm -rf "${TMPDIR}"

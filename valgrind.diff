@@ -79,6 +79,50 @@ Index: configure.ac
     shared/Makefile
     solaris/Makefile
  ])
+Index: docs/lib/vg_basic.css
+===================================================================
+--- docs/lib/vg_basic.css	(revision 16353)
++++ docs/lib/vg_basic.css	(working copy)
+@@ -65,3 +65,39 @@
+  border:      solid 1px #ffde84; 
+ }
+ 
++div.note,
++div.warning {
++    margin-left: 0 !important;
++    margin-right: 0 !important;
++    border-radius: 4px;
++    padding: 1em;
++}
++
++div.note h3,
++div.warning h3 {
++    font-size: 100%;
++    font-weight: bold;
++    margin-top: 0;
++}
++
++div.note p,
++div.warning p {
++    margin: 0;
++}
++
++div.note {
++    background-color: #d9edf7;
++    border: 1px solid #bce8f1;
++}
++div.note, div.note h3 {
++    color: #31708f;
++}
++
++div.warning {
++    background-color: #fcf8e3;
++    border: 1px solid #faebcc;
++}
++
++div.warning, div.warning h3 {
++    color: #8a6d3b;
++}
 Index: docs/xml/manpages-index.xml
 ===================================================================
 --- docs/xml/manpages-index.xml	(revision 16353)
