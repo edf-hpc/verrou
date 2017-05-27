@@ -1,13 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>11.&nbsp;README.mips</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>11. README.mips</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-android_emulator.html" title="10.&nbsp;README.android_emulator">
-<link rel="next" href="licenses.html" title="GNU Licenses">
+<link rel="prev" href="dist.readme-android_emulator.html" title="10. README.android_emulator">
+<link rel="next" href="dist.readme-solaris.html" title="12. README.solaris">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -15,76 +15,71 @@
 <td width="25px" align="center" valign="middle"><a accesskey="u" href="dist.html"><img src="images/up.png" width="21" height="18" border="0" alt="Up"></a></td>
 <td width="31px" align="center" valign="middle"><a accesskey="h" href="index.html"><img src="images/home.png" width="27" height="20" border="0" alt="Up"></a></td>
 <th align="center" valign="middle">Valgrind Distribution Documents</th>
-<td width="22px" align="center" valign="middle"><a accesskey="n" href="licenses.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
+<td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-solaris.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-mips"></a>11.&nbsp;README.mips</h1></div></div></div>
+<a name="dist.readme-mips"></a>11. README.mips</h1></div></div></div>
 <div class="literallayout"><p><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-Supported&nbsp;platforms<br>
+      <br>
+Supported platforms<br>
 -------------------<br>
--&nbsp;MIPS32&nbsp;and&nbsp;MIPS64&nbsp;platforms&nbsp;are&nbsp;currently&nbsp;supported.<br>
--&nbsp;Both&nbsp;little-endian&nbsp;and&nbsp;big-endian&nbsp;cores&nbsp;are&nbsp;supported.<br>
--&nbsp;MIPS&nbsp;DSP&nbsp;ASE&nbsp;on&nbsp;MIPS32&nbsp;platforms&nbsp;is&nbsp;supported.<br>
+- MIPS32 and MIPS64 platforms are currently supported.<br>
+- Both little-endian and big-endian cores are supported.<br>
+- MIPS DSP ASE on MIPS32 platforms is supported.<br>
 <br>
 <br>
-Building&nbsp;V&nbsp;for&nbsp;MIPS<br>
+Building V for MIPS<br>
 -------------------<br>
--&nbsp;Native&nbsp;build&nbsp;is&nbsp;available&nbsp;for&nbsp;all&nbsp;supported&nbsp;platforms.&nbsp;The&nbsp;build&nbsp;system<br>
-expects&nbsp;that&nbsp;native&nbsp;GCC&nbsp;is&nbsp;configured&nbsp;correctly&nbsp;and&nbsp;optimized&nbsp;for&nbsp;the&nbsp;platform.<br>
-Yet,&nbsp;this&nbsp;may&nbsp;not&nbsp;be&nbsp;the&nbsp;case&nbsp;with&nbsp;some&nbsp;Debian&nbsp;distributions&nbsp;which&nbsp;configure<br>
-GCC&nbsp;to&nbsp;compile&nbsp;to&nbsp;"mips1"&nbsp;by&nbsp;default.&nbsp;Depending&nbsp;on&nbsp;a&nbsp;target&nbsp;platform,&nbsp;using<br>
-CFLAGS="-mips32r2",&nbsp;CFLAGS="-mips32"&nbsp;or&nbsp;CFLAGS="-mips64"&nbsp;or<br>
-CFLAGS="-mips64&nbsp;-mabi=64"&nbsp;will&nbsp;do&nbsp;the&nbsp;trick&nbsp;and&nbsp;compile&nbsp;Valgrind&nbsp;correctly.<br>
+- Native build is available for all supported platforms. The build system<br>
+expects that native GCC is configured correctly and optimized for the platform.<br>
+Yet, this may not be the case with some Debian distributions which configure<br>
+GCC to compile to "mips1" by default. Depending on a target platform, using<br>
+CFLAGS="-mips32r2", CFLAGS="-mips32" or CFLAGS="-mips64" or<br>
+CFLAGS="-mips64 -mabi=64" will do the trick and compile Valgrind correctly.<br>
 <br>
--&nbsp;Use&nbsp;of&nbsp;cross-toolchain&nbsp;is&nbsp;supported&nbsp;as&nbsp;well.<br>
--&nbsp;Example&nbsp;of&nbsp;configure&nbsp;line&nbsp;and&nbsp;additional&nbsp;configure&nbsp;options:<br>
+- Use of cross-toolchain is supported as well.<br>
+- Example of configure line and additional configure options:<br>
 <br>
-&nbsp;&nbsp;&nbsp;$&nbsp;./configure&nbsp;--host=mipsel-linux-gnu&nbsp;--prefix=&lt;path_to_install_directory&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[--with-pagesize=&lt;4|16|64&gt;]<br>
+   $ ./configure --host=mipsel-linux-gnu --prefix=&lt;path_to_install_directory&gt;<br>
 <br>
-&nbsp;*&nbsp;--host=mips-linux-gnu&nbsp;is&nbsp;necessary&nbsp;only&nbsp;if&nbsp;Valgrind&nbsp;is&nbsp;built&nbsp;on&nbsp;platform<br>
-&nbsp;&nbsp;&nbsp;other&nbsp;then&nbsp;MIPS,&nbsp;tools&nbsp;for&nbsp;building&nbsp;MIPS&nbsp;application&nbsp;have&nbsp;to&nbsp;be&nbsp;in&nbsp;PATH.<br>
+ * --host=mips-linux-gnu is necessary only if Valgrind is built on platform<br>
+   other then MIPS, tools for building MIPS application have to be in PATH.<br>
 <br>
-&nbsp;*&nbsp;--with-pagesize&nbsp;option&nbsp;is&nbsp;used&nbsp;to&nbsp;set&nbsp;default&nbsp;PAGE&nbsp;SIZE.&nbsp;If&nbsp;option&nbsp;is&nbsp;not<br>
-&nbsp;&nbsp;&nbsp;used,&nbsp;PAGE&nbsp;SIZE&nbsp;is&nbsp;set&nbsp;to&nbsp;value&nbsp;default&nbsp;for&nbsp;platform&nbsp;on&nbsp;which&nbsp;Valgrind&nbsp;is<br>
-&nbsp;&nbsp;&nbsp;built&nbsp;on.&nbsp;Possible&nbsp;values&nbsp;are&nbsp;4,&nbsp;16&nbsp;of&nbsp;64&nbsp;and&nbsp;represent&nbsp;size&nbsp;in&nbsp;kilobytes.<br>
+ * --host=mips-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for big endian platform.<br>
 <br>
-&nbsp;*&nbsp;--host=mips-linux-gnu&nbsp;is&nbsp;necessary&nbsp;if&nbsp;you&nbsp;compile&nbsp;it&nbsp;with&nbsp;cross&nbsp;toolchain<br>
-&nbsp;&nbsp;&nbsp;compiler&nbsp;for&nbsp;big&nbsp;endian&nbsp;platform.<br>
+ * --host=mipsel-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for little endian platform.<br>
 <br>
-&nbsp;*&nbsp;--host=mipsel-linux-gnu&nbsp;is&nbsp;necessary&nbsp;if&nbsp;you&nbsp;compile&nbsp;it&nbsp;with&nbsp;cross&nbsp;toolchain<br>
-&nbsp;&nbsp;&nbsp;compiler&nbsp;for&nbsp;little&nbsp;endian&nbsp;platform.<br>
+ * --build=mips-linux is needed if you want to build it for MIPS32 on 64-bit<br>
+   MIPS system.<br>
 <br>
-&nbsp;*&nbsp;--build=mips-linux&nbsp;is&nbsp;needed&nbsp;if&nbsp;you&nbsp;want&nbsp;to&nbsp;build&nbsp;it&nbsp;for&nbsp;MIPS32&nbsp;on&nbsp;64-bit<br>
-&nbsp;&nbsp;&nbsp;MIPS&nbsp;system.<br>
+ * If you are compiling Valgrind for mips32 with gcc version older then<br>
+   gcc (GCC) 4.5.1, you must specify CFLAGS="-mips32r2 -mplt", e.g.<br>
 <br>
-&nbsp;*&nbsp;If&nbsp;you&nbsp;are&nbsp;compiling&nbsp;Valgrind&nbsp;for&nbsp;mips32&nbsp;with&nbsp;gcc&nbsp;version&nbsp;older&nbsp;then<br>
-&nbsp;&nbsp;&nbsp;gcc&nbsp;(GCC)&nbsp;4.5.1,&nbsp;you&nbsp;must&nbsp;specify&nbsp;CFLAGS="-mips32r2&nbsp;-mplt",&nbsp;e.g.<br>
-<br>
-&nbsp;&nbsp;&nbsp;./configure&nbsp;--prefix=&lt;path_to_install_directory&gt;<br>
-&nbsp;&nbsp;&nbsp;CFLAGS="-mips32r2&nbsp;-mplt"<br>
+   ./configure --prefix=&lt;path_to_install_directory&gt;<br>
+   CFLAGS="-mips32r2 -mplt"<br>
 <br>
 <br>
 Limitations<br>
 -----------<br>
--&nbsp;Some&nbsp;gdb&nbsp;tests&nbsp;will&nbsp;fail&nbsp;when&nbsp;gdb&nbsp;(GDB)&nbsp;older&nbsp;than&nbsp;7.5&nbsp;is&nbsp;used&nbsp;and&nbsp;gdb&nbsp;is<br>
-&nbsp;&nbsp;not&nbsp;compiled&nbsp;with&nbsp;'--with-expat=yes'.<br>
--&nbsp;You&nbsp;can&nbsp;not&nbsp;compile&nbsp;tests&nbsp;for&nbsp;DSP&nbsp;ASE&nbsp;if&nbsp;you&nbsp;are&nbsp;using&nbsp;gcc&nbsp;(GCC)&nbsp;older<br>
-&nbsp;&nbsp;then&nbsp;4.6.1&nbsp;due&nbsp;to&nbsp;a&nbsp;bug&nbsp;in&nbsp;the&nbsp;toolchain.<br>
--&nbsp;Older&nbsp;GCC&nbsp;may&nbsp;have&nbsp;issues&nbsp;with&nbsp;some&nbsp;inline&nbsp;assembly&nbsp;blocks.&nbsp;Get&nbsp;a&nbsp;toolchain<br>
-&nbsp;&nbsp;based&nbsp;on&nbsp;newer&nbsp;GCC&nbsp;versions,&nbsp;if&nbsp;possible.<br>
+- Some gdb tests will fail when gdb (GDB) older than 7.5 is used and gdb is<br>
+  not compiled with '--with-expat=yes'.<br>
+- You can not compile tests for DSP ASE if you are using gcc (GCC) older<br>
+  then 4.6.1 due to a bug in the toolchain.<br>
+- Older GCC may have issues with some inline assembly blocks. Get a toolchain<br>
+  based on newer GCC versions, if possible.<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-android_emulator.html">&lt;&lt;&nbsp;10.&nbsp;README.android_emulator</a>&nbsp;</td>
+<a accesskey="p" href="dist.readme-android_emulator.html">&lt;&lt; 10. README.android_emulator</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="licenses.html">GNU Licenses&nbsp;&gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-solaris.html">12. README.solaris &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

@@ -1,13 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>9.&nbsp;README.android</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>9. README.android</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-s390.html" title="8.&nbsp;README.S390">
-<link rel="next" href="dist.readme-android_emulator.html" title="10.&nbsp;README.android_emulator">
+<link rel="prev" href="dist.readme-s390.html" title="8. README.S390">
+<link rel="next" href="dist.readme-android_emulator.html" title="10. README.android_emulator">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,204 +19,228 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-android"></a>9.&nbsp;README.android</h1></div></div></div>
+<a name="dist.readme-android"></a>9. README.android</h1></div></div></div>
 <div class="literallayout"><p><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-How&nbsp;to&nbsp;cross-compile&nbsp;and&nbsp;run&nbsp;on&nbsp;Android.&nbsp;&nbsp;Please&nbsp;read&nbsp;to&nbsp;the&nbsp;end,<br>
-since&nbsp;there&nbsp;are&nbsp;important&nbsp;details&nbsp;further&nbsp;down&nbsp;regarding&nbsp;crash<br>
-avoidance&nbsp;and&nbsp;GPU&nbsp;support.<br>
+      <br>
+How to cross-compile and run on Android.  Please read to the end,<br>
+since there are important details further down regarding crash<br>
+avoidance and GPU support.<br>
 <br>
-These&nbsp;notes&nbsp;were&nbsp;last&nbsp;updated&nbsp;on&nbsp;3&nbsp;Sept&nbsp;2014,&nbsp;for&nbsp;Valgrind&nbsp;SVN<br>
-revision&nbsp;14439/2941.<br>
+These notes were last updated on 4 Nov 2014, for Valgrind SVN<br>
+revision 14689/2987.<br>
 <br>
-These&nbsp;instructions&nbsp;are&nbsp;known&nbsp;to&nbsp;work,&nbsp;or&nbsp;have&nbsp;worked&nbsp;at&nbsp;some&nbsp;time&nbsp;in<br>
-the&nbsp;past,&nbsp;for:<br>
+These instructions are known to work, or have worked at some time in<br>
+the past, for:<br>
 <br>
 arm:<br>
-&nbsp;&nbsp;Android&nbsp;4.0.3&nbsp;running&nbsp;on&nbsp;a&nbsp;(rooted,&nbsp;AOSP&nbsp;build)&nbsp;Nexus&nbsp;S.<br>
-&nbsp;&nbsp;Android&nbsp;4.0.3&nbsp;running&nbsp;on&nbsp;Motorola&nbsp;Xoom.<br>
-&nbsp;&nbsp;Android&nbsp;4.0.3&nbsp;running&nbsp;on&nbsp;android&nbsp;arm&nbsp;emulator.<br>
-&nbsp;&nbsp;Android&nbsp;4.1&nbsp;&nbsp;&nbsp;running&nbsp;on&nbsp;android&nbsp;emulator.<br>
-&nbsp;&nbsp;Android&nbsp;2.3.4&nbsp;on&nbsp;Nexus&nbsp;S&nbsp;worked&nbsp;at&nbsp;some&nbsp;time&nbsp;in&nbsp;the&nbsp;past.<br>
+  Android 4.0.3 running on a (rooted, AOSP build) Nexus S.<br>
+  Android 4.0.3 running on Motorola Xoom.<br>
+  Android 4.0.3 running on android arm emulator.<br>
+  Android 4.1   running on android emulator.<br>
+  Android 2.3.4 on Nexus S worked at some time in the past.<br>
 <br>
 x86:<br>
-&nbsp;&nbsp;Android&nbsp;4.0.3&nbsp;running&nbsp;on&nbsp;android&nbsp;x86&nbsp;emulator.<br>
+  Android 4.0.3 running on android x86 emulator.<br>
 <br>
 mips32:<br>
-&nbsp;&nbsp;Android&nbsp;4.1.2&nbsp;running&nbsp;on&nbsp;android&nbsp;mips&nbsp;emulator.<br>
-&nbsp;&nbsp;Android&nbsp;4.2.2&nbsp;running&nbsp;on&nbsp;android&nbsp;mips&nbsp;emulator.<br>
-&nbsp;&nbsp;Android&nbsp;4.3&nbsp;&nbsp;&nbsp;running&nbsp;on&nbsp;android&nbsp;mips&nbsp;emulator.<br>
-&nbsp;&nbsp;Android&nbsp;4.0.4&nbsp;running&nbsp;on&nbsp;BROADCOM&nbsp;bcm7425<br>
+  Android 4.1.2 running on android mips emulator.<br>
+  Android 4.2.2 running on android mips emulator.<br>
+  Android 4.3   running on android mips emulator.<br>
+  Android 4.0.4 running on BROADCOM bcm7425<br>
 <br>
-On&nbsp;android-arm,&nbsp;GDBserver&nbsp;might&nbsp;insert&nbsp;breaks&nbsp;at&nbsp;wrong&nbsp;addresses.<br>
-Feedback&nbsp;on&nbsp;this&nbsp;welcome.<br>
+arm64:<br>
+  Android 4.5 (?) running on ARM Juno<br>
 <br>
-Other&nbsp;configurations&nbsp;and&nbsp;toolchains&nbsp;might&nbsp;work,&nbsp;but&nbsp;haven't&nbsp;been&nbsp;tested.<br>
-Feedback&nbsp;is&nbsp;welcome.<br>
+On android-arm, GDBserver might insert breaks at wrong addresses.<br>
+Feedback on this welcome.<br>
+<br>
+Other configurations and toolchains might work, but haven't been tested.<br>
+Feedback is welcome.<br>
+<br>
+Toolchain:<br>
+<br>
+  For arm32, x86 and mips32 you need the android-ndk-r6 native<br>
+    development kit.  r6b and r7 give a non-completely-working build;<br>
+    see http://code.google.com/p/android/issues/detail?id=23203<br>
+    For the android emulator, the versions needed and how to install<br>
+    them are described in README.android_emulator.<br>
+<br>
+    You can get android-ndk-r6 from<br>
+    http://dl.google.com/android/ndk/android-ndk-r6-linux-x86.tar.bz2<br>
+<br>
+  For arm64 (aarch64) you need the android-ndk-r10c NDK, from<br>
+    http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin<br>
+<br>
+Install the NDK somewhere.  Doesn't matter where.  Then:<br>
 <br>
 <br>
-You&nbsp;need&nbsp;the&nbsp;android-ndk-r6&nbsp;native&nbsp;development&nbsp;kit.&nbsp;&nbsp;r6b&nbsp;and&nbsp;r7<br>
-give&nbsp;a&nbsp;non-completely-working&nbsp;build;&nbsp;see<br>
-http://code.google.com/p/android/issues/detail?id=23203<br>
-For&nbsp;the&nbsp;android&nbsp;emulator,&nbsp;the&nbsp;versions&nbsp;needed&nbsp;and&nbsp;how&nbsp;to<br>
-install&nbsp;them&nbsp;are&nbsp;described&nbsp;in&nbsp;README.android_emulator.<br>
-<br>
-You&nbsp;can&nbsp;get&nbsp;android-ndk-r6&nbsp;from<br>
-http://dl.google.com/android/ndk/android-ndk-r6-linux-x86.tar.bz2<br>
-Install&nbsp;it&nbsp;somewhere.&nbsp;&nbsp;Doesn't&nbsp;matter&nbsp;where.&nbsp;&nbsp;Then:<br>
-<br>
-<br>
-#&nbsp;Modify&nbsp;this&nbsp;(obviously).&nbsp;&nbsp;Note,&nbsp;this&nbsp;"export"&nbsp;command&nbsp;is&nbsp;only&nbsp;done<br>
-#&nbsp;so&nbsp;as&nbsp;to&nbsp;reduce&nbsp;the&nbsp;amount&nbsp;of&nbsp;typing&nbsp;required.&nbsp;&nbsp;None&nbsp;of&nbsp;the&nbsp;commands<br>
-#&nbsp;below&nbsp;read&nbsp;it&nbsp;as&nbsp;part&nbsp;of&nbsp;their&nbsp;operation.<br>
+# Modify this (obviously).  Note, this "export" command is only done<br>
+# so as to reduce the amount of typing required.  None of the commands<br>
+# below read it as part of their operation.<br>
 #<br>
-export&nbsp;NDKROOT=/path/to/android-ndk-r6<br>
+export NDKROOT=/path/to/android-ndk-r&lt;version&gt;<br>
 <br>
 <br>
-#&nbsp;Then&nbsp;cd&nbsp;to&nbsp;the&nbsp;root&nbsp;of&nbsp;your&nbsp;Valgrind&nbsp;source&nbsp;tree.<br>
+# Then cd to the root of your Valgrind source tree.<br>
 #<br>
-cd&nbsp;/path/to/valgrind/source/tree<br>
+cd /path/to/valgrind/source/tree<br>
 <br>
 <br>
-#&nbsp;After&nbsp;this&nbsp;point,&nbsp;you&nbsp;don't&nbsp;need&nbsp;to&nbsp;modify&nbsp;anything.&nbsp;&nbsp;Just&nbsp;copy&nbsp;and<br>
-#&nbsp;paste&nbsp;the&nbsp;commands&nbsp;below.<br>
+# After this point, you don't need to modify anything.  Just copy and<br>
+# paste the commands below.<br>
 <br>
 <br>
-#&nbsp;Set&nbsp;up&nbsp;toolchain&nbsp;paths.<br>
+# Set up toolchain paths.<br>
 #<br>
-#&nbsp;For&nbsp;ARM<br>
-export&nbsp;AR=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-ar<br>
-export&nbsp;LD=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-ld<br>
-export&nbsp;CC=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gcc<br>
+# For ARM<br>
+export AR=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-ar<br>
+export LD=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-ld<br>
+export CC=$NDKROOT/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gcc<br>
 <br>
-#&nbsp;For&nbsp;x86<br>
-export&nbsp;AR=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-ar<br>
-export&nbsp;LD=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-ld<br>
-export&nbsp;CC=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-gcc<br>
+# For x86<br>
+export AR=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-ar<br>
+export LD=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-ld<br>
+export CC=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linux-gcc<br>
 <br>
-#&nbsp;For&nbsp;MIPS32<br>
-export&nbsp;AR=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ar<br>
-export&nbsp;LD=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ld<br>
-export&nbsp;CC=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-gcc<br>
+# For MIPS32<br>
+export AR=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ar<br>
+export LD=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ld<br>
+export CC=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-gcc<br>
+<br>
+# For ARM64 (AArch64)<br>
+export AR=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar <br>
+export LD=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-ld<br>
+export CC=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-gcc<br>
 <br>
 <br>
-#&nbsp;Do&nbsp;configuration&nbsp;stuff.&nbsp;&nbsp;Don't&nbsp;mess&nbsp;with&nbsp;the&nbsp;--prefix&nbsp;in&nbsp;the<br>
-#&nbsp;configure&nbsp;command&nbsp;below,&nbsp;even&nbsp;if&nbsp;you&nbsp;think&nbsp;it's&nbsp;wrong.<br>
-#&nbsp;You&nbsp;may&nbsp;need&nbsp;to&nbsp;set&nbsp;the&nbsp;--with-tmpdir&nbsp;path&nbsp;to&nbsp;something<br>
-#&nbsp;different&nbsp;if&nbsp;/sdcard&nbsp;doesn't&nbsp;work&nbsp;on&nbsp;the&nbsp;device&nbsp;--&nbsp;this&nbsp;is<br>
-#&nbsp;a&nbsp;known&nbsp;cause&nbsp;of&nbsp;difficulties.<br>
+# Do configuration stuff.  Don't mess with the --prefix in the<br>
+# configure command below, even if you think it's wrong.<br>
+# You may need to set the --with-tmpdir path to something<br>
+# different if /sdcard doesn't work on the device -- this is<br>
+# a known cause of difficulties.<br>
 <br>
-#&nbsp;The&nbsp;below&nbsp;re-generates&nbsp;configure,&nbsp;Makefiles,&nbsp;...<br>
-#&nbsp;This&nbsp;is&nbsp;not&nbsp;needed&nbsp;if&nbsp;you&nbsp;start&nbsp;from&nbsp;a&nbsp;release&nbsp;tarball.<br>
+# The below re-generates configure, Makefiles, ...<br>
+# This is not needed if you start from a release tarball.<br>
 ./autogen.sh<br>
 <br>
-#&nbsp;for&nbsp;ARM<br>
-CPPFLAGS="--sysroot=$NDKROOT/platforms/android-3/arch-arm"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;CFLAGS="--sysroot=$NDKROOT/platforms/android-3/arch-arm"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;./configure&nbsp;--prefix=/data/local/Inst&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--host=armv7-unknown-linux&nbsp;--target=armv7-unknown-linux&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--with-tmpdir=/sdcard<br>
-#&nbsp;note:&nbsp;on&nbsp;android&nbsp;emulator,&nbsp;android-14&nbsp;platform&nbsp;was&nbsp;also&nbsp;tested&nbsp;and&nbsp;works.<br>
-#&nbsp;It&nbsp;is&nbsp;not&nbsp;clear&nbsp;what&nbsp;this&nbsp;platform&nbsp;nr&nbsp;really&nbsp;is.<br>
+# for ARM<br>
+CPPFLAGS="--sysroot=$NDKROOT/platforms/android-3/arch-arm" \<br>
+   CFLAGS="--sysroot=$NDKROOT/platforms/android-3/arch-arm" \<br>
+   ./configure --prefix=/data/local/Inst \<br>
+   --host=armv7-unknown-linux --target=armv7-unknown-linux \<br>
+   --with-tmpdir=/sdcard<br>
+# note: on android emulator, android-14 platform was also tested and works.<br>
+# It is not clear what this platform nr really is.<br>
 <br>
-#&nbsp;for&nbsp;x86<br>
-CPPFLAGS="--sysroot=$NDKROOT/platforms/android-9/arch-x86"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;CFLAGS="--sysroot=$NDKROOT/platforms/android-9/arch-x86&nbsp;-fno-pic"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;./configure&nbsp;--prefix=/data/local/Inst&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--host=i686-android-linux&nbsp;--target=i686-android-linux&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--with-tmpdir=/sdcard<br>
+# for x86<br>
+CPPFLAGS="--sysroot=$NDKROOT/platforms/android-9/arch-x86" \<br>
+   CFLAGS="--sysroot=$NDKROOT/platforms/android-9/arch-x86 -fno-pic" \<br>
+   ./configure --prefix=/data/local/Inst \<br>
+   --host=i686-android-linux --target=i686-android-linux \<br>
+   --with-tmpdir=/sdcard<br>
 <br>
-#&nbsp;for&nbsp;MIPS32<br>
-CPPFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;CFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips"&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;./configure&nbsp;--prefix=/data/local/Inst&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--host=mipsel-linux-android&nbsp;--target=mipsel-linux-android&nbsp;\<br>
-&nbsp;&nbsp;&nbsp;--with-tmpdir=/sdcard<br>
+# for MIPS32<br>
+CPPFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips" \<br>
+   CFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips" \<br>
+   ./configure --prefix=/data/local/Inst \<br>
+   --host=mipsel-linux-android --target=mipsel-linux-android \<br>
+   --with-tmpdir=/sdcard<br>
+<br>
+# for ARM64 (AArch64)<br>
+CPPFLAGS="--sysroot=$NDKROOT/platforms/android-21/arch-arm64" \<br>
+   CFLAGS="--sysroot=$NDKROOT/platforms/android-21/arch-arm64" \<br>
+   ./configure --prefix=/data/local/Inst \<br>
+   --host=aarch64-unknown-linux --target=aarch64-unknown-linux \<br>
+   --with-tmpdir=/sdcard<br>
 <br>
 <br>
-#&nbsp;At&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;configure&nbsp;run,&nbsp;a&nbsp;few&nbsp;lines&nbsp;of&nbsp;details<br>
-#&nbsp;are&nbsp;printed.&nbsp;&nbsp;Make&nbsp;sure&nbsp;that&nbsp;you&nbsp;see&nbsp;these&nbsp;two&nbsp;lines:<br>
+# At the end of the configure run, a few lines of details<br>
+# are printed.  Make sure that you see these two lines:<br>
 #<br>
-#&nbsp;For&nbsp;ARM:<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Platform&nbsp;variant:&nbsp;android<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primary&nbsp;-DVGPV&nbsp;string:&nbsp;-DVGPV_arm_linux_android=1<br>
+# For ARM:<br>
+#          Platform variant: android<br>
+#     Primary -DVGPV string: -DVGPV_arm_linux_android=1<br>
 #<br>
-#&nbsp;For&nbsp;x86:<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Platform&nbsp;variant:&nbsp;android<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primary&nbsp;-DVGPV&nbsp;string:&nbsp;-DVGPV_x86_linux_android=1<br>
+# For x86:<br>
+#          Platform variant: android<br>
+#     Primary -DVGPV string: -DVGPV_x86_linux_android=1<br>
 #<br>
-#&nbsp;For&nbsp;mips32:<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Platform&nbsp;variant:&nbsp;android<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primary&nbsp;-DVGPV&nbsp;string:&nbsp;-DVGPV_mips32_linux_android=1<br>
+# For mips32:<br>
+#          Platform variant: android<br>
+#     Primary -DVGPV string: -DVGPV_mips32_linux_android=1<br>
 #<br>
-#&nbsp;If&nbsp;you&nbsp;see&nbsp;anything&nbsp;else&nbsp;at&nbsp;this&nbsp;point,&nbsp;something&nbsp;is&nbsp;wrong,&nbsp;and<br>
-#&nbsp;either&nbsp;the&nbsp;build&nbsp;will&nbsp;fail,&nbsp;or&nbsp;will&nbsp;succeed&nbsp;but&nbsp;you'll&nbsp;get&nbsp;something<br>
-#&nbsp;which&nbsp;won't&nbsp;work.<br>
+# For ARM64 (AArch64):<br>
+#          Platform variant: android<br>
+#     Primary -DVGPV string: -DVGPV_arm64_linux_android=1<br>
+#<br>
+# If you see anything else at this point, something is wrong, and<br>
+# either the build will fail, or will succeed but you'll get something<br>
+# which won't work.<br>
 <br>
 <br>
-#&nbsp;Build,&nbsp;and&nbsp;park&nbsp;the&nbsp;install&nbsp;tree&nbsp;in&nbsp;`pwd`/Inst<br>
+# Build, and park the install tree in `pwd`/Inst<br>
 #<br>
-make&nbsp;-j2<br>
-make&nbsp;-j2&nbsp;install&nbsp;DESTDIR=`pwd`/Inst<br>
+make -j4<br>
+make -j4 install DESTDIR=`pwd`/Inst<br>
 <br>
 <br>
-#&nbsp;To&nbsp;get&nbsp;the&nbsp;install&nbsp;tree&nbsp;onto&nbsp;the&nbsp;device:<br>
-#&nbsp;(I&nbsp;don't&nbsp;know&nbsp;why&nbsp;it's&nbsp;not&nbsp;"adb&nbsp;push&nbsp;Inst&nbsp;/data/local",&nbsp;but&nbsp;this<br>
-#&nbsp;formulation&nbsp;does&nbsp;appear&nbsp;to&nbsp;put&nbsp;the&nbsp;result&nbsp;in&nbsp;/data/local/Inst.)<br>
+# To get the install tree onto the device:<br>
+# (I don't know why it's not "adb push Inst /data/local", but this<br>
+# formulation does appear to put the result in /data/local/Inst.)<br>
 #<br>
-adb&nbsp;push&nbsp;Inst&nbsp;/<br>
+adb push Inst /<br>
 <br>
 <br>
-#&nbsp;To&nbsp;run&nbsp;(on&nbsp;the&nbsp;device).&nbsp;&nbsp;There&nbsp;are&nbsp;two&nbsp;things&nbsp;you&nbsp;need&nbsp;to&nbsp;consider:<br>
+# To run (on the device).  There are two things you need to consider:<br>
 #<br>
-#&nbsp;(1)&nbsp;if&nbsp;you&nbsp;are&nbsp;running&nbsp;on&nbsp;the&nbsp;Android&nbsp;emulator,&nbsp;Valgrind&nbsp;may&nbsp;crash<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;startup.&nbsp;&nbsp;This&nbsp;is&nbsp;because&nbsp;the&nbsp;emulator&nbsp;(for&nbsp;ARM)&nbsp;may&nbsp;not&nbsp;be<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simulating&nbsp;a&nbsp;hardware&nbsp;TLS&nbsp;register.&nbsp;&nbsp;To&nbsp;get&nbsp;around&nbsp;this,&nbsp;run<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Valgrind&nbsp;with:<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--kernel-variant=android-emulator-no-hw-tls<br>
-#&nbsp;<br>
-#&nbsp;(2)&nbsp;if&nbsp;you&nbsp;are&nbsp;running&nbsp;a&nbsp;real&nbsp;device,&nbsp;you&nbsp;need&nbsp;to&nbsp;tell&nbsp;Valgrind<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;what&nbsp;GPU&nbsp;it&nbsp;has,&nbsp;so&nbsp;Valgrind&nbsp;knows&nbsp;how&nbsp;to&nbsp;handle&nbsp;custom&nbsp;GPU<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ioctls.&nbsp;&nbsp;You&nbsp;can&nbsp;choose&nbsp;one&nbsp;of&nbsp;the&nbsp;following:<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--kernel-variant=android-gpu-sgx5xx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;PowerVR&nbsp;SGX&nbsp;5XX&nbsp;series<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--kernel-variant=android-gpu-adreno3xx&nbsp;&nbsp;#&nbsp;Qualcomm&nbsp;Adreno&nbsp;3XX&nbsp;series<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;you&nbsp;don't&nbsp;choose&nbsp;one,&nbsp;the&nbsp;program&nbsp;will&nbsp;still&nbsp;run,&nbsp;but&nbsp;Memcheck<br>
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;may&nbsp;report&nbsp;false&nbsp;errors&nbsp;after&nbsp;the&nbsp;program&nbsp;performs&nbsp;GPU-specific&nbsp;ioctls.<br>
+# (1) if you are running on the Android emulator, Valgrind may crash<br>
+#     at startup.  This is because the emulator (for ARM) may not be<br>
+#     simulating a hardware TLS register.  To get around this, run<br>
+#     Valgrind with:<br>
+#       --kernel-variant=android-no-hw-tls<br>
+# <br>
+# (2) if you are running a real device, you need to tell Valgrind<br>
+#     what GPU it has, so Valgrind knows how to handle custom GPU<br>
+#     ioctls.  You can choose one of the following:<br>
+#       --kernel-variant=android-gpu-sgx5xx     # PowerVR SGX 5XX series<br>
+#       --kernel-variant=android-gpu-adreno3xx  # Qualcomm Adreno 3XX series<br>
+#     If you don't choose one, the program will still run, but Memcheck<br>
+#     may report false errors after the program performs GPU-specific ioctls.<br>
 #<br>
-#&nbsp;Anyway:&nbsp;to&nbsp;run&nbsp;on&nbsp;the&nbsp;device:<br>
+# Anyway: to run on the device:<br>
 #<br>
-/data/local/Inst/bin/valgrind&nbsp;[kernel&nbsp;variant&nbsp;args]&nbsp;[the&nbsp;usual&nbsp;args&nbsp;etc]<br>
+/data/local/Inst/bin/valgrind [kernel variant args] [the usual args etc]<br>
 <br>
 <br>
-#&nbsp;Once&nbsp;you're&nbsp;up&nbsp;and&nbsp;running,&nbsp;a&nbsp;handy&nbsp;modify-V-rebuild-reinstall<br>
-#&nbsp;command&nbsp;line&nbsp;(on&nbsp;the&nbsp;host,&nbsp;of&nbsp;course)&nbsp;is<br>
+# Once you're up and running, a handy modify-V-rebuild-reinstall<br>
+# command line (on the host, of course) is<br>
 #<br>
-mq&nbsp;-j2&nbsp;&amp;&amp;&nbsp;mq&nbsp;-j2&nbsp;install&nbsp;DESTDIR=`pwd`/Inst&nbsp;&amp;&amp;&nbsp;adb&nbsp;push&nbsp;Inst&nbsp;/<br>
+mq -j2 &amp;&amp; mq -j2 install DESTDIR=`pwd`/Inst &amp;&amp; adb push Inst /<br>
 #<br>
-#&nbsp;where&nbsp;'mq'&nbsp;is&nbsp;an&nbsp;alias&nbsp;for&nbsp;'make&nbsp;--quiet'.<br>
+# where 'mq' is an alias for 'make --quiet'.<br>
 <br>
 <br>
-#&nbsp;One&nbsp;common&nbsp;cause&nbsp;of&nbsp;runs&nbsp;failing&nbsp;at&nbsp;startup&nbsp;is&nbsp;the&nbsp;inability&nbsp;of<br>
-#&nbsp;Valgrind&nbsp;to&nbsp;find&nbsp;a&nbsp;suitable&nbsp;temporary&nbsp;directory.&nbsp;&nbsp;On&nbsp;the&nbsp;device,<br>
-#&nbsp;there&nbsp;doesn't&nbsp;seem&nbsp;to&nbsp;be&nbsp;any&nbsp;one&nbsp;location&nbsp;which&nbsp;we&nbsp;always&nbsp;have<br>
-#&nbsp;permission&nbsp;to&nbsp;write&nbsp;to.&nbsp;&nbsp;The&nbsp;instructions&nbsp;above&nbsp;use&nbsp;/sdcard.&nbsp;&nbsp;If<br>
-#&nbsp;that&nbsp;doesn't&nbsp;work&nbsp;for&nbsp;you,&nbsp;and&nbsp;you're&nbsp;Valgrinding&nbsp;one&nbsp;specific<br>
-#&nbsp;application&nbsp;which&nbsp;is&nbsp;already&nbsp;installed,&nbsp;you&nbsp;could&nbsp;try&nbsp;using&nbsp;its<br>
-#&nbsp;temporary&nbsp;directory,&nbsp;in&nbsp;/data/data,&nbsp;for&nbsp;example<br>
-#&nbsp;/data/data/org.mozilla.firefox_beta.<br>
+# One common cause of runs failing at startup is the inability of<br>
+# Valgrind to find a suitable temporary directory.  On the device,<br>
+# there doesn't seem to be any one location which we always have<br>
+# permission to write to.  The instructions above use /sdcard.  If<br>
+# that doesn't work for you, and you're Valgrinding one specific<br>
+# application which is already installed, you could try using its<br>
+# temporary directory, in /data/data, for example<br>
+# /data/data/org.mozilla.firefox_beta.<br>
 #<br>
-#&nbsp;Using&nbsp;/system/bin/logcat&nbsp;on&nbsp;the&nbsp;device&nbsp;is&nbsp;helpful&nbsp;for&nbsp;diagnosing<br>
-#&nbsp;these&nbsp;kinds&nbsp;of&nbsp;problems.<br>
+# Using /system/bin/logcat on the device is helpful for diagnosing<br>
+# these kinds of problems.<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-s390.html">&lt;&lt;&nbsp;8.&nbsp;README.S390</a>&nbsp;</td>
+<a accesskey="p" href="dist.readme-s390.html">&lt;&lt; 8. README.S390</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-android_emulator.html">10.&nbsp;README.android_emulator&nbsp;&gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-android_emulator.html">10. README.android_emulator &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

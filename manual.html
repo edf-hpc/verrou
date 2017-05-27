@@ -1,13 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Valgrind User Manual</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="index.html" title="Valgrind Documentation">
 <link rel="prev" href="quick-start.html" title="The Valgrind Quick Start Guide">
-<link rel="next" href="manual-intro.html" title="1.&nbsp;Introduction">
+<link rel="next" href="manual-intro.html" title="1. Introduction">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -22,10 +22,10 @@
 <div>
 <div><h1 class="title">
 <a name="manual"></a>Valgrind User Manual</h1></div>
-<div><p class="releaseinfo">Release 3.10.0 10 September 2014</p></div>
-<div><p class="copyright">Copyright � 2000-2014 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
+<div><p class="releaseinfo">Release 3.12.0+verrou-dev 20 October 2016</p></div>
+<div><p class="copyright">Copyright © 2000-2016 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
 <div><div class="legalnotice">
-<a name="idp46516736"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
+<a name="idm105"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
 </div></div>
 </div>
 <hr>
@@ -270,9 +270,9 @@ function</a></span></dt>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.overview">10.1. Overview</a></span></dt>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.understanding">10.2. Understanding DHAT's output</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="dh-manual.html#idp46114944">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp50727152">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp53295888">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm5723">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm5737">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm5757">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.options">10.3. DHAT Command-line Options</a></span></dt>
 </dl></dd>
@@ -304,22 +304,30 @@ function</a></span></dt>
 </dl></dd>
 <dt><span class="chapter"><a href="vr-manual.html">14. Verrou: a floating-point rounding errors checker</a></span></dt>
 <dd><dl>
-<dt><span class="sect1"><a href="vr-manual.html#vr-manual.overview">14.1. Overview</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.overview">14.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.basic-usage">14.1.1. Basic usage</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat">14.1.2. Standard features</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6023">14.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">14.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="vr-manual.html#vr-manual.advanced">14.2. Advanced features</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat">14.2. Standard features</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.instr">14.2.1. Instrumented sections</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.exclude">14.2.2. Excluded code blocks</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.feat.deterministic">14.2.3. Deterministic sections</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.count">14.2.1. Floating-point instructions counting</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.rounding-mode">14.2.2. Rounding-mode switching</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="vr-manual.html#vr-manual.reference">14.3. Reference</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.scope">14.3. Restriction of the perturbations scope</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.clo">14.3.1. Command-line options</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#vr-manual.client-requests">14.3.2. Client requests</a></span></dt>
-<dt><span class="sect2"><a href="vr-manual.html#idp47107056">14.3.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.exclude">14.3.1. Excluded symbols</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.instr">14.3.2. Instrumented sections</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization">14.4. Debugging and error localization</a></span></dt>
+<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">14.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd</strong></span> command</a></span></dt></dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.advanced">14.5. Advanced features</a></span></dt>
+<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.feat.deterministic">14.5.1. Deterministic sections</a></span></dt></dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.reference">14.6. Reference</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.clo">14.6.1. Command-line options</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">14.6.2. Client requests</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6631">14.6.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl></dd>
 <dt><span class="chapter"><a href="nl-manual.html">15. Nulgrind: the minimal Valgrind tool</a></span></dt>
@@ -331,9 +339,9 @@ function</a></span></dt>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="quick-start.html">&lt;&lt;&nbsp;The Valgrind Quick Start Guide</a>&nbsp;</td>
+<a accesskey="p" href="quick-start.html">&lt;&lt; The Valgrind Quick Start Guide</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="manual-intro.html">1.&nbsp;Introduction&nbsp;&gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="manual-intro.html">1. Introduction &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

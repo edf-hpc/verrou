@@ -1,13 +1,13 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>7.&nbsp;README_PACKAGERS</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>7. README_PACKAGERS</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-developers.html" title="6.&nbsp;README_DEVELOPERS">
-<link rel="next" href="dist.readme-s390.html" title="8.&nbsp;README.S390">
+<link rel="prev" href="dist.readme-developers.html" title="6. README_DEVELOPERS">
+<link rel="next" href="dist.readme-s390.html" title="8. README.S390">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,113 +19,113 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-packagers"></a>7.&nbsp;README_PACKAGERS</h1></div></div></div>
+<a name="dist.readme-packagers"></a>7. README_PACKAGERS</h1></div></div></div>
 <div class="literallayout"><p><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
-Greetings,&nbsp;packaging&nbsp;person!&nbsp;&nbsp;This&nbsp;information&nbsp;is&nbsp;aimed&nbsp;at&nbsp;people<br>
-building&nbsp;binary&nbsp;distributions&nbsp;of&nbsp;Valgrind.<br>
+      <br>
+Greetings, packaging person!  This information is aimed at people<br>
+building binary distributions of Valgrind.<br>
 <br>
-Thanks&nbsp;for&nbsp;taking&nbsp;the&nbsp;time&nbsp;and&nbsp;effort&nbsp;to&nbsp;make&nbsp;a&nbsp;binary&nbsp;distribution&nbsp;of<br>
-Valgrind.&nbsp;&nbsp;The&nbsp;following&nbsp;notes&nbsp;may&nbsp;save&nbsp;you&nbsp;some&nbsp;trouble.<br>
-<br>
-<br>
---&nbsp;Do&nbsp;not&nbsp;ship&nbsp;your&nbsp;Linux&nbsp;distro&nbsp;with&nbsp;a&nbsp;completely&nbsp;stripped<br>
-&nbsp;&nbsp;&nbsp;/lib/ld.so.&nbsp;&nbsp;At&nbsp;least&nbsp;leave&nbsp;the&nbsp;debugging&nbsp;symbol&nbsp;names&nbsp;on&nbsp;--&nbsp;line<br>
-&nbsp;&nbsp;&nbsp;number&nbsp;info&nbsp;isn't&nbsp;necessary.&nbsp;&nbsp;If&nbsp;you&nbsp;don't&nbsp;want&nbsp;to&nbsp;leave&nbsp;symbols&nbsp;on<br>
-&nbsp;&nbsp;&nbsp;ld.so,&nbsp;alternatively&nbsp;you&nbsp;can&nbsp;have&nbsp;your&nbsp;distro&nbsp;install&nbsp;ld.so's<br>
-&nbsp;&nbsp;&nbsp;debuginfo&nbsp;package&nbsp;by&nbsp;default,&nbsp;or&nbsp;make&nbsp;ld.so.debuginfo&nbsp;be&nbsp;a<br>
-&nbsp;&nbsp;&nbsp;requirement&nbsp;of&nbsp;your&nbsp;Valgrind&nbsp;RPM/DEB/whatever.<br>
-<br>
-&nbsp;&nbsp;&nbsp;Reason&nbsp;for&nbsp;this&nbsp;is&nbsp;that&nbsp;Valgrind's&nbsp;Memcheck&nbsp;tool&nbsp;needs&nbsp;to&nbsp;intercept<br>
-&nbsp;&nbsp;&nbsp;calls&nbsp;to,&nbsp;and&nbsp;provide&nbsp;replacements&nbsp;for,&nbsp;some&nbsp;symbols&nbsp;in&nbsp;ld.so&nbsp;at<br>
-&nbsp;&nbsp;&nbsp;startup&nbsp;(most&nbsp;importantly&nbsp;strlen).&nbsp;&nbsp;If&nbsp;it&nbsp;cannot&nbsp;do&nbsp;that,&nbsp;Memcheck<br>
-&nbsp;&nbsp;&nbsp;shows&nbsp;a&nbsp;large&nbsp;number&nbsp;of&nbsp;false&nbsp;positives&nbsp;due&nbsp;to&nbsp;the&nbsp;highly&nbsp;optimised<br>
-&nbsp;&nbsp;&nbsp;strlen&nbsp;(etc)&nbsp;routines&nbsp;in&nbsp;ld.so.&nbsp;&nbsp;This&nbsp;has&nbsp;caused&nbsp;some&nbsp;trouble&nbsp;in<br>
-&nbsp;&nbsp;&nbsp;the&nbsp;past.&nbsp;&nbsp;As&nbsp;of&nbsp;version&nbsp;3.3.0,&nbsp;on&nbsp;some&nbsp;targets&nbsp;(ppc32-linux,<br>
-&nbsp;&nbsp;&nbsp;ppc64-linux),&nbsp;Memcheck&nbsp;will&nbsp;simply&nbsp;stop&nbsp;at&nbsp;startup&nbsp;(and&nbsp;print&nbsp;an<br>
-&nbsp;&nbsp;&nbsp;error&nbsp;message)&nbsp;if&nbsp;such&nbsp;symbols&nbsp;are&nbsp;not&nbsp;present,&nbsp;because&nbsp;it&nbsp;is<br>
-&nbsp;&nbsp;&nbsp;infeasible&nbsp;to&nbsp;continue.<br>
-<br>
-&nbsp;&nbsp;&nbsp;It's&nbsp;not&nbsp;like&nbsp;this&nbsp;is&nbsp;going&nbsp;to&nbsp;cost&nbsp;you&nbsp;much&nbsp;space.&nbsp;&nbsp;We&nbsp;only&nbsp;need<br>
-&nbsp;&nbsp;&nbsp;the&nbsp;symbols&nbsp;for&nbsp;ld.so&nbsp;(a&nbsp;few&nbsp;K&nbsp;at&nbsp;most).&nbsp;&nbsp;Not&nbsp;the&nbsp;debug&nbsp;info&nbsp;and<br>
-&nbsp;&nbsp;&nbsp;not&nbsp;any&nbsp;debuginfo&nbsp;or&nbsp;extra&nbsp;symbols&nbsp;for&nbsp;any&nbsp;other&nbsp;libraries.<br>
+Thanks for taking the time and effort to make a binary distribution of<br>
+Valgrind.  The following notes may save you some trouble.<br>
 <br>
 <br>
---&nbsp;(Unfortunate&nbsp;but&nbsp;true)&nbsp;When&nbsp;you&nbsp;configure&nbsp;to&nbsp;build&nbsp;with&nbsp;the&nbsp;<br>
-&nbsp;&nbsp;&nbsp;--prefix=/foo/bar/xyzzy&nbsp;option,&nbsp;the&nbsp;prefix&nbsp;/foo/bar/xyzzy&nbsp;gets<br>
-&nbsp;&nbsp;&nbsp;baked&nbsp;into&nbsp;valgrind.&nbsp;&nbsp;The&nbsp;consequence&nbsp;is&nbsp;that&nbsp;you&nbsp;_must_&nbsp;install<br>
-&nbsp;&nbsp;&nbsp;valgrind&nbsp;at&nbsp;the&nbsp;location&nbsp;specified&nbsp;in&nbsp;the&nbsp;prefix.&nbsp;&nbsp;If&nbsp;you&nbsp;don't,<br>
-&nbsp;&nbsp;&nbsp;it&nbsp;may&nbsp;appear&nbsp;to&nbsp;work,&nbsp;but&nbsp;will&nbsp;break&nbsp;doing&nbsp;some&nbsp;obscure&nbsp;things,<br>
-&nbsp;&nbsp;&nbsp;particularly&nbsp;doing&nbsp;fork()&nbsp;and&nbsp;exec().<br>
+-- Do not ship your Linux distro with a completely stripped<br>
+   /lib/ld.so.  At least leave the debugging symbol names on -- line<br>
+   number info isn't necessary.  If you don't want to leave symbols on<br>
+   ld.so, alternatively you can have your distro install ld.so's<br>
+   debuginfo package by default, or make ld.so.debuginfo be a<br>
+   requirement of your Valgrind RPM/DEB/whatever.<br>
 <br>
-&nbsp;&nbsp;&nbsp;So&nbsp;you&nbsp;can't&nbsp;build&nbsp;a&nbsp;relocatable&nbsp;RPM&nbsp;/&nbsp;whatever&nbsp;from&nbsp;Valgrind.<br>
+   Reason for this is that Valgrind's Memcheck tool needs to intercept<br>
+   calls to, and provide replacements for, some symbols in ld.so at<br>
+   startup (most importantly strlen).  If it cannot do that, Memcheck<br>
+   shows a large number of false positives due to the highly optimised<br>
+   strlen (etc) routines in ld.so.  This has caused some trouble in<br>
+   the past.  As of version 3.3.0, on some targets (ppc32-linux,<br>
+   ppc64-linux), Memcheck will simply stop at startup (and print an<br>
+   error message) if such symbols are not present, because it is<br>
+   infeasible to continue.<br>
 <br>
-<br>
---&nbsp;Don't&nbsp;strip&nbsp;the&nbsp;debug&nbsp;info&nbsp;off&nbsp;lib/valgrind/$platform/vgpreload*.so<br>
-&nbsp;&nbsp;&nbsp;in&nbsp;the&nbsp;installation&nbsp;tree.&nbsp;&nbsp;Either&nbsp;Valgrind&nbsp;won't&nbsp;work&nbsp;at&nbsp;all,&nbsp;or&nbsp;it<br>
-&nbsp;&nbsp;&nbsp;will&nbsp;still&nbsp;work&nbsp;if&nbsp;you&nbsp;do,&nbsp;but&nbsp;will&nbsp;generate&nbsp;less&nbsp;helpful&nbsp;error<br>
-&nbsp;&nbsp;&nbsp;messages.&nbsp;&nbsp;Here's&nbsp;an&nbsp;example:<br>
-<br>
-&nbsp;&nbsp;&nbsp;Mismatched&nbsp;free()&nbsp;/&nbsp;delete&nbsp;/&nbsp;delete&nbsp;[]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;0x40043249:&nbsp;free&nbsp;(vg_clientfuncs.c:171)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4102BB4E:&nbsp;QGArray::~QGArray(void)&nbsp;(tools/qgarray.cpp:149)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C261C41:&nbsp;PptDoc::~PptDoc(void)&nbsp;(include/qmemarray.h:60)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C261F0E:&nbsp;PptXml::~PptXml(void)&nbsp;(pptxml.cc:44)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address&nbsp;0x4BB292A8&nbsp;is&nbsp;0&nbsp;bytes&nbsp;inside&nbsp;a&nbsp;block&nbsp;of&nbsp;size&nbsp;64&nbsp;alloc'd<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;0x4004318C:&nbsp;__builtin_vec_new&nbsp;(vg_clientfuncs.c:152)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21BC15:&nbsp;KLaola::readSBStream(int)&nbsp;const&nbsp;(klaola.cc:314)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21C155:&nbsp;KLaola::stream(KLaola::OLENode&nbsp;const&nbsp;*)&nbsp;(klaola.cc:416)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21788F:&nbsp;OLEFilter::convert(QCString&nbsp;const&nbsp;&amp;)&nbsp;(olefilter.cc:272)<br>
-<br>
-&nbsp;&nbsp;&nbsp;This&nbsp;tells&nbsp;you&nbsp;that&nbsp;some&nbsp;memory&nbsp;allocated&nbsp;with&nbsp;new[]&nbsp;was&nbsp;freed&nbsp;with<br>
-&nbsp;&nbsp;&nbsp;free().<br>
-<br>
-&nbsp;&nbsp;&nbsp;Mismatched&nbsp;free()&nbsp;/&nbsp;delete&nbsp;/&nbsp;delete&nbsp;[]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;0x40043249:&nbsp;(inside&nbsp;vgpreload_memcheck.so)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4102BB4E:&nbsp;QGArray::~QGArray(void)&nbsp;(tools/qgarray.cpp:149)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C261C41:&nbsp;PptDoc::~PptDoc(void)&nbsp;(include/qmemarray.h:60)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C261F0E:&nbsp;PptXml::~PptXml(void)&nbsp;(pptxml.cc:44)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address&nbsp;0x4BB292A8&nbsp;is&nbsp;0&nbsp;bytes&nbsp;inside&nbsp;a&nbsp;block&nbsp;of&nbsp;size&nbsp;64&nbsp;alloc'd<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;0x4004318C:&nbsp;(inside&nbsp;vgpreload_memcheck.so)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21BC15:&nbsp;KLaola::readSBStream(int)&nbsp;const&nbsp;(klaola.cc:314)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21C155:&nbsp;KLaola::stream(KLaola::OLENode&nbsp;const&nbsp;*)&nbsp;(klaola.cc:416)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;0x4C21788F:&nbsp;OLEFilter::convert(QCString&nbsp;const&nbsp;&amp;)&nbsp;(olefilter.cc:272)<br>
-<br>
-&nbsp;&nbsp;&nbsp;This&nbsp;isn't&nbsp;so&nbsp;helpful.&nbsp;&nbsp;Although&nbsp;you&nbsp;can&nbsp;tell&nbsp;there&nbsp;is&nbsp;a&nbsp;mismatch,&nbsp;<br>
-&nbsp;&nbsp;&nbsp;the&nbsp;names&nbsp;of&nbsp;the&nbsp;allocating&nbsp;and&nbsp;deallocating&nbsp;functions&nbsp;are&nbsp;no&nbsp;longer<br>
-&nbsp;&nbsp;&nbsp;visible.&nbsp;&nbsp;The&nbsp;same&nbsp;kind&nbsp;of&nbsp;thing&nbsp;occurs&nbsp;in&nbsp;various&nbsp;other&nbsp;messages&nbsp;<br>
-&nbsp;&nbsp;&nbsp;from&nbsp;valgrind.<br>
+   It's not like this is going to cost you much space.  We only need<br>
+   the symbols for ld.so (a few K at most).  Not the debug info and<br>
+   not any debuginfo or extra symbols for any other libraries.<br>
 <br>
 <br>
---&nbsp;Don't&nbsp;strip&nbsp;symbols&nbsp;from&nbsp;lib/valgrind/*&nbsp;in&nbsp;the&nbsp;installation&nbsp;tree.<br>
-&nbsp;&nbsp;&nbsp;Doing&nbsp;so&nbsp;will&nbsp;likely&nbsp;cause&nbsp;problems.&nbsp;&nbsp;Removing&nbsp;the&nbsp;line&nbsp;number&nbsp;info&nbsp;is<br>
-&nbsp;&nbsp;&nbsp;probably&nbsp;OK&nbsp;(at&nbsp;least&nbsp;for&nbsp;some&nbsp;of&nbsp;the&nbsp;files&nbsp;in&nbsp;that&nbsp;directory),&nbsp;although<br>
-&nbsp;&nbsp;&nbsp;that&nbsp;has&nbsp;not&nbsp;been&nbsp;tested&nbsp;by&nbsp;the&nbsp;Valgrind&nbsp;developers.<br>
+-- (Unfortunate but true) When you configure to build with the <br>
+   --prefix=/foo/bar/xyzzy option, the prefix /foo/bar/xyzzy gets<br>
+   baked into valgrind.  The consequence is that you _must_ install<br>
+   valgrind at the location specified in the prefix.  If you don't,<br>
+   it may appear to work, but will break doing some obscure things,<br>
+   particularly doing fork() and exec().<br>
+<br>
+   So you can't build a relocatable RPM / whatever from Valgrind.<br>
 <br>
 <br>
---&nbsp;Please&nbsp;test&nbsp;the&nbsp;final&nbsp;installation&nbsp;works&nbsp;by&nbsp;running&nbsp;it&nbsp;on&nbsp;something<br>
-&nbsp;&nbsp;&nbsp;huge.&nbsp;&nbsp;I&nbsp;suggest&nbsp;checking&nbsp;that&nbsp;it&nbsp;can&nbsp;start&nbsp;and&nbsp;exit&nbsp;successfully<br>
-&nbsp;&nbsp;&nbsp;both&nbsp;Firefox&nbsp;and&nbsp;OpenOffice.org.&nbsp;&nbsp;I&nbsp;use&nbsp;these&nbsp;as&nbsp;test&nbsp;programs,&nbsp;and&nbsp;I<br>
-&nbsp;&nbsp;&nbsp;know&nbsp;they&nbsp;fairly&nbsp;thoroughly&nbsp;exercise&nbsp;Valgrind.&nbsp;&nbsp;The&nbsp;command&nbsp;lines&nbsp;to&nbsp;use<br>
-&nbsp;&nbsp;&nbsp;are:<br>
+-- Don't strip the debug info off lib/valgrind/$platform/vgpreload*.so<br>
+   in the installation tree.  Either Valgrind won't work at all, or it<br>
+   will still work if you do, but will generate less helpful error<br>
+   messages.  Here's an example:<br>
 <br>
-&nbsp;&nbsp;&nbsp;valgrind&nbsp;-v&nbsp;--trace-children=yes&nbsp;firefox<br>
+   Mismatched free() / delete / delete []<br>
+      at 0x40043249: free (vg_clientfuncs.c:171)<br>
+      by 0x4102BB4E: QGArray::~QGArray(void) (tools/qgarray.cpp:149)<br>
+      by 0x4C261C41: PptDoc::~PptDoc(void) (include/qmemarray.h:60)<br>
+      by 0x4C261F0E: PptXml::~PptXml(void) (pptxml.cc:44)<br>
+      Address 0x4BB292A8 is 0 bytes inside a block of size 64 alloc'd<br>
+      at 0x4004318C: __builtin_vec_new (vg_clientfuncs.c:152)<br>
+      by 0x4C21BC15: KLaola::readSBStream(int) const (klaola.cc:314)<br>
+      by 0x4C21C155: KLaola::stream(KLaola::OLENode const *) (klaola.cc:416)<br>
+      by 0x4C21788F: OLEFilter::convert(QCString const &amp;) (olefilter.cc:272)<br>
 <br>
-&nbsp;&nbsp;&nbsp;valgrind&nbsp;-v&nbsp;--trace-children=yes&nbsp;soffice<br>
+   This tells you that some memory allocated with new[] was freed with<br>
+   free().<br>
+<br>
+   Mismatched free() / delete / delete []<br>
+      at 0x40043249: (inside vgpreload_memcheck.so)<br>
+      by 0x4102BB4E: QGArray::~QGArray(void) (tools/qgarray.cpp:149)<br>
+      by 0x4C261C41: PptDoc::~PptDoc(void) (include/qmemarray.h:60)<br>
+      by 0x4C261F0E: PptXml::~PptXml(void) (pptxml.cc:44)<br>
+      Address 0x4BB292A8 is 0 bytes inside a block of size 64 alloc'd<br>
+      at 0x4004318C: (inside vgpreload_memcheck.so)<br>
+      by 0x4C21BC15: KLaola::readSBStream(int) const (klaola.cc:314)<br>
+      by 0x4C21C155: KLaola::stream(KLaola::OLENode const *) (klaola.cc:416)<br>
+      by 0x4C21788F: OLEFilter::convert(QCString const &amp;) (olefilter.cc:272)<br>
+<br>
+   This isn't so helpful.  Although you can tell there is a mismatch, <br>
+   the names of the allocating and deallocating functions are no longer<br>
+   visible.  The same kind of thing occurs in various other messages <br>
+   from valgrind.<br>
 <br>
 <br>
-If&nbsp;you&nbsp;find&nbsp;any&nbsp;more&nbsp;hints/tips&nbsp;for&nbsp;packaging,&nbsp;please&nbsp;report<br>
-it&nbsp;as&nbsp;a&nbsp;bugreport.&nbsp;See&nbsp;http://www.valgrind.org&nbsp;for&nbsp;details.<br>
+-- Don't strip symbols from lib/valgrind/* in the installation tree.<br>
+   Doing so will likely cause problems.  Removing the line number info is<br>
+   probably OK (at least for some of the files in that directory), although<br>
+   that has not been tested by the Valgrind developers.<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;</p></div>
+<br>
+-- Please test the final installation works by running it on something<br>
+   huge.  I suggest checking that it can start and exit successfully<br>
+   both Firefox and OpenOffice.org.  I use these as test programs, and I<br>
+   know they fairly thoroughly exercise Valgrind.  The command lines to use<br>
+   are:<br>
+<br>
+   valgrind -v --trace-children=yes firefox<br>
+<br>
+   valgrind -v --trace-children=yes soffice<br>
+<br>
+<br>
+If you find any more hints/tips for packaging, please report<br>
+it as a bugreport. See http://www.valgrind.org for details.<br>
+<br>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-developers.html">&lt;&lt;&nbsp;6.&nbsp;README_DEVELOPERS</a>&nbsp;</td>
+<a accesskey="p" href="dist.readme-developers.html">&lt;&lt; 6. README_DEVELOPERS</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">&nbsp;<a accesskey="n" href="dist.readme-s390.html">8.&nbsp;README.S390&nbsp;&gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-s390.html">8. README.S390 &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
