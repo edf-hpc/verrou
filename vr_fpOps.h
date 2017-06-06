@@ -47,7 +47,7 @@ extern "C" {
     VR_FARTHEST
   };
 
-  void vr_fpOpsInit (enum vr_RoundingMode mode, unsigned int pid);
+  void vr_fpOpsInit (enum vr_RoundingMode mode);
   void vr_fpOpsFini (void);
 
   void vr_beginInstrumentation(void);

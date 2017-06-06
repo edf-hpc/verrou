@@ -1126,7 +1126,7 @@ static void vr_post_clo_init(void)
      vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    }
 
-   vr_fpOpsInit(vr.roundingMode, VG_(getpid)());
+   vr_fpOpsInit(vr.roundingMode);
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

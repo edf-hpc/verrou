@@ -141,13 +141,13 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 
 
 // * C interface
-void vr_fpOpsInit (vr_RoundingMode mode, unsigned int pid) {
+void vr_fpOpsInit (vr_RoundingMode mode) {
   DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
 
   if (ROUNDINGMODE == VR_RANDOM
       or ROUNDINGMODE == VR_AVERAGE) {
-    vr_rand.setTimeSeed(pid);
+    vr_rand.setTimeSeed();
   }
 
 

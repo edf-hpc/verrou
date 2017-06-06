@@ -51,12 +51,13 @@ public:
     currentRand_=privaterand();
    };
 
-  inline void setTimeSeed(unsigned int pid){
+  inline void setTimeSeed(){
     struct vki_timeval now;
     VG_(gettimeofday)(&now, NULL);
+    unsigned int pid = VG_(getpid)();
     unsigned int seed = now.tv_usec + pid;
-    VG_(umsg)("First seed : %u\n",seed);
     setSeed(seed);
+    VG_(umsg)("First seed : %u\n",getSeed());
   };
 
 
@@ -83,6 +84,10 @@ public:
     return privateRAND_MAX();
   };
 
+  inline unsigned int getSeed() const {
+    return seed_;
+  };
+
 
 private:
   int currentRand_;
@@ -90,10 +95,12 @@ private:
 
 
   unsigned long int  vr_next_;
+  unsigned int seed_;
 
   inline void privatesrand(unsigned int c){
     //    srand(c);
-    vr_next_=c;
+    seed_    = c;
+    vr_next_ = c;
   }
 
   inline int privaterand(){
