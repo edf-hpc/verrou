@@ -31,6 +31,7 @@
 */
 
 #include "vr_main.h"
+#include "vr_rand.h"
 
 void vr_env_clo (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
@@ -59,6 +60,8 @@ void vr_clo_defaults (void) {
   for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
   }
+
+  vr_rand_autoSeed (&vr_rand);
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -134,6 +137,11 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_STR_CLO (arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
+  }
+
+  // Set the pseudo-Random Number Generator
+  else if (VG_STR_CLO (arg, "--vr-seed", str)) {
+    vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
   }
 
   // Unknown option

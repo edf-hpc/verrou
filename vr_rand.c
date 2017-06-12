@@ -58,7 +58,6 @@ void vr_rand_autoSeed (Vr_Rand * r) {
   unsigned int pid = VG_(getpid)();
   unsigned int seed = now.tv_usec + pid;
   vr_rand_setSeed (r, seed);
-  VG_(umsg)("First seed : %u\n", vr_rand_getSeed(r));
 }
 
 unsigned int vr_rand_getSeed (Vr_Rand * r) {

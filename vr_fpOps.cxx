@@ -30,26 +30,15 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include <cstdlib>
-#include <ctime>
-//#include <iostream>
-//#include <cmath>
-#include "math.h"
+#include "pub_tool_libcfile.h"
+#include "vr_fpRepr.hxx"
 #include "vr_fpOps.h"
 #include "vr_fma.h"
 
-//#include "pub_tool_vki.h"
-
 extern "C" {
-#include <stdio.h>
-#include "pub_tool_libcprint.h"
 #include "vr_rand.h"
 }
 
-#include "pub_tool_basics.h"
-#include "pub_tool_libcfile.h"
-
-#include "vr_fpRepr.hxx"
 
 // Forward declarations
 template <typename REAL>
@@ -143,7 +132,7 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
 
   if (ROUNDINGMODE == VR_RANDOM
       or ROUNDINGMODE == VR_AVERAGE) {
-    vr_rand_autoSeed (&vr_rand);
+    VG_(umsg)("First seed : %u\n", vr_rand_getSeed (&vr_rand));
   }
 
 
