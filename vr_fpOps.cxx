@@ -42,17 +42,14 @@
 
 extern "C" {
 #include <stdio.h>
-
 #include "pub_tool_libcprint.h"
-
-  //#include "pub_tool_libcassert.h"
+#include "vr_rand.h"
 }
 
 #include "pub_tool_basics.h"
 #include "pub_tool_libcfile.h"
 
 #include "vr_fpRepr.hxx"
-#include "vr_rand.hxx"
 
 // Forward declarations
 template <typename REAL>
@@ -75,7 +72,6 @@ const int CHECK_C  = 0;
 VgFile * vr_outFile;
 
 unsigned int vr_seed;
-vrRand vr_rand;
 
 
 // * Operation implementation
@@ -147,7 +143,7 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
 
   if (ROUNDINGMODE == VR_RANDOM
       or ROUNDINGMODE == VR_AVERAGE) {
-    vr_rand.setTimeSeed();
+    vr_rand_autoSeed (&vr_rand);
   }
 
 
@@ -178,12 +174,12 @@ void vr_fpOpsFini (void) {
   }
 
 void vr_fpOpsSeed (unsigned int seed) {
-  vr_seed = vr_rand.getRandomInt();
-  vr_rand.setSeed(seed);
+  vr_seed = vr_rand_int (&vr_rand);
+  vr_rand_setSeed (&vr_rand, seed);
 }
 
 void vr_fpOpsRandom () {
-  vr_rand.setSeed(vr_seed);
+  vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
 

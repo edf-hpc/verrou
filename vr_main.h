@@ -172,6 +172,8 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
 Bool vr_includeSource (Vr_IncludeSource** list, Bool generate,
                        const HChar* fnname, const HChar* filename, UInt linenum);
 
+#define VR_FNNAME_BUFSIZE 4096
+
 
 // ** vr_clo.c
 
@@ -181,7 +183,5 @@ Bool vr_process_clo (const HChar *arg);
 void vr_print_usage (void);
 void vr_print_debug_usage (void);
 
-
-#define VR_FNNAME_BUFSIZE 4096
 
 #endif /*ndef __VR_MAIN_H*/

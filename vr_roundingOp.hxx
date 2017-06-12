@@ -33,7 +33,9 @@
 
 #pragma once
 
-extern vrRand vr_rand;
+extern "C" {
+#include "vr_main.h"
+}
 extern vr_RoundingMode ROUNDINGMODE;
 
 template<class OP>
@@ -64,7 +66,7 @@ public:
     if(signError==0.){
       return res;
     }else{
-      const bool doNoChange=(vr_rand.getBool() );
+      const bool doNoChange = vr_rand_bool(&vr_rand);
       if(doNoChange){
 	return res;
       }else{
@@ -95,7 +97,8 @@ public:
     }
     const int s = error>=0 ? 1 : -1;
     const RealType u =ulp(res);
-    bool doNotChange= ((vr_rand.getRandomInt() * u) > (vr_rand.getRandomIntMax() * s * error));
+    bool doNotChange = ((vr_rand_int(&vr_rand) * u)
+                        > (vr_rand_max() * s * error));
 
     if(doNotChange){
       return res;

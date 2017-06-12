@@ -28,6 +28,7 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
+	vr_rand.c       \
 	vr_fpOps.cxx
 
 # We use the test of fma normally use to configure check
