@@ -1,0 +1,3 @@
+prog: sum
+args: 0
+vgopts: --instr-atstart=no --rounding-mode=random --vr-seed=42

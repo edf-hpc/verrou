@@ -22,8 +22,15 @@ int main (int argc, char **argv) {
   float res = compute();
   float ref = 1 + N*epsilon;
 
-  if (!strcmp (argv[1], "1")) {
-
+  if (!strcmp (argv[1], "0")) {
+    // Just print the result
+    printf ("%.10f\n", res);
+  }
+  else if (!strcmp (argv[1], "1")) {
+    // sum1.vgtest
+    // CL switches:
+    //   --instr-atstart=no
+    //
     // res should be 1
     if (res == 1) {
       printf ("OK\n");
@@ -33,7 +40,11 @@ int main (int argc, char **argv) {
 
   }
   else if (!strcmp (argv[1], "2")) {
-
+    // sum2.vgtest
+    // CL switches:
+    //   --instr-atstart=no
+    //   --rounding-mode=random
+    //
     // res should be significantly different from 1,
     // since there are floating point errors
     float threshold = 20*N*epsilon;
@@ -45,7 +56,11 @@ int main (int argc, char **argv) {
 
   }
   else if (!strcmp (argv[1], "3")) {
-
+    // sum3.vgtest
+    // CL switches:
+    //   --instr-atstart=no
+    //   --rounding-mode=average
+    //
     // res should be close to ref
     float threshold = 0.2f * (float)N * epsilon;
     if (fabs(res-ref) < threshold) {
