@@ -38,6 +38,7 @@
 #ifndef IGNOREVALGRIND
 extern "C" {
 #include "pub_tool_libcprint.h"
+#include "pub_tool_libcassert.h"
 }
 #endif
 
@@ -202,8 +203,7 @@ template <typename Real> int sign (const Real & x) {
 
 template<class REALTYPE>
 inline REALTYPE nextAfter(REALTYPE a){
-  //std::cout <<"Problem"<<std::endl;
-  exit(42);
+  VG_(tool_panic)("nextAfter called on unknown type");
 };
 
 template<>
@@ -227,7 +227,7 @@ inline float nextAfter<float>(float a){
 
 template<class REALTYPE>
 inline REALTYPE nextPrev(REALTYPE a){
-  exit(42);
+  VG_(tool_panic)("nextPrev called on unknown type");
 };
 
 template<>
