@@ -37,7 +37,6 @@ int main (int argc, char **argv) {
     } else {
       printf ("%.10f\n", res);
     }
-
   }
   else if (!strcmp (argv[1], "2")) {
     // sum2.vgtest
@@ -53,7 +52,6 @@ int main (int argc, char **argv) {
     } else {
       printf ("error: |%.10e| < %.10e\n", res-1, threshold);
     }
-
   }
   else if (!strcmp (argv[1], "3")) {
     // sum3.vgtest

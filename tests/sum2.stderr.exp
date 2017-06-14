@@ -1,6 +1,7 @@
 Verrou, Check floating-point rounding errors
 Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
 
+First seed : XXX
 Simulating RANDOM rounding mode
 Instrumented operations :
 	add : yes

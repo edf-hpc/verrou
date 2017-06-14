@@ -2,4 +2,22 @@
 
 dir=`dirname $0`
 
-$dir/../../tests/filter_stderr_basic
+cmd="$dir/../../tests/filter_stderr_basic"
+while [ ! -z "$1" ]; do
+    case "$1" in
+        "-seed")
+            cmd="${cmd} | perl -pne 's/^(First seed : )\d+/\$1XXX/;'"
+            ;;
+        "-cnt-cmp-conv")
+            cmd="${cmd} | perl -n"
+            cmd="${cmd} -e 'BEGIN{\$remove=0}'"
+            cmd="${cmd} -e '\$remove=1 if m/^ cmp/;'"
+            cmd="${cmd} -e '\$remove=1 if m/^ conv/;'"
+            cmd="${cmd} -e 'print unless \$remove;'"
+            cmd="${cmd} -e '\$remove=0 if m/^ -----/;'"
+            ;;
+    esac
+    shift
+done
+
+eval ${cmd}

@@ -1,4 +1,4 @@
 prog: sum
 args: 2
 vgopts: --instr-atstart=no --rounding-mode=random
-stderr_filter: filter_seed
+stderr_filter_args: -seed
