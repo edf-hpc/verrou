@@ -46,7 +46,7 @@
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">14.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">14.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm6631">14.6.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6653">14.6.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -382,7 +382,9 @@ Type "help", "copyright", "credits" or "license" for more information.
       as well as another (non-IEEE-754) deterministic mode:
       </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><span class="command"><strong>farthest</strong></span>: in this mode, all non-exact results are rounded
-        in the opposite way to IEEE-754 nearest rounding mode.</p></li></ul></div>
+        in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
+        different from <span class="command"><strong>nearest</strong></span> rounding mode, while still being
+        deterministic.</p></li></ul></div>
 <p>
     </p>
 <p>
@@ -399,6 +401,11 @@ Type "help", "copyright", "credits" or "license" for more information.
         in the MCA literature.</p></li>
 </ul></div>
 <p>
+      A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in these
+      modes. The pRNG is normally seeded with a value that changes at each execution in order to
+      produce different "random rounding" results at each run. In order to reproduce results from a
+      given run, it is however possible to use the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.seed">--vr-seed</a></code>
+      command-line option.
     </p>
 </div>
 </div>
@@ -431,7 +438,7 @@ Type "help", "copyright", "credits" or "license" for more information.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6220"></a>14.3.1.1. Exclusion files</h4></div></div></div>
+<a name="idm6223"></a>14.3.1.1. Exclusion files</h4></div></div></div>
 <p>
         This can be done by providing an exclusion file via the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line option. The file should follow the
         following format:
@@ -519,7 +526,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6262"></a>14.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
+<a name="idm6265"></a>14.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
 <p>
         Instead of manually establishing an exclusion list, using the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code> command-line option can help producing the complete
         list of <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
@@ -711,12 +718,12 @@ int main () {
     </p>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6362"></a>Synopsis</h4></div></div></div>
+<a name="idm6365"></a>Synopsis</h4></div></div></div>
 <pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd.synopsis"></a><code class="command">verrou_dd</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6371"></a>Description</h4></div></div></div>
+<a name="idm6374"></a>Description</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.desc"></a>
         Arguments passed to <span class="command"><strong>verrou_dd</strong></span> are scripts, which must be identified by an
         absolute path. These scripts will be called during the delta-debugging process to automate
@@ -778,7 +785,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6410"></a>Environment Variables</h4></div></div></div>
+<a name="idm6413"></a>Environment Variables</h4></div></div></div>
 <p>
         The following environment variables affect the behaviour of <span class="command"><strong>verrou_dd</strong></span>:
       </p>
@@ -803,7 +810,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6425"></a>Results</h4></div></div></div>
+<a name="idm6428"></a>Results</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.results"></a>
         <span class="command"><strong>verrou_dd</strong></span> stores many intermediate results within the
         <code class="computeroutput">dd.sym</code> and <code class="computeroutput">dd.line</code>
@@ -873,7 +880,7 @@ int main () {
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6465"></a>14.5.1.1. Basic usage</h4></div></div></div>
+<a name="idm6468"></a>14.5.1.1. Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -916,7 +923,7 @@ int main () {
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6474"></a>14.5.1.2. Advanced usage</h4></div></div></div>
+<a name="idm6477"></a>14.5.1.2. Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -1025,7 +1032,7 @@ det2
 <a name="vr-manual.clo"></a>14.6.1. Command-line options</h3></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6491"></a>14.6.1.1. General options</h4></div></div></div>
+<a name="idm6494"></a>14.6.1.1. General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -1046,22 +1053,47 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6505"></a>14.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
+<a name="idm6508"></a>14.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
-<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average&gt; [default=nearest]</code></span>
+<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average|upward|downward|toward_zero|farthest&gt; [default=nearest]</code></span>
 </dt>
 <dd>
-<p>Choose between the <span class="command"><strong>random</strong></span>
-                and <span class="command"><strong>average</strong></span> strategies for randomly
-                switching <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.2.2. Rounding-mode switching">rounding
-                modes</a> for each floating-point operation.</p>
-<p>If this option is not provided, Verrou always rounds to the
-                nearest floating-point.</p>
-<p>For debugging purposes, the other IEEE-754 standard rounding modes are
-                available: <span class="command"><strong>upward</strong></span>, <span class="command"><strong>downward</strong></span>
-                and <span class="command"><strong>toward_zero</strong></span></p>
+<p>
+                Emulate the given <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.2.2. Rounding-mode switching">rounding mode</a>. If
+                this option is not provided, Verrou always rounds to the nearest
+                floating-point. Supported rounding modes are:
+              </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+                  <span class="command"><strong>Random rounding modes:</strong></span> <code class="computeroutput">random</code>,
+                  <code class="computeroutput">average</code>.
+                </p></li>
+<li class="listitem"><p>
+                  <span class="command"><strong>IEEE-754 rounding modes:</strong></span>
+                  <code class="computeroutput">nearest</code> (default),
+                  <code class="computeroutput">upward</code>,
+                  <code class="computeroutput">downward</code>,
+                  <code class="computeroutput">toward_zero</code>.
+                </p></li>
+<li class="listitem"><p>
+                  <span class="command"><strong>Other:</strong></span> <code class="computeroutput">farthest</code>.
+                </p></li>
+</ul></div>
+</dd>
+<dt>
+<a name="vr-opt.seed"></a><span class="term"><code class="option">--vr-seed=RNG_SEED [default=automatically generated]</code></span>
+</dt>
+<dd>
+<p>If present, this option allows setting the seed of the
+              pseudo-Random Number Generator used for the
+              <span class="command"><strong>random</strong></span> or <span class="command"><strong>average</strong></span> <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="14.2.2. Rounding-mode switching">rounding modes</a>. This
+              helps reproducing the behaviour of a program under Verrou.
+              </p>
+<p>If this option is omitted, the pRNG is seeded with a value
+              based on the current time and process id, so that it should change
+              at each execution.</p>
 </dd>
 <dt>
 <a name="vr-opt.instr"></a><span class="term"><code class="option">--vr-instr=&lt;add|sub|mul|div|mAdd|mSub&gt; [default=all]</code></span>
@@ -1086,7 +1118,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6532"></a>14.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
+<a name="idm6554"></a>14.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
@@ -1212,7 +1244,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm6631"></a>14.6.3. Monitor commands</h3></div></div></div>
+<a name="idm6653"></a>14.6.3. Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2. Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
