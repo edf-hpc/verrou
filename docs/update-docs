@@ -40,7 +40,7 @@ ${SRCDIR}/verrou/docs/fix-encoding ${INSTALLDIR}/share/doc/valgrind/html/*.html
 
 
 # Update usage string in source files
-${SRCDIR}/verrou/docs/update-vr-clo >${SRCDIR}/verrou/vr_clo.txt
+${SRCDIR}/verrou/docs/update-vr-clo
 
 # Upload HTML documentation to github
 TMPDIR=$(mktemp -d)
