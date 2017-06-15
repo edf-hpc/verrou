@@ -237,17 +237,45 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random|average> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest> [default=nearest]]]></option></term>
             <listitem>
-              <para>Choose between the <command>random</command>
-                and <command>average</command> strategies for randomly
-                switching <link linkend="vr-manual.feat.rounding-mode">rounding
-                modes</link> for each floating-point operation.</para>
-              <para>If this option is not provided, Verrou always rounds to the
-                nearest floating-point.</para>
-              <para>For debugging purposes, the other IEEE-754 standard rounding modes are
-                available: <command>upward</command>, <command>downward</command>
-                and <command>toward_zero</command></para>
+              <para>
+                Emulate the given <link
+                linkend="vr-manual.feat.rounding-mode">rounding mode</link>. If
+                this option is not provided, Verrou always rounds to the nearest
+                floating-point. Supported rounding modes are:
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>Random rounding modes:</command> <computeroutput>random</computeroutput>,
+                  <computeroutput>average</computeroutput>.
+                </para></listitem>
+                <listitem><para>
+                  <command>IEEE-754 rounding modes:</command>
+                  <computeroutput>nearest</computeroutput> (default),
+                  <computeroutput>upward</computeroutput>,
+                  <computeroutput>downward</computeroutput>,
+                  <computeroutput>toward_zero</computeroutput>.
+                </para></listitem>
+                <listitem><para>
+                  <command>Other:</command> <computeroutput>farthest</computeroutput>.
+                </para></listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.seed" xreflabel="--vr-seed">
+            <term><option><![CDATA[--vr-seed=RNG_SEED [default=automatically generated]]]></option></term>
+            <listitem>
+              <para>If present, this option allows setting the seed of the
+              pseudo-Random Number Generator used for the
+              <command>random</command> or <command>average</command> <link
+              linkend="vr-manual.feat.rounding-mode">rounding modes</link>. This
+              helps reproducing the behaviour of a program under Verrou.
+              </para>
+              <para>If this option is omitted, the pRNG is seeded with a value
+              based on the current time and process id, so that it should change
+              at each execution.</para>
             </listitem>
           </varlistentry>
 

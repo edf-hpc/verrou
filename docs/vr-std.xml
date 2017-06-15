@@ -132,7 +132,9 @@
       as well as another (non-IEEE-754) deterministic mode:
       <itemizedlist>
         <listitem><para><command>farthest</command>: in this mode, all non-exact results are rounded
-        in the opposite way to IEEE-754 nearest rounding mode.</para></listitem>
+        in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
+        different from <command>nearest</command> rounding mode, while still being
+        deterministic.</para></listitem>
       </itemizedlist>
     </para>
     <para>
@@ -148,6 +150,11 @@
         operation result (without rounding). This is called "uniform_absolute output randomization"
         in the MCA literature.</para></listitem>
       </itemizedlist>
+      A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in these
+      modes. The pRNG is normally seeded with a value that changes at each execution in order to
+      produce different "random rounding" results at each run. In order to reproduce results from a
+      given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
+      command-line option.
     </para>
   </section>
 </section>

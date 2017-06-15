@@ -16,13 +16,14 @@ for line in man.stdout:
 
 title = re.compile("^[A-Z]")
 subtitle = re.compile("^\s{3}[A-Z]")
-for line in man.stdout:
-    if title.search(line):
-        break
+with open("verrou/vr_clo.txt", "w") as f:
+    for line in man.stdout:
+        if title.search(line):
+            break
 
-    if subtitle.search(line):
-        line = " " + line
-    else:
-        line = line[1:]
+        if subtitle.search(line):
+            line = " " + line
+        else:
+            line = line[1:]
 
-    print '"'+line.rstrip()+'\\n"'
+        f.write ('"'+line.rstrip()+'\\n"'+"\n")
