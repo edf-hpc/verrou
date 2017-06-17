@@ -56,15 +56,15 @@ extern "C" {
   void vr_fpOpsSeed (unsigned int seed);
   void vr_fpOpsRandom (void);
 
-  double vr_AddDouble (double a, double b);
-  float  vr_AddFloat  (float  a, float  b);
-  double vr_MulDouble (double a, double b);
-  float  vr_MulFloat  (float  a, float  b);
-  double vr_DivDouble (double a, double b);
-  float  vr_DivFloat  (float  a, float  b);
+  void vr_AddDouble (double a, double b, double* res, void* context);
+  void vr_AddFloat  (float  a, float  b, float*  res, void* context);
+  void vr_MulDouble (double a, double b, double* res, void* context);
+  void vr_MulFloat  (float  a, float  b, float*  res, void* context);
+  void vr_DivDouble (double a, double b, double* res, void* context);
+  void vr_DivFloat  (float  a, float  b, float*  res, void* context);
 
-  double vr_MAddDouble (double a, double b, double c);
-  float vr_MAddFloat (float a, float b, float c);
+  void vr_MAddDouble (double a, double b, double c, double* res, void* context);
+  void vr_MAddFloat (float a, float b, float c, float* res,void* context);
 
 
 #ifdef __cplusplus

@@ -54,7 +54,7 @@
 #include "pub_tool_gdbserver.h"
 
 #include "verrou.h"
-#include "vr_fpOps.h"
+#include "backend_verrou/vr_fpOps.h"
 
 
 // * Type declarations

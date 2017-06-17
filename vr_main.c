@@ -33,7 +33,7 @@
 //#pragma STDC FENV_ACCESS ON
 
 Vr_State vr;
-
+void* vr_context;
 // * Floating-point operations counter
 
 
@@ -266,7 +266,8 @@ void vr_ppOpCount (void) {
 static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
-  double res = vr_AddDouble (*arg1, *arg2);
+  double res;
+  vr_AddDouble (*arg1, *arg2, &res, vr_context);
   Long *c = (Long*)(&res);
   return *c;
 }
@@ -274,7 +275,8 @@ static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
 static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
-  double res = vr_AddDouble (*arg1, -(*arg2));
+  double res;
+  vr_AddDouble (*arg1, -(*arg2), &res, vr_context);
   Long *c = (Long*)(&res);
   return *c;
 }
@@ -282,7 +284,8 @@ static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
 static VG_REGPARM(2) Int vr_Add32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
-  float res = vr_AddFloat (*arg1, *arg2);
+  float res;
+  vr_AddFloat (*arg1, *arg2, &res, vr_context);
   Int *c = (Int*)(&res);
   return *c;
 }
@@ -290,7 +293,8 @@ static VG_REGPARM(2) Int vr_Add32F (Long a, Long b) {
 static VG_REGPARM(2) Int vr_Sub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
-  float res = vr_AddFloat (*arg1, -(*arg2));
+  float res;
+  vr_AddFloat (*arg1, -(*arg2), &res, vr_context);
   Int *c = (Int*)(&res);
   return *c;
 }
@@ -299,7 +303,8 @@ static VG_REGPARM(2) Int vr_Sub32F (Long a, Long b) {
 static VG_REGPARM(2) Long vr_Mul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
-  double res = vr_MulDouble (*arg1, *arg2);
+  double res;
+  vr_MulDouble (*arg1, *arg2,&res,vr_context);
   Long *c = (Long*)(&res);
   return *c;
 }
@@ -307,7 +312,8 @@ static VG_REGPARM(2) Long vr_Mul64F (Long a, Long b) {
 static VG_REGPARM(2) Long vr_Div64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
-  double res = vr_DivDouble (*arg1, *arg2);
+  double res;
+  vr_DivDouble (*arg1, *arg2,&res,vr_context);
   Long *c = (Long*)(&res);
   return *c;
 }
@@ -318,7 +324,8 @@ static VG_REGPARM(3) Long vr_MAdd64F (Long a, Long b, Long c) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
-  double res =vr_MAddDouble (*arg1, *arg2, *arg3);
+  double res;
+  vr_MAddDouble (*arg1, *arg2, *arg3, &res, vr_context);
 #else
   double res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -332,7 +339,8 @@ static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
-  float res =vr_MAddFloat (*arg1, *arg2, *arg3);
+  float res;
+  vr_MAddFloat (*arg1, *arg2, *arg3, &res,vr_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -347,7 +355,8 @@ static VG_REGPARM(3) Long vr_MSub64F (Long a, Long b, Long c) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
-  double res =vr_MAddDouble (*arg1, *arg2, -*arg3);
+  double res;
+  vr_MAddDouble (*arg1, *arg2, -*arg3,&res, vr_context);
 #else
   double res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -361,7 +370,8 @@ static VG_REGPARM(3) Int vr_MSub32F (Long a, Long b, Long c) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
-  float res =vr_MAddFloat (*arg1, *arg2, -*arg3);
+  float res;
+  vr_MAddFloat (*arg1, *arg2, -*arg3, &res, vr_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -374,7 +384,8 @@ static VG_REGPARM(3) Int vr_MSub32F (Long a, Long b, Long c) {
 static VG_REGPARM(2) Int vr_Mul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
-  float res = vr_MulFloat (*arg1, *arg2);
+  float res;
+  vr_MulFloat (*arg1, *arg2,&res, vr_context);
   Int *c = (Int*)(&res);
   return *c;
 }
@@ -382,7 +393,8 @@ static VG_REGPARM(2) Int vr_Mul32F (Long a, Long b) {
 static VG_REGPARM(2) Int vr_Div32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
-  float res = vr_DivFloat (*arg1, *arg2);
+  float res;
+  vr_DivFloat (*arg1, *arg2,&res, vr_context);
   Int *c = (Int*)(&res);
   return *c;
 }

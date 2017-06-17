@@ -28,8 +28,8 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
-	vr_rand.c       \
-	vr_fpOps.cxx
+	backend_verrou/vr_rand.c       \
+	backend_verrou/vr_fpOps.cxx
 
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN

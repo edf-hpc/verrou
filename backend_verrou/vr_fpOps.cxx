@@ -33,7 +33,7 @@
 #include "pub_tool_libcfile.h"
 #include "vr_fpRepr.hxx"
 #include "vr_fpOps.h"
-#include "vr_fma.h"
+#include "vr_fma.hxx"
 
 extern "C" {
 #include "vr_rand.h"
@@ -176,44 +176,44 @@ void vr_fpOpsRandom () {
 
 
 
-double vr_AddDouble (double a, double b) {
+void vr_AddDouble (double a, double b,double* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
-float vr_AddFloat (float a, float b) {
+void vr_AddFloat (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
 
-double vr_MulDouble (double a, double b) {
+void vr_MulDouble (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
-float vr_MulFloat (float a, float b) {
+void vr_MulFloat (float a, float b, float* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
 
-double vr_DivDouble (double a, double b) {
+void vr_DivDouble (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
-float vr_DivFloat (float a, float b) {
+void vr_DivFloat (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <float> > Op;
-  return Op::apply(Op::PackArgs(a,b));
+  *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
-double vr_MAddDouble (double a, double b, double c){
+void vr_MAddDouble (double a, double b, double c, double* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
-  return Op::apply(Op::PackArgs(a,b,c));
+  *res=Op::apply(Op::PackArgs(a,b,c),context);
 }
 
-float vr_MAddFloat (float a, float b, float c){
+void vr_MAddFloat (float a, float b, float c, float* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
-  return Op::apply(Op::PackArgs(a,b,c));
+  *res= Op::apply(Op::PackArgs(a,b,c), context);
 }

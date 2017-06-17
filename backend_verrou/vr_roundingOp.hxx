@@ -219,7 +219,7 @@ public:
 
 
   inline
-  static RealType apply(const PackArgs& p){
+  static RealType apply(const PackArgs& p, void* context){
     switch (ROUNDINGMODE) {
     case VR_NEAREST:
       return RoundingNearest<OP>::apply (p);
