@@ -1,0 +1,3 @@
+prog: naninf
+vgopts: --rounding-mode=random
+stderr_filter_args: -seed -cnt-cmp-conv

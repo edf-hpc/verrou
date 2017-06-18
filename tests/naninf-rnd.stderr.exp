@@ -1,0 +1,36 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
+
+First seed : XXX
+Simulating RANDOM rounding mode
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	cmp : no
+	conv : no
+	max : no
+	min : no
+Instrumented scalar operations : no
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                        8                        8          (100%)
+  `- dbl                        8                        8      (100%)
+      `- llo                        8                        8  (100%)
+ ---------------------------------------------------------------------
+ sub                        2                        2          (100%)
+  `- dbl                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
+ ---------------------------------------------------------------------
+ div                        3                        3          (100%)
+  `- dbl                        3                        3      (100%)
+      `- llo                        3                        3  (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

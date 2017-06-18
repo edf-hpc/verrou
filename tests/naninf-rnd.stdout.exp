@@ -1,0 +1,22 @@
+d           = 42
+infP        = inf
+infN        = -inf
+
+d / 0       = inf
+-d / 0      = -inf
+infP + d    = inf
+infN + d    = -inf
+
+0 / 0       = -nan (fff8000000000000)
+infP + infN = -nan (fff8000000000000)
+infN + infP = -nan (fff8000000000000)
+infP - infP = -nan (fff8000000000000)
+infN - infN = -nan (fff8000000000000)
+
+nan1        = nan (7ff800000000dead)
+nan2        = nan (7ff800000000babe)
+
+nan1 + d    = nan (7ff800000000dead)
+d + nan1    = nan (7ff800000000dead)
+nan1 + nan2 = nan (7ff800000000dead)
+nan2 + nan1 = nan (7ff800000000babe)
