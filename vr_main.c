@@ -116,6 +116,7 @@ typedef enum {
   VR_VEC_LLO,   // Vector operation, lowest lane only
   VR_VEC_FULL2,  // Vector operation
   VR_VEC_FULL4,  // Vector operation
+  VR_VEC_FULL8,  // Vector operation
   VR_VEC
 } Vr_Vec;
 
@@ -129,6 +130,7 @@ static const HChar* vr_ppVec (Vr_Vec vec) {
     return "vec2 ";
   case VR_VEC_FULL4:
     return "vec4 ";
+
   default:
     return "unknown";
   }
@@ -161,7 +163,8 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
     increment =4;
   }
 
-  if( vr.instr_op[op] && ( (vr.instr_scalar || !vec==VR_VEC_SCAL ))&& (vec!=VR_VEC_FULL4) ){
+  if( vr.instr_op[op] && ( (vr.instr_scalar || !vec==VR_VEC_SCAL ))&&
+      ( !(vec==VR_VEC_FULL4 && prec) ||( vec!=VR_VEC_FULL8)    ) ){
     argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
 			  mkIRExpr_HWord (increment));
     di = unsafeIRDirty_0_N( 2,
@@ -274,12 +277,27 @@ static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
 
 
 //The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Add128F (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+static VG_REGPARM(3) void vr_Add64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
   vr_AddDouble (arg1[0], arg2[0], res, vr_context);
   vr_AddDouble (arg1[1], arg2[1], res+1, vr_context);
+}
+
+//The Param 3 is done like in sg_main
+static VG_REGPARM(3) void vr_Add32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+  
+  vr_AddFloat (arg1[0], arg2[0], res, vr_context);
+  vr_AddFloat (arg1[1], arg2[1], res+1, vr_context);
+  vr_AddFloat (arg1[2], arg2[2], res+2, vr_context);
+  vr_AddFloat (arg1[3], arg2[3], res+3, vr_context);
 }
 
 
@@ -293,7 +311,7 @@ static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
 }
 
 //The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Sub128F (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+static VG_REGPARM(3) void vr_Sub64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
@@ -301,6 +319,21 @@ static VG_REGPARM(3) void vr_Sub128F (/*OUT*/V128* output, ULong aHi, ULong aLo,
   vr_AddDouble (arg1[1], -arg2[1], res+1, vr_context);
 }
 
+
+//The Param 3 is done like in sg_main
+static VG_REGPARM(3) void vr_Sub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+  
+  vr_AddFloat (arg1[0], -arg2[0], res, vr_context);
+  vr_AddFloat (arg1[1], -arg2[1], res+1, vr_context);
+  vr_AddFloat (arg1[2], -arg2[2], res+2, vr_context);
+  vr_AddFloat (arg1[3], -arg2[3], res+3, vr_context);
+}
 
 
 static VG_REGPARM(2) Int vr_Add32F (Long a, Long b) {
@@ -332,12 +365,27 @@ static VG_REGPARM(2) Long vr_Mul64F (Long a, Long b) {
 }
 
 //The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Mul128F (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+static VG_REGPARM(3) void vr_Mul64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
   vr_MulDouble (arg1[0], arg2[0], res, vr_context);
   vr_MulDouble (arg1[1], arg2[1], res+1, vr_context);
+}
+
+//The Param 3 is done like in sg_main
+static VG_REGPARM(3) void vr_Mul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+  
+  vr_MulFloat (arg1[0], arg2[0], res, vr_context);
+  vr_MulFloat (arg1[1], arg2[1], res+1, vr_context);
+  vr_MulFloat (arg1[2], arg2[2], res+2, vr_context);
+  vr_MulFloat (arg1[3], arg2[3], res+3, vr_context);
 }
 
 
@@ -352,7 +400,7 @@ static VG_REGPARM(2) Long vr_Div64F (Long a, Long b) {
 }
 
 //The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Div128F (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+static VG_REGPARM(3) void vr_Div64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
@@ -361,6 +409,20 @@ static VG_REGPARM(3) void vr_Div128F (/*OUT*/V128* output, ULong aHi, ULong aLo,
 }
 
 
+//The Param 3 is done like in sg_main
+static VG_REGPARM(3) void vr_Div32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+  
+  vr_DivFloat (arg1[0], arg2[0], res, vr_context);
+  vr_DivFloat (arg1[1], arg2[1], res+1, vr_context);
+  vr_DivFloat (arg1[2], arg2[2], res+2, vr_context);
+  vr_DivFloat (arg1[3], arg2[3], res+3, vr_context);
+}
 
 static VG_REGPARM(3) Long vr_MAdd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -628,7 +690,7 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
-static void vr_replaceBinFull2Op (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			       const HChar* functionName, void* function,
 			       Vr_Op op,
 			       Vr_Prec prec,
@@ -641,12 +703,12 @@ static void vr_replaceBinFull2Op (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     return;
   }
 
-  if(vec!=VR_VEC_FULL2){
-    VG_(tool_panic) ( "vec != VECT FULL2 in vr_replaceBinFull2Op  \n");
-  }
-
-  if (prec==VR_PREC_FLT) {
-    VG_(tool_panic) ( "VECT FULL2 and FLOAT not compatible \n");
+  if(!(
+	 (vec==VR_VEC_FULL2 && prec==VR_PREC_DBL)
+     ||
+         (vec==VR_VEC_FULL4 && prec==VR_PREC_FLT)
+       )){
+    VG_(tool_panic) ( "vr_replaceBinFullSSE requires SSE instructions...  \n");
   }
 
   //convertion before call
@@ -745,7 +807,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Add128F", vr_Add128F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add64Fx2", vr_Add64Fx2,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -758,8 +820,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add32Fx4", vr_Add32Fx4,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL4);
       break;
 
 
@@ -775,7 +836,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub64Fx2:
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Sub128F", vr_Sub128F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub64Fx2", vr_Sub64Fx2, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -788,8 +849,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub32Fx4", vr_Sub32Fx4,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL4);
       break;
 
 
@@ -803,7 +863,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
       break;
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op (sb, stmt, expr,"vr_Mul128F", vr_Mul128F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul64Fx2", vr_Mul64Fx2, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
       // - Single precision
@@ -814,8 +874,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
       break;
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul32Fx4", vr_Mul32Fx4,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL4);      
       break;
 
 
@@ -828,8 +887,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Div32Fx4", vr_Div32Fx4,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL4);      
       break;
 
 
@@ -840,7 +898,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
       break;
     case Iop_Div64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFull2Op(sb, stmt, expr,"vr_Div128F", vr_Div128F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
+      vr_replaceBinFullSSE(sb, stmt, expr,"vr_Div64Fx2", vr_Div64Fx2,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
       break;
 
 
