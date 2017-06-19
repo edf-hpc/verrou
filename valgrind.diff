@@ -21,7 +21,7 @@ Index: configure.ac
  
  # Process this file with autoconf to produce a configure script.
 -AC_INIT([Valgrind],[3.13.0],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.13.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.13.0+verrou-1.1.0],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign subdir-objects])
@@ -172,7 +172,7 @@ Index: docs/xml/vg-entities.xml
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
 -<!ENTITY rel-version "3.13.0">
-+<!ENTITY rel-version "3.13.0+verrou-dev">
++<!ENTITY rel-version "3.13.0+verrou-1.1.0">
  <!ENTITY rel-date    "15 June 2017">
  
  <!-- where the docs are installed -->
