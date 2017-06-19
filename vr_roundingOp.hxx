@@ -62,7 +62,7 @@ public:
   static inline RealType apply(const PackArgs& p ){
     RealType res=OP::nearestOp(p);
 
-    if (!std::isfinite(res)){
+    if (isNanInf<RealType> (res)){
       return res;
     }
 

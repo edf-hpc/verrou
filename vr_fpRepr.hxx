@@ -246,3 +246,25 @@ inline float nextPrev<float>(float a){
   (*resU)-=1;
   return res;
 };
+
+
+
+
+template<class REALTYPE>
+inline bool isNanInf (const REALTYPE & x) {
+  VG_(tool_panic)("isNanInf called on an unknown type");
+  return false;
+}
+
+template <>
+inline bool isNanInf<double> (const double & x) {
+  static const std::uint64_t mask = 0x7ff0000000000000;
+  const std::uint64_t* X = reinterpret_cast<const std::uint64_t*>(&x);
+  return (*X & mask) == mask;
+}
+
+template <>
+inline bool isNanInf<float> (const float & x) {
+  // TODO: implement the correct test for binary32
+  return false;
+}
