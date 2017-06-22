@@ -372,6 +372,47 @@ static VG_REGPARM(3) void vr_Add32Fx8AfterCopy (/*OUT*/V256* output,
 }
 
 
+static VG_REGPARM(3) void vr_Sub32Fx8AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+    vr_AddFloat (arg1[i], -arg2[i], res+i, vr_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_Mul32Fx8AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+    vr_MulFloat (arg1[i], arg2[i], res+i, vr_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_Div32Fx8AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+    vr_DivFloat (arg1[i], arg2[i], res+i, vr_context);
+  }
+}
+
+
+
+
+
+
 //The Param 3 is done like in sg_main
 static VG_REGPARM(3) void vr_Add32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
   V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
@@ -1142,15 +1183,15 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_Sub32Fx8:
-      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub32Fx8AfterCopy", vr_Sub32Fx8AfterCopy,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL8);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub32Fx8AfterCopy", vr_Sub32Fx8AfterCopy,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL8);
       break;
 
     case Iop_Mul32Fx8:
-      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8AfterCopy", vr_Mul32Fx8AfterCopy,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8AfterCopy", vr_Mul32Fx8AfterCopy,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
       break;
 
     case Iop_Div32Fx8:
-      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div32Fx8AfterCopy", vr_Div32Fx8AfterCopy,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL8);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div32Fx8AfterCopy", vr_Div32Fx8AfterCopy,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL8);
       break;
 
       
