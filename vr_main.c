@@ -130,6 +130,8 @@ static const HChar* vr_ppVec (Vr_Vec vec) {
     return "vec2 ";
   case VR_VEC_FULL4:
     return "vec4 ";
+  case VR_VEC_FULL8:
+    return "vec8 ";
 
   default:
     return "unknown";
@@ -161,6 +163,9 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
   }
   if(vec == VR_VEC_FULL4) {
     increment =4;
+  }
+  if(vec == VR_VEC_FULL8) {
+    increment =8;
   }
 
   if( vr.instr_op[op] && ( (vr.instr_scalar || !vec==VR_VEC_SCAL ))&&
@@ -284,6 +289,88 @@ static VG_REGPARM(3) void vr_Add64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo
   vr_AddDouble (arg1[0], arg2[0], res, vr_context);
   vr_AddDouble (arg1[1], arg2[1], res+1, vr_context);
 }
+
+
+//The Param 3 is done like in sg_main
+static VG_REGPARM(3) void vr_Add64Fx4AllArgs (/*OUT*/V256* output,
+				       ULong a0, ULong a1, ULong a2,ULong a3,
+				       ULong b0, ULong b1, ULong b2,ULong b3) {
+  double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+    vr_AddDouble (arg1[i], arg2[i], res+i, vr_context);
+  }
+}
+
+
+static double arg1CopyAvxDouble[4];
+static VG_REGPARM(3) void vr_AvxDoubleCopyFirstArg (ULong a0, ULong a1, ULong a2,ULong a3) {
+  arg1CopyAvxDouble[0] =*((double*)(&a0));
+  arg1CopyAvxDouble[1] =*((double*)(&a1));
+  arg1CopyAvxDouble[2] =*((double*)(&a2));
+  arg1CopyAvxDouble[3] =*((double*)(&a3));    
+}
+
+
+static VG_REGPARM(3) void vr_Add64Fx4AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+    vr_AddDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_Sub64Fx4AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+    vr_AddDouble (arg1CopyAvxDouble[i], -arg2[i], res+i, vr_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_Mul64Fx4AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+    vr_MulDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
+  }
+}
+static VG_REGPARM(3) void vr_Div64Fx4AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+    vr_DivDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
+  }
+}
+
+
+static float arg1CopyAvxFloat[8];
+static VG_REGPARM(3) void vr_AvxFloatCopyFirstArg (ULong a0, ULong a1, ULong a2,ULong a3) {
+  V256* reg1=(V256*)(&arg1CopyAvxFloat) ;
+  reg1->w64[0]=a0;
+  reg1->w64[1]=a1;
+  reg1->w64[2]=a2;
+  reg1->w64[3]=a3;
+}
+
+
+static VG_REGPARM(3) void vr_Add32Fx8AfterCopy (/*OUT*/V256* output,
+						ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+    vr_AddFloat (arg1[i], arg2[i], res+i, vr_context);
+  }
+}
+
 
 //The Param 3 is done like in sg_main
 static VG_REGPARM(3) void vr_Add32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
@@ -534,6 +621,28 @@ static IRExpr* vr_getHLDouble (IRSB* sb, IRExpr* expr) {
 
 
 
+/* Return the Highest Lane of a given packed temporary register */
+static void vr_getTabArgAVX (IRSB* sb, IRExpr* expr, IRExpr** tab) {
+  IRTemp tmp0 = newIRTemp (sb->tyenv, Ity_I64);
+  IRTemp tmp1 = newIRTemp (sb->tyenv, Ity_I64);
+  IRTemp tmp2 = newIRTemp (sb->tyenv, Ity_I64);
+  IRTemp tmp3 = newIRTemp (sb->tyenv, Ity_I64);
+
+
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp0, IRExpr_Unop (Iop_V256to64_0, expr)));
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp1, IRExpr_Unop (Iop_V256to64_1, expr)));
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp2, IRExpr_Unop (Iop_V256to64_2, expr)));
+  addStmtToIRSB (sb, IRStmt_WrTmp (tmp3, IRExpr_Unop (Iop_V256to64_3, expr)));
+
+
+  tab[0]=IRExpr_RdTmp(tmp0);
+  tab[1]=IRExpr_RdTmp(tmp1);
+  tab[2]=IRExpr_RdTmp(tmp2);
+  tab[3]=IRExpr_RdTmp(tmp3);      
+ }
+
+
+
 
 
 
@@ -728,10 +837,89 @@ static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 3,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 "", VG_(fnptr_to_fnentry)(function),
                                                  mkIRExprVec_5 (IRExpr_VECRET(),
 								arg1Hi,arg1Lo,
 								arg2Hi,arg2Lo))));
+  //conversion after call
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
+}
+
+
+
+
+static void vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+			       const HChar* functionName, void* function,
+			       Vr_Op op,
+			       Vr_Prec prec,
+			       Vr_Vec vec) {
+  //instrumentation to count operation
+  vr_countOp (sb,  op, prec,vec);
+
+  if(!vr.instr_op[op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+  if(!(
+	 (vec==VR_VEC_FULL4 && prec==VR_PREC_DBL)
+     ||
+         (vec==VR_VEC_FULL8 && prec==VR_PREC_FLT)
+       )){
+    VG_(tool_panic) ( "vr_replaceBinFullAVX requires AVX instructions...  \n");
+  }
+
+  //convertion before call
+  IRExpr * arg1 = expr->Iex.Triop.details->arg2;
+  IRExpr * arg2 = expr->Iex.Triop.details->arg3;
+
+
+  IRExpr* arg1Tab[4];
+  IRExpr* arg2Tab[4];
+  vr_getTabArgAVX (sb, arg1, arg1Tab);
+  vr_getTabArgAVX (sb, arg2, arg2Tab);
+   
+  IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
+
+
+
+  //call 
+  
+  /* 1 call avx
+    addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_9 (IRExpr_VECRET(),
+								arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3],
+								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
+								)
+								)));*/
+
+
+  if( prec==VR_PREC_DBL){
+    addStmtToIRSB (sb,
+		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
+						   "vr_AvxDoubleCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxDoubleCopyFirstArg),
+						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
+						   )));
+  }else if(prec==VR_PREC_FLT){
+     addStmtToIRSB (sb,
+		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
+						   "vr_AvxFloatCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxFloatCopyFirstArg),
+						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
+						   )));
+  }
+    
+    
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_5 (IRExpr_VECRET(),
+								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
+								)
+						 )));
+
+
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
 }
@@ -931,26 +1119,43 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       /*AVX double*/
     case Iop_Add64Fx4:
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      //vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx4", vr_Add64Fx4,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx4AfterCopy", vr_Add64Fx4AfterCopy,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
       break;
 
-
     case Iop_Sub64Fx4:
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub64Fx4AfterCopy", vr_Sub64Fx4AfterCopy,VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL4);
       break;
 
     case Iop_Mul64Fx4:
-      vr_countOp (sb, VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul64Fx4AfterCopy", vr_Mul64Fx4AfterCopy,VR_OP_MUL, VR_PREC_DBL,VR_VEC_FULL4);
       break;
 
     case Iop_Div64Fx4:
-      vr_countOp (sb, VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4);
-      addStmtToIRSB (sb, stmt);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div64Fx4AfterCopy", vr_Div64Fx4AfterCopy,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL4);
+      break;
+      
+     /*AVX Float*/
+    case Iop_Add32Fx8:
+      //vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx8", vr_Add64Fx8,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
+      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add32Fx8AfterCopy", vr_Add32Fx8AfterCopy,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL8);
       break;
 
+    case Iop_Sub32Fx8:
+      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub32Fx8AfterCopy", vr_Sub32Fx8AfterCopy,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL8);
+      break;
+
+    case Iop_Mul32Fx8:
+      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8AfterCopy", vr_Mul32Fx8AfterCopy,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
+      break;
+
+    case Iop_Div32Fx8:
+      //      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div32Fx8AfterCopy", vr_Div32Fx8AfterCopy,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL8);
+      break;
+
+      
+
+      
     case Iop_CmpF64:
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL);
       addStmtToIRSB (sb, stmt);
@@ -1010,6 +1215,8 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
 
+      
+
     case Iop_Min32Fx4:
       vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_FULL4);
       addStmtToIRSB (sb, stmt);
@@ -1027,6 +1234,8 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       addStmtToIRSB (sb, stmt);
       break;
 
+    
+      
       //operation with 64bit register with 32bit rounding
     case Iop_AddF64r32:
     case Iop_SubF64r32:
@@ -1075,10 +1284,6 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_RecipEst32Fx8:
 
 
-    case Iop_Add32Fx8:
-    case Iop_Sub32Fx8:
-    case Iop_Mul32Fx8:
-    case Iop_Div32Fx8:
 
     case Iop_RoundF64toF64_NEAREST: /* frin */
     case Iop_RoundF64toF64_NegINF:  /* frim */
