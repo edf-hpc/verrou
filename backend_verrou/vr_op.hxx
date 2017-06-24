@@ -81,7 +81,6 @@ public:
     const RealType & a(p.args[0]);
     const RealType & b(p.args[1]);
 
-    checkInsufficientPrecision (a, b);
     checkCancellation (a, b, c);
   }
 

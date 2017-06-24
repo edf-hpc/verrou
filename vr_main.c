@@ -33,7 +33,9 @@
 //#pragma STDC FENV_ACCESS ON
 
 Vr_State vr;
-void* vr_context;
+struct interflop_backend_interface_t backend;
+void* backend_context;
+
 // * Floating-point operations counter
 
 
@@ -268,369 +270,8 @@ void vr_ppOpCount (void) {
 // ** Overloaded operators
 
 
-// *** Addition
+#include "vr_interp_operator_impl.h"
 
-
-static VG_REGPARM(2) Long vr_Add64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double res;
-  vr_AddDouble (*arg1, *arg2, &res, vr_context);
-  Long *c = (Long*)(&res);
-  return *c;
-}
-
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Add64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  double* res=(double*) output;
-  vr_AddDouble (arg1[0], arg2[0], res, vr_context);
-  vr_AddDouble (arg1[1], arg2[1], res+1, vr_context);
-}
-
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Add64Fx4AllArgs (/*OUT*/V256* output,
-				       ULong a0, ULong a1, ULong a2,ULong a3,
-				       ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    vr_AddDouble (arg1[i], arg2[i], res+i, vr_context);
-  }
-}
-
-
-static double arg1CopyAvxDouble[4];
-static VG_REGPARM(3) void vr_AvxDoubleCopyFirstArg (ULong a0, ULong a1, ULong a2,ULong a3) {
-  arg1CopyAvxDouble[0] =*((double*)(&a0));
-  arg1CopyAvxDouble[1] =*((double*)(&a1));
-  arg1CopyAvxDouble[2] =*((double*)(&a2));
-  arg1CopyAvxDouble[3] =*((double*)(&a3));    
-}
-
-
-static VG_REGPARM(3) void vr_Add64Fx4AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    vr_AddDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
-  }
-}
-
-static VG_REGPARM(3) void vr_Sub64Fx4AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    vr_AddDouble (arg1CopyAvxDouble[i], -arg2[i], res+i, vr_context);
-  }
-}
-
-static VG_REGPARM(3) void vr_Mul64Fx4AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    vr_MulDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
-  }
-}
-static VG_REGPARM(3) void vr_Div64Fx4AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    vr_DivDouble (arg1CopyAvxDouble[i], arg2[i], res+i, vr_context);
-  }
-}
-
-
-static float arg1CopyAvxFloat[8];
-static VG_REGPARM(3) void vr_AvxFloatCopyFirstArg (ULong a0, ULong a1, ULong a2,ULong a3) {
-  V256* reg1=(V256*)(&arg1CopyAvxFloat) ;
-  reg1->w64[0]=a0;
-  reg1->w64[1]=a1;
-  reg1->w64[2]=a2;
-  reg1->w64[3]=a3;
-}
-
-
-static VG_REGPARM(3) void vr_Add32Fx8AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=(float*) &reg2;
-  for(int i=0; i<8; i++){
-    vr_AddFloat (arg1[i], arg2[i], res+i, vr_context);
-  }
-}
-
-
-static VG_REGPARM(3) void vr_Sub32Fx8AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=(float*) &reg2;
-  for(int i=0; i<8; i++){
-    vr_AddFloat (arg1[i], -arg2[i], res+i, vr_context);
-  }
-}
-
-static VG_REGPARM(3) void vr_Mul32Fx8AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=(float*) &reg2;
-  for(int i=0; i<8; i++){
-    vr_MulFloat (arg1[i], arg2[i], res+i, vr_context);
-  }
-}
-
-static VG_REGPARM(3) void vr_Div32Fx8AfterCopy (/*OUT*/V256* output,
-						ULong b0, ULong b1, ULong b2,ULong b3) {
-
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=(float*) &reg2;
-  for(int i=0; i<8; i++){
-    vr_DivFloat (arg1[i], arg2[i], res+i, vr_context);
-  }
-}
-
-
-
-
-
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Add32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
-  
-  vr_AddFloat (arg1[0], arg2[0], res, vr_context);
-  vr_AddFloat (arg1[1], arg2[1], res+1, vr_context);
-  vr_AddFloat (arg1[2], arg2[2], res+2, vr_context);
-  vr_AddFloat (arg1[3], arg2[3], res+3, vr_context);
-}
-
-
-static VG_REGPARM(2) Long vr_Sub64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double res;
-  vr_AddDouble (*arg1, -(*arg2), &res, vr_context);
-  Long *c = (Long*)(&res);
-  return *c;
-}
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Sub64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  double* res=(double*) output;
-  vr_AddDouble (arg1[0], -arg2[0], res, vr_context);
-  vr_AddDouble (arg1[1], -arg2[1], res+1, vr_context);
-}
-
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Sub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
-  
-  vr_AddFloat (arg1[0], -arg2[0], res, vr_context);
-  vr_AddFloat (arg1[1], -arg2[1], res+1, vr_context);
-  vr_AddFloat (arg1[2], -arg2[2], res+2, vr_context);
-  vr_AddFloat (arg1[3], -arg2[3], res+3, vr_context);
-}
-
-
-static VG_REGPARM(2) Int vr_Add32F (Long a, Long b) {
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float res;
-  vr_AddFloat (*arg1, *arg2, &res, vr_context);
-  Int *c = (Int*)(&res);
-  return *c;
-}
-
-static VG_REGPARM(2) Int vr_Sub32F (Long a, Long b) {
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float res;
-  vr_AddFloat (*arg1, -(*arg2), &res, vr_context);
-  Int *c = (Int*)(&res);
-  return *c;
-}
-
-
-static VG_REGPARM(2) Long vr_Mul64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double res;
-  vr_MulDouble (*arg1, *arg2,&res,vr_context);
-  Long *c = (Long*)(&res);
-  return *c;
-}
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Mul64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  double* res=(double*) output;
-  vr_MulDouble (arg1[0], arg2[0], res, vr_context);
-  vr_MulDouble (arg1[1], arg2[1], res+1, vr_context);
-}
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Mul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
-  
-  vr_MulFloat (arg1[0], arg2[0], res, vr_context);
-  vr_MulFloat (arg1[1], arg2[1], res+1, vr_context);
-  vr_MulFloat (arg1[2], arg2[2], res+2, vr_context);
-  vr_MulFloat (arg1[3], arg2[3], res+3, vr_context);
-}
-
-
-
-static VG_REGPARM(2) Long vr_Div64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double res;
-  vr_DivDouble (*arg1, *arg2,&res,vr_context);
-  Long *c = (Long*)(&res);
-  return *c;
-}
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Div64Fx2 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  double* res=(double*) output;
-  vr_DivDouble (arg1[0], arg2[0], res, vr_context);
-  vr_DivDouble (arg1[1], arg2[1], res+1, vr_context);
-}
-
-
-//The Param 3 is done like in sg_main
-static VG_REGPARM(3) void vr_Div32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
-  
-  vr_DivFloat (arg1[0], arg2[0], res, vr_context);
-  vr_DivFloat (arg1[1], arg2[1], res+1, vr_context);
-  vr_DivFloat (arg1[2], arg2[2], res+2, vr_context);
-  vr_DivFloat (arg1[3], arg2[3], res+3, vr_context);
-}
-
-static VG_REGPARM(3) Long vr_MAdd64F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double *arg3 = (double*)(&c);
-  double res;
-  vr_MAddDouble (*arg1, *arg2, *arg3, &res, vr_context);
-#else
-  double res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Long *d = (Long*)(&res);
-  return *d;
-}
-
-static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float *arg3 = (float*)(&c);
-  float res;
-  vr_MAddFloat (*arg1, *arg2, *arg3, &res,vr_context);
-#else
-  float res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Int *d = (Int*)(&res);
-  return *d;
-}
-
-
-static VG_REGPARM(3) Long vr_MSub64F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double *arg3 = (double*)(&c);
-  double res;
-  vr_MAddDouble (*arg1, *arg2, -*arg3,&res, vr_context);
-#else
-  double res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Long *d = (Long*)(&res);
-  return *d;
-}
-
-static VG_REGPARM(3) Int vr_MSub32F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float *arg3 = (float*)(&c);
-  float res;
-  vr_MAddFloat (*arg1, *arg2, -*arg3, &res, vr_context);
-#else
-  float res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Int *d = (Int*)(&res);
-  return *d;
-}
-
-
-static VG_REGPARM(2) Int vr_Mul32F (Long a, Long b) {
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float res;
-  vr_MulFloat (*arg1, *arg2,&res, vr_context);
-  Int *c = (Int*)(&res);
-  return *c;
-}
-
-static VG_REGPARM(2) Int vr_Div32F (Long a, Long b) {
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float res;
-  vr_DivFloat (*arg1, *arg2,&res, vr_context);
-  Int *c = (Int*)(&res);
-  return *c;
-}
 
 
 
@@ -1028,121 +669,122 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       // - Double precision
     case Iop_AddF64: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F, VR_OP_ADD,VR_PREC_DBL,VR_VEC_SCAL);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F, VR_OP_ADD,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add64Fx2", vr_Add64Fx2,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
-      break;
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add64Fx2", vr_Add64Fx2,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
 
-      // - Single precision
     case Iop_AddF32: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_SCAL);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_SCAL);
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add32Fx4", vr_Add32Fx4,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL4);
-      break;
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add32Fx4", vr_Add32Fx4,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL4);
+
+    case Iop_Add64Fx4: //AVX double
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx4", vr_Add64Fx4,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
+
+    case Iop_Add32Fx8: //AVX Float
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add32Fx8", vr_Add32Fx8,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL8);
 
 
       // Subtraction
 
       // - Double precision
     case Iop_SubF64: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB,VR_PREC_DBL,VR_VEC_SCAL);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Sub64Fx2:
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub64Fx2", vr_Sub64Fx2, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
-      break;
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub64Fx2", vr_Sub64Fx2, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
 
-      // - Single precision
     case Iop_SubF32: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_SCAL);
-      break;
-
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_SCAL);
+      
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub32Fx4", vr_Sub32Fx4,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL4);
-      break;
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub32Fx4", vr_Sub32Fx4,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL4);
 
+    case Iop_Sub64Fx4: //AVX double
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub64Fx4", vr_Sub64Fx4,VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL4);
+
+    case Iop_Sub32Fx8: //AVX Float
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub32Fx8", vr_Sub32Fx8,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL8);
 
       // Multiplication
 
       // - Double precision
     case Iop_MulF64: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_SCAL);
-      break;
-    case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
-      break;
-    case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul64Fx2", vr_Mul64Fx2, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_SCAL);
 
-      // - Single precision
+    case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
+
+    case Iop_Mul64Fx2: // 128b vector, 2 lanes
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul64Fx2", vr_Mul64Fx2, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
+
     case Iop_MulF32: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F,VR_OP_MUL, VR_PREC_FLT,VR_VEC_SCAL);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F,VR_OP_MUL, VR_PREC_FLT,VR_VEC_SCAL);
+
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
+
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul32Fx4", vr_Mul32Fx4,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL4);      
-      break;
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul32Fx4", vr_Mul32Fx4,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL4);      
+
+    case Iop_Mul64Fx4: //AVX double
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul64Fx4", vr_Mul64Fx4,VR_OP_MUL, VR_PREC_DBL,VR_VEC_FULL4);
+
+    case Iop_Mul32Fx8: //AVX Float
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8", vr_Mul32Fx8,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
 
 
     case Iop_DivF32:
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_SCAL);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_SCAL);
 
     case Iop_Div32F0x4: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_LLO);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
-      vr_replaceBinFullSSE (sb, stmt, expr,"vr_Div32Fx4", vr_Div32Fx4,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL4);      
-      break;
-
+      return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Div32Fx4", vr_Div32Fx4,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL4);      
 
     case Iop_DivF64: // Scalar
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F, VR_OP_DIV,VR_PREC_DBL,VR_VEC_SCAL);
-      break;
-    case Iop_Div64F0x2: // 128b vector, lowest-lane-only
-      vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
-      break;
-    case Iop_Div64Fx2: // 128b vector, 2 lanes
-      vr_replaceBinFullSSE(sb, stmt, expr,"vr_Div64Fx2", vr_Div64Fx2,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
-      break;
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F, VR_OP_DIV,VR_PREC_DBL,VR_VEC_SCAL);
 
+    case Iop_Div64F0x2: // 128b vector, lowest-lane-only
+      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
+
+    case Iop_Div64Fx2: // 128b vector, 2 lanes
+      return vr_replaceBinFullSSE(sb, stmt, expr,"vr_Div64Fx2", vr_Div64Fx2,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
+
+    case Iop_Div64Fx4: //AVX double
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div64Fx4", vr_Div64Fx4,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL4);
+      
+    case Iop_Div32Fx8: //AVX Float
+      return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div32Fx8", vr_Div32Fx8,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL8);
+
+      
 
     case Iop_MAddF32:
-      vr_replaceFMA (sb, stmt, expr,"vr_MAdd32F", vr_MAdd32F, VR_OP_MADD, VR_PREC_FLT);
-      break;
+      return vr_replaceFMA (sb, stmt, expr,"vr_MAdd32F", vr_MAdd32F, VR_OP_MADD, VR_PREC_FLT);
+
     case Iop_MSubF32:
-      vr_replaceFMA (sb, stmt, expr,"vr_MSub32F", vr_MSub32F, VR_OP_MSUB, VR_PREC_FLT);
-      break;
+      return vr_replaceFMA (sb, stmt, expr,"vr_MSub32F", vr_MSub32F, VR_OP_MSUB, VR_PREC_FLT);
+
     case Iop_MAddF64:
-      vr_replaceFMA (sb, stmt, expr,"vr_MAdd64F", vr_MAdd64F, VR_OP_MADD, VR_PREC_DBL);
-      break;
+      return vr_replaceFMA (sb, stmt, expr,"vr_MAdd64F", vr_MAdd64F, VR_OP_MADD, VR_PREC_DBL);
+
     case Iop_MSubF64:
-      vr_replaceFMA (sb, stmt, expr,"vr_MSub64F", vr_MSub64F,VR_OP_MSUB,  VR_PREC_DBL);
-      break;
+      return vr_replaceFMA (sb, stmt, expr,"vr_MSub64F", vr_MSub64F,VR_OP_MSUB,  VR_PREC_DBL);
 
 
       //   Other FP operations
@@ -1156,46 +798,6 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL2);
       addStmtToIRSB (sb, stmt);
       break;
-
-
-      /*AVX double*/
-    case Iop_Add64Fx4:
-      //vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx4", vr_Add64Fx4,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx4AfterCopy", vr_Add64Fx4AfterCopy,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
-      break;
-
-    case Iop_Sub64Fx4:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub64Fx4AfterCopy", vr_Sub64Fx4AfterCopy,VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL4);
-      break;
-
-    case Iop_Mul64Fx4:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul64Fx4AfterCopy", vr_Mul64Fx4AfterCopy,VR_OP_MUL, VR_PREC_DBL,VR_VEC_FULL4);
-      break;
-
-    case Iop_Div64Fx4:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div64Fx4AfterCopy", vr_Div64Fx4AfterCopy,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL4);
-      break;
-      
-     /*AVX Float*/
-    case Iop_Add32Fx8:
-      //vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add64Fx8", vr_Add64Fx8,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL4);
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Add32Fx8AfterCopy", vr_Add32Fx8AfterCopy,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL8);
-      break;
-
-    case Iop_Sub32Fx8:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Sub32Fx8AfterCopy", vr_Sub32Fx8AfterCopy,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL8);
-      break;
-
-    case Iop_Mul32Fx8:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8AfterCopy", vr_Mul32Fx8AfterCopy,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
-      break;
-
-    case Iop_Div32Fx8:
-      vr_replaceBinFullAVX(sb, stmt, expr,"vr_Div32Fx8AfterCopy", vr_Div32Fx8AfterCopy,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL8);
-      break;
-
-      
-
       
     case Iop_CmpF64:
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL);
@@ -1475,7 +1077,12 @@ static void vr_post_clo_init(void)
      vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    }
 
+   
+   backend=interflop_BACKENDNAME_init(&backend_context);
    vr_fpOpsInit(vr.roundingMode);
+   
+
+
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

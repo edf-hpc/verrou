@@ -40,9 +40,8 @@ extern "C" {
 }
 
 
-// Forward declarations
-template <typename REAL>
-void checkInsufficientPrecision (const REAL & a, const REAL & b);
+
+
 template <typename REAL>
 void checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
@@ -55,7 +54,7 @@ vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
 //Bool vr_instrument_state;
 
-const int CHECK_IP = 0;
+
 const int CHECK_C  = 0;
 
 VgFile * vr_outFile;
@@ -86,25 +85,6 @@ inline const HChar*  roundingModeName (vr_RoundingMode mode) {
 }
 
 
-// ** Addition
-template <typename REAL>
-void checkInsufficientPrecision (const REAL & a, const REAL & b) {
-  if (CHECK_IP == 0)
-    return;
-
-  const int ea = exponentField (a);
-  const int eb = exponentField (b);
-
-  const int emax = ea>eb ? ea : eb;
-  const int emin = ea<eb ? ea : eb;
-
-  const int n = storedBits(a);
-  const int dp = 1+emax-emin-n;
-
-  if (dp>0) {
-    VG_(fprintf)(vr_outFile, "IP %d\n", dp);
-  }
-}
 
 template <typename REAL>
 void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
@@ -138,7 +118,7 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
 
   VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 
-  if (CHECK_IP != 0) {
+  if (CHECK_C != 0) {
     vr_outFile = VG_(fopen)("vr.log",
 			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
@@ -157,7 +137,7 @@ void vr_endInstrumentation(){
 
 
 void vr_fpOpsFini (void) {
-  if (CHECK_IP != 0) {
+  if (CHECK_C != 0) {
     VG_(fclose)(vr_outFile);
   }
   }
@@ -179,41 +159,99 @@ void vr_fpOpsRandom () {
 void vr_AddDouble (double a, double b,double* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
 
 void vr_AddFloat (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
+
+void vr_SubDouble (double a, double b,double* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,-b),context);
+};
+
+void vr_SubFloat (float a, float b, float* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,-b),context);
+};
 
 
 void vr_MulDouble (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
 
 void vr_MulFloat (float a, float b, float* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
 
 
 void vr_DivDouble (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
 
 void vr_DivFloat (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-}
+};
 
 void vr_MAddDouble (double a, double b, double c, double* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c),context);
-}
+};
 
 void vr_MAddFloat (float a, float b, float c, float* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
   *res= Op::apply(Op::PackArgs(a,b,c), context);
+};
+
+
+
+struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context){
+  struct interflop_backend_interface_t config;
+
+  config.interflop_add_float = &vr_AddFloat;
+  config.interflop_sub_float = &vr_SubFloat;;
+  config.interflop_mul_float = &vr_MulFloat;
+  config.interflop_div_float = &vr_DivFloat;
+
+  config.interflop_add_double = &vr_AddDouble;
+  config.interflop_sub_double = &vr_SubDouble;
+  config.interflop_mul_double = &vr_MulDouble;
+  config.interflop_div_double = &vr_DivDouble;
+
+  config.interflop_add_floatx2 = NULL;
+  config.interflop_sub_floatx2 = NULL;
+  config.interflop_mul_floatx2 = NULL;
+  config.interflop_div_floatx2 = NULL;
+
+  config.interflop_add_floatx4 = NULL;
+  config.interflop_sub_floatx4 = NULL;
+  config.interflop_mul_floatx4 = NULL;
+  config.interflop_div_floatx4 = NULL;
+
+  config.interflop_add_floatx8 = NULL;
+  config.interflop_sub_floatx8 = NULL;
+  config.interflop_mul_floatx8 = NULL;
+  config.interflop_div_floatx8 = NULL;
+
+  config.interflop_add_doublex2 = NULL;
+  config.interflop_sub_doublex2 = NULL;
+  config.interflop_mul_doublex2 = NULL;
+  config.interflop_div_doublex2 = NULL;
+
+  config.interflop_add_doublex4 = NULL;
+  config.interflop_sub_doublex4 = NULL;
+  config.interflop_mul_doublex4 = NULL;
+  config.interflop_div_doublex4 = NULL;
+
+
+  config.interflop_madd_float = &vr_MAddFloat;
+  config.interflop_madd_double =&vr_MAddDouble;
+
+
+  return config;
 }

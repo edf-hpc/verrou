@@ -33,10 +33,15 @@
 #ifndef __VR_FPOPS_H
 #define __VR_FPOPS_H
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+#define BACKENDNAME
+#include "interflop_backend_interface.h"
 
+
+  
   enum vr_RoundingMode {
     VR_NEAREST,
     VR_UPWARD,
@@ -47,6 +52,7 @@ extern "C" {
     VR_FARTHEST
   };
 
+  
   void vr_fpOpsInit (enum vr_RoundingMode mode);
   void vr_fpOpsFini (void);
 
@@ -55,16 +61,6 @@ extern "C" {
 
   void vr_fpOpsSeed (unsigned int seed);
   void vr_fpOpsRandom (void);
-
-  void vr_AddDouble (double a, double b, double* res, void* context);
-  void vr_AddFloat  (float  a, float  b, float*  res, void* context);
-  void vr_MulDouble (double a, double b, double* res, void* context);
-  void vr_MulFloat  (float  a, float  b, float*  res, void* context);
-  void vr_DivDouble (double a, double b, double* res, void* context);
-  void vr_DivFloat  (float  a, float  b, float*  res, void* context);
-
-  void vr_MAddDouble (double a, double b, double c, double* res, void* context);
-  void vr_MAddFloat (float a, float b, float c, float* res,void* context);
 
 
 #ifdef __cplusplus
