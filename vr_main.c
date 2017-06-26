@@ -30,12 +30,14 @@
 
 #include "vr_main.h"
 #include "float.h"
+#include "pub_tool_libcfile.h"
 //#pragma STDC FENV_ACCESS ON
 
 Vr_State vr;
 struct interflop_backend_interface_t backend;
 void* backend_context;
-
+VgFile * vr_outCancellationFile;
+extern int CHECK_C;
 // * Floating-point operations counter
 
 
@@ -1039,6 +1041,11 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
 static void vr_fini(Int exitcode)
 {
+
+  if (CHECK_C != 0) {
+    VG_(fclose)(vr_outCancellationFile);
+  }
+
   vr_fpOpsFini ();
   vr_ppOpCount ();
 
@@ -1056,6 +1063,10 @@ static void vr_fini(Int exitcode)
   vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
   VG_(free)(vr.genAbove);
+}
+
+void cancellationHandler(int cancelled ){
+  VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
 }
 
 static void vr_post_clo_init(void)
@@ -1081,7 +1092,13 @@ static void vr_post_clo_init(void)
    backend=interflop_BACKENDNAME_init(&backend_context);
    vr_fpOpsInit(vr.roundingMode);
    
-
+   /*Init outfile cancellation*/
+   if (CHECK_C != 0) {
+     vr_outCancellationFile = VG_(fopen)("vr.log",
+					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+     setCancellationHandler(&cancellationHandler);
+   }
 
 
    /*If no operation selected the default is all*/

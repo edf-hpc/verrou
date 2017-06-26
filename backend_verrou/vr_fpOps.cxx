@@ -30,7 +30,7 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "pub_tool_libcfile.h"
+//#include "pub_tool_libcfile.h"
 #include "vr_fpRepr.hxx"
 #include "vr_fpOps.h"
 #include "vr_fma.hxx"
@@ -50,16 +50,18 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
 
 // * Global variables & parameters
+int CHECK_C  = 0;
 vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
-//Bool vr_instrument_state;
-
-
-const int CHECK_C  = 0;
-
-VgFile * vr_outFile;
-
 unsigned int vr_seed;
+void (*vr_cancellationHandler)(int);
+
+
+
+
+void setCancellationHandler(void (*cancellationHandler)(int)){
+  vr_cancellationHandler=cancellationHandler;
+}
 
 
 // * Operation implementation
@@ -99,7 +101,7 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   const int cancelled = emax - er;
 
   if (cancelled >= storedBits(a)) {
-    VG_(fprintf)(vr_outFile, "C  %d\n", cancelled);
+    vr_cancellationHandler(cancelled);
   }
 }
 
@@ -118,11 +120,7 @@ void vr_fpOpsInit (vr_RoundingMode mode) {
 
   VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 
-  if (CHECK_C != 0) {
-    vr_outFile = VG_(fopen)("vr.log",
-			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
-			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-  }
+
 }
 
 void vr_beginInstrumentation(){
@@ -137,10 +135,8 @@ void vr_endInstrumentation(){
 
 
 void vr_fpOpsFini (void) {
-  if (CHECK_C != 0) {
-    VG_(fclose)(vr_outFile);
-  }
-  }
+
+}
 
 void vr_fpOpsSeed (unsigned int seed) {
   vr_seed = vr_rand_int (&vr_rand);
@@ -210,6 +206,7 @@ void vr_MAddFloat (float a, float b, float c, float* res, void* context){
 
 
 
+
 struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context){
   struct interflop_backend_interface_t config;
 
@@ -251,7 +248,6 @@ struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context)
 
   config.interflop_madd_float = &vr_MAddFloat;
   config.interflop_madd_double =&vr_MAddDouble;
-
 
   return config;
 }

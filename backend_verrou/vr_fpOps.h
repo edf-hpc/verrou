@@ -52,6 +52,8 @@ extern "C" {
     VR_FARTHEST
   };
 
+  //  int CHECK_C  = 0;
+
   
   void vr_fpOpsInit (enum vr_RoundingMode mode);
   void vr_fpOpsFini (void);
@@ -62,7 +64,8 @@ extern "C" {
   void vr_fpOpsSeed (unsigned int seed);
   void vr_fpOpsRandom (void);
 
-
+  void setCancellationHandler(void (*cancellationHandler)(int));
+  
 #ifdef __cplusplus
 }
 #endif

@@ -33,9 +33,9 @@
 
 #pragma once
 
-extern "C" {
-#include "vr_main.h"
-}
+//extern "C" {
+//#include "vr_main.h"
+//}
 extern vr_RoundingMode ROUNDINGMODE;
 
 template<class OP>
