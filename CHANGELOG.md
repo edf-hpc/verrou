@@ -16,6 +16,10 @@ This version is based on Valgrind-3.13.0.
 - Generation of Valgrind errors for NaN values. This can be useful to debug
   programs in conjunction with vgdb.
 
+### Changed
+
+- C++ source files are now compiled using the C++11 standard.
+
 
 ---
 
