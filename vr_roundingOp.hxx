@@ -220,23 +220,35 @@ public:
 
   inline
   static RealType apply(const PackArgs& p){
+    RealType res = 0.;
     switch (ROUNDINGMODE) {
     case VR_NEAREST:
-      return RoundingNearest<OP>::apply (p);
+      res = RoundingNearest<OP>::apply (p);
+      break;
     case VR_UPWARD:
-      return RoundingUpward<OP>::apply (p);
+      res = RoundingUpward<OP>::apply (p);
+      break;
     case VR_DOWNWARD:
-      return RoundingDownward<OP>::apply (p);
+      res = RoundingDownward<OP>::apply (p);
+      break;
     case VR_ZERO:
-      return RoundingZero<OP>::apply (p);
+      res = RoundingZero<OP>::apply (p);
+      break;
     case VR_RANDOM:
-      return RoundingRandom<OP>::apply (p);
+      res = RoundingRandom<OP>::apply (p);
+      break;
     case VR_AVERAGE:
-      return RoundingAverage<OP>::apply (p);
+      res = RoundingAverage<OP>::apply (p);
+      break;
     case VR_FARTHEST:
-      return RoundingFarthest<OP>::apply (p);
+      res = RoundingFarthest<OP>::apply (p);
+      break;
     }
-    return 0;
+
+    if (isNan(res)) {
+      vr_handle_NaN();
+    }
+    return res;
   }
 
 

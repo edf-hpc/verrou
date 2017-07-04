@@ -9,6 +9,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
 
+This version is based on Valgrind-3.13.0.
+
+### Added
+
+- Generation of Valgrind errors for NaN values. This can be useful to debug
+  programs in conjunction with vgdb.
+
 
 ---
 
