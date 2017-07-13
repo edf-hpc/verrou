@@ -383,15 +383,15 @@ static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
 
 /* Replace a given binary operation by a call to a function
  */
-static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			       const HChar* functionName, void* function,
-			       Vr_Op op,
-			       Vr_Prec prec,
-			       Vr_Vec vec) {
+static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+				   const HChar* functionName, void* function,
+				   Vr_Op op,
+				   Vr_Prec prec,
+				   Vr_Vec vec) {
   //instrumentation to count operation
   vr_countOp (sb,  op, prec,vec);
 
-  if(vr.verbose && vec==VR_VEC_SCAL){
+  if(vr.verbose){
     IROp irop;
     if (vr_getOp (expr, &irop))
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
@@ -401,66 +401,40 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     addStmtToIRSB (sb, stmt);
     return;
   }
-  if(!vr.instr_scalar && vec==VR_VEC_SCAL) {
+  if(!vr.instr_scalar) {
     addStmtToIRSB (sb, stmt);
     return;
   }
 
 
   //convertion before call
-  IRTemp res;
   IRExpr * arg1;
   IRExpr * arg2;
-  if (vec == VR_VEC_LLO) {
-    arg1 = expr->Iex.Binop.arg1;
-    arg2 = expr->Iex.Binop.arg2;
-    if (prec==VR_PREC_FLT) {
-      arg1 = vr_getLLFloat (sb, arg1);
-      arg2 = vr_getLLFloat (sb, arg2);
-      arg1 = vr_I32toI64 (sb, arg1);
-      arg2 = vr_I32toI64 (sb, arg2);
-      res= newIRTemp (sb->tyenv, Ity_I32);
-    }
-    if (prec==VR_PREC_DBL) {
-      arg1 = vr_getLLDouble (sb, arg1);
-      arg2 = vr_getLLDouble (sb, arg2);
-      res= newIRTemp (sb->tyenv, Ity_I64);
-    }
+
+  arg1 = expr->Iex.Triop.details->arg2;
+  //shift arg is not a bug :  IRRoundingMode(I32) x F64 x F64 -> F64 */
+  arg2 = expr->Iex.Triop.details->arg3;
+
+  IRType ity=Ity_I64; //type of call result
+  if (prec==VR_PREC_FLT) {
+    arg1=vr_F32toI64(sb,arg1);
+    arg2=vr_F32toI64(sb,arg2);
+    ity=Ity_I32;
   }
-
-  if(vec== VR_VEC_SCAL){
-    arg1 = expr->Iex.Triop.details->arg2;
-    //shift arg is not a bug :  IRRoundingMode(I32) x F64 x F64 -> F64 */
-    arg2 = expr->Iex.Triop.details->arg3;
-
-    if (prec==VR_PREC_FLT) {
-      arg1=vr_F32toI64(sb,arg1);
-      arg2=vr_F32toI64(sb,arg2);
-      res= newIRTemp (sb->tyenv, Ity_I32);
-    }
-    if (prec==VR_PREC_DBL) {
-      arg1=vr_F64toI64(sb,arg1);
-      arg2=vr_F64toI64(sb,arg2);
-      res= newIRTemp (sb->tyenv, Ity_I64);
-    }
+  if (prec==VR_PREC_DBL) {
+    arg1=vr_F64toI64(sb,arg1);
+    arg2=vr_F64toI64(sb,arg2);
   }
 
   //call
+  IRTemp res= newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_2 (arg1, arg2))));
+		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
+						 functionName, VG_(fnptr_to_fnentry)(function),
+						 mkIRExprVec_2 (arg1, arg2))));
 
   //conversion after call
-  if (vec == VR_VEC_LLO) {
-    IROp opReg;
-    if (prec==VR_PREC_FLT) opReg = Iop_32UtoV128;
-    if (prec==VR_PREC_DBL) opReg = Iop_64UtoV128;
-    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                     IRExpr_Unop (opReg, IRExpr_RdTmp(res))));
-  }
-  if (vec == VR_VEC_SCAL) {
-    if(prec==VR_PREC_FLT){
+  if(prec==VR_PREC_FLT){
       IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
@@ -469,25 +443,69 @@ static void vr_replaceBinFpOp (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
     }
+}
+
+
+
+static void vr_replaceBinFpOpLLO (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+				  const HChar* functionName, void* function,
+				  Vr_Op op,
+				  Vr_Prec prec,
+				  Vr_Vec vec) {
+  //instrumentation to count operation
+  vr_countOp (sb,  op, prec,vec);
+
+  if(!vr.instr_op[op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+  //convertion before call
+  IRExpr * arg1LL;
+  IRExpr * arg1;
+  IRExpr * arg2LL;
+  IRType ity=Ity_I64;//type of call result
+
+  arg1 = expr->Iex.Binop.arg1;
+  arg2LL = expr->Iex.Binop.arg2;
+  if (prec==VR_PREC_FLT) {
+    arg1LL = vr_getLLFloat (sb, arg1);
+    arg2LL = vr_getLLFloat (sb, arg2LL);
+    arg1LL = vr_I32toI64 (sb, arg1LL);
+    arg2LL = vr_I32toI64 (sb, arg2LL);
+    ity=Ity_I32;
+  }
+  if (prec==VR_PREC_DBL) {
+    arg1LL = vr_getLLDouble (sb, arg1);
+    arg2LL = vr_getLLDouble (sb, arg2LL);
+  }
+
+  //call
+  IRTemp res=newIRTemp (sb->tyenv, ity);
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_2 (arg1LL, arg2LL))));
+
+  //update after call
+  if (prec==VR_PREC_FLT){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
+  }
+  if (prec==VR_PREC_DBL){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
   }
 }
 
 
 
 
-
-
-
-
-
-
-
-
 static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			       const HChar* functionName, void* function,
-			       Vr_Op op,
-			       Vr_Prec prec,
-			       Vr_Vec vec) {
+				  const HChar* functionName, void* function,
+				  Vr_Op op,
+				  Vr_Prec prec,
+				  Vr_Vec vec) {
   //instrumentation to count operation
   vr_countOp (sb,  op, prec,vec);
 
@@ -671,19 +689,19 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       // - Double precision
     case Iop_AddF64: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F, VR_OP_ADD,VR_PREC_DBL,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Add64F", vr_Add64F, VR_OP_ADD,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Add64F", vr_Add64F,VR_OP_ADD, VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add64Fx2", vr_Add64Fx2,VR_OP_ADD, VR_PREC_DBL,VR_VEC_FULL2);
 
     case Iop_AddF32: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_SCAL);
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Add32F", vr_Add32F, VR_OP_ADD,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Add32Fx4", vr_Add32Fx4,VR_OP_ADD, VR_PREC_FLT,VR_VEC_FULL4);
@@ -699,19 +717,19 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       // - Double precision
     case Iop_SubF64: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB,VR_PREC_DBL,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Sub64F", vr_Sub64F, VR_OP_SUB, VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Sub64Fx2:
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub64Fx2", vr_Sub64Fx2, VR_OP_SUB, VR_PREC_DBL,VR_VEC_FULL2);
 
     case Iop_SubF32: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_SCAL);
       
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Sub32F", vr_Sub32F, VR_OP_SUB,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Sub32Fx4", vr_Sub32Fx4,VR_OP_SUB, VR_PREC_FLT,VR_VEC_FULL4);
@@ -726,19 +744,19 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       // - Double precision
     case Iop_MulF64: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Mul64F", vr_Mul64F, VR_OP_MUL,VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul64Fx2", vr_Mul64Fx2, VR_OP_MUL,VR_PREC_DBL,VR_VEC_FULL2);
 
     case Iop_MulF32: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F,VR_OP_MUL, VR_PREC_FLT,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Mul32F", vr_Mul32F,VR_OP_MUL, VR_PREC_FLT,VR_VEC_SCAL);
 
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Mul32F", vr_Mul32F, VR_OP_MUL,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Mul32Fx4", vr_Mul32Fx4,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL4);      
@@ -749,21 +767,20 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_Mul32Fx8: //AVX Float
       return vr_replaceBinFullAVX(sb, stmt, expr,"vr_Mul32Fx8", vr_Mul32Fx8,VR_OP_MUL, VR_PREC_FLT,VR_VEC_FULL8);
 
-
     case Iop_DivF32:
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_SCAL);
 
     case Iop_Div32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Div32F", vr_Div32F, VR_OP_DIV,VR_PREC_FLT,VR_VEC_LLO);
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
       return vr_replaceBinFullSSE (sb, stmt, expr,"vr_Div32Fx4", vr_Div32Fx4,VR_OP_DIV, VR_PREC_FLT,VR_VEC_FULL4);      
 
     case Iop_DivF64: // Scalar
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F, VR_OP_DIV,VR_PREC_DBL,VR_VEC_SCAL);
+      return vr_replaceBinFpOpScal (sb, stmt, expr,"vr_Div64F", vr_Div64F, VR_OP_DIV,VR_PREC_DBL,VR_VEC_SCAL);
 
     case Iop_Div64F0x2: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOp (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr,"vr_Div64F", vr_Div64F,VR_OP_DIV, VR_PREC_DBL,VR_VEC_LLO);
 
     case Iop_Div64Fx2: // 128b vector, 2 lanes
       return vr_replaceBinFullSSE(sb, stmt, expr,"vr_Div64Fx2", vr_Div64Fx2,VR_OP_DIV, VR_PREC_DBL,VR_VEC_FULL2);
@@ -980,6 +997,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
 static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
   IROp op;
+  //  ppIRStmt(stmt);VG_(printf)("\n");
   if (vr_getOp (expr, &op)) {
     vr_instrumentOp (sb, stmt, expr, op);
   } else {
