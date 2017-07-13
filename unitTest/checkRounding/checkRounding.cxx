@@ -12,7 +12,10 @@
 #ifdef  TEST_FMA
 #include  <immintrin.h>
 #include  <fmaintrin.h>
-#endif 
+#endif
+#ifdef TEST_SSE
+#include  <immintrin.h>
+#endif
 
 void usage(char** argv){
   std::cout << "usage : "<< argv[0]<< " ENV ROUNDING_MODE  avec "<<std::endl;
@@ -285,6 +288,82 @@ class test5:public test<REALTYPE>{
 
 
 
+template<class REALTYPE>
+class test6:public test<REALTYPE>{
+public:
+  test6():test<REALTYPE>(1/0.){
+  }
+
+};
+
+template<>
+class test6<double>:public test<double>{
+ public:
+
+  test6():test<double>(17){
+  }
+
+  std::string name(){
+    return std::string("test6");
+  }
+
+
+  double compute(){
+    const double a[]={1,2};
+    const double b[]={3,4};
+    const double c[]={5,6};
+#ifndef TEST_SSE
+    return a[0]+a[1]+b[0]+c[0]+c[1];
+#else
+    double res[2];
+    __m128d bi,ci,ri;
+    ri = _mm_loadu_pd(a);
+    bi = _mm_loadu_pd(b);
+    ri = _mm_add_sd(ri,bi);
+    ci = _mm_loadu_pd(c);
+    ri = _mm_add_pd(ri,ci);
+    _mm_storeu_pd(res,ri);
+    return res[0]+res[1];
+#endif
+  }
+};
+
+
+template<>
+class test6<float>:public test<float>{
+ public:
+
+  test6():test<float>(57){
+  }
+
+  std::string name(){
+    return std::string("test6");
+  }
+
+
+  float compute(){
+    const float a[]={1,2,3,4};//Sum 10
+    const float b[]={5,6,7,8};//Sum 5 beacause 6 7 8 will be ignored
+    const float c[]={9,10,11,12};//Sum 42
+#ifndef TEST_SSE
+    float res;
+    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
+#else
+    float res[4];
+    __m128 bi,ci,ri;
+    ri = _mm_loadu_ps(a);
+    bi = _mm_loadu_ps(b);
+    ri=_mm_add_ss(ri,bi);
+    ci = _mm_loadu_ps(c);
+    ri=_mm_add_ps(ri,ci);
+    _mm_storeu_ps(res,ri);
+    return res[0]+res[1]+res[2]+res[3];
+#endif
+  }
+};
+
+
+
 
 
 int main(int argc, char** argv){
@@ -342,6 +421,7 @@ int main(int argc, char** argv){
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();
     test5<RealType> t5; t5.run();
+    test6<RealType> t6; t6.run();
     }
   
   {
@@ -351,6 +431,7 @@ int main(int argc, char** argv){
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();
     test5<RealType> t5; t5.run();
+    test6<RealType> t6; t6.run();
   }
 
   /*    {

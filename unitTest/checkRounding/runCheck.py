@@ -351,7 +351,32 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         
     return errorCounter(ok,ko,warn)
     
-        
+
+def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+        for RealType in typeTab:
+            testName=test+RealType
+
+            testCheck=assertRounding(testName)
+            testCheck.assertNative()
+            testCheck.assertEqual("toward_zero","downward")
+            testCheck.assertEqual("downward","upward")
+            testCheck.assertEqual("upward", "nearest")
+            testCheck.assertEqual("nearest", "upward")
+
+            testCheck.assertEqual("downward", "random")
+            testCheck.assertEqual("downward", "average")
+
+            ok+=testCheck.ok
+            ko+=testCheck.ko
+            warn+=testCheck.warn
+
+    return errorCounter(ok,ko,warn)
+
+
 
 if __name__=='__main__':
     cmdHandler=cmdPrepare("./"+sys.argv[1])
@@ -375,6 +400,7 @@ if __name__=='__main__':
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test1","test2","test3"], typeTab=typeTab)
     eCount+=checkTestPositive(allResult,testList=["test4"], typeTab=typeTab)
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test5"], typeTab=["<double>","<float>"])
+    eCount+=checkExact(allResult, testList=["test6"], typeTab=["<double>","<float>"])
 
     eCount.printSummary()
     sys.exit(eCount.ko)
