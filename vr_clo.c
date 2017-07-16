@@ -31,7 +31,8 @@
 */
 
 #include "vr_main.h"
-#include "backend_verrou/vr_rand.h"
+//#include "backend_verrou/vr_rand.h"
+#include "backend_verrou/interflop_verrou.h"
 
 void vr_env_clo (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
@@ -61,7 +62,8 @@ void vr_clo_defaults (void) {
     vr.instr_op[opIt]=False;
   }
 
-  vr_rand_autoSeed (&vr_rand);
+  vr.firstSeed=(unsigned int)(-1);
+  
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -141,7 +143,11 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Set the pseudo-Random Number Generator
   else if (VG_STR_CLO (arg, "--vr-seed", str)) {
-    vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
+    //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
+    vr.firstSeed=VG_(strtoull10)(str, NULL);
+    if(vr.firstSeed==(unsigned int)(-1)){
+      VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
+    }
   }
 
   // Unknown option

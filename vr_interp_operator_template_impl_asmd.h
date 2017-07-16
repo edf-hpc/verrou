@@ -2,26 +2,26 @@
 
 #ifdef ADDINTERP
 #define FCTNAME(TYPEVAL,OPTION) vr_Add##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (*backend.interflop_add_##TYPEC)
+#define BACKENDFUNC(TYPEC) (interflop_verrou_add_##TYPEC)
 #endif
 #undef ADDINTERP
 
 #ifdef SUBINTERP
 #define FCTNAME(TYPEVAL,OPTION) vr_Sub##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (*backend.interflop_sub_##TYPEC)
+#define BACKENDFUNC(TYPEC) (interflop_verrou_sub_##TYPEC)
 #endif
 #undef SUBINTERP
 
 #ifdef MULINTERP
 #define FCTNAME(TYPEVAL,OPTION) vr_Mul##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (*backend.interflop_mul_##TYPEC)
+#define BACKENDFUNC(TYPEC) (interflop_verrou_mul_##TYPEC)
 #endif
 #undef MULINTERP
 
 
 #ifdef DIVINTERP
 #define FCTNAME(TYPEVAL,OPTION) vr_Div##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (*backend.interflop_div_##TYPEC)
+#define BACKENDFUNC(TYPEC) (interflop_verrou_div_##TYPEC)
 #endif
 #undef DIVINTERP
 

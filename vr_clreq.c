@@ -46,9 +46,9 @@ static void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
 
   vr.instrument = state;
   if(vr.instrument == VR_INSTR_ON){
-    vr_beginInstrumentation();
+    verrou_begin_instr();
   }else{
-    vr_endInstrumentation();
+    verrou_end_instr();
   }
 
   if(vr.verbose){
@@ -105,7 +105,7 @@ static void vr_start_deterministic_section (unsigned int level) {
   vr_deterministic_section_name (level, name, 256);
 
   hash = vr_deterministic_section_hash (name);
-  vr_fpOpsSeed (hash);
+  verrou_set_seed (hash);
 
   VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
                hash, name);
@@ -117,7 +117,7 @@ static void vr_stop_deterministic_section (unsigned int level) {
 
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
                name);
-  vr_fpOpsRandom ();
+  verrou_set_random_seed ();
 }
 
 

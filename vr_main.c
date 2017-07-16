@@ -1064,9 +1064,10 @@ static void vr_fini(Int exitcode)
     VG_(fclose)(vr_outCancellationFile);
   }
 
-  vr_fpOpsFini ();
-  vr_ppOpCount ();
 
+  vr_ppOpCount ();
+  interflop_verrou_finalyze(backend_context);
+  
   if (vr.genExclude) {
     vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
                        vr.excludeFile);
@@ -1083,9 +1084,9 @@ static void vr_fini(Int exitcode)
   VG_(free)(vr.genAbove);
 }
 
-void cancellationHandler(int cancelled ){
+void vr_cancellation_handler(int cancelled ){
   VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
-}
+};
 
 static void vr_post_clo_init(void)
 {
@@ -1106,16 +1107,30 @@ static void vr_post_clo_init(void)
      vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    }
 
+
+   //Verrou Backend Initilisation
+   backend=interflop_verrou_init(&backend_context);
+   interflop_verrou_configure(vr.roundingMode,backend_context);
    
-   backend=interflop_BACKENDNAME_init(&backend_context);
-   vr_fpOpsInit(vr.roundingMode);
+   //Random Seed initialisation
+   if(( (vr.roundingMode== VR_RANDOM) || (vr.roundingMode== VR_AVERAGE))){
+     if(vr.firstSeed==(unsigned int )(-1)){
+       struct vki_timeval now;
+       VG_(gettimeofday)(&now, NULL);
+       unsigned int pid = VG_(getpid)();
+       vr.firstSeed = now.tv_usec + pid;
+     }
+     VG_(umsg)("First seed : %u\n", vr.firstSeed);
+     verrou_set_seed (vr.firstSeed);
+   }
+   VG_(umsg)("Simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
    
    /*Init outfile cancellation*/
    if (CHECK_C != 0) {
      vr_outCancellationFile = VG_(fopen)("vr.log",
 					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-     setCancellationHandler(&cancellationHandler);
+     verrou_set_cancellation_handler(&vr_cancellation_handler);
    }
 
 

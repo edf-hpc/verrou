@@ -1,8 +1,7 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
-/*--- Interface for floatin-point operations overloading.          ---*/
-/*---                                                   vr_fpops.h ---*/
+/*--- Interface for random number generation.                      ---*/
+/*---                                                    vr_rand.c ---*/
 /*--------------------------------------------------------------------*/
 
 /*
@@ -30,44 +29,44 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#ifndef __VR_FPOPS_H
-#define __VR_FPOPS_H
+#include "vr_rand.h"
+//#include "pub_tool_libcproc.h"
+//#include "pub_tool_libcprint.h"
 
+//Vr_Rand vr_rand;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#define BACKENDNAME
-#include "interflop_backend_interface.h"
-
-
-  
-  enum vr_RoundingMode {
-    VR_NEAREST,
-    VR_UPWARD,
-    VR_DOWNWARD,
-    VR_ZERO,
-    VR_RANDOM, // Must be immediately after standard rounding modes
-    VR_AVERAGE,
-    VR_FARTHEST
-  };
-
-  //  int CHECK_C  = 0;
-
-  
-  void vr_fpOpsInit (enum vr_RoundingMode mode);
-  void vr_fpOpsFini (void);
-
-  void vr_beginInstrumentation(void);
-  void vr_endInstrumentation(void);
-
-  void vr_fpOpsSeed (unsigned int seed);
-  void vr_fpOpsRandom (void);
-
-  void setCancellationHandler(void (*cancellationHandler)(int));
-  
-#ifdef __cplusplus
+static int vr_rand_next (Vr_Rand * r){
+  r->next_ = r->next_ * 1103515245 + 12345;
+  return (unsigned int)(r->next_/65536) % 32768;
 }
-#endif
 
-#endif /* ndef __VR_FPOPS_H */
+int vr_rand_max () {
+  return 32767;
+}
+
+void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
+  r->reload_  = 31;
+  r->count_   = 0;
+  r->seed_    = c;
+  r->next_    = c;
+  r->current_ = vr_rand_next (r);
+}
+
+
+unsigned int vr_rand_getSeed (Vr_Rand * r) {
+  return r->seed_;
+}
+
+bool vr_rand_bool (Vr_Rand * r) {
+  if (r->count_ == r->reload_){
+    r->current_ = vr_rand_next (r);
+    r->count_ = 0;
+  }
+  bool res = (r->current_ >> (r->count_++)) & 1;
+  // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
+  return res;
+}
+
+int vr_rand_int (Vr_Rand * r) {
+  return vr_rand_next (r);
+}

@@ -32,7 +32,7 @@
 #ifndef __VR_RAND_H
 #define __VR_RAND_H
 
-#include "pub_tool_basics.h"
+//#include "pub_tool_basics.h"
 
 typedef struct Vr_Rand_ Vr_Rand;
 struct Vr_Rand_ {
@@ -43,12 +43,12 @@ struct Vr_Rand_ {
   int reload_;
 };
 
-extern Vr_Rand vr_rand;
+//extern Vr_Rand vr_rand;
 
 void vr_rand_setSeed (Vr_Rand * r, unsigned int c);
-void vr_rand_autoSeed (Vr_Rand * r);
+//void vr_rand_autoSeed (Vr_Rand * r);
 unsigned int vr_rand_getSeed (Vr_Rand * r);
-Bool vr_rand_bool (Vr_Rand * r);
+bool vr_rand_bool (Vr_Rand * r);
 int vr_rand_int (Vr_Rand * r);
 int vr_rand_max (void);
 

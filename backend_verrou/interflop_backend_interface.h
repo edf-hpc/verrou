@@ -57,4 +57,4 @@ struct interflop_backend_interface_t {
  * It returns an interflop_backend_interface_t structure with callbacks
  * for each of the numerical instrument hooks */
 
-struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context);
+//struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context);

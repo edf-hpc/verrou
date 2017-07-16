@@ -54,7 +54,7 @@
 #include "pub_tool_gdbserver.h"
 
 #include "verrou.h"
-#include "backend_verrou/vr_fpOps.h"
+#include "backend_verrou/interflop_verrou.h"
 
 
 // * Type declarations
@@ -103,6 +103,8 @@ typedef struct {
   Vr_Instr instrument;
   Bool verbose;
 
+  UInt firstSeed;
+  
   Bool genExclude;
   HChar * excludeFile;
   HChar * genAbove;

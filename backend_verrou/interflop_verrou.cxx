@@ -31,16 +31,16 @@
 */
 
 //#include "pub_tool_libcfile.h"
+#include "interflop_verrou.h"
 #include "vr_fpRepr.hxx"
-#include "vr_fpOps.h"
 #include "vr_fma.hxx"
 
-extern "C" {
+//extern "C" {
 #include "vr_rand.h"
-}
+//}
 
 
-
+Vr_Rand vr_rand;
 
 template <typename REAL>
 void checkCancellation (const REAL & a, const REAL & b, const REAL & r);
@@ -59,13 +59,13 @@ void (*vr_cancellationHandler)(int);
 
 
 
-void setCancellationHandler(void (*cancellationHandler)(int)){
+void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
   vr_cancellationHandler=cancellationHandler;
 }
 
 
 // * Operation implementation
-inline const HChar*  roundingModeName (vr_RoundingMode mode) {
+const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
   switch (mode) {
   case VR_NEAREST:
     return "NEAREST";
@@ -108,42 +108,38 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 
 
 // * C interface
-void vr_fpOpsInit (vr_RoundingMode mode) {
+void IFV_FCTNAME(configure)(vr_RoundingMode mode,void* context) {
   DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
 
-  if (ROUNDINGMODE == VR_RANDOM
-      or ROUNDINGMODE == VR_AVERAGE) {
-    VG_(umsg)("First seed : %u\n", vr_rand_getSeed (&vr_rand));
-  }
+  // if (ROUNDINGMODE == VR_RANDOM
+  //     or ROUNDINGMODE == VR_AVERAGE) {
+  //   VG_(umsg)("First seed : %u\n", vr_rand_getSeed (&vr_rand));
+  // }
 
-
-  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
-
-
+  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 }
 
-void vr_beginInstrumentation(){
+void IFV_FCTNAME(finalyze)(void* context){
+}
+  
+void verrou_begin_instr(){
   //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (DEFAULTROUNDINGMODE));
   ROUNDINGMODE=DEFAULTROUNDINGMODE;
 }
 
-void vr_endInstrumentation(){
+void verrou_end_instr(){
   //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (VR_NEAREST));
   ROUNDINGMODE= VR_NEAREST;
 }
 
 
-void vr_fpOpsFini (void) {
-
-}
-
-void vr_fpOpsSeed (unsigned int seed) {
+void verrou_set_seed (unsigned int seed) {
   vr_seed = vr_rand_int (&vr_rand);
   vr_rand_setSeed (&vr_rand, seed);
 }
 
-void vr_fpOpsRandom () {
+void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
@@ -152,73 +148,73 @@ void vr_fpOpsRandom () {
 
 
 
-void vr_AddDouble (double a, double b,double* res,void* context) {
+void IFV_FCTNAME(add_double) (double a, double b, double* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
-void vr_AddFloat (float a, float b, float* res,void* context) {
+void IFV_FCTNAME(add_float) (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
-void vr_SubDouble (double a, double b,double* res,void* context) {
+void IFV_FCTNAME(sub_double) (double a, double b,double* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,-b),context);
-};
+}
 
-void vr_SubFloat (float a, float b, float* res,void* context) {
+void IFV_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,-b),context);
-};
+}
 
 
-void vr_MulDouble (double a, double b, double* res, void* context) {
+void IFV_FCTNAME(mul_double) (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
-void vr_MulFloat (float a, float b, float* res, void* context) {
+void IFV_FCTNAME(mul_float) (float a, float b, float* res, void* context) {
   typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
 
-void vr_DivDouble (double a, double b, double* res, void* context) {
+void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
-void vr_DivFloat (float a, float b, float* res,void* context) {
+void IFV_FCTNAME(div_float) (float a, float b, float* res,void* context) {
   typedef OpWithSelectedRoundingMode<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b),context);
-};
+}
 
-void vr_MAddDouble (double a, double b, double c, double* res, void* context){
+void IFV_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c),context);
-};
+}
 
-void vr_MAddFloat (float a, float b, float c, float* res, void* context){
+void IFV_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
   *res= Op::apply(Op::PackArgs(a,b,c), context);
-};
+}
 
 
 
 
-struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context){
+struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config;
 
-  config.interflop_add_float = &vr_AddFloat;
-  config.interflop_sub_float = &vr_SubFloat;;
-  config.interflop_mul_float = &vr_MulFloat;
-  config.interflop_div_float = &vr_DivFloat;
+  config.interflop_add_float = & IFV_FCTNAME(add_float);
+  config.interflop_sub_float = & IFV_FCTNAME(sub_float);
+  config.interflop_mul_float = & IFV_FCTNAME(mul_float);
+  config.interflop_div_float = & IFV_FCTNAME(div_float);
 
-  config.interflop_add_double = &vr_AddDouble;
-  config.interflop_sub_double = &vr_SubDouble;
-  config.interflop_mul_double = &vr_MulDouble;
-  config.interflop_div_double = &vr_DivDouble;
+  config.interflop_add_double = & IFV_FCTNAME(add_double);
+  config.interflop_sub_double = & IFV_FCTNAME(sub_double);
+  config.interflop_mul_double = & IFV_FCTNAME(mul_double);
+  config.interflop_div_double = & IFV_FCTNAME(div_double);
 
   config.interflop_add_floatx2 = NULL;
   config.interflop_sub_floatx2 = NULL;
@@ -246,8 +242,8 @@ struct interflop_backend_interface_t interflop_BACKENDNAME_init(void ** context)
   config.interflop_div_doublex4 = NULL;
 
 
-  config.interflop_madd_float = &vr_MAddFloat;
-  config.interflop_madd_double =&vr_MAddDouble;
+  config.interflop_madd_float = & IFV_FCTNAME(madd_float);
+  config.interflop_madd_double =& IFV_FCTNAME(madd_double);
 
   return config;
 }
