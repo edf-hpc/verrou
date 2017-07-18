@@ -125,7 +125,7 @@ extern Vr_State vr;
 // ** vr_main.c
 
 void vr_ppOpCount (void);
-
+void vr_cancellation_handler(int cancelled );
 
 // ** vr_clreq.c
 

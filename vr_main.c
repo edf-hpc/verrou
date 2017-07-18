@@ -461,7 +461,7 @@ static void vr_replaceBinFpOpLLO (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   }
 
   //convertion before call
-  IRExpr * arg1LL;
+  IRExpr * arg1LL=NULL;
   IRExpr * arg1;
   IRExpr * arg2LL;
   IRType ity=Ity_I64;//type of call result
@@ -1086,7 +1086,7 @@ static void vr_fini(Int exitcode)
 
 void vr_cancellation_handler(int cancelled ){
   VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
-};
+}
 
 static void vr_post_clo_init(void)
 {
@@ -1110,6 +1110,10 @@ static void vr_post_clo_init(void)
 
    //Verrou Backend Initilisation
    backend=interflop_verrou_init(&backend_context);
+   verrou_set_panic_handler(&VG_(tool_panic));
+
+   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name(), interflop_verrou_get_backend_version()  );
+
    interflop_verrou_configure(vr.roundingMode,backend_context);
    
    //Random Seed initialisation

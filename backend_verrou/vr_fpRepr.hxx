@@ -35,12 +35,15 @@
 #include <sstream>
 #include <math.h>
 #include <cfloat>
-#ifndef IGNOREVALGRIND
+#ifdef VALGRIND_DEBUG_VERROU
 extern "C" {
 #include "pub_tool_libcprint.h"
 #include "pub_tool_libcassert.h"
 }
 #endif
+
+#include "interflop_verrou.h"
+
 
 // * Real types storage
 
@@ -99,7 +102,7 @@ public:
     return sign;
   }
 
-#ifndef IGNOREVALGRIND
+
   static inline void pp (const Real & x) {
     //    std::ostringstream oss;
 
@@ -118,13 +121,15 @@ public:
     }
 
     //    oss << (sign==0?" ":"-") << mantissa << " * 2**" << exponent;
+#ifdef VALGRIND_DEBUG_VERROU
     VG_(printf)( (sign==0?" ":"-"));
     VG_(printf)("%lu",mantissa);
     VG_(printf)(" * 2**%d  ", exponent);
-    //    return oss.str();
+#endif
+  //    return oss.str();
   }
 
-#endif
+
 
 
   static inline int storedBits () {
@@ -203,7 +208,7 @@ template <typename Real> int sign (const Real & x) {
 
 template<class REALTYPE>
 inline REALTYPE nextAfter(REALTYPE a){
-  VG_(tool_panic)("nextAfter called on unknown type");
+  vr_panicHandler("nextAfter called on unknown type");
 };
 
 template<>
@@ -227,7 +232,7 @@ inline float nextAfter<float>(float a){
 
 template<class REALTYPE>
 inline REALTYPE nextPrev(REALTYPE a){
-  VG_(tool_panic)("nextPrev called on unknown type");
+  vr_panicHandler("nextPrev called on unknown type");
 };
 
 template<>

@@ -30,8 +30,8 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#ifndef __VR_FPOPS_H
-#define __VR_FPOPS_H
+#ifndef __INTERFLOP_VERROU_H
+#define __INTERFLOP_VERROU_H
 
 
 #ifdef __cplusplus
@@ -39,7 +39,6 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-  
 #include "interflop_backend_interface.h"
 
 
@@ -54,13 +53,16 @@ extern "C" {
     VR_FARTHEST
   };
 
-  //  int CHECK_C  = 0;
 
 
   void IFV_FCTNAME(configure)(enum vr_RoundingMode mode,void* context);
   void IFV_FCTNAME(finalyze)(void* context);
 
-  const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode);
+  const char* IFV_FCTNAME(get_backend_name)(void);
+  const char* IFV_FCTNAME(get_backend_version)(void);
+
+
+  const char* verrou_rounding_mode_name (enum vr_RoundingMode mode);
 
   void verrou_begin_instr(void);
   void verrou_end_instr(void);
@@ -70,7 +72,10 @@ extern "C" {
 
   void verrou_set_cancellation_handler(void (*)(int));
 
-  
+  extern void (*vr_panicHandler)(const char*);
+  void verrou_set_panic_handler(void (*)(const char*));
+
+
   struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context);
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);    
@@ -90,4 +95,4 @@ extern "C" {
 }
 #endif
 
-#endif /* ndef __VR_FPOPS_H */
+#endif /* ndef __INTERFLOP_VERROU_H */

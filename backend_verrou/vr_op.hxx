@@ -81,7 +81,7 @@ public:
     const RealType & a(p.args[0]);
     const RealType & b(p.args[1]);
 
-    checkCancellation (a, b, c);
+    vr_checkCancellation (a, b, c);
   }
 
   static inline void twoSum(const RealType& a,const RealType& b, RealType& x,RealType& y ){

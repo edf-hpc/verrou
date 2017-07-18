@@ -30,7 +30,6 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-//#include "pub_tool_libcfile.h"
 #include "interflop_verrou.h"
 #include "vr_fpRepr.hxx"
 #include "vr_fma.hxx"
@@ -43,7 +42,7 @@
 Vr_Rand vr_rand;
 
 template <typename REAL>
-void checkCancellation (const REAL & a, const REAL & b, const REAL & r);
+void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
 #include "vr_roundingOp.hxx"
 #include "vr_op.hxx"
@@ -54,13 +53,18 @@ int CHECK_C  = 0;
 vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
 unsigned int vr_seed;
-void (*vr_cancellationHandler)(int);
+void (*vr_cancellationHandler)(int)=NULL;
+void (*vr_panicHandler)(const char*)=NULL;
 
 
 
 
 void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
   vr_cancellationHandler=cancellationHandler;
+}
+
+void verrou_set_panic_handler(void (*panicHandler)(const char*)){
+  vr_panicHandler=panicHandler;
 }
 
 
@@ -89,7 +93,7 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
 
 
 template <typename REAL>
-void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
+void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   if (CHECK_C == 0)
     return;
 
@@ -111,28 +115,26 @@ void checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 void IFV_FCTNAME(configure)(vr_RoundingMode mode,void* context) {
   DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
-
-  // if (ROUNDINGMODE == VR_RANDOM
-  //     or ROUNDINGMODE == VR_AVERAGE) {
-  //   VG_(umsg)("First seed : %u\n", vr_rand_getSeed (&vr_rand));
-  // }
-
-  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (ROUNDINGMODE));
 }
 
 void IFV_FCTNAME(finalyze)(void* context){
 }
-  
+
+const char* IFV_FCTNAME(get_backend_name)() {
+  return "verrou";
+}
+
+const char* IFV_FCTNAME(get_backend_version)() {
+  return "1.x-dev";
+}
+
 void verrou_begin_instr(){
-  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (DEFAULTROUNDINGMODE));
   ROUNDINGMODE=DEFAULTROUNDINGMODE;
 }
 
 void verrou_end_instr(){
-  //  VG_(umsg)("Simulating %s rounding mode\n", roundingModeName (VR_NEAREST));
   ROUNDINGMODE= VR_NEAREST;
 }
-
 
 void verrou_set_seed (unsigned int seed) {
   vr_seed = vr_rand_int (&vr_rand);
@@ -142,9 +144,6 @@ void verrou_set_seed (unsigned int seed) {
 void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
-
-
-
 
 
 
