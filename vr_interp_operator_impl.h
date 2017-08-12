@@ -70,6 +70,15 @@ static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
 }
 
 
+static VG_REGPARM(3) Int vr_Cast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_verrou_cast_double_to_float(*arg1, &res,backend_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+
 
 
 static VG_REGPARM(3) Long vr_MSub64F (Long a, Long b, Long c) {

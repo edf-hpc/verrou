@@ -41,45 +41,48 @@ void startInst(bool fenv, int roundingMode){
   }
 }
 
-template<class REALTYPE>
+
+template<class REAL> std::string typeName(){
+  return std::string("unknown");
+}
+
+template<>
+std::string typeName<long double>(){
+  return std::string("long double");
+}
+
+template<>
+std::string typeName<double>(){
+  return std::string("double");
+}
+template<>
+std::string typeName<float>(){
+  return std::string("float");
+}
+
+
+
+template<class REALTYPE, class REALTYPEREF=REALTYPE>
 class test{
 public:
-  test(REALTYPE a):expectedResult(a){
+  test(REALTYPEREF a):expectedResult(a){
   }
   
-  REALTYPE res;
-  REALTYPE expectedResult; 
+  REALTYPEREF res;
+  REALTYPEREF expectedResult;
   void check(){
-    std::cout.precision(std::numeric_limits< REALTYPE >::digits10);
-    std::cout << name()<<"<"<< typeName(res)<<">" <<":\tres: " << res
+    std::cout.precision(std::numeric_limits< REALTYPEREF >::digits10);
+    std::cout << name()<<"<"<< typeName<REALTYPE>()<<">" <<":\tres: " << res
 	      << "\ttheo: "<< expectedResult
 	      << "\tdiff: "<<  res-expectedResult<<std::endl;
-    
   }
-  
+
   void run(){
     startInst(fenv,roundingMode);    
-    res=compute();
+    res=(REALTYPEREF)compute();
     stopInst(fenv,roundingMode);
     check();
   }
-
-  template<class REAL> std::string typeName(REAL& a){
-    return std::string("unknown");
-  }
-
-  std::string typeName(long double& a){
-    return std::string("long double");
-  }
-
-  std::string typeName(double& a){
-    return std::string("double");
-  }
-  
-  std::string  typeName(float& a){
-    return std::string("float");
-  }
-
 
 
   virtual REALTYPE compute()=0;
@@ -365,6 +368,27 @@ class test6<float>:public test<float>{
 
 
 
+template<class REALTYPE,class REALTYPEREF>
+class test7:public test<REALTYPE,REALTYPEREF>{
+  //test 7 check cast
+public:
+  test7():test<REALTYPE,REALTYPEREF>(0.1){}
+
+  std::string name(){
+    return std::string("test7");
+  }
+
+  REALTYPE compute(){
+    REALTYPEREF ref=0.1;
+    return ((REALTYPE)ref);
+  }
+};
+
+
+
+
+
+
 
 int main(int argc, char** argv){
   std::string roundingModeStr;
@@ -422,7 +446,9 @@ int main(int argc, char** argv){
     test4<RealType> t4; t4.run();
     test5<RealType> t5; t5.run();
     test6<RealType> t6; t6.run();
-    }
+    test7<RealType,RealType> t7; t7.run();
+
+  }
   
   {
     typedef float RealType;
@@ -432,6 +458,7 @@ int main(int argc, char** argv){
     test4<RealType> t4; t4.run();
     test5<RealType> t5; t5.run();
     test6<RealType> t6; t6.run();
+    test7<RealType,double> t7; t7.run();
   }
 
   /*    {

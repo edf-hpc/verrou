@@ -45,6 +45,7 @@ struct interflop_backend_interface_t {
   void (*interflop_mul_doublex4)(doublex4, doublex4, doublex4*, void*);
   void (*interflop_div_doublex4)(doublex4, doublex4, doublex4*, void*);
 
+  void (*interflop_cast_double_to_float)(double, float*, void*);
 
   void (*interflop_madd_float)(float, float, float, float*, void*);
   void (*interflop_madd_double)(double, double, double, double*, void*);

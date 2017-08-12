@@ -189,6 +189,11 @@ void IFV_FCTNAME(div_float) (float a, float b, float* res,void* context) {
   *res=Op::apply(Op::PackArgs(a,b),context);
 }
 
+void IFV_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
+  typedef OpWithSelectedRoundingMode<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a),context);
+}
+
 void IFV_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
   typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c),context);
@@ -240,6 +245,7 @@ struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   config.interflop_mul_doublex4 = NULL;
   config.interflop_div_doublex4 = NULL;
 
+  config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 
   config.interflop_madd_float = & IFV_FCTNAME(madd_float);
   config.interflop_madd_double =& IFV_FCTNAME(madd_double);

@@ -304,14 +304,13 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertLess("downward","upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("nearest", "upward")
-            
+
             testCheck.assertLess("downward", "random")
             testCheck.assertLess("downward", "average")
-            
-        
+
             testCheck.assertLess("random","upward")
             testCheck.assertLess("average","upward")
-        
+
             testCheck.assertAbsLess("average","random")
             testCheck.assertAbsLess("average","upward")
             testCheck.assertAbsLess("average","downward")
@@ -339,10 +338,9 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         testCheck.assertLeq("downward", "nearest")
         testCheck.assertLeq("nearest", "upward")
 
-
         testCheck.assertLess("downward", "random")
         testCheck.assertLess("downward", "average")
-        
+
         testCheck.assertLess("random","upward")
         testCheck.assertLess("average","upward")
         ok+=testCheck.ok
@@ -350,7 +348,33 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         warn+=testCheck.warn
         
     return errorCounter(ok,ko,warn)
-    
+
+def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+       for RealType in typeTab:
+        testName=test+RealType
+        testCheck=assertRounding(testName)
+        testCheck.assertNative()
+        testCheck.assertEqual("toward_zero","downward")
+        testCheck.assertLess("downward","upward")
+        testCheck.assertLeq("downward", "nearest")
+        testCheck.assertLeq("nearest", "upward")
+
+        testCheck.assertLeq("downward", "random")
+        testCheck.assertLeq("downward", "average")
+
+        testCheck.assertLeq("random","upward")
+        testCheck.assertLeq("average","upward")
+        ok+=testCheck.ok
+        ko+=testCheck.ko
+        warn+=testCheck.warn
+
+    return errorCounter(ok,ko,warn)
+
+
 
 def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
     ok=0
@@ -401,6 +425,9 @@ if __name__=='__main__':
     eCount+=checkTestPositive(allResult,testList=["test4"], typeTab=typeTab)
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test5"], typeTab=["<double>","<float>"])
     eCount+=checkExact(allResult, testList=["test6"], typeTab=["<double>","<float>"])
+
+    eCount+=checkExact(allResult, testList=["test7"], typeTab=["<double>"])
+    eCount+=checkTestPositiveBetweenTwoValues(allResult,testList=["test7"], typeTab=["<float>"])
 
     eCount.printSummary()
     sys.exit(eCount.ko)

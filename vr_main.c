@@ -682,6 +682,40 @@ static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 
+
+static void vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+			    const HChar* functionName, void* function,
+			    Vr_Op   Op,
+			    Vr_Prec Prec) {
+  vr_countOp (sb,  Op, Prec, VR_VEC_SCAL);
+  if(!vr.instr_op[Op] ) {
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+
+  IRExpr * arg2 = expr->Iex.Binop.arg2;
+
+  IRTemp res = newIRTemp (sb->tyenv, Ity_I64);
+
+  arg2=vr_F64toI64(sb,arg2);
+
+  IRDirty* id= unsafeIRDirty_1_N (res, 1,
+				  functionName, VG_(fnptr_to_fnentry)(function),
+				  mkIRExprVec_1 (arg2));
+
+  addStmtToIRSB (sb,IRStmt_Dirty(id));
+
+
+
+  IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				   IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+}
+
+
+
+
+
 static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     switch (op) {
 
@@ -834,8 +868,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_F64toF32:
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_SCAL);
-      addStmtToIRSB (sb, stmt);
+      return vr_replaceCast (sb, stmt, expr,"vr_Cast64FTo32F", vr_Cast64FTo32F,VR_OP_CONV,  VR_PREC_DBL_TO_FLT);
       break;
 
     case Iop_F64toI64S: /* IRRoundingMode(I32) x F64 -> signed I64 */
@@ -1148,6 +1181,7 @@ static void vr_post_clo_init(void)
      for(opIt=0; opIt<  VR_OP_CMP ;opIt++){ // Instruction after VR_OP_CMP (included) are not instrumented
        vr.instr_op[opIt]=True;
      }
+     vr.instr_op[VR_OP_CONV]=True;
    }
    VG_(umsg)("Instrumented operations :\n");
    for (opIt=0; opIt< VR_OP ;opIt++){

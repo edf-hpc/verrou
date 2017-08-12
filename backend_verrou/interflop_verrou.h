@@ -87,6 +87,8 @@ extern "C" {
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
+
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 

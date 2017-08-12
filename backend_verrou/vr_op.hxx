@@ -38,6 +38,10 @@ struct vr_packArg{
   static const int nb= NB;
   typedef REALTYPE RealType;
 
+  vr_packArg(const RealType& v1){
+    args[0]=v1;
+  };
+
   vr_packArg(const RealType& v1, const RealType& v2){
     args[0]=v1; args[1]=v2;
   };
@@ -259,6 +263,37 @@ public:
 
 
   static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+};
+
+
+
+template<typename REALINPUT, typename REALOUTPUT>
+class CastOp{
+public:
+  typedef REALINPUT RealTypeIn;
+  typedef REALOUTPUT RealTypeOut;
+  typedef RealTypeOut RealType;
+  typedef vr_packArg<RealTypeIn,1> PackArgs;
+
+  static RealTypeOut inline nearestOp (const PackArgs& p) {
+    const RealTypeIn & in(p.args[0]);
+    return (RealTypeOut)in;
+  };
+
+  static inline RealTypeOut error (const PackArgs& p, const RealTypeOut& z) {
+    const RealTypeIn & a(p.args[0]);
+    const RealTypeIn errorHo= a- (RealTypeIn)z;
+    return (RealTypeOut) errorHo;
+  };
+
+  static inline RealTypeOut sameSignOfError (const PackArgs& p,const RealTypeOut& c) {
+    return error(p,c) ;
+  };
+
+
+  static inline void check(const PackArgs& p, const RealTypeOut& d){
   };
 
 };
