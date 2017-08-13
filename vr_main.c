@@ -154,7 +154,7 @@ static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT incre
   counter[VR_INSTR_OFF] += increment;
 }
 
-static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
+static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr) {
   if(!vr.count){
     return;
   }
@@ -172,8 +172,7 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
     increment =8;
   }
 
-  if( vr.instr_op[op] && ( (vr.instr_scalar || !vec==VR_VEC_SCAL ))&&
-      ( !(vec==VR_VEC_FULL4 && prec) ||( vec!=VR_VEC_FULL8)    ) ){
+  if(instr){
     argv = mkIRExprVec_2 (mkIRExpr_HWord ((HWord)&vr_opCount[op][prec][vec]),
 			  mkIRExpr_HWord (increment));
     di = unsafeIRDirty_0_N( 2,
@@ -194,6 +193,8 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec) {
 
   addStmtToIRSB (sb, IRStmt_Dirty (di));
 }
+
+
 
 static unsigned int vr_frac (ULong a, ULong b) {
   unsigned int q = (100*a)/(a+b);
@@ -389,7 +390,6 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Prec prec,
 				   Vr_Vec vec) {
   //instrumentation to count operation
-  vr_countOp (sb,  op, prec,vec);
 
   if(vr.verbose){
     IROp irop;
@@ -398,14 +398,16 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   }
 
   if(!vr.instr_op[op] ) {
+    vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return;
   }
   if(!vr.instr_scalar) {
+    vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return;
   }
-
+  vr_countOp (sb,  op, prec,vec, True);
 
   //convertion before call
   IRExpr * arg1;
@@ -451,15 +453,14 @@ static void vr_replaceBinFpOpLLO (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  const HChar* functionName, void* function,
 				  Vr_Op op,
 				  Vr_Prec prec,
-				  Vr_Vec vec) {
+				  Vr_Vec vec){
   //instrumentation to count operation
-  vr_countOp (sb,  op, prec,vec);
-
   if(!vr.instr_op[op] ) {
+    vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return;
   }
-
+  vr_countOp (sb,  op, prec,vec, True);
   //convertion before call
   IRExpr * arg1LL=NULL;
   IRExpr * arg1;
@@ -506,13 +507,12 @@ static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec) {
-  //instrumentation to count operation
-  vr_countOp (sb,  op, prec,vec);
-
   if(!vr.instr_op[op] ) {
+    vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return;
   }
+  vr_countOp (sb,  op, prec,vec, True);
 
   if(!(
 	 (vec==VR_VEC_FULL2 && prec==VR_PREC_DBL)
@@ -555,13 +555,13 @@ static void vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			       Vr_Op op,
 			       Vr_Prec prec,
 			       Vr_Vec vec) {
-  //instrumentation to count operation
-  vr_countOp (sb,  op, prec,vec);
-
   if(!vr.instr_op[op] ) {
+    vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return;
   }
+  vr_countOp (sb,  op, prec,vec,True);
+
 
   if(!(
 	 (vec==VR_VEC_FULL4 && prec==VR_PREC_DBL)
@@ -633,12 +633,12 @@ static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
 			   Vr_Op   Op,
 			   Vr_Prec Prec) {
-  vr_countOp (sb,  Op, Prec, VR_VEC_LLO);
   if(!vr.instr_op[Op] ) {
+    vr_countOp (sb,  Op, Prec, VR_VEC_LLO,False);
     addStmtToIRSB (sb, stmt);
     return;
   }
-
+  vr_countOp (sb,  Op, Prec, VR_VEC_LLO,True);
 
 #ifdef USE_VERROU_FMA
   //  IRExpr * arg1 = expr->Iex.Qop.details->arg1; Rounding mode
@@ -687,11 +687,12 @@ static void vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   Op,
 			    Vr_Prec Prec) {
-  vr_countOp (sb,  Op, Prec, VR_VEC_SCAL);
   if(!vr.instr_op[Op] ) {
+    vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,False);
     addStmtToIRSB (sb, stmt);
     return;
   }
+  vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
@@ -842,28 +843,28 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
       //   Other FP operations
     case Iop_Add32Fx2:
-      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL2);
+      vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
 
 
     case Iop_Sub32Fx2:
-      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL2);
+      vr_countOp (sb, VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
       
     case Iop_CmpF64:
-      vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_CmpF32:
-      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_F32toF64:  /*                       F32 -> F64 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_FLT_TO_DBL, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_FLT_TO_DBL, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -872,40 +873,40 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       break;
 
     case Iop_F64toI64S: /* IRRoundingMode(I32) x F64 -> signed I64 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_F64toI64U: /* IRRoundingMode(I32) x F64 -> unsigned I64 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_F64toI32S: /* IRRoundingMode(I32) x F64 -> signed I32 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_F64toI32U: /* IRRoundingMode(I32) x F64 -> unsigned I32 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_SHT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
       /******/
     case Iop_Max32Fx4:
-      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_FULL4);
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_FULL4,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Max32F0x4:
-      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_LLO);
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_FLT, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Max64Fx2:
-        vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_FULL2);
+        vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Max64F0x2:
-      vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_LLO);
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -913,19 +914,19 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       
 
     case Iop_Min32Fx4:
-      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_FULL4);
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_FULL4,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Min32F0x4:
-      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_LLO);
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_FLT, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Min64Fx2:
-        vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_FULL2);
+        vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Min64F0x2:
-      vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_LLO);
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
 
