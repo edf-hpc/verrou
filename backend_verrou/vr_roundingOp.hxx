@@ -211,15 +211,65 @@ public:
 };
 
 
-template<class OP>
+
+
+#include "vr_op.hxx"
+
+template<class OP, class REALTYPESIMD>
 class OpWithSelectedRoundingMode{
+  public:
+  typedef typename OP::RealType RealType;
+  //  typedef typename OP::PackArgs PackArgs;
+  static const int nbParam= OP::PackArgs::nb;
+  typedef vr_packArg<const REALTYPESIMD,nbParam> PackArgs;
+
+  
+  typedef realTypeHelper<REALTYPESIMD> typeHelper;
+  static const int SimdLength=typeHelper::SimdLength  ;
+
+  static inline void apply(const PackArgs& p, REALTYPESIMD* res,void* context){
+    for(int i=0; i<SimdLength ; i++){
+      (*res)[i]=OpWithSelectedRoundingMode<OP,RealType>::applySeq(p.getSubPack(i),context);
+#ifdef DEBUG_PRINT_OP
+      OpWithSelectedRoundingMode<OP,RealType>::print_debug(p.getSubPack(i),&((*res)[i]));
+#endif
+    }
+  }
+
+};
+    
+template<class OP>
+class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
+  //  typedef realTypeHelper<RealType> typeHelper;
+  //  typedef typename typeHelper::SimdBasicType  SimdBasicType;
+  
+  static inline void apply(const PackArgs& p, RealType* res, void* context){
+    *res=applySeq(p,context);
+#ifdef DEBUG_PRINT_OP
+    print_debug(p,res);
+#endif
+    
+  }
 
 
+#ifdef DEBUG_PRINT_OP
+  static inline void print_debug(const PackArgs& p, const RealType* res){
+    static const int nbParam= OP::PackArgs::nb;
+
+    double args[nbParam];
+    const double resDouble(*res);
+    p.serialyzeDouble(args);
+    if(vr_debug_print_op==NULL) return ;
+    vr_debug_print_op(nbParam,OP::OpName(), args, &resDouble);
+  }
+#endif
+
+  
   inline
-  static RealType apply(const PackArgs& p, void* context){
+  static RealType applySeq(const PackArgs& p, void* context){
     switch (ROUNDINGMODE) {
     case VR_NEAREST:
       return RoundingNearest<OP>::apply (p);
@@ -239,5 +289,5 @@ public:
     return 0;
   }
 
-
 };
+

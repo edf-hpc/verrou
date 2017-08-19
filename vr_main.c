@@ -1122,6 +1122,19 @@ void vr_cancellation_handler(int cancelled ){
   VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
 }
 
+void print_op(int nbArg, const char* name, const double* args,const double* res){
+  if(nbArg==1){
+    VG_(umsg)("%s : %f => %f\n", name,args[0],*res);
+  }
+  if(nbArg==2){
+    VG_(umsg)("%s : %f, %f => %f\n", name,args[0], args[1],*res);
+  }
+  if(nbArg==3){
+    VG_(umsg)("%s : %f, %f, %f => %f\n", name, args[0], args[1], args[2], *res);
+  }
+}
+
+
 static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
@@ -1145,6 +1158,7 @@ static void vr_post_clo_init(void)
    //Verrou Backend Initilisation
    backend=interflop_verrou_init(&backend_context);
    verrou_set_panic_handler(&VG_(tool_panic));
+   verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
    VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name(), interflop_verrou_get_backend_version()  );
 

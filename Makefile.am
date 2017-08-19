@@ -34,7 +34,7 @@ VERROU_SOURCES_COMMON = \
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
 VERROU_FLAG_CXX = -march=native -mfma -DUSE_VERROU_FMA
-VERROU_FLAG_C= -DUSE_VERROU_FMA
+VERROU_FLAG_C= -march=native -DUSE_VERROU_FMA
 endif
 
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \

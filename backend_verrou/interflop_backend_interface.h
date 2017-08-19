@@ -1,11 +1,16 @@
 /* interflop backend interface */
 
 
-typedef float  floatx2[2];
-typedef float  floatx4[4] ;
-typedef float  floatx8[8];
-typedef double doublex2[2];
-typedef double doublex4[4] ;
+
+#define vector_interflop_definition(simdtype,basictype,size) typedef basictype simdtype __attribute__ ((vector_size(sizeof(basictype)*(size))))
+
+
+vector_interflop_definition(floatx2,float,2);
+vector_interflop_definition(floatx4,float,4);
+vector_interflop_definition(floatx8,float,8);
+
+vector_interflop_definition(doublex2,double,2);
+vector_interflop_definition(doublex4,double,4);
 
 
 

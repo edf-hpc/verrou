@@ -57,8 +57,6 @@ void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
 
 
-
-
 void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
   vr_cancellationHandler=cancellationHandler;
 }
@@ -66,6 +64,12 @@ void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
 void verrou_set_panic_handler(void (*panicHandler)(const char*)){
   vr_panicHandler=panicHandler;
 }
+
+
+void (*vr_debug_print_op)(int,const char*, const double*, const double*)=NULL;
+void verrou_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res)){
+  vr_debug_print_op=printOpHandler;
+};
 
 
 // * Operation implementation
@@ -148,60 +152,162 @@ void verrou_set_random_seed () {
 
 
 void IFV_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+  typedef OpWithSelectedRoundingMode<AddOp <double>,double > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
 void IFV_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+  typedef OpWithSelectedRoundingMode<AddOp <float>,float > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
-void IFV_FCTNAME(sub_double) (double a, double b,double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <double> > Op;
-  *res=Op::apply(Op::PackArgs(a,-b),context);
+void IFV_FCTNAME(add_doublex2) (doublex2 a, doublex2 b, doublex2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <double>, doublex2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(add_floatx2) (floatx2 a, floatx2 b, floatx2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <float>, floatx2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(add_doublex4) (doublex4 a, doublex4 b, doublex4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <double>,doublex4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(add_floatx4) (floatx4 a, floatx4 b, floatx4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <float>,floatx4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(add_floatx8) (floatx8 a, floatx8 b, floatx8* res,void* context) {
+  typedef OpWithSelectedRoundingMode<AddOp <float>,floatx8 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <double>,double > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
 void IFV_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <float> > Op;
-  *res=Op::apply(Op::PackArgs(a,-b),context);
+  typedef OpWithSelectedRoundingMode<SubOp <float>,float > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_doublex2) (doublex2 a, doublex2 b, doublex2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <double>,doublex2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_floatx2) (floatx2 a, floatx2 b, floatx2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <float>,floatx2> Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_doublex4) (doublex4 a, doublex4 b, doublex4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <double>, doublex4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_floatx4) (floatx4 a, floatx4 b, floatx4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <float>,floatx4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(sub_floatx8) (floatx8 a, floatx8 b, floatx8* res,void* context) {
+  typedef OpWithSelectedRoundingMode<SubOp <float>,floatx8 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
 
-void IFV_FCTNAME(mul_double) (double a, double b, double* res, void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+void IFV_FCTNAME(mul_double) (double a, double b, double* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <double> ,double> Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
-void IFV_FCTNAME(mul_float) (float a, float b, float* res, void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+void IFV_FCTNAME(mul_float) (float a, float b, float* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <float>,float > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(mul_doublex2) (doublex2 a, doublex2 b, doublex2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <double>,doublex2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(mul_floatx2) (floatx2 a, floatx2 b, floatx2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <float> ,floatx2> Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(mul_doublex4) (doublex4 a, doublex4 b, doublex4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <double>, doublex4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(mul_floatx4) (floatx4 a, floatx4 b, floatx4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <float>,floatx4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(mul_floatx8) (floatx8 a, floatx8 b, floatx8* res,void* context) {
+  typedef OpWithSelectedRoundingMode<MulOp <float>,floatx8 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
 
-void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+void IFV_FCTNAME(div_double) (double a, double b, double* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <double>,double > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
 void IFV_FCTNAME(div_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <float> > Op;
-  *res=Op::apply(Op::PackArgs(a,b),context);
+  typedef OpWithSelectedRoundingMode<DivOp <float>,float > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
 }
 
+void IFV_FCTNAME(div_doublex2) (doublex2 a, doublex2 b, doublex2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <double>,doublex2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(div_floatx2) (floatx2 a, floatx2 b, floatx2* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <float>,floatx2 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(div_doublex4) (doublex4 a, doublex4 b, doublex4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <double>,doublex4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(div_floatx4) (floatx4 a, floatx4 b, floatx4* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <float>,floatx4 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+void IFV_FCTNAME(div_floatx8) (floatx8 a, floatx8 b, floatx8* res,void* context) {
+  typedef OpWithSelectedRoundingMode<DivOp <float>,floatx8 > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+}
+
+
+
 void IFV_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<CastOp<double,float> > Op;
-  *res=Op::apply(Op::PackArgs(a),context);
+  typedef OpWithSelectedRoundingMode<CastOp<double,float>,float > Op;
+  Op::apply(Op::PackArgs(a),res,context);
 }
 
 void IFV_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
-  *res=Op::apply(Op::PackArgs(a,b,c),context);
+  typedef OpWithSelectedRoundingMode<MAddOp <double>,double > Op;
+  Op::apply(Op::PackArgs(a,b,c), res,context);
 }
 
 void IFV_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
-  *res= Op::apply(Op::PackArgs(a,b,c), context);
+  typedef OpWithSelectedRoundingMode<MAddOp <float>,float > Op;
+  Op::apply(Op::PackArgs(a,b,c), res, context);
 }
 
 
@@ -220,30 +326,30 @@ struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   config.interflop_mul_double = & IFV_FCTNAME(mul_double);
   config.interflop_div_double = & IFV_FCTNAME(div_double);
 
-  config.interflop_add_floatx2 = NULL;
-  config.interflop_sub_floatx2 = NULL;
-  config.interflop_mul_floatx2 = NULL;
-  config.interflop_div_floatx2 = NULL;
+  config.interflop_add_floatx2  = & IFV_FCTNAME(add_floatx2);
+  config.interflop_sub_floatx2  = & IFV_FCTNAME(sub_floatx2);
+  config.interflop_mul_floatx2  = & IFV_FCTNAME(mul_floatx2);
+  config.interflop_div_floatx2  = & IFV_FCTNAME(div_floatx2);
 
-  config.interflop_add_floatx4 = NULL;
-  config.interflop_sub_floatx4 = NULL;
-  config.interflop_mul_floatx4 = NULL;
-  config.interflop_div_floatx4 = NULL;
+  config.interflop_add_floatx4  = & IFV_FCTNAME(add_floatx4);
+  config.interflop_sub_floatx4  = & IFV_FCTNAME(sub_floatx4);
+  config.interflop_mul_floatx4  = & IFV_FCTNAME(mul_floatx4);
+  config.interflop_div_floatx4  = & IFV_FCTNAME(div_floatx4);
 
-  config.interflop_add_floatx8 = NULL;
-  config.interflop_sub_floatx8 = NULL;
-  config.interflop_mul_floatx8 = NULL;
-  config.interflop_div_floatx8 = NULL;
+  config.interflop_add_floatx8  = & IFV_FCTNAME(add_floatx8);
+  config.interflop_sub_floatx8  = & IFV_FCTNAME(sub_floatx8);
+  config.interflop_mul_floatx8  = & IFV_FCTNAME(mul_floatx8);
+  config.interflop_div_floatx8  = & IFV_FCTNAME(div_floatx8);
 
-  config.interflop_add_doublex2 = NULL;
-  config.interflop_sub_doublex2 = NULL;
-  config.interflop_mul_doublex2 = NULL;
-  config.interflop_div_doublex2 = NULL;
+  config.interflop_add_doublex2 = & IFV_FCTNAME(add_doublex2);
+  config.interflop_sub_doublex2 = & IFV_FCTNAME(sub_doublex2);
+  config.interflop_mul_doublex2 = & IFV_FCTNAME(mul_doublex2);
+  config.interflop_div_doublex2 = & IFV_FCTNAME(div_doublex2);
 
-  config.interflop_add_doublex4 = NULL;
-  config.interflop_sub_doublex4 = NULL;
-  config.interflop_mul_doublex4 = NULL;
-  config.interflop_div_doublex4 = NULL;
+  config.interflop_add_doublex4 = & IFV_FCTNAME(add_doublex4);
+  config.interflop_sub_doublex4 = & IFV_FCTNAME(sub_doublex4);
+  config.interflop_mul_doublex4 = & IFV_FCTNAME(mul_doublex4);
+  config.interflop_div_doublex4 = & IFV_FCTNAME(div_doublex4);
 
   config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 

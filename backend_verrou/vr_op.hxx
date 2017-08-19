@@ -33,26 +33,143 @@
 #pragma once
 
 
+
+template<class> struct realTypeHelper;
+
+template<>
+struct realTypeHelper<float>{
+  typedef float SimdBasicType;
+  static const int SimdLength=1;
+};
+
+
+template<>
+struct realTypeHelper<floatx2>{
+  typedef float SimdBasicType;
+  static const int SimdLength=2;
+};
+
+template<>
+struct realTypeHelper<floatx4>{
+  typedef float SimdBasicType;
+  static const int SimdLength=4;
+};
+
+template<>
+struct realTypeHelper<floatx8>{
+  typedef float SimdBasicType;
+  static const int SimdLength=8;
+};
+
+
+template<>
+struct realTypeHelper<double>{
+  typedef double SimdBasicType;
+  static const int SimdLength=1;
+};
+
+
+template<>
+struct realTypeHelper<doublex2>{
+  typedef double SimdBasicType;
+  static const int SimdLength=2;
+};
+
+template<>
+struct realTypeHelper<doublex4>{
+  typedef double SimdBasicType;
+  static const int SimdLength=4;
+};
+
+template<class REALTYPESIMD>
+struct realTypeHelper<const REALTYPESIMD>{
+  typedef typename realTypeHelper<REALTYPESIMD>::SimdBasicType SimdBasicType;
+  static const int SimdLength=realTypeHelper<REALTYPESIMD>::SimdLength;
+};
+
+
+
+
 template<class REALTYPE, int NB>
-struct vr_packArg{
-  static const int nb= NB;
+struct vr_packArg;
+
+
+template<class REALTYPE>
+struct vr_packArg<REALTYPE,1>{
+  static const int nb= 1;
   typedef REALTYPE RealType;
-
-  vr_packArg(const RealType& v1){
-    args[0]=v1;
+  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
+  typedef vr_packArg<SimdBasicType,1> SubPack;
+  
+  vr_packArg(const RealType& v1):arg1(v1)
+  {
   };
 
-  vr_packArg(const RealType& v1, const RealType& v2){
-    args[0]=v1; args[1]=v2;
-  };
+  const SubPack& getSubPack(int I)const{
+    return SubPack(arg1[I]);
+  }
 
-  vr_packArg(const RealType& v1, RealType& v2, RealType& v3){
-    args[0]=v1; args[1]=v2; args[2]=v3;
-  };
+  void serialyzeDouble(double* res)const{
+    res[0]=(double)arg1;
+  }
+  
+  const RealType& arg1;
 
-  RealType args[NB];
 
 };
+
+
+template<class REALTYPE>
+struct vr_packArg<REALTYPE,2>{
+  static const int nb= 2;
+  typedef REALTYPE RealType;
+  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
+  typedef vr_packArg<SimdBasicType,2> SubPack;
+  
+  vr_packArg(const RealType& v1,const RealType& v2):arg1(v1),arg2(v2)
+  {
+  };
+
+  const SubPack getSubPack(int I)const{
+    return SubPack(arg1[I],arg2[I]);
+  }
+  
+  void serialyzeDouble(double* res)const{
+    res[0]=(double)arg1;
+    res[1]=(double)arg2;
+  }
+  
+  const RealType& arg1;
+  const RealType& arg2;
+};
+
+
+template<class REALTYPE>
+struct vr_packArg<REALTYPE,3>{
+  static const int nb= 3;
+  typedef REALTYPE RealType;
+  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
+  typedef vr_packArg<SimdBasicType,3> SubPack;
+  
+  vr_packArg(const RealType& v1,const RealType& v2,const RealType& v3):arg1(v1),arg2(v2),arg3(v3){
+  };
+
+  const SubPack& getSubPack(int I)const{
+    return SubPack(arg1[I],arg2[I],arg3[I]);
+  }
+  
+  void serialyzeDouble(double* res)const{
+    res[0]=(double)arg1;
+    res[1]=(double)arg2;
+    res[2]=(double)arg3;
+  }
+
+  
+  const RealType& arg1;
+  const RealType& arg2;
+  const RealType& arg3;
+};
+
 
 
 
@@ -62,16 +179,20 @@ class AddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "add";}
+#endif
 
-  static RealType inline nearestOp (const PackArgs&  p) {
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+  inline
+  static RealType nearestOp (const PackArgs&  p) {
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
     return a+b;
   }
 
   static inline RealType error (const PackArgs& p, const RealType& x) {
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
     const RealType z=x-a;
     return ((a-(x-z)) + (b-z)); //algo TwoSum
   }
@@ -82,8 +203,8 @@ public:
 
 
   static inline void check(const PackArgs& p,const RealType & c){
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
 
     vr_checkCancellation (a, b, c);
   }
@@ -96,6 +217,48 @@ public:
 
 
 };
+
+
+template<typename REAL>
+class SubOp{
+public:
+  typedef REAL RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "sub";}
+#endif
+
+
+
+  
+  static inline RealType nearestOp (const PackArgs&  p) {
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
+    return a-b;
+  }
+
+  static inline RealType error (const PackArgs& p, const RealType& x) {
+    const RealType & a(p.arg1);
+    const RealType & b(-p.arg2);
+    const RealType z=x-a;
+    return ((a-(x-z)) + (b-z)); //algo TwoSum
+  }
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+    return SubOp<RealType>::error(p,c);
+  }
+
+
+  static inline void check(const PackArgs& p,const RealType & c){
+    const RealType & a(p.arg1);
+    const RealType & b(-p.arg2);
+
+    vr_checkCancellation (a, b, c);
+  }
+
+};
+
 
 
 
@@ -124,16 +287,20 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "mul";}
+#endif
+
   static RealType inline nearestOp (const PackArgs& p) {
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
     return a*b;
   };
 
   static inline RealType error (const PackArgs& p, const RealType& x) {
     /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
     //    return __builtin_fma(a,b,-x);
     //    VG_(umsg)("vr_fma \n");
 #ifdef    USE_VERROU_FMA
@@ -185,15 +352,20 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "div";}
+#endif
+
+  
   static RealType inline nearestOp (const PackArgs& p) {
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
     return a/b;
   };
 
   static inline RealType error (const PackArgs& p, const RealType& c) {
-    const RealType & x(p.args[0]);
-    const RealType & y(p.args[1]);
+    const RealType & x(p.arg1);
+    const RealType & y(p.arg2);
 #ifdef    USE_VERROU_FMA
     const RealType r=-vr_fma(c,y,-x);
     return r/y;
@@ -205,8 +377,8 @@ public:
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    const RealType & x(p.args[0]);
-    const RealType & y(p.args[1]);
+    const RealType & x(p.arg1);
+    const RealType & y(p.arg2);
 #ifdef    USE_VERROU_FMA
     const RealType r=-vr_fma(c,y,-x);
     return r*y;
@@ -230,11 +402,16 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
 
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "madd";}
+#endif
+
+  
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
-    const RealType & a(p.args[0]);
-    const RealType & b(p.args[1]);
-    const RealType & c(p.args[2]);
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
+    const RealType & c(p.arg3);
     return vr_fma(a,b,c);
 #else
     return 0./0.;
@@ -243,9 +420,9 @@ public:
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
     //ErrFmaApp : Exact and Aproximated Error of the FMA By Boldo and Muller
-    const RealType & a(p.args[0]);
-    const RealType & x(p.args[1]);
-    const RealType & b(p.args[2]);
+    const RealType & a(p.arg1);
+    const RealType & x(p.arg2);
+    const RealType & b(p.arg3);
 
     RealType ph,pl;
     MulOp<RealType>::twoProd(a,x, ph,pl);
@@ -276,14 +453,21 @@ public:
   typedef REALOUTPUT RealTypeOut;
   typedef RealTypeOut RealType;
   typedef vr_packArg<RealTypeIn,1> PackArgs;
+  
 
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "cast";}
+#endif
+
+
+  
   static RealTypeOut inline nearestOp (const PackArgs& p) {
-    const RealTypeIn & in(p.args[0]);
+    const RealTypeIn & in(p.arg1);
     return (RealTypeOut)in;
   };
 
   static inline RealTypeOut error (const PackArgs& p, const RealTypeOut& z) {
-    const RealTypeIn & a(p.args[0]);
+    const RealTypeIn & a(p.arg1);
     const RealTypeIn errorHo= a- (RealTypeIn)z;
     return (RealTypeOut) errorHo;
   };
