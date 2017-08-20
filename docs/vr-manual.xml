@@ -280,12 +280,12 @@ det2
           </varlistentry>
 
           <varlistentry id="vr-opt.instr" xreflabel="--vr-instr-">
-            <term><option><![CDATA[--vr-instr=<add|sub|mul|div|mAdd|mSub> [default=all]]]></option></term>
+            <term><option><![CDATA[--vr-instr=<add|sub|mul|div|mAdd|mSub|conv> [default=all]]]></option></term>
             <listitem>
               <para>Toggle instrumentation of floating-point additions,
                 subtractions, multiplications, divisions, fused multiply
-                additions, fused multiply subtractions respectively. This option
-                can be set multiple times to instrument multiple types of
+                additions, fused multiply subtractions, conversions (only double to float cast) respectively.
+		This option can be set multiple times to instrument multiple types of
                 operations.</para>
               <para>If this option is not provided, all supported operations
               types are instrumented.</para>

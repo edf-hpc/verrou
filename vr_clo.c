@@ -99,7 +99,10 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.instr_op[VR_OP_MADD] , True)) {}
   else if (VG_XACT_CLO (arg, "--vr-instr=mSub",
                         vr.instr_op[VR_OP_MSUB] , True)) {}
+  else if (VG_XACT_CLO (arg, "--vr-instr=conv",
+                        vr.instr_op[VR_OP_CONV] , True)) {}
 
+  
   //Options to choose op to instrument
   else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
     vr.instr_scalar= bool_val;
