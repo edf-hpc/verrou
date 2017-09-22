@@ -1,7 +1,7 @@
 Index: Makefile.am
 ===================================================================
---- Makefile.am	(revision 16353)
-+++ Makefile.am	(working copy)
+--- Makefile.am	(révision 16450)
++++ Makefile.am	(copie de travail)
 @@ -10,7 +10,8 @@
  		lackey \
  		none \
@@ -14,8 +14,8 @@ Index: Makefile.am
  		exp-bbv \
 Index: configure.ac
 ===================================================================
---- configure.ac	(revision 16353)
-+++ configure.ac	(working copy)
+--- configure.ac	(révision 16450)
++++ configure.ac	(copie de travail)
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
  
@@ -34,7 +34,7 @@ Index: configure.ac
  #----------------------------------------------------------------------------
  # Arch/OS/platform tests.
  #----------------------------------------------------------------------------
-@@ -4331,6 +4333,35 @@
+@@ -4353,6 +4355,65 @@
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -65,12 +65,42 @@ Index: configure.ac
 +  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 +fi
 +
++
++AC_CACHE_CHECK([verrou vecto-backend], vg_cv_verrou_vecto_backend,
++  [AC_ARG_ENABLE(verrou-vecto-backend,
++    [  --enable-verrou-vecto-backend          enables verrou to use vectorized backend interface],
++    [vg_cv_verrou_vecto_backend=$enableval],
++    [vg_cv_verrou_vecto_backend=no])])
++
++if test "$vg_cv_verrou_vecto_backend" = yes; then
++  # Check for avx
++  AC_MSG_CHECKING([for avx ])
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
++  #include  <immintrin.h>
++  #include <avxintrin.h>
++    ]], [[
++     return EXIT_SUCCESS;
++    ]])],
++    [
++      AC_MSG_RESULT([yes])
++      AM_CONDITIONAL([HAVE_AVX_INTRIN], test x$vg_cv_verrou_vecto_backend = xyes,[])
++    ],[
++      AC_MSG_RESULT([no])
++      AC_MSG_ERROR([A compiler with AVX intrinsics is required for --enable-verrou-vecto-backend ])
++  ])
++else
++  AM_CONDITIONAL([HAVE_AVX_INTRIN], test x$vg_cv_verrou_vecto_backend = xyes,[])
++fi
++#     //a=_mm512_add_pd (b, c);
++
++
++
 +AC_CONFIG_FILES([verrou/env.sh])
 +
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4422,6 +4453,8 @@
+@@ -4445,6 +4506,8 @@
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
@@ -81,8 +111,8 @@ Index: configure.ac
  ])
 Index: docs/lib/vg_basic.css
 ===================================================================
---- docs/lib/vg_basic.css	(revision 16353)
-+++ docs/lib/vg_basic.css	(working copy)
+--- docs/lib/vg_basic.css	(révision 16450)
++++ docs/lib/vg_basic.css	(copie de travail)
 @@ -65,3 +65,39 @@
   border:      solid 1px #ffde84; 
  }
@@ -125,8 +155,8 @@ Index: docs/lib/vg_basic.css
 +}
 Index: docs/xml/manpages-index.xml
 ===================================================================
---- docs/xml/manpages-index.xml	(revision 16353)
-+++ docs/xml/manpages-index.xml	(working copy)
+--- docs/xml/manpages-index.xml	(révision 16450)
++++ docs/xml/manpages-index.xml	(copie de travail)
 @@ -43,5 +43,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -139,8 +169,8 @@ Index: docs/xml/manpages-index.xml
  
 Index: docs/xml/manual.xml
 ===================================================================
---- docs/xml/manual.xml	(revision 16353)
-+++ docs/xml/manual.xml	(working copy)
+--- docs/xml/manual.xml	(révision 16450)
++++ docs/xml/manual.xml	(copie de travail)
 @@ -44,6 +44,8 @@
        xmlns:xi="http://www.w3.org/2001/XInclude" />      
    <xi:include href="../../lackey/docs/lk-manual.xml" parse="xml"  
@@ -152,8 +182,8 @@ Index: docs/xml/manual.xml
  
 Index: docs/xml/valgrind-manpage.xml
 ===================================================================
---- docs/xml/valgrind-manpage.xml	(revision 16353)
-+++ docs/xml/valgrind-manpage.xml	(working copy)
+--- docs/xml/valgrind-manpage.xml	(révision 16450)
++++ docs/xml/valgrind-manpage.xml	(copie de travail)
 @@ -230,6 +230,8 @@
  
  </refsect1>
@@ -165,15 +195,14 @@ Index: docs/xml/valgrind-manpage.xml
  <title>See Also</title>
 Index: docs/xml/vg-entities.xml
 ===================================================================
---- docs/xml/vg-entities.xml	(revision 16353)
-+++ docs/xml/vg-entities.xml	(working copy)
-@@ -6,5 +6,5 @@
+--- docs/xml/vg-entities.xml	(révision 16450)
++++ docs/xml/vg-entities.xml	(copie de travail)
+@@ -6,7 +6,7 @@
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
 -<!ENTITY rel-version "3.13.0">
 +<!ENTITY rel-version "3.13.0+verrou-dev">
  <!ENTITY rel-date    "15 June 2017">
-
  
  <!-- where the docs are installed -->
