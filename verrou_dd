@@ -9,6 +9,8 @@ import hashlib
 import copy
 from valgrind import DD
 import traceback
+import shutil
+import signal
 
 def failure():
     sys.exit(42)
@@ -19,7 +21,16 @@ try:
 except:
     pass
 
-def runCmd(cmd, fname, envvars=None):
+maxNbPROC=None
+try:
+    maxNbPROC = int(os.environ["VERROU_DD_NUM_THREADS"])
+except:
+    pass
+
+
+
+
+def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
     and error outputs to FNAME.out and FNAME.err respectively.
 
@@ -32,7 +43,198 @@ def runCmd(cmd, fname, envvars=None):
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = envvars[var]
-            return subprocess.call(cmd, env=env, stdout=fout, stderr=ferr)
+            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
+
+def getResult(subProcess):
+    subProcess.wait()
+    return subProcess.returncode
+
+
+def runCmd(cmd, fname, envvars=None):
+    """Run CMD, adding ENVVARS to the current environment, and redirecting standard
+    and error outputs to FNAME.out and FNAME.err respectively.
+
+    Returns CMD's exit code."""
+
+    return getResult(runCmdAsync(cmd,fname,envvars))
+
+
+
+class verrouTask:
+
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, typeRun="exclude"):
+        self.dirname=dirname
+        self.refDir=refDir
+        self.runCmd=runCmd
+        self.cmpCmd=cmpCmd
+        self.nbRun=nbRun
+        self.FAIL=DD.DD.FAIL
+        self.PASS=DD.DD.PASS
+
+        self.subProcessRun=[None]*nbRun
+        self.pidRunTab=[None]*nbRun
+        self.subProcessCmp=[None]*nbRun
+        self.typeRun=typeRun
+
+    def nameDir(self,i):
+        return self.dirname + "/dd.run%i" % (i+1)
+
+    def mkdir(self,i):
+         os.mkdir(self.nameDir(i))
+    def rmdir(self,i):
+        shutil.rmtree(self.nameDir(i))
+
+    def runOneSample(self,i):
+        rundir= self.nameDir(i)
+        env={}
+        if self.typeRun=="exclude":
+            env={"VERROU_EXCLUDE": "%s/dd.exclude"%self.dirname}
+        if self.typeRun=="source":
+            env={"VERROU_SOURCE": "%s/dd.source"%self.dirname}
+
+        self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
+                                          "%s/dd.run"%rundir,
+                                          env)
+        self.pidRunTab[i]=self.subProcessRun[i].pid
+    def cmpOneSample(self,i):
+        rundir= self.nameDir(i)
+        if self.subProcessRun[i]!=None:
+            getResult(self.subProcessRun[i])
+        retval = runCmd([self.cmpCmd, self.refDir, rundir],
+                            "%s/dd.compare"%rundir)
+
+        if retval != 0:
+            print "FAIL(%d)" % i
+            return self.FAIL
+        else:
+            return self.PASS
+
+    def run(self):
+
+        if maxNbPROC==None:
+            return self.runSeq()
+        return self.runParMax(maxNbPROC)
+
+
+
+    def runSeq(self):
+        
+        for run in xrange(0, self.nbRun):
+            self.mkdir(run)
+            self.runOneSample(run)
+            retVal=self.cmpOneSample(run)
+            
+            if retVal=="FAIL":
+                return self.FAIL
+            
+        with open("%s/dd.pass"%self.dirname, "w") as f:
+            f.write("OK\n")
+        print "PASS"
+        return self.PASS
+
+    def runPar(self):
+            
+        for run in xrange(0, self.nbRun):
+            self.mkdir(run)
+            self.runOneSample(run)
+        for run in xrange(0, self.nbRun):
+            retVal=self.cmpOneSample(run)
+            
+            if retVal=="FAIL":
+                return self.FAIL
+            
+        with open("%s/dd.pass"%self.dirname, "w") as f:
+            f.write("OK\n")
+        print "PASS"
+        return self.PASS
+
+
+    def runParMax(self,maxNbProc):
+        launch=0
+        finish=0
+        fail=False
+        lastLaunch=self.nbRun-1
+        remainPidTab=[]
+        for run in xrange(0, self.nbRun):
+            self.mkdir(run)
+            self.runOneSample(run)
+
+            if self.nbRun > maxNbProc:
+                #wait that a child process corresponding to run finish
+                pid=None
+                while True:
+                    (pid,status)=os.wait()
+                    if pid in self.pidRunTab:
+                        break
+                    else:
+                        print "Internal Error in runParMax"
+                        failure()
+
+
+                run=self.pidRunTab.index(pid)
+                self.pidRunTab[run]=None
+                self.subProcessRun[run]=None
+
+                retVal=self.cmpOneSample(run)
+                if retVal==self.FAIL:
+                    fail=True
+                    lastLaunch=run
+                    break
+
+        if remainPidTab!=[]:
+            print "Error runParMAX"
+            sys.exit()
+
+        if not fail:
+            nbRemain=len([x for x in  self.pidRunTab if x!=None ])
+
+            for i in range(nbRemain):
+                (pid,status)=os.wait()     
+                run=self.pidRunTab.index(pid)                
+                self.pidRunTab[run]=None
+                self.subProcessRun[run]=None
+                retVal=self.cmpOneSample(run)
+                if retVal==self.FAIL:
+                    fail=True            
+                    break
+
+            
+        if fail:
+            #receive finish
+            listOfPidToCheck=[]
+            for run in xrange(0,lastLaunch+1):
+                if self.pidRunTab[run]==None:
+                    #comparison script already done
+                    continue
+
+                if self.subProcessRun[run].poll():                    
+                    #if terminated if is almost free to do comparison
+                    self.subProcessRun[run].wait()
+                    self.subProcessRun[run]=None
+                    self.pidRunTab[run]=None
+                    retVal=self.cmpOneSample(run)
+                else:
+                    try:
+                        self.subProcessRun[run].kill()
+                    except OSError as e:
+                        if str(e)!="[Errno 3] No such process":
+                            print "error: ", "!"+str(e)+"!"
+                            traceback.print_exc()
+                            failure()
+                    
+                    self.subProcessRun[run]=None
+                    self.pidRunTab[run]=None
+                    self.rmdir(run)
+            return self.FAIL
+        
+        with open("%s/dd.pass"%self.dirname, "w") as f:
+            f.write("OK\n")
+        print "PASS"
+        return self.PASS
+
+
+
+
 
 def prepareOutput(dirname):
     shutil.rmtree(dirname, ignore_errors=True)
@@ -114,7 +316,7 @@ class DDsym(DDvr):
             print "\t run output: " +  "%s/dd.out"%self.ref_ + " %s/dd.err"%self.ref_
             print "\t cmp output: " +  "%s/checkRef.out"%self.ref_ + " %s/checkRef.err"%self.ref_
             failure()
-
+#            print "\t3) check the "
 
     def deltaFailedMsg(self,delta):
         print "FAILURE: nothing to debug (the run with all symbols activated succeed)"
@@ -155,25 +357,10 @@ class DDsym(DDvr):
 
         genExcludeFile(self.ref_, dirname, deltas)
 
-        for run in xrange(1, nbRUN+1):
-            rundir = "%s/dd.run%i"%(dirname, run)
-            prepareOutput(rundir)
+        vT=verrouTask(dirname, self.ref_,self.run_, self.compare_ ,nbRUN, "exclude")
+        return vT.run()
 
-            runCmd([self.run_, rundir],
-                   "%s/dd.run"%rundir,
-                   {"VERROU_EXCLUDE": "%s/dd.exclude"%dirname})
-            retval = runCmd([self.compare_, self.ref_, rundir],
-                            "%s/dd.compare"%rundir)
-            if retval != 0:
-                print "FAIL(%d)" % run
-                return self.FAIL
-
-        with open("%s/dd.pass"%dirname, "w") as f:
-            f.write("OK\n")
-
-        print "PASS"
-        return self.PASS
-
+ 
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
@@ -240,22 +427,8 @@ class DDline(DDvr):
             for d in deltas:
                 f.write(d)
 
-        for run in xrange(1, nbRUN+1):
-            rundir = dirname + "/dd.run%i" % run
-            os.mkdir(rundir)
-            runCmd([self.run_, rundir],
-                   "%s/dd.run"%rundir,
-                   {"VERROU_SOURCE": "%s/dd.source"%dirname})
-            retval = runCmd([self.compare_, self.ref_, rundir],
-                            "%s/dd.compare"%rundir)
-            if retval != 0:
-                print "FAIL(%d)" % run
-                return self.FAIL
-
-        with open("%s/dd.pass"%dirname, "w") as f:
-            f.write("OK\n")
-        print "PASS"
-        return self.PASS
+        vT=verrouTask(dirname, self.ref_,self.run_, self.compare_ ,nbRUN, "source")
+        return vT.run()
 
     def coerce(self, config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
@@ -336,7 +509,6 @@ def checkScriptPath(fpath):
 
 if __name__ == "__main__":
 
-    
     if len(sys.argv)!=3:
         usageCmd()
         failure()
