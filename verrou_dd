@@ -4,10 +4,14 @@ import subprocess
 import sys
 import os
 import shutil
-import md5
+#import md5
+import hashlib
 import copy
 from valgrind import DD
+import traceback
 
+def failure():
+    sys.exit(42)
 
 nbRUN=5
 try:
@@ -59,7 +63,7 @@ class DDvr(DD.DD):
         self.ref_ = "%s/ref"%self.prefix_
 
     def testName(self, deltas):
-        return self.prefix_ + "/" + md5.new("".join(deltas)).hexdigest()
+        return self.prefix_ + "/" + hashlib.md5("".join(deltas)).hexdigest()
 
     def alreadyDone(self, dirname):
         print dirname,
@@ -85,6 +89,7 @@ class DDsym(DDvr):
         self.compare_ = compare
 
         self.reference()
+        self.checkReference()
 
     def reference(self):
         dirname = self.ref_
@@ -96,6 +101,52 @@ class DDsym(DDvr):
                          "VERROU_GEN_EXCLUDE":   "%s/dd.exclude"%dirname})
         assert retval == 0, "Error during reference run"
 
+    def checkReference(self):
+        retval = runCmd([self.compare_,self.ref_, self.ref_],
+                        "%s/checkRef"%self.ref_)
+        if retval != 0:
+            print "FAILURE: the reference is not valid "
+            print "Suggestions:"
+            print "\t1) check the correctness of the %s script"%self.compare_
+            print "\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script"
+
+            print "Files to analyze:"
+            print "\t run output: " +  "%s/dd.out"%self.ref_ + " %s/dd.err"%self.ref_
+            print "\t cmp output: " +  "%s/checkRef.out"%self.ref_ + " %s/checkRef.err"%self.ref_
+            failure()
+
+
+    def deltaFailedMsg(self,delta):
+        print "FAILURE: nothing to debug (the run with all symbols activated succeed)"
+        print "Suggestions:"
+        print "\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_
+        print "\t2) check if the number of samples VERROU_DD_NRUNS is sufficient "
+        print "\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script"
+
+        dirname = self.testName(delta)
+        print "Directory to analyze: %s"%dirname
+        failure()
+
+    def allDeltaFailedMsg(self,deltas):
+        print "FAILURE: internal error"
+        print "Suggestions:"
+        print "\t1) check if the number of samples VERROU_DD_NRUNS is sufficient"
+        print "\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_
+        print "\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe"
+
+        failure()
+
+        
+
+    def noDeltaSucceedMsg(self,deltas=[]):
+        print "FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed"
+        
+        print "Suggestions:"
+        print "\t1) check the libm library is correctly excluded"
+        print "\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_
+
+        failure()
+        
     def _test(self, deltas):
         dirname = self.testName(deltas)
         done = self.alreadyDone(dirname)
@@ -126,14 +177,22 @@ class DDsym(DDvr):
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
-    def testSym(self, delta):
+    def testSym(self, delta, symlinkconf=None):
+        #by default the symlinks are generated when the test fail
         deltas = [delta]
         dirname = self.testName(deltas)
-        self._test(deltas)
+        testResult=self._test(deltas)
 
         sym = delta.partition("\t")[0]
-        linkname = "%s.%s"%(self.prefix_, sym)
-        symlink(dirname, linkname)
+
+        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
+            linkname = "%s.%s"%(self.prefix_, sym)
+            symlink(dirname, linkname)
+
+        if testResult==self.PASS:
+            print "WARNING: the symbol " + sym + "do not generate a FAIL" 
+
+        return testResult
 
 def ddSym(run, compare):
     dd = DDsym(run, compare)
@@ -144,10 +203,11 @@ def ddSym(run, compare):
     conf = dd.ddmax(deltas)
     print "ddmax:" + dd.coerce(conf)
 
-    for delta in conf:
-        dd.testSym(delta)
+    #for delta in conf:
+    #    dd.testSym(delta)
+    reducedConf=[delta for delta in conf if dd.testSym(delta)==dd.FAIL]
 
-    return (dd.ref_, conf)
+    return (dd.ref_, reducedConf)
 
 
 class DDline(DDvr):
@@ -167,7 +227,7 @@ class DDline(DDvr):
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_EXCLUDE":       "%s/dd.exclude"%dirname,
                          "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
-        assert retval == 0, "Error during reference run"
+        assert retval == 0, "Error during ddline reference run"
 
     def _test(self, deltas):
         dirname = self.testName(deltas)
@@ -211,6 +271,22 @@ class DDline(DDvr):
         linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
         symlink(dirname, linkname)
 
+    def noDeltaSucceedMsg(self,deltas=[]):
+        raise DDLineError("noDeltaSucceedMsg")
+
+    def deltaFailedMsg(self, deltas=[]):
+        raise DDLineError("deltaFailedMsg")
+
+    def allDeltaFailedMsg(self, deltas):
+        raise DDLineError("allDeltaFailedMsg")
+
+
+
+class DDLineError(Exception):
+    """Exception for DDLine Algorithm"""
+    def __init__(self,msg):
+        self.msg=msg
+
 
 def ddLine(run, compare, refSym, confSyms):
     dd = DDline(run, compare, refSym, confSyms)
@@ -225,12 +301,16 @@ def ddLine(run, compare, refSym, confSyms):
                 if line.endswith("\t%s\n"%symname):
                     deltas.append(line)
 
-        conf = dd.ddmax(deltas)
-        confLines += conf
-        print "ddmax (%s):"%symname + dd.coerce(conf)
+        try: 
+            conf = dd.ddmax(deltas)
+            confLines += conf
+            print "ddmax (%s):"%symname + dd.coerce(conf)
 
-        for delta in conf:
-            dd.testLine(delta)
+            for delta in conf:
+                dd.testLine(delta)
+
+        except DDLineError:
+                traceback.print_exc()
 
     print "ddmax (global):" + dd.coerce(confLines)
     return confLines
@@ -240,5 +320,28 @@ def main(run, compare):
     (refSym, confSyms) = ddSym(run, compare)
     ddLine(run, compare, refSym, confSyms)
 
+
+def usageCmd():
+    print "Usage: "+ sys.argv[0] + " runScript cmpScript" 
+
+def checkScriptPath(fpath):
+    if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
+        return os.path.abspath(fpath)
+    else:
+        print "Invalid Cmd:"+str(sys.argv)
+        print fpath + " should be executable"
+        usageCmd()
+        failure()
+
+
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+
+    
+    if len(sys.argv)!=3:
+        usageCmd()
+        failure()
+
+    runScript=checkScriptPath(sys.argv[1])
+    cmpScript=checkScriptPath(sys.argv[2])
+
+    main(runScript, cmpScript)
