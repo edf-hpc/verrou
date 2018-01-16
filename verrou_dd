@@ -110,15 +110,13 @@ class verrouTask:
             return self.PASS
 
     def run(self):
-
         if maxNbPROC==None:
             return self.runSeq()
         return self.runParMax(maxNbPROC)
 
 
 
-    def runSeq(self):
-        
+    def runSeq(self):        
         for run in xrange(0, self.nbRun):
             self.mkdir(run)
             self.runOneSample(run)
@@ -132,8 +130,7 @@ class verrouTask:
         print "PASS"
         return self.PASS
 
-    def runPar(self):
-            
+    def runPar(self):            
         for run in xrange(0, self.nbRun):
             self.mkdir(run)
             self.runOneSample(run)
@@ -250,6 +247,26 @@ def genExcludeFile(ref, dest, include):
     with open("%s/dd.exclude"%dest, "w") as f:
         for line in excludes:
             f.write(line)
+            
+def mergeList(dirname, name="dd.exclude"):
+    """merge the file name.$PID into a uniq file called name """ 
+    listOfExcludeFile=[ x for x in os.listdir(dirname) if x.startswith(name+".")]
+    if len(listOfExcludeFile)<1:
+        print "The generation of exclusion/source files failed"
+        failure()
+                
+    with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
+        excludeMerged=f.readlines()
+
+    for excludeFile in listOfExcludeFile[1:]:
+        with open(os.path.join(dirname,excludeFile), "r") as f:
+            for line in f.readlines():
+                if line not in excludeMerged:
+                    excludeMerged+=[line]
+    with open(os.path.join(dirname, name), "w" )as f:
+        for line in excludeMerged:
+            f.write(line)
+
 
 def symlink(src, dst):
     if os.path.exists(dst):
@@ -291,6 +308,7 @@ class DDsym(DDvr):
         self.compare_ = compare
 
         self.reference()
+        mergeList(self.ref_,"dd.exclude")
         self.checkReference()
 
     def reference(self):
@@ -300,8 +318,9 @@ class DDsym(DDvr):
         retval = runCmd([self.run_, dirname],
                         "%s/dd"%dirname,
                         {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_GEN_EXCLUDE":   "%s/dd.exclude"%dirname})
+                         "VERROU_GEN_EXCLUDE":   "%s/dd.exclude.%%p"%dirname})
         assert retval == 0, "Error during reference run"
+
 
     def checkReference(self):
         retval = runCmd([self.compare_,self.ref_, self.ref_],
@@ -406,6 +425,7 @@ class DDline(DDvr):
         prepareOutput(self.ref_)
         genExcludeFile(refSym, self.ref_, confSyms)
         self.reference()
+        mergeList(self.ref_,"dd.source")
 
     def reference(self):
         dirname = self.ref_
@@ -413,7 +433,7 @@ class DDline(DDvr):
                         "%s/dd"%dirname,
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_EXCLUDE":       "%s/dd.exclude"%dirname,
-                         "VERROU_GEN_SOURCE":    "%s/dd.source"%dirname})
+                         "VERROU_GEN_SOURCE":    "%s/dd.source.%%p"%dirname})
         assert retval == 0, "Error during ddline reference run"
 
     def _test(self, deltas):
