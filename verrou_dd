@@ -27,6 +27,18 @@ try:
 except:
     pass
 
+ddAlgo="ddmax"
+try:
+    algo = os.environ["VERROU_DD_ALGO"]
+    if algo in ["ddmax","rddmin"]:
+        ddAlgo=algo
+    else:
+        print "incorrect VERROU_DD_ALGO env variable"
+        failure()
+except:
+    pass
+
+
 
 
 
@@ -300,6 +312,21 @@ class DDvr(DD.DD):
         prepareOutput(dirname)
         return None
 
+    def RDDMin(self, deltas):
+        ddminTab=[]
+        testResult=self._test(deltas)
+        index=0
+        while testResult==self.FAIL:
+            conf = self.ddmin(deltas)
+            ddminTab += [conf]
+            print "ddmin%d (%s):"%(index,self.coerce(conf))
+
+            #update deltas
+            deltas=[delta for delta in deltas if delta not in conf]
+            testResult=self._test(deltas)
+            index+=1
+        return ddminTab
+
 
 class DDsym(DDvr):
     def __init__(self, run, compare):
@@ -383,16 +410,16 @@ class DDsym(DDvr):
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
-    def testSym(self, delta, symlinkconf=None):
+    def testSym(self, deltas, symlinkconf=None):
         #by default the symlinks are generated when the test fail
-        deltas = [delta]
         dirname = self.testName(deltas)
         testResult=self._test(deltas)
 
-        sym = delta.partition("\t")[0]
+        syms = [delta.partition("\t")[0] for delta in deltas]
+        symsname=reduce(lambda sym1,sym2 : sym1+","+sym2,syms)
 
         if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
-            linkname = "%s.%s"%(self.prefix_, sym)
+            linkname = "%s.%s"%(self.prefix_, symsname)
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
@@ -411,10 +438,20 @@ def ddSym(run, compare):
 
     #for delta in conf:
     #    dd.testSym(delta)
-    reducedConf=[delta for delta in conf if dd.testSym(delta)==dd.FAIL]
+    reducedConf=[delta for delta in conf if dd.testSym([delta])==dd.FAIL]
 
-    return (dd.ref_, reducedConf)
+    return (dd.ref_, [reducedConf])
 
+def ddSymRDDMin(run, compare):
+    dd = DDsym(run,compare)
+    with open("%s/dd.exclude"%dd.ref_, "r") as f:
+        deltas = f.readlines()
+    confTab = dd.RDDMin(deltas)
+
+    for conf in confTab:
+        dd.testSym(conf)
+
+    return (dd.ref_, confTab)
 
 class DDline(DDvr):
     def __init__(self, run, compare, refSym, confSyms):
@@ -455,14 +492,38 @@ class DDline(DDvr):
                                       [(col[0], int(col[1]), col[2]) for col in
                                        [(l.strip()+"\t\t").split("\t") for l in config]]])
 
-    def testLine(self, delta):
+    def testLine(self, delta, symlinkconf=None):
         deltas = [delta]
         dirname = self.testName(deltas)
-        self._test(deltas)
+        testResult=self._test(deltas)
 
         (filename, linenum) = delta.strip().split("\t")[0:2]
-        linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
-        symlink(dirname, linkname)
+        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
+            linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
+            symlink(dirname, linkname)
+        if testResult==self.PASS:
+            print "WARNING: the line %s:%s do not generate a FAIL"%(filename,linenum)
+
+
+    def testLines(self, deltas, symlinkconf=None):
+        dirname = self.testName(deltas)
+        testResult=self._test(deltas)
+
+        #get the name of the conf
+        dictLines={}
+        for (filename, linenum) in [delta.strip().split("\t")[0:2] for delta in deltas]:
+            if dictLines.has_key(filename):
+                dictLines[filename]+=[linenum]
+            else:
+                dictLines[filename]=[linenum]
+        confname=reduce(lambda f1,f2: f1+"_"+f2 , [f+":"+reduce(lambda l1,l2: l1+","+l2 ,dictLines[f])  for f in dictLines] )
+
+        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
+            linkname = "%s.%s"%(self.prefix_, confname)
+            symlink(dirname, linkname)
+        if testResult==self.PASS:
+            print "WARNING: the line %s do not generate a FAIL"%(confname)
+
 
     def noDeltaSucceedMsg(self,deltas=[]):
         raise DDLineError("noDeltaSucceedMsg")
@@ -481,38 +542,69 @@ class DDLineError(Exception):
         self.msg=msg
 
 
-def ddLine(run, compare, refSym, confSyms):
-    dd = DDline(run, compare, refSym, confSyms)
+def ddLine(run, compare, refSym, confSymsTab):
 
     confLines = []
-    for sym in confSyms:
-        symname = sym.partition("\t")[0]
-        print "ddLine: testing %s"%symname
-        deltas = []
-        with open(dd.ref_ + "/dd.source", "r") as f:
-            for line in f:
-                if line.endswith("\t%s\n"%symname):
-                    deltas.append(line)
+    for confSyms in confSymsTab:
+        dd = DDline(run, compare, refSym, confSyms)
 
-        try: 
-            conf = dd.ddmax(deltas)
-            confLines += conf
-            print "ddmax (%s):"%symname + dd.coerce(conf)
+        for sym in confSyms:
+            symname = sym.partition("\t")[0]
+            print "ddLine: testing %s"%symname
+            deltas = []
+            with open(dd.ref_ + "/dd.source", "r") as f:
+                for line in f:
+                    if line.endswith("\t%s\n"%symname):
+                        deltas.append(line)
 
-            for delta in conf:
-                dd.testLine(delta)
+            try:
+                conf = dd.ddmax(deltas)
+                confLines += conf
+                print "ddmax (%s):"%symname + dd.coerce(conf)
 
-        except DDLineError:
+                for delta in conf:
+                    dd.testLine(delta)
+            except DDLineError:
                 traceback.print_exc()
 
     print "ddmax (global):" + dd.coerce(confLines)
     return confLines
 
 
-def main(run, compare):
-    (refSym, confSyms) = ddSym(run, compare)
-    ddLine(run, compare, refSym, confSyms)
+def ddLineRDDMin(run, compare, refSym, confSymsTab):
 
+    confLines = []
+    for confSyms in confSymsTab:
+        dd = DDline(run, compare, refSym, confSyms)
+
+        for sym in confSyms:
+            symname = sym.partition("\t")[0]
+            print "ddLine: testing %s"%symname
+            deltas = []
+            with open(dd.ref_ + "/dd.source", "r") as f:
+                for line in f:
+                    if line.endswith("\t%s\n"%symname):
+                        deltas.append(line)
+
+            try:
+                confLines+=dd.RDDMin(deltas)
+            except DDLineError:
+                traceback.print_exc()
+
+    print "ddmin (global):"
+
+    for i in range(len(confLines)):
+        print "ddmin-"+str(i)+": " +dd.coerce(confLines[i])
+        dd.testLines(confLines[i])
+
+
+def main(run, compare,algoSearch="ddmax"):
+    if algoSearch=="ddmax":
+        (refSym, confSymsTab) = ddSym(run, compare)
+        ddLine(run, compare, refSym, confSymsTab)
+    if algoSearch=="rddmin":
+        (refSym, confSymsTab) = ddSymRDDMin(run, compare)
+        ddLineRDDMin(run, compare, refSym, confSymsTab)
 
 def usageCmd():
     print "Usage: "+ sys.argv[0] + " runScript cmpScript" 
@@ -536,4 +628,5 @@ if __name__ == "__main__":
     runScript=checkScriptPath(sys.argv[1])
     cmpScript=checkScriptPath(sys.argv[2])
 
-    main(runScript, cmpScript)
+    main(runScript, cmpScript, algoSearch=ddAlgo)
+
