@@ -90,30 +90,6 @@ extern "C" {
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
-  void IFV_FCTNAME(add_doublex2) (doublex2 a, doublex2 b, doublex2* res, void* context);
-  void IFV_FCTNAME(add_floatx2)  (floatx2 a,  floatx2 b,  floatx2*  res, void* context);
-  void IFV_FCTNAME(sub_doublex2) (doublex2 a, doublex2 b, doublex2* res, void* context);
-  void IFV_FCTNAME(sub_floatx2)  (floatx2 a,  floatx2 b,  floatx2*  res, void* context);
-  void IFV_FCTNAME(mul_doublex2) (doublex2 a, doublex2 b, doublex2* res, void* context);
-  void IFV_FCTNAME(mul_floatx2)  (floatx2 a,  floatx2 b,  floatx2*  res, void* context);
-  void IFV_FCTNAME(div_doublex2) (doublex2 a, doublex2 b, doublex2* res, void* context);
-  void IFV_FCTNAME(div_floatx2)  (floatx2 a,  floatx2 b,  floatx2*  res, void* context);
-
-  void IFV_FCTNAME(add_doublex4) (doublex4 a, doublex4 b, doublex4* res, void* context);
-  void IFV_FCTNAME(add_floatx4)  (floatx4 a,  floatx4 b,  floatx4*  res, void* context);
-  void IFV_FCTNAME(sub_doublex4) (doublex4 a, doublex4 b, doublex4* res, void* context);
-  void IFV_FCTNAME(sub_floatx4)  (floatx4 a,  floatx4 b,  floatx4*  res, void* context);
-  void IFV_FCTNAME(mul_doublex4) (doublex4 a, doublex4 b, doublex4* res, void* context);
-  void IFV_FCTNAME(mul_floatx4)  (floatx4 a,  floatx4 b,  floatx4*  res, void* context);
-  void IFV_FCTNAME(div_doublex4) (doublex4 a, doublex4 b, doublex4* res, void* context);
-  void IFV_FCTNAME(div_floatx4)  (floatx4 a,  floatx4 b,  floatx4*  res, void* context);
-
-  void IFV_FCTNAME(add_floatx8)  (floatx8 a,  floatx8 b,  floatx8*  res, void* context);
-  void IFV_FCTNAME(sub_floatx8)  (floatx8 a,  floatx8 b,  floatx8*  res, void* context);
-  void IFV_FCTNAME(mul_floatx8)  (floatx8 a,  floatx8 b,  floatx8*  res, void* context);
-  void IFV_FCTNAME(div_floatx8)  (floatx8 a,  floatx8 b,  floatx8*  res, void* context);
-
-  
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);

@@ -43,24 +43,6 @@ struct realTypeHelper<float>{
 };
 
 
-template<>
-struct realTypeHelper<floatx2>{
-  typedef float SimdBasicType;
-  static const int SimdLength=2;
-};
-
-template<>
-struct realTypeHelper<floatx4>{
-  typedef float SimdBasicType;
-  static const int SimdLength=4;
-};
-
-template<>
-struct realTypeHelper<floatx8>{
-  typedef float SimdBasicType;
-  static const int SimdLength=8;
-};
-
 
 template<>
 struct realTypeHelper<double>{
@@ -68,18 +50,6 @@ struct realTypeHelper<double>{
   static const int SimdLength=1;
 };
 
-
-template<>
-struct realTypeHelper<doublex2>{
-  typedef double SimdBasicType;
-  static const int SimdLength=2;
-};
-
-template<>
-struct realTypeHelper<doublex4>{
-  typedef double SimdBasicType;
-  static const int SimdLength=4;
-};
 
 template<class REALTYPESIMD>
 struct realTypeHelper<const REALTYPESIMD>{
