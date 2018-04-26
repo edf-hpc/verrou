@@ -614,7 +614,12 @@ class DD:
     def _dd(self, c, n):
 	"""Stub to overload in subclasses"""
 
-        assert self.test([]) == self.PASS
+        testNoDelta=self.test([])
+        if testNoDelta!=self.PASS:
+            self.noDeltaSucceedMsg()
+            print "ERROR: test([]) == FAILED"
+            sys.exit()
+#        assert self.test([]) == self.PASS
 
 	run = 1
         cbar_offset = 0
@@ -623,9 +628,13 @@ class DD:
 	while 1:
             tc = self.test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
+                if run==1:
+                    self.deltaFailedMsg(c)
+
                 if "VERROU_DD_UNSAFE" in os.environ:
                     print "WARNING: test([all deltas]) == PASS"
                 else:
+                    self.allDeltaFailedMsg(c)
                     print "ERROR: test([all deltas]) == PASS"
                     sys.exit(1)
 
