@@ -71,15 +71,15 @@ struct vr_packArg<REALTYPE,1>{
   typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
   typedef vr_packArg<SimdBasicType,1> SubPack;
   
-  vr_packArg(const RealType& v1):arg1(v1)
+  inline vr_packArg(const RealType& v1):arg1(v1)
   {
   };
 
-  const SubPack& getSubPack(int I)const{
+  inline const SubPack& getSubPack(int I)const{
     return SubPack(arg1[I]);
   }
 
-  void serialyzeDouble(double* res)const{
+  inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
   }
   
@@ -100,11 +100,11 @@ struct vr_packArg<REALTYPE,2>{
   {
   };
 
-  const SubPack getSubPack(int I)const{
+  inline const SubPack getSubPack(int I)const{
     return SubPack(arg1[I],arg2[I]);
   }
   
-  void serialyzeDouble(double* res)const{
+  inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
   }
@@ -124,11 +124,11 @@ struct vr_packArg<REALTYPE,3>{
   vr_packArg(const RealType& v1,const RealType& v2,const RealType& v3):arg1(v1),arg2(v2),arg3(v3){
   };
 
-  const SubPack& getSubPack(int I)const{
+  inline const SubPack& getSubPack(int I)const{
     return SubPack(arg1[I],arg2[I],arg3[I]);
   }
   
-  void serialyzeDouble(double* res)const{
+  inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
     res[2]=(double)arg3;
@@ -153,8 +153,7 @@ public:
   static const char* OpName(){return "add";}
 #endif
 
-  inline
-  static RealType nearestOp (const PackArgs&  p) {
+  static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
     return a+b;
@@ -261,7 +260,7 @@ public:
   static const char* OpName(){return "mul";}
 #endif
 
-  static RealType inline nearestOp (const PackArgs& p) {
+  static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
     return a*b;
@@ -293,7 +292,7 @@ public:
   static inline void split(RealType a, RealType& x, RealType& y){
     //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
     const RealType factor(splitFactor<RealType>());
-    RealType c=factor*a;
+    const RealType c=factor*a;
     x=(c-(c-a));
     y=(a-x);
   }
@@ -431,7 +430,7 @@ public:
 
 
   
-  static RealTypeOut inline nearestOp (const PackArgs& p) {
+  static inline RealTypeOut nearestOp (const PackArgs& p) {
     const RealTypeIn & in(p.arg1);
     return (RealTypeOut)in;
   };

@@ -39,7 +39,6 @@
 //}
 
 
-Vr_Rand vr_rand;
 
 template <typename REAL>
 void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
@@ -97,6 +96,7 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
 
 
 template <typename REAL>
+inline
 void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   if (CHECK_C == 0)
     return;
@@ -148,8 +148,6 @@ void verrou_set_seed (unsigned int seed) {
 void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
-
-
 
 void IFV_FCTNAME(add_double) (double a, double b, double* res,void* context) {
   typedef OpWithSelectedRoundingMode<AddOp <double>,double > Op;

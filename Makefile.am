@@ -28,7 +28,6 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
-	backend_verrou/vr_rand.cxx       \
 	backend_verrou/interflop_verrou.cxx
 
 # We use the test of fma normally use to configure check

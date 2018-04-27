@@ -97,8 +97,8 @@ public:
     }
     const int s = error>=0 ? 1 : -1;
     const RealType u =ulp(res);
-    bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-                        > (vr_rand_max() * s * error));
+    const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
+			      > (vr_rand_max() * s * error));
 
     if(doNotChange){
       return res;
@@ -268,8 +268,8 @@ public:
 #endif
 
   
-  inline
-  static RealType applySeq(const PackArgs& p, void* context){
+
+  static inline RealType applySeq(const PackArgs& p, void* context){
     switch (ROUNDINGMODE) {
     case VR_NEAREST:
       return RoundingNearest<OP>::apply (p);

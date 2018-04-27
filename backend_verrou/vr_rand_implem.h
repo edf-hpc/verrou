@@ -29,22 +29,20 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "vr_rand.h"
-//#include "pub_tool_libcproc.h"
-//#include "pub_tool_libcprint.h"
+//#include "vr_rand.h"
 
-//Vr_Rand vr_rand;
+//Warning FILE include in vr_rand.h
 
-static int vr_rand_next (Vr_Rand * r){
+inline static int vr_rand_next (Vr_Rand * r){
   r->next_ = r->next_ * 1103515245 + 12345;
   return (unsigned int)(r->next_/65536) % 32768;
 }
 
-int vr_rand_max () {
+inline int vr_rand_max () {
   return 32767;
 }
 
-void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
+inline void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
   r->reload_  = 31;
   r->count_   = 0;
   r->seed_    = c;
@@ -53,11 +51,11 @@ void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
 }
 
 
-unsigned int vr_rand_getSeed (Vr_Rand * r) {
+inline unsigned int vr_rand_getSeed (Vr_Rand * r) {
   return r->seed_;
 }
 
-bool vr_rand_bool (Vr_Rand * r) {
+inline bool vr_rand_bool (Vr_Rand * r) {
   if (r->count_ == r->reload_){
     r->current_ = vr_rand_next (r);
     r->count_ = 0;
@@ -67,6 +65,6 @@ bool vr_rand_bool (Vr_Rand * r) {
   return res;
 }
 
-int vr_rand_int (Vr_Rand * r) {
+inline int vr_rand_int (Vr_Rand * r) {
   return vr_rand_next (r);
 }
