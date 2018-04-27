@@ -449,11 +449,11 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
-static void vr_replaceBinFpOpLLO (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				  const HChar* functionName, void* function,
-				  Vr_Op op,
-				  Vr_Prec prec,
-				  Vr_Vec vec){
+static void vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+					    const HChar* functionName, void* function,
+					    Vr_Op op,
+					    Vr_Prec prec,
+					    Vr_Vec vec){
   //instrumentation to count operation
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec,False);
@@ -497,6 +497,69 @@ static void vr_replaceBinFpOpLLO (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
   }
+}
+
+
+static void vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+					      const HChar* functionName, void* function,
+					      Vr_Op op,
+					      Vr_Prec prec,
+					      Vr_Vec vec){
+  //instrumentation to count operation
+  if(!vr.instr_op[op] ) {
+    vr_countOp (sb,  op, prec,vec,False);
+    addStmtToIRSB (sb, stmt);
+    return;
+  }
+  vr_countOp (sb,  op, prec,vec, True);
+  //convertion before call
+
+  IRExpr * arg1;
+  IRExpr * arg2;
+  
+  IRType ity=Ity_I64;//type of call result
+
+  arg1 = expr->Iex.Binop.arg1;
+  arg2 = expr->Iex.Binop.arg2;
+  if (prec==VR_PREC_FLT) {
+    arg1 = vr_getLLFloat (sb, arg1);
+    arg2 = vr_getLLFloat (sb, arg2);
+    arg1 = vr_I32toI64 (sb, arg1);
+    arg2 = vr_I32toI64 (sb, arg2);
+    ity=Ity_I32;
+  }
+  if (prec==VR_PREC_DBL) {
+    arg1 = vr_getLLDouble (sb, arg1);
+    arg2 = vr_getLLDouble (sb, arg2);
+  }
+
+  //call
+  IRTemp res=newIRTemp (sb->tyenv, ity);
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_2 (arg1, arg2))));
+
+  //update after call
+  IROp opReg;
+  if (prec==VR_PREC_FLT) opReg = Iop_32UtoV128;
+  if (prec==VR_PREC_DBL) opReg = Iop_64UtoV128;
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				   IRExpr_Unop (opReg, IRExpr_RdTmp(res))));
+}
+
+
+static void vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
+				 const HChar* functionName, void* function,
+				 Vr_Op op,
+				 Vr_Prec prec,
+				 Vr_Vec vec){
+  //#define VERROU_FAST_UNSAFE
+#ifdef VERROU_FAST_UNSAFE
+  vr_replaceBinFpOpLLO_fast_unsafe(sb,stmt,expr,functionName,function,op,prec,vec);
+#else
+  vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec);
+#endif
 }
 
 
