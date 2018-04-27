@@ -30,12 +30,23 @@ VERROU_SOURCES_COMMON = \
 	vr_clo.c	\
 	backend_verrou/interflop_verrou.cxx
 
+VERROU_FLAG_CXX = $(subst \
+	-Wmissing-prototypes,,$(subst \
+	-Wstrict-prototypes,,$(subst \
+	-Wmissing-parameter-type,,$(subst \
+	-Wold-style-declaration,,$(subst \
+	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
+
+
+# Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
+# Enable c++11 for std::uint64_t
+VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
+
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
-VERROU_FLAG_CXX = -march=native -mfma -DUSE_VERROU_FMA
+VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
 VERROU_FLAG_C= -march=native -DUSE_VERROU_FMA
 endif
-
 
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
@@ -44,10 +55,7 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS       = \
 	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)\
 	$(VERROU_FLAG_C)
-# Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CXXFLAGS     = \
-	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)     \
-	-fno-exceptions -fno-rtti \
 	$(VERROU_FLAG_CXX)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)

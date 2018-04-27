@@ -49,6 +49,8 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "Uncounted operation";
   case VR_ERROR_SCALAR:
     return "Scalar instruction";
+  case VR_ERROR_NAN:
+    return "NaN";
   default:
     return NULL;
   }
@@ -86,6 +88,35 @@ static void vr_pp_ErrorOp (const Error* err) {
 }
 
 
+// * Errors happening at run time
+
+void vr_maybe_record_ErrorRt (Vr_ErrorKind kind) {
+  ThreadId tid = VG_(get_running_tid)();
+  Addr addr;
+  VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
+
+  HChar string[1];
+  string[0] = 0;
+
+  VG_(maybe_record_error)(tid,
+                          kind,
+                          addr,
+                          string,
+                          NULL);
+}
+
+void vr_handle_NaN () {
+  vr_maybe_record_ErrorRt(VR_ERROR_NAN);
+}
+
+static void vr_pp_ErrorRt (const Error* err) {
+  VG_(umsg)("%s: ", vr_get_error_name(err));
+  VG_(message_flush)();
+  VG_(umsg)("\n");
+  VG_(pp_ExeContext)(VG_(get_error_where)(err));
+}
+
+
 // * Standard tools interface
 
 const HChar* vr_get_error_name (const Error* err) {
@@ -115,6 +146,9 @@ void vr_pp_Error (const Error* err) {
   case VR_ERROR_UNCOUNTED:
   case VR_ERROR_SCALAR:
     vr_pp_ErrorOp (err);
+    break;
+  case VR_ERROR_NAN:
+    vr_pp_ErrorRt (err);
     break;
   }
 }

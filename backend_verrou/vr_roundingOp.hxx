@@ -251,7 +251,10 @@ public:
 #ifdef DEBUG_PRINT_OP
     print_debug(p,res);
 #endif
-    
+    if (isNan(*res)) {
+    //    vr_handle_NaN();
+      vr_nanHandler();
+    }
   }
 
 

@@ -1220,6 +1220,7 @@ static void vr_post_clo_init(void)
    //Verrou Backend Initilisation
    backend=interflop_verrou_init(&backend_context);
    verrou_set_panic_handler(&VG_(tool_panic));
+   verrou_set_nan_handler(&vr_handle_NaN);
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
    VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name(), interflop_verrou_get_backend_version()  );
