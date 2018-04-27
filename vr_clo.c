@@ -49,6 +49,7 @@ void vr_clo_defaults (void) {
   vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
+  vr.unsafe_llo_only = False;
 
   vr.genExclude = False;
   vr.exclude = NULL;
@@ -113,6 +114,11 @@ Bool vr_process_clo (const HChar *arg) {
     vr.verbose = bool_val;
   }
 
+  //Option --vr-llo-only (performance optimization)
+  else if (VG_BOOL_CLO (arg, "--vr-llo-only", bool_val)) {
+    vr.unsafe_llo_only = bool_val;
+  }
+
   //Option --count-op
   else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
     vr.count = bool_val;
@@ -125,7 +131,8 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Exclusion of specified symbols
   else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
-    vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
+    //vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
+    vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
     vr.genExclude = True;
   }
   else if (VG_STR_CLO (arg, "--gen-above", str)) {
@@ -137,7 +144,8 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Instrumentation of only specified source lines
   else if (VG_STR_CLO (arg, "--gen-source", str)) {
-    vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
+    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
+    vr.includeSourceFile = VG_(expand_file_name)("vr.process_clo.gen-source", str);
     vr.genIncludeSource = True;
   }
   else if (VG_STR_CLO (arg, "--source", str)) {

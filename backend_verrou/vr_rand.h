@@ -45,11 +45,18 @@ struct Vr_Rand_ {
 
 //extern Vr_Rand vr_rand;
 
-void vr_rand_setSeed (Vr_Rand * r, unsigned int c);
-//void vr_rand_autoSeed (Vr_Rand * r);
-unsigned int vr_rand_getSeed (Vr_Rand * r);
-bool vr_rand_bool (Vr_Rand * r);
-int vr_rand_int (Vr_Rand * r);
-int vr_rand_max (void);
+Vr_Rand vr_rand;
+
+#include "vr_rand_implem.h"
+
+
+
+/* void vr_rand_setSeed (Vr_Rand * r, unsigned int c); */
+/* unsigned int vr_rand_getSeed (Vr_Rand * r); */
+/* bool vr_rand_bool (Vr_Rand * r); */
+/* int vr_rand_int (Vr_Rand * r); */
+/* int vr_rand_max (void); */
+
+
 
 #endif

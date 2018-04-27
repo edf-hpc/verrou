@@ -1,6 +1,6 @@
 Index: Makefile.am
 ===================================================================
---- Makefile.am	(revision 16353)
+--- Makefile.am	(revision 16451)
 +++ Makefile.am	(working copy)
 @@ -10,7 +10,8 @@
  		lackey \
@@ -14,14 +14,14 @@ Index: Makefile.am
  		exp-bbv \
 Index: configure.ac
 ===================================================================
---- configure.ac	(revision 16353)
+--- configure.ac	(revision 16451)
 +++ configure.ac	(working copy)
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
  
  # Process this file with autoconf to produce a configure script.
--AC_INIT([Valgrind],[3.14.0.SVN],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.14.0.SVN.+verrou-dev],[valgrind-users@lists.sourceforge.net])
+-AC_INIT([Valgrind],[3.13.0],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.13.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign subdir-objects])
@@ -34,7 +34,7 @@ Index: configure.ac
  #----------------------------------------------------------------------------
  # Arch/OS/platform tests.
  #----------------------------------------------------------------------------
-@@ -4331,6 +4333,35 @@
+@@ -4353,6 +4355,37 @@
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -65,12 +65,14 @@ Index: configure.ac
 +  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 +fi
 +
++
++
 +AC_CONFIG_FILES([verrou/env.sh])
 +
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4422,6 +4453,8 @@
+@@ -4445,6 +4476,8 @@
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
@@ -81,7 +83,7 @@ Index: configure.ac
  ])
 Index: docs/lib/vg_basic.css
 ===================================================================
---- docs/lib/vg_basic.css	(revision 16353)
+--- docs/lib/vg_basic.css	(revision 16451)
 +++ docs/lib/vg_basic.css	(working copy)
 @@ -65,3 +65,39 @@
   border:      solid 1px #ffde84; 
@@ -125,7 +127,7 @@ Index: docs/lib/vg_basic.css
 +}
 Index: docs/xml/manpages-index.xml
 ===================================================================
---- docs/xml/manpages-index.xml	(revision 16353)
+--- docs/xml/manpages-index.xml	(revision 16451)
 +++ docs/xml/manpages-index.xml	(working copy)
 @@ -43,5 +43,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
@@ -139,7 +141,7 @@ Index: docs/xml/manpages-index.xml
  
 Index: docs/xml/manual.xml
 ===================================================================
---- docs/xml/manual.xml	(revision 16353)
+--- docs/xml/manual.xml	(revision 16451)
 +++ docs/xml/manual.xml	(working copy)
 @@ -44,6 +44,8 @@
        xmlns:xi="http://www.w3.org/2001/XInclude" />      
@@ -152,7 +154,7 @@ Index: docs/xml/manual.xml
  
 Index: docs/xml/valgrind-manpage.xml
 ===================================================================
---- docs/xml/valgrind-manpage.xml	(revision 16353)
+--- docs/xml/valgrind-manpage.xml	(revision 16451)
 +++ docs/xml/valgrind-manpage.xml	(working copy)
 @@ -230,6 +230,8 @@
  
@@ -165,15 +167,14 @@ Index: docs/xml/valgrind-manpage.xml
  <title>See Also</title>
 Index: docs/xml/vg-entities.xml
 ===================================================================
---- docs/xml/vg-entities.xml	(revision 16353)
+--- docs/xml/vg-entities.xml	(revision 16451)
 +++ docs/xml/vg-entities.xml	(working copy)
-@@ -6,5 +6,5 @@
+@@ -6,7 +6,7 @@
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
 -<!ENTITY rel-version "3.13.0">
 +<!ENTITY rel-version "3.13.0+verrou-dev">
  <!ENTITY rel-date    "15 June 2017">
-
  
  <!-- where the docs are installed -->

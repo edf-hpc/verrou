@@ -38,69 +38,23 @@ static VG_REGPARM(2) Long FCTNAME(64F,) (Long a, Long b) {
   return *c;
 }
 
-
-
 static VG_REGPARM(3) void FCTNAME(64Fx2,)(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-#ifndef INTERFLOP_VECTO
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
   (BACKENDFUNC(double))(arg1[0], arg2[0], res, backend_context);
   (BACKENDFUNC(double))(arg1[1], arg2[1], res+1, backend_context);
-#else
-  doublex2 arg1 = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  doublex2 arg2 = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  doublex2* res=(doublex2*) output;
-  (BACKENDFUNC(doublex2))(arg1, arg2, res, backend_context);
-#endif
 }
-
-
-/*static VG_REGPARM(3) void FCTNAME(64Fx2,Fallback)(V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
-  double* res=(double*) output;
-  (BACKENDFUNC(double))(arg1[0], arg2[0], res, backend_context);
-  (BACKENDFUNC(double))(arg1[1], arg2[1], res+1, backend_context);
-  }*/
-
-/*
-static VG_REGPARM(3) void FCTNAME(64Fx4,AllArgs) (V256* output,
-				       ULong a0, ULong a1, ULong a2,ULong a3,
-				       ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    (BACKENDFUNC(double))(arg1[i], arg2[i], res+i, backend_context);
-  }
-}
-*/
 
 static VG_REGPARM(3) void FCTNAME(64Fx4,) (/*OUT*/V256* output,
 							 ULong b0, ULong b1, ULong b2,ULong b3) {
-#ifndef INTERFLOP_VECTO
+
   double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
   double* res=(double*) output;
   for(int i=0; i<4; i++){
     (BACKENDFUNC(double)) (arg1CopyAvxDouble[i], arg2[i], res+i, backend_context);
   }
-#else
-  doublex4 arg2 = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  doublex4* res=(doublex4*) output;
-  (BACKENDFUNC(doublex4)) (arg1CopyAvxDouble, arg2, res, backend_context);
-#endif
 }
-
-/*static VG_REGPARM(3) void FCTNAME(64Fx4,Fallback) (V256* output,
-						   ULong b0, ULong b1, ULong b2,ULong b3) {
-  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
-  double* res=(double*) output;
-  for(int i=0; i<4; i++){
-    (BACKENDFUNC(double)) (arg1CopyAvxDouble[i], arg2[i], res+i, backend_context);
-  }
-  }*/
-
 
 static VG_REGPARM(2) Int FCTNAME(32F,) (Long a, Long b) {
   float *arg1 = (float*)(&a);
@@ -113,7 +67,6 @@ static VG_REGPARM(2) Int FCTNAME(32F,) (Long a, Long b) {
 
 static VG_REGPARM(3) void FCTNAME(32Fx8,) (/*OUT*/V256* output,
 					   ULong b0, ULong b1, ULong b2,ULong b3) {
-#ifndef INTERFLOP_VECTO
   V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
   float* res=(float*) output;
   float* arg1=arg1CopyAvxFloat;
@@ -121,31 +74,9 @@ static VG_REGPARM(3) void FCTNAME(32Fx8,) (/*OUT*/V256* output,
   for(int i=0; i<8; i++){
     (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, backend_context);
   }
-#else
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  floatx8* res=(floatx8*) output;
-  floatx8 arg1=arg1CopyAvxFloat;
-  floatx8 arg2=*((floatx8*) &reg2);
-
-  (BACKENDFUNC(floatx8))(arg1, arg2, res, backend_context);
-#endif
 }
-
-/*static VG_REGPARM(3) void FCTNAME(32Fx8,FallBack) (V256* output,
-						   ULong b0, ULong b1, ULong b2,ULong b3) {
-
-  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
-  float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=(float*) &reg2;
-  for(int i=0; i<8; i++){
-    (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, backend_context);
-  }
-  }*/
-
 
 static VG_REGPARM(3) void FCTNAME(32Fx4,) (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-#ifndef INTERFLOP_VECTO
   V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
   V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
 
@@ -156,30 +87,8 @@ static VG_REGPARM(3) void FCTNAME(32Fx4,) (/*OUT*/V128* output, ULong aHi, ULong
   for(int i=0; i<4;i++){
     (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, backend_context);
   }
-#else
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  floatx4* res=(floatx4*) output;
-  floatx4 arg1=*((floatx4*) &reg1);
-  floatx4 arg2=*((floatx4*) &reg2);
-
-  (BACKENDFUNC(floatx4))(arg1, arg2, res, backend_context);
-#endif
 }
 
-/*static VG_REGPARM(3) void FCTNAME(32Fx4,Fallback) (V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
-
-  float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
-
-  for(int i=0; i<4;i++){
-    (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, backend_context);
-  }
-  }*/
 
 #undef FCTNAME
 #undef BACKENDFUNC

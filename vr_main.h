@@ -102,6 +102,7 @@ typedef struct {
   Bool instr_scalar;
   Vr_Instr instrument;
   Bool verbose;
+  Bool unsafe_llo_only;
 
   UInt firstSeed;
   
@@ -137,6 +138,7 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
 typedef enum {
   VR_ERROR_UNCOUNTED,
   VR_ERROR_SCALAR,
+  VR_ERROR_NAN,
   VR_ERROR
 } Vr_ErrorKind;
 
@@ -157,6 +159,8 @@ void vr_update_extra_suppression_use (const Error* err, const Supp* su);
 
 
 void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
+void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
+void vr_handle_NaN (void);
 
 
 // ** vr_exclude.c

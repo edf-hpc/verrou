@@ -9,6 +9,34 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
 
+This version is based on Valgrind-3.13.0.
+
+### Added
+
+- Generation of Valgrind errors for NaN values. This can be useful to debug
+  programs in conjunction with vgdb.
+
+### Changed
+
+- C++ source files are now compiled using the C++11 standard.
+
+
+---
+
+## v1.1.0 - 2017-06-19
+
+This version is based on Valgrind-3.13.0.
+
+### Added
+
+- Command-line option `--vr-seed` allows setting the pRNG seed in order to
+  reproduce results in `random` and `average` rounding modes.
+
+
+---
+
+## v1.0.0 - 2017-05-19
+
 This version is based on Valgrind-3.12.0.
 
 ### Added
