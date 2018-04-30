@@ -102,7 +102,6 @@ public:
     return sign;
   }
 
-
   static inline void pp (const Real & x) {
     //    std::ostringstream oss;
 
@@ -284,3 +283,28 @@ inline bool isNan<float> (const float & x) {
   }
   return false;
 }
+
+
+
+template<class REALTYPE>
+inline bool isNanInf (const REALTYPE & x) {
+  vr_panicHandler("isNanInf called on an unknown type");
+  return false;
+}
+
+template <>
+inline bool isNanInf<double> (const double & x) {
+  static const std::uint64_t mask = 0x7ff0000000000000;
+  const std::uint64_t* X = reinterpret_cast<const std::uint64_t*>(&x);
+  return (*X & mask) == mask;
+}
+
+template <>
+inline bool isNanInf<float> (const float & x) {
+  static const std::uint32_t mask = 0x7f800000;
+  const std::uint32_t* X = reinterpret_cast<const std::uint32_t*>(&x);	
+  return (*X & mask) == mask;  
+}
+
+
+

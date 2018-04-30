@@ -60,7 +60,12 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p ){
-    RealType res=OP::nearestOp(p) ;
+    RealType res=OP::nearestOp(p);
+
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
     if(signError==0.){
