@@ -39,7 +39,7 @@ muld n eq - 0 0 0 0 0 0
 muld n eq - 80000000 0 80000000 0 0 0
 muld n eq - 0 0 80000000 0 80000000 0
 	/* 0*inf */
-muld n uo v 0 0 fff00000 0 0 0
+muld n uo v 0 0 fff00000 0 FFF80000 0
 	/* 1+u * 1-u */
 muld n eq x 3fefffff fffffffe 3ff00000 1 3ff00000 0
 muld z eq x 3fefffff fffffffe 3ff00000 1 3fefffff ffffffff
