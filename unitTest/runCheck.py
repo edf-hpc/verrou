@@ -324,6 +324,40 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
     return errorCounter(ok,ko,warn)
     
 
+def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+        for RealType in typeTab:
+            testName=test+RealType
+        
+            testCheck=assertRounding(testName)
+            testCheck.assertNative()
+            testCheck.assertEqual("toward_zero","upward")
+            testCheck.assertLess("downward","upward")
+            testCheck.assertLeq("downward", "nearest")
+            testCheck.assertLeq("nearest", "upward")
+            
+            testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "average")
+            
+        
+            testCheck.assertLess("random","upward")
+            testCheck.assertLess("average","upward")
+        
+            testCheck.assertAbsLess("average","random")
+            testCheck.assertAbsLess("average","upward")
+            testCheck.assertAbsLess("average","downward")
+            testCheck.assertAbsLess("average","nearest")
+
+            ok+=testCheck.ok
+            ko+=testCheck.ko
+            warn+=testCheck.warn
+
+    return errorCounter(ok,ko,warn)
+    
+
 
 def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
     ok=0
@@ -373,6 +407,7 @@ if __name__=='__main__':
 
 
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test1","test2","test3"], typeTab=typeTab)
+    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["test1m"], typeTab=typeTab)
     eCount+=checkTestPositive(allResult,testList=["test4"], typeTab=typeTab)
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test5"], typeTab=["<double>","<float>"])
 

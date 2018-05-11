@@ -115,6 +115,36 @@ class test1: public test<REALTYPE>{
 };
 
 
+template<class REALTYPE>
+class test1m: public test<REALTYPE>{
+ public:
+  test1m():test<REALTYPE>(-100001.),
+	  size(1000000),
+	  step(-0.1),
+	  init(-1.)
+    {
+    }
+
+  std::string name(){
+    return std::string("test1m");
+  }
+
+  REALTYPE compute(){    
+    REALTYPE acc=init;
+    for(int i=0; i<size; i++){
+      acc+=step;
+    }
+    return acc;
+  }
+
+  
+ private:
+  const int size;
+  const REALTYPE step;
+  const REALTYPE init;
+};
+
+
 
 template<class REALTYPE>
 class test2: public test<REALTYPE>{
@@ -338,6 +368,7 @@ int main(int argc, char** argv){
   {
     typedef double RealType;
     test1<RealType> t1; t1.run();
+    test1m<RealType> t1m; t1m.run();
     test2<RealType> t2; t2.run();
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();
@@ -347,6 +378,7 @@ int main(int argc, char** argv){
   {
     typedef float RealType;
     test1<RealType> t1; t1.run();
+    test1m<RealType> t1m; t1m.run();
     test2<RealType> t2; t2.run();
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();

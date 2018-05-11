@@ -210,7 +210,11 @@ template<>
 inline double nextAfter<double>(double a){
   double res=a;
   __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
-  (*resU)+=1;
+  if(res>=0){
+    (*resU)+=1;
+  }else{
+    (*resU)-=1;
+  }
   return res;
 };
 
@@ -219,7 +223,12 @@ template<>
 inline float nextAfter<float>(float a){
   float res=a;
   __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
-  (*resU)+=1;
+  if(res>=0){
+    (*resU)+=1;
+  }else{
+    (*resU)-=1;
+  }
+
   return res;
 };
 
@@ -234,7 +243,11 @@ template<>
 inline double nextPrev<double>(double a){
     double res=a;
   __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
-  (*resU)-=1;
+  if(res>=0){
+    (*resU)-=1;
+  }else{
+    (*resU)+=1;
+  }
   return res;
 };
 
@@ -243,6 +256,10 @@ template<>
 inline float nextPrev<float>(float a){
   float res=a;
   __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
-  (*resU)-=1;
+  if(res>=0){
+    (*resU)-=1;
+  }else{
+    (*resU)+=1;
+  }
   return res;
 };
