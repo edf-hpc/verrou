@@ -86,9 +86,9 @@ public:
 
 
 template<class REALTYPE>
-class test1: public test<REALTYPE>{
+class testInc0d1: public test<REALTYPE>{
  public:
-  test1():test<REALTYPE>(100001.),
+  testInc0d1():test<REALTYPE>(100001.),
 	  size(1000000),
 	  step(0.1),
 	  init(1.)
@@ -96,7 +96,7 @@ class test1: public test<REALTYPE>{
     }
 
   std::string name(){
-    return std::string("test1");
+    return std::string("testInc0d1");
   }
 
   REALTYPE compute(){    
@@ -116,17 +116,17 @@ class test1: public test<REALTYPE>{
 
 
 template<class REALTYPE>
-class test1m: public test<REALTYPE>{
+class testInc0d1m: public test<REALTYPE>{
  public:
-  test1m():test<REALTYPE>(-100001.),
-	  size(1000000),
-	  step(-0.1),
-	  init(-1.)
+  testInc0d1m():test<REALTYPE>(-100001.),
+    size(1000000),
+    step(-0.1),
+    init(-1.)
     {
     }
 
   std::string name(){
-    return std::string("test1m");
+    return std::string("testInc0d1m");
   }
 
   REALTYPE compute(){    
@@ -147,9 +147,9 @@ class test1m: public test<REALTYPE>{
 
 
 template<class REALTYPE>
-class test2: public test<REALTYPE>{
+class testIncSquare0d1: public test<REALTYPE>{
  public:
-  test2():test<REALTYPE>(10000),
+  testIncSquare0d1():test<REALTYPE>(10000),
 	  size(1000000),
 	  step(0.1),
 	  init(0.)
@@ -158,7 +158,7 @@ class test2: public test<REALTYPE>{
     }
 
   std::string name(){
-    return std::string("test2");
+    return std::string("testIncSquare0d1");
   }
 
 
@@ -178,9 +178,41 @@ class test2: public test<REALTYPE>{
 
 
 template<class REALTYPE>
-class test3:public test<REALTYPE>{
+class testIncSquare0d1m: public test<REALTYPE>{
  public:
-  test3():test<REALTYPE>(100000),
+  testIncSquare0d1m():test<REALTYPE>(-10001),
+	  size(1000000),
+	  step(-0.1),
+	  init(-1.)
+    {
+
+    }
+
+  std::string name(){
+    return std::string("testIncSquare0d1m");
+  }
+
+
+  REALTYPE compute(){    
+    REALTYPE acc=init;
+    for(int i=0; i<size; i++){
+      acc+=(-1.0*step)*step;
+    }  
+    return acc;
+  }
+  
+ private:
+  const int size;
+  const REALTYPE step;
+  const REALTYPE init;
+};
+
+
+
+template<class REALTYPE>
+class testIncDiv10:public test<REALTYPE>{
+ public:
+  testIncDiv10():test<REALTYPE>(100000),
 	  size(1000000),
 	  stepDiv(10.),
 	  init(0.)
@@ -188,7 +220,38 @@ class test3:public test<REALTYPE>{
     }
 
   std::string name(){
-    return std::string("test3");
+    return std::string("testIncDiv10");
+  }
+
+
+  REALTYPE compute(){    
+    REALTYPE acc=init;
+    for(int i=0; i<size; i++){
+      acc+=(1/stepDiv);
+    }  
+    return acc;
+  }
+
+  
+ private:
+  const int size;
+  const REALTYPE stepDiv;
+  const REALTYPE init;
+};
+
+
+template<class REALTYPE>
+class testIncDiv10m:public test<REALTYPE>{
+ public:
+  testIncDiv10m():test<REALTYPE>(-100000),
+    size(1000000),
+    stepDiv(-10.),
+    init(0.)
+  {
+  }
+
+  std::string name(){
+    return std::string("testIncDiv10m");
   }
 
 
@@ -212,7 +275,7 @@ class test3:public test<REALTYPE>{
 
 
 template<class REALTYPE>
-class test4:public test<REALTYPE>{
+class testInvariantProdDiv:public test<REALTYPE>{
  public:
 
   //The size are adapted to avoid inf
@@ -221,12 +284,12 @@ class test4:public test<REALTYPE>{
   static int getSize(float a){ return 34;} ;
   static int getSize(){return getSize((REALTYPE)0.);};
   
-  test4():test<REALTYPE>(1.),
+  testInvariantProdDiv():test<REALTYPE>(1.),
 	  size(getSize()),
 	  init(1.){}
 
   std::string name(){
-    return std::string("test4");
+    return std::string("testInvariantProdDiv");
   }
 
 
@@ -250,9 +313,47 @@ class test4:public test<REALTYPE>{
 
 
 
+
 template<class REALTYPE>
-class test5:public test<REALTYPE>{
+class testInvariantProdDivm:public test<REALTYPE>{
  public:
+
+  //The size are adapted to avoid inf
+  static int getSize(long double a){ return 150;};
+  static int getSize(double a){ return 150;};
+  static int getSize(float a){ return 34;} ;
+  static int getSize(){return getSize((REALTYPE)0.);};
+  
+  testInvariantProdDivm():test<REALTYPE>(-1.),
+	  size(getSize()),
+	  init(-1.){}
+
+  std::string name(){
+    return std::string("testInvariantProdDivm");
+  }
+
+
+  REALTYPE compute(){    
+    REALTYPE prod=init;
+    for(int i=1; i<size; i++){
+      prod=prod*i;    
+    } 
+    for(int i=1; i<size; i++){
+      prod=prod/i;
+    }  
+
+    return prod;
+  }
+  
+ private:
+  const int size;
+
+  const REALTYPE init;
+};
+
+
+
+
 
   inline double myFma(const double& a, const double& b, const double& c){
     double d;
@@ -286,14 +387,18 @@ class test5:public test<REALTYPE>{
   }
 
 
+
+template<class REALTYPE>
+class testFma:public test<REALTYPE>{
+ public:
   
-  test5():test<REALTYPE>(10000),
+  testFma():test<REALTYPE>(10000),
     size(1000000),
     value(0.1),
     init(0.){}
 
   std::string name(){
-    return std::string("test5");
+    return std::string("testFma");
   }
 
 
@@ -302,6 +407,37 @@ class test5:public test<REALTYPE>{
 
     for(int i=0; i<size; i++){
       acc=myFma(value,value,acc);
+    } 
+    return acc;
+  }
+  
+ private:
+  const int size;
+  const REALTYPE value;  
+  const REALTYPE init;
+
+};
+
+
+template<class REALTYPE>
+class testFmam:public test<REALTYPE>{
+ public:
+  
+  testFmam():test<REALTYPE>(-10000),
+    size(1000000),
+    value(-0.1),
+    init(0.){}
+
+  std::string name(){
+    return std::string("testFmam");
+  }
+
+
+  REALTYPE compute(){    
+    REALTYPE acc=init;
+
+    for(int i=0; i<size; i++){
+      acc=myFma(-value,value,acc);
     } 
     return acc;
   }
@@ -367,27 +503,35 @@ int main(int argc, char** argv){
   
   {
     typedef double RealType;
-    test1<RealType> t1; t1.run();
-    test1m<RealType> t1m; t1m.run();
-    test2<RealType> t2; t2.run();
-    test3<RealType> t3; t3.run();
-    test4<RealType> t4; t4.run();
-    test5<RealType> t5; t5.run();
-    }
+    testInc0d1 <RealType> t1; t1.run();
+    testInc0d1m<RealType> t1m; t1m.run();
+    testIncSquare0d1<RealType> t2; t2.run();
+    testIncSquare0d1m<RealType> t2m; t2m.run();
+    testIncDiv10<RealType> t3; t3.run();
+    testIncDiv10m<RealType> t3m; t3m.run();
+    testInvariantProdDiv<RealType> t4; t4.run();
+    testInvariantProdDivm<RealType> t4m; t4m.run();
+    testFma<RealType> t5; t5.run();
+    testFmam<RealType> t5m; t5m.run();	
+  }
   
   {
     typedef float RealType;
-    test1<RealType> t1; t1.run();
-    test1m<RealType> t1m; t1m.run();
-    test2<RealType> t2; t2.run();
-    test3<RealType> t3; t3.run();
-    test4<RealType> t4; t4.run();
-    test5<RealType> t5; t5.run();
+    testInc0d1 <RealType> t1; t1.run();
+    testInc0d1m<RealType> t1m; t1m.run();
+    testIncSquare0d1<RealType> t2; t2.run();
+    testIncSquare0d1m<RealType> t2m; t2m.run();
+    testIncDiv10<RealType> t3; t3.run();
+    testIncDiv10m<RealType> t3m; t3m.run();  
+    testInvariantProdDiv<RealType> t4; t4.run();
+    testInvariantProdDivm<RealType> t4m; t4m.run();
+    testFma<RealType> t5; t5.run();
+    testFmam<RealType> t5m; t5m.run();
+	
   }
 
   /*    {
     typedef long double RealType;
-    test1<RealType> t1; t1.run();
     test2<RealType> t2; t2.run();
     test3<RealType> t3; t3.run();
     test4<RealType> t4; t4.run();

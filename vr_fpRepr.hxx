@@ -202,64 +202,67 @@ template <typename Real> int sign (const Real & x) {
 
 
 template<class REALTYPE>
-inline REALTYPE nextAfter(REALTYPE a){
+inline REALTYPE nextAwayFromZero(REALTYPE a){
   VG_(tool_panic)("nextAfter called on unknown type");
 };
 
 template<>
-inline double nextAfter<double>(double a){
+inline double nextAwayFromZero<double>(double a){
   double res=a;
   __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
-  if(res>=0){
-    (*resU)+=1;
-  }else{
-    (*resU)-=1;
-  }
+  (*resU)+=1;
   return res;
 };
 
 
 template<>
-inline float nextAfter<float>(float a){
+inline float nextAwayFromZero<float>(float a){
   float res=a;
   __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
-  if(res>=0){
-    (*resU)+=1;
-  }else{
-    (*resU)-=1;
-  }
-
+  (*resU)+=1;
   return res;
 };
 
 
 
 template<class REALTYPE>
-inline REALTYPE nextPrev(REALTYPE a){
+inline REALTYPE nextTowardZero(REALTYPE a){
   VG_(tool_panic)("nextPrev called on unknown type");
 };
 
 template<>
-inline double nextPrev<double>(double a){
-    double res=a;
+inline double nextTowardZero<double>(double a){
+  double res=a;
   __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
-  if(res>=0){
-    (*resU)-=1;
-  }else{
-    (*resU)+=1;
-  }
+  (*resU)-=1;
   return res;
 };
 
 
 template<>
-inline float nextPrev<float>(float a){
+inline float nextTowardZero<float>(float a){
   float res=a;
   __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
-  if(res>=0){
-    (*resU)-=1;
-  }else{
-    (*resU)+=1;
-  }
+  (*resU)-=1;
   return res;
+};
+
+
+
+template<class REALTYPE>
+inline REALTYPE nextAfter(REALTYPE a){
+  if(a>=0 ){
+    return nextAwayFromZero(a);
+  }else{
+    return nextTowardZero(a);
+  }
+};
+
+template<class REALTYPE>
+inline REALTYPE nextPrev(REALTYPE a){
+  if(a>=0 ){
+    return nextTowardZero(a);
+  }else{
+    return nextAwayFromZero(a);
+  }
 };

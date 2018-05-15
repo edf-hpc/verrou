@@ -127,11 +127,8 @@ public:
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
 
-    if(signError>0 && res <0){
-      return nextAfter<RealType>(res);
-    }
-    if(signError<0 && res >0){
-      return nextPrev<RealType>(res);
+    if( (signError>0 && res <0)||(signError<0 && res>0) ){
+      return nextTowardZero<RealType>(res);
     }
     return res;
   } ;
