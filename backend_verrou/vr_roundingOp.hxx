@@ -33,6 +33,8 @@
 
 #pragma once
 
+#include <limits>
+
 //extern "C" {
 //#include "vr_main.h"
 //}
@@ -132,8 +134,24 @@ public:
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
 
+    if(isNanInf<RealType>(res)){
+      if(std::abs(res)!=std::numeric_limits<RealType>::infinity()){
+	return res;
+      }else{
+	if(OP::isInfNotSpecificToNearest(p)){
+	  return res;
+	}else{
+	  if(res>0){
+	    return std::numeric_limits<RealType>::max();
+	  }else{
+	    return -std::numeric_limits<RealType>::max();
+	  }
+	  }
+      }
+    }
+
     if(signError>0 && res <0){
-      return nextAfter<RealType>(res);
+      return nextPrev<RealType>(res);
     }
     if(signError<0 && res >0){
       return nextPrev<RealType>(res);
@@ -152,10 +170,34 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
+
+    if(isNanInf<RealType>(res)){
+      if(res!=-std::numeric_limits<RealType>::infinity()){
+	return res;
+      }else{
+	if(OP::isInfNotSpecificToNearest(p)){
+	  return res;
+	}else{
+	  return -std::numeric_limits<RealType>::max();
+	}
+      }
+    }
+
     const RealType signError=OP::sameSignOfError(p,res);
 
     if(signError>0.){
-      return nextAfter<RealType>(res);
+      if(res>0.){
+	return nextAfter<RealType>(res);
+      }
+      if(res<0.){
+	return nextPrev<RealType>(res);
+      }
+      if(res==0.){
+	return std::numeric_limits<RealType>::denorm_min();
+      }
+      if(res==-std::numeric_limits<RealType>::denorm_min()){
+	return 0.;
+      }
     }
     return res;
   } ;
@@ -171,11 +213,40 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
+
+    if(isNanInf<RealType>(res)){
+      if(res!=std::numeric_limits<RealType>::infinity()){
+	return res;
+      }else{
+	if(OP::isInfNotSpecificToNearest(p)){
+	  return res;
+	}else{
+	  return std::numeric_limits<RealType>::max();
+	}
+      }
+    }
+
+
     const RealType signError=OP::sameSignOfError(p,res);
 
-    if(signError<0){
-      return nextPrev<RealType>(res);
+    //    if(signError<0){
+    //      return nextPrev<RealType>(res);
+    //    }
+    if(signError<0.){
+      if(res>0.){
+	return nextPrev<RealType>(res);
+      }
+      if(res<0.){
+	return nextAfter<RealType>(res);
+      }
+      if(res==0.){
+	return -std::numeric_limits<RealType>::denorm_min();
+      }
+      if(res==std::numeric_limits<RealType>::denorm_min()){
+	return 0.;
+      }
     }
+
     return res;
   } ;
 };

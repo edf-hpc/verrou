@@ -82,6 +82,10 @@ struct vr_packArg<REALTYPE,1>{
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
   }
+
+  inline bool isOneArgNanInf()const{
+    return isNanInf<RealType>(arg1);
+  }
   
   const RealType& arg1;
 
@@ -108,6 +112,11 @@ struct vr_packArg<REALTYPE,2>{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
   }
+
+  inline bool isOneArgNanInf()const{
+    return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
+  }
+
   
   const RealType& arg1;
   const RealType& arg2;
@@ -132,6 +141,10 @@ struct vr_packArg<REALTYPE,3>{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
     res[2]=(double)arg3;
+  }
+
+  inline bool isOneArgNanInf()const{
+    return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
   
@@ -170,6 +183,9 @@ public:
     return AddOp<RealType>::error(p,c);
   }
 
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
 
   static inline void check(const PackArgs& p,const RealType & c){
     const RealType & a(p.arg1);
@@ -214,15 +230,17 @@ public:
     return ((a-(x-z)) + (b-z)); //algo TwoSum
   }
 
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
     return SubOp<RealType>::error(p,c);
   }
 
-
   static inline void check(const PackArgs& p,const RealType & c){
     const RealType & a(p.arg1);
     const RealType & b(-p.arg2);
-
     vr_checkCancellation (a, b, c);
   }
 
@@ -259,6 +277,7 @@ public:
 #ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "mul";}
 #endif
+
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -299,9 +318,23 @@ public:
 
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    return MulOp<RealType>::error(p,c);
+    if(c!=0){
+      return MulOp<RealType>::error(p,c);
+    }else{
+      if(p.arg1==0 ||p.arg2==0){
+	return 0;
+      }
+      if(p.arg1>0){
+	return p.arg2;
+      }else{
+	return -p.arg2;
+      }
+    }
   };
 
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
 
   static inline void check(const PackArgs& p,const RealType & c){
   };
@@ -315,6 +348,84 @@ public:
 };
 
 
+template<>
+class MulOp<float>{
+public:
+  typedef float RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "mul";}
+#endif
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
+    return a*b;
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& x) {
+    /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
+    const RealType a(p.arg1);
+    const RealType b(p.arg2);
+    //    return __builtin_fma(a,b,-x);
+    //    VG_(umsg)("vr_fma \n");
+#ifdef    USE_VERROU_FMA
+    RealType c;
+    c=vr_fma(a,b,-x);
+    return c;
+#else
+    RealType a1,a2;
+    RealType b1,b2;
+    MulOp<RealType>::split(a,a1,a2);
+    MulOp<RealType>::split(b,b1,b2);
+
+    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
+#endif
+  };
+
+
+
+
+  static inline void split(RealType a, RealType& x, RealType& y){
+    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
+    const RealType factor(splitFactor<RealType>());
+    const RealType c=factor*a;
+    x=(c-(c-a));
+    y=(a-x);
+  }
+
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+    double res=MulOp<double>::error(vr_packArg<double,2>((double)p.arg1,(double)p.arg2) ,(double)c);
+    if(res<0){
+      return -1;
+    }
+    if(res>0){
+      return 1;
+    }
+    return 0.;
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
+  static inline void check(const PackArgs& p,const RealType & c){
+  };
+
+  static inline void twoProd(const RealType& a,const RealType& b, RealType& x,RealType& y ){
+    const PackArgs p(a,b);
+    x=MulOp<float>::nearestOp(p);
+    y=MulOp<float>::error(p,x);
+  }
+
+};
+
+
+
+
+
 template<typename REAL>
 class DivOp{
 public:
@@ -325,7 +436,6 @@ public:
   static const char* OpName(){return "div";}
 #endif
 
-  
   static RealType inline nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
@@ -362,7 +472,69 @@ public:
   static inline void check(const PackArgs& p,const RealType & c){
   };
 
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return (isNanInf<RealType>(p.arg1))||(p.arg2==RealType(0.));
+  }
 };
+
+
+template<>
+class DivOp<float>{
+public:
+  typedef float RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+
+#ifdef DEBUG_PRINT_OP
+  static const char* OpName(){return "div";}
+#endif
+
+  static RealType inline nearestOp (const PackArgs& p) {
+    const RealType & a(p.arg1);
+    const RealType & b(p.arg2);
+    return a/b;
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& c) {
+    const RealType & x(p.arg1);
+    const RealType & y(p.arg2);
+#ifdef    USE_VERROU_FMA
+    const RealType r=-vr_fma(c,y,-x);
+    return r/y;
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    return ( x-u-uu)/y ;
+#endif
+  };
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+    const double x((double)p.arg1);
+    const double y((double) p.arg2);
+#ifdef    USE_VERROU_FMA
+    const double r=-vr_fma((double)c,y,-x);
+
+    if(r>0){return p.arg2;}
+    if(r<0){return -p.arg2;}
+    //if(r==0){
+      return 0.;
+      //}
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    return ( x-u-uu)*y ;
+#endif
+  };
+
+
+  static inline void check(const PackArgs& p,const RealType & c){
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return (isNanInf<RealType>(p.arg1))||(p.arg2==RealType(0.));
+  }
+
+};
+
 
 
 template<typename REAL>
@@ -411,6 +583,10 @@ public:
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
 };
 
 
@@ -444,6 +620,10 @@ public:
   static inline RealTypeOut sameSignOfError (const PackArgs& p,const RealTypeOut& c) {
     return error(p,c) ;
   };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
 
 
   static inline void check(const PackArgs& p, const RealTypeOut& d){

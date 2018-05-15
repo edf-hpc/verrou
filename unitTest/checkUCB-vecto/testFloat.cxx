@@ -345,13 +345,12 @@ inline int loadDataAndCheck(const std::string& round){
   Loop<OP,RealType>::applyScalar(testComputationTabScalar, v1Tab,v2Tab);
   ok=checkTab(fileName,std::string("Scalar"),testComputationTabScalar,refTab,lineTab,v1Tab,v2Tab);
   if(!ok) nbKO++;
-  //SSE
 
+  //SSE
   std::vector<RealType> testComputationTabSSE(size);
   Loop<OP,RealType>::applySSE(testComputationTabSSE, v1Tab,v2Tab);
   ok=checkTab(fileName,std::string("SSE"),testComputationTabSSE,refTab,lineTab,v1Tab,v2Tab);
   if(!ok) nbKO++;
-
   
   //AVX
   std::vector<RealType> testComputationTabAVX(size);
