@@ -33,7 +33,7 @@
 #include "interflop_verrou.h"
 #include "vr_fpRepr.hxx"
 #include "vr_fma.hxx"
-
+#include <stddef.h>
 //extern "C" {
 #include "vr_rand.h"
 //}
