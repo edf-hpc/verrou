@@ -458,22 +458,22 @@ class testFmam:public test<REALTYPE>{
 
 
 template<class REALTYPE>
-class test6:public test<REALTYPE>{
+class testMixSseLlo:public test<REALTYPE>{
 public:
-  test6():test<REALTYPE>(1/0.){
+  testMixSseLlo():test<REALTYPE>(1/0.){
   }
 
 };
 
 template<>
-class test6<double>:public test<double>{
+class testMixSseLlo<double>:public test<double>{
  public:
 
-  test6():test<double>(17){
+  testMixSseLlo():test<double>(17){
   }
 
   std::string name(){
-    return std::string("test6");
+    return std::string("testMixSseLlo");
   }
 
 
@@ -499,14 +499,14 @@ class test6<double>:public test<double>{
 
 
 template<>
-class test6<float>:public test<float>{
+class testMixSseLlo<float>:public test<float>{
  public:
 
-  test6():test<float>(57){
+  testMixSseLlo():test<float>(57){
   }
 
   std::string name(){
-    return std::string("test6");
+    return std::string("testMixSseLlo");
   }
 
 
@@ -531,14 +531,92 @@ class test6<float>:public test<float>{
   }
 };
 
-template<class REALTYPE,class REALTYPEREF>
-class test7:public test<REALTYPE,REALTYPEREF>{
-  //test 7 check cast
+template<class REALTYPE>
+class testMixSseLlom:public test<REALTYPE>{
 public:
-  test7():test<REALTYPE,REALTYPEREF>(0.1){}
+  testMixSseLlom():test<REALTYPE>(1/0.){
+  }
+
+};
+
+template<>
+class testMixSseLlom<double>:public test<double>{
+ public:
+
+  testMixSseLlom():test<double>(-17){
+  }
 
   std::string name(){
-    return std::string("test7");
+    return std::string("testMixSseLlo");
+  }
+
+
+  double compute(){
+    const double a[]={-1,-2};
+    const double b[]={-3,-4};
+    const double c[]={-5,-6};
+#ifndef TEST_SSE
+    return a[0]+a[1]+b[0]+c[0]+c[1];
+#else
+    double res[2];
+    __m128d bi,ci,ri;
+    ri = _mm_loadu_pd(a);
+    bi = _mm_loadu_pd(b);
+    ri = _mm_add_sd(ri,bi);
+    ci = _mm_loadu_pd(c);
+    ri = _mm_add_pd(ri,ci);
+    _mm_storeu_pd(res,ri);
+    return res[0]+res[1];
+#endif
+  }
+};
+
+
+
+template<>
+class testMixSseLlom<float>:public test<float>{
+ public:
+
+  testMixSseLlom():test<float>(-57){
+  }
+
+  std::string name(){
+    return std::string("testMixSseLlom");
+  }
+
+
+  float compute(){
+    const float a[]={-1,-2,-3,-4};//Sum 10
+    const float b[]={-5,-6,-7,-8};//Sum 5 beacause 6 7 8 will be ignored
+    const float c[]={-9,-10,-11,-12};//Sum 42
+#ifndef TEST_SSE
+    float res;
+    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
+#else
+    float res[4];
+    __m128 bi,ci,ri;
+    ri = _mm_loadu_ps(a);
+    bi = _mm_loadu_ps(b);
+    ri=_mm_add_ss(ri,bi);
+    ci = _mm_loadu_ps(c);
+    ri=_mm_add_ps(ri,ci);
+    _mm_storeu_ps(res,ri);
+    return res[0]+res[1]+res[2]+res[3];
+#endif
+  }
+};
+
+
+
+
+template<class REALTYPE,class REALTYPEREF>
+class testCast:public test<REALTYPE,REALTYPEREF>{
+  //test cast
+public:
+  testCast():test<REALTYPE,REALTYPEREF>(0.1){}
+
+  std::string name(){
+    return std::string("testCast");
   }
 
   REALTYPE compute(){
@@ -547,6 +625,21 @@ public:
   }
 };
 
+template<class REALTYPE,class REALTYPEREF>
+class testCastm:public test<REALTYPE,REALTYPEREF>{
+  //test cast -
+public:
+  testCastm():test<REALTYPE,REALTYPEREF>(-0.1){}
+
+  std::string name(){
+    return std::string("testCastm");
+  }
+
+  REALTYPE compute(){
+    REALTYPEREF ref=-0.1;
+    return ((REALTYPE)ref);
+  }
+};
 
 
 
@@ -610,8 +703,10 @@ int main(int argc, char** argv){
     testInvariantProdDivm<RealType> t4m; t4m.run();
     testFma<RealType> t5; t5.run();
     testFmam<RealType> t5m; t5m.run();
-    test6<RealType> t6; t6.run();
-    test7<RealType,RealType> t7; t7.run();
+    testMixSseLlo<RealType> t6; t6.run();
+    testMixSseLlom<RealType> t6m; t6m.run();
+    testCast<RealType,double> t7; t7.run();
+    testCastm<RealType,double> t7m; t7m.run();
   }
   
   {
@@ -626,8 +721,10 @@ int main(int argc, char** argv){
     testInvariantProdDivm<RealType> t4m; t4m.run();
     testFma<RealType> t5; t5.run();
     testFmam<RealType> t5m; t5m.run();
-    test6<RealType> t6; t6.run();
-    test7<RealType,double> t7; t7.run();
+    testMixSseLlo<RealType> t6; t6.run();
+    testMixSseLlom<RealType> t6m; t6m.run();
+    testCast<RealType,double> t7; t7.run();
+    testCastm<RealType,double> t7m; t7m.run();
   }
 
   /*    {

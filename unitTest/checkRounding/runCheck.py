@@ -434,6 +434,32 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<
 
     return errorCounter(ok,ko,warn)
 
+def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+       for RealType in typeTab:
+        testName=test+RealType
+        testCheck=assertRounding(testName)
+        testCheck.assertNative()
+        testCheck.assertEqual("toward_zero","upward")
+        testCheck.assertLess("downward","upward")
+        testCheck.assertLeq("downward", "nearest")
+        testCheck.assertLeq("nearest", "upward")
+
+        testCheck.assertLeq("downward", "random")
+        testCheck.assertLeq("downward", "average")
+
+        testCheck.assertLeq("random","upward")
+        testCheck.assertLeq("average","upward")
+        ok+=testCheck.ok
+        ko+=testCheck.ko
+        warn+=testCheck.warn
+
+    return errorCounter(ok,ko,warn)
+
+
 
 
 def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
@@ -488,10 +514,11 @@ if __name__=='__main__':
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>","<float>"])
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>","<float>"])
         
-    eCount+=checkExact(allResult, testList=["test6"], typeTab=["<double>","<float>"])
+    eCount+=checkExact(allResult, testList=["testMixSseLlo"], typeTab=["<double>","<float>"])
 
-    eCount+=checkExact(allResult, testList=["test7"], typeTab=["<double>"])
-    eCount+=checkTestPositiveBetweenTwoValues(allResult,testList=["test7"], typeTab=["<float>"])
+    eCount+=checkExact(allResult, testList=["testCast","testCastm"], typeTab=["<double>"])
+    eCount+=checkTestPositiveBetweenTwoValues(allResult,testList=["testCast"], typeTab=["<float>"])
+    eCount+=checkTestNegativeBetweenTwoValues(allResult,testList=["testCastm"], typeTab=["<float>"])
     eCount.printSummary()
     sys.exit(eCount.ko)
     #[0]
