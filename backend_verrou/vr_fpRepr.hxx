@@ -31,10 +31,12 @@
 */
 
 #pragma once
-#include <string>
-#include <sstream>
+//#include <string>
+//#include <sstream>
 #include <math.h>
 #include <cfloat>
+#include <stdint.h>
+#include <limits>
 #ifdef VALGRIND_DEBUG_VERROU
 extern "C" {
 #include "pub_tool_libcprint.h"
@@ -101,6 +103,7 @@ public:
     const int sign = bitrange<MANT+EXP, SIGN> (xx);
     return sign;
   }
+
 
   static inline void pp (const Real & x) {
     //    std::ostringstream oss;
@@ -170,11 +173,11 @@ private:
 template <typename Real> struct FPType;
 
 template <> struct FPType<float> {
-  typedef FPRepr<float,  __uint32_t, 1,  8, 23>  Repr;
+  typedef FPRepr<float, uint32_t, 1,  8, 23>  Repr;
 };
 
 template <> struct FPType<double> {
-  typedef FPRepr<double, __uint64_t, 1, 11, 52>  Repr;
+  typedef FPRepr<double, uint64_t, 1, 11, 52>  Repr;
 };
 
 // Smallest floating point increments for IEE754 binary formats
@@ -183,9 +186,10 @@ template <typename Real> Real ulp (const Real & x) {
 }
 
 // Pretty-print representation
+/*
 template <typename Real> std::string ppReal (const Real & x) {
   return FPType<Real>::Repr::pp (x);
-}
+  }*/
 
 // Exponent field
 template <typename Real> int exponentField (const Real & x) {
@@ -206,23 +210,23 @@ template <typename Real> int sign (const Real & x) {
 
 
 template<class REALTYPE>
-inline REALTYPE nextAfter(REALTYPE a){
-  vr_panicHandler("nextAfter called on unknown type");
+inline REALTYPE nextAwayFromZero(REALTYPE a){
+   vr_panicHandler("nextAwayFromZero called on unknown type");
 };
 
 template<>
-inline double nextAfter<double>(double a){
+inline double nextAwayFromZero<double>(double a){
   double res=a;
-  __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
+  uint64_t* resU=reinterpret_cast<uint64_t*>(&res);
   (*resU)+=1;
   return res;
 };
 
 
 template<>
-inline float nextAfter<float>(float a){
+inline float nextAwayFromZero<float>(float a){
   float res=a;
-  __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
+  uint32_t* resU=reinterpret_cast<uint32_t*>(&res);
   (*resU)+=1;
   return res;
 };
@@ -230,27 +234,49 @@ inline float nextAfter<float>(float a){
 
 
 template<class REALTYPE>
-inline REALTYPE nextPrev(REALTYPE a){
-  vr_panicHandler("nextPrev called on unknown type");
+inline REALTYPE nextTowardZero(REALTYPE a){
+  vr_panicHandler("nextTowardZero called on unknown type");
 };
 
 template<>
-inline double nextPrev<double>(double a){
-    double res=a;
-  __uint64_t* resU=reinterpret_cast<__uint64_t*>(&res);
+inline double nextTowardZero<double>(double a){
+  double res=a;
+  uint64_t* resU=reinterpret_cast<uint64_t*>(&res);
   (*resU)-=1;
   return res;
 };
 
 
 template<>
-inline float nextPrev<float>(float a){
+inline float nextTowardZero<float>(float a){
   float res=a;
-  __uint32_t* resU=reinterpret_cast<__uint32_t*>(&res);
+  uint32_t* resU=reinterpret_cast<uint32_t*>(&res);
   (*resU)-=1;
   return res;
 };
 
+
+
+template<class REALTYPE>
+inline REALTYPE nextAfter(REALTYPE a){
+  if(a>=0 ){
+    return nextAwayFromZero(a);
+  }else{
+    return nextTowardZero(a);
+  }
+};
+
+template<class REALTYPE>
+inline REALTYPE nextPrev(REALTYPE a){
+  if(a==0){
+    return -std::numeric_limits<REALTYPE>::denorm_min();
+  }
+  if(a>0 ){
+    return nextTowardZero(a);
+  }else{
+    return nextAwayFromZero(a);
+  }
+};
 
 template <class REALTYPE>
 inline bool isNan (const REALTYPE & x) {
@@ -260,9 +286,9 @@ inline bool isNan (const REALTYPE & x) {
 
 template <>
 inline bool isNan<double> (const double & x) {
-  static const std::uint64_t maskSpecial = 0x7ff0000000000000;
-  static const std::uint64_t maskInf     = 0x000fffffffffffff;
-  const std::uint64_t* X = reinterpret_cast<const std::uint64_t*>(&x);
+  static const uint64_t maskSpecial = 0x7ff0000000000000;
+  static const uint64_t maskInf     = 0x000fffffffffffff;
+  const uint64_t* X = reinterpret_cast<const uint64_t*>(&x);
   if ((*X & maskSpecial) == maskSpecial) {
     if ((*X & maskInf) != 0) {
       return true;
@@ -273,9 +299,9 @@ inline bool isNan<double> (const double & x) {
 
 template <>
 inline bool isNan<float> (const float & x) {
-  static const std::uint32_t maskSpecial = 0x7f800000;
-  static const std::uint32_t maskInf     = 0x007fffff;
-  const std::uint32_t* X = reinterpret_cast<const std::uint32_t*>(&x);
+  static const uint32_t maskSpecial = 0x7f800000;
+  static const uint32_t maskInf     = 0x007fffff;
+  const uint32_t* X = reinterpret_cast<const uint32_t*>(&x);
   if ((*X & maskSpecial) == maskSpecial) {
     if ((*X & maskInf) != 0) {
       return true;
@@ -294,17 +320,14 @@ inline bool isNanInf (const REALTYPE & x) {
 
 template <>
 inline bool isNanInf<double> (const double & x) {
-  static const std::uint64_t mask = 0x7ff0000000000000;
-  const std::uint64_t* X = reinterpret_cast<const std::uint64_t*>(&x);
+  static const uint64_t mask = 0x7ff0000000000000;
+  const uint64_t* X = reinterpret_cast<const uint64_t*>(&x);
   return (*X & mask) == mask;
 }
 
 template <>
 inline bool isNanInf<float> (const float & x) {
-  static const std::uint32_t mask = 0x7f800000;
-  const std::uint32_t* X = reinterpret_cast<const std::uint32_t*>(&x);	
+  static const uint32_t mask = 0x7f800000;
+  const uint32_t* X = reinterpret_cast<const uint32_t*>(&x);	
   return (*X & mask) == mask;  
 }
-
-
-

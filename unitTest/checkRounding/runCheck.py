@@ -322,7 +322,38 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
     return errorCounter(ok,ko,warn)
     
+def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+        for RealType in typeTab:
+            testName=test+RealType
+        
+            testCheck=assertRounding(testName)
+            testCheck.assertNative()
+            testCheck.assertEqual("toward_zero","upward")
+            testCheck.assertLess("downward","upward")
+            testCheck.assertLeq("downward", "nearest")
+            testCheck.assertLeq("nearest", "upward")
+            
+            testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "average")
+            
+        
+            testCheck.assertLess("random","upward")
+            testCheck.assertLess("average","upward")
+        
+            testCheck.assertAbsLess("average","random")
+            testCheck.assertAbsLess("average","upward")
+            testCheck.assertAbsLess("average","downward")
+            testCheck.assertAbsLess("average","nearest")
 
+            ok+=testCheck.ok
+            ko+=testCheck.ko
+            warn+=testCheck.warn
+
+    return errorCounter(ok,ko,warn)
 
 def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
     ok=0
@@ -347,6 +378,35 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         ko+=testCheck.ko
         warn+=testCheck.warn
         
+    return errorCounter(ok,ko,warn)
+        
+def checkTestNegative(allResult,testList,typeTab=["<double>","<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+        for RealType in typeTab:
+            testName=test+RealType
+        
+            testCheck=assertRounding(testName)
+            testCheck.assertNative()
+            testCheck.assertEqual("toward_zero","upward")
+            testCheck.assertLess("downward","upward")
+            testCheck.assertLeq("downward", "nearest")
+            testCheck.assertLeq("nearest", "upward")
+            
+            testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "average")
+            
+        
+            testCheck.assertLess("random","upward")
+            testCheck.assertLess("average","upward")
+        
+            
+            ok+=testCheck.ok
+            ko+=testCheck.ko
+            warn+=testCheck.warn
+
     return errorCounter(ok,ko,warn)
 
 def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<float>"]):
@@ -421,14 +481,17 @@ if __name__=='__main__':
     eCount+=checkVerrouInvariant(allResult)
 
 
-    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test1","test2","test3"], typeTab=typeTab)
-    eCount+=checkTestPositive(allResult,testList=["test4"], typeTab=typeTab)
-    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["test5"], typeTab=["<double>","<float>"])
+    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testInc0d1","testIncSquare0d1","testIncDiv10"], typeTab=typeTab)
+    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testInc0d1m","testIncSquare0d1m","testIncDiv10m"], typeTab=typeTab)
+    eCount+=checkTestPositive(allResult,testList=["testInvariantProdDiv"], typeTab=typeTab)
+    eCount+=checkTestNegative(allResult,testList=["testInvariantProdDivm"], typeTab=typeTab)
+    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>","<float>"])
+    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>","<float>"])
+        
     eCount+=checkExact(allResult, testList=["test6"], typeTab=["<double>","<float>"])
 
     eCount+=checkExact(allResult, testList=["test7"], typeTab=["<double>"])
     eCount+=checkTestPositiveBetweenTwoValues(allResult,testList=["test7"], typeTab=["<float>"])
-
     eCount.printSummary()
     sys.exit(eCount.ko)
     #[0]
