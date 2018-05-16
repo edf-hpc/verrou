@@ -13,7 +13,7 @@ patch-error:
 
 configure:
 	cd ../valgrind+verrou && ./autogen.sh
-	cd ../valgrind+verrou && ./configure --enable-only64bit --prefix=$${PWD}/install
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/install
 
 build:
 	cd ../valgrind+verrou && make
