@@ -7,7 +7,7 @@ FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
 
 FLAGS1 = $(FLAGS) -mfpmath=sse
-FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -DTEST_FMA -DTEST_SSE
+FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mfma -DTEST_FMA -DTEST_SSE
 
 .PHONY: run run1 run2
 
