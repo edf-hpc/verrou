@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <stdint.h>
 //#include <xmmintrin.h>
 #include  <immintrin.h>
 #include <avxintrin.h>

@@ -135,7 +135,7 @@ public:
     const RealType signError=OP::sameSignOfError(p,res);
 
     if(isNanInf<RealType>(res)){
-      if(std::abs(res)!=std::numeric_limits<RealType>::infinity()){
+      if( (res!=std::numeric_limits<RealType>::infinity()) && (res!=-std::numeric_limits<RealType>::infinity())  ){
 	return res;
       }else{
 	if(OP::isInfNotSpecificToNearest(p)){
