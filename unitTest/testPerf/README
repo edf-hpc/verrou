@@ -1,0 +1,9 @@
+
+#compile the 4 stencil executables ([O0,03]*[float,double])
+make
+
+#run the 4 executables with PREFIX
+PREFIX="valgrind --tool=verrou  --rounding-mode=random " ./run.sh 2>/dev/null
+
+#to get improved perf (warning unsafe)
+PREFIX="valgrind --tool=verrou  --rounding-mode=random --vr-llo-only=yes " ./run.sh 2>/dev/null
