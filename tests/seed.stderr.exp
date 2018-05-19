@@ -1,6 +1,7 @@
 Verrou, Check floating-point rounding errors
 Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
 
+Backend verrou : test-version
 First seed : 42
 Simulating RANDOM rounding mode
 Instrumented operations :
@@ -11,7 +12,7 @@ Instrumented operations :
 	mAdd : yes
 	mSub : yes
 	cmp : no
-	conv : no
+	conv : yes
 	max : no
 	min : no
 Instrumented scalar operations : no

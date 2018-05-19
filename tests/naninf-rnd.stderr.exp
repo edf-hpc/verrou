@@ -1,6 +1,7 @@
 Verrou, Check floating-point rounding errors
 Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
 
+Backend verrou : test-version
 First seed : XXX
 Simulating RANDOM rounding mode
 Instrumented operations :
@@ -11,10 +12,37 @@ Instrumented operations :
 	mAdd : yes
 	mSub : yes
 	cmp : no
-	conv : no
+	conv : yes
 	max : no
 	min : no
 Instrumented scalar operations : no
+NaN: 
+   at 0x108D16: main (naninf.cxx:34)
+
+NaN: 
+   at 0x108D3A: main (naninf.cxx:35)
+
+NaN: 
+   at 0x108D5C: main (naninf.cxx:36)
+
+NaN: 
+   at 0x108D7E: main (naninf.cxx:37)
+
+NaN: 
+   at 0x108DA0: main (naninf.cxx:38)
+
+NaN: 
+   at 0x108E52: main (naninf.cxx:48)
+
+NaN: 
+   at 0x108E74: main (naninf.cxx:49)
+
+NaN: 
+   at 0x108E96: main (naninf.cxx:50)
+
+NaN: 
+   at 0x108EB8: main (naninf.cxx:51)
+
 
  ---------------------------------------------------------------------
  Operation                            Instruction count
@@ -33,4 +61,4 @@ Instrumented scalar operations : no
   `- dbl                        3                        3      (100%)
       `- llo                        3                        3  (100%)
  ---------------------------------------------------------------------
-ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+ERROR SUMMARY: 9 errors from 9 contexts (suppressed: 0 from 0)

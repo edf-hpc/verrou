@@ -16,6 +16,9 @@ while [ ! -z "$1" ]; do
             cmd="${cmd} -e 'print unless \$remove;'"
             cmd="${cmd} -e '\$remove=0 if m/^ -----/;'"
             ;;
+	"-backend-version")
+            cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
+            ;;
     esac
     shift
 done
