@@ -93,6 +93,11 @@ public:
 
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
+
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -239,6 +244,10 @@ public:
 
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
