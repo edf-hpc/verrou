@@ -34,7 +34,7 @@ Index: configure.ac
  #----------------------------------------------------------------------------
  # Arch/OS/platform tests.
  #----------------------------------------------------------------------------
-@@ -4353,6 +4355,37 @@
+@@ -4353,6 +4355,40 @@
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -47,6 +47,8 @@ Index: configure.ac
 +
 +if test "$vg_cv_verrou_fma" = yes; then
 +  # Check for fmaintrin.h
++  AC_LANG_PUSH(C++)
++  CXXFLAGS="$safe_CXXFLAGS -mfma"
 +  AC_MSG_CHECKING([for fmaintrin.h ])
 +  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 +      #include  <immintrin.h>
@@ -61,6 +63,7 @@ Index: configure.ac
 +      AC_MSG_RESULT([no])
 +      AC_MSG_ERROR([A compiler with fmaintrin.h is required for --enable-verrou-fma ])
 +  ])
++  AC_LANG_POP(C++)
 +else
 +  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 +fi
