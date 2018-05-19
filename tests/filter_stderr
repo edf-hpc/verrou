@@ -19,6 +19,9 @@ while [ ! -z "$1" ]; do
 	"-backend-version")
             cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
             ;;
+	"-addr-error")
+            cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"
+            ;;
     esac
     shift
 done

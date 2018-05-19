@@ -17,31 +17,31 @@ Instrumented operations :
 	min : no
 Instrumented scalar operations : no
 NaN: 
-   at 0x108D16: main (naninf.cxx:34)
+   at 0xFFFFFF: main (naninf.cxx:34)
 
 NaN: 
-   at 0x108D3A: main (naninf.cxx:35)
+   at 0xFFFFFF: main (naninf.cxx:35)
 
 NaN: 
-   at 0x108D5C: main (naninf.cxx:36)
+   at 0xFFFFFF: main (naninf.cxx:36)
 
 NaN: 
-   at 0x108D7E: main (naninf.cxx:37)
+   at 0xFFFFFF: main (naninf.cxx:37)
 
 NaN: 
-   at 0x108DA0: main (naninf.cxx:38)
+   at 0xFFFFFF: main (naninf.cxx:38)
 
 NaN: 
-   at 0x108E52: main (naninf.cxx:48)
+   at 0xFFFFFF: main (naninf.cxx:48)
 
 NaN: 
-   at 0x108E74: main (naninf.cxx:49)
+   at 0xFFFFFF: main (naninf.cxx:49)
 
 NaN: 
-   at 0x108E96: main (naninf.cxx:50)
+   at 0xFFFFFF: main (naninf.cxx:50)
 
 NaN: 
-   at 0x108EB8: main (naninf.cxx:51)
+   at 0xFFFFFF: main (naninf.cxx:51)
 
 
  ---------------------------------------------------------------------
