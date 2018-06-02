@@ -1,7 +1,7 @@
 .PHONY: checkRounding checkUCB-vecto
 
 
-all: checkRounding
+all: checkRounding checkUCB-vecto
 checkRounding:
 	make -C ./checkRounding
 
