@@ -1,4 +1,5 @@
 prog: naninf
 vgopts: --rounding-mode=random
 stderr_filter_args: -seed -cnt-cmp-conv -backend-version -addr-error
+stdout_filter: filter_stdout
 stdout_filter_args: -nan-commut

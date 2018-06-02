@@ -7,10 +7,9 @@ while [ ! -z "$1" ]; do
     case "$1" in
 	"-nan-commut")
             cmd="${cmd} | perl -pne 's/^nan1 \+ nan2 = nan \(7ff800000000babe\)/nan1 + nan2 = nan (7ff800000000dead)/;'"
-	    cmd="${cmd} | perl -pne 's/^nan2 \+ nan2 = nan \(7ff800000000dead\)/nan1 + nan2 = nan (7ff800000000babe)/;'"
+	    cmd="${cmd} | perl -pne 's/^nan2 \+ nan1 = nan \(7ff800000000dead\)/nan2 + nan1 = nan (7ff800000000babe)/;'"
             ;;
     esac
     shift
 done
-echo ${cmd}
 eval ${cmd}
