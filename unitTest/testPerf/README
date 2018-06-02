@@ -6,4 +6,4 @@ make
 PREFIX="valgrind --tool=verrou  --rounding-mode=random " ./run.sh 2>/dev/null
 
 #to get improved perf (warning unsafe)
-PREFIX="valgrind --tool=verrou  --rounding-mode=random --vr-llo-only=yes " ./run.sh 2>/dev/null
+PREFIX="valgrind --tool=verrou  --rounding-mode=random --vr-unsafe-llo-optim=yes " ./run.sh 2>/dev/null

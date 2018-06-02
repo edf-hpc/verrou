@@ -85,7 +85,7 @@
 "          were not already present in the provided list.\n"
 "\n"
 "    Performance option \n"
-"      --vr-llo-only=<yes|no> [default=no]\n"
+"      --vr-unsafe-llo-optim=<yes|no> [default=no]\n"
 "          Activate faster instrumentation process but unsafe when binary mixes\n"
 "	   llo and vect instructions.\n"
 "\n"

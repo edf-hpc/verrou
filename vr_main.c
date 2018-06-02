@@ -554,7 +554,7 @@ static void vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				 Vr_Op op,
 				 Vr_Prec prec,
 				 Vr_Vec vec){
-  if(vr.unsafe_llo_only){
+  if(vr.unsafe_llo_optim){
     vr_replaceBinFpOpLLO_fast_unsafe(sb,stmt,expr,functionName,function,op,prec,vec);
   }else{
     vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec);

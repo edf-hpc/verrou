@@ -49,7 +49,7 @@ void vr_clo_defaults (void) {
   vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
-  vr.unsafe_llo_only = False;
+  vr.unsafe_llo_optim = False;
 
   vr.genExclude = False;
   vr.exclude = NULL;
@@ -114,9 +114,9 @@ Bool vr_process_clo (const HChar *arg) {
     vr.verbose = bool_val;
   }
 
-  //Option --vr-llo-only (performance optimization)
-  else if (VG_BOOL_CLO (arg, "--vr-llo-only", bool_val)) {
-    vr.unsafe_llo_only = bool_val;
+  //Option --vr-unsafe-llo-optim (performance optimization)
+  else if (VG_BOOL_CLO (arg, "--vr-unsafe-llo-optim", bool_val)) {
+    vr.unsafe_llo_optim = bool_val;
   }
 
   //Option --count-op

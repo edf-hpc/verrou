@@ -102,7 +102,7 @@ typedef struct {
   Bool instr_scalar;
   Vr_Instr instrument;
   Bool verbose;
-  Bool unsafe_llo_only;
+  Bool unsafe_llo_optim;
 
   UInt firstSeed;
   
