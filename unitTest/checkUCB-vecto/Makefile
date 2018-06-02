@@ -1,7 +1,8 @@
 export INSTALLPATH = $(shell bash ../installpath)
 export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou 
 
-FLAGS=-Wall -O0 -g -march=native -fabi-version=0
+FLAGS=-Wall -O0 -g -march=native -fabi-version=0 -std=c++11 -mavx
+
 SOURCE=testFloat.cxx
 EXEC=./testFloat
 
