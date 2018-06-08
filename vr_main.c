@@ -995,18 +995,23 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
 
     case Iop_CmpEQ64Fx2: case Iop_CmpLT64Fx2:
     case Iop_CmpLE64Fx2: case Iop_CmpUN64Fx2:
-    case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
-    case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
-      
+    case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
+    case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_LLO,False);
+      addStmtToIRSB (sb, stmt);
+      break;
     case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
     case Iop_CmpLE32Fx4: case Iop_CmpUN32Fx4:
     case Iop_CmpGT32Fx4: case Iop_CmpGE32Fx4:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_FULL4,False);
+      addStmtToIRSB (sb, stmt);
+      break;
     case Iop_CmpEQ32F0x4: case Iop_CmpLT32F0x4:
     case Iop_CmpLE32F0x4: case Iop_CmpUN32F0x4:
-      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_FULL4,False);
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
 
