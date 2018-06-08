@@ -992,8 +992,38 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       addStmtToIRSB (sb, stmt);
       break;
 
-    
+
+    case Iop_CmpEQ64Fx2: case Iop_CmpLT64Fx2:
+    case Iop_CmpLE64Fx2: case Iop_CmpUN64Fx2:
+    case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
+    case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_FULL2,False);
+      addStmtToIRSB (sb, stmt);
+      break;
       
+    case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
+    case Iop_CmpLE32Fx4: case Iop_CmpUN32Fx4:
+    case Iop_CmpGT32Fx4: case Iop_CmpGE32Fx4:
+    case Iop_CmpEQ32F0x4: case Iop_CmpLT32F0x4:
+    case Iop_CmpLE32F0x4: case Iop_CmpUN32F0x4:
+      vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_FULL4,False);
+      addStmtToIRSB (sb, stmt);
+      break;
+
+    case Iop_ReinterpF64asI64:
+    case Iop_ReinterpI64asF64:
+    case Iop_ReinterpF32asI32:
+    case Iop_ReinterpI32asF32:
+    case Iop_NegF64:
+    case Iop_AbsF64:
+    case Iop_NegF32:
+    case Iop_AbsF32:
+    case Iop_Abs64Fx2:
+    case Iop_Neg64Fx2:
+      //ignored : not counted and not instrumented
+      addStmtToIRSB (sb, stmt);
+      break;
+
       //operation with 64bit register with 32bit rounding
     case Iop_AddF64r32:
     case Iop_SubF64r32:
@@ -1002,7 +1032,7 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_MAddF64r32:
     case Iop_MSubF64r32:
 
-      //operation wit 128bit
+      //operation with 128bit
     case Iop_AddF128:
     case Iop_SubF128:
     case Iop_MulF128:
@@ -1041,8 +1071,6 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_RSqrtEst32Fx8:
     case Iop_RecipEst32Fx8:
 
-
-
     case Iop_RoundF64toF64_NEAREST: /* frin */
     case Iop_RoundF64toF64_NegINF:  /* frim */
     case Iop_RoundF64toF64_PosINF:  /* frip */
@@ -1052,36 +1080,10 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     case Iop_F128toF32:  /* IRRoundingMode(I32) x F128 -> F32         */
     case Iop_F64toI16S: /* IRRoundingMode(I32) x F64 -> signed I16 */
 
-    case Iop_ReinterpF64asI64:
-     //    case Iop_ReinterpI64asF64:
-    case Iop_ReinterpF32asI32:
-      //    case Iop_ReinterpI32asF32:
-
     case Iop_CmpF128:
 
-    /* [FF] these should not generate any rounding error */
-    /* case Iop_NegF64: */
-    /* case Iop_AbsF64: */
-    /* case Iop_NegF32: */
-    /* case Iop_AbsF32: */
-
-
-    case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
-    case Iop_CmpEQ64Fx2: case Iop_CmpLT64Fx2:
-    case Iop_CmpLE32Fx4: case Iop_CmpUN32Fx4:
-    case Iop_CmpLE64Fx2: case Iop_CmpUN64Fx2:
-    case Iop_CmpGT32Fx4: case Iop_CmpGE32Fx4:
-    case Iop_CmpEQ32F0x4: case Iop_CmpLT32F0x4:
-    case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
-    case Iop_CmpLE32F0x4: case Iop_CmpUN32F0x4:
-    case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
-
-
     case Iop_PwMax32Fx4: case Iop_PwMin32Fx4:
-
       vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
-      //  case Iop_Abs64Fx2:
-      //  case Iop_Neg64Fx2:
 
     default:
       //      ppIRStmt (stmt);
