@@ -387,6 +387,19 @@ det2
           </varlistentry>
         </variablelist>
       </section>
+
+      <section>
+        <title>Performance optimization</title>
+        <variablelist id="vr.opts.optim.list">
+          <varlistentry id="vr.opt.unsafe-llo-optim" xreflabel="--vr-unsafe-llo-optim">
+            <term><option><![CDATA[--vr-unsafe-llo-optim=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate faster instrumentation process but unsafe when binary mixes
+		llo and vect instructions.
+            </para></listitem>
+          </varlistentry>
+        </variablelist>
+      </section>
     </section>
 
     <section id="vr-manual.client-requests" xreflabel="Verrou specific client requests">

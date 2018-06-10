@@ -144,6 +144,38 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
             </para>
           </listitem>
         </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_NUM_THREADS</computeroutput>
+          </term>
+          <listitem>
+            <para> Experimental feature : Allows to perform VERROU_DD_NUM_THREADS run in parallel.
+	     If this environment variable is not set, the parallelism is not activated.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_ALGO</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Environment variable to choose one of the two dd algorithms (ddmax et rddmin).
+	    </para>
+	    <para>
+	      ddmax : return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
+	    </para>
+	    <para>
+	      rddmin (experimental feature) : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
+	    </para>
+	    <para>
+	    If this environment variable is not set, the default value is set to ddmax.
+	    </para>
+          </listitem>
+        </varlistentry>
+
       </variablelist>
     </simplesect>
     
