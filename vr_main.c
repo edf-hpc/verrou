@@ -409,7 +409,7 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   }
   vr_countOp (sb,  op, prec,vec, True);
 
-  //convertion before call
+  //conversion before call
   IRExpr * arg1;
   IRExpr * arg2;
 
@@ -461,7 +461,7 @@ static void vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
     return;
   }
   vr_countOp (sb,  op, prec,vec, True);
-  //convertion before call
+  //conversion before call
   IRExpr * arg1LL=NULL;
   IRExpr * arg1;
   IRExpr * arg2LL;
@@ -512,7 +512,7 @@ static void vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
     return;
   }
   vr_countOp (sb,  op, prec,vec, True);
-  //convertion before call
+  //conversion before call
 
   IRExpr * arg1;
   IRExpr * arg2;
@@ -584,7 +584,7 @@ static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     VG_(tool_panic) ( "vr_replaceBinFullSSE requires SSE instructions...  \n");
   }
 
-  //convertion before call
+  //conversion before call
   IRExpr * arg1 = expr->Iex.Triop.details->arg2;
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
@@ -633,7 +633,7 @@ static void vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     VG_(tool_panic) ( "vr_replaceBinFullAVX requires AVX instructions...  \n");
   }
 
-  //convertion before call
+  //conversion before call
   IRExpr * arg1 = expr->Iex.Triop.details->arg2;
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
