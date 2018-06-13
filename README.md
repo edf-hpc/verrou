@@ -35,8 +35,10 @@ Configure valgrind:
     ./autogen.sh
     ./configure --enable-only64bit --prefix=PREFIX
 
-(you can also add the `--enable-verrou-fma=yes` flag to the configuration above
-if your system supports FMA instructions)
+You can also add the `--enable-verrou-fma=yes` flag to the configuration above
+if your system supports FMA instructions. Depending on system it may be required to set CFLAGS :
+   ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=PREFIX CFLAGS="-march=native -mfma"
+
 
 
 Build and install:
