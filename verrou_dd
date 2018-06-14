@@ -315,6 +315,8 @@ class DDvr(DD.DD):
     def RDDMin(self, deltas):
         ddminTab=[]
         testResult=self._test(deltas)
+        if testResult!=self.FAIL:
+            self.deltaFailedMsg(deltas)
         index=0
         while testResult==self.FAIL:
             conf = self.ddmin(deltas)
