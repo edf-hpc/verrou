@@ -33,6 +33,8 @@
 
 #include "vr_main.h"
 
+#define LINE_SIZEMAX VR_FNNAME_BUFSIZE
+
 static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
@@ -99,7 +101,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
     return list;
   }
 
-  SizeT nLine = 256;
+  SizeT nLine = LINE_SIZEMAX;
   HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
@@ -108,9 +110,9 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
     // Skip non-blank characters
     for (c = line;
-         c<line+256 && *c != 0 && *c != '\t' && *c != ' ';
+         c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
          ++c) {}
-    if (*c == 0 || c>line+255) {
+    if (*c == 0 || c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse)\n");
       return list;
     }
@@ -118,7 +120,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
     // Skip blank characters
     for (++c;
-         c<line+256 && *c != 0 && (*c == '\t' || *c == ' ');
+         c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
          ++c) {}
 
     list = vr_addExclude (list,
