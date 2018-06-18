@@ -75,9 +75,9 @@ extern "C" {
 
   extern void (*vr_panicHandler)(const char*);
   void verrou_set_panic_handler(void (*)(const char*));
-  extern void (*vr_nanHandler)();
-  void verrou_set_nan_handler(void (*nanHandler)());
-  
+  extern void (*vr_nanHandler)(void);
+  void verrou_set_nan_handler(void (*nanHandler)(void));
+
   extern void (*vr_debug_print_op)(int,const char*, const double* args, const double* res);
   void verrou_set_debug_print_op(void (*)(int nbArg, const char* name, const double* args, const double* res));
 

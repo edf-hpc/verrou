@@ -1191,7 +1191,7 @@ void vr_cancellation_handler(int cancelled ){
   VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
 }
 
-void print_op(int nbArg, const char* name, const double* args,const double* res){
+static void print_op(int nbArg, const char* name, const double* args,const double* res){
   if(nbArg==1){
     VG_(umsg)("%s : %f => %f\n", name,args[0],*res);
   }
