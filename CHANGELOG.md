@@ -1,11 +1,5 @@
 # Change Log
 
-All notable changes between released versions of this project should be
-documented here.
-
-This project adheres to [Semantic Versioning](http://semver.org/).
-
-
 
 ## [UNRELEASED]
 
@@ -14,7 +8,7 @@ This version is based on Valgrind-3.13.0.
 ### Added
 
 - Generation of Valgrind errors for NaN values. This can be useful to debug
-  programs in conjunction with vgdb.
+  programs in conjunction with vgdb. (fixes gh-4)
   
 - Instrumentation of all FP binary instructions, as obtained by any combination of:
   - an operation:     ADD / SUB / MUL / DIV
@@ -29,7 +23,7 @@ This version is based on Valgrind-3.13.0.
   can be set using the `VERROU_DD_NUM_THREADS` environnement variable.
   
 - (Experimental) New DDmin algorithm for `verrou_dd`. Instead of computing a
-  maximal set of stable symbols/lines using the DDmaw algorithm (and outputting
+  maximal set of stable symbols/lines using the DDmax algorithm (and outputting
   the complement), the DDmin algorithm computes the union of minimal sets of
   unstable symbols/lines. It can be activated by setting `VERROU_DD_ALGO=rddmin`
   in the environment.
@@ -54,7 +48,12 @@ This version is based on Valgrind-3.13.0.
 
 - Improvement of tests and unit test (with UCB references).
 
-- More user-friendly verrou_dd messages.
+- Usability improvements of verrou_dd. There is no need for absolute paths to
+  argument scripts anymore. Also, error messages are now more readable. (related
+  to gh-7)
+
+- Increase the max. size of symbol names in exclude files. New limit is set to
+  4096 characters. (fixes gh-6)
 
 
 ---

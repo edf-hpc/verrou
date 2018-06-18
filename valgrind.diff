@@ -1,6 +1,6 @@
 Index: Makefile.am
 ===================================================================
---- Makefile.am	(revision 16451)
+--- Makefile.am	(revision 16470)
 +++ Makefile.am	(working copy)
 @@ -10,7 +10,8 @@
  		lackey \
@@ -12,9 +12,40 @@ Index: Makefile.am
  
  EXP_TOOLS = 	exp-sgcheck \
  		exp-bbv \
+Index: README
+===================================================================
+--- README	(revision 16470)
++++ README	(working copy)
+@@ -1,4 +1,26 @@
+ 
++Specific instructions for Verrou
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++You are currently looking at a version of valgrind which has been patched to
++contain the verrou tool. Please look at specific instructions contained in the file:
++
++    verrou/README.md
++
++or the verrou github page:
++
++    https://github.com/edf-hpc/verrou
++
++
++For the very impatient, you should probably run the following commands:
++
++    ./autogen.sh
++    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX
++    make
++    make install
++    source PREFIX/env.sh
++
++
+ Release notes for Valgrind
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+ If you are building a binary package of Valgrind for distribution,
 Index: configure.ac
 ===================================================================
---- configure.ac	(revision 16451)
+--- configure.ac	(revision 16470)
 +++ configure.ac	(working copy)
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
@@ -25,7 +56,7 @@ Index: configure.ac
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign subdir-objects])
-@@ -4353,6 +4355,10 @@
+@@ -4353,6 +4353,10 @@
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -36,7 +67,7 @@ Index: configure.ac
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4445,6 +4476,8 @@
+@@ -4445,6 +4449,8 @@
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
@@ -47,7 +78,7 @@ Index: configure.ac
  ])
 Index: docs/lib/vg_basic.css
 ===================================================================
---- docs/lib/vg_basic.css	(revision 16451)
+--- docs/lib/vg_basic.css	(revision 16470)
 +++ docs/lib/vg_basic.css	(working copy)
 @@ -65,3 +65,39 @@
   border:      solid 1px #ffde84; 
@@ -91,7 +122,7 @@ Index: docs/lib/vg_basic.css
 +}
 Index: docs/xml/manpages-index.xml
 ===================================================================
---- docs/xml/manpages-index.xml	(revision 16451)
+--- docs/xml/manpages-index.xml	(revision 16470)
 +++ docs/xml/manpages-index.xml	(working copy)
 @@ -43,5 +43,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
@@ -105,7 +136,7 @@ Index: docs/xml/manpages-index.xml
  
 Index: docs/xml/manual.xml
 ===================================================================
---- docs/xml/manual.xml	(revision 16451)
+--- docs/xml/manual.xml	(revision 16470)
 +++ docs/xml/manual.xml	(working copy)
 @@ -44,6 +44,8 @@
        xmlns:xi="http://www.w3.org/2001/XInclude" />      
@@ -118,7 +149,7 @@ Index: docs/xml/manual.xml
  
 Index: docs/xml/valgrind-manpage.xml
 ===================================================================
---- docs/xml/valgrind-manpage.xml	(revision 16451)
+--- docs/xml/valgrind-manpage.xml	(revision 16470)
 +++ docs/xml/valgrind-manpage.xml	(working copy)
 @@ -230,6 +230,8 @@
  
@@ -131,7 +162,7 @@ Index: docs/xml/valgrind-manpage.xml
  <title>See Also</title>
 Index: docs/xml/vg-entities.xml
 ===================================================================
---- docs/xml/vg-entities.xml	(revision 16451)
+--- docs/xml/vg-entities.xml	(revision 16470)
 +++ docs/xml/vg-entities.xml	(working copy)
 @@ -6,7 +6,7 @@
  
