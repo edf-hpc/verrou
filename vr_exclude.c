@@ -33,6 +33,8 @@
 
 #include "vr_main.h"
 
+#define LINE_SIZEMAX VR_FNNAME_BUFSIZE
+
 static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
@@ -99,7 +101,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
     return list;
   }
 
-  SizeT nLine = 256;
+  SizeT nLine = LINE_SIZEMAX;
   HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
@@ -108,17 +110,17 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
     // Skip non-blank characters
     for (c = line;
-         c<line+256 && *c != 0 && *c != '\t' && *c != ' ';
+         c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
          ++c) {}
-    if (*c == 0 || c>line+255) {
-      VG_(umsg)("ERROR (parse)\n");
+    if (*c == 0 || c>line+LINE_SIZEMAX-1) {
+      VG_(umsg)("ERROR (parse) :%s \n",line);
       return list;
     }
     *c = 0;
 
     // Skip blank characters
     for (++c;
-         c<line+256 && *c != 0 && (*c == '\t' || *c == ' ');
+         c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
          ++c) {}
 
     list = vr_addExclude (list,
@@ -281,7 +283,7 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
     return list;
   }
 
-  SizeT nLine = 256;
+  SizeT nLine = LINE_SIZEMAX ;
   HChar *line = VG_(malloc)("vr.loadIncludeSources.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
@@ -291,29 +293,29 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
     HChar* filename = line;
     // Skip non-blank characters
     for (c = line;
-         c<line+256 && *c != 0 && *c != '\t' && *c != ' ';
+         c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
          ++c) {}
-    if (*c == 0 || c>line+255) {
-      VG_(umsg)("ERROR (parse1)\n");
+    if (*c == 0 || c>line+LINE_SIZEMAX-1) {
+      VG_(umsg)("ERROR (parse1) : %s\n",line);
       return list;
     }
     *c = 0;
 
     // Skip blank characters
     for (++c;
-         c<line+256 && *c != 0 && (*c == '\t' || *c == ' ');
+         c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
          ++c) {}
     HChar* linenum_ = c;
     // Skip non-blank characters
     for (;
-         c<line+256 && *c != 0 && *c != '\t' && *c != ' ';
+         c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
          ++c) {}
-    if (c>line+255) {
-      VG_(umsg)("ERROR (parse2)\n");
+    if (c>line+LINE_SIZEMAX-1) {
+      VG_(umsg)("ERROR (parse2) : %s\n",line);
       return list;
     }
     if (*c==0) {
-      c = line + 256;
+      c = line + LINE_SIZEMAX;
     } else {
       *c = 0;
       ++c;
@@ -322,7 +324,7 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
 
     // Skip blank characters
     for (;
-         c<line+256 && *c != 0 && (*c == '\t' || *c == ' ');
+         c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
          ++c) {}
     HChar* fnname = c;
 
