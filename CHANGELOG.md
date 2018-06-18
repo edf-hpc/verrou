@@ -7,6 +7,18 @@ This version is based on Valgrind-3.13.0.
 
 ### Added
 
+
+### Changed
+
+
+---
+
+## v2.0.0 - 2018-06-19
+
+This version is based on Valgrind-3.13.0.
+
+### Added
+
 - Generation of Valgrind errors for NaN values. This can be useful to debug
   programs in conjunction with vgdb. (fixes gh-4)
   
