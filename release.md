@@ -1,9 +1,13 @@
 # Notes about the release process
 
+```
+VERSION=2.0.0
+```
+
 ## Update the valgrind patch
 
 ```
-perl -pni -e 's/verrou-dev/verrou-X.Y.Z/' valgrind.diff
+perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
 ```
 
 ## Update README.md
@@ -21,6 +25,11 @@ perl -pni -e 's/verrou-dev/verrou-X.Y.Z/' valgrind.diff
 - Added features
 - Other changes
 
+- update the Verrou version + release date
+
+    ```
+    perl -pni -e "s/\[UNRELEASED\]/v${VERSION} - $(date +%Y-%m-%d)/" CHANGELOG.md
+    ```
 
 ## Commit in a release branch
 
@@ -28,7 +37,8 @@ perl -pni -e 's/verrou-dev/verrou-X.Y.Z/' valgrind.diff
 
     ```
     git checkout -b release
-    git commit -m "Release vX.Y.Z
+    git add -- CHANGELOG.md README.md valgrind.diff
+    git commit -m "Release v${VERSION}"
     git push origin release
     ```
 
@@ -37,10 +47,8 @@ perl -pni -e 's/verrou-dev/verrou-X.Y.Z/' valgrind.diff
 3. Tag and delete the `release` branch
 
     ```
-    git tag vX.Y.Z
-    git push origin vX.Y.Z
-    git branch -d release
-    git push origin :release
+    git tag v${VERSION}
+    git push origin v${VERSION}
     ```
 
 
@@ -51,20 +59,69 @@ perl -pni -e 's/verrou-dev/verrou-X.Y.Z/' valgrind.diff
 
     ```
     git checkout master
-    git merge --no-ff --no-commit release
+    git merge --no-ff --no-commit v${VERSION}
+    git reset HEAD README.md valgrind.diff
+    git checkout -- README.md valgrind.diff
     ```
 
-2. Revert the change in `README.md` and `valgrind.diff`
+2. Add an `[UNRELEASED]` section in `Changelog.md`:
 
-3. Add an `[UNRELEASED]` section in `Changelog.md`
+    > ## [UNRELEASED]
+    > 
+    > This version is based on Valgrind-3.13.0.
+    > 
+    > ### Added
+    > 
+    > 
+    > ### Changed
+    > 
+    > 
+    > ---
+    > 
 
-4. Commit the merge
+3. Commit the merge
 
     ```
-    git commit -m "Release vX.Y.Z"
+    git commit -m "Post-release v${VERSION}"
     git push origin master
+    git branch -d release
+    git push origin :release
     ```
 
-## Add a release message in github
+## Add a release in github
 
+
+- Add a release message extracted from CHANGELOG.md
+
+- Build a tgz archive for the full valgrind+verrou release
     
+    ```
+    VALGRIND=valgrind-3.13.0
+    cd /tmp
+    wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
+    tar xvpf ${VALGRIND}.tar.bz2
+    mv ${VALGRIND} ${VALGRIND}+verrou-${VERSION}
+    cd ${VALGRIND}+verrou-${VERSION}
+    git clone --branch=v${VERSION} --single-branch https://github.com/edf-hpc/verrou
+    patch -p0 <verrou/valgrind.diff
+    cd ..
+    tar cvzf ${VALGRIND}_verrou-${VERSION}.tar.gz ${VALGRIND}+verrou-${VERSION}
+    ```
+
+- Test the archive
+
+    ```
+    cd ${VALGRIND}+verrou-${VERSION}
+    ./autogen.sh
+    ./configure --enable-only64bit --enable-verrou-fma --prefix=$PWD/install
+    make -j4 install
+    source install/env.sh && valgrind --version
+    make -C tests check && make -C verrou check && perl tests/vg_regtest verrou
+    make -C verrou/unitTest
+    ```
+
+## Update the documentation
+
+```
+./verrou/docs/update-docs
+```
