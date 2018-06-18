@@ -34,12 +34,14 @@
 - A working combination of autotools is required: aclocal, autoheader,<br>
   automake and autoconf have to be found in the PATH. You should be able to<br>
   install pkg:/developer/build/automake and pkg:/developer/build/autoconf<br>
-  packages to fullfil this requirement.<br>
+  packages to fulfil this requirement.<br>
 - System header files are required. On Solaris, these can be installed with:<br>
     # pkg install system/header<br>
 - GNU make is also required. On Solaris, this can be quickly achieved with:<br>
     $ PATH=/usr/gnu/bin:$PATH; export PATH<br>
 - For remote debugging support, working GDB is required (see below).<br>
+- For running regression tests, GNU sed, grep, awk, diff are required.<br>
+  This can be quickly achieved on Solaris by prepending /usr/gnu/bin to PATH.<br>
 <br>
 <br>
 Compilation<br>
@@ -146,7 +148,6 @@ TODO list<br>
 - Provide better error reporting for various subsyscalls.<br>
 - Implement storing of extra register state in signal frame.<br>
 - Performance comparison against other platforms.<br>
-<br>
 - Prevent SIGPIPE when writing to a socket (coregrind/m_libcfile.c).<br>
 - Implement ticket locking for fair scheduling (--fair-sched=yes).<br>
 - Implement support in DRD and Helgrind tools for thr_join() with thread == 0.<br>
@@ -160,6 +161,8 @@ TODO list<br>
   to see this in effect. Would require awareness of syscall parameter semantics.<br>
 - Correctly print arguments of DW_CFA_ORCL_arg_loc in show_CF_instruction() when<br>
   it is implemented in libdwarf.<br>
+- Handle a situation when guest program sets SC_CANCEL_FLG in schedctl and<br>
+  Valgrind needs to invoke a syscall on its own.<br>
 <br>
 <br>
 Contacts<br>

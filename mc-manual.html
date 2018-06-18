@@ -90,7 +90,11 @@ problems that are common in C and C++ programs.</p>
 </ul></div>
 <p>Problems like these can be difficult to find by other means,
 often remaining undetected for long periods, then causing occasional,
-difficult-to-diagnose crashes.</p>
+  difficult-to-diagnose crashes.</p>
+<p>Memcheck also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> memory
+  profiling using the command line
+  option <code class="computeroutput">--xtree-memory</code> and the monitor command
+   <code class="computeroutput">xtmemory</code>.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
@@ -726,6 +730,54 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </ul></div>
 </dd>
 <dt>
+<a name="opt.xtree-leak"></a><span class="term">
+      <code class="option">--xtree-leak=&lt;no|yes&gt; [no] </code>
+    </span>
+</dt>
+<dd>
+<p>If set to yes, the results for the leak search done at exit will be
+        output in a 'Callgrind Format' execution tree file. Note that this
+        automatically sets the option <code class="option">--leak-check=full</code>.
+        The produced file
+       will contain the following events:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p><code class="option">RB</code> : Reachable Bytes</p></li>
+<li class="listitem"><p><code class="option">PB</code> : Possibly lost Bytes</p></li>
+<li class="listitem"><p><code class="option">IB</code> : Indirectly lost Bytes</p></li>
+<li class="listitem"><p><code class="option">DB</code> : Definitely lost Bytes (direct plus indirect)</p></li>
+<li class="listitem"><p><code class="option">DIB</code> : Definitely Indirectly lost Bytes (subset of DB)</p></li>
+<li class="listitem"><p><code class="option">RBk</code> : reachable Blocks</p></li>
+<li class="listitem"><p><code class="option">PBk</code> : Possibly lost Blocks</p></li>
+<li class="listitem"><p><code class="option">IBk</code> : Indirectly lost Blocks</p></li>
+<li class="listitem"><p><code class="option">DBk</code> : Definitely lost Blocks</p></li>
+</ul></div>
+<p>The increase or decrease for all events above will also be output in
+        the file to provide the delta (increase or decreaseà between 2
+        successive leak searches. For example, <code class="option">iRB</code> is the
+        increase of the <code class="option">RB</code> event, <code class="option">dPBk</code> is the
+        decrease of <code class="option">PBk</code> event. The values for the increase and
+        decrease events will be zero for the first leak search done.</p>
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for a detailed explanation
+        about execution trees.</p>
+</dd>
+<dt>
+<a name="opt.xtree-leak-file"></a><span class="term">
+      <code class="option">--xtree-leak-file=&lt;filename&gt; [default:
+      xtleak.kcg.%p] </code>
+    </span>
+</dt>
+<dd>
+<p>Specifies that Valgrind should produce the xtree leak
+        report in the specified file.  Any <code class="option">%p</code>,
+        <code class="option">%q</code> or  <code class="option">%n</code> sequences appearing in
+        the filename are expanded
+        in exactly the same way as they are for <code class="option">--log-file</code>.
+        See the description of <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>
+        for details. </p>
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+      for a detailed explanation about execution trees formats. </p>
+</dd>
+<dt>
 <a name="opt.undef-value-errors"></a><span class="term">
       <code class="option">--undef-value-errors=&lt;yes|no&gt; [default: yes] </code>
     </span>
@@ -874,6 +926,11 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       and/or by using a smaller value for the
       option <code class="varname">--num-callers</code>.
       </p>
+<p>If you want to use
+        <code class="computeroutput">--xtree-memory=full</code> memory profiling
+        (see <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> ), then you cannot
+        specify <code class="varname">--keep-stacktraces=free</code>
+        or <code class="varname">--keep-stacktraces=none</code>.</p>
 </dd>
 <dt>
 <a name="opt.freelist-vol"></a><span class="term">
@@ -1500,7 +1557,7 @@ Address 0x8049E28 len 1 defined
 </pre>
 </li>
 <li class="listitem">
-<p><code class="varname">leak_check [full*|summary]
+<p><code class="varname">leak_check [full*|summary|xtleak]
                               [kinds &lt;set&gt;|reachable|possibleleak*|definiteleak]
                               [heuristics heur1,heur2,...]
                               [increased*|changed|any]
@@ -1508,7 +1565,7 @@ Address 0x8049E28 len 1 defined
           </code>
     performs a leak check. The <code class="varname">*</code> in the arguments
     indicates the default values. </p>
-<p> If the <code class="varname">[full*|summary]</code> argument is
+<p> If the <code class="varname">[full*|summary|xtleak]</code> argument is
     <code class="varname">summary</code>, only a summary of the leak search is given;
     otherwise a full leak report is produced.  A full leak report gives
     detailed information for each leak: the stack trace where the leaked blocks
@@ -1522,6 +1579,13 @@ Address 0x8049E28 len 1 defined
     of leak records to output. If this maximum is reached, the leak
     search  outputs the records with the biggest number of bytes.
     </p>
+<p>The value <code class="varname">xtleak</code> also produces a full leak report,
+      but output it as an xtree in a file xtleak.kcg.%p.%n (see <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>).
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+      for a detailed explanation about execution trees formats.
+      See <a class="xref" href="mc-manual.html#opt.xtree-leak">--xtree-leak</a> for the description of the events
+      in a xtree leak file.
+      </p>
 <p>The <code class="varname">kinds</code> argument controls what kind of blocks
     are shown for a <code class="varname">full</code> leak search.  The set of leak kinds
     to show can be specified using a <code class="varname">&lt;set&gt;</code> similarly

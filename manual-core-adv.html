@@ -213,7 +213,7 @@ tool-specific macros).</p>
     memcheck leak search can be requested from the client program
     using VALGRIND_DO_LEAK_CHECK or via the monitor command "leak_search".
     Note that the syntax of the command string is only verified at
-    run-time. So, if it exists, it is preferrable to use a specific
+    run-time. So, if it exists, it is preferable to use a specific
     client request to have better compile time verifications of the
     arguments.
     </p></dd>
@@ -354,8 +354,8 @@ valgrind --tool=memcheck --vgdb=yes --vgdb-error=0 ./prog
 and indicates it is waiting for a connection from a GDB:</p>
 <pre class="programlisting">
 ==2418== Memcheck, a memory error detector
-==2418== Copyright (C) 2002-2010, and GNU GPL'd, by Julian Seward et al.
-==2418== Using Valgrind-3.7.0.SVN and LibVEX; rerun with -h for copyright info
+==2418== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==2418== Using Valgrind-3.13.0.SVN and LibVEX; rerun with -h for copyright info
 ==2418== Command: ./prog
 ==2418== 
 ==2418== (action at startup) vgdb me ... 
@@ -940,6 +940,12 @@ $5 = 36
      connect to or interrupt a process blocked in a system call on Mac
      OS X or Android.
      </p>
+<p>Unblocking processes blocked in system calls is implemented
+     via agent thread on Solaris. This is quite a different approach
+     than using ptrace on Linux, but leads to equivalent result - Valgrind
+     gdbserver is invoked. Note that agent thread is a Solaris OS
+     feature and cannot be disabled.
+     </p>
 </li>
 <li class="listitem">
 <p>Changing register values.</p>
@@ -1204,6 +1210,10 @@ client request.
     <code class="option">--vgdb-error=0</code> on the
     command line, then set a few breakpoints, set the vgdb-error value
     to a huge value and continue execution.</p></li>
+<li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
+      requests the tool to produce an xtree heap memory report.
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for
+      a detailed explanation about execution trees. </p></li>
 </ul></div>
 <p>The following Valgrind monitor commands are useful for
 investigating the behaviour of Valgrind or its gdbserver in case of
@@ -1236,7 +1246,7 @@ problems or bugs.</p>
     by valgrind address space manager will be output. Note that
     this list of segments is always output on the Valgrind log.
     </p></li>
-<li class="listitem"><p><code class="varname">v.info exectxt</code> shows informations about
+<li class="listitem"><p><code class="varname">v.info exectxt</code> shows information about
     the "executable contexts" (i.e. the stack traces) recorded by
     Valgrind.  For some programs, Valgrind can record a very high
     number of such stack traces, causing a high memory usage.  This
@@ -1291,9 +1301,9 @@ problems or bugs.</p>
     variable of the memcheck tool on an x86, do the following setup:</p>
 <pre class="screen">
 (gdb) monitor v.set hostvisibility yes
-(gdb) add-symbol-file /path/to/tool/executable/file/memcheck-x86-linux 0x38000000
+(gdb) add-symbol-file /path/to/tool/executable/file/memcheck-x86-linux 0x58000000
 add symbol table from file "/path/to/tool/executable/file/memcheck-x86-linux" at
-	.text_addr = 0x38000000
+	.text_addr = 0x58000000
 (y or n) y
 Reading symbols from /path/to/tool/executable/file/memcheck-x86-linux...done.
 (gdb) 

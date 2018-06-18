@@ -22,6 +22,28 @@
 <a name="dist.readme"></a>4. README</h1></div></div></div>
 <div class="literallayout"><p><br>
       <br>
+Specific instructions for Verrou<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+You are currently looking at a version of valgrind which has been patched to<br>
+contain the verrou tool. Please look at specific instructions contained in the file:<br>
+<br>
+    verrou/README.md<br>
+<br>
+or the verrou github page:<br>
+<br>
+    https://github.com/edf-hpc/verrou<br>
+<br>
+<br>
+For the very impatient, you should probably run the following commands:<br>
+<br>
+    ./autogen.sh<br>
+    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX<br>
+    make<br>
+    make install<br>
+    source PREFIX/env.sh<br>
+<br>
+<br>
 Release notes for Valgrind<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 If you are building a binary package of Valgrind for distribution,<br>

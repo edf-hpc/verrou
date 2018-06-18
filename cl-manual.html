@@ -315,7 +315,7 @@ callgrind.out.<span class="emphasis"><em>pid</em></span>.<span class="emphasis">
     what is happening within a given function or starting from a given
     program phase. To this end, you can disable event aggregation for
     uninteresting program parts. While attribution of events to
-    functions as well as producing seperate output per program phase
+    functions as well as producing separate output per program phase
     can be done by other means (see previous section), there are two
     benefits by disabling aggregation. First, this is very
     fine-granular (e.g. just for a loop within a function).  Second,
@@ -423,7 +423,7 @@ callgrind.out.<span class="emphasis"><em>pid</em></span>.<span class="emphasis">
   cycles, this does not hold true: callees of a function in a cycle include
   the function itself. Therefore, KCachegrind does cycle detection
   and skips visualization of any inclusive cost for calls inside
-  of cycles. Further, all functions in a cycle are collapsed into artifical
+  of cycles. Further, all functions in a cycle are collapsed into artificial
   functions called like <code class="computeroutput">Cycle 1</code>.</p>
 <p>Now, when a program exposes really big cycles (as is
   true for some GUI code, or in general code using event or callback based
@@ -1005,7 +1005,7 @@ their arguments.</p>
 </dt>
 <dd><p>Start full Callgrind instrumentation if not already enabled.
       When cache simulation is done, this will flush the simulated cache
-      and lead to an artifical cache warmup phase afterwards with
+      and lead to an artificial cache warmup phase afterwards with
       cache misses which would not have happened in reality.  See also
       option <code class="option"><a class="xref" href="cl-manual.html#opt.instr-atstart">--instr-atstart</a></code>.</p></dd>
 <dt>
@@ -1040,7 +1040,11 @@ their arguments.</p>
 <dt><span class="term">
       <code class="option">--sort=A,B,C</code>
     </span></dt>
-<dd><p>Sort columns by events A,B,C [event column order].</p></dd>
+<dd>
+<p>Sort columns by events A,B,C [event column order].</p>
+<p>Optionally, each event is followed by a : and a threshold,
+        to specify different thresholds depending on the event.</p>
+</dd>
 <dt><span class="term">
       <code class="option">--threshold=&lt;0--100&gt; [default: 99%] </code>
     </span></dt>

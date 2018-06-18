@@ -41,11 +41,12 @@
 <dt><span class="sect1"><a href="manual-core.html#manual-core.pthreads">2.7. Support for Threads</a></span></dt>
 <dd><dl><dt><span class="sect2"><a href="manual-core.html#manual-core.pthreads_perf_sched">2.7.1. Scheduling and Multi-Thread Performance</a></span></dt></dl></dd>
 <dt><span class="sect1"><a href="manual-core.html#manual-core.signals">2.8. Handling of Signals</a></span></dt>
-<dt><span class="sect1"><a href="manual-core.html#manual-core.install">2.9. Building and Installing Valgrind</a></span></dt>
-<dt><span class="sect1"><a href="manual-core.html#manual-core.problems">2.10. If You Have Problems</a></span></dt>
-<dt><span class="sect1"><a href="manual-core.html#manual-core.limits">2.11. Limitations</a></span></dt>
-<dt><span class="sect1"><a href="manual-core.html#manual-core.example">2.12. An Example Run</a></span></dt>
-<dt><span class="sect1"><a href="manual-core.html#manual-core.warnings">2.13. Warning Messages You Might See</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.xtree">2.9. Execution Trees</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.install">2.10. Building and Installing Valgrind</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.problems">2.11. If You Have Problems</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.limits">2.12. Limitations</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.example">2.13. An Example Run</a></span></dt>
+<dt><span class="sect1"><a href="manual-core.html#manual-core.warnings">2.14. Warning Messages You Might See</a></span></dt>
 </dl>
 </div>
 <p>This chapter describes the Valgrind core services, command-line
@@ -760,7 +761,15 @@ in most cases.  We group the available options by rough categories.</p>
       calling exec afterwards, and you don't use this specifier
       (or the <code class="option">%q</code> specifier below), the Valgrind output from
       all those processes will go into one file, possibly jumbled up, and
-      possibly incomplete.</p>
+      possibly incomplete. Note: If the program forks and calls exec afterwards,
+      Valgrind output of the child from the period between fork and exec
+      will be lost. Fortunately this gap is really tiny for most programs;
+      and modern programs use <code class="computeroutput">posix_spawn</code>
+      anyway.</p>
+<p><code class="option">%n</code> is replaced with a file sequence number
+      unique for this process.
+      This is useful for processes that produces several files
+      from the same filename template.</p>
 <p><code class="option">%q{FOO}</code> is replaced with the contents of the
       environment variable <code class="varname">FOO</code>.  If the
       <code class="option">{FOO}</code> part is malformed, it causes an abort.  This
@@ -776,7 +785,7 @@ in most cases.  We group the available options by rough categories.</p>
 <p>If an <code class="option">%</code> is followed by any other character, it
       causes an abort.</p>
 <p>If the file name specifies a relative file name, it is put
-      in the program's initial working directory : this is the current
+      in the program's initial working directory: this is the current
       directory when the program started its execution after the fork
       or after the exec.  If it specifies an absolute file name (ie.
       starts with '/') then it is put there.
@@ -864,7 +873,7 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
       <code class="option">--xml=yes</code>.  Any <code class="option">%p</code> or
       <code class="option">%q</code> sequences appearing in the filename are expanded
       in exactly the same way as they are for <code class="option">--log-file</code>.
-      See the description of <code class="option">--log-file</code> for details.
+      See the description of  <a class="xref" href="manual-core.html#opt.log-file">--log-file</a> for details.
       </p></dd>
 <dt>
 <a name="opt.xml-socket"></a><span class="term">
@@ -1443,6 +1452,68 @@ Massif, Helgrind, DRD), the following options apply.</p>
       memory needed by Valgrind but also reduces the chances of
       detecting over/underruns, so is not recommended.</p>
 </dd>
+<dt>
+<a name="opt.xtree-memory"></a><span class="term">
+      <code class="option">--xtree-memory=none|allocs|full [none] </code>
+    </span>
+</dt>
+<dd>
+<p> Tools replacing Valgrind's <code class="function">malloc,
+      realloc,</code> etc, can optionally produce an execution
+      tree detailing which piece of code is responsible for heap
+      memory usage. See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+      for a detailed explanation about execution trees. </p>
+<p> When set to <code class="varname">none</code>, no memory execution
+      tree is produced.</p>
+<p> When set to <code class="varname">allocs</code>, the memory
+      execution tree gives the current number of allocated bytes and
+      the current number of allocated blocks. </p>
+<p> When set to <code class="varname">full</code>, the memory execution
+      tree gives 6 different measurements : the current number of
+      allocated bytes and blocks (same values as
+      for <code class="varname">allocs</code>), the total number of allocated
+      bytes and blocks, the total number of freed bytes and
+      blocks.</p>
+<p>Note that the overhead in cpu and memory to produce
+        an xtree depends on the tool. The overhead in cpu is small for
+        the value <code class="varname">allocs</code>, as the information needed
+        to produce this report is maintained in any case by the tool.
+        For massif and helgrind, specifying <code class="varname">full</code>
+        implies to capture a stack trace for each free operation,
+        while normally these tools only capture an allocation stack
+        trace.  For memcheck, the cpu overhead for the
+        value <code class="varname">full</code> is small, as this can only be
+        used in combination with
+        <code class="option">--keep-stacktraces=alloc-and-free</code> or
+        <code class="option">--keep-stacktraces=alloc-then-free</code>, which
+        already records a stack trace for each free operation. The
+        memory overhead varies between 5 and 10 words per unique
+        stacktrace in the xtree, plus the memory needed to record the
+        stack trace for the free operations, if needed specifically
+        for the xtree.
+      </p>
+</dd>
+<dt>
+<a name="opt.xtree-memory-file"></a><span class="term">
+      <code class="option">--xtree-memory-file=&lt;filename&gt; [default:
+      xtmemory.kcg.%p] </code>
+    </span>
+</dt>
+<dd>
+<p>Specifies that Valgrind should produce the xtree memory
+      report in the specified file.  Any <code class="option">%p</code> or
+      <code class="option">%q</code> sequences appearing in the filename are expanded
+      in exactly the same way as they are for <code class="option">--log-file</code>.
+      See the description of <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>
+      for details. </p>
+<p>If the filename contains the extension  <code class="option">.ms</code>,
+        then the produced file format will be a massif output file format.
+        If the filename contains the extension  <code class="option">.kcg</code>
+        or no extension is provided or recognised,
+        then the produced file format will be a callgrind output format.</p>
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+      for a detailed explanation about execution trees formats. </p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1749,7 +1820,7 @@ need to use them.</p>
             knowledge of the glibc stack cache implementation and by
             examining the debug information of the pthread
             library. This technique is thus somewhat fragile and might
-            not work for all glibc versions. This has been succesfully
+            not work for all glibc versions. This has been successfully
             tested with various glibc versions (e.g. 2.11, 2.16, 2.18)
             on various platforms.</p>
 </li>
@@ -1759,6 +1830,37 @@ need to use them.</p>
           when writing. Without this, programs using libdoor(3LIB)
           functionality with completely proprietary semantics may report
           large number of false positives.</p></li>
+<li class="listitem"><p><code class="option">fallback-llsc: </code>(MIPS and ARM64 only): Enables
+            an alternative implementation of Load-Linked (LL) and
+            Store-Conditional (SC) instructions.  The standard implementation
+            gives more correct behaviour, but can cause indefinite looping on
+            certain processor implementations that are intolerant of extra
+            memory references between LL and SC.  So far this is known only to
+            happen on Cavium 3 cores.
+
+            You should not need to use this flag, since the relevant cores are
+            detected at startup and the alternative implementation is
+            automatically enabled if necessary.  There is no equivalent
+            anti-flag: you cannot force-disable the alternative
+            implementation, if it is automatically enabled.
+
+            The underlying problem exists because the "standard"
+            implementation of LL and SC is done by copying through LL and SC
+            instructions into the instrumented code.  However, tools may
+            insert extra instrumentation memory references in between the LL
+            and SC instructions.  These memory references are not present in
+            the original uninstrumented code, and their presence in the
+            instrumented code can cause the SC instructions to persistently
+            fail, leading to indefinite looping in LL-SC blocks.
+
+            The alternative implementation gives correct behaviour of LL and
+            SC instructions between threads in a process, up to and including
+            the ABA scenario.  It also gives correct behaviour between a
+            Valgrinded thread and a non-Valgrinded thread running in a
+            different process, that communicate via shared memory, but only up
+            to and including correct CAS behaviour -- in this case the ABA
+            scenario may not be correctly handled.
+          </p></li>
 </ul></div>
 </dd>
 <dt>
@@ -2125,8 +2227,8 @@ precedence over those in
 <code class="computeroutput">~/.valgrindrc</code>.
 </p>
 <p>Please note that the <code class="computeroutput">./.valgrindrc</code>
-file is ignored if it is marked as world writeable or not owned 
-by the current user. This is because the
+file is ignored if it is not a regular file, or is marked as world writeable,
+or is not owned by the current user. This is because the
 <code class="computeroutput">./.valgrindrc</code> can contain options that are
 potentially harmful or can be used by a local attacker to execute code under
 your user account.
@@ -2278,7 +2380,206 @@ will create a core dump in the usual way.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-core.install"></a>2.9. Building and Installing Valgrind</h2></div></div></div>
+<a name="manual-core.xtree"></a>2.9. Execution Trees</h2></div></div></div>
+<p>An execution tree (xtree) is made of a set of stack traces, each
+  stack trace is associated with some resource consumptions or event
+  counts.  Depending on the xtree, different event counts/resource
+  consumptions can be recorded in the xtree. Multiple tools can
+  produce memory use xtree. Memcheck can output the leak search results
+  in an xtree.</p>
+<p> A typical usage for an xtree is to show a graphical or textual
+  representation of the heap usage of a program. The below figure is
+  a heap usage xtree graphical representation produced by
+  kcachegrind. In the kcachegrind output, you can see that main
+  current heap usage (allocated indirectly) is 528 bytes : 388 bytes
+  allocated indirectly via a call to function f1 and 140 bytes
+  indirectly allocated via a call to function f2. f2 has allocated
+  memory by calling g2, while f1 has allocated memory by calling g11
+  and g12. g11, g12 and g1 have directly called a memory allocation
+  function (malloc), and so have a non zero 'Self' value. Note that when
+  kcachegrind shows an xtree, the 'Called' column and call nr indications in
+  the Call Graph are not significant (always set to 0 or 1, independently
+  of the real nr of calls. The kcachegrind versions &gt;= 0.8.0 do not show
+  anymore such irrelevant xtree call number information.</p>
+<div><img src="images/kcachegrind_xtree.png"></div>
+<p>An xtree heap memory report is produced at the end of the
+  execution when required using the
+  option <code class="option">--xtree-memory</code>.  It can also be produced on
+  demand using the <code class="option">xtmemory</code> monitor command (see
+  <a class="xref" href="manual-core-adv.html#manual-core-adv.valgrind-monitor-commands" title="3.2.10. Valgrind monitor commands">Valgrind monitor commands</a>). Currently,
+  an xtree heap memory report can be produced by
+  the <code class="option">memcheck</code>, <code class="option">helgrind</code>
+  and <code class="option">massif</code> tools.</p>
+<p>The xtrees produced by the option
+  <a class="xref" href="manual-core.html#opt.xtree-memory">--xtree-memory</a> or the <code class="option">xtmemory</code>
+  monitor command are showing the following events/resource
+  consumption describing heap usage:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p><code class="option">curB</code> current number of Bytes allocated. The
+      number of allocated bytes is added to the <code class="option">curB</code>
+      value of a stack trace for each allocation. It is decreased when
+      a block allocated by this stack trace is released (by another
+      "freeing" stack trace)</p></li>
+<li class="listitem"><p><code class="option">curBk</code> current number of Blocks allocated,
+      maintained similary to curB : +1 for each allocation, -1 when
+      the block is freed.</p></li>
+<li class="listitem"><p><code class="option">totB</code> total allocated Bytes. This is
+      increased for each allocation with the number of allocated bytes.</p></li>
+<li class="listitem"><p><code class="option">totBk</code> total allocated Blocks, maintained similary
+      to totB : +1 for each allocation.</p></li>
+<li class="listitem"><p><code class="option">totFdB</code> total Freed Bytes, increased each time
+      a block is released by this ("freeing") stack trace : + nr freed bytes
+      for each free operation.</p></li>
+<li class="listitem"><p><code class="option">totFdBk</code> total Freed Blocks, maintained similarly
+      to totFdB : +1 for each free operation.</p></li>
+</ul></div>
+<p>Note that the last 4 counts are produced only when the
+  <code class="option">--xtree-memory=full</code> was given at startup.</p>
+<p>Xtrees can be saved in 2 file formats, the "Callgrind Format" and
+the "Massif Format".</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>Callgrind Format</p>
+<p>An xtree file in the Callgrind Format contains a single callgraph,
+      associating each stack trace with the values recorded
+      in the xtree. </p>
+<p>Different Callgrind Format file visualisers are available:</p>
+<p>Valgrind distribution includes the <code class="option">callgrind_annotate</code>
+      command line utility that reads in the xtree data, and prints a sorted
+      lists of functions, optionally with source annotation. Note that due to
+      xtree specificities, you must give the option
+      <code class="option">--inclusive=yes</code> to callgrind_annotate.</p>
+<p>For graphical visualization of the data, you can use
+      <a class="ulink" href="http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/KcacheGrindIndex" target="_top">KCachegrind</a>, which is a KDE/Qt based
+      GUI that makes it easy to navigate the large amount of data that
+      an xtree can contain.</p>
+</li>
+<li class="listitem">
+<p>Massif Format</p>
+<p>An xtree file in the Massif Format contains one detailed tree
+      callgraph data for each type of event recorded in the xtree.  So,
+      for <code class="option">--xtree-memory=alloc</code>, the output file will
+      contain 2 detailed trees (for the counts <code class="option">curB</code>
+      and <code class="option">curBk</code>),
+      while <code class="option">--xtree-memory=full</code> will give a file
+      with 6 detailed trees.</p>
+<p>Different Massif Format file visualisers are available. Valgrind
+      distribution includes the <code class="option">ms_print</code>
+      command line utility that produces an easy to read reprentation of
+      a massif output file. See <a class="xref" href="ms-manual.html#ms-manual.running-massif" title="9.2.2. Running Massif">Running Massif</a> and
+      <a class="xref" href="ms-manual.html#ms-manual.using" title="9.2. Using Massif and ms_print">Using Massif and ms_print</a> for more details
+      about visualising Massif Format output files.</p>
+</li>
+</ul></div>
+<p>Note that for equivalent information, the Callgrind Format is more compact
+  than the Massif Format.  However, the Callgrind Format always contains the
+  full data: there is no filtering done during file production, filtering is
+  done by visualisers such as kcachegrind. kcachegrind is particularly easy to
+  use to analyse big xtree data containing multiple events counts or resources
+  consumption.  The Massif Format (optionally) only contains a part of the data.
+  For example, the Massif tool might filter some of the data, according to the
+  <code class="option">--threshold</code> option.
+</p>
+<p>To clarify the xtree concept, the below gives several extracts of
+  the output produced by the following commands:
+</p>
+<pre class="screen">
+valgrind --xtree-memory=full --xtree-memory-file=xtmemory.kcg mfg
+callgrind_annotate --auto=yes --inclusive=yes --sort=curB:100,curBk:100,totB:100,totBk:100,totFdB:100,totFdBk:100  xtmemory.kcg
+</pre>
+<p>
+</p>
+<p>The below extract shows that the program mfg has allocated in
+  total 770 bytes in 60 different blocks. Of these 60 blocks, 19 were
+  freed, releasing a total of 242 bytes. The heap currently contains
+  528 bytes in 41 blocks.</p>
+<pre class="screen">
+--------------------------------------------------------------------------------
+curB curBk totB totBk totFdB totFdBk 
+--------------------------------------------------------------------------------
+ 528    41  770    60    242      19  PROGRAM TOTALS
+</pre>
+<p>The below gives more details about which functions have
+  allocated or released memory. As an example, we see that main has
+  (directly or indirectly) allocated 770 bytes of memory and freed
+  (directly or indirectly) 242 bytes of memory. The function f1 has
+  (directly or indirectly) allocated 570 bytes of memory, and has not
+  (directly or indirectly) freed memory.  Of the 570 bytes allocated
+  by function f1, 388 bytes (34 blocks) have not been
+  released.</p>
+<pre class="screen">
+--------------------------------------------------------------------------------
+curB curBk totB totBk totFdB totFdBk  file:function
+--------------------------------------------------------------------------------
+ 528    41  770    60    242      19  mfg.c:main
+ 388    34  570    50      0       0  mfg.c:f1
+ 220    20  330    30      0       0  mfg.c:g11
+ 168    14  240    20      0       0  mfg.c:g12
+ 140     7  200    10      0       0  mfg.c:g2
+ 140     7  200    10      0       0  mfg.c:f2
+   0     0    0     0    131      10  mfg.c:freeY
+   0     0    0     0    111       9  mfg.c:freeX
+</pre>
+<p>The below gives a more detailed information about the callgraph
+  and which source lines/calls have (directly or indirectly) allocated or
+  released memory. The below shows that the 770 bytes allocated by
+  main have been indirectly allocated by calls to f1 and f2.
+  Similarly, we see that the 570 bytes allocated by f1 have been
+  indirectly allocated by calls to g11 and g12. Of the 330 bytes allocated
+  by the 30 calls to g11, 168 bytes have not been freed.
+  The function freeY (called once by main) has released in total
+  10 blocks and 131 bytes. </p>
+<pre class="screen">
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/philippe/valgrind/littleprogs/ + mfg.c
+--------------------------------------------------------------------------------
+curB curBk totB totBk totFdB totFdBk 
+....
+   .     .    .     .      .       .  static void freeY(void)
+   .     .    .     .      .       .  {
+   .     .    .     .      .       .     int i;
+   .     .    .     .      .       .     for (i = 0; i &lt; next_ptr; i++)
+   .     .    .     .      .       .        if(i % 5 == 0 &amp;&amp; ptrs[i] != NULL)
+   0     0    0     0    131      10           free(ptrs[i]);
+   .     .    .     .      .       .  }
+   .     .    .     .      .       .  static void f1(void)
+   .     .    .     .      .       .  {
+   .     .    .     .      .       .     int i;
+   .     .    .     .      .       .     for (i = 0; i &lt; 30; i++)
+ 220    20  330    30      0       0        g11();
+   .     .    .     .      .       .     for (i = 0; i &lt; 20; i++)
+ 168    14  240    20      0       0        g12();
+   .     .    .     .      .       .  }
+   .     .    .     .      .       .  int main()
+   .     .    .     .      .       .  {
+ 388    34  570    50      0       0     f1();
+ 140     7  200    10      0       0     f2();
+   0     0    0     0    111       9     freeX();
+   0     0    0     0    131      10     freeY();
+   .     .    .     .      .       .     return 0;
+   .     .    .     .      .       .  }
+</pre>
+<p>Heap memory xtrees are helping to understand how your (big)
+  program is using the heap. A full heap memory xtree helps to pin
+  point some code that allocates a lot of small objects : allocating
+  such small objects might be replaced by more efficient technique,
+  such as allocating a big block using malloc, and then diviving this
+  block into smaller blocks in order to decrease the cpu and/or memory
+  overhead of allocating a lot of small blocks. Such full xtree information
+  complements e.g. what callgrind can show: callgrind can show the number
+  of calls to a function (such as malloc) but does not indicate the volume
+  of memory allocated (or freed).</p>
+<p>A full heap memory xtree also can identify the code that allocates
+  and frees a lot of blocks : the total foot print of the program might
+  not reflect the fact that the same memory was over and over allocated
+  then released.</p>
+<p>Finally, Xtree visualisers such as kcachegrind are helping to
+  identify big memory consumers, in order to possibly optimise the
+  amount of memory needed by your program.</p>
+</div>
+<div class="sect1">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="manual-core.install"></a>2.10. Building and Installing Valgrind</h2></div></div></div>
 <p>We use the standard Unix
 <code class="computeroutput">./configure</code>,
 <code class="computeroutput">make</code>, <code class="computeroutput">make
@@ -2332,9 +2633,9 @@ know if you have build problems.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-core.problems"></a>2.10. If You Have Problems</h2></div></div></div>
+<a name="manual-core.problems"></a>2.11. If You Have Problems</h2></div></div></div>
 <p>Contact us at <a class="ulink" href="http://www.valgrind.org/" target="_top">http://www.valgrind.org/</a>.</p>
-<p>See <a class="xref" href="manual-core.html#manual-core.limits" title="2.11. Limitations">Limitations</a> for the known
+<p>See <a class="xref" href="manual-core.html#manual-core.limits" title="2.12. Limitations">Limitations</a> for the known
 limitations of Valgrind, and for a list of programs which are
 known not to work on it.</p>
 <p>All parts of the system make heavy use of assertions and 
@@ -2350,7 +2651,7 @@ crashes, etc.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-core.limits"></a>2.11. Limitations</h2></div></div></div>
+<a name="manual-core.limits"></a>2.12. Limitations</h2></div></div></div>
 <p>The following list of limitations seems long.  However, most
 programs actually work fine.</p>
 <p>Valgrind will run programs on the supported platforms
@@ -2539,7 +2840,7 @@ subject to the following constraints:</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-core.example"></a>2.12. An Example Run</h2></div></div></div>
+<a name="manual-core.example"></a>2.13. An Example Run</h2></div></div></div>
 <p>This is the log for a run of a small program using Memcheck.
 The program is in fact correct, and the reported error is as the
 result of a potentially serious code generation bug in GNU g++
@@ -2573,7 +2874,7 @@ shipped.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="manual-core.warnings"></a>2.13. Warning Messages You Might See</h2></div></div></div>
+<a name="manual-core.warnings"></a>2.14. Warning Messages You Might See</h2></div></div></div>
 <p>Some of these only appear if you run in verbose mode
 (enabled by <code class="option">-v</code>):</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
