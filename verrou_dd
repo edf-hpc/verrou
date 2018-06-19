@@ -378,7 +378,7 @@ class DDsym(DDvr):
         failure()
 
     def allDeltaFailedMsg(self,deltas):
-        print "FAILURE: internal error"
+        print "FAILURE: when verrou perturbs all parts of the program, its output is still detected as stable."
         print "Suggestions:"
         print "\t1) check if the number of samples VERROU_DD_NRUNS is sufficient"
         print "\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_
