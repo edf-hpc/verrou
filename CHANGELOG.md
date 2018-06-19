@@ -32,7 +32,8 @@ This version is based on Valgrind-3.13.0.
 - Preparation for the common interflop backend interface.
 
 - (Experimental) Parallelism in `verrou_dd`. The number of concurrent threads
-  can be set using the `VERROU_DD_NUM_THREADS` environnement variable.
+  can be set using the `VERROU_DD_NUM_THREADS` environnement variable. (related
+  to gh-7)
   
 - (Experimental) New DDmin algorithm for `verrou_dd`. Instead of computing a
   maximal set of stable symbols/lines using the DDmax algorithm (and outputting

@@ -38,7 +38,12 @@ perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
     ```
     git checkout -b release
     git add -- CHANGELOG.md README.md valgrind.diff
-    git commit -m "Release v${VERSION}"
+    git commit -m "Release v${VERSION}
+      $(perl -n                        \
+        -e '$q=1 if m/^\-\-\-/;'       \
+        -e 'print if ($p and not $q);' \
+        -e '$p=1 if m/^## /;'          \
+        CHANGELOG.md)"
     git push origin release
     ```
 
