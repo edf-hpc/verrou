@@ -34,7 +34,13 @@
 #pragma once
 #include <limits>
 
+#ifndef LIBMATHINTERP
 extern vr_RoundingMode ROUNDINGMODE;
+#else
+//extern vr_RoundingMode ROUNDINGMODE;
+#endif
+
+#include "vr_fpRepr.hxx"
 
 template<class OP>
 class RoundingNearest{
@@ -300,7 +306,8 @@ class OpWithSelectedRoundingMode{
   }
 
 };
-    
+
+#ifndef LIBMATHINTERP
 template<class OP>
 class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
 public:
@@ -319,7 +326,6 @@ public:
       vr_nanHandler();
     }
   }
-
 
 #ifdef DEBUG_PRINT_OP
   static inline void print_debug(const PackArgs& p, const RealType* res){
@@ -354,6 +360,6 @@ public:
     }
     return 0;
   }
-
 };
 
+#endif
