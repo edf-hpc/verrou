@@ -20,18 +20,19 @@
 
 #include <dlfcn.h>
 
-typedef struct
-{
-  double (*real_cos_double)(double) ;
-  double (*real_sin_double)(double) ;
+// typedef struct
+// {
+//   double (*real_cos_double)(double) ;
+//   float  (*real_cos_float)(float) ;
+//   double (*real_sin_double)(double) ;
   
-} libmath_handler_t;
+// } libmath_handler_t;
 
-static libmath_handler_t libmath_handler ;
+// static libmath_handler_t libmath_handler ;
 
-void load_real_sym(void**fctPtr, std::string name ){
-  (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
-}
+// void load_real_sym(void**fctPtr, std::string name ){
+//   (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
+// }
 
  void __attribute__((constructor)) init_interlibmath(){
    
@@ -42,8 +43,10 @@ void load_real_sym(void**fctPtr, std::string name ){
    unsigned int vr_seed=  now.tv_usec + pid;
    vr_rand_setSeed(&vr_rand, vr_seed);
    //std::cerr <<"Init interlibmath" <<std::endl;
-   load_real_sym((void**)&(libmath_handler.real_cos_double) , "cos");
-   load_real_sym((void**)&(libmath_handler.real_sin_double) , "sin");
+   // load_real_sym((void**)&(libmath_handler.real_cos_double) , "cos");
+   // load_real_sym((void**)&(libmath_handler.real_cos_float) , "cosf");
+
+   // load_real_sym((void**)&(libmath_handler.real_sin_double) , "sin");
 
 }
 
@@ -54,6 +57,50 @@ void __attribute__((destructor)) finalyze_interlibmath(){
 
 
 
+class myLibMathFunction1{
+public:
+  myLibMathFunction1(std::string name){
+    load_real_sym((void**)&(real_name_float) , name +std::string("f"));
+    load_real_sym((void**)&(real_name_double) , name);
+    load_real_sym((void**)&(real_name_float128) , name +std::string("q"));
+  }
+  
+
+  double apply(double a){
+    return real_name_double(a);
+  }
+  
+
+  float apply(float a){
+    return real_name_float(a);
+  }
+
+
+  float apply(__float128 a){
+    return real_name_float128(a);
+  }
+
+
+private:
+  void load_real_sym(void**fctPtr, std::string name ){
+    std::cerr << "loading: " <<  name <<std::endl;
+    (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
+    if(fctPtr==NULL){
+      std::cerr << "Problem with function "<< name<<std::endl;
+    }
+
+    
+
+  }
+
+  
+  float (*real_name_float)(float) ;
+  double (*real_name_double)(double) ;
+  __float128 (*real_name_float128)(__float128) ;
+  
+};
+
+myLibMathFunction1 myCos("cos");
 
 
 template<typename REALTYPE>
@@ -69,13 +116,14 @@ public:
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
-    double res=(*libmath_handler.real_cos_double)(a);
+    //    double res=(*libmath_handler.real_cos_double)(a);
+    RealType res=myCos.apply(a);
     return res;
   };
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
     const RealType & a(p.arg1);
-    const __float128 ref=cosq((__float128)a ); 
+    __float128 ref=myCos.apply((__float128)a);
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -136,5 +184,13 @@ extern "C"{
     double res=Op::apply((Op::PackArgs(a) ));
     return MAGIC(constraint_cossin)(res);
   }
+
+  float cosf(float a){
+    typedef OpWithSelectedRoundingMode< libmathcos<float>,float > Op;
+    float res=Op::apply((Op::PackArgs(a) ));
+    return MAGIC(constraint_cossin)(res);
+  }
+
+  
 };
 
