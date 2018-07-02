@@ -5,7 +5,7 @@ FLAGS=-DLIBMATHINTERP -I../backend_verrou -Wall -O0
 CXX=g++
 
 interlibmath.so: $(SRC)
-	$(CXX) $(SRC) -lquad -lm -shared $(FLAGS) -o interlibmath.so
+	$(CXX) $(SRC) -lquadmath -lm -shared -fPIC $(FLAGS) -ldl -o interlibmath.so
 
 
 testCos: testCos.cxx

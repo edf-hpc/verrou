@@ -15,39 +15,20 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
+#include <dlfcn.h>
 
 #define MAGIC(name) gugtd1az1dza ## name
 
-#include <dlfcn.h>
 
-// typedef struct
-// {
-//   double (*real_cos_double)(double) ;
-//   float  (*real_cos_float)(float) ;
-//   double (*real_sin_double)(double) ;
-  
-// } libmath_handler_t;
 
-// static libmath_handler_t libmath_handler ;
-
-// void load_real_sym(void**fctPtr, std::string name ){
-//   (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
-// }
 
  void __attribute__((constructor)) init_interlibmath(){
    
-
    struct timeval now;
    gettimeofday(&now, NULL);
    unsigned int pid = getpid();
    unsigned int vr_seed=  now.tv_usec + pid;
    vr_rand_setSeed(&vr_rand, vr_seed);
-   //std::cerr <<"Init interlibmath" <<std::endl;
-   // load_real_sym((void**)&(libmath_handler.real_cos_double) , "cos");
-   // load_real_sym((void**)&(libmath_handler.real_cos_float) , "cosf");
-
-   // load_real_sym((void**)&(libmath_handler.real_sin_double) , "sin");
-
 }
 
 
@@ -76,16 +57,16 @@ public:
   }
 
 
-  float apply(__float128 a){
+  __float128 apply(__float128 a){
     return real_name_float128(a);
   }
 
 
 private:
   void load_real_sym(void**fctPtr, std::string name ){
-    std::cerr << "loading: " <<  name <<std::endl;
+    // std::cerr << "loading: " <<  name <<std::endl;
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
-    if(fctPtr==NULL){
+    if(*fctPtr==NULL){
       std::cerr << "Problem with function "<< name<<std::endl;
     }
 
@@ -116,9 +97,7 @@ public:
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
-    //    double res=(*libmath_handler.real_cos_double)(a);
-    RealType res=myCos.apply(a);
-    return res;
+    return myCos.apply(a);
   };
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
