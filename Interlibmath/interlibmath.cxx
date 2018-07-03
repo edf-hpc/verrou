@@ -46,16 +46,13 @@ public:
     load_real_sym((void**)&(real_name_float128) , name +std::string("q"));
   }
   
-
   double apply(double a){
     return real_name_double(a);
   }
-  
 
   float apply(float a){
     return real_name_float(a);
   }
-
 
   __float128 apply(__float128 a){
     return real_name_float128(a);
@@ -69,23 +66,25 @@ private:
     if(*fctPtr==NULL){
       std::cerr << "Problem with function "<< name<<std::endl;
     }
-
-    
-
   }
 
-  
+  //Attributs
   float (*real_name_float)(float) ;
   double (*real_name_double)(double) ;
   __float128 (*real_name_float128)(__float128) ;
-  
 };
 
-myLibMathFunction1 myCos("cos");
+
+//myLibMathFunction1 myCos("cos");
+enum FunctionName {enumCos, enumSin, enumErf,size};
+
+myLibMathFunction1 functionNameTab[size]={myLibMathFunction1("cos"),
+					  myLibMathFunction1("sin"),
+					  myLibMathFunction1("erf")}; 
 
 
-template<typename REALTYPE>
-class libmathcos{
+template<int  MATHFUNCTIONINDEX, typename REALTYPE>
+class libMathFunction{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
@@ -97,12 +96,12 @@ public:
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
-    return myCos.apply(a);
+    return functionNameTab[MATHFUNCTIONINDEX].apply(a);
   };
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
     const RealType & a(p.arg1);
-    __float128 ref=myCos.apply((__float128)a);
+    __float128 ref=functionNameTab[MATHFUNCTIONINDEX].apply((__float128)a);
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -126,7 +125,7 @@ public:
 
 
 template<class REALTYPE> 
-REALTYPE MAGIC(constraint_cossin)(const REALTYPE& x ){
+REALTYPE MAGIC(constraint_m1p1)(const REALTYPE& x ){
   if(x>1) return 1.; 
   if(x<-1) return -1.;
   return x;
@@ -159,17 +158,45 @@ extern "C"{
 
 
   double cos(double a){
-    typedef OpWithSelectedRoundingMode< libmathcos<double>,double > Op;
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumCos,double>,double > Op;
     double res=Op::apply((Op::PackArgs(a) ));
-    return MAGIC(constraint_cossin)(res);
+    return MAGIC(constraint_m1p1)(res); // not sur it is usefull
   }
 
   float cosf(float a){
-    typedef OpWithSelectedRoundingMode< libmathcos<float>,float > Op;
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumCos,float>,float > Op;
     float res=Op::apply((Op::PackArgs(a) ));
-    return MAGIC(constraint_cossin)(res);
+    return MAGIC(constraint_m1p1)(res);
   }
 
+
+  double sin(double a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumSin,double>,double > Op;
+    double res=Op::apply((Op::PackArgs(a) ));
+    return MAGIC(constraint_m1p1)(res); // not sur it is usefull
+  }
+
+  float sinf(float a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumSin,float>,float > Op;
+    float res=Op::apply((Op::PackArgs(a) ));
+    return MAGIC(constraint_m1p1)(res);
+  }
+
+
+  double erf(double a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumErf,double>,double > Op;
+    double res=Op::apply((Op::PackArgs(a) ));
+    return MAGIC(constraint_m1p1)(res); // not sur it is usefull
+  }
+
+  float erff(float a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumErf,float>,float > Op;
+    float res=Op::apply((Op::PackArgs(a) ));
+    return MAGIC(constraint_m1p1)(res);
+  }
+
+  
+  
   
 };
 
