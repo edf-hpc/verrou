@@ -425,7 +425,7 @@ class DDsym(DDvr):
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
-            print "WARNING: the symbol " + sym + "do not generate a FAIL" 
+            print "WARNING: the symbol(s) " + symsname + "do not generate a FAIL"
 
         return testResult
 
