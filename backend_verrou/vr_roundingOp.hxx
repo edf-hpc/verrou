@@ -41,6 +41,7 @@ extern vr_RoundingMode ROUNDINGMODE;
 #endif
 
 #include "vr_fpRepr.hxx"
+#include "vr_op.hxx"
 
 template<class OP>
 class RoundingNearest{
@@ -55,6 +56,22 @@ public:
   } ;
 
 };
+
+template<class OP>
+class RoundingFloat{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    vr_roundFloat<typename PackArgs::RealType, PackArgs::nb> roundedArgs (p);
+    const float res=(float) OP::nearestOp(roundedArgs.getPack()) ;
+    return RealType(res);
+  } ;
+
+};
+
+
 
 
 template<class OP>
@@ -357,7 +374,10 @@ public:
       return RoundingAverage<OP>::apply (p);
     case VR_FARTHEST:
       return RoundingFarthest<OP>::apply (p);
+    case VR_FLOAT:
+      return RoundingFloat<OP>::apply (p);
     }
+
     return 0;
   }
 };
