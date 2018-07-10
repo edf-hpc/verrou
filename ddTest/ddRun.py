@@ -56,14 +56,13 @@ class ddConfig:
         print listOfSym
 
         configLineLines=[line.split() for line in  (open(configLine.strip(),"r")).readlines()]
+        configLineLines.remove(["__unknown__","0"])
+        print "configLineLines:",configLineLines
         for sym in range(self.nbSym):
             if sym not in listOfSym and self.listOfFailure[sym][1]!=0:
-
                 print "sym:", sym
                 print "listofLineFailure :", self.listOfFailure[sym][2]
-                print configLineLines
-                configLineLines.remove(["__unknown__","0"])
-                print "confLineLines:", configLineLines
+                
                 
                 selectedConfigLines=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym) ]
                 print "selectedConfigLines:", selectedConfigLines
@@ -133,7 +132,7 @@ def runNorm(dir_path,ddCase):
         
         
 if __name__=="__main__":
-    ddCase=ddConfig([(sym, max(0, sym-8),[(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
+    ddCase=ddConfig([(sym, max(0, sym-6),[(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
     if "ref" in sys.argv[1]:
         sys.exit(runRef(sys.argv[1],ddCase))
     else:
