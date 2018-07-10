@@ -7,18 +7,25 @@ import pickle
 
 class ddConfig:
     def __init__(self,listOfFailure=[]):
-        self.nb=len(listOfFailure)
+        self.nbSym=len(listOfFailure)
         self.listOfFailure=listOfFailure
 
     def listOfSym(self):
-        return [("sym-"+str(i),"fake.so") for i in range(self.nb)]
+        return [("sym-"+str(i),"fake.so") for i in range(self.nbSym)]
 
     def listOfLine(self, excludeFile):
         listOfSymExcluded=[int((line.split()[0]).replace("sym-","")) for line in ((open(excludeFile.strip(),"r")).readlines()) ]
-        listOfSymIncluded=[i for i in range(self.nb) if i not in listOfSymExcluded]
-
-        print "print list included", listOfSymIncluded
-    
+        listOfSymIncluded=[i for i in range(self.nbSym) if i not in listOfSymExcluded]
+        res=[]
+        for sym in listOfSymIncluded:
+            for (symFailureIndex, failure, listOfLine) in self.listOfFailure:
+                if failure!=0:
+                    for (lineIndex, failureLine) in listOfLine:
+                            res+=[("sym"+str(sym)+".c", lineIndex, "sym-"+str(sym))]
+                
+        print "print listOfLine", res
+        return res
+        
     def pickle(self, fileName):
         pickle.dump(self.listOfFailure,open(fileName,"w"))
 #        f=open(fileName,"w")
@@ -27,7 +34,7 @@ class ddConfig:
 
     def unpickle(self,fileName):
         self.listOfFailure=pickle.load(open(fileName,"r"))
-        self.nb=len(self.listOfFailure)
+        self.nbSym=len(self.listOfFailure)
 #        self.nb=int(f.readline())
 #        f.close()
 
@@ -36,19 +43,38 @@ class ddConfig:
         listOfLine=[int((line.split()[0]).replace("sym-","")) for line in ((open(config.strip(),"r")).readlines()) ]
         print listOfLine
 
-        for line in range(self.nb):
+        for line in range(self.nbSym):
             if line not in listOfLine and self.listOfFailure[line][1]!=0:
                 return 1
         return 0
 
-    def statusOfSourceConfig(self,config):
-        print (open(config.strip(),"r")).readlines()
-        listOfLine=[int((line.split()[0]).replace("sym-","")) for line in ((open(config.strip(),"r")).readlines()) ]
-        print listOfLine
+    def statusOfSourceConfig(self,configSym, configLine):
+        print "configSym:", configSym
+        print "configLine:", configLine
+        print (open(configSym.strip(),"r")).readlines()
+        listOfSym=[int((line.split()[0]).replace("sym-","")) for line in ((open(configSym.strip(),"r")).readlines()) ]
+        print listOfSym
 
-        for line in range(self.nb):
-            if line not in listOfLine and self.listOfFailure[line][1]!=0:
-                return 1
+        configLineLines=[line.split() for line in  (open(configLine.strip(),"r")).readlines()]
+        for sym in range(self.nbSym):
+            if sym not in listOfSym and self.listOfFailure[sym][1]!=0:
+
+                print "sym:", sym
+                print "listofLineFailure :", self.listOfFailure[sym][2]
+                print configLineLines
+                configLineLines.remove(["__unknown__","0"])
+                print "confLineLines:", configLineLines
+                
+                selectedConfigLines=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym) ]
+                print "selectedConfigLines:", selectedConfigLines
+                for (lineFailure, failure) in self.listOfFailure[sym][2]: 
+                    if lineFailure in selectedConfigLines and failure :
+                        print "line return : ",lineFailure
+                        return 1
+                
+                    
+
+        print "Oups"
         return 0
 
     
@@ -60,19 +86,22 @@ def generateFakeExclusion(ddCase):
     
     
     f=open(genExcludeFile,"w")
-    for (sym,name) in ddCase.listOfSym():
+    for (sym,name,) in ddCase.listOfSym():
         f.write(sym +"\t" + name+"\n")
     f.close()
 
 def generateFakeSource(ddCase):
+
+
     genSourceFile=os.environ["VERROU_GEN_SOURCE"]
     genSourceFile=genSourceFile.replace("%p","4242")
 
+    
     excludeFile= os.environ["VERROU_EXCLUDE"]
     
     f=open(genSourceFile,"w")
-    for (source , line ,  sym) in ddCase.listOfLine(excludeFile):
-        f.write(source +"\t" + str(line)+"\t"+ name+"\n")
+    for (source , line ,  symName) in ddCase.listOfLine(excludeFile):
+        f.write(source +"\t" + str(line)+"\t"+symName+"\n")
         
     f.close()
 
@@ -102,8 +131,9 @@ def runNorm(dir_path,ddCase):
         f.write(os.environ["VERROU_SOURCE"]+"\n")
         f.close()
         
+        
 if __name__=="__main__":
-    ddCase=ddConfig([(i, max(0, i-4.)) for i in range(10)])
+    ddCase=ddConfig([(sym, max(0, sym-8),[(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
     if "ref" in sys.argv[1]:
         sys.exit(runRef(sys.argv[1],ddCase))
     else:

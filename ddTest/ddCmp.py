@@ -13,7 +13,7 @@ def cmpNorm(ref, toCmp, ddCase):
     if "dd.sym" in ref:
         return ddCase.statusOfSymConfig(open(toCmp+"/path_exclude").readline())
     if "dd.line" in ref:
-        return ddCase.statusOfSourceConfig(open(toCmp+"/path_source").readline())
+        return ddCase.statusOfSourceConfig(ref+"/dd.exclude",open(toCmp+"/path_source").readline())
 if __name__=="__main__":
     if sys.argv[1]== sys.argv[2]:
         sys.exit(0)
