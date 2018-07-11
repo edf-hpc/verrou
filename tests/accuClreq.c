@@ -3,7 +3,8 @@
 
 float compute () {
   float res=0;
-  for(int i=0; i< 1000; i++){
+  int i;
+  for(i=0; i< 1000; i++){
     res+=(float)0.1;
   }
   return res-100 ;
