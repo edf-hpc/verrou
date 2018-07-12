@@ -1,42 +1,32 @@
-==1828== Verrou, Check floating-point rounding errors
-==1828== Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
-==1828== Using Valgrind-3.13.0+verrou-dev and LibVEX; rerun with -h for copyright info
-==1828== Command: ./clreq-accu
-==1828== 
-==1828== Backend verrou : 1.x-dev
-==1828== Simulating UPWARD rounding mode
-==1828== Instrumented operations :
-==1828== 	add : yes
-==1828== 	sub : yes
-==1828== 	mul : yes
-==1828== 	div : yes
-==1828== 	mAdd : yes
-==1828== 	mSub : yes
-==1828== 	cmp : no
-==1828== 	conv : yes
-==1828== 	max : no
-==1828== 	min : no
-==1828== Instrumented scalar operations : no
-==1828== 
-==1828==  ---------------------------------------------------------------------
-==1828==  Operation                            Instruction count
-==1828==   `- Precision
-==1828==       `- Vectorization          Total             Instrumented
-==1828==  ---------------------------------------------------------------------
-==1828==  add                     3000                     1000          ( 33%)
-==1828==   `- flt                     3000                     1000      ( 33%)
-==1828==       `- llo                     3000                     1000  ( 33%)
-==1828==  ---------------------------------------------------------------------
-==1828==  sub                        3                        1          ( 33%)
-==1828==   `- flt                        3                        1      ( 33%)
-==1828==       `- llo                        3                        1  ( 33%)
-==1828==  ---------------------------------------------------------------------
-==1828==  cmp                       12                        0          (  0%)
-==1828==   `- dbl                       12                        0      (  0%)
-==1828==       `- scal                      12                        0  (  0%)
-==1828==  ---------------------------------------------------------------------
-==1828==  conv                      15                        0          (  0%)
-==1828==   `- flt=>dbl                  15                        0      (  0%)
-==1828==       `- scal                      15                        0  (  0%)
-==1828==  ---------------------------------------------------------------------
-==1828== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+Verrou, Check floating-point rounding errors
+Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
+
+Backend verrou : test-version
+Simulating UPWARD rounding mode
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented scalar operations : no
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                     3000                     1000          ( 33%)
+  `- flt                     3000                     1000      ( 33%)
+      `- llo                     3000                     1000  ( 33%)
+ ---------------------------------------------------------------------
+ sub                        3                        1          ( 33%)
+  `- flt                        3                        1      ( 33%)
+      `- llo                        3                        1  ( 33%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
