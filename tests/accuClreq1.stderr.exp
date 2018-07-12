@@ -1,0 +1,32 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
+
+Backend verrou : test-version
+Simulating UPWARD rounding mode
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented scalar operations : no
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                     3000                     2000          ( 67%)
+  `- flt                     3000                     2000      ( 67%)
+      `- llo                     3000                     2000  ( 67%)
+ ---------------------------------------------------------------------
+ sub                        3                        2          ( 67%)
+  `- flt                        3                        2      ( 67%)
+      `- llo                        3                        2  ( 67%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

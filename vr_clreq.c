@@ -34,7 +34,7 @@
 
 // * Start-stop instrumentation
 
-static void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
+void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
   if (vr.instrument == state) {
     if(vr.verbose){
       VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
