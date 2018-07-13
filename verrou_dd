@@ -556,7 +556,7 @@ def ddLine(run, compare, refSym, confSymsTab):
             deltas = []
             with open(dd.ref_ + "/dd.source", "r") as f:
                 for line in f:
-                    if line.endswith("\t%s\n"%symname):
+                    if line.endswith("\t%s\n"%symname) and line not in deltas:
                         deltas.append(line)
 
             try:
