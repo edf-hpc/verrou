@@ -18,7 +18,7 @@ the list of [releases](https://github.com/edf-hpc/verrou/releases).
 
 Fetch valgrind's sources:
 
-    svn co svn://svn.valgrind.org/valgrind/tags/VALGRIND_3_13_0 valgrind
+    git clone --branch=svn/VALGRIND_3_13_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.13.0+verrou-dev
 
 Add verrou's sources to it:
 
