@@ -68,6 +68,7 @@ static void vr_deterministic_section_name (unsigned int level,
   const HChar* filename;
   UInt  linenum;
   Addr  addr;
+  DiEpoch de = VG_(current_DiEpoch)();
 
   VG_(get_StackTrace)(VG_(get_running_tid)(),
                       ips, 8,
@@ -76,10 +77,11 @@ static void vr_deterministic_section_name (unsigned int level,
   addr = ips[level];
 
   //fnname[0] = 0;
-  VG_(get_fnname)(addr, &fnname);
+  VG_(get_fnname)(de, addr, &fnname);
 
   //  filename[0] = 0;
-  VG_(get_filename_linenum)(addr,
+  VG_(get_filename_linenum)(de,
+                            addr,
                             &filename,
                             NULL,
                             &linenum);

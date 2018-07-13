@@ -146,7 +146,7 @@ static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
   const HChar* fnname;
   UInt i;
   for (i = 0 ; i<nips ; ++i) {
-    VG_(get_fnname)(ips[i], &fnname);
+    VG_(get_fnname)(VG_(current_DiEpoch)(), ips[i], &fnname);
     if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) {
       return True;
     }
@@ -163,15 +163,16 @@ Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
                                   NULL, NULL,
                                   0);
   Addr addr = ips[0];
+  DiEpoch de = VG_(current_DiEpoch)();
 
   //fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname);
+  VG_(get_fnname)(de, addr, fnname);
   if (VG_(strlen)(*fnname) == VR_FNNAME_BUFSIZE-1) {
     VG_(umsg)("WARNING: Function name too long: %s\n", *fnname);
   }
 
   //  objname[0] = 0;
-  VG_(get_objname)(addr, objname);
+  VG_(get_objname)(de, addr, objname);
 
 
   // Never exclude unnamed functions
