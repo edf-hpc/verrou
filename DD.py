@@ -695,7 +695,7 @@ class DD:
                     if t == self.FAIL:
                         if self.debug_dd:
                             print ("dd: reduced to", len(cbars[i]),)
-                            print ("deltas:",)
+                            print ("deltas:", end="")
                             print (self.pretty(cbars[i]))
 
                         cbar_failed = 1

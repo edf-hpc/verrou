@@ -297,10 +297,10 @@ class DDvr(DD.DD):
         return self.prefix_ + "/" + hashlib.md5(("".join(deltas)).encode('utf-8')).hexdigest()
 
     def alreadyDone(self, dirname):
-        print(dirname,)
+        print(dirname,end="")
         if os.path.exists(dirname):
             res = os.path.exists("%s/dd.pass"%dirname)
-            print(" --(cache)-> ",)
+            print(" --(cache)-> ",end="")
             if res:
                 print("PASS")
                 return self.PASS
@@ -308,7 +308,7 @@ class DDvr(DD.DD):
                 print("FAIL")
                 return self.FAIL
 
-        print(" --( run )-> ",)
+        print(" --( run )-> ",end="",flush=True)
         prepareOutput(dirname)
         return None
 
@@ -515,7 +515,7 @@ class DDline(DDvr):
         #get the name of the conf
         dictLines={}
         for (filename, linenum) in [delta.strip().split("\t")[0:2] for delta in deltas]:
-            if dictLines.has_key(filename):
+            if filename in dictLines:
                 dictLines[filename]+=[linenum]
             else:
                 dictLines[filename]=[linenum]
