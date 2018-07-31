@@ -71,7 +71,7 @@ public:
   REALTYPEREF res;
   REALTYPEREF expectedResult;
   void check(){
-    std::cout.precision(std::numeric_limits< REALTYPEREF >::digits10);
+    std::cout.precision(16);
     std::cout << name()<<"<"<< typeName<REALTYPE>()<<">" <<":\tres: " << res
 	      << "\ttheo: "<< expectedResult
 	      << "\tdiff: "<<  res-expectedResult<<std::endl;

@@ -86,6 +86,8 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.roundingMode, VR_ZERO)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=farthest",
                         vr.roundingMode, VR_FARTHEST)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=float",
+                        vr.roundingMode, VR_FLOAT)) {}
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",

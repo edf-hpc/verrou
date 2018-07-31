@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
 download-valgrind:
-	cd .. && svn checkout "svn://svn.valgrind.org/valgrind/$(VALGRIND_VERSION)" valgrind+verrou >/dev/null
+	cd .. && git clone --branch=$(VALGRIND_VERSION) --single-branch git://sourceware.org/git/valgrind.git valgrind+verrou >/dev/null
 
 patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
@@ -9,7 +9,7 @@ patch-valgrind:
 patch-error:
 	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
 	# try to build verrou anyway if we check the development version of Valgrind
-	test "$(VALGRIND_VERSION)" = "trunk"
+	test "$(VALGRIND_VERSION)" = "master"
 
 configure:
 	cd ../valgrind+verrou && ./autogen.sh

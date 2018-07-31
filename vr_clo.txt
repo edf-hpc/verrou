@@ -18,7 +18,7 @@
 "          ·   IEEE-754 rounding modes: nearest (default), upward, downward,\n"
 "              toward_zero.\n"
 "\n"
-"          ·   Other: farthest.\n"
+"          ·   Other: farthest, float.\n"
 "\n"
 "      --vr-seed=RNG_SEED [default=automatically generated]\n"
 "          If present, this option allows setting the seed of the\n"
