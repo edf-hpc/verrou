@@ -237,7 +237,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link
@@ -258,7 +258,8 @@ det2
                   <computeroutput>toward_zero</computeroutput>.
                 </para></listitem>
                 <listitem><para>
-                  <command>Other:</command> <computeroutput>farthest</computeroutput>.
+                    <command>Other:</command> <computeroutput>farthest</computeroutput>,
+		    <computeroutput>float</computeroutput>.
                 </para></listitem>
               </itemizedlist>
             </listitem>
