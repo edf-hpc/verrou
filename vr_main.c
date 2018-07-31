@@ -1277,6 +1277,11 @@ static void vr_post_clo_init(void)
    VG_(umsg)("Instrumented scalar operations : ");
    if(vr.instr_scalar) VG_(umsg)("yes\n");
    else VG_(umsg)("no\n");
+
+   if(!vr.instrument){
+     vr.instrument = True;
+     vr_set_instrument_state ("Program start", False);
+   }
 }
 
 static void vr_pre_clo_init(void)

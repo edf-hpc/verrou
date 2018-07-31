@@ -128,9 +128,11 @@ extern Vr_State vr;
 void vr_ppOpCount (void);
 void vr_cancellation_handler(int cancelled );
 
+
 // ** vr_clreq.c
 
 Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
+void vr_set_instrument_state (const HChar* reason, Vr_Instr state);
 
 
 // ** vr_error.c

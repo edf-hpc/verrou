@@ -12,9 +12,11 @@ EXTRA_DIST = \
 	sum2.vgtest       sum2.stderr.exp       sum2.stdout.exp  \
 	sum3.vgtest       sum3.stderr.exp       sum3.stdout.exp  \
 	seed.vgtest       seed.stderr.exp       seed.stdout.exp  \
-	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp
+	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp  \
+	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
+	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp
 
-check_PROGRAMS = clreq sum
+check_PROGRAMS = clreq accuClreq sum
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
