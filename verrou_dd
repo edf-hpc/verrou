@@ -1,4 +1,4 @@
-#!/usr/bin/env -S python3 -u
+#!/usr/bin/env PYTHONUNBUFFERED=1 python3
 
 import subprocess
 import sys
