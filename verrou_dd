@@ -421,8 +421,11 @@ class DDsym(DDvr):
         #symsname=reduce(lambda sym1,sym2 : sym1+","+sym2,syms)
         symsname=",".join(syms)
 
-        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
-            linkname = "%s.%s"%(self.prefix_, symsname)
+        if symlinkconf==True or (symlinkconf!=False and testResult==self.FAIL):
+            if symlinkconf==None:
+                linkname = "%s.%s"%(self.prefix_, symsname)
+            else:
+                linkname=  "%s/%s"%(self.prefix_,symlinkconf)
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
@@ -451,14 +454,15 @@ def ddSymRDDMin(run, compare):
         deltas = f.readlines()
     confTab = dd.RDDMin(deltas)
 
-    for conf in confTab:
-        dd.testSym(conf)
+    for i in range(len(confTab)):
+        conf=confTab[i]
+        dd.testSym(conf, symlinkconf="ddmin-%d"%(i))
 
     return (dd.ref_, confTab)
 
 class DDline(DDvr):
-    def __init__(self, run, compare, refSym, confSyms):
-        DDvr.__init__(self, "dd.line")
+    def __init__(self, run, compare, refSym, confSyms, prefix="dd.line"):
+        DDvr.__init__(self, prefix)
         self.run_ = run
         self.compare_ = compare
 
@@ -579,8 +583,9 @@ def ddLine(run, compare, refSym, confSymsTab):
 def ddLineRDDMin(run, compare, refSym, confSymsTab):
 
     confLines = []
-    for confSyms in confSymsTab:
-        dd = DDline(run, compare, refSym, confSyms)
+    for i in range(len(confSymsTab)):
+        confSyms=confSymsTab[i]
+        dd = DDline(run, compare, refSym, confSyms, "dd.line.ddmin-%d"%(i))
 
         for sym in confSyms:
             symname = sym.partition("\t")[0]
