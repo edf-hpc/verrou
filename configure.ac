@@ -1,4 +1,4 @@
-AM_PATH_PYTHON()
+AM_PATH_PYTHON([3])
 
 AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
   [AC_ARG_ENABLE(verrou-fma,

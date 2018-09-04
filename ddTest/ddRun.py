@@ -27,13 +27,13 @@ class ddConfig:
         return res
         
     def pickle(self, fileName):
-        pickle.dump(self.listOfFailure, open(fileName, "w"))
+        pickle.dump(self.listOfFailure, open(fileName, "wb"))
 #        f=open(fileName,"w")
 #        f.write(str(self.nb)+"\n")
 #        f.close()
 
     def unpickle(self, fileName):
-        self.listOfFailure=pickle.load(open(fileName, "r"))
+        self.listOfFailure=pickle.load(open(fileName, "rb"))
         self.nbSym=len(self.listOfFailure)
 #        self.nb=int(f.readline())
 #        f.close()
