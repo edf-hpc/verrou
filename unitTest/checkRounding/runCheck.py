@@ -26,19 +26,16 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
     if printCwd:
         print("Cwd:", os.getcwd())
     #lancement de la commande
-
-    resStd=[]
-    resErr=[]
     
-    process=sp.Popen(args=shlex.split(cmd), stdout=sp.PIPE, stderr=sp.PIPE)
-        
-    fd=process.stdout
-    fde=process.stderr
+    process=sp.Popen(args=shlex.split(cmd),
+                     stdout=sp.PIPE,
+                     stderr=sp.PIPE,
+                     encoding='utf8')
 
-    resStd=fd.readlines()
-    resErr=fde.readlines()
-    fd.close() 
-    fde.close()
+    (resStdStr, resErrStr)=process.communicate()
+
+    resStd=resStdStr.splitlines()
+    resErr=resErrStr.splitlines()
      
     error=process.wait()
 
