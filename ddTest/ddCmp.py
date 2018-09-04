@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 
 import sys
@@ -9,11 +9,11 @@ import pickle
 
 
 def cmpNorm(ref, toCmp, ddCase):
-    print "norm"
+    print("norm")
     if "dd.sym" in ref:
         return ddCase.statusOfSymConfig(open(toCmp+"/path_exclude").readline())
     if "dd.line" in ref:
-        return ddCase.statusOfSourceConfig(ref+"/dd.exclude",open(toCmp+"/path_source").readline())
+        return ddCase.statusOfSourceConfig(ref+"/dd.exclude", open(toCmp+"/path_source").readline())
 if __name__=="__main__":
     if sys.argv[1]== sys.argv[2]:
         sys.exit(0)
@@ -22,7 +22,7 @@ if __name__=="__main__":
         ref=sys.argv[1]
         ddCase.unpickle(ref+"/dd.pickle")
         toCmp=sys.argv[2]
-        sys.exit(cmpNorm(ref, toCmp,ddCase))
+        sys.exit(cmpNorm(ref, toCmp, ddCase))
     
 
 
