@@ -29,13 +29,12 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
     
     process=sp.Popen(args=shlex.split(cmd),
                      stdout=sp.PIPE,
-                     stderr=sp.PIPE,
-                     encoding='utf8')
+                     stderr=sp.PIPE)
 
     (resStdStr, resErrStr)=process.communicate()
 
-    resStd=resStdStr.splitlines()
-    resErr=resErrStr.splitlines()
+    resStd=resStdStr.encode().splitlines()
+    resErr=resErrStr.encode().splitlines()
      
     error=process.wait()
 
