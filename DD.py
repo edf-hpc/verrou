@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 # $Id: DD.py,v 1.2 2001/11/05 19:53:33 zeller Exp $
 # Enhanced Delta Debugging class
 # Copyright (c) 1999, 2000, 2001 Andreas Zeller.
