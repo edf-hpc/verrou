@@ -33,8 +33,8 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
 
     (resStdStr, resErrStr)=process.communicate()
 
-    resStd=resStdStr.encode().splitlines()
-    resErr=resErrStr.encode().splitlines()
+    resStd=resStdStr.decode('utf8').splitlines()
+    resErr=resErrStr.decode('utf8').splitlines()
      
     error=process.wait()
 
