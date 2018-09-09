@@ -110,23 +110,23 @@ def runRef(dir_path, ddCase):
     print("ref")
     if "dd.sym" in dir_path:
         generateFakeExclusion(ddCase)
-        ddCase.pickle(dir_path+"/dd.pickle")
+        ddCase.pickle(os.path.join(dir_path,"dd.pickle"))
         return 0
     if "dd.line" in dir_path:
         generateFakeSource(ddCase)
-        ddCase.pickle(dir_path+"/dd.pickle")
+        ddCase.pickle(os.path.join(dir_path,"dd.pickle"))
         return 0
 
         
 def runNorm(dir_path, ddCase):
     print("norm")
     if "dd.sym" in dir_path:
-        f=open(dir_path +"/path_exclude", "w")
+        f=open(os.path.join(dir_path , "path_exclude"), "w")
         f.write(os.environ["VERROU_EXCLUDE"]+"\n")
         f.close()
         return 0
     if "dd.line" in dir_path:
-        f=open(dir_path+"/path_source", "w")
+        f=open(os.path.join(dir_path,"path_source"), "w")
         f.write(os.environ["VERROU_SOURCE"]+"\n")
         f.close()
         
