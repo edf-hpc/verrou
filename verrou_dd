@@ -1,4 +1,6 @@
-#!/usr/bin/python3 -u
+#!/bin/sh
+''''exec python3 -u "$0" "$@" #'''
+# This hack is an ugly but portable alternative to #!/usr/bin/env -S python3 -u
 
 import subprocess
 import sys

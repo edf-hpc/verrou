@@ -13,10 +13,10 @@ FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mfma -DTEST_FMA -DTEST_SSE
 
 run: run1 run2
 run1: $(EXEC1)
-	python runCheck.py $(EXEC1)
+	python3 runCheck.py $(EXEC1)
 
 run2: $(EXEC2)
-	python runCheck.py $(EXEC2)
+	python3 runCheck.py $(EXEC2)
 
 
 $(EXEC1): $(SOURCE)

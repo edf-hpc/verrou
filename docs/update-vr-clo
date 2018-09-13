@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import subprocess
@@ -8,7 +8,8 @@ env = os.environ
 env["COLUMNS"] = "81"
 man = subprocess.Popen(["man", "./install/share/man/man1/valgrind.1"],
                        env = env,
-                       stdout = subprocess.PIPE)
+                       stdout = subprocess.PIPE,
+                       encoding = 'utf8')
 
 for line in man.stdout:
     if line.startswith("VERROU"):

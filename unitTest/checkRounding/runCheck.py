@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -7,38 +7,34 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-valgrindRounding=stdRounding + ["random","average","float", "farthest","memcheck"]
+valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck"]
 
 
 def printRes(res):
-    print "stdout:"
+    print("stdout:")
     for line in res[0 ]:
-        print line[0:-1]
-    print "cerr  :"
+        print(line[0:-1])
+    print("cerr  :")
     for line in res[1 ]:
-        print line[0:-1]
+        print(line[0:-1])
 
 
 def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):    
     if printCmd:
-        print  "Cmd:", cmd
+        print("Cmd:", cmd)
 
     if printCwd:
-        print "Cwd:", os.getcwd()
+        print("Cwd:", os.getcwd())
     #lancement de la commande
-
-    resStd=[]
-    resErr=[]
     
-    process=sp.Popen(args=shlex.split(cmd),stdout=sp.PIPE, stderr=sp.PIPE)
-        
-    fd=process.stdout
-    fde=process.stderr
+    process=sp.Popen(args=shlex.split(cmd),
+                     stdout=sp.PIPE,
+                     stderr=sp.PIPE)
 
-    resStd=fd.readlines()
-    resErr=fde.readlines()
-    fd.close() 
-    fde.close()
+    (resStdStr, resErrStr)=process.communicate()
+
+    resStd=resStdStr.decode('utf8').splitlines()
+    resErr=resErrStr.decode('utf8').splitlines()
      
     error=process.wait()
 
@@ -47,8 +43,8 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
         msg = "Error with the execution of : " +cmd+"\n"
         msg+= "\t error is " +str(error) +"\n"
         msg+= "\t expectedResult is " +str(expectedResult)        
-        print msg
-        printRes((resStd,resErr))
+        print(msg)
+        printRes((resStd, resErr))
 
         
         sys.exit(42)
@@ -58,7 +54,7 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
         
 
 class cmdPrepare:
-    def __init__(self,arg):
+    def __init__(self, arg):
         self.valgrindPath=os.path.join(os.environ["INSTALLPATH"], "bin", "valgrind")
         self.execPath=arg
     
@@ -83,7 +79,7 @@ class cmdPrepare:
             return True
         if env=="valgrind" and rounding in valgrindRounding:
             return True
-        print "Failure in checkRounding"
+        print("Failure in checkRounding")
         sys.exit(-1)
 
 
@@ -91,9 +87,9 @@ class cmdPrepare:
 def generatePairOfAvailableComputation():
     res=[]
     for i in stdRounding:
-        res+=[("fenv" ,i)]
+        res+=[("fenv", i)]
     for i in valgrindRounding:
-        res+=[("valgrind" ,i)]
+        res+=[("valgrind", i)]
     return res
         
 
@@ -102,8 +98,8 @@ def verrouCerrFilter(res):
     # pidStr="==2958=="
     newRes=[]
     for line in res:
-        newLine=line.replace(pidStr,"")
-        if newLine.startswith(" Simulating ") and newLine.endswith(" rounding mode\n"):
+        newLine=line.replace(pidStr, "")
+        if newLine.startswith(" Simulating ") and newLine.endswith(" rounding mode"):
             continue
         if newLine.startswith(" First seed : "):
             continue
@@ -114,7 +110,7 @@ def getDiff(outPut, testName):
     for line in outPut[0]:
         if line.startswith(testName+":"):
             return float(line.split()[-1])
-    print "unknown testName: ", testName    
+    print("unknown testName: ", testName)    
     return None
 
 
@@ -128,11 +124,11 @@ class errorCounter:
         self.warn=warn
 
 
-    def incOK(self,v):
+    def incOK(self, v):
         self.ok+=v
-    def incKO(self,v):
+    def incKO(self, v):
         self.ko+=v
-    def incWarn(self,v):
+    def incWarn(self, v):
         self.warn+=v
     def add(self, tupleV):
         self.ok  =tupleV[0]
@@ -144,43 +140,43 @@ class errorCounter:
         self.warn+= v.warn
         return self
     def printSummary(self):
-        print "error summary"
-        print "\tOK : "+str(self.ok)
-        print "\tKO : "+str(self.ko)
-        print "\tWarning : "+str(self.warn)
+        print("error summary")
+        print("\tOK : "+str(self.ok))
+        print("\tKO : "+str(self.ko))
+        print("\tWarning : "+str(self.warn))
         
 def checkVerrouInvariant(allResult):
-    ref=allResult[("valgrind" ,"nearest")][1]
+    ref=allResult[("valgrind", "nearest")][1]
     ko=0
     ok=0
     for rounding in valgrindRounding:        
-        if rounding in ["nearest","memcheck"]:
+        if rounding in ["nearest", "memcheck"]:
             #nearest : because it is the ref
             #memcheck : because it is not verrou
             continue
-        (cout,cerr)=allResult[("valgrind" ,rounding)]
+        (cout, cerr)=allResult[("valgrind", rounding)]
         if cerr!=ref:
-            print "KO : incoherent number of operation ("+rounding+")"
+            print("KO : incoherent number of operation ("+rounding+")")
             ko+=1
         else:
-            print "OK : coherent number of operation ("+rounding+")"
+            print("OK : coherent number of operation ("+rounding+")")
             ok+=1
-    return errorCounter(ok,ko,0)
+    return errorCounter(ok, ko, 0)
 
-def diffRes(res1,res2):    
+def diffRes(res1, res2):    
     if len(res1)!=len(res2):
-        print "Wrong number of line"
-        print "fenv", res1
-        print "val", res2
+        print("Wrong number of line")
+        print("fenv", res1)
+        print("val", res2)
         sys.exit(-1)
     else:
         acc=0
-        for i in xrange(len(res1)):
+        for i in range(len(res1)):
             line1=res1[i]
             line2=res2[i]
             if  line1 !=line2:
-                print "\tfenv: "+line1.strip()
-                print "\tfval: "+line2.strip()+"\n"
+                print("\tfenv: "+line1.strip())
+                print("\tfval: "+line2.strip()+"\n")
                 acc+=1
         return acc
 
@@ -188,15 +184,15 @@ def checkRoundingInvariant(allResult):
     ok=0
     ko=0
     for rounding in stdRounding:
-        fenvRes=(allResult["fenv",rounding])[0]
-        valRes=(allResult["valgrind",rounding])[0]
+        fenvRes=(allResult["fenv", rounding])[0]
+        valRes=(allResult["valgrind", rounding])[0]
         if fenvRes!=valRes:
-            print "KO : incoherent comparison between fenv and valgrind ("+rounding+")"            
-            ko+=diffRes(fenvRes,valRes)
+            print("KO : incoherent comparison between fenv and valgrind ("+rounding+")")            
+            ko+=diffRes(fenvRes, valRes)
         else:
             ok+=1
-            print "OK : coherent comparison between fenv and valgrind ("+rounding+")"
-    return errorCounter(ok,ko,0)
+            print("OK : coherent comparison between fenv and valgrind ("+rounding+")")
+    return errorCounter(ok, ko, 0)
 
 
 
@@ -209,22 +205,22 @@ def checkRoundingInvariant(allResult):
 class assertRounding:
     def __init__(self, testName):
         self.testName=testName
-        self.diff_nearestMemcheck=getDiff(allResult[("valgrind" ,"memcheck")],testName)
-        self.diff_nearestNative=getDiff(allResult[("fenv" ,"nearest")],testName)
-        self.diff_toward_zeroNative  =getDiff(allResult[("fenv" ,"toward_zero")],testName)
-        self.diff_downwardNative     =getDiff(allResult[("fenv" ,"downward")],testName)
-        self.diff_upwardNative       =getDiff(allResult[("fenv" ,"upward")],testName)
+        self.diff_nearestMemcheck=getDiff(allResult[("valgrind", "memcheck")], testName)
+        self.diff_nearestNative=getDiff(allResult[("fenv", "nearest")], testName)
+        self.diff_toward_zeroNative  =getDiff(allResult[("fenv", "toward_zero")], testName)
+        self.diff_downwardNative     =getDiff(allResult[("fenv", "downward")], testName)
+        self.diff_upwardNative       =getDiff(allResult[("fenv", "upward")], testName)
         
-        self.diff_nearest      =getDiff(allResult[("valgrind" ,"nearest")],testName)
-        self.diff_toward_zero  =getDiff(allResult[("valgrind" ,"toward_zero")],testName)
-        self.diff_downward     =getDiff(allResult[("valgrind" ,"downward")],testName)
-        self.diff_upward       =getDiff(allResult[("valgrind" ,"upward")],testName)
-        self.diff_float        =getDiff(allResult[("valgrind" ,"float")],testName)
-        self.diff_farthest     =getDiff(allResult[("valgrind" ,"farthest")],testName)
+        self.diff_nearest      =getDiff(allResult[("valgrind", "nearest")], testName)
+        self.diff_toward_zero  =getDiff(allResult[("valgrind", "toward_zero")], testName)
+        self.diff_downward     =getDiff(allResult[("valgrind", "downward")], testName)
+        self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
+        self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
+        self.diff_farthest     =getDiff(allResult[("valgrind", "farthest")], testName)
 
 
-        self.diff_random       =getDiff(allResult[("valgrind" ,"random")],testName)      
-        self.diff_average      =getDiff(allResult[("valgrind" ,"average")],testName)     
+        self.diff_random       =getDiff(allResult[("valgrind", "random")], testName)      
+        self.diff_average      =getDiff(allResult[("valgrind", "average")], testName)     
 
         self.KoStr="Warning"
         self.warnBool=True
@@ -232,26 +228,26 @@ class assertRounding:
         self.warn=0
         self.ko=0
 
-        self.assertEqual("nearestNative","nearestMemcheck")
+        self.assertEqual("nearestNative", "nearestMemcheck")
         if self.ok!=0:
             self.KoStr="KO"
             self.warnBool=False
 
-    def getValue(self,str1):
+    def getValue(self, str1):
         return eval("self.diff_"+str1)
 
-    def printKo(self,str):
-        print self.KoStr+" : "+self.testName+ " "+str
+    def printKo(self, str):
+        print(self.KoStr+" : "+self.testName+ " "+str)
         if self.warnBool:
             self.warn+=1
         else:
             self.ko+=1
             
-    def printOk(self,str):
-        print "OK : "+self.testName+ " "+str
+    def printOk(self, str):
+        print("OK : "+self.testName+ " "+str)
         self.ok+=1
 
-    def assertEqValue(self,str1, value):
+    def assertEqValue(self, str1, value):
         value1=eval("self.diff_"+str1)
         value2=value
         if value1!= value2:
@@ -260,7 +256,7 @@ class assertRounding:
             self.printOk(str1+ "="+str(value))
 
         
-    def assertEqual(self,str1,str2):
+    def assertEqual(self, str1, str2):
         value1= eval("self.diff_"+str1)
         value2= eval("self.diff_"+str2)            
 
@@ -269,7 +265,7 @@ class assertRounding:
         else:
             self.printOk(str1+ "="+str2)
 
-    def assertLeq(self,str1,str2):
+    def assertLeq(self, str1, str2):
         value1= eval("self.diff_"+str1)
         value2= eval("self.diff_"+str2)            
 
@@ -279,7 +275,7 @@ class assertRounding:
             self.printKo(str1+ ">"+str2 + " "+str(value1) + " " +str(value2))
 
         
-    def assertLess(self,str1,str2):
+    def assertLess(self, str1, str2):
         value1= eval("self.diff_"+str1)
         value2= eval("self.diff_"+str2)            
 
@@ -289,7 +285,7 @@ class assertRounding:
             self.printKo(str1+ ">="+str2 +  " "+str(value1) + " " +str(value2))
 
 
-    def assertAbsLess(self,str1,str2):
+    def assertAbsLess(self, str1, str2):
         value1= abs(eval("self.diff_"+str1))
         value2= abs(eval("self.diff_"+str2))
 
@@ -300,13 +296,13 @@ class assertRounding:
 
 
     def assertNative(self):
-        for rd in ["nearest","toward_zero", "downward","upward"]:
-            self.assertEqual(rd,rd+"Native")
+        for rd in ["nearest", "toward_zero", "downward", "upward"]:
+            self.assertEqual(rd, rd+"Native")
 
 
     
     
-def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>","<float>"]):
+def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -316,8 +312,8 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("toward_zero","downward")
-            testCheck.assertLess("downward","upward")
+            testCheck.assertEqual("toward_zero", "downward")
+            testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("downward", "farthest")
             testCheck.assertLeq("farthest", "upward")
@@ -326,39 +322,39 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertLess("downward", "random")
             testCheck.assertLess("downward", "average")
 
-            testCheck.assertLess("random","upward")
-            testCheck.assertLess("average","upward")
+            testCheck.assertLess("random", "upward")
+            testCheck.assertLess("average", "upward")
 
-            testCheck.assertAbsLess("average","random")
-            testCheck.assertAbsLess("average","upward")
-            testCheck.assertAbsLess("average","downward")
-            testCheck.assertAbsLess("average","nearest")
+            testCheck.assertAbsLess("average", "random")
+            testCheck.assertAbsLess("average", "upward")
+            testCheck.assertAbsLess("average", "downward")
+            testCheck.assertAbsLess("average", "nearest")
 
             ok+=testCheck.ok
             ko+=testCheck.ko
             warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
 
-def checkFloat(allResult,testList):
+def checkFloat(allResult, testList):
     ok=0
     warn=0
     ko=0
     for test in testList:
         testCheckFloat=assertRounding(test+"<float>")
         testCheckDouble=assertRounding(test+"<double>")
-        testCheckFloat.assertEqual("nearest","float")
-        testCheckDouble.assertEqValue("float",testCheckFloat.getValue("nearest"))
+        testCheckFloat.assertEqual("nearest", "float")
+        testCheckDouble.assertEqValue("float", testCheckFloat.getValue("nearest"))
         ok+=testCheckFloat.ok
         ko+=testCheckFloat.ko
         warn+=testCheckFloat.warn
         ok+=testCheckDouble.ok
         ko+=testCheckDouble.ko
         warn+=testCheckDouble.warn
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
-def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>","<float>"]):
+def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -368,8 +364,8 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("toward_zero","upward")
-            testCheck.assertLess("downward","upward")
+            testCheck.assertEqual("toward_zero", "upward")
+            testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("nearest", "upward")
 
@@ -379,21 +375,21 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertLess("downward", "random")
             testCheck.assertLess("downward", "average")
             
-            testCheck.assertLess("random","upward")
-            testCheck.assertLess("average","upward")
+            testCheck.assertLess("random", "upward")
+            testCheck.assertLess("average", "upward")
 
-            testCheck.assertAbsLess("average","random")
-            testCheck.assertAbsLess("average","upward")
-            testCheck.assertAbsLess("average","downward")
-            testCheck.assertAbsLess("average","nearest")
+            testCheck.assertAbsLess("average", "random")
+            testCheck.assertAbsLess("average", "upward")
+            testCheck.assertAbsLess("average", "downward")
+            testCheck.assertAbsLess("average", "nearest")
 
             ok+=testCheck.ok
             ko+=testCheck.ko
             warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
-def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
+def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -402,8 +398,8 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
-        testCheck.assertEqual("toward_zero","downward")
-        testCheck.assertLess("downward","upward")
+        testCheck.assertEqual("toward_zero", "downward")
+        testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
         testCheck.assertLeq("nearest", "upward")
 
@@ -413,16 +409,16 @@ def checkTestPositive(allResult,testList, typeTab=["<double>","<float>"]):
         testCheck.assertLess("downward", "random")
         testCheck.assertLess("downward", "average")
 
-        testCheck.assertLess("random","upward")
-        testCheck.assertLess("average","upward")
+        testCheck.assertLess("random", "upward")
+        testCheck.assertLess("average", "upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
         warn+=testCheck.warn
         
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
         
-def checkTestNegative(allResult,testList,typeTab=["<double>","<float>"]):
+def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -432,8 +428,8 @@ def checkTestNegative(allResult,testList,typeTab=["<double>","<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("toward_zero","upward")
-            testCheck.assertLess("downward","upward")
+            testCheck.assertEqual("toward_zero", "upward")
+            testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("nearest", "upward")
 
@@ -443,16 +439,16 @@ def checkTestNegative(allResult,testList,typeTab=["<double>","<float>"]):
             testCheck.assertLess("downward", "random")
             testCheck.assertLess("downward", "average")
 
-            testCheck.assertLess("random","upward")
-            testCheck.assertLess("average","upward")
+            testCheck.assertLess("random", "upward")
+            testCheck.assertLess("average", "upward")
 
             ok+=testCheck.ok
             ko+=testCheck.ko
             warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
-def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<float>"]):
+def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -461,8 +457,8 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
-        testCheck.assertEqual("toward_zero","downward")
-        testCheck.assertLess("downward","upward")
+        testCheck.assertEqual("toward_zero", "downward")
+        testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
         testCheck.assertLeq("nearest", "upward")
 
@@ -472,16 +468,16 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>","<
         testCheck.assertLeq("downward", "random")
         testCheck.assertLeq("downward", "average")
 
-        testCheck.assertLeq("random","upward")
-        testCheck.assertLeq("average","upward")
+        testCheck.assertLeq("random", "upward")
+        testCheck.assertLeq("average", "upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
         warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
-def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>","<float>"]):
+def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -490,8 +486,8 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>","<
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
-        testCheck.assertEqual("toward_zero","upward")
-        testCheck.assertLess("downward","upward")
+        testCheck.assertEqual("toward_zero", "upward")
+        testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
         testCheck.assertLeq("nearest", "upward")
 
@@ -501,19 +497,19 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>","<
         testCheck.assertLeq("downward", "random")
         testCheck.assertLeq("downward", "average")
 
-        testCheck.assertLeq("random","upward")
-        testCheck.assertLeq("average","upward")
+        testCheck.assertLeq("random", "upward")
+        testCheck.assertLeq("average", "upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
         warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
 
 
 
-def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
+def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -523,8 +519,8 @@ def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("toward_zero","downward")
-            testCheck.assertEqual("downward","upward")
+            testCheck.assertEqual("toward_zero", "downward")
+            testCheck.assertEqual("downward", "upward")
             testCheck.assertEqual("upward", "nearest")
             testCheck.assertEqual("nearest", "upward")
 
@@ -537,7 +533,7 @@ def checkExact(allResult,testList,typeTab=["<double>","<float>"]):
             ko+=testCheck.ko
             warn+=testCheck.warn
 
-    return errorCounter(ok,ko,warn)
+    return errorCounter(ok, ko, warn)
 
 
 
@@ -545,35 +541,35 @@ if __name__=='__main__':
     cmdHandler=cmdPrepare("./"+sys.argv[1])
     allResult={}
     for (env, rounding) in generatePairOfAvailableComputation():
-        (cout,cerr)=cmdHandler.run(env,rounding)
+        (cout, cerr)=cmdHandler.run(env, rounding)
         if env=="valgrind":
-            allResult[(env ,rounding)]=(cout, verrouCerrFilter(cerr))
+            allResult[(env, rounding)]=(cout, verrouCerrFilter(cerr))
         else:
-            allResult[(env ,rounding)]=(cout,cerr)
+            allResult[(env, rounding)]=(cout, cerr)
             
     # printRes(allResult[("fenv" ,"toward_zero")])
     # printRes(allResult[("valgrind" ,"toward_zero")])
-    typeTab=["<double>","<float>"]#,"<long double>"]
+    typeTab=["<double>", "<float>"]#,"<long double>"]
 
     eCount=errorCounter()
 
     eCount+=checkVerrouInvariant(allResult)
 
 
-    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testInc0d1","testIncSquare0d1","testIncDiv10"], typeTab=typeTab)
-    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testInc0d1m","testIncSquare0d1m","testIncDiv10m"], typeTab=typeTab)
-    eCount+=checkTestPositive(allResult,testList=["testInvariantProdDiv"], typeTab=typeTab)
-    eCount+=checkTestNegative(allResult,testList=["testInvariantProdDivm"], typeTab=typeTab)
-    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>","<float>"])
-    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>","<float>"])
+    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testInc0d1", "testIncSquare0d1", "testIncDiv10"], typeTab=typeTab)
+    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testInc0d1m", "testIncSquare0d1m", "testIncDiv10m"], typeTab=typeTab)
+    eCount+=checkTestPositive(allResult, testList=["testInvariantProdDiv"], typeTab=typeTab)
+    eCount+=checkTestNegative(allResult, testList=["testInvariantProdDivm"], typeTab=typeTab)
+    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>", "<float>"])
+    eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>", "<float>"])
         
-    eCount+=checkExact(allResult, testList=["testMixSseLlo"], typeTab=["<double>","<float>"])
+    eCount+=checkExact(allResult, testList=["testMixSseLlo"], typeTab=["<double>", "<float>"])
 
-    eCount+=checkExact(allResult, testList=["testCast","testCastm"], typeTab=["<double>"])
-    eCount+=checkTestPositiveBetweenTwoValues(allResult,testList=["testCast"], typeTab=["<float>"])
-    eCount+=checkTestNegativeBetweenTwoValues(allResult,testList=["testCastm"], typeTab=["<float>"])
+    eCount+=checkExact(allResult, testList=["testCast", "testCastm"], typeTab=["<double>"])
+    eCount+=checkTestPositiveBetweenTwoValues(allResult, testList=["testCast"], typeTab=["<float>"])
+    eCount+=checkTestNegativeBetweenTwoValues(allResult, testList=["testCastm"], typeTab=["<float>"])
 
-    eCount+=checkFloat(allResult,["testInc0d1","testIncSquare0d1","testIncDiv10","testInc0d1m","testIncSquare0d1m","testIncDiv10m","testFma", "testFmam", "testMixSseLlo"])
+    eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam", "testMixSseLlo"])
     eCount.printSummary()
     sys.exit(eCount.ko)
     #[0]
