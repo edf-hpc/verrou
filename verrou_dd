@@ -91,7 +91,7 @@ class verrouTask:
         self.typeRun=typeRun
 
     def nameDir(self,i):
-        return self.dirname + "/dd.run%i" % (i+1)
+        return  os.path.join(self.dirname,"dd.run%i" % (i+1))
 
     def mkdir(self,i):
          os.mkdir(self.nameDir(i))
@@ -102,12 +102,12 @@ class verrouTask:
         rundir= self.nameDir(i)
         env={}
         if self.typeRun=="exclude":
-            env={"VERROU_EXCLUDE": "%s/dd.exclude"%self.dirname}
+            env={"VERROU_EXCLUDE": os.path.join(self.dirname,"dd.exclude")}
         if self.typeRun=="source":
-            env={"VERROU_SOURCE": "%s/dd.source"%self.dirname}
+            env={"VERROU_SOURCE":  os.path.join(self.dirname,"dd.source")}
 
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
-                                          "%s/dd.run"%rundir,
+                                          os.path.join(rundir,"dd.run"),
                                           env)
         self.pidRunTab[i]=self.subProcessRun[i].pid
     def cmpOneSample(self,i):
@@ -115,7 +115,7 @@ class verrouTask:
         if self.subProcessRun[i]!=None:
             getResult(self.subProcessRun[i])
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
-                            "%s/dd.compare"%rundir)
+                        os.path.join(rundir,"dd.compare"))
 
         if retval != 0:
             print("FAIL(%d)" % i)
@@ -139,7 +139,7 @@ class verrouTask:
             if retVal=="FAIL":
                 return self.FAIL
             
-        with open("%s/dd.pass"%self.dirname, "w") as f:
+        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
             f.write("OK\n")
         print("PASS")
         return self.PASS
@@ -153,8 +153,8 @@ class verrouTask:
             
             if retVal=="FAIL":
                 return self.FAIL
-            
-        with open("%s/dd.pass"%self.dirname, "w") as f:
+
+        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
             f.write("OK\n")
         print("PASS")
         return self.PASS
@@ -237,8 +237,8 @@ class verrouTask:
                     self.pidRunTab[run]=None
                     self.rmdir(run)
             return self.FAIL
-        
-        with open("%s/dd.pass"%self.dirname, "w") as f:
+
+        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
             f.write("OK\n")
         print("PASS")
         return self.PASS
@@ -252,13 +252,13 @@ def prepareOutput(dirname):
     os.makedirs(dirname)
 
 def genExcludeFile(ref, dest, include):
-    with open("%s/dd.exclude"%ref, "r") as f:
+    with open(os.path.join(ref,"dd.exclude"), "r") as f:
         excludes = f.readlines()
-    with open("%s/dd.include"%dest, "w") as f:
+    with open(os.path.join(dest,"dd.include"), "w") as f:
         for d in include:
             excludes.remove(d)
             f.write(d)
-    with open("%s/dd.exclude"%dest, "w") as f:
+    with open(os.path.join(dest,"dd.exclude"), "w") as f:
         for line in excludes:
             f.write(line)
             
@@ -293,15 +293,15 @@ class DDvr(DD.DD):
         DD.DD.__init__(self)
         self.cache_outcomes = False
         self.prefix_ = os.getcwd()+"/"+prefix
-        self.ref_ = "%s/ref"%self.prefix_
+        self.ref_ = os.path.join(self.prefix_, "ref")
 
     def testName(self, deltas):
-        return self.prefix_ + "/" + hashlib.md5(("".join(deltas)).encode('utf-8')).hexdigest()
+        return os.path.join(self.prefix_ , hashlib.md5(("".join(deltas)).encode('utf-8')).hexdigest())
 
     def alreadyDone(self, dirname):
         print(dirname,end="")
         if os.path.exists(dirname):
-            res = os.path.exists("%s/dd.pass"%dirname)
+            res = os.path.exists(os.path.join(dirname,"dd.pass"))
             print(" --(cache)-> ",end="")
             if res:
                 print("PASS")
@@ -349,13 +349,13 @@ class DDsym(DDvr):
         retval = runCmd([self.run_, dirname],
                         "%s/dd"%dirname,
                         {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_GEN_EXCLUDE":   "%s/dd.exclude.%%p"%dirname})
+                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
         assert retval == 0, "Error during reference run"
 
 
     def checkReference(self):
         retval = runCmd([self.compare_,self.ref_, self.ref_],
-                        "%s/checkRef"%self.ref_)
+                        os.path.join(self.ref_,"checkRef"))
         if retval != 0:
             print("FAILURE: the reference is not valid ")
             print("Suggestions:")
@@ -363,8 +363,8 @@ class DDsym(DDvr):
             print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
             print("Files to analyze:")
-            print("\t run output: " +  "%s/dd.out"%self.ref_ + " %s/dd.err"%self.ref_)
-            print("\t cmp output: " +  "%s/checkRef.out"%self.ref_ + " %s/checkRef.err"%self.ref_)
+            print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+            print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
             failure()
 #            print("\t3) check the ")
 
@@ -438,7 +438,7 @@ class DDsym(DDvr):
 def ddSym(run, compare):
     dd = DDsym(run, compare)
 
-    with open("%s/dd.exclude"%dd.ref_, "r") as f:
+    with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
 
     conf = dd.ddmax(deltas)
@@ -452,7 +452,7 @@ def ddSym(run, compare):
 
 def ddSymRDDMin(run, compare):
     dd = DDsym(run,compare)
-    with open("%s/dd.exclude"%dd.ref_, "r") as f:
+    with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
     confTab = dd.RDDMin(deltas)
 
@@ -478,8 +478,8 @@ class DDline(DDvr):
         retval = runCmd([self.run_, dirname],
                         "%s/dd"%dirname,
                         {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_EXCLUDE":       "%s/dd.exclude"%dirname,
-                         "VERROU_GEN_SOURCE":    "%s/dd.source.%%p"%dirname})
+                         "VERROU_EXCLUDE":       os.path.join(dirname,"dd.exclude"),
+                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
         assert retval == 0, "Error during ddline reference run"
 
     def _test(self, deltas):
@@ -488,7 +488,7 @@ class DDline(DDvr):
         if done is not None:
             return done
 
-        with open("%s/dd.source"%dirname, "w") as f:
+        with open(os.path.join(dirname,"dd.source"), "w") as f:
             f.write("__unknown__\t0\n")
             for d in deltas:
                 f.write(d)
@@ -563,7 +563,7 @@ def ddLine(run, compare, refSym, confSymsTab):
             symname = sym.partition("\t")[0]
             print("ddLine: testing %s"%symname)
             deltas = []
-            with open(dd.ref_ + "/dd.source", "r") as f:
+            with open(os.path.join(dd.ref_ ,"dd.source"), "r") as f:
                 for line in f:
                     if line.endswith("\t%s\n"%symname) and line not in deltas:
                         deltas.append(line)
@@ -593,7 +593,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
             symname = sym.partition("\t")[0]
             print("ddLine: testing %s"%symname)
             deltas = []
-            with open(dd.ref_ + "/dd.source", "r") as f:
+            with open(os.path.join(dd.ref_, "/dd.source"), "r") as f:
                 for line in f:
                     if line.endswith("\t%s\n"%symname):
                         deltas.append(line)

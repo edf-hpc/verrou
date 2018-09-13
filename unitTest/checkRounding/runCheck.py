@@ -538,7 +538,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
 
 
 if __name__=='__main__':
-    cmdHandler=cmdPrepare("./"+sys.argv[1])
+    cmdHandler=cmdPrepare(os.path.join(os.curdir,sys.argv[1]))
     allResult={}
     for (env, rounding) in generatePairOfAvailableComputation():
         (cout, cerr)=cmdHandler.run(env, rounding)
