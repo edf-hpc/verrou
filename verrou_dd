@@ -292,7 +292,7 @@ class DDvr(DD.DD):
     def __init__(self, prefix):
         DD.DD.__init__(self)
         self.cache_outcomes = False
-        self.prefix_ = os.getcwd()+"/"+prefix
+        self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.ref_ = os.path.join(self.prefix_, "ref")
 
     def testName(self, deltas):
@@ -347,7 +347,7 @@ class DDsym(DDvr):
         prepareOutput(dirname)
 
         retval = runCmd([self.run_, dirname],
-                        "%s/dd"%dirname,
+                        os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
         assert retval == 0, "Error during reference run"
@@ -427,7 +427,7 @@ class DDsym(DDvr):
             if symlinkconf==None:
                 linkname = "%s.%s"%(self.prefix_, symsname)
             else:
-                linkname=  "%s/%s"%(self.prefix_,symlinkconf)
+                linkname=  os.path.join(self.prefix_,symlinkconf)
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
@@ -476,7 +476,7 @@ class DDline(DDvr):
     def reference(self):
         dirname = self.ref_
         retval = runCmd([self.run_, dirname],
-                        "%s/dd"%dirname,
+                        os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_EXCLUDE":       os.path.join(dirname,"dd.exclude"),
                          "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
@@ -587,13 +587,13 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
     confLines = []
     for i in range(len(confSymsTab)):
         confSyms=confSymsTab[i]
-        dd = DDline(run, compare, refSym, confSyms, "dd.line.ddmin-%d"%(i))
+        dd = DDline(run, compare, refSym, confSyms, os.path.join("dd.sym","ddmin-%d"%(i) ,"dd.line"))
 
         for sym in confSyms:
             symname = sym.partition("\t")[0]
             print("ddLine: testing %s"%symname)
             deltas = []
-            with open(os.path.join(dd.ref_, "/dd.source"), "r") as f:
+            with open(os.path.join(dd.ref_, "dd.source"), "r") as f:
                 for line in f:
                     if line.endswith("\t%s\n"%symname):
                         deltas.append(line)

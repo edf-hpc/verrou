@@ -10,7 +10,7 @@ import pickle
 
 def cmpNorm(ref, toCmp, ddCase):
     print("norm")
-    if "dd.sym" in ref:
+    if "dd.sym" in ref and "dd.line" not in ref:
         return ddCase.statusOfSymConfig(open(os.path.join(toCmp,"path_exclude")).readline())
     if "dd.line" in ref:
         return ddCase.statusOfSourceConfig(os.path.join(ref,"dd.exclude"), open(os.path.join(toCmp,"path_source")).readline())
