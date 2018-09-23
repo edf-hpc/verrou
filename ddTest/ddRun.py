@@ -144,9 +144,9 @@ def runNorm(dir_path, ddCase):
         
         
 if __name__=="__main__":
-#    ddCase=ddConfig([(sym, max(0, sym-6), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
-    ddCase=ddConfig([(0, 0, []),
-                     (1, 1, [(0, 0),(1,1)] )])
+    ddCase=ddConfig([(sym, max(0, sym-6), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
+#    ddCase=ddConfig([(0, 0, []),
+#                     (1, 1, [(0, 0),(1,1)] )])
     
     if "ref" in sys.argv[1]:
         sys.exit(runRef(sys.argv[1], ddCase))

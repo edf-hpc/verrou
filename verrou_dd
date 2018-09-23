@@ -252,6 +252,7 @@ def prepareOutput(dirname):
     os.makedirs(dirname)
 
 def genExcludeFile(ref, dest, include):
+    """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
     with open(os.path.join(ref,"dd.exclude"), "r") as f:
         excludes = f.readlines()
     with open(os.path.join(dest,"dd.include"), "w") as f:
@@ -396,9 +397,8 @@ class DDsym(DDvr):
         print("Suggestions:")
         print("\t1) check the libm library is correctly excluded")
         print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
-
         failure()
-        
+
     def _test(self, deltas):
         dirname = self.testName(deltas)
         done = self.alreadyDone(dirname)
@@ -482,6 +482,18 @@ class DDline(DDvr):
                          "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
         assert retval == 0, "Error during ddline reference run"
 
+    def filterSourceRef(self, confSyms):
+        """Filter dd.source ref by removing the line coming from the symbols (confSyms)"""
+        deltas = []
+        for sym in confSyms:
+            symname = sym.partition("\t")[0]
+            with open(os.path.join(self.ref_ ,"dd.source"), "r") as f:
+                for line in f:
+                    if line.endswith("\t%s\n"%symname) and line not in deltas:
+                        deltas.append(line)
+        return deltas
+
+
     def _test(self, deltas):
         dirname = self.testName(deltas)
         done = self.alreadyDone(dirname)
@@ -554,23 +566,17 @@ class DDLineError(Exception):
 
 
 def ddLine(run, compare, refSym, confSymsTab):
-
     confLines = []
+
     for confSyms in confSymsTab:
         dd = DDline(run, compare, refSym, confSyms)
 
-        for sym in confSyms:
-            symname = sym.partition("\t")[0]
-            print("ddLine: testing %s"%symname)
-            deltas = []
-            with open(os.path.join(dd.ref_ ,"dd.source"), "r") as f:
-                for line in f:
-                    if line.endswith("\t%s\n"%symname) and line not in deltas:
-                        deltas.append(line)
-
+        for confSym in confSyms:
+            deltas=dd.filterSourceRef([confSym])
             try:
                 conf = dd.ddmax(deltas)
                 confLines += conf
+                symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
                 print("ddmax (%s):"%symname + dd.coerce(conf))
 
                 for delta in conf:
@@ -589,25 +595,17 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
         confSyms=confSymsTab[i]
         dd = DDline(run, compare, refSym, confSyms, os.path.join("dd.sym","ddmin-%d"%(i) ,"dd.line"))
 
-        for sym in confSyms:
-            symname = sym.partition("\t")[0]
-            print("ddLine: testing %s"%symname)
-            deltas = []
-            with open(os.path.join(dd.ref_, "dd.source"), "r") as f:
-                for line in f:
-                    if line.endswith("\t%s\n"%symname):
-                        deltas.append(line)
+        deltas=dd.filterSourceRef(confSyms)
+        symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
 
-            try:
-                confLines+=dd.RDDMin(deltas)
-            except DDLineError:
-                traceback.print_exc()
+        try:
+            ddminTab=dd.RDDMin(deltas)
+        except DDLineError:
+            traceback.print_exc()
 
-    print("ddmin (global):")
-
-    for i in range(len(confLines)):
-        print("ddmin-"+str(i)+": " +dd.coerce(confLines[i]))
-        dd.testLines(confLines[i])
+        for ddmin in ddminTab:
+            dd.testLines(ddmin)
+        confLines+=ddmin
 
 
 def main(run, compare,algoSearch="ddmax"):
