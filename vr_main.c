@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                vr_main.c ---*/
 /*--------------------------------------------------------------------*/
@@ -384,7 +383,7 @@ static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
 
 /* Replace a given binary operation by a call to a function
  */
-static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   const HChar* functionName, void* function,
 				   Vr_Op op,
 				   Vr_Prec prec,
@@ -400,12 +399,12 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   if(!vr.instr_scalar) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  op, prec,vec, True);
 
@@ -439,17 +438,18 @@ static void vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   if(prec==VR_PREC_FLT){
       IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				       IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
-    }
-    if(prec==VR_PREC_DBL){
+				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+  }
+  if(prec==VR_PREC_DBL){
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
-    }
+  }
+  return True;
 }
 
 
 
-static void vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					    const HChar* functionName, void* function,
 					    Vr_Op op,
 					    Vr_Prec prec,
@@ -458,7 +458,7 @@ static void vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  op, prec,vec, True);
   //conversion before call
@@ -497,10 +497,11 @@ static void vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
   }
+  return True;
 }
 
 
-static void vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					      const HChar* functionName, void* function,
 					      Vr_Op op,
 					      Vr_Prec prec,
@@ -509,7 +510,7 @@ static void vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  op, prec,vec, True);
   //conversion before call
@@ -546,25 +547,26 @@ static void vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
   if (prec==VR_PREC_DBL) opReg = Iop_64UtoV128;
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				   IRExpr_Unop (opReg, IRExpr_RdTmp(res))));
+  return True;
 }
 
 
-static void vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				 const HChar* functionName, void* function,
 				 Vr_Op op,
 				 Vr_Prec prec,
 				 Vr_Vec vec){
   if(vr.unsafe_llo_optim){
-    vr_replaceBinFpOpLLO_fast_unsafe(sb,stmt,expr,functionName,function,op,prec,vec);
+    return vr_replaceBinFpOpLLO_fast_unsafe(sb,stmt,expr,functionName,function,op,prec,vec);
   }else{
-    vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec);
+    return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec);
   }
 }
 
 
 
 
-static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  const HChar* functionName, void* function,
 				  Vr_Op op,
 				  Vr_Prec prec,
@@ -572,7 +574,7 @@ static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  op, prec,vec, True);
 
@@ -607,20 +609,21 @@ static void vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 								arg2Hi,arg2Lo))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
+  return True;
 }
 
 
 
 
-static void vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			       const HChar* functionName, void* function,
-			       Vr_Op op,
-			       Vr_Prec prec,
-			       Vr_Vec vec) {
+static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+				  const HChar* functionName, void* function,
+				  Vr_Op op,
+				  Vr_Prec prec,
+				  Vr_Vec vec) {
   if(!vr.instr_op[op] ) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  op, prec,vec,True);
 
@@ -686,19 +689,20 @@ static void vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
+  return True;
 }
 
 
 
 
-static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
 			   Vr_Op   Op,
 			   Vr_Prec Prec) {
   if(!vr.instr_op[Op] ) {
     vr_countOp (sb,  Op, Prec, VR_VEC_LLO,False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  Op, Prec, VR_VEC_LLO,True);
 
@@ -737,6 +741,7 @@ static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				     IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
   }
+  return True;
 #else //USE_VERROU_FMA
   //should not happed
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -745,14 +750,14 @@ static void vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
-static void vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   Op,
 			    Vr_Prec Prec) {
   if(!vr.instr_op[Op] ) {
     vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,False);
     addStmtToIRSB (sb, stmt);
-    return;
+    return False;
   }
   vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,True);
 
@@ -773,13 +778,14 @@ static void vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				   IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+  return True;
 }
 
 
 
 
 
-static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
+static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
     switch (op) {
 
       // Addition
@@ -1095,16 +1101,17 @@ static void vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op) {
       addStmtToIRSB (sb, stmt);
       break;
     }
-
+    return False;
 }
 
-static void vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
+static Bool vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
   IROp op;
   //  ppIRStmt(stmt);VG_(printf)("\n");
   if (vr_getOp (expr, &op)) {
-    vr_instrumentOp (sb, stmt, expr, op);
+    return vr_instrumentOp (sb, stmt, expr, op);
   } else {
     addStmtToIRSB (sb, stmt);
+    return False;
   }
 }
 
@@ -1123,33 +1130,42 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   if (vr_excludeIRSB (&fnname, &objname))
     return sbIn;
 
-
   UInt i;
   IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
   Bool includeSource = True;
+
+  Bool doLineContainFloat=False;
+  Bool doIRSBFContainFloat=False;
+  const HChar *filename=NULL;
+  UInt  linenum;
+
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
 
     switch (st->tag) {
     case Ist_IMark: {
-      //      HChar filename[256];
-      const HChar *filename;
-      UInt  linenum;
+      if(vr.genIncludeSource && doLineContainFloat && filename!=NULL){
+	  vr_includeSource_generate (&vr.includeSource, fnname, filename, linenum);
+      }
+      doLineContainFloat=False;
+
       Addr  addr;
-
       addr = st->Ist.IMark.addr;
-
-      //      filename[0] = 0;
       VG_(get_filename_linenum)(addr,
                                 &filename,
                                 NULL,
                                 &linenum);
-      includeSource = vr_includeSource (&vr.includeSource, vr.genIncludeSource, fnname, filename, linenum);
+
+      if(!vr.genIncludeSource){
+	includeSource = vr_includeSource (&vr.includeSource, fnname, filename, linenum);
+      }
     }
       break;
     case Ist_WrTmp:
       if (includeSource) {
-        vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data);
+        Bool doInstrContainFloat= vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data);
+	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
+	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
         break;
       }
     default:
@@ -1157,6 +1173,12 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
+  if(vr.genIncludeSource && doLineContainFloat &&filename !=NULL){
+    vr_includeSource_generate (&vr.includeSource, fnname, filename, linenum);
+  }
+  if(vr.genExclude && doIRSBFContainFloat){
+    vr_excludeIRSB_generate (&fnname, &objname);
+  }
   return sbOut;
 }
 
@@ -1184,7 +1206,7 @@ static void vr_fini(Int exitcode)
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
-  VG_(free)(vr.genAbove);
+  //  VG_(free)(vr.genAbove);
 }
 
 void vr_cancellation_handler(int cancelled ){
@@ -1211,7 +1233,7 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
    vr_env_clo("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
-   vr_env_clo("VERROU_GEN_ABOVE",     "--gen-above");
+   //   vr_env_clo("VERROU_GEN_ABOVE",     "--gen-above");
    vr_env_clo("VERROU_SOURCE",        "--source");
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
 
@@ -1219,9 +1241,9 @@ static void vr_post_clo_init(void)
      vr.genExcludeUntil = vr.exclude;
    }
 
-   if (vr.genAbove == NULL) {
-     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
-   }
+   //   if (vr.genAbove == NULL) {
+   //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
+   //   }
 
 
    //Verrou Backend Initilisation

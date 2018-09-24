@@ -136,24 +136,24 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   return list;
 }
 
-static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) {
-  // always return True when ancestor==""
-  // The semantic is that an empty ancestor means the top of the call tree.
-  if (ancestor[0] == 0) {
-    return True;
-  }
+/* static Bool vr_aboveFunction (HChar *ancestor, Addr * ips, UInt nips) { */
+/*   // always return True when ancestor=="" */
+/*   // The semantic is that an empty ancestor means the top of the call tree. */
+/*   if (ancestor[0] == 0) { */
+/*     return True; */
+/*   } */
 
-  const HChar* fnname;
-  UInt i;
-  for (i = 0 ; i<nips ; ++i) {
-    VG_(get_fnname)(ips[i], &fnname);
-    if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) {
-      return True;
-    }
-  }
+/*   const HChar* fnname; */
+/*   UInt i; */
+/*   for (i = 0 ; i<nips ; ++i) { */
+/*     VG_(get_fnname)(ips[i], &fnname); */
+/*     if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) { */
+/*       return True; */
+/*     } */
+/*   } */
 
-  return False;
-}
+/*   return False; */
+/* } */
 
 
 Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
@@ -187,9 +187,9 @@ Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnname, *objname);
   if (exclude == NULL) {
-    if (vr.genExclude && vr_aboveFunction(vr.genAbove, ips, nips)) {
-      vr.exclude = vr_addExclude (vr.exclude, *fnname, *objname);
-    }
+    //    if (vr.genExclude && vr_aboveFunction(vr.genAbove, ips, nips)) {
+    //      vr.exclude = vr_addExclude (vr.exclude, *fnname, *objname);
+    //    }
     return False;
   }
 
@@ -209,7 +209,40 @@ Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
 }
 
 
+void vr_excludeIRSB_generate (const HChar** fnname, const HChar **objname) {
+  Addr ips[256];
+  UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
+                                  ips, 256,
+                                  NULL, NULL,
+                                  0);
+  Addr addr = ips[0];
 
+  //fnname[0] = 0;
+  VG_(get_fnname)(addr, fnname);
+  if (VG_(strlen)(*fnname) == VR_FNNAME_BUFSIZE-1) {
+    VG_(umsg)("WARNING: Function name too long: %s\n", *fnname);
+  }
+
+  //  objname[0] = 0;
+  VG_(get_objname)(addr, objname);
+
+
+  // Never exclude unnamed functions
+  if (**fnname == 0)
+    return ;
+
+  // Never exclude unnamed objects (maybe paranoia... does it even exist?)
+  if (**objname == 0) {
+    return ;
+  }
+
+
+  // Never exclude functions / objects unless they are explicitly listed
+  Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnname, *objname);
+  if(exclude==NULL){
+    vr.exclude = vr_addExclude (vr.exclude, *fnname, *objname);
+  }
+}
 
 
 
@@ -342,15 +375,14 @@ Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HCha
   return list;
 }
 
-Bool vr_includeSource (Vr_IncludeSource** list, Bool generate, const HChar* fnname, const HChar* filename, UInt linenum) {
-  if (generate) {
-    if (filename[0] != 0
-        && vr_findIncludeSource(*list, filename, linenum) == NULL) {
-      *list = vr_addIncludeSource (*list, fnname, filename, linenum);
-    }
-    return True;
+void vr_includeSource_generate (Vr_IncludeSource** list, const HChar* fnname, const HChar* filename, UInt linenum) {
+  if (filename[0] != 0
+      && vr_findIncludeSource(*list, filename, linenum) == NULL) {
+    *list = vr_addIncludeSource (*list, fnname, filename, linenum);
   }
+}
 
+Bool vr_includeSource (Vr_IncludeSource** list, const HChar* fnname, const HChar* filename, UInt linenum) {
   // No inclusion list => include everything
   if (*list == NULL) {
     return True;
