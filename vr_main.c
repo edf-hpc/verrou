@@ -1140,7 +1140,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       addr = st->Ist.IMark.addr;
 
       //      filename[0] = 0;
-      VG_(get_filename_linenum)(addr,
+      VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
+                                addr,
                                 &filename,
                                 NULL,
                                 &linenum);

@@ -6,7 +6,7 @@ env:
   - VALGRIND_VERSION=master
 matrix:
   allow_failures:
-    - env: VALGRIND_VERSION=master
+    - env: VALGRIND_VERSION=svn/VALGRIND_3_13_0
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libc-dbg
