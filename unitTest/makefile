@@ -13,4 +13,4 @@ checkUCB-vecto:
 valgrind-test:
 	make -C ../../tests check
 	make -C ../../verrou check
-	cd ../..; perl ./tests/vg_regtest verrou
+	cd ../..; perl ./tests/vg_regtest verrou/tests
