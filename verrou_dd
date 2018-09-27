@@ -322,7 +322,9 @@ class DDvr(DD.DD):
             self.deltaFailedMsg(deltas)
         index=0
         while testResult==self.FAIL:
-            conf = self.ddmin(deltas)
+#            conf = self.ddmin(deltas)
+            conf = self.verrou_dd_min(deltas)
+
             ddminTab += [conf]
             print("ddmin%d (%s):"%(index,self.coerce(conf)))
 
@@ -598,9 +600,14 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
         deltas=dd.filterSourceRef(confSyms)
         symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
 
+        if(len(deltas)==0):
+            print("Warning ddLinerddMin(%s) : empty lines search (symbol compiled with debug option?)"%(symname))
+            continue
+
         try:
             ddminTab=dd.RDDMin(deltas)
         except DDLineError:
+            ddminTab=[]
             traceback.print_exc()
 
         for ddmin in ddminTab:
