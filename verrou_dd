@@ -443,7 +443,8 @@ def ddSym(run, compare):
     with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
 
-    conf = dd.ddmax(deltas)
+#    conf = dd.ddmax(deltas)
+    conf = dd.verrou_dd_max(deltas)
     print("ddmax:" + dd.coerce(conf))
 
     #for delta in conf:
@@ -576,7 +577,7 @@ def ddLine(run, compare, refSym, confSymsTab):
         for confSym in confSyms:
             deltas=dd.filterSourceRef([confSym])
             try:
-                conf = dd.ddmax(deltas)
+                conf = dd.verrou_dd_max(deltas)
                 confLines += conf
                 symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
                 print("ddmax (%s):"%symname + dd.coerce(conf))
