@@ -41,6 +41,13 @@ except:
     pass
 
 
+ddIgnoreLine=False
+try:
+    ddIgnoreLine = os.environ["VERROU_DD_IGNORE_LINE"]
+    ddIgnoreLine=True
+except:
+    pass
+
 
 
 
@@ -297,7 +304,9 @@ class DDvr(DD.DD):
         self.ref_ = os.path.join(self.prefix_, "ref")
 
     def testName(self, deltas):
-        return os.path.join(self.prefix_ , hashlib.md5(("".join(deltas)).encode('utf-8')).hexdigest())
+        copyDeltas=copy.copy(deltas)
+        copyDeltas.sort()
+        return os.path.join(self.prefix_ , hashlib.md5(("".join(copyDeltas)).encode('utf-8')).hexdigest())
 
     def alreadyDone(self, dirname):
         print(dirname,end="")
@@ -619,10 +628,12 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
 def main(run, compare,algoSearch="ddmax"):
     if algoSearch=="ddmax":
         (refSym, confSymsTab) = ddSym(run, compare)
-        ddLine(run, compare, refSym, confSymsTab)
+        if not ddIgnoreLine:
+            ddLine(run, compare, refSym, confSymsTab)
     if algoSearch=="rddmin":
         (refSym, confSymsTab) = ddSymRDDMin(run, compare)
-        ddLineRDDMin(run, compare, refSym, confSymsTab)
+        if not ddIgnoreLine:
+            ddLineRDDMin(run, compare, refSym, confSymsTab)
 
 def usageCmd():
     print("Usage: "+ sys.argv[0] + " runScript cmpScript")

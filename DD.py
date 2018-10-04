@@ -289,7 +289,7 @@ class DD:
     # Testing
     def test(self, c):
         """Test the configuration C.  Return PASS, FAIL, or UNRESOLVED"""
-        c.sort()
+        #c.sort()
 
         # If we had this test before, return its result
         if self.cache_outcomes:
@@ -639,10 +639,6 @@ class DD:
 
                 if "VERROU_DD_UNSAFE" in os.environ:
                     print ("WARNING: test([all deltas]) == PASS")
-                else:
-                    self.allDeltaFailedMsg(c)
-                    print ("ERROR: test([all deltas]) == PASS")
-                    sys.exit(1)
 
 
             if n > len(c):
