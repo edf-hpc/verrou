@@ -83,20 +83,29 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, typeRun="exclude"):
-        self.dirname=dirname
+    def __init__(self, prefix,deltas, refDir,runCmd, cmpCmd,nbRun, typeRun="exclude"):
+        self.dirname=os.path.join(prefix, md5Name(deltas))
         self.refDir=refDir
         self.runCmd=runCmd
         self.cmpCmd=cmpCmd
         self.nbRun=nbRun
         self.FAIL=DD.DD.FAIL
         self.PASS=DD.DD.PASS
-
-        self.subProcessRun=[None]*nbRun
-        self.pidRunTab=[None]*nbRun
-        self.subProcessCmp=[None]*nbRun
         self.typeRun=typeRun
-
+        self.subProcessRun={}
+        
+        if not os.path.exists(self.dirname):
+            os.makedirs(self.dirname)
+            if self.typeRun=="exclude":
+                genExcludeFile(self.refDir, self.dirname, deltas)
+            if self.typeRun=="source":
+        
+                with open(os.path.join(self.dirname,"dd.source"), "w") as f:
+                    f.write("__unknown__\t0\n")
+                    for d in deltas:
+                        f.write(d)
+        print(self.dirname,end="")
+        
     def nameDir(self,i):
         return  os.path.join(self.dirname,"dd.run%i" % (i+1))
 
@@ -116,7 +125,7 @@ class verrouTask:
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
                                           os.path.join(rundir,"dd.run"),
                                           env)
-        self.pidRunTab[i]=self.subProcessRun[i].pid
+
     def cmpOneSample(self,i):
         rundir= self.nameDir(i)
         if self.subProcessRun[i]!=None:
@@ -124,139 +133,82 @@ class verrouTask:
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
+        with open(os.path.join(self.dirname, rundir, "returnVal"),"w") as f:
+            f.write(str(retval))
         if retval != 0:
             print("FAIL(%d)" % i)
             return self.FAIL
         else:
             return self.PASS
 
+    def sampleToComputeToGetFailure(self, nbRun):
+        """Return the list of samples which have to be computed to perforn nbRun Success run : None mean Failure [] Mean Success """
+        listOfDir=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
+        done=[]
+        for runDir in listOfDir:
+            status=int((open(os.path.join(self.dirname, runDir, "returnVal")).readline()))
+            if status!=0:
+                return None
+            done+=[runDir]
+
+        res= [x for x in range(nbRun) if not ('dd.run'+str(x+1)) in done]
+        return res
+        
     def run(self):
-        if maxNbPROC==None:
-            return self.runSeq()
-        return self.runParMax(maxNbPROC)
-
-
-
-    def runSeq(self):        
-        for run in range(0, self.nbRun):
-            self.mkdir(run)
-            self.runOneSample(run)
-            retVal=self.cmpOneSample(run)
-            
-            if retVal=="FAIL":
-                return self.FAIL
-            
-        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
-            f.write("OK\n")
-        print("PASS")
-        return self.PASS
-
-    def runPar(self):            
-        for run in range(0, self.nbRun):
-            self.mkdir(run)
-            self.runOneSample(run)
-        for run in range(0, self.nbRun):
-            retVal=self.cmpOneSample(run)
-            
-            if retVal=="FAIL":
-                return self.FAIL
-
-        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
-            f.write("OK\n")
-        print("PASS")
-        return self.PASS
-
-
-    def runParMax(self,maxNbProc):
-        launch=0
-        finish=0
-        fail=False
-        lastLaunch=self.nbRun-1
-        remainPidTab=[]
-        for run in range(0, self.nbRun):
-            self.mkdir(run)
-            self.runOneSample(run)
-
-            if self.nbRun > maxNbProc:
-                #wait that a child process corresponding to run finish
-                pid=None
-                while True:
-                    (pid,status)=os.wait()
-                    if pid in self.pidRunTab:
-                        break
-                    else:
-                        print("Internal Error in runParMax")
-                        failure()
-
-
-                run=self.pidRunTab.index(pid)
-                self.pidRunTab[run]=None
-                self.subProcessRun[run]=None
-
-                retVal=self.cmpOneSample(run)
-                if retVal==self.FAIL:
-                    fail=True
-                    lastLaunch=run
-                    break
-
-        if remainPidTab!=[]:
-            print("Error runParMAX")
-            sys.exit()
-
-        if not fail:
-            nbRemain=len([x for x in  self.pidRunTab if x!=None ])
-
-            for i in range(nbRemain):
-                (pid,status)=os.wait()     
-                run=self.pidRunTab.index(pid)                
-                self.pidRunTab[run]=None
-                self.subProcessRun[run]=None
-                retVal=self.cmpOneSample(run)
-                if retVal==self.FAIL:
-                    fail=True            
-                    break
-
-            
-        if fail:
-            #receive finish
-            listOfPidToCheck=[]
-            for run in range(0,lastLaunch+1):
-                if self.pidRunTab[run]==None:
-                    #comparison script already done
-                    continue
-
-                if self.subProcessRun[run].poll():                    
-                    #if terminated if is almost free to do comparison
-                    self.subProcessRun[run].wait()
-                    self.subProcessRun[run]=None
-                    self.pidRunTab[run]=None
-                    retVal=self.cmpOneSample(run)
-                else:
-                    try:
-                        self.subProcessRun[run].kill()
-                    except OSError as e:
-                        if str(e)!="[Errno 3] No such process":
-                            print("error: ", "!"+str(e)+"!")
-                            traceback.print_exc()
-                            failure()
-                    
-                    self.subProcessRun[run]=None
-                    self.pidRunTab[run]=None
-                    self.rmdir(run)
+        workToDo=self.sampleToComputeToGetFailure(self.nbRun)
+        if workToDo==None:
+            print("--(cache) -> FAIL")
             return self.FAIL
+        
+        if len(workToDo)!=0:
+            print(" --( run )-> ",end="",flush=True)        
+        
+            if maxNbPROC==None:
+                returnVal=self.runSeq(workToDo)
+            else:
+                returnVal=self.runPar(workToDo)
 
-        with open(os.path.join(self.dirname,"dd.pass"), "w") as f:
-            f.write("OK\n")
-        print("PASS")
+            if(returnVal==self.PASS):
+                print("PASS(+" + str(len(workToDo))+")" )
+            return returnVal
+        print(" --(cache)-> PASS")
+        return self.PASS
+    
+
+    def runSeq(self,workToDo):
+
+        for run in workToDo:
+            self.mkdir(run)
+            self.runOneSample(run)
+            retVal=self.cmpOneSample(run)
+            
+            if retVal=="FAIL":
+                return self.FAIL
+        return self.PASS
+
+    def runPar(self,workToDo):            
+
+        for run in workToDo:
+            self.mkdir(run)
+            self.runOneSample(run)
+        for run in workToDo:
+            retVal=self.cmpOneSample(run)
+            
+            if retVal=="FAIL":
+                return self.FAIL
+
         return self.PASS
 
 
-
+def md5Name(deltas):
+    copyDeltas=copy.copy(deltas)
+    copyDeltas.sort()
+    return hashlib.md5(("".join(copyDeltas)).encode('utf-8')).hexdigest()
 
 
 def prepareOutput(dirname):
-    shutil.rmtree(dirname, ignore_errors=True)
-    os.makedirs(dirname)
+     shutil.rmtree(dirname, ignore_errors=True)
+     os.makedirs(dirname)
 
 def genExcludeFile(ref, dest, include):
     """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
@@ -303,26 +255,6 @@ class DDvr(DD.DD):
         self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.ref_ = os.path.join(self.prefix_, "ref")
 
-    def testName(self, deltas):
-        copyDeltas=copy.copy(deltas)
-        copyDeltas.sort()
-        return os.path.join(self.prefix_ , hashlib.md5(("".join(copyDeltas)).encode('utf-8')).hexdigest())
-
-    def alreadyDone(self, dirname):
-        print(dirname,end="")
-        if os.path.exists(dirname):
-            res = os.path.exists(os.path.join(dirname,"dd.pass"))
-            print(" --(cache)-> ",end="")
-            if res:
-                print("PASS")
-                return self.PASS
-            else:
-                print("FAIL")
-                return self.FAIL
-
-        print(" --( run )-> ",end="",flush=True)
-        prepareOutput(dirname)
-        return None
 
     def RDDMin(self, deltas):
         ddminTab=[]
@@ -387,7 +319,7 @@ class DDsym(DDvr):
         print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
         print("\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
-        dirname = self.testName(delta)
+        dirname = self.md5Name(delta)
         print("Directory to analyze: %s"%dirname)
         failure()
 
@@ -411,23 +343,18 @@ class DDsym(DDvr):
         failure()
 
     def _test(self, deltas):
-        dirname = self.testName(deltas)
-        done = self.alreadyDone(dirname)
-        if done is not None:
-            return done
 
-        genExcludeFile(self.ref_, dirname, deltas)
-
-        vT=verrouTask(dirname, self.ref_,self.run_, self.compare_ ,nbRUN, "exclude")
+        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRUN, "exclude")
         return vT.run()
 
- 
+
+    
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
     def testSym(self, deltas, symlinkconf=None):
         #by default the symlinks are generated when the test fail
-        dirname = self.testName(deltas)
+
         testResult=self._test(deltas)
 
         syms = [delta.partition("\t")[0] for delta in deltas]
@@ -439,6 +366,7 @@ class DDsym(DDvr):
                 linkname = "%s.%s"%(self.prefix_, symsname)
             else:
                 linkname=  os.path.join(self.prefix_,symlinkconf)
+            dirname = os.path.join(self.prefix_, md5Name(deltas))
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
@@ -507,17 +435,7 @@ class DDline(DDvr):
 
 
     def _test(self, deltas):
-        dirname = self.testName(deltas)
-        done = self.alreadyDone(dirname)
-        if done is not None:
-            return done
-
-        with open(os.path.join(dirname,"dd.source"), "w") as f:
-            f.write("__unknown__\t0\n")
-            for d in deltas:
-                f.write(d)
-
-        vT=verrouTask(dirname, self.ref_,self.run_, self.compare_ ,nbRUN, "source")
+        vT=verrouTask(self.prefix_, deltas, self.ref_,self.run_, self.compare_ ,nbRUN, "source")
         return vT.run()
 
     def coerce(self, config):
@@ -527,19 +445,20 @@ class DDline(DDvr):
 
     def testLine(self, delta, symlinkconf=None):
         deltas = [delta]
-        dirname = self.testName(deltas)
+#        dirname = self.testName(deltas)
         testResult=self._test(deltas)
 
         (filename, linenum) = delta.strip().split("\t")[0:2]
         if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
             linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
+            dirname=os.path.join(self.prefix_,md5Name(deltas))
             symlink(dirname, linkname)
         if testResult==self.PASS:
             print("WARNING: the line %s:%s do not generate a FAIL"%(filename,linenum))
 
 
     def testLines(self, deltas, symlinkconf=None):
-        dirname = self.testName(deltas)
+#        dirname = self.testName(deltas)
         testResult=self._test(deltas)
 
         #get the name of the conf
@@ -555,6 +474,7 @@ class DDline(DDvr):
         
         if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
             linkname = "%s.%s"%(self.prefix_, confname)
+            dirname=os.path.join(self.prefix_,md5Name(deltas))
             symlink(dirname, linkname)
         if testResult==self.PASS:
             print("WARNING: the line %s do not generate a FAIL"%(confname))

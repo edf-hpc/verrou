@@ -710,11 +710,12 @@ class DD:
         """Stub to overload in subclasses"""
         n = 2
 
+
         testNoDelta=self.test([])
         if testNoDelta!=self.PASS:
-            self.noDeltaSucceedMsg()
             print("ERROR: test([]) == FAILED")
-            sys.exit()
+            self.noDeltaSucceedMsg()
+
 
         run = 1
         cbar_offset = 0
@@ -729,9 +730,10 @@ class DD:
                 if "VERROU_DD_UNSAFE" in os.environ:
                     print ("WARNING: test([all deltas]) == PASS")
                 else:
-                    self.allDeltaFailedMsg(c)
                     print ("ERROR: test([all deltas]) == PASS")
-                    sys.exit(1)
+                    self.allDeltaFailedMsg(c)
+
+
 
 
             if n > len(c):
