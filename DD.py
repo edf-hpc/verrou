@@ -517,7 +517,7 @@ class DD:
 
         # We replace the tail recursion from the paper by a loop
         while 1:
-            tc = self.test(c)
+            tc = self._test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
                 if run==1:
                     self.deltaFailedMsg(c)
@@ -706,12 +706,12 @@ class DD:
 
 
 
-    def verrou_dd_min(self, c ):
+    def verrou_dd_min(self, c , nbRun):
         """Stub to overload in subclasses"""
         n = 2
 
 
-        testNoDelta=self.test([])
+        testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
             print("ERROR: test([]) == FAILED")
             self.noDeltaSucceedMsg()
@@ -722,7 +722,7 @@ class DD:
 
         # We replace the tail recursion from the paper by a loop
         while 1:
-            tc = self.test(c)
+            tc = self._test(c ,nbRun)
             if tc != self.FAIL and tc != self.UNRESOLVED:
                 if run==1:
                     self.deltaFailedMsg(c)
@@ -759,7 +759,7 @@ class DD:
                 if self.debug_dd:
                     print ("dd: trying", self.pretty(cs[i]))
 
-                t = self.test(cs[i])
+                t = self._test(cs[i],nbRun)
 
                 if t == self.FAIL:
                     # Found
@@ -783,7 +783,7 @@ class DD:
                 for j in range(n):
                     i = (j + cbar_offset) % n
                     cbars[i] = self.__listminus(c, cs[i])
-                    t = self.test(cbars[i])
+                    t = self._test(cbars[i],nbRun)
 
                     if t == self.FAIL:
                         if self.debug_dd:

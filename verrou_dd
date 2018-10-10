@@ -256,7 +256,7 @@ class DDvr(DD.DD):
         self.ref_ = os.path.join(self.prefix_, "ref")
 
 
-    def RDDMin(self, deltas):
+    def RDDMin(self, deltas,nbRun=nbRUN):
         ddminTab=[]
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
@@ -264,15 +264,46 @@ class DDvr(DD.DD):
         index=0
         while testResult==self.FAIL:
 #            conf = self.ddmin(deltas)
-            conf = self.verrou_dd_min(deltas)
+            conf = self.verrou_dd_min(deltas,nbRun)
 
             ddminTab += [conf]
             print("ddmin%d (%s):"%(index,self.coerce(conf)))
 
             #update deltas
             deltas=[delta for delta in deltas if delta not in conf]
-            testResult=self._test(deltas)
+            testResult=self._test(deltas,nbRun)
             index+=1
+        return ddminTab
+
+    def SRDDMin(self, deltas,nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1):
+        ddminTab=[]
+        testResult=self._test(deltas,nbRun)
+        if testResult!=self.FAIL:
+            self.deltaFailedMsg(deltas)
+
+        index=0
+        run=min(nbRun-1,nbRunMin-1)
+        while run < nbRun:
+
+            while testResult==self.FAIL:
+#            conf = self.ddmin(deltas)
+                conf = self.verrou_dd_min(deltas,run)
+                if len(conf)==1:
+                    ddminTab += [conf]
+                    print("ddmin%d (%s):"%(index,self.coerce(conf)))
+                    index+=1
+                    deltas=[delta for delta in deltas if delta not in conf]
+                else:
+                    rddmin=self.SRDDMin(deltas, nbRun, min(nbRun,nbRunInc(nbRunMin)),nbRunInc)
+
+                    ddminTab+=rddmin
+                    for conf in ddminTab:
+                        print("ddmin%d (%s):"%(index,self.coerce(conf)))
+                        deltas=[delta for delta in deltas if delta not in conf]
+                        index+=1
+
+                testResult=self._test(deltas,nbRun)
+            run=max(run+1,min(nbRun-1, nbRunInc(run)))
         return ddminTab
 
 
@@ -342,9 +373,9 @@ class DDsym(DDvr):
         print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
         failure()
 
-    def _test(self, deltas):
+    def _test(self, deltas,nbRun=nbRUN):
 
-        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRUN, "exclude")
+        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRun, "exclude")
         return vT.run()
 
 
@@ -394,7 +425,7 @@ def ddSymRDDMin(run, compare):
     dd = DDsym(run,compare)
     with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
-    confTab = dd.RDDMin(deltas)
+    confTab = dd.SRDDMin(deltas)
 
     for i in range(len(confTab)):
         conf=confTab[i]
@@ -434,8 +465,8 @@ class DDline(DDvr):
         return deltas
 
 
-    def _test(self, deltas):
-        vT=verrouTask(self.prefix_, deltas, self.ref_,self.run_, self.compare_ ,nbRUN, "source")
+    def _test(self, deltas,nbRun=nbRUN):
+        vT=verrouTask(self.prefix_, deltas, self.ref_,self.run_, self.compare_ ,nbRun, "source")
         return vT.run()
 
     def coerce(self, config):
@@ -535,7 +566,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
             continue
 
         try:
-            ddminTab=dd.RDDMin(deltas)
+            ddminTab=dd.SRDDMin(deltas)
         except DDLineError:
             ddminTab=[]
             traceback.print_exc()
