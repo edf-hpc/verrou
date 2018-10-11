@@ -169,9 +169,9 @@ class verrouTask:
                 returnVal=self.runPar(workToDo)
 
             if(returnVal==self.PASS):
-                print("PASS(+" + str(len(workToDo))+")" )
+                print("PASS(+" + str(len(workToDo))+"->"+str(self.nbRun)+")" )
             return returnVal
-        print(" --(cache)-> PASS")
+        print(" --(cache)-> PASS("+str(self.nbRun)+")")
         return self.PASS
     
 
@@ -282,28 +282,33 @@ class DDvr(DD.DD):
             self.deltaFailedMsg(deltas)
 
         index=0
-        run=min(nbRun-1,nbRunMin-1)
-        while run < nbRun:
-
+        run=min(nbRun,nbRunMin)
+        
+        while run <= nbRun:
+            testResult=self._test(deltas,run)
+           
             while testResult==self.FAIL:
-#            conf = self.ddmin(deltas)
+
+            #            conf = self.ddmin(deltas)
                 conf = self.verrou_dd_min(deltas,run)
-                if len(conf)==1:
-                    ddminTab += [conf]
-                    print("ddmin%d (%s):"%(index,self.coerce(conf)))
-                    index+=1
-                    deltas=[delta for delta in deltas if delta not in conf]
-                else:
-                    rddmin=self.SRDDMin(deltas, nbRun, min(nbRun,nbRunInc(nbRunMin)),nbRunInc)
+                if len(conf)!=1:                    
+                    runIncValue=min(nbRun,nbRunInc(run))
+                    while runIncValue<=nbRun:
+                        conf = self.verrou_dd_min(conf,runIncValue)            
+                        if len(conf)==1:
+                            break
+                        else:
+                            runIncValue=max(runIncValue+1,min(nbRun,nbRunInc(runIncValue)))
+                    
+                ddminTab += [conf]
+                print("ddmin%d (%s):"%(index,self.coerce(conf)))
+                index+=1
 
-                    ddminTab+=rddmin
-                    for conf in ddminTab:
-                        print("ddmin%d (%s):"%(index,self.coerce(conf)))
-                        deltas=[delta for delta in deltas if delta not in conf]
-                        index+=1
-
+                deltas=[delta for delta in deltas if delta not in conf]
                 testResult=self._test(deltas,nbRun)
-            run=max(run+1,min(nbRun-1, nbRunInc(run)))
+
+
+            run=max(run+1,min(nbRun, nbRunInc(run)))
         return ddminTab
 
 
@@ -350,7 +355,7 @@ class DDsym(DDvr):
         print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
         print("\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
-        dirname = self.md5Name(delta)
+        dirname = md5Name(delta)
         print("Directory to analyze: %s"%dirname)
         failure()
 
