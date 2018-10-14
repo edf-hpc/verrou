@@ -49,6 +49,14 @@ except:
     pass
 
 
+ddQuiet=False
+try:
+    ddQuiet = os.environ["VERROU_DD_QUIET"]
+    ddQuiet=True
+except:
+    pass
+
+
 
 
 def runCmdAsync(cmd, fname, envvars=None):
@@ -157,7 +165,7 @@ class verrouTask:
     def run(self):
         workToDo=self.sampleToComputeToGetFailure(self.nbRun)
         if workToDo==None:
-            print("--(cache) -> FAIL")
+            print(" --(cache) -> FAIL")
             return self.FAIL
         
         if len(workToDo)!=0:
@@ -256,6 +264,11 @@ class DDvr(DD.DD):
         self.ref_ = os.path.join(self.prefix_, "ref")
         self.index=0
 
+    def report_progress(self, c, title):
+        if not ddQuiet:
+            super().report_progress(c,title)
+
+
     def RDDMin(self, deltas,nbRun=nbRUN):
         ddminTab=[]
         testResult=self._test(deltas)
@@ -279,11 +292,14 @@ class DDvr(DD.DD):
     def splitDeltas(self, deltas,nbRun=nbRUN, granularity=2):
         res=[]
         toTreat=[deltas]
-
+        algo_name="splitDeltas"
         while len(toTreat)!=0:
             cutCandidat=toTreat[0]
             toTreat=toTreat[1:]
-            ciTab=self.split(cutCandidat, min(granularity, len(cutCandidat)))
+            self.report_progress(cutCandidat, algo_name)
+
+            cutSize=min(granularity, len(cutCandidat))
+            ciTab=self.split(cutCandidat, cutSize)
 
             cutAbleStatus=False
             for ci in ciTab:
@@ -302,6 +318,7 @@ class DDvr(DD.DD):
         return res
 
     def DRDDMin(self, deltas, nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1,granularity=2):
+        algo_name="DRDDMin"
 
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
@@ -309,18 +326,19 @@ class DDvr(DD.DD):
 
 
         candidats=self.splitDeltas(deltas,nbRun, granularity)
-        print("Dicotomy split done")
+        print("Dichotomy split done")
         res=[]
         for candidat in candidats:
             if len(candidat)==1:
                 res+=[candidat]
                 deltas=[delta for delta in deltas if delta not in candidat]
             else:
+                self.report_progress(candidat, algo_name)
                 resTab=self.RDDMin(candidat,nbRun)
                 for resMin in resTab:
                     res+=[resMin]
                     deltas=[delta for delta in deltas if delta not in resMin]
-        print("Dicotomy split analyze done")
+        print("Dichotomy split analyze done")
 
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
@@ -331,6 +349,7 @@ class DDvr(DD.DD):
 
 
     def SRDDMin(self, deltas,nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1):
+        algo_name="SRDDMin"
         ddminTab=[]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
@@ -343,7 +362,7 @@ class DDvr(DD.DD):
             testResult=self._test(deltas,run)
            
             while testResult==self.FAIL:
-
+                self.report_progress(deltas, algo_name)
             #            conf = self.ddmin(deltas)
                 conf = self.verrou_dd_min(deltas,run)
                 if len(conf)!=1:                    

@@ -618,7 +618,7 @@ class DD:
         self.minimize=0
         n = 2
         self.CC = c
-
+        algo_name="dd_max"
         
         testNoDelta=self.test([])
         if testNoDelta!=self.PASS:
@@ -643,15 +643,15 @@ class DD:
 
             if n > len(c):
                 # No further minimizing
-                print ("dd: done")
+                print (algo_name+": done")
                 return c
 
-            self.report_progress(c, "dd")
+            self.report_progress(c, algo_name)
 
             cs = self.split(c, n)
 
             print ()
-            print ("dd (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
+            print (algo_name+" (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
 
             c_failed    = 0
             cbar_failed = 0
@@ -677,14 +677,14 @@ class DD:
 
                     if t == self.FAIL:
                         if self.debug_dd:
-                            print ("dd: reduced to", len(cbars[i]),)
+                            print (algo_name+": reduced to", len(cbars[i]),)
                             print ("deltas:", end="")
                             print (self.pretty(cbars[i]))
 
                         cbar_failed = 1
                         next_c = self.__listintersect(next_c, cbars[i])
                         next_n = next_n - 1
-                        self.report_progress(next_c, "dd")
+                        self.report_progress(next_c, algo_name)
 
                         # In next run, start removing the following subset
                         cbar_offset = i
@@ -693,11 +693,11 @@ class DD:
             if not c_failed and not cbar_failed:
                 if n >= len(c):
                     # No further minimizing
-                    print ("dd: done")
+                    print (algo_name+": done")
                     return c
 
                 next_n = min(len(c), n * 2)
-                print ("dd: increase granularity to", next_n)
+                print (algo_name+": increase granularity to", next_n)
                 cbar_offset = (cbar_offset * next_n) // n
 
             c = next_c
@@ -709,7 +709,7 @@ class DD:
     def verrou_dd_min(self, c , nbRun):
         """Stub to overload in subclasses"""
         n = 2
-
+        algo_name="ddmin"
 
         testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
@@ -738,15 +738,15 @@ class DD:
 
             if n > len(c):
                 # No further minimizing
-                print ("dd: done")
+                print (algo_name+": done")
                 return c
 
-            self.report_progress(c, "dd")
+            self.report_progress(c, algo_name)
 
             cs = self.split(c, n)
 
             print ()
-            print ("dd (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
+            print (algo_name+" (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
 
             c_failed    = False
             cbar_failed = False
@@ -757,21 +757,21 @@ class DD:
             # Check subsets
             for i in range(n):
                 if self.debug_dd:
-                    print ("dd: trying", self.pretty(cs[i]))
+                    print (algo_name+": trying", self.pretty(cs[i]))
 
                 t = self._test(cs[i],nbRun)
 
                 if t == self.FAIL:
                     # Found
                     if self.debug_dd:
-                        print ("dd: found", len(cs[i]), "deltas:",)
+                        print (algo_name+": found", len(cs[i]), "deltas:",)
                         print (self.pretty(cs[i]))
 
                     c_failed = True
                     next_c = cs[i]
                     next_n = 2
                     cbar_offset = 0
-                    self.report_progress(next_c, "dd")
+                    self.report_progress(next_c, algo_name)
                     break
 
             if not c_failed:
@@ -787,14 +787,14 @@ class DD:
 
                     if t == self.FAIL:
                         if self.debug_dd:
-                            print ("dd: reduced to", len(cbars[i]),)
+                            print (algo_name+": reduced to", len(cbars[i]),)
                             print ("deltas:", end="")
                             print (self.pretty(cbars[i]))
 
                         cbar_failed = True
                         next_c = cbars[i]
                         next_n = next_n - 1
-                        self.report_progress(next_c, "dd")
+                        self.report_progress(next_c, algo_name)
 
                         # In next run, start removing the following subset
                         cbar_offset = i
@@ -803,11 +803,11 @@ class DD:
             if not c_failed and not cbar_failed:
                 if n >= len(c):
                     # No further minimizing
-                    print ("dd: done")
+                    print (algo_name+": done")
                     return c
 
                 next_n = min(len(c), n * 2)
-                print ("dd: increase granularity to", next_n)
+                print (algo_name+": increase granularity to", next_n)
                 cbar_offset = (cbar_offset * next_n) // n
 
             c = next_c
