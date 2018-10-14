@@ -4,6 +4,21 @@
 import sys
 import os
 import pickle
+import random
+
+proba=1.
+try:
+    proba = float(os.environ["DD_TEST_PROBA"])
+except:
+    pass
+
+def simulateRandom(fail):
+    if fail!=0:
+        if( random.random()<proba):
+            return fail
+    return 0
+
+
 
 class ddConfig:
     def __init__(self,listOfFailure=[]):
@@ -62,7 +77,9 @@ class ddConfig:
 
         for sym in self.listOfIntSym():
             if sym not in listOfConfigSym and self.listOfFailure[sym][1]!=0:
-                return 1
+                res=simulateRandom(1)
+                if res==1:
+                    return 1
         return 0
 
     def statusOfSourceConfig(self, configSym, configLine):
@@ -97,7 +114,10 @@ def generateFakeExclusion(ddCase):
     
     
     f=open(genExcludeFile, "w")
-    for (sym, name,) in ddCase.listOfTxtSym():
+    dataToWrite=ddCase.listOfTxtSym()
+    import random
+    random.shuffle(dataToWrite)
+    for (sym, name,) in dataToWrite:
         f.write(sym +"\t" + name+"\n")
     f.close()
 

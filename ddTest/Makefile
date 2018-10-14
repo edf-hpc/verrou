@@ -3,6 +3,7 @@
 
 
 run: install clean
+#	VERROU_DD_IGNORE_LINE=True
 	VERROU_DD_ALGO=rddmin verrou_dd ./ddRun.py ./ddCmp.py
 
 
