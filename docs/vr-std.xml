@@ -129,12 +129,17 @@
         <listitem><simpara><command>downward,</command></simpara></listitem>
         <listitem><simpara><command>toward zero,</command></simpara></listitem>
       </itemizedlist>
-      as well as another (non-IEEE-754) deterministic mode:
+      as well as two other (non-IEEE-754) deterministic mode:
       <itemizedlist>
         <listitem><para><command>farthest</command>: in this mode, all non-exact results are rounded
         in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
         different from <command>nearest</command> rounding mode, while still being
         deterministic.</para></listitem>
+
+	<listitem><para><command>float</command>: in this mode, all double precision floating-point
+	operations are replaced by simple precision equivalent. Float operations remain unchanged.
+	</para></listitem>
+
       </itemizedlist>
     </para>
     <para>

@@ -108,7 +108,7 @@ typedef struct {
   
   Bool genExclude;
   HChar * excludeFile;
-  HChar * genAbove;
+  //  HChar * genAbove;
   Vr_Exclude * exclude;
   Vr_Exclude * genExcludeUntil;
 
@@ -172,13 +172,17 @@ void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
                                 const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
 Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
+void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
 void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,
                                const HChar* fname);
 Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
-Bool vr_includeSource (Vr_IncludeSource** list, Bool generate,
+Bool vr_includeSource (Vr_IncludeSource** list,
                        const HChar* fnname, const HChar* filename, UInt linenum);
+void vr_includeSource_generate (Vr_IncludeSource** list,
+				const HChar* fnname, const HChar* filename, UInt linenum);
+
 
 #define VR_FNNAME_BUFSIZE 4096
 

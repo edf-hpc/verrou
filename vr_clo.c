@@ -53,7 +53,7 @@ void vr_clo_defaults (void) {
 
   vr.genExclude = False;
   vr.exclude = NULL;
-  vr.genAbove = NULL;
+  //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
@@ -86,6 +86,8 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.roundingMode, VR_ZERO)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=farthest",
                         vr.roundingMode, VR_FARTHEST)) {}
+  else if (VG_XACT_CLO (arg, "--rounding-mode=float",
+                        vr.roundingMode, VR_FLOAT)) {}
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",
@@ -135,9 +137,9 @@ Bool vr_process_clo (const HChar *arg) {
     vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
     vr.genExclude = True;
   }
-  else if (VG_STR_CLO (arg, "--gen-above", str)) {
-    vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str);
-  }
+  /* else if (VG_STR_CLO (arg, "--gen-above", str)) { */
+  /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */
+  /* } */
   else if (VG_STR_CLO (arg, "--exclude", str)) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }

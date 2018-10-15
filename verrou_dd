@@ -1,4 +1,6 @@
-#!/usr/bin/python -u
+#!/bin/sh
+''''exec python3 -u "$0" "$@" #'''
+# This hack is an ugly but portable alternative to #!/usr/bin/env -S python3 -u
 
 import subprocess
 import sys
@@ -33,7 +35,7 @@ try:
     if algo in ["ddmax","rddmin"]:
         ddAlgo=algo
     else:
-        print "incorrect VERROU_DD_ALGO env variable"
+        print("incorrect VERROU_DD_ALGO env variable")
         failure()
 except:
     pass
@@ -116,7 +118,7 @@ class verrouTask:
                             "%s/dd.compare"%rundir)
 
         if retval != 0:
-            print "FAIL(%d)" % i
+            print("FAIL(%d)" % i)
             return self.FAIL
         else:
             return self.PASS
@@ -129,7 +131,7 @@ class verrouTask:
 
 
     def runSeq(self):        
-        for run in xrange(0, self.nbRun):
+        for run in range(0, self.nbRun):
             self.mkdir(run)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
@@ -139,14 +141,14 @@ class verrouTask:
             
         with open("%s/dd.pass"%self.dirname, "w") as f:
             f.write("OK\n")
-        print "PASS"
+        print("PASS")
         return self.PASS
 
     def runPar(self):            
-        for run in xrange(0, self.nbRun):
+        for run in range(0, self.nbRun):
             self.mkdir(run)
             self.runOneSample(run)
-        for run in xrange(0, self.nbRun):
+        for run in range(0, self.nbRun):
             retVal=self.cmpOneSample(run)
             
             if retVal=="FAIL":
@@ -154,7 +156,7 @@ class verrouTask:
             
         with open("%s/dd.pass"%self.dirname, "w") as f:
             f.write("OK\n")
-        print "PASS"
+        print("PASS")
         return self.PASS
 
 
@@ -164,7 +166,7 @@ class verrouTask:
         fail=False
         lastLaunch=self.nbRun-1
         remainPidTab=[]
-        for run in xrange(0, self.nbRun):
+        for run in range(0, self.nbRun):
             self.mkdir(run)
             self.runOneSample(run)
 
@@ -176,7 +178,7 @@ class verrouTask:
                     if pid in self.pidRunTab:
                         break
                     else:
-                        print "Internal Error in runParMax"
+                        print("Internal Error in runParMax")
                         failure()
 
 
@@ -191,7 +193,7 @@ class verrouTask:
                     break
 
         if remainPidTab!=[]:
-            print "Error runParMAX"
+            print("Error runParMAX")
             sys.exit()
 
         if not fail:
@@ -211,7 +213,7 @@ class verrouTask:
         if fail:
             #receive finish
             listOfPidToCheck=[]
-            for run in xrange(0,lastLaunch+1):
+            for run in range(0,lastLaunch+1):
                 if self.pidRunTab[run]==None:
                     #comparison script already done
                     continue
@@ -227,7 +229,7 @@ class verrouTask:
                         self.subProcessRun[run].kill()
                     except OSError as e:
                         if str(e)!="[Errno 3] No such process":
-                            print "error: ", "!"+str(e)+"!"
+                            print("error: ", "!"+str(e)+"!")
                             traceback.print_exc()
                             failure()
                     
@@ -238,7 +240,7 @@ class verrouTask:
         
         with open("%s/dd.pass"%self.dirname, "w") as f:
             f.write("OK\n")
-        print "PASS"
+        print("PASS")
         return self.PASS
 
 
@@ -264,7 +266,7 @@ def mergeList(dirname, name="dd.exclude"):
     """merge the file name.$PID into a uniq file called name """ 
     listOfExcludeFile=[ x for x in os.listdir(dirname) if x.startswith(name+".")]
     if len(listOfExcludeFile)<1:
-        print "The generation of exclusion/source files failed"
+        print("The generation of exclusion/source files failed")
         failure()
                 
     with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
@@ -294,21 +296,21 @@ class DDvr(DD.DD):
         self.ref_ = "%s/ref"%self.prefix_
 
     def testName(self, deltas):
-        return self.prefix_ + "/" + hashlib.md5("".join(deltas)).hexdigest()
+        return self.prefix_ + "/" + hashlib.md5(("".join(deltas)).encode('utf-8')).hexdigest()
 
     def alreadyDone(self, dirname):
-        print dirname,
+        print(dirname,end="")
         if os.path.exists(dirname):
             res = os.path.exists("%s/dd.pass"%dirname)
-            print " --(cache)-> ",
+            print(" --(cache)-> ",end="")
             if res:
-                print "PASS"
+                print("PASS")
                 return self.PASS
             else:
-                print "FAIL"
+                print("FAIL")
                 return self.FAIL
 
-        print " --( run )-> ",
+        print(" --( run )-> ",end="",flush=True)
         prepareOutput(dirname)
         return None
 
@@ -321,7 +323,7 @@ class DDvr(DD.DD):
         while testResult==self.FAIL:
             conf = self.ddmin(deltas)
             ddminTab += [conf]
-            print "ddmin%d (%s):"%(index,self.coerce(conf))
+            print("ddmin%d (%s):"%(index,self.coerce(conf)))
 
             #update deltas
             deltas=[delta for delta in deltas if delta not in conf]
@@ -355,45 +357,45 @@ class DDsym(DDvr):
         retval = runCmd([self.compare_,self.ref_, self.ref_],
                         "%s/checkRef"%self.ref_)
         if retval != 0:
-            print "FAILURE: the reference is not valid "
-            print "Suggestions:"
-            print "\t1) check the correctness of the %s script"%self.compare_
-            print "\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script"
+            print("FAILURE: the reference is not valid ")
+            print("Suggestions:")
+            print("\t1) check the correctness of the %s script"%self.compare_)
+            print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
-            print "Files to analyze:"
-            print "\t run output: " +  "%s/dd.out"%self.ref_ + " %s/dd.err"%self.ref_
-            print "\t cmp output: " +  "%s/checkRef.out"%self.ref_ + " %s/checkRef.err"%self.ref_
+            print("Files to analyze:")
+            print("\t run output: " +  "%s/dd.out"%self.ref_ + " %s/dd.err"%self.ref_)
+            print("\t cmp output: " +  "%s/checkRef.out"%self.ref_ + " %s/checkRef.err"%self.ref_)
             failure()
-#            print "\t3) check the "
+#            print("\t3) check the ")
 
     def deltaFailedMsg(self,delta):
-        print "FAILURE: nothing to debug (the run with all symbols activated succeed)"
-        print "Suggestions:"
-        print "\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_
-        print "\t2) check if the number of samples VERROU_DD_NRUNS is sufficient "
-        print "\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script"
+        print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
+        print("Suggestions:")
+        print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
+        print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
+        print("\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
         dirname = self.testName(delta)
-        print "Directory to analyze: %s"%dirname
+        print("Directory to analyze: %s"%dirname)
         failure()
 
     def allDeltaFailedMsg(self,deltas):
-        print "FAILURE: when verrou perturbs all parts of the program, its output is still detected as stable."
-        print "Suggestions:"
-        print "\t1) check if the number of samples VERROU_DD_NRUNS is sufficient"
-        print "\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_
-        print "\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe"
+        print ("FAILURE: when verrou perturbs all parts of the program, its output is still detected as stable.")
+        print ("Suggestions:")
+        print ("\t1) check if the number of samples VERROU_DD_NRUNS is sufficient")
+        print ("\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
+        print ("\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe")
 
         failure()
 
         
 
     def noDeltaSucceedMsg(self,deltas=[]):
-        print "FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed"
+        print("FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed")
         
-        print "Suggestions:"
-        print "\t1) check the libm library is correctly excluded"
-        print "\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_
+        print("Suggestions:")
+        print("\t1) check the libm library is correctly excluded")
+        print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
 
         failure()
         
@@ -418,14 +420,15 @@ class DDsym(DDvr):
         testResult=self._test(deltas)
 
         syms = [delta.partition("\t")[0] for delta in deltas]
-        symsname=reduce(lambda sym1,sym2 : sym1+","+sym2,syms)
+        #symsname=reduce(lambda sym1,sym2 : sym1+","+sym2,syms)
+        symsname=",".join(syms)
 
         if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
             linkname = "%s.%s"%(self.prefix_, symsname)
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
-            print "WARNING: the symbol(s) " + symsname + "do not generate a FAIL"
+            print("WARNING: the symbol(s) " + symsname + "do not generate a FAIL")
 
         return testResult
 
@@ -436,7 +439,7 @@ def ddSym(run, compare):
         deltas = f.readlines()
 
     conf = dd.ddmax(deltas)
-    print "ddmax:" + dd.coerce(conf)
+    print("ddmax:" + dd.coerce(conf))
 
     #for delta in conf:
     #    dd.testSym(delta)
@@ -504,7 +507,7 @@ class DDline(DDvr):
             linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
             symlink(dirname, linkname)
         if testResult==self.PASS:
-            print "WARNING: the line %s:%s do not generate a FAIL"%(filename,linenum)
+            print("WARNING: the line %s:%s do not generate a FAIL"%(filename,linenum))
 
 
     def testLines(self, deltas, symlinkconf=None):
@@ -514,17 +517,19 @@ class DDline(DDvr):
         #get the name of the conf
         dictLines={}
         for (filename, linenum) in [delta.strip().split("\t")[0:2] for delta in deltas]:
-            if dictLines.has_key(filename):
+            if filename in dictLines:
                 dictLines[filename]+=[linenum]
             else:
                 dictLines[filename]=[linenum]
-        confname=reduce(lambda f1,f2: f1+"_"+f2 , [f+":"+reduce(lambda l1,l2: l1+","+l2 ,dictLines[f])  for f in dictLines] )
-
+        confname="_".join([f+":"+ (",".join(dictLines[f]))  for f in dictLines] )
+#        confname="_".join([f+":"+reduce(lambda l1,l2: l1+","+l2 ,dictLines[f])  for f in dictLines] )
+        
+        
         if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
             linkname = "%s.%s"%(self.prefix_, confname)
             symlink(dirname, linkname)
         if testResult==self.PASS:
-            print "WARNING: the line %s do not generate a FAIL"%(confname)
+            print("WARNING: the line %s do not generate a FAIL"%(confname))
 
 
     def noDeltaSucceedMsg(self,deltas=[]):
@@ -552,24 +557,24 @@ def ddLine(run, compare, refSym, confSymsTab):
 
         for sym in confSyms:
             symname = sym.partition("\t")[0]
-            print "ddLine: testing %s"%symname
+            print("ddLine: testing %s"%symname)
             deltas = []
             with open(dd.ref_ + "/dd.source", "r") as f:
                 for line in f:
-                    if line.endswith("\t%s\n"%symname):
+                    if line.endswith("\t%s\n"%symname) and line not in deltas:
                         deltas.append(line)
 
             try:
                 conf = dd.ddmax(deltas)
                 confLines += conf
-                print "ddmax (%s):"%symname + dd.coerce(conf)
+                print("ddmax (%s):"%symname + dd.coerce(conf))
 
                 for delta in conf:
                     dd.testLine(delta)
             except DDLineError:
                 traceback.print_exc()
 
-    print "ddmax (global):" + dd.coerce(confLines)
+    print("ddmax (global):" + dd.coerce(confLines))
     return confLines
 
 
@@ -581,7 +586,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
 
         for sym in confSyms:
             symname = sym.partition("\t")[0]
-            print "ddLine: testing %s"%symname
+            print("ddLine: testing %s"%symname)
             deltas = []
             with open(dd.ref_ + "/dd.source", "r") as f:
                 for line in f:
@@ -593,10 +598,10 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
             except DDLineError:
                 traceback.print_exc()
 
-    print "ddmin (global):"
+    print("ddmin (global):")
 
     for i in range(len(confLines)):
-        print "ddmin-"+str(i)+": " +dd.coerce(confLines[i])
+        print("ddmin-"+str(i)+": " +dd.coerce(confLines[i]))
         dd.testLines(confLines[i])
 
 
@@ -609,14 +614,14 @@ def main(run, compare,algoSearch="ddmax"):
         ddLineRDDMin(run, compare, refSym, confSymsTab)
 
 def usageCmd():
-    print "Usage: "+ sys.argv[0] + " runScript cmpScript" 
+    print("Usage: "+ sys.argv[0] + " runScript cmpScript")
 
 def checkScriptPath(fpath):
     if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
         return os.path.abspath(fpath)
     else:
-        print "Invalid Cmd:"+str(sys.argv)
-        print fpath + " should be executable"
+        print("Invalid Cmd:"+str(sys.argv))
+        print(fpath + " should be executable")
         usageCmd()
         failure()
 

@@ -46,6 +46,7 @@
 #include "./timing.h"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 //#include "stencil_ispc.h"
 //using namespace ispc;
 
@@ -134,8 +135,6 @@ int main(int argc, char *argv[]) {
     static unsigned int test_iterations[] = {1, 1, 1};//the last two numbers must be equal here
     int Nx = 256, Ny = 256, Nz = 256;
     int width = 4;
-    std::ofstream file;
-    file.open("../res",std::ios::app);
 
     if (argc > 1) {
         if (strncmp(argv[1], "--scale=", 8) == 0) {
@@ -212,27 +211,24 @@ int main(int argc, char *argv[]) {
                             Aserial[0], Aserial[1]);
         double dt = get_elapsed_msec();
         printf("@time of serial run:\t\t\t[%.3f] milli secondes\n", dt);
-	file << "stencil time " << dt << std::endl;
 	//    minTimeSerial = std::min(minTimeSerial, dt);
     }
 
 
-    file.close();
       
     // printf("\t\t\t\t(%.2fx speedup from ISPC, %.2fx speedup from ISPC + tasks)\n", 
     //        minTimeSerial / minTimeISPC, minTimeSerial / minTimeISPCTasks);
 
     // Check for agreement
-    // int offset = 0;
-    // for (int z = 0; z < Nz; ++z)
-    //     for (int y = 0; y < Ny; ++y)
-    //         for (int x = 0; x < Nx; ++x, ++offset) {
-    //             double error = fabsf((Aserial[1][offset] - Aispc[1][offset]) /
-    //                                 Aserial[1][offset]);
-    //             if (error > 1e-4)
-    //                 printf("Error @ (%d,%d,%d): ispc = %f, serial = %f\n",
-    //                        x, y, z, Aispc[1][offset], Aserial[1][offset]);
-    //         }
-
-    return 0;
+    int offset = 0;
+    RealType norm=0;
+    for (int z = 0; z < Nz; ++z){
+      for (int y = 0; y < Ny; ++y){
+	for (int x = 0; x < Nx; ++x, ++offset) {
+	  RealType value= Aserial[1][offset];
+	  norm += value*value;
+	}
+      }
+    }
+    std::cout << std::setprecision(16)<< "norm: " << sqrt(norm)<<std::endl;
 }

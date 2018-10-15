@@ -154,6 +154,48 @@ struct vr_packArg<REALTYPE,3>{
 };
 
 
+template<class REALTYPE, int NB>
+class vr_roundFloat;
+
+
+template<class REALTYPE>
+struct vr_roundFloat<REALTYPE, 1>{
+  vr_roundFloat(const vr_packArg<REALTYPE,1>& p): arg1(REALTYPE(float(p.arg1))){
+  }
+  vr_packArg<REALTYPE,1> getPack()const{
+    return vr_packArg<REALTYPE,1>(arg1);
+  }
+  const REALTYPE arg1;
+};
+
+
+template<class REALTYPE>
+struct vr_roundFloat<REALTYPE, 2>{
+  vr_roundFloat(const vr_packArg<REALTYPE,2>& p): arg1(REALTYPE(float(p.arg1 ))),
+						  arg2(REALTYPE(float(p.arg2 ))){
+  }
+  vr_packArg<REALTYPE,2> getPack()const{
+    return vr_packArg<REALTYPE,2>(arg1,arg2);
+  }
+  const REALTYPE arg1;
+  const REALTYPE arg2;
+};
+
+template<class REALTYPE>
+struct vr_roundFloat<REALTYPE, 3>{
+  vr_roundFloat(const vr_packArg<REALTYPE,3>& p): arg1(REALTYPE(float(p.arg1 ))),
+						  arg2(REALTYPE(float(p.arg2 ))),
+						  arg3(REALTYPE(float(p.arg3 ))){
+  }
+  vr_packArg<REALTYPE,3> getPack()const{
+    return vr_packArg<REALTYPE,3>(arg1,arg2,arg3);
+  }
+  const REALTYPE arg1;
+  const REALTYPE arg2;
+  const REALTYPE arg3;
+};
+
+
 
 
 
