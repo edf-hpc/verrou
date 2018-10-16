@@ -32,7 +32,7 @@ except:
 ddAlgo="ddmax"
 try:
     algo = os.environ["VERROU_DD_ALGO"]
-    if algo in ["ddmax","rddmin"]:
+    if algo in ["ddmax","rddmin","srddmin"] or algo.startswith("drddmin"):
         ddAlgo=algo
     else:
         print("incorrect VERROU_DD_ALGO env variable")
@@ -334,7 +334,7 @@ class DDvr(DD.DD):
                 deltas=[delta for delta in deltas if delta not in candidat]
             else:
                 self.report_progress(candidat, algo_name)
-                resTab=self.RDDMin(candidat,nbRun)
+                resTab=self.SRDDMin(candidat,nbRun, nbRun, nbRunMin,nbRunInc)
                 for resMin in resTab:
                     res+=[resMin]
                     deltas=[delta for delta in deltas if delta not in resMin]
@@ -480,7 +480,7 @@ class DDsym(DDvr):
             symlink(dirname, linkname)
 
         if testResult==self.PASS:
-            print("WARNING: the symbol(s) " + symsname + "do not generate a FAIL")
+            print("WARNING: the symbol(s) " + symsname + " do not generate a FAIL")
 
         return testResult
 
@@ -500,11 +500,25 @@ def ddSym(run, compare):
 
     return (dd.ref_, [reducedConf])
 
-def ddSymRDDMin(run, compare):
+def ddSymRDDMin(run, compare, algo):
     dd = DDsym(run,compare)
     with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
-    confTab = dd.DRDDMin(deltas)
+
+    granularity=2
+    try:
+        granularity=int(algo.partition("-")[2])
+    except:
+        pass
+
+
+    if algo=="rddmin":
+        confTab = dd.RDDMin(deltas)
+    if algo.startswith("srddmin"):
+        confTab = dd.SRDDMin(deltas)
+
+    if algo.startswith("drddmin"):
+        confTab = dd.DRDDMin(deltas,granularity=granularity)
 
     for i in range(len(confTab)):
         conf=confTab[i]
@@ -630,7 +644,12 @@ def ddLine(run, compare, refSym, confSymsTab):
     return confLines
 
 
-def ddLineRDDMin(run, compare, refSym, confSymsTab):
+def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
+    granularity=2
+    try:
+        granularity=int(algo.partition("-"))[2]
+    except:
+        pass
 
     confLines = []
     for i in range(len(confSymsTab)):
@@ -645,7 +664,13 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab):
             continue
 
         try:
-            ddminTab=dd.DRDDMin(deltas)
+            if algo=="rddmin":
+                ddminTab = dd.RDDMin(deltas)
+            if algo.startswith("srddmin"):
+                ddminTab = dd.SRDDMin(deltas)
+            if algo.startswith("drddmin"):
+                ddminTab = dd.DRDDMin(deltas,granularity=granularity)
+
         except DDLineError:
             ddminTab=[]
             traceback.print_exc()
@@ -660,10 +685,10 @@ def main(run, compare,algoSearch="ddmax"):
         (refSym, confSymsTab) = ddSym(run, compare)
         if not ddIgnoreLine:
             ddLine(run, compare, refSym, confSymsTab)
-    if algoSearch=="rddmin":
-        (refSym, confSymsTab) = ddSymRDDMin(run, compare)
+    if "rddmin"in algoSearch:
+        (refSym, confSymsTab) = ddSymRDDMin(run, compare, algo=algoSearch)
         if not ddIgnoreLine:
-            ddLineRDDMin(run, compare, refSym, confSymsTab)
+            ddLineRDDMin(run, compare, refSym, confSymsTab, algo=algoSearch)
 
 def usageCmd():
     print("Usage: "+ sys.argv[0] + " runScript cmpScript")
