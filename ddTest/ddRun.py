@@ -21,18 +21,34 @@ def simulateRandom(fail):
 
 
 class ddConfig:
-    def __init__(self,listOfFailure=[]):
-        self.nbSym=len(listOfFailure)
-        self.listOfFailure=listOfFailure
+    def __init__(self,listOf1Failure=[], listOf2Failures=[]):
+        self.nbSym=len(listOf1Failure)
+        self.listOf1Failure=listOf1Failure
+        self.listOf2Failures=listOf2Failures
+        self.check2Failure()
+
+    def check2Failure(self):
+        for x in self.listOf2Failures:
+            ((sym0,sym1), fail, tab)=x
+            if sym0>= self.nbSym or sym1 >= self.nbSym:
+                print("failure")
+                sys.exit()
+            #todo check tab
+                #            for (s1, l1, s2, l2) in tab:
 
     def pickle(self, fileName):
         """To serialize the ddConfig object in the file fileName"""
-        pickle.dump(self.listOfFailure, open(fileName, "wb"))
+        fileHandler= open(fileName, "wb")
+        pickle.dump(self.listOf1Failure,fileHandler)
+        pickle.dump(self.listOf2Failures,fileHandler)
+
 
     def unpickle(self, fileName):
         """To deserialize the ddConfig object from the file fileName"""
-        self.listOfFailure=pickle.load(open(fileName, "rb"))
-        self.nbSym=len(self.listOfFailure)
+        fileHandler=open(fileName, "rb")
+        self.listOf1Failure=pickle.load(fileHandler)
+        self.listOf2Failures=pickle.load(fileHandler)
+        self.nbSym=len(self.listOf1Failure)
         
     def listOfIntSym(self):
         """Return the int list of symbol"""
@@ -57,7 +73,7 @@ class ddConfig:
         """Generate a fake list of line : it takes into account the excludeFile"""
         listOfSymIncluded=self.getIncludeIntSymFromExclusionFile(excludeFile)
         res=[]
-        for (symFailureIndex, failure, listOfLine) in self.listOfFailure:
+        for (symFailureIndex, failure, listOfLine) in self.listOf1Failure:
             if symFailureIndex in listOfSymIncluded:
                     for (lineIndex, failureLine) in listOfLine:
                             res+=[("sym"+str(symFailureIndex)+".c", lineIndex, "sym-"+str(symFailureIndex))]                
@@ -75,8 +91,17 @@ class ddConfig:
         print(config)
         listOfConfigSym=self.getExcludeIntSymFromExclusionFile(config)
 
+        #test single sym
         for sym in self.listOfIntSym():
-            if sym not in listOfConfigSym and self.listOfFailure[sym][1]!=0:
+            if sym not in listOfConfigSym and self.listOf1Failure[sym][1]!=0:
+                res=simulateRandom(1)
+                if res==1:
+                    return 1
+        #test couple sym
+        for ((sym1,sym2), failure, tab) in self.listOf2Failures:
+            if failure==0:
+                continue
+            if not sym1 in listOfConfigSym and not sym2 in listOfConfigSym:
                 res=simulateRandom(1)
                 if res==1:
                     return 1
@@ -91,18 +116,33 @@ class ddConfig:
         configLineLines=self.getIncludedLines(configLine)
         print("configLineLines:", configLineLines)
         for sym in range(self.nbSym):
-            if sym not in listOfSym and self.listOfFailure[sym][1]!=0:
+            if sym not in listOfSym and self.listOf1Failure[sym][1]!=0:
                 print("sym:", sym)
-                print("listofLineFailure :", self.listOfFailure[sym][2])
+                print("listofLineFailure :", self.listOf1Failure[sym][2])
                 
                 
                 selectedConfigLines=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym) ]
                 print("selectedConfigLines:", selectedConfigLines)
-                for (lineFailure, failure) in self.listOfFailure[sym][2]: 
+                for (lineFailure, failure) in self.listOf1Failure[sym][2]:
                     if lineFailure in selectedConfigLines and failure :
                         print("line return : ", lineFailure)
                         return 1
-                            
+
+        #test couple sym
+        for ((sym1,sym2), failure, tab) in self.listOf2Failures:
+            print ("sym1 sym2 tab", sym1, sym2, tab)
+            if failure==0:
+                continue
+            if not sym1 in listOfSym and not sym2 in listOfSym:
+
+                selectedConfigLines1=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym1) ]
+                selectedConfigLines2=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym2) ]
+                print("selectedConfigLines1:", selectedConfigLines1)
+                print("selectedConfigLines2:", selectedConfigLines2)
+                for (s1, l1, s2,l2) in tab:
+                    if s1==sym1 and s2==sym2:
+                        if l1 in selectedConfigLines1 and l2 in selectedConfigLines2:
+                            return 1
         return 0
 
     
@@ -164,7 +204,9 @@ def runNorm(dir_path, ddCase):
         
         
 if __name__=="__main__":
-    ddCase=ddConfig([(sym, max(0, sym-6), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(10)])
+    ddCase=ddConfig([(sym, max(0, sym-16), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(20)],
+                    [((0,1), 1, [(0,line, 1,max(0,line-1)) for line in range(4)])  ]
+    )
 #    ddCase=ddConfig([(0, 0, []),
 #                     (1, 1, [(0, 0),(1,1)] )])
     
