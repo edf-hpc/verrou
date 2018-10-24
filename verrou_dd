@@ -290,32 +290,95 @@ class DDvr(DD.DD):
 
 
     def splitDeltas(self, deltas,nbRun=nbRUN, granularity=2):
-        res=[]
-        toTreat=[deltas]
-        algo_name="splitDeltas"
-        while len(toTreat)!=0:
-            cutCandidat=toTreat[0]
-            toTreat=toTreat[1:]
-            self.report_progress(cutCandidat, algo_name)
+        if self._test(deltas,nbRUN)==self.PASS:
+            return []
 
-            cutSize=min(granularity, len(cutCandidat))
-            ciTab=self.split(cutCandidat, cutSize)
+        res=[]
+        toTreatFailed=[deltas]
+        toTreatUnknown=[]
+        algo_name="splitDeltas"
+
+        def treatFailedCandidat(candidat):
+            self.report_progress(candidat, algo_name)
+
+            cutSize=min(granularity, len(candidat))
+            ciTab=self.split(candidat, cutSize)
 
             cutAbleStatus=False
-            for ci in ciTab:
+            for i in range(len(ciTab)):
+                ci=ciTab[i]
                 status=self._test(ci ,nbRun)
                 if status==self.FAIL:
                     if len(ci)==1:
                         print("ddmin%d (%s):"%(self.index,self.coerce(ci)))
                         self.index+=1
-                        res+=[ci]
+                        res.append(ci)
                     else:
-                        toTreat=[ci]+toTreat
+                        toTreatFailed.insert(0,ci)
+                        tail= ciTab[i+1:]
+                        tail.reverse()
+                        for cip in tail:
+                            toTreatUnknown.insert(0,cip)
+                        return
                     cutAbleStatus=True
 
             if cutAbleStatus==False:
-                res+=[cutCandidat]
+                res.append(candidat)
+
+        def treatUnknownStatusCandidat(candidat):
+            self.report_progress(candidat, algo_name+ "(unknownStatus)")
+            status=self._test(candidat, nbRun)
+            if status==self.FAIL:
+                toTreatFailed.insert(0,candidat)
+            else:
+                pass
+
+
+        while len(toTreatFailed)!=0 or len(toTreatUnknown)!=0:
+            unknownStatusSize=len(deltas) #max
+            if len(toTreatUnknown)!=0:
+                unknownStatusSize=len(toTreatUnknown[0])
+
+            if len(toTreatFailed)==0:
+                treatUnknownStatusCandidat(toTreatUnknown[0])
+                toTreatUnknown=toTreatUnknown[1:]
+                continue
+
+            toTreatCandidat=toTreatFailed[0]
+            if  len(toTreatCandidat) <= unknownStatusSize:
+                cutCandidat=toTreatCandidat
+                toTreatFailed=toTreatFailed[1:]
+                treatFailedCandidat(cutCandidat)#,toTreatFailed, toTreatUnknown)
+            else:
+                treatUnknownStatusCandidat(toTreatUnknown[0])#,toTreatFailed)
+                toTreatUnknown=toTreatUnknown[1:]
         return res
+
+    def SsplitDeltas(self, deltas,nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1,granularity=2):
+        algo_name="ssplitDelta"
+        run=min(nbRun,nbRunMin)
+
+        currentSplit=[deltas]
+        while run <= nbRun:
+            nextCurrent=[]
+            for candidat in currentSplit:
+                if len(candidat)==1:
+                    nextCurrent.append(candidat)
+                    continue
+                self.report_progress(candidat,algo_name)
+                res=self.splitDeltas(candidat,run, granularity)
+                nextCurrent.extend(res)
+
+            flatNextCurrent=[flatItem  for nextCurrentItem in nextCurrent for flatItem in nextCurrentItem]
+            remainDeltas=[delta for delta in deltas if delta not in flatNextCurrent ]
+
+            self.report_progress(remainDeltas,algo_name)
+            nextCurrent.extend(self.splitDeltas(remainDeltas, run, granularity))
+
+            currentSplit=nextCurrent
+
+            run=max(run+1,min(nbRun, nbRunInc(run)))
+        return currentSplit
 
     def DRDDMin(self, deltas, nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1,granularity=2):
         algo_name="DRDDMin"
@@ -325,7 +388,8 @@ class DDvr(DD.DD):
             self.deltaFailedMsg(deltas)
 
 
-        candidats=self.splitDeltas(deltas,nbRun, granularity)
+#        candidats=self.splitDeltas(deltas,nbRun, granularity)
+        candidats=self.SsplitDeltas(deltas,nbRun,nbRunMin, nbRunInc, granularity)
         print("Dichotomy split done")
         res=[]
         for candidat in candidats:
@@ -334,7 +398,7 @@ class DDvr(DD.DD):
                 deltas=[delta for delta in deltas if delta not in candidat]
             else:
                 self.report_progress(candidat, algo_name)
-                resTab=self.SRDDMin(candidat,nbRun, nbRun, nbRunMin,nbRunInc)
+                resTab=self.SRDDMin(candidat,nbRun,nbRunMin,nbRunInc)
                 for resMin in resTab:
                     res+=[resMin]
                     deltas=[delta for delta in deltas if delta not in resMin]
