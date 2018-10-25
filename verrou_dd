@@ -13,6 +13,7 @@ from valgrind import DD
 import traceback
 import shutil
 import signal
+import math
 
 def failure():
     sys.exit(42)
@@ -255,6 +256,10 @@ def symlink(src, dst):
         os.remove(dst)
     os.symlink(src, dst)
 
+def exponentialRange(nbRun):
+    tab=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
+    tab.reverse()
+    return tab
 
 class DDvr(DD.DD):
     def __init__(self, prefix):
@@ -287,6 +292,7 @@ class DDvr(DD.DD):
             testResult=self._test(deltas,nbRun)
             self.index+=1
         return ddminTab
+
 
 
     def splitDeltas(self, deltas,nbRun=nbRUN, granularity=2):
@@ -354,12 +360,11 @@ class DDvr(DD.DD):
                 toTreatUnknown=toTreatUnknown[1:]
         return res
 
-    def SsplitDeltas(self, deltas,nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1,granularity=2):
+    def SsplitDeltas(self, deltas,runTab=exponentialRange(nbRUN) ,granularity=2):
         algo_name="ssplitDelta"
-        run=min(nbRun,nbRunMin)
 
         currentSplit=[deltas]
-        while run <= nbRun:
+        for run in runTab:
             nextCurrent=[]
             for candidat in currentSplit:
                 if len(candidat)==1:
@@ -377,19 +382,20 @@ class DDvr(DD.DD):
 
             currentSplit=nextCurrent
 
-            run=max(run+1,min(nbRun, nbRunInc(run)))
+
         return currentSplit
 
-    def DRDDMin(self, deltas, nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1,granularity=2):
+    def DRDDMin(self, deltas, SrunTab=exponentialRange(nbRUN), dicRunTab=exponentialRange(nbRUN), granularity=2):
         algo_name="DRDDMin"
-
+        nbRun=SrunTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
             self.deltaFailedMsg(deltas)
 
-
+#        dicTabRun=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
+#        tabRun.reverse()
 #        candidats=self.splitDeltas(deltas,nbRun, granularity)
-        candidats=self.SsplitDeltas(deltas,nbRun,nbRunMin, nbRunInc, granularity)
+        candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
         print("Dichotomy split done")
         res=[]
         for candidat in candidats:
@@ -398,7 +404,7 @@ class DDvr(DD.DD):
                 deltas=[delta for delta in deltas if delta not in candidat]
             else:
                 self.report_progress(candidat, algo_name)
-                resTab=self.SRDDMin(candidat,nbRun,nbRunMin,nbRunInc)
+                resTab=self.SRDDMin(candidat,SrunTab)
                 for resMin in resTab:
                     res+=[resMin]
                     deltas=[delta for delta in deltas if delta not in resMin]
@@ -408,35 +414,33 @@ class DDvr(DD.DD):
         if testResult!=self.FAIL:
             return res
         else:
-            return res+self.SRDDMin(deltas,nbRun,nbRunMin, nbRunInc)
+            return res+self.SRDDMin(deltas, SrunTab)
 
 
 
-    def SRDDMin(self, deltas,nbRun=nbRUN, nbRunMin=1, nbRunInc=lambda x: x+1):
+    def SRDDMin(self, deltas,runTab):
         algo_name="SRDDMin"
+        nbRun=runTab[-1]
         ddminTab=[]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
             self.deltaFailedMsg(deltas)
 
 
-        run=min(nbRun,nbRunMin)
+
         
-        while run <= nbRun:
+        for run in runTab:
             testResult=self._test(deltas,run)
            
             while testResult==self.FAIL:
                 self.report_progress(deltas, algo_name)
             #            conf = self.ddmin(deltas)
                 conf = self.verrou_dd_min(deltas,run)
-                if len(conf)!=1:                    
-                    runIncValue=min(nbRun,nbRunInc(run))
-                    while runIncValue<=nbRun:
+                if len(conf)!=1:
+                    for runIncValue in [x for x in runTab if x>run ]:
                         conf = self.verrou_dd_min(conf,runIncValue)            
                         if len(conf)==1:
                             break
-                        else:
-                            runIncValue=max(runIncValue+1,min(nbRun,nbRunInc(runIncValue)))
                     
                 ddminTab += [conf]
                 print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
@@ -445,8 +449,6 @@ class DDvr(DD.DD):
                 deltas=[delta for delta in deltas if delta not in conf]
                 testResult=self._test(deltas,nbRun)
 
-
-            run=max(run+1,min(nbRun, nbRunInc(run)))
         return ddminTab
 
 
@@ -728,6 +730,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
             continue
 
         try:
+
             if algo=="rddmin":
                 ddminTab = dd.RDDMin(deltas)
             if algo.startswith("srddmin"):
@@ -742,6 +745,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
         for ddmin in ddminTab:
             dd.testLines(ddmin)
         confLines+=ddmin
+
 
 
 def main(run, compare,algoSearch="ddmax"):
