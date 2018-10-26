@@ -418,7 +418,7 @@ class DDvr(DD.DD):
 
 
 
-    def SRDDMin(self, deltas,runTab):
+    def SRDDMin(self, deltas,runTab=exponentialRange(nbRUN)):
         algo_name="SRDDMin"
         nbRun=runTab[-1]
         ddminTab=[]
