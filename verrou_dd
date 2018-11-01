@@ -14,6 +14,7 @@ import traceback
 import shutil
 import signal
 import math
+import time
 
 def failure():
     sys.exit(42)
@@ -252,7 +253,7 @@ def mergeList(dirname, name="dd.exclude"):
 
 
 def symlink(src, dst):
-    if os.path.exists(dst):
+    if os.path.lexists(dst):
         os.remove(dst)
     os.symlink(src, dst)
 
@@ -770,8 +771,47 @@ def checkScriptPath(fpath):
         usageCmd()
         failure()
 
+class exec_stat:
+    def __init__(self):
+        self.timeInit()
+
+    def terminate(self):
+        self.timeEnd()
+        self.printElapsed(int(self.end- self.start))
+        self.printNbRun()
+
+    def timeInit(self):
+        self.start = time.time()
+
+    def timeEnd(self):
+        self.end = int(time.time())
+
+    def printElapsed(self,duration):
+        s= duration % 60
+        rm= duration //60
+        m=rm%60
+        rh=rm//60
+        h=rh%24
+        rd=rh//24
+        print ("\nElapsed Time: %id %ih %imin %is   "%(rd,h,m,s) )
+
+    def isNew(self, filename):
+        return ((os.stat(filename).st_mtime) > self.start)
+
+    def printNbRun(self, dirName="."):
+        import glob
+        runSymTab=glob.glob(dirName+"/dd.sym/*/dd.run*/dd.run.out")
+        runSymFilter=[filename for filename in runSymTab if self.isNew(filename)]
+        print("sym  search : %i run (with cache included: %i)"%(len(runSymFilter),len(runSymTab)) )
+
+        runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")+ glob.glob("./dd.sym/*/dd.line/*/dd.run*/dd.run.out")
+        runLineFilter=[filename for filename in runLineTab if self.isNew(filename)]
+
+        print("line search : %i run (with cache included: %i)"%(len(runLineFilter),len(runLineTab)) )
+
 
 if __name__ == "__main__":
+    et=exec_stat()
 
     if len(sys.argv)!=3:
         usageCmd()
@@ -782,3 +822,4 @@ if __name__ == "__main__":
 
     main(runScript, cmpScript, algoSearch=ddAlgo)
 
+    et.terminate()
