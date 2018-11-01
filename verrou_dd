@@ -22,24 +22,97 @@ def failure():
 nbRUN=5
 try:
     nbRUN = int(os.environ["VERROU_DD_NRUNS"])
-except:
+except KeyError:
     pass
 
 maxNbPROC=None
 try:
     maxNbPROC = int(os.environ["VERROU_DD_NUM_THREADS"])
-except:
+except KeyError:
     pass
 
-ddAlgo="ddmax"
+ddAlgo="rddmin"
 try:
     algo = os.environ["VERROU_DD_ALGO"]
-    if algo in ["ddmax","rddmin","srddmin"] or algo.startswith("drddmin"):
+    if algo in ["ddmax","rddmin"]:
         ddAlgo=algo
     else:
         print("incorrect VERROU_DD_ALGO env variable")
         failure()
-except:
+except KeyError:
+    pass
+
+rddminVariant="d"
+try:
+    algo=os.environ["VERROU_DD_RDDMIN"]
+    if algo in ["s", "stoch", "d", "dicho", "", "strict"]:
+        if algo in ["s", "stoch"]:
+            rddminVariant="s"
+        if algo in ["d", "dicho"]:
+            rddminVariant="d"
+        if algo in ["","strict"]:
+            rddminVariant=""
+    else:
+        print("incorrect VERROU_DD_RDDMIN env variable")
+        failure()
+except KeyError:
+    pass
+
+if ddAlgo=="rddmin":
+    ddAlgo=rddminVariant+ddAlgo
+
+def exponentialRange(nbRun):
+    tab=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
+    tab.reverse()
+    return tab
+
+
+param="exp"
+try:
+    param=os.environ["VERROU_DD_RDDMIN_TAB"]
+except KeyError:
+    pass
+
+rddMinTab=None
+if param=="exp":
+    rddMinTab=exponentialRange(nbRUN)
+if param=="all":
+    rddMinTab=range(nbRUN)
+if param=="single":
+    rddMinTab=[nbRUN]
+
+if rddMinTab==None and "VERROU_DD_RDDMIN_TAB"in os.environ:
+    print ("Invalid VERROU_DD_RDDMIN_TAB env variable")
+    failure()
+
+
+
+param="half"
+try:
+    param=os.environ["VERROU_DD_DICHO_TAB"]
+except KeyError:
+    pass
+
+splitTab=None
+if param=="exp":
+    splitTab=exponentialRange(nbRUN)
+if param=="all":
+    splitTab=range(nbRUN)
+if param=="single":
+    splitTab=[nbRUN]
+if param=="half":
+    splitTab=[ int(math.ceil(nbRUN / 2.))]
+if param in [str(i) for i in range(1, nbRUN+1) ]:
+    splitTab=[int(param)]
+if splitTab==None and "VERROU_DD_DICHO_TAB"in os.environ:
+    print ("Invalid VERROU_DD_DICHO_TAB env variable")
+    failure()
+
+
+splitGranularity=2
+try:
+    splitGranularity = int(os.environ["VERROU_DD_DICHO_GRANULARITY"])
+except KeyError:
     pass
 
 
@@ -47,7 +120,7 @@ ddIgnoreLine=False
 try:
     ddIgnoreLine = os.environ["VERROU_DD_IGNORE_LINE"]
     ddIgnoreLine=True
-except:
+except KeyError:
     pass
 
 
@@ -55,9 +128,23 @@ ddQuiet=False
 try:
     ddQuiet = os.environ["VERROU_DD_QUIET"]
     ddQuiet=True
-except:
+except KeyError:
     pass
 
+
+
+def printEnvDoc():
+    print("""List of en variable :
+    VERROU_DD_NRUNS : int (default:5)
+    VERROU_DD_NUM_THREADS : int (default None)
+    VERROU_DD_ALGO : in ["ddmax", "rddmin"] (default "rddmin")
+    VERROU_DD_RDDMIN : in ["s", "stoch", "dicho" ,"d", "strict",""] (default "d")
+    VERROU_DD_RDDMIN_TAB : in ["exp", "all" ,"single"] (default "exp")
+    VERROU_DD_DICHO_TAB : in ["exp", "all" ,"single", "half"] or int (default "half")
+    VERROU_DD_DICHO_GRANULARITY : int
+    VERROU_DD_QUIET : set or not (default not)
+    VERROU_DD_IGNORE_LINE : set or not (default not)
+    """)
 
 
 
@@ -257,10 +344,6 @@ def symlink(src, dst):
         os.remove(dst)
     os.symlink(src, dst)
 
-def exponentialRange(nbRun):
-    tab=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
-    tab.reverse()
-    return tab
 
 class DDvr(DD.DD):
     def __init__(self, prefix):
@@ -274,7 +357,6 @@ class DDvr(DD.DD):
         if not ddQuiet:
             super().report_progress(c,title)
 
-
     def RDDMin(self, deltas,nbRun=nbRUN):
         ddminTab=[]
         testResult=self._test(deltas)
@@ -282,7 +364,6 @@ class DDvr(DD.DD):
             self.deltaFailedMsg(deltas)
 
         while testResult==self.FAIL:
-#            conf = self.ddmin(deltas)
             conf = self.verrou_dd_min(deltas,nbRun)
 
             ddminTab += [conf]
@@ -294,45 +375,56 @@ class DDvr(DD.DD):
             self.index+=1
         return ddminTab
 
-
-
     def splitDeltas(self, deltas,nbRun=nbRUN, granularity=2):
         if self._test(deltas,nbRUN)==self.PASS:
-            return []
+            return [] #short exit
 
-        res=[]
+        res=[] #result : set of smallest (each subset with repect with granularity lead to success)
+
+        #two lists which contain tasks
+        # -the fail status is known
         toTreatFailed=[deltas]
+        # -the status is no not known
         toTreatUnknown=[]
+
+        #name for progression
         algo_name="splitDeltas"
 
         def treatFailedCandidat(candidat):
+            #treat a failing configuration
             self.report_progress(candidat, algo_name)
 
+            # create subset
             cutSize=min(granularity, len(candidat))
             ciTab=self.split(candidat, cutSize)
 
             cutAbleStatus=False
             for i in range(len(ciTab)):
                 ci=ciTab[i]
+                #test each subset
                 status=self._test(ci ,nbRun)
                 if status==self.FAIL:
                     if len(ci)==1:
+                        #if the subset size is one the subset is a valid ddmin : treat as such
                         print("ddmin%d (%s):"%(self.index,self.coerce(ci)))
                         self.index+=1
                         res.append(ci)
                     else:
+                        #insert the subset in the begin of the failed task list
                         toTreatFailed.insert(0,ci)
+                        #insert the remaining subsets to the unknown task list
                         tail= ciTab[i+1:]
-                        tail.reverse()
+                        tail.reverse() # to keep the same order
                         for cip in tail:
                             toTreatUnknown.insert(0,cip)
                         return
                     cutAbleStatus=True
-
+            #the failing configuration is failing
             if cutAbleStatus==False:
                 res.append(candidat)
 
         def treatUnknownStatusCandidat(candidat):
+            #test the configuration : do nothing in case of success and add to the failed task list in case of success
             self.report_progress(candidat, algo_name+ "(unknownStatus)")
             status=self._test(candidat, nbRun)
             if status==self.FAIL:
@@ -340,9 +432,10 @@ class DDvr(DD.DD):
             else:
                 pass
 
-
+        # loop over tasks
         while len(toTreatFailed)!=0 or len(toTreatUnknown)!=0:
-            unknownStatusSize=len(deltas) #max
+
+            unknownStatusSize=len(deltas) #to get a max
             if len(toTreatUnknown)!=0:
                 unknownStatusSize=len(toTreatUnknown[0])
 
@@ -351,17 +444,22 @@ class DDvr(DD.DD):
                 toTreatUnknown=toTreatUnknown[1:]
                 continue
 
+            #select the smallest candidat : in case of equality select a fail
             toTreatCandidat=toTreatFailed[0]
             if  len(toTreatCandidat) <= unknownStatusSize:
                 cutCandidat=toTreatCandidat
                 toTreatFailed=toTreatFailed[1:]
-                treatFailedCandidat(cutCandidat)#,toTreatFailed, toTreatUnknown)
+                treatFailedCandidat(cutCandidat)
             else:
-                treatUnknownStatusCandidat(toTreatUnknown[0])#,toTreatFailed)
+                treatUnknownStatusCandidat(toTreatUnknown[0])
                 toTreatUnknown=toTreatUnknown[1:]
         return res
 
-    def SsplitDeltas(self, deltas,runTab=exponentialRange(nbRUN) ,granularity=2):
+    def SsplitDeltas(self, deltas,runTab=splitTab ,granularity=2):
+        #apply splitDeltas recussivly with increasing sample number (runTab)
+        #remarks the remain treatment do not respect the binary split structure
+
+        #name for progression
         algo_name="ssplitDelta"
 
         currentSplit=[deltas]
@@ -375,42 +473,47 @@ class DDvr(DD.DD):
                 res=self.splitDeltas(candidat,run, granularity)
                 nextCurrent.extend(res)
 
+            #the remainDeltas in recomputed from the wall list (indeed the set can increase with the apply )
             flatNextCurrent=[flatItem  for nextCurrentItem in nextCurrent for flatItem in nextCurrentItem]
             remainDeltas=[delta for delta in deltas if delta not in flatNextCurrent ]
 
+            #apply split to remainDeltas
             self.report_progress(remainDeltas,algo_name)
             nextCurrent.extend(self.splitDeltas(remainDeltas, run, granularity))
 
             currentSplit=nextCurrent
 
-
         return currentSplit
 
-    def DRDDMin(self, deltas, SrunTab=exponentialRange(nbRUN), dicRunTab=exponentialRange(nbRUN), granularity=2):
+    def DRDDMin(self, deltas, SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
+        #name for progression
         algo_name="DRDDMin"
+
+        #assert with the right nbRun number
         nbRun=SrunTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
             self.deltaFailedMsg(deltas)
 
-#        dicTabRun=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
-#        tabRun.reverse()
-#        candidats=self.splitDeltas(deltas,nbRun, granularity)
+        #apply dichotomy
         candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
         print("Dichotomy split done")
+
         res=[]
         for candidat in candidats:
-            if len(candidat)==1:
+            if len(candidat)==1: #is a valid ddmin
                 res+=[candidat]
                 deltas=[delta for delta in deltas if delta not in candidat]
             else:
                 self.report_progress(candidat, algo_name)
+                #we do not known id candidat is a valid ddmin (in case of sparse pattern)
                 resTab=self.SRDDMin(candidat,SrunTab)
                 for resMin in resTab:
-                    res+=[resMin]
-                    deltas=[delta for delta in deltas if delta not in resMin]
+                    res+=[resMin] #add to res
+                    deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
         print("Dichotomy split analyze done")
 
+        #after the split filter a classic (s)rddmin is applied
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
             return res
@@ -419,25 +522,27 @@ class DDvr(DD.DD):
 
 
 
-    def SRDDMin(self, deltas,runTab=exponentialRange(nbRUN)):
+    def SRDDMin(self, deltas,runTab=rddMinTab):
+        #name for progression
         algo_name="SRDDMin"
+        #assert with the right nbRun number
         nbRun=runTab[-1]
-        ddminTab=[]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
             self.deltaFailedMsg(deltas)
 
+        ddminTab=[]
 
-
-        
+        #increasing number of run
         for run in runTab:
             testResult=self._test(deltas,run)
-           
+
+            #rddmin loop
             while testResult==self.FAIL:
                 self.report_progress(deltas, algo_name)
-            #            conf = self.ddmin(deltas)
                 conf = self.verrou_dd_min(deltas,run)
                 if len(conf)!=1:
+                    #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
                         conf = self.verrou_dd_min(conf,runIncValue)            
                         if len(conf)==1:
@@ -446,8 +551,9 @@ class DDvr(DD.DD):
                 ddminTab += [conf]
                 print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
                 self.index+=1
-
+                #update search space
                 deltas=[delta for delta in deltas if delta not in conf]
+                #end test loop of rddmin
                 testResult=self._test(deltas,nbRun)
 
         return ddminTab
@@ -572,20 +678,13 @@ def ddSymRDDMin(run, compare, algo):
     with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
         deltas = f.readlines()
 
-    granularity=2
-    try:
-        granularity=int(algo.partition("-")[2])
-    except:
-        pass
-
-
     if algo=="rddmin":
         confTab = dd.RDDMin(deltas)
     if algo.startswith("srddmin"):
         confTab = dd.SRDDMin(deltas)
 
     if algo.startswith("drddmin"):
-        confTab = dd.DRDDMin(deltas,granularity=granularity)
+        confTab = dd.DRDDMin(deltas,granularity=splitGranularity)
 
     for i in range(len(confTab)):
         conf=confTab[i]
@@ -712,11 +811,6 @@ def ddLine(run, compare, refSym, confSymsTab):
 
 
 def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
-    granularity=2
-    try:
-        granularity=int(algo.partition("-"))[2]
-    except:
-        pass
 
     confLines = []
     for i in range(len(confSymsTab)):
@@ -737,7 +831,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
             if algo.startswith("srddmin"):
                 ddminTab = dd.SRDDMin(deltas)
             if algo.startswith("drddmin"):
-                ddminTab = dd.DRDDMin(deltas,granularity=granularity)
+                ddminTab = dd.DRDDMin(deltas,granularity=splitGranularity)
 
         except DDLineError:
             ddminTab=[]
@@ -812,6 +906,10 @@ class exec_stat:
 
 if __name__ == "__main__":
     et=exec_stat()
+
+    if "-h" in sys.argv or "--help" in sys.argv:
+        printEnvDoc()
+        failure()
 
     if len(sys.argv)!=3:
         usageCmd()
