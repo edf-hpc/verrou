@@ -164,7 +164,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose one of the two dd algorithms (ddmax et rddmin).
+	      Environment variable to choose one of the two dd algorithms (ddmax and rddmin).
 	    </para>
 	    <para>
 	      rddmin : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
