@@ -146,7 +146,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 /*   const HChar* fnname; */
 /*   UInt i; */
 /*   for (i = 0 ; i<nips ; ++i) { */
-/*     VG_(get_fnname)(ips[i], &fnname); */
+/*     VG_(get_fnname)(VG_(current_DiEpoch)(), ips[i], &fnname); */
 /*     if (VG_(strncmp)(fnname, ancestor, VR_FNNAME_BUFSIZE) == 0) { */
 /*       return True; */
 /*     } */
@@ -158,20 +158,21 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
 Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
   Addr ips[256];
-  UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
-                                  ips, 256,
-                                  NULL, NULL,
-                                  0);
+  VG_(get_StackTrace)(VG_(get_running_tid)(),
+                      ips, 256,
+                      NULL, NULL,
+                      0);
   Addr addr = ips[0];
+  DiEpoch de = VG_(current_DiEpoch)();
 
   //fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname);
+  VG_(get_fnname)(de, addr, fnname);
   if (VG_(strlen)(*fnname) == VR_FNNAME_BUFSIZE-1) {
     VG_(umsg)("WARNING: Function name too long: %s\n", *fnname);
   }
 
   //  objname[0] = 0;
-  VG_(get_objname)(addr, objname);
+  VG_(get_objname)(de, addr, objname);
 
 
   // Never exclude unnamed functions
@@ -211,20 +212,21 @@ Bool vr_excludeIRSB (const HChar** fnname, const HChar **objname) {
 
 void vr_excludeIRSB_generate (const HChar** fnname, const HChar **objname) {
   Addr ips[256];
-  UInt nips = VG_(get_StackTrace)(VG_(get_running_tid)(),
-                                  ips, 256,
-                                  NULL, NULL,
-                                  0);
+  VG_(get_StackTrace)(VG_(get_running_tid)(),
+                      ips, 256,
+                      NULL, NULL,
+                      0);
   Addr addr = ips[0];
+  DiEpoch de = VG_(current_DiEpoch)();
 
   //fnname[0] = 0;
-  VG_(get_fnname)(addr, fnname);
+  VG_(get_fnname)(de, addr, fnname);
   if (VG_(strlen)(*fnname) == VR_FNNAME_BUFSIZE-1) {
     VG_(umsg)("WARNING: Function name too long: %s\n", *fnname);
   }
 
   //  objname[0] = 0;
-  VG_(get_objname)(addr, objname);
+  VG_(get_objname)(de, addr, objname);
 
 
   // Never exclude unnamed functions
