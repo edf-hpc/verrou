@@ -1,7 +1,7 @@
 # Notes about the release process
 
 ```
-VERSION=2.0.0
+VERSION=2.1.0
 ```
 
 ## Update the valgrind patch
@@ -73,7 +73,7 @@ perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
 
     > ## [UNRELEASED]
     > 
-    > This version is based on Valgrind-3.13.0.
+    > This version is based on Valgrind-3.14.0.
     > 
     > ### Added
     > 
@@ -101,7 +101,7 @@ perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
 - Build a tgz archive for the full valgrind+verrou release
     
     ```
-    VALGRIND=valgrind-3.13.0
+    VALGRIND=valgrind-3.14.0
     cd /tmp
     wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
     tar xvpf ${VALGRIND}.tar.bz2
