@@ -1,24 +1,44 @@
 # Verrou [![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou)
 
 Verrou helps you look for floating-point round-off errors in programs. It
-implements a stochastic floating-point arithmetic based on random rounding: all
-floating-point operations are perturbed by randomly switching rounding
-modes. This can be seen as an asynchronous variant of the CESTAC method, or a
-subset of Monte Carlo Arithmetic, performing only output randomization through
-random rounding.
+implements various forms of arithmetic, including:
 
-**NB:** This is the *development* version of Verrou, currently based on the
-latest stable release of Valgrind, v3.13.0. For other versions, please consult
-the list of [releases](https://github.com/edf-hpc/verrou/releases).
+- all IEEE-754 standard rounding modes;
+
+- two variants of stochastic floating-point arithmetic based on random rounding:
+  all floating-point operations are perturbed by randomly switching rounding
+  modes. These can be seen as an asynchronous variant of the CESTAC method, or a
+  subset of Monte Carlo Arithmetic, performing only output randomization through
+  random rounding;
+
+- an emulation of single-precision rounding, in order to test the effect of
+  reduced precision without any need to change the source code.
+
+Verrou also comes with a `verrou_dd` utility, which simplifies the Verrou-based
+debugging process by implementing several variants of the Delta-Debugging
+algorithm. This allows easily locating which parts of the analyzed source code
+are likely to be responsible for Floating-Point-related instabilities.
+
+The documentation for Verrou is available as a dedicated [chapter in the
+Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html).
 
 
 ## Installation
 
 ### Get the sources
 
-Fetch valgrind's sources:
+The preferred way to get Verrou sources is to download the latest *stable*
+version: [v2.1.0](https://github.com/edf-hpc/verrou/releases/latest).
+Older versions are available in the [releases](https://github.com/edf-hpc/verrou/releases)
+page. After downloading one of the released versions, skip to the "Configure
+and build" section below.
 
-    git clone --branch=svn/VALGRIND_3_13_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.13.0+verrou-dev
+<p>&nbsp;</p>
+
+In order to build the *development* version of Verrou, it is necesary to first
+download a specific Valgrind version, and patch it. Fetch valgrind's sources:
+
+    git clone --branch=VALGRIND_3_14_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.14.0+verrou-dev
 
 Add verrou's sources to it:
 
@@ -29,6 +49,16 @@ Add verrou's sources to it:
 
 
 ### Configure and build
+
+First, install all required dependencies (the names of relevant Debian packages
+are put in parentheses as examples):
+
+- C & C++ compilers (`build-essential`),
+- autoconf & automake (`automake`),
+- Python 3 (`python3`)
+- C standard library with debugging symbols (`libc6-dbg`).
+
+<p>&nbsp;</p>
 
 Configure valgrind:
 
@@ -41,7 +71,7 @@ be required to set `CFLAGS` so that it enables the use of FMA in your compiler:
 
     ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX CFLAGS="-mfma"
 
-
+<p>&nbsp;</p>
 
 Build and install:
 

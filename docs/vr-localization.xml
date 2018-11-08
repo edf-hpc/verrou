@@ -106,14 +106,6 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </varlistentry>
         </variablelist>
       </para>
-
-      <warning>
-        <para>
-          The scripts passed to <command>verrou_dd</command> will be run from various
-          directories. They must therefore be identified by an <emphasis>absolute path</emphasis>
-          (or be in the <computeroutput>PATH</computeroutput>).
-        </para>
-      </warning>
     </simplesect>
     
     <simplesect>
@@ -152,7 +144,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
             <computeroutput>VERROU_DD_NUM_THREADS</computeroutput>
           </term>
           <listitem>
-            <para> Experimental feature : Allows to perform VERROU_DD_NUM_THREADS run in parallel.
+            <para> Experimental feature : Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel.
 	     If this environment variable is not set, the parallelism is not activated.
 	    </para>
           </listitem>
@@ -164,17 +156,18 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose one of the two dd algorithms (ddmax and rddmin).
+	      Environment variable to choose one of the two Delta-Debugging algorithms (ddmax and rddmin).
 	    </para>
 	    <para>
-	      rddmin : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
+	      <computeroutput>rddmin</computeroutput>: return recursively the min-set of unstable
+	      symbols. <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> is ignored.
 	    </para>
 	    <para>
-	      ddmax : return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
+	      <computeroutput>ddmax</computeroutput>: return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set to rddmin.
+	    If this environment variable is not set, the default value is set to <computeroutput>rddmin</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -188,17 +181,17 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      Environment variable to choose one of the variant of rddmin algorithms.
 	    </para>
 	    <para>
-	      "", strict : rddmin algorithm with constant number of samples
+	      "", <computeroutput>strict</computeroutput>: rddmin algorithm with constant number of samples
 	    </para>
 	    <para>
-	      s, stoch : rddmin algorithm with increasing number of samples (called srddmin)
+	      <computeroutput>s</computeroutput>, <computeroutput>stoch</computeroutput>: rddmin algorithm with increasing number of samples (called srddmin)
 	    </para>
 	    <para>
-	      d, dicho : srddmin algorithm pre-filtered by a dichotomy algorithm (called drddmin)
+	      <computeroutput>d</computeroutput>, <computeroutput>dicho</computeroutput>: srddmin algorithm pre-filtered by a dichotomy method (called drddmin)
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set to dicho.
+	    If this environment variable is not set, the default value is set to <computeroutput>dicho</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -210,20 +203,24 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Environment variable  to choose the sequence of increasing number of sample used by srddmin algorithm.
+	      Environment variable to choose the evolution of the number of samples used by the srddmin algorithm.
 	    </para>
 	    <para>
-	      exp : contains value from 1 to VERROU_DD_NRUNS with exponential rate.
+	      <computeroutput>exp</computeroutput>: increases the number of samples from 1 to
+	      <computeroutput>VERROU_DD_NRUNS</computeroutput> with exponential rate.
 	    </para>
 	    <para>
-	      all : contains all value from 1 to VERROU_DD_NRUNS.
+	      <computeroutput>all</computeroutput>: consecutively try all numbers of samples from 1
+	      to <computeroutput>VERROU_DD_NRUNS</computeroutput>.
 	    </para>
 	    <para>
-	      single : one single value (VERROU_DD_NRUNS). srddmin is equivalent to rddmin.
+	      <computeroutput>single</computeroutput>: directly use the number of samples given by
+	      <computeroutput>VERROU_DD_NRUNS</computeroutput>. srddmin is equivalent to rddmin in
+              this case.
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set exp.
+	    If this environment variable is not set, the default value is set to <computeroutput>exp</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -234,26 +231,32 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Environment variable  to choose the sequence of increasing number of sample used by dichotomy algorithm (used by drddmin).
+	      Environment variable to choose the evolution of the number of samples used by the
+              binary search in the first part of the drddmin algorithm.
 	    </para>
 	    <para>
-	      exp : contains value from 1 to VERROU_DD_NRUNS with exponential rate.
+	      <computeroutput>exp</computeroutput>: increases the number of samples from 1 to
+	      <computeroutput>VERROU_DD_NRUNS</computeroutput> with exponential rate.
 	    </para>
 	    <para>
-	      all : contains all value from 1 to VERROU_DD_NRUNS.
+	      <computeroutput>all</computeroutput>: consecutively try all numbers of samples from 1
+	      to <computeroutput>VERROU_DD_NRUNS</computeroutput>.
 	    </para>
 	    <para>
-	      single : one single value (VERROU_DD_NRUNS).
+	      <computeroutput>single</computeroutput>: use the number of samples given by
+	      <computeroutput>VERROU_DD_NRUNS</computeroutput>.
 	    </para>
 	    <para>
-	      half : one single value (VERROU_DD_NRUNS / 2).
+	      <computeroutput>half</computeroutput>: use half the number of samples given by
+	      <computeroutput>VERROU_DD_NRUNS</computeroutput>.
 	    </para>
 	    <para>
-	      $i$ : one single value (i if i is a integer in [1, VERROU_DD_NRUNS]).
+	      <replaceable>N</replaceable>: user-provided value (must be an integer comprised
+	      between 1 and <computeroutput>VERROU_DD_NRUNS</computeroutput>).
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set half.
+	    If this environment variable is not set, the default value is set to <computeroutput>half</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -278,7 +281,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
         <listitem>
             <para>
-	      Environment variable to reduce the verbosity of verrou_dd.
+	      Environment variable to reduce the verbosity of <command>verrou_dd</command>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -332,12 +335,18 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       <title>Results *rddmin </title>
       <para id="vr-manual.verrou_dd.results-rddmin">
         <command>verrou_dd</command> stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> directory. Synthetic results are present in
-	the form of symbolic links named in the following way: ddmin-<replaceable>i</replaceable>.
-	To get configuaration associated with ddmin-<replaceable>i</replaceable> :
-	<command>cat ddmin-<replaceable>i</replaceable>/dd.include  </command>.
-	The line search directory is inside each ddmin-<replaceable>i</replaceable> directory with the same
-	structure as ddmax.
+        <computeroutput>dd.sym</computeroutput> directory. Synthetic results are present in the form
+        of symbolic links named after the pattern: <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput>.
+      </para>
+      <para>
+	The list of all symbols found to be unstable in the
+	<computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> set can be retrieved in
+	the file: <computeroutput>ddmin-<replaceable>N</replaceable>/dd.include</computeroutput>.
+      </para>
+      <para>
+	Each <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> contains a
+	<computeroutput>dd.line</computeroutput> directory, organized in the same as described above
+	for the ddmax algorithm.
       </para>
     </simplesect>
   </section>

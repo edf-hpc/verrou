@@ -3,12 +3,27 @@
 
 ## [UNRELEASED]
 
-This version is based on Valgrind-3.13.0.
+This version is based on Valgrind-3.14.0. (fixes gh-19)
 
 ### Added
 
+- Preliminary filtering before Delta-Debugging: only functions performing
+  floating-point operations are considered in the search for
+  instabilities.
+
+- Multiple variants of the Delta-Debugging algorithm: (fixes gh-14, gh-22)
+  - srDDmin: variant of rDDmin, specifically tuned to accomodate for stochastic
+    tests
+  - drDDmin: variant of rDDmin where a preliminary binary search is performed in
+    order to further reduce the search space.
+
+- New reduced-precision backend (`--rounding-mode=float`). This back-end
+  emulates the use of single-precision arithmetic for all double-precision
+  variables. (fixes gh-11)
 
 ### Changed
+
+- Python3 port of `verrou_dd`.
 
 
 ---
