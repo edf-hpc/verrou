@@ -1,7 +1,7 @@
 # Change Log
 
 
-## [UNRELEASED]
+## v2.1.0 - 2018-11-09
 
 This version is based on Valgrind-3.14.0. (fixes gh-19)
 

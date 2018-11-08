@@ -2,11 +2,11 @@ language: cpp
 dist: trusty
 sudo: required
 env:
-  - VALGRIND_VERSION=svn/VALGRIND_3_13_0
+  - VALGRIND_VERSION=VALGRIND_3_14_0
   - VALGRIND_VERSION=master
 matrix:
   allow_failures:
-    - env: VALGRIND_VERSION=svn/VALGRIND_3_13_0
+    - env: VALGRIND_VERSION=master
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libc-dbg
