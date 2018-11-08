@@ -123,18 +123,6 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
         only functions which really need to be excluded.
       </para>
 
-      <warning>
-        <title>Warning for Python users</title>
-        <para>
-          By default, Verrou only lists functions that are called from
-          <literal>main()</literal>. For special binaries (such as Python) which do not have a
-          <literal>main()</literal> function, the <option><xref
-          linkend="vr-opt.gen-above"/>=<replaceable>FNNAME</replaceable></option> option can be used
-          to generate the list of all functions called from <replaceable>FNNAME</replaceable>
-          instead.
-        </para>
-      </warning>
-
       <para>For example:<screen>
 <prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.ex --gen-above=Py_Main python
 ==26049== Verrou, Check floating-point rounding errors

@@ -18,7 +18,8 @@
       order to perform a search of functions and source code lines whose perturbation produces the
       most important errors in final results. The idea is the following:
       <itemizedlist>
-        <listitem><simpara>First, a complete list of all symbols is generated. It is expected that
+        <listitem><simpara>First, a complete list of all symbols (which contain perturbated
+	floating point instruction) is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
         results.</simpara></listitem>
@@ -35,8 +36,9 @@
     </para>
 
     <para>
-      This algorithm is called <emphasis>Delta-Debugging</emphasis>, and is for example used in
-      <command>git bisect</command>. It is automated by the <command>verrou_dd</command> command,
+      This algorithm is called <emphasis>Delta-Debugging</emphasis>.
+      <!-- , and is for example used in <command>git bisect</command>. -->
+      It is automated by the <command>verrou_dd</command> command,
       which can be used in the following way:
     </para>
     
@@ -162,25 +164,143 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose one of the two dd algorithms (ddmax et rddmin).
+	      Environment variable to choose one of the two dd algorithms (ddmax and rddmin).
+	    </para>
+	    <para>
+	      rddmin : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
 	    </para>
 	    <para>
 	      ddmax : return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
 	    </para>
+
 	    <para>
-	      rddmin (experimental feature) : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
-	    </para>
-	    <para>
-	    If this environment variable is not set, the default value is set to ddmax.
+	    If this environment variable is not set, the default value is set to rddmin.
 	    </para>
           </listitem>
         </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_RDDMIN</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Environment variable to choose one of the variant of rddmin algorithms.
+	    </para>
+	    <para>
+	      "", strict : rddmin algorithm with constant number of samples
+	    </para>
+	    <para>
+	      s, stoch : rddmin algorithm with increasing number of samples (called srddmin)
+	    </para>
+	    <para>
+	      d, dicho : srddmin algorithm pre-filtered by a dichotomy algorithm (called drddmin)
+	    </para>
+
+	    <para>
+	    If this environment variable is not set, the default value is set to dicho.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+
+	<varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_RDDMIN_TAB</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Environment variable  to choose the sequence of increasing number of sample used by srddmin algorithm.
+	    </para>
+	    <para>
+	      exp : contains value from 1 to VERROU_DD_NRUNS with exponential rate.
+	    </para>
+	    <para>
+	      all : contains all value from 1 to VERROU_DD_NRUNS.
+	    </para>
+	    <para>
+	      single : one single value (VERROU_DD_NRUNS). srddmin is equivalent to rddmin.
+	    </para>
+
+	    <para>
+	    If this environment variable is not set, the default value is set exp.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>VERROU_DD_DICHO_TAB</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Environment variable  to choose the sequence of increasing number of sample used by dichotomy algorithm (used by drddmin).
+	    </para>
+	    <para>
+	      exp : contains value from 1 to VERROU_DD_NRUNS with exponential rate.
+	    </para>
+	    <para>
+	      all : contains all value from 1 to VERROU_DD_NRUNS.
+	    </para>
+	    <para>
+	      single : one single value (VERROU_DD_NRUNS).
+	    </para>
+	    <para>
+	      half : one single value (VERROU_DD_NRUNS / 2).
+	    </para>
+	    <para>
+	      $i$ : one single value (i if i is a integer in [1, VERROU_DD_NRUNS]).
+	    </para>
+
+	    <para>
+	    If this environment variable is not set, the default value is set half.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+	  <term>
+            <computeroutput>VERROU_DD_DICHO_GRANULARITY</computeroutput>
+          </term>
+        <listitem>
+            <para>
+	      Environment variable to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
+	    </para>
+	    <para>
+	    If this environment variable is not set, the default value is set to 2.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+	  <term>
+            <computeroutput>VERROU_DD_QUIET</computeroutput>
+          </term>
+        <listitem>
+            <para>
+	      Environment variable to reduce the verbosity of verrou_dd.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+	  <term>
+          <computeroutput>VERROU_DD_IGNORE_LINE</computeroutput>
+          </term>
+        <listitem>
+            <para>
+	      Environment variable to limit the search to symbols.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+
 
       </variablelist>
     </simplesect>
     
     <simplesect>
-      <title>Results</title>
+      <title>Results ddmax</title>
       <para id="vr-manual.verrou_dd.results">
         <command>verrou_dd</command> stores many intermediate results within the
         <computeroutput>dd.sym</computeroutput> and <computeroutput>dd.line</computeroutput>
@@ -205,6 +325,19 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
             <replaceable>FILENAME</replaceable>.</simpara></listitem>
           </varlistentry>
         </variablelist>
+      </para>
+    </simplesect>
+
+    <simplesect>
+      <title>Results *rddmin </title>
+      <para id="vr-manual.verrou_dd.results-rddmin">
+        <command>verrou_dd</command> stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> directory. Synthetic results are present in
+	the form of symbolic links named in the following way: ddmin-<replaceable>i</replaceable>.
+	To get configuaration associated with ddmin-<replaceable>i</replaceable> :
+	<command>cat ddmin-<replaceable>i</replaceable>/dd.include  </command>.
+	The line search directory is inside each ddmin-<replaceable>i</replaceable> directory with the same
+	structure as ddmax.
       </para>
     </simplesect>
   </section>

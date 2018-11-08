@@ -329,7 +329,8 @@ det2
             <term><option><![CDATA[--gen-exclude=FILE]]></option></term>
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> a list of
-                all symbols encountered during program execution. This is useful
+                all symbols (which contain perturbated floating point instruction)
+		encountered during program execution. This is useful
                 to build an <link linkend="vr-manual.feat.exclude">exclusion
                 list</link>.</para>
               <para>In combination
@@ -349,23 +350,6 @@ det2
             </listitem>
           </varlistentry>
 
-          <varlistentry id="vr-opt.gen-above" xreflabel="--gen-above">
-            <term><option><![CDATA[--gen-above=SYMNAME [default=main]]]></option></term>
-            <listitem>
-              <para>When generating the list of encountered symbols, only
-              consider those that are
-              above <computeroutput>SYMNAME</computeroutput> (i.e. which are
-              encountered in a call stack in
-              which <computeroutput>SYMNAME</computeroutput> appears). For
-              example, <option><![CDATA[--gen-above=Py_Main]]></option> is
-              useful to analyse Python programs.</para>
-              <para>As a special case,
-              if <computeroutput>SYMNAME</computeroutput> is left blank, output
-              all encountered symbols, regardless of their position in the call
-              tree.</para>
-            </listitem>
-          </varlistentry>
-
           <varlistentry id="vr-opt.source" xreflabel="--source">
             <term><option><![CDATA[--source=FILE]]></option></term>
             <listitem><para>When this option is present, only instructions
@@ -379,7 +363,8 @@ det2
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> the list
                 of all <link linkend="vr-manual.feat.source">source code
-                  lines</link> encountered during program execution.</para>
+                  lines</link> (which contain perturbated floating point instruction)
+		encountered during program execution.</para>
               <para>In combination with
                 <option><xref linkend="vr-opt.source"/></option>, only list
                 source code lines which were not already present in the provided

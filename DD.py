@@ -289,7 +289,7 @@ class DD:
     # Testing
     def test(self, c):
         """Test the configuration C.  Return PASS, FAIL, or UNRESOLVED"""
-        c.sort()
+        #c.sort()
 
         # If we had this test before, return its result
         if self.cache_outcomes:
@@ -450,117 +450,6 @@ class DD:
 
         return outcome
 
-    def _old_dd(self, c, r, n):
-        """Stub to overload in subclasses"""
-
-        if r == []:
-            assert self.test([]) == self.PASS
-            assert self.test(c)  == self.FAIL
-        else:
-            assert self.test(r)     != self.FAIL
-            assert self.test(c + r) != self.PASS
-
-        assert self.__listintersect(c, r) == []
-
-        if len(c) == 1:
-            # Nothing to split
-            return c
-
-        run = 1
-        next_c = c[:]
-        next_r = r[:]
-
-        # We replace the tail recursion from the paper by a loop
-        while 1:
-            self.report_progress(c, "dd")
-
-            cs = self.split(c, n)
-
-            print ()
-            print("dd (run #" + repr(run) + "): trying",)
-            for i in range(n):
-                if i > 0:
-                    print("+",)
-                print(len(cs[i]),)
-            print ()
-
-            # Check subsets
-            ts = []
-            for i in range(n):
-                if self.debug_dd:
-                    print("dd: trying cs[" + repr(i) + "] =", self.pretty(cs[i]))
-
-                t, cs[i] = self.test_and_resolve(cs[i], r, c, self.REMOVE)
-                ts.append(t)
-                if t == self.FAIL:
-                    # Found
-                    if self.debug_dd:
-                        print("dd: found", len(cs[i]), "deltas:",)
-                        print(self.pretty(cs[i]))
-                    return self.dd(cs[i], r)
-
-            # Check complements
-            cbars = []
-            tbars = []
-
-            for i in range(n):
-                cbar = self.__listminus(c, cs[i] + r)
-                tbar, cbar = self.test_and_resolve(cbar, r, c, self.ADD)
-
-
-                doubled =  self.__listintersect(cbar, cs[i])
-                if doubled != []:
-                    cs[i] = self.__listminus(cs[i], doubled)
-
-
-                cbars.append(cbar)
-                tbars.append(tbar)
-
-                if ts[i] == self.PASS and tbars[i] == self.PASS:
-                    # Interference
-                    if self.debug_dd:
-                        print("dd: interference of", self.pretty(cs[i]),)
-                        print("and", self.pretty(cbars[i]))
-
-                    d    = self.dd(cs[i][:], cbars[i] + r)
-                    dbar = self.dd(cbars[i][:], cs[i] + r)
-                    return d + dbar
-
-                if ts[i] == self.UNRESOLVED and tbars[i] == self.PASS:
-                    # Preference
-                    if self.debug_dd:
-                        print("dd: preferring", len(cs[i]), "deltas:",)
-                        print(self.pretty(cs[i]))
-
-                    return self.dd(cs[i][:], cbars[i] + r)
-
-                if ts[i] == self.PASS or tbars[i] == self.FAIL:
-                    if self.debug_dd:
-                        excluded = self.__listminus(next_c, cbars[i])
-                        print ("dd: excluding", len(excluded), "deltas:",)
-                        print (self.pretty(excluded))
-
-                    if ts[i] == self.PASS:
-                        next_r = self.__listunion(next_r, cs[i])
-                    next_c = self.__listintersect(next_c, cbars[i])
-                    self.report_progress(next_c, "dd")
-
-            next_n = min(len(next_c), n * 2)
-
-            if next_n == n and next_c[:] == c[:] and next_r[:] == r[:]:
-                # Nothing left
-                if self.debug_dd:
-                    print ("dd: nothing left")
-                return next_c
-
-            # Try again
-            if self.debug_dd:
-                print ("dd: try again")
-
-            c = next_c
-            r = next_r
-            n = next_n
-            run = run + 1
 
 
     def test_mix(self, csub, c, direction):
@@ -590,6 +479,7 @@ class DD:
                 t = self.UNRESOLVED
 
         return (t, csub)
+
 
 
     # Delta Debugging (new ISSTA version)
@@ -627,7 +517,7 @@ class DD:
 
         # We replace the tail recursion from the paper by a loop
         while 1:
-            tc = self.test(c)
+            tc = self._test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
                 if run==1:
                     self.deltaFailedMsg(c)
@@ -716,6 +606,208 @@ class DD:
 
                 next_n = min(len(c), n * 2)
                 print ("dd: increase granularity to", next_n)
+                cbar_offset = (cbar_offset * next_n) // n
+
+            c = next_c
+            n = next_n
+            run = run + 1
+
+    def verrou_dd_max(self, c):
+        """Stub to overload in subclasses"""
+        self.maximize=1
+        self.minimize=0
+        n = 2
+        self.CC = c
+        algo_name="dd_max"
+        
+        testNoDelta=self.test([])
+        if testNoDelta!=self.PASS:
+            self.noDeltaSucceedMsg()
+            print("ERROR: test([]) == FAILED")
+            sys.exit()
+#        assert self.test([]) == self.PASS
+
+        run = 1
+        cbar_offset = 0
+
+        # We replace the tail recursion from the paper by a loop
+        while 1:
+            tc = self.test(c)
+            if tc != self.FAIL and tc != self.UNRESOLVED:
+                if run==1:
+                    self.deltaFailedMsg(c)
+
+                if "VERROU_DD_UNSAFE" in os.environ:
+                    print ("WARNING: test([all deltas]) == PASS")
+
+
+            if n > len(c):
+                # No further minimizing
+                print (algo_name+": done")
+                return c
+
+            self.report_progress(c, algo_name)
+
+            cs = self.split(c, n)
+
+            print ()
+            print (algo_name+" (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
+
+            c_failed    = 0
+            cbar_failed = 0
+
+            next_c = c[:]
+            next_n = n
+
+
+            if not c_failed:
+                # Check complements
+                cbars = n * [self.UNRESOLVED]
+
+                # print "cbar_offset =", cbar_offset
+
+                for j in range(n):
+                    i = (j + cbar_offset) % n
+                    cbars[i] = self.__listminus(c, cs[i])
+                    t, cbars[i] = self.test_mix(cbars[i], c, self.ADD)
+
+                    doubled = self.__listintersect(cbars[i], cs[i])
+                    if doubled != []:
+                        cs[i] = self.__listminus(cs[i], doubled)
+
+                    if t == self.FAIL:
+                        if self.debug_dd:
+                            print (algo_name+": reduced to", len(cbars[i]),)
+                            print ("deltas:", end="")
+                            print (self.pretty(cbars[i]))
+
+                        cbar_failed = 1
+                        next_c = self.__listintersect(next_c, cbars[i])
+                        next_n = next_n - 1
+                        self.report_progress(next_c, algo_name)
+
+                        # In next run, start removing the following subset
+                        cbar_offset = i
+                        break
+
+            if not c_failed and not cbar_failed:
+                if n >= len(c):
+                    # No further minimizing
+                    print (algo_name+": done")
+                    return c
+
+                next_n = min(len(c), n * 2)
+                print (algo_name+": increase granularity to", next_n)
+                cbar_offset = (cbar_offset * next_n) // n
+
+            c = next_c
+            n = next_n
+            run = run + 1
+
+
+
+    def verrou_dd_min(self, c , nbRun):
+        """Stub to overload in subclasses"""
+        n = 2
+        algo_name="ddmin"
+
+        testNoDelta=self._test([],nbRun)
+        if testNoDelta!=self.PASS:
+            print("ERROR: test([]) == FAILED")
+            self.noDeltaSucceedMsg()
+
+
+        run = 1
+        cbar_offset = 0
+
+        # We replace the tail recursion from the paper by a loop
+        while 1:
+            tc = self._test(c ,nbRun)
+            if tc != self.FAIL and tc != self.UNRESOLVED:
+                if run==1:
+                    self.deltaFailedMsg(c)
+
+                if "VERROU_DD_UNSAFE" in os.environ:
+                    print ("WARNING: test([all deltas]) == PASS")
+                else:
+                    print ("ERROR: test([all deltas]) == PASS")
+                    self.allDeltaFailedMsg(c)
+
+
+
+
+            if n > len(c):
+                # No further minimizing
+                print (algo_name+": done")
+                return c
+
+            self.report_progress(c, algo_name)
+
+            cs = self.split(c, n)
+
+            print ()
+            print (algo_name+" (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
+
+            c_failed    = False
+            cbar_failed = False
+
+            next_c = c[:]
+            next_n = n
+
+            # Check subsets
+            for i in range(n):
+                if self.debug_dd:
+                    print (algo_name+": trying", self.pretty(cs[i]))
+
+                t = self._test(cs[i],nbRun)
+
+                if t == self.FAIL:
+                    # Found
+                    if self.debug_dd:
+                        print (algo_name+": found", len(cs[i]), "deltas:",)
+                        print (self.pretty(cs[i]))
+
+                    c_failed = True
+                    next_c = cs[i]
+                    next_n = 2
+                    cbar_offset = 0
+                    self.report_progress(next_c, algo_name)
+                    break
+
+            if not c_failed:
+                # Check complements
+                cbars = n * [self.UNRESOLVED]
+
+                # print "cbar_offset =", cbar_offset
+
+                for j in range(n):
+                    i = (j + cbar_offset) % n
+                    cbars[i] = self.__listminus(c, cs[i])
+                    t = self._test(cbars[i],nbRun)
+
+                    if t == self.FAIL:
+                        if self.debug_dd:
+                            print (algo_name+": reduced to", len(cbars[i]),)
+                            print ("deltas:", end="")
+                            print (self.pretty(cbars[i]))
+
+                        cbar_failed = True
+                        next_c = cbars[i]
+                        next_n = next_n - 1
+                        self.report_progress(next_c, algo_name)
+
+                        # In next run, start removing the following subset
+                        cbar_offset = i
+                        break
+
+            if not c_failed and not cbar_failed:
+                if n >= len(c):
+                    # No further minimizing
+                    print (algo_name+": done")
+                    return c
+
+                next_n = min(len(c), n * 2)
+                print (algo_name+": increase granularity to", next_n)
                 cbar_offset = (cbar_offset * next_n) // n
 
             c = next_c
