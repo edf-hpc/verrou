@@ -1,8 +1,8 @@
-Index: Makefile.am
-===================================================================
---- Makefile.am	(revision 16470)
-+++ Makefile.am	(working copy)
-@@ -10,7 +10,8 @@
+diff --git a/Makefile.am b/Makefile.am
+index 154f68f..be71626 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -10,7 +10,8 @@ TOOLS =		memcheck \
  		lackey \
  		none \
  		helgrind \
@@ -12,10 +12,10 @@ Index: Makefile.am
  
  EXP_TOOLS = 	exp-sgcheck \
  		exp-bbv \
-Index: README
-===================================================================
---- README	(revision 16470)
-+++ README	(working copy)
+diff --git a/README b/README
+index 6f333d3..dc0b98a 100644
+--- a/README
++++ b/README
 @@ -1,4 +1,26 @@
  
 +Specific instructions for Verrou
@@ -43,20 +43,20 @@ Index: README
  Release notes for Valgrind
  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  If you are building a binary package of Valgrind for distribution,
-Index: configure.ac
-===================================================================
---- configure.ac	(revision 16470)
-+++ configure.ac	(working copy)
+diff --git a/configure.ac b/configure.ac
+index c18ae5f..61c1f92 100644
+--- a/configure.ac
++++ b/configure.ac
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
  
  # Process this file with autoconf to produce a configure script.
--AC_INIT([Valgrind],[3.13.0],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.13.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
+-AC_INIT([Valgrind],[3.14.0],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.14.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign subdir-objects])
-@@ -4353,6 +4353,10 @@
+@@ -4583,6 +4583,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -67,7 +67,7 @@ Index: configure.ac
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4445,6 +4449,8 @@
+@@ -4675,6 +4679,8 @@ AC_CONFIG_FILES([
     exp-bbv/tests/arm-linux/Makefile
     exp-dhat/Makefile
     exp-dhat/tests/Makefile
@@ -76,11 +76,11 @@ Index: configure.ac
     shared/Makefile
     solaris/Makefile
  ])
-Index: docs/lib/vg_basic.css
-===================================================================
---- docs/lib/vg_basic.css	(revision 16470)
-+++ docs/lib/vg_basic.css	(working copy)
-@@ -65,3 +65,39 @@
+diff --git a/docs/lib/vg_basic.css b/docs/lib/vg_basic.css
+index 49367fe..6dc3e5f 100644
+--- a/docs/lib/vg_basic.css
++++ b/docs/lib/vg_basic.css
+@@ -65,3 +65,39 @@ blockquote {
   border:      solid 1px #ffde84; 
  }
  
@@ -120,10 +120,10 @@ Index: docs/lib/vg_basic.css
 +div.warning, div.warning h3 {
 +    color: #8a6d3b;
 +}
-Index: docs/xml/manpages-index.xml
-===================================================================
---- docs/xml/manpages-index.xml	(revision 16470)
-+++ docs/xml/manpages-index.xml	(working copy)
+diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
+index 7d774e5..5c5c1e3 100644
+--- a/docs/xml/manpages-index.xml
++++ b/docs/xml/manpages-index.xml
 @@ -43,5 +43,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
@@ -134,10 +134,10 @@ Index: docs/xml/manpages-index.xml
 +
  </set>
  
-Index: docs/xml/manual.xml
-===================================================================
---- docs/xml/manual.xml	(revision 16470)
-+++ docs/xml/manual.xml	(working copy)
+diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
+index 333e5b7..a0c471d 100644
+--- a/docs/xml/manual.xml
++++ b/docs/xml/manual.xml
 @@ -44,6 +44,8 @@
        xmlns:xi="http://www.w3.org/2001/XInclude" />      
    <xi:include href="../../lackey/docs/lk-manual.xml" parse="xml"  
@@ -147,11 +147,11 @@ Index: docs/xml/manual.xml
    <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
  
-Index: docs/xml/valgrind-manpage.xml
-===================================================================
---- docs/xml/valgrind-manpage.xml	(revision 16470)
-+++ docs/xml/valgrind-manpage.xml	(working copy)
-@@ -230,6 +230,8 @@
+diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
+index 7498c61..62167e4 100644
+--- a/docs/xml/valgrind-manpage.xml
++++ b/docs/xml/valgrind-manpage.xml
+@@ -230,6 +230,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
  
  </refsect1>
  
@@ -160,16 +160,16 @@ Index: docs/xml/valgrind-manpage.xml
  
  <refsect1 id="see_also">
  <title>See Also</title>
-Index: docs/xml/vg-entities.xml
-===================================================================
---- docs/xml/vg-entities.xml	(revision 16470)
-+++ docs/xml/vg-entities.xml	(working copy)
+diff --git a/docs/xml/vg-entities.xml b/docs/xml/vg-entities.xml
+index 6151c35..4905155 100644
+--- a/docs/xml/vg-entities.xml
++++ b/docs/xml/vg-entities.xml
 @@ -6,7 +6,7 @@
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
--<!ENTITY rel-version "3.13.0">
-+<!ENTITY rel-version "3.13.0+verrou-dev">
- <!ENTITY rel-date    "15 June 2017">
+-<!ENTITY rel-version "3.14.0">
++<!ENTITY rel-version "3.14.0+verrou-dev">
+ <!ENTITY rel-date    "9 October 2018">
  
  <!-- where the docs are installed -->

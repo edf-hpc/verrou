@@ -25,7 +25,7 @@ Add verrou's sources to it:
     cd valgrind
     git clone --branch=master --single-branch https://github.com/edf-hpc/verrou.git verrou
 
-    patch -p0 <verrou/valgrind.diff
+    patch -p1 <verrou/valgrind.diff
 
 
 ### Configure and build
