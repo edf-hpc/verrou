@@ -187,7 +187,7 @@
 <tr><td colspan="2"> </td></tr>
 <tr class="question">
 <td align="left" valign="top">
-<a name="faq.glibc_devel"></a><a name="idm6934"></a><b>2.2.</b>
+<a name="faq.glibc_devel"></a><a name="idm7110"></a><b>2.2.</b>
 </td>
 <td align="left" valign="top">
 <b>When building Valgrind, 'make' fails with this:</b><pre class="screen">
@@ -404,10 +404,12 @@ collect2: ld returned 1 exit status
     with <code class="option">-g</code> to add debug information.  And don't strip
     symbol tables (programs should be unstripped unless you run 'strip'
     on them; some libraries ship stripped).</p>
-<p>Also, for leak reports involving shared objects, if the shared
-    object is unloaded before the program terminates, Valgrind will
-    discard the debug information and the error message will be full of
-    <code class="literal">???</code> entries.  The workaround here is to avoid
+<p>Also, for leak reports involving shared objects, if the shared object
+    is unloaded before the program terminates, Valgrind will discard the debug
+    information and the error message will be full of <code class="literal">???</code>
+    entries.  If you use the option <code class="option">--keep-debuginfo=yes</code>, then
+    Valgrind will keep the debug information in order to show the stack traces,
+    at the price of increased memory.  An alternate workaround is to avoid
     calling <code class="function">dlclose</code> on these shared objects.</p>
 <p>Also, <code class="option">-fomit-frame-pointer</code> and
     <code class="option">-fstack-check</code> can make stack traces worse.</p>

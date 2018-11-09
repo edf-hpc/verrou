@@ -75,8 +75,8 @@ Main currently-known incompatibilities:<br>
 - syscall number for unlinkat() is 76 on Solaris 11, but 65 on illumos [2]<br>
 - illumos (in April 2013) changed interface of the accept() and pipe()<br>
   syscalls [3]<br>
-- posix_spawn() functionality is backed up by true spawn() syscall on Solaris 12<br>
-  whereas illumos and Solaris 11 leverage vfork()<br>
+- posix_spawn() functionality is backed up by true spawn() syscall on Solaris 11.4<br>
+  whereas illumos and Solaris 11.3 leverage vfork()<br>
 - illumos and older Solaris use utimesys() syscall whereas newer Solaris<br>
   uses utimensat()<br>
 <br>
@@ -163,6 +163,74 @@ TODO list<br>
   it is implemented in libdwarf.<br>
 - Handle a situation when guest program sets SC_CANCEL_FLG in schedctl and<br>
   Valgrind needs to invoke a syscall on its own.<br>
+<br>
+<br>
+Summary of Solaris 11 Kernel Interfaces Used<br>
+--------------------------------------------<br>
+Valgrind uses directly the following kernel interfaces (not exhaustive list).<br>
+Then, of course, it has very intimate knowledge of all syscalls, many ioctls<br>
+and some door calls because it has wrappers around them.<br>
+- Syscalls:<br>
+  . clock_gettime<br>
+  . close<br>
+  . connect<br>
+  . execve<br>
+  . exit<br>
+  . faccessat<br>
+  . fcntl<br>
+  . forksys<br>
+  . fstatat<br>
+  . getcwd<br>
+  . getdents<br>
+  . geteuid<br>
+  . getgid<br>
+  . getgroups<br>
+  . getpeername<br>
+  . getpid<br>
+  . getrlimit<br>
+  . getsockname<br>
+  . getsockopt<br>
+  . gettimeofday<br>
+  . kill<br>
+  . lseek<br>
+  . lwp_create<br>
+  . lwp_exit<br>
+  . lwp_self<br>
+  . lwp_sigqueue<br>
+  . mknodat<br>
+  . mmap<br>
+  . mprotect<br>
+  . munmap<br>
+  . openat<br>
+  . pipe<br>
+  . pollsys<br>
+  . pread<br>
+  . prgpsys<br>
+  . pwrite<br>
+  . read<br>
+  . readlinkat<br>
+  . renameat<br>
+  . rt_sigprocmask<br>
+  . send<br>
+  . setrlimit<br>
+  . setsockopt<br>
+  . sigaction<br>
+  . sigreturn<br>
+  . sigtimedwait<br>
+  . so_socket<br>
+  . spawn<br>
+  . uname<br>
+  . unlinkat<br>
+  . waitsys<br>
+  . write<br>
+- Signal frames. Valgrind decomposes and synthetizes signal frames.<br>
+- Flag sc_sigblock flag in the schedctl structure by replacing<br>
+  function block_all_signals() from libc. The replacement emulates lwp_sigmask<br>
+  syscall. More details in coregrind/vg_preloaded.c.<br>
+- Initial stack layout for the main thread is synthetized.<br>
+- procfs agent thread and other procfs commands for manipulating the process.<br>
+- mmapobj syscall is emulated because it gets in the way of the address space<br>
+  manager's control.<br>
 <br>
 <br>
 Contacts<br>

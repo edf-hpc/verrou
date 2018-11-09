@@ -21,7 +21,200 @@
 <div class="titlepage"><div><div><h1 class="title">
 <a name="dist.news"></a>2. NEWS</h1></div></div></div>
 <div class="literallayout"><p><br>
-      Release 3.13.0 (15 June 2017)<br>
+      Release 3.14.0 (9 October 2018)<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+3.14.0 is a feature release with many improvements and the usual collection of<br>
+bug fixes.<br>
+<br>
+This release supports X86/Linux, AMD64/Linux, ARM32/Linux, ARM64/Linux,<br>
+PPC32/Linux, PPC64BE/Linux, PPC64LE/Linux, S390X/Linux, MIPS32/Linux,<br>
+MIPS64/Linux, ARM/Android, ARM64/Android, MIPS32/Android, X86/Android,<br>
+X86/Solaris, AMD64/Solaris and AMD64/MacOSX 10.12.  There is also preliminary<br>
+support for X86/macOS 10.13, AMD64/macOS 10.13.<br>
+<br>
+* ==================== CORE CHANGES ===================<br>
+<br>
+* The new option --keep-debuginfo=no|yes (default no) can be used to retain<br>
+  debug info for unloaded code.  This allows saved stack traces (e.g. for<br>
+  memory leaks) to include file/line info for code that has been dlclose'd (or<br>
+  similar).  See the user manual for more information and known limitations.<br>
+<br>
+* Ability to specify suppressions based on source file name and line number.<br>
+<br>
+* Majorly overhauled register allocator.  No end-user changes, but the JIT<br>
+  generates code a bit more quickly now.<br>
+<br>
+* ================== PLATFORM CHANGES =================<br>
+<br>
+* Preliminary support for macOS 10.13 has been added.<br>
+<br>
+* mips: support for MIPS32/MIPS64 Revision 6 has been added.<br>
+<br>
+* mips: support for MIPS SIMD architecture (MSA) has been added.<br>
+<br>
+* mips: support for MIPS N32 ABI has been added.<br>
+<br>
+* s390: partial support for vector instructions (integer and string) has been<br>
+  added.<br>
+<br>
+* ==================== TOOL CHANGES ====================<br>
+<br>
+* Helgrind: Addition of a flag<br>
+  --delta-stacktrace=no|yes [yes on linux amd64/x86]<br>
+  which specifies how full history stack traces should be computed.<br>
+  Setting this to =yes can speed up Helgrind by 25% when using<br>
+  --history-level=full.<br>
+<br>
+* Memcheck: reduced false positive rate for optimised code created by Clang 6<br>
+  / LLVM 6 on x86, amd64 and arm64.  In particular, Memcheck analyses code<br>
+  blocks more carefully to determine where it can avoid expensive definedness<br>
+  checks without loss of precision.  This is controlled by the flag<br>
+  --expensive-definedness-checks=no|auto|yes [auto].<br>
+<br>
+* ==================== OTHER CHANGES ====================<br>
+<br>
+* Valgrind is now buildable with link-time optimisation (LTO).  A new<br>
+  configure option --enable-lto=yes allows building Valgrind with LTO.  If the<br>
+  toolchain supports it, this produces a smaller/faster Valgrind (up to 10%).<br>
+  Note that if you are doing Valgrind development, --enable-lto=yes massively<br>
+  slows down the build process.<br>
+<br>
+* ==================== FIXED BUGS ====================<br>
+<br>
+The following bugs have been fixed or resolved.  Note that "n-i-bz"<br>
+stands for "not in bugzilla" -- that is, a bug that was reported to us<br>
+but never got a bugzilla entry.  We encourage you to file bugs in<br>
+bugzilla (https://bugs.kde.org/enter_bug.cgi?product=valgrind) rather<br>
+than mailing the developers (or mailing lists) directly -- bugs that<br>
+are not entered into bugzilla tend to get forgotten about or ignored.<br>
+<br>
+To see details of a given bug, visit<br>
+  https://bugs.kde.org/show_bug.cgi?id=XXXXXX<br>
+where XXXXXX is the bug number as listed below.<br>
+<br>
+79362   Debug info is lost for .so files when they are dlclose'd<br>
+208052  strlcpy error when n = 0<br>
+255603  exp-sgcheck Assertion '!already_present' failed<br>
+338252  building valgrind with -flto (link time optimisation) fails<br>
+345763  MIPS N32 ABI support<br>
+368913  WARNING: unhandled arm64-linux syscall: 117 (ptrace)<br>
+        == 388664  unhandled arm64-linux syscall: 117  (ptrace)<br>
+372347  Replacement problem of the additional c++14/c++17 new/delete operators<br>
+373069  memcheck/tests/leak_cpp_interior fails with GCC 5.1+<br>
+376257  helgrind history full speed up using a cached stack<br>
+379373  Fix syscall param msg-&gt;desc.port.name points to uninitialised byte(s)<br>
+        on macOS 10.12<br>
+379748  Fix missing pselect syscall (OS X 10.11)<br>
+379754  Fix missing syscall ulock_wait (OS X 10.12)<br>
+380397  s390x: __GI_strcspn() replacemenet needed<br>
+381162  possible array overrun in VEX register allocator<br>
+381272  ppc64 doesn't compile test_isa_2_06_partx.c without VSX support<br>
+381274  powerpc too chatty even with --sigill-diagnostics=no<br>
+381289  epoll_pwait can have a NULL sigmask<br>
+381553  VEX register allocator v3<br>
+381556  arm64: Handle feature registers access on 4.11 Linux kernel or later<br>
+381769  Use ucontext_t instead of struct ucontext<br>
+381805  arm32 needs ld.so index hardwire for new glibc security fixes<br>
+382256  gz compiler flag test doesn't work for gold<br>
+382407  vg_perf needs "--terse" command line option<br>
+382515  "Assertion 'di-&gt;have_dinfo' failed." on wine's dlls/mscoree/tests/[..]<br>
+382563  MIPS MSA ASE support<br>
+382998  xml-socket doesn't work<br>
+383275  massif: m_xarray.c:162 (ensureSpaceXA): Assertion '!xa-&gt;arr' failed<br>
+383723  Fix missing kevent_qos syscall (macOS 10.11)<br>
+        == 385604  illegal hardware instruction (OpenCV cv::namedWindow)<br>
+384096  Mention AddrCheck at Memcheck's command line option [..]<br>
+384230  vex x86-&gt;IR: 0x67 0xE8 0xAB 0x68<br>
+        == 384156  vex x86-&gt;IR: 0x67 0xE8 0x6B 0x6A<br>
+        == 386115  vex x86-&gt;IR: 0x67 0xE8 0xD3 0x8B any program<br>
+        == 388407  vex x86-&gt;IR: 0x67 0xE8 0xAB 0x29<br>
+        == 394903  vex x86-&gt;IR: 0x67 0xE8 0x1B 0xDA<br>
+384337  performance improvements to VEX register allocator v2 and v3<br>
+384526  reduce number of spill insns generated by VEX register allocator v3<br>
+384584  Callee saved regs listed first for AMD64, X86, and PPC architectures<br>
+384631  Sanitise client args as printed with -v<br>
+384633  Add a simple progress-reporting facility<br>
+384987  VEX regalloc: allocate caller-save registers for short lived vregs<br>
+385055  PPC VEX temporary storage exhausted<br>
+385182  PPC64 is missing support for the DSCR<br>
+385183  PPC64, Add support for xscmpeqdp, xscmpgtdp, xscmpgedp, xsmincdp<br>
+385207  PPC64, generate_store_FPRF() generates too many Iops<br>
+385208  PPC64, xxperm instruction exhausts temporary memory<br>
+385210  PPC64, vpermr instruction could exhaust temporary memory<br>
+385279  unhandled syscall: mach:43 (mach_generate_activity_id)<br>
+        == 395136  valgrind: m_syswrap/syswrap-main.c:438 (Bool eq_Syscall[..]<br>
+        == 387045  Valgrind crashing on High Sierra when testing any newly [..]<br>
+385334  PPC64, fix vpermr, xxperm, xxpermr mask value.<br>
+385408  s390x: z13 vector "support" instructions not implemented<br>
+385409  s390x: z13 vector integer instructions not implemented<br>
+385410  s390x: z13 vector string instructions not implemented<br>
+385412  s390x: new non-vector z13 instructions not implemented<br>
+385868  glibc ld.so _dl_runtime_resolve_avx_slow conditional jump warning.<br>
+385912  none/tests/rlimit_nofile fails on newer glibc/kernel.<br>
+385939  Optionally exit on the first error<br>
+386318  valgrind.org/info/tools.html is missing SGCheck<br>
+386425  running valgrind + wine on armv7l gives illegal opcode<br>
+386397  PPC64, valgrind truncates powerpc timebase to 32-bits.<br>
+387410  MIPSr6 support<br>
+387664  Memcheck: make expensive-definedness-checks be the default<br>
+387712  s390x cgijnl reports Conditional jump depends on uninitialised value<br>
+387766  asm shifts cause false positive "Conditional jump or move depends<br>
+        on uninitialised value"<br>
+387773  .gnu_debugaltlink paths resolve relative to .debug file, not symlink<br>
+388174  valgrind with Wine quits with "Assertion 'cfsi_fits' failed"<br>
+388786  Support bpf syscall in amd64 Linux<br>
+388862  Add replacements for wmemchr and wcsnlen on Linux<br>
+389065  valgrind meets gcc flag -Wlogical-op<br>
+389373  exp-sgcheck the 'impossible' happened as Ist_LoadG is not instrumented<br>
+390471  suppression by specification of source-file line number<br>
+390723  make xtree dump files world wide readable, similar to log files<br>
+391164  constraint bug in tests/ppc64/test_isa_2_07_part1.c for mtfprwa<br>
+391861  Massif Assertion 'n_ips &gt;= 1 &amp;&amp; n_ips &lt;= VG_(clo_backtrace_size)'<br>
+392118  unhandled amd64-linux syscall: 332 (statx)<br>
+392449  callgrind not clearing the number of calls properly<br>
+393017  Add missing support for xsmaxcdp instruction, bug fixes for xsmincdp,<br>
+        lxssp, stxssp and stxvl instructions.<br>
+393023  callgrind_control risks using the wrong vgdb<br>
+393062  build-id ELF phdrs read causes "debuginfo reader: ensure_valid failed"<br>
+393099  posix_memalign() invalid write if alignment == 0<br>
+393146  failing assert "is_DebugInfo_active(di)"<br>
+395709  PPC64 is missing support for the xvnegsp instruction<br>
+395682  Accept read-only PT_LOAD segments and .rodata by ld -z separate-code<br>
+        == 384727<br>
+396475  valgrind OS-X build: config.h not found (out-of-tree macOS builds)<br>
+395991  arm-linux: wine's unit tests enter a signal delivery loop [..]<br>
+396839  s390x: Trap instructions not implemented<br>
+396887  arch_prctl should return EINVAL on unknown option<br>
+        == 397286 crash before launching binary (Unsupported arch_prctl option)<br>
+        == 397393 valgrind: the 'impossible' happened: (Archlinux)<br>
+        == 397521 valgrind: the 'impossible' happened: Unsupported [..]<br>
+396906  compile tests failure on mips32-linux: broken inline asm in tests on<br>
+        mips32-linux<br>
+397012  glibc ld.so uses arch_prctl on i386<br>
+397089  amd64: Incorrect decoding of three-register vmovss/vmovsd opcode 11h<br>
+397354  utimensat should ignore timespec tv_sec if tv_nsec is UTIME_NOW/OMIT<br>
+397424  glibc 2.27 and gdb_server tests<br>
+398028  Assertion `cfsi_fits` failing in simple C program<br>
+398066  s390x: cgijl dep1, 0 reports false unitialised values warning<br>
+<br>
+n-i-bz  Fix missing workq_ops operations (macOS)<br>
+n-i-bz  fix bug in strspn replacement<br>
+n-i-bz  Add support for the Linux BLKFLSBUF ioctl<br>
+n-i-bz  Add support for the Linux BLKREPORTZONE and BLKRESETZONE ioctls<br>
+n-i-bz  Fix possible stack trashing by semctl syscall wrapping<br>
+n-i-bz  Add support for the Linux membarrier() system call<br>
+n-i-bz  x86 front end: recognise and handle UD2 correctly<br>
+n-i-bz  Signal delivery for x86-linux: ensure that the stack pointer is<br>
+        correctly aligned before entering the handler.<br>
+<br>
+(3.14.0.RC1: 30 September 2018, git c2aeea2d28acb0639bcc8cc1e4ab115067db1eae)<br>
+(3.14.0.RC2: 3 October 2018, git 3e214c4858a6fdd5697e767543a0c19e30505582)<br>
+(3.14.0:     9 October 2018, git 353a3587bb0e2757411f9138f5e936728ed6cc4f)<br>
+<br>
+<br>
+<br>
+Release 3.13.0 (15 June 2017)<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 <br>
 3.13.0 is a feature release with many improvements and the usual collection of<br>

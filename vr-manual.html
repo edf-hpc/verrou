@@ -25,7 +25,7 @@
 <dl class="toc">
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview">14.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6216">14.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6322">14.1.1. Basic usage</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">14.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat">14.2. Standard features</a></span></dt>
@@ -46,7 +46,7 @@
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">14.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">14.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm6867">14.6.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm7043">14.6.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -59,7 +59,7 @@
 <a name="vr-manual.overview"></a>14.1. Overview</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm6216"></a>14.1.1. Basic usage</h3></div></div></div>
+<a name="idm6322"></a>14.1.1. Basic usage</h3></div></div></div>
 <p>
       Verrou helps you look for floating-point round-off errors in programs. It implements a
       stochastic floating-point arithmetic based on random rounding: all floating-point operations
@@ -379,12 +379,17 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"><span class="command"><strong>toward zero,</strong></span></li>
 </ul></div>
 <p>
-      as well as another (non-IEEE-754) deterministic mode:
+      as well as two other (non-IEEE-754) deterministic mode:
       </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><span class="command"><strong>farthest</strong></span>: in this mode, all non-exact results are rounded
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p><span class="command"><strong>farthest</strong></span>: in this mode, all non-exact results are rounded
         in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
         different from <span class="command"><strong>nearest</strong></span> rounding mode, while still being
-        deterministic.</p></li></ul></div>
+        deterministic.</p></li>
+<li class="listitem"><p><span class="command"><strong>float</strong></span>: in this mode, all double precision floating-point
+	operations are replaced by simple precision equivalent. Float operations remain unchanged.
+	</p></li>
+</ul></div>
 <p>
     </p>
 <p>
@@ -438,7 +443,7 @@ Type "help", "copyright", "credits" or "license" for more information.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6416"></a>14.3.1.1. Exclusion files</h4></div></div></div>
+<a name="idm6525"></a>14.3.1.1. Exclusion files</h4></div></div></div>
 <p>
         This can be done by providing an exclusion file via the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line option. The file should follow the
         following format:
@@ -526,23 +531,13 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6458"></a>14.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
+<a name="idm6567"></a>14.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
 <p>
         Instead of manually establishing an exclusion list, using the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code> command-line option can help producing the complete
         list of <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
         pairs through which a given program passes. This complete list can then be filtered to keep
         only functions which really need to be excluded.
       </p>
-<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Warning for Python users</h3>
-<p>
-          By default, Verrou only lists functions that are called from
-          <code class="literal">main()</code>. For special binaries (such as Python) which do not have a
-          <code class="literal">main()</code> function, the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-above">--gen-above</a>=<em class="replaceable"><code>FNNAME</code></em></code> option can be used
-          to generate the list of all functions called from <em class="replaceable"><code>FNNAME</code></em>
-          instead.
-        </p>
-</div>
 <p>For example:</p>
 <pre class="screen">
 <code class="prompt">$</code> valgrind --tool=verrou --gen-exclude=all.ex --gen-above=Py_Main python
@@ -695,7 +690,8 @@ int main () {
       most important errors in final results. The idea is the following:
       </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">First, a complete list of all symbols is generated. It is expected that
+<li class="listitem">First, a complete list of all symbols (which contain perturbated
+	floating point instruction) is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
         results.</li>
@@ -712,18 +708,19 @@ int main () {
 <p>
     </p>
 <p>
-      This algorithm is called <span class="emphasis"><em>Delta-Debugging</em></span>, and is for example used in
-      <span class="command"><strong>git bisect</strong></span>. It is automated by the <span class="command"><strong>verrou_dd</strong></span> command,
+      This algorithm is called <span class="emphasis"><em>Delta-Debugging</em></span>.
+      
+      It is automated by the <span class="command"><strong>verrou_dd</strong></span> command,
       which can be used in the following way:
     </p>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6558"></a>Synopsis</h4></div></div></div>
+<a name="idm6657"></a>Synopsis</h4></div></div></div>
 <pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd.synopsis"></a><code class="command">verrou_dd</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6567"></a>Description</h4></div></div></div>
+<a name="idm6666"></a>Description</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.desc"></a>
         Arguments passed to <span class="command"><strong>verrou_dd</strong></span> are scripts, which must be identified by an
         absolute path. These scripts will be called during the delta-debugging process to automate
@@ -774,18 +771,10 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </dl></div>
 <p>
       </p>
-<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Warning</h3>
-<p>
-          The scripts passed to <span class="command"><strong>verrou_dd</strong></span> will be run from various
-          directories. They must therefore be identified by an <span class="emphasis"><em>absolute path</em></span>
-          (or be in the <code class="computeroutput">PATH</code>).
-        </p>
-</div>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6606"></a>Environment Variables</h4></div></div></div>
+<a name="idm6700"></a>Environment Variables</h4></div></div></div>
 <p>
         The following environment variables affect the behaviour of <span class="command"><strong>verrou_dd</strong></span>:
       </p>
@@ -808,7 +797,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 <dt><span class="term">
             <code class="computeroutput">VERROU_DD_NUM_THREADS</code>
           </span></dt>
-<dd><p> Experimental feature : Allows to perform VERROU_DD_NUM_THREADS run in parallel.
+<dd><p> Experimental feature : Allows to perform <code class="computeroutput">VERROU_DD_NUM_THREADS</code> runs in parallel.
 	     If this environment variable is not set, the parallelism is not activated.
 	    </p></dd>
 <dt><span class="term">
@@ -816,24 +805,124 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose one of the two dd algorithms (ddmax et rddmin).
+	      Environment variable to choose one of the two Delta-Debugging algorithms (ddmax and rddmin).
 	    </p>
 <p>
-	      ddmax : return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
+	      <code class="computeroutput">rddmin</code>: return recursively the min-set of unstable
+	      symbols. <code class="computeroutput">VERROU_DD_NUM_THREADS</code> is ignored.
 	    </p>
 <p>
-	      rddmin (experimental feature) : return recurssively the min-set of unstable symbols. VERROU_DD_NUM_THREADS is ignored.
+	      <code class="computeroutput">ddmax</code>: return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
 	    </p>
 <p>
-	    If this environment variable is not set, the default value is set to ddmax.
+	    If this environment variable is not set, the default value is set to <code class="computeroutput">rddmin</code>.
 	    </p>
 </dd>
+<dt><span class="term">
+            <code class="computeroutput">VERROU_DD_RDDMIN</code>
+          </span></dt>
+<dd>
+<p>
+	      Environment variable to choose one of the variant of rddmin algorithms.
+	    </p>
+<p>
+	      "", <code class="computeroutput">strict</code>: rddmin algorithm with constant number of samples
+	    </p>
+<p>
+	      <code class="computeroutput">s</code>, <code class="computeroutput">stoch</code>: rddmin algorithm with increasing number of samples (called srddmin)
+	    </p>
+<p>
+	      <code class="computeroutput">d</code>, <code class="computeroutput">dicho</code>: srddmin algorithm pre-filtered by a dichotomy method (called drddmin)
+	    </p>
+<p>
+	    If this environment variable is not set, the default value is set to <code class="computeroutput">dicho</code>.
+	    </p>
+</dd>
+<dt><span class="term">
+            <code class="computeroutput">VERROU_DD_RDDMIN_TAB</code>
+          </span></dt>
+<dd>
+<p>
+	      Environment variable to choose the evolution of the number of samples used by the srddmin algorithm.
+	    </p>
+<p>
+	      <code class="computeroutput">exp</code>: increases the number of samples from 1 to
+	      <code class="computeroutput">VERROU_DD_NRUNS</code> with exponential rate.
+	    </p>
+<p>
+	      <code class="computeroutput">all</code>: consecutively try all numbers of samples from 1
+	      to <code class="computeroutput">VERROU_DD_NRUNS</code>.
+	    </p>
+<p>
+	      <code class="computeroutput">single</code>: directly use the number of samples given by
+	      <code class="computeroutput">VERROU_DD_NRUNS</code>. srddmin is equivalent to rddmin in
+              this case.
+	    </p>
+<p>
+	    If this environment variable is not set, the default value is set to <code class="computeroutput">exp</code>.
+	    </p>
+</dd>
+<dt><span class="term">
+            <code class="computeroutput">VERROU_DD_DICHO_TAB</code>
+          </span></dt>
+<dd>
+<p>
+	      Environment variable to choose the evolution of the number of samples used by the
+              binary search in the first part of the drddmin algorithm.
+	    </p>
+<p>
+	      <code class="computeroutput">exp</code>: increases the number of samples from 1 to
+	      <code class="computeroutput">VERROU_DD_NRUNS</code> with exponential rate.
+	    </p>
+<p>
+	      <code class="computeroutput">all</code>: consecutively try all numbers of samples from 1
+	      to <code class="computeroutput">VERROU_DD_NRUNS</code>.
+	    </p>
+<p>
+	      <code class="computeroutput">single</code>: use the number of samples given by
+	      <code class="computeroutput">VERROU_DD_NRUNS</code>.
+	    </p>
+<p>
+	      <code class="computeroutput">half</code>: use half the number of samples given by
+	      <code class="computeroutput">VERROU_DD_NRUNS</code>.
+	    </p>
+<p>
+	      <em class="replaceable"><code>N</code></em>: user-provided value (must be an integer comprised
+	      between 1 and <code class="computeroutput">VERROU_DD_NRUNS</code>).
+	    </p>
+<p>
+	    If this environment variable is not set, the default value is set to <code class="computeroutput">half</code>.
+	    </p>
+</dd>
+<dt><span class="term">
+            <code class="computeroutput">VERROU_DD_DICHO_GRANULARITY</code>
+          </span></dt>
+<dd>
+<p>
+	      Environment variable to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
+	    </p>
+<p>
+	    If this environment variable is not set, the default value is set to 2.
+	    </p>
+</dd>
+<dt><span class="term">
+            <code class="computeroutput">VERROU_DD_QUIET</code>
+          </span></dt>
+<dd><p>
+	      Environment variable to reduce the verbosity of <span class="command"><strong>verrou_dd</strong></span>.
+	    </p></dd>
+<dt><span class="term">
+          <code class="computeroutput">VERROU_DD_IGNORE_LINE</code>
+          </span></dt>
+<dd><p>
+	      Environment variable to limit the search to symbols.
+	    </p></dd>
 </dl>
 </div>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6634"></a>Results</h4></div></div></div>
+<a name="idm6803"></a>Results ddmax</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.results"></a>
         <span class="command"><strong>verrou_dd</strong></span> stores many intermediate results within the
         <code class="computeroutput">dd.sym</code> and <code class="computeroutput">dd.line</code>
@@ -856,6 +945,25 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
             <em class="replaceable"><code>FILENAME</code></em>.</dd>
 </dl></div>
 <p>
+      </p>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm6830"></a>Results *rddmin </h4></div></div></div>
+<p><a name="vr-manual.verrou_dd.results-rddmin"></a>
+        <span class="command"><strong>verrou_dd</strong></span> stores many intermediate results within the
+        <code class="computeroutput">dd.sym</code> directory. Synthetic results are present in the form
+        of symbolic links named after the pattern: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code>.
+      </p>
+<p>
+	The list of all symbols found to be unstable in the
+	<code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code> set can be retrieved in
+	the file: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em>/dd.include</code>.
+      </p>
+<p>
+	Each <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code> contains a
+	<code class="computeroutput">dd.line</code> directory, organized in the same as described above
+	for the ddmax algorithm.
       </p>
 </div>
 </div>
@@ -903,7 +1011,7 @@ int main () {
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6674"></a>14.5.1.1. Basic usage</h4></div></div></div>
+<a name="idm6859"></a>14.5.1.1. Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -946,7 +1054,7 @@ int main () {
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6683"></a>14.5.1.2. Advanced usage</h4></div></div></div>
+<a name="idm6868"></a>14.5.1.2. Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -1055,7 +1163,7 @@ det2
 <a name="vr-manual.clo"></a>14.6.1. Command-line options</h3></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6700"></a>14.6.1.1. General options</h4></div></div></div>
+<a name="idm6885"></a>14.6.1.1. General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -1076,11 +1184,11 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6714"></a>14.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
+<a name="idm6899"></a>14.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
-<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average|upward|downward|toward_zero|farthest&gt; [default=nearest]</code></span>
+<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average|upward|downward|toward_zero|farthest|float&gt; [default=nearest]</code></span>
 </dt>
 <dd>
 <p>
@@ -1101,7 +1209,8 @@ det2
                   <code class="computeroutput">toward_zero</code>.
                 </p></li>
 <li class="listitem"><p>
-                  <span class="command"><strong>Other:</strong></span> <code class="computeroutput">farthest</code>.
+                    <span class="command"><strong>Other:</strong></span> <code class="computeroutput">farthest</code>,
+		    <code class="computeroutput">float</code>.
                 </p></li>
 </ul></div>
 </dd>
@@ -1141,7 +1250,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6760"></a>14.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
+<a name="idm6946"></a>14.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
@@ -1164,7 +1273,8 @@ det2
 </dt>
 <dd>
 <p>Generate in <code class="computeroutput">FILE</code> a list of
-                all symbols encountered during program execution. This is useful
+                all symbols (which contain perturbated floating point instruction)
+		encountered during program execution. This is useful
                 to build an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="14.3.1. Excluded symbols">exclusion
                 list</a>.</p>
 <p>In combination
@@ -1183,22 +1293,6 @@ det2
               </p>
 </dd>
 <dt>
-<a name="vr-opt.gen-above"></a><span class="term"><code class="option">--gen-above=SYMNAME [default=main]</code></span>
-</dt>
-<dd>
-<p>When generating the list of encountered symbols, only
-              consider those that are
-              above <code class="computeroutput">SYMNAME</code> (i.e. which are
-              encountered in a call stack in
-              which <code class="computeroutput">SYMNAME</code> appears). For
-              example, <code class="option">--gen-above=Py_Main</code> is
-              useful to analyse Python programs.</p>
-<p>As a special case,
-              if <code class="computeroutput">SYMNAME</code> is left blank, output
-              all encountered symbols, regardless of their position in the call
-              tree.</p>
-</dd>
-<dt>
 <a name="vr-opt.source"></a><span class="term"><code class="option">--source=FILE</code></span>
 </dt>
 <dd><p>When this option is present, only instructions
@@ -1211,7 +1305,8 @@ det2
 <dd>
 <p>Generate in <code class="computeroutput">FILE</code> the list
                 of all <a class="link" href="vr-manual.html#vr-manual.feat.source" title="14.3.1.3. Source code lines selection">source code
-                  lines</a> encountered during program execution.</p>
+                  lines</a> (which contain perturbated floating point instruction)
+		encountered during program execution.</p>
 <p>In combination with
                 <code class="option"><a class="xref" href="vr-manual.html#vr-opt.source">--source</a></code>, only list
                 source code lines which were not already present in the provided
@@ -1222,7 +1317,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6823"></a>14.6.1.4. Performance optimization</h4></div></div></div>
+<a name="idm6999"></a>14.6.1.4. Performance optimization</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.optim.list"></a><dl class="variablelist">
 <dt>
@@ -1282,7 +1377,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm6867"></a>14.6.3. Monitor commands</h3></div></div></div>
+<a name="idm7043"></a>14.6.3. Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2. Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of

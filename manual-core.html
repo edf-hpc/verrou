@@ -369,7 +369,7 @@ Valgrind prints out one line for each used suppression, giving the number of tim
 it got used, its name and the filename and line number where the suppression is
 defined. Depending on the suppression kind, the filename and line number are optionally
 followed by additional information (such as the number of blocks and bytes suppressed
-by a memcheck leak suppression). Here's the suppressions used by a
+by a Memcheck leak suppression). Here's the suppressions used by a
 run of <code class="computeroutput">valgrind -v --tool=memcheck ls -l</code>:</p>
 <pre class="programlisting">
 --1610-- used_suppression:      2 dl-hack3-cond-1 /usr/lib/valgrind/default.supp:1234
@@ -414,13 +414,15 @@ tool_name1,tool_name2:suppression_name</pre>
 <p>Remaining lines: This is the calling context for the error --
     the chain of function calls that led to it.  There can be up to 24
     of these lines.</p>
-<p>Locations may be names of either shared objects or
-    functions.  They begin
-    <code class="computeroutput">obj:</code> and
-    <code class="computeroutput">fun:</code> respectively.  Function and
-    object names to match against may use the wildcard characters
+<p>Locations may be names of either shared objects, functions,
+    or source lines.  They begin with
+    <code class="computeroutput">obj:</code>,
+    <code class="computeroutput">fun:</code>, or
+    <code class="computeroutput">src:</code> respectively.  Function,
+    object, and file names to match against may use the wildcard characters
     <code class="computeroutput">*</code> and
-    <code class="computeroutput">?</code>.</p>
+    <code class="computeroutput">?</code>.   Source lines are specified
+    using the form <code class="filename">filename[:lineNumber]</code>.</p>
 <p><span class="command"><strong>Important note: </strong></span> C++ function names must be
     <span class="command"><strong>mangled</strong></span>.  If you are writing suppressions by
     hand, use the <code class="option">--demangle=no</code> option to get the
@@ -482,9 +484,20 @@ anywhere in the same library, when called from anywhere in
 locations is regrettable, but is about all you can hope for, given that
 the X11 libraries shipped on the Linux distro on which this example
 was made have had their symbol tables removed.</p>
+<p>An example of the src: specification, again for the Memcheck tool:</p>
+<pre class="programlisting">
+{
+  libX11.so.6.2/libX11.so.6.2/libXaw.so.7.0
+  Memcheck:Value4
+  src:valid.c:321
+}</pre>
+<p>This suppresses any size-4 uninitialised-value error which occurs
+at line 321 in <code class="filename">valid.c</code>.</p>
 <p>Although the above two examples do not make this clear, you can
-freely mix <code class="computeroutput">obj:</code> and
-<code class="computeroutput">fun:</code> lines in a suppression.</p>
+freely mix <code class="computeroutput">obj:</code>,
+<code class="computeroutput">fun:</code>, and
+<code class="computeroutput">src:</code>
+lines in a suppression.</p>
 <p>Finally, here's an example using three frame-level wildcards:</p>
 <pre class="programlisting">
 {
@@ -1004,6 +1017,16 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
       suite, since it makes it easy to detect test cases for which
       Valgrind has reported errors, just by inspecting return codes.</p></dd>
 <dt>
+<a name="opt.exit-on-first-error"></a><span class="term">
+      <code class="option">--exit-on-first-error=&lt;yes|no&gt; [default: no] </code>
+    </span>
+</dt>
+<dd><p>If this option is enabled, Valgrind exits on the first error.
+      A nonzero exit value must be defined using
+      <code class="computeroutput">--error-exitcode</code> option.
+      Useful if you are running regression tests or have some other
+      automated test machinery.</p></dd>
+<dt>
 <a name="opt.error-markers"></a><span class="term">
       <code class="option">--error-markers=&lt;begin&gt;,&lt;end&gt; [default: none]</code>
     </span>
@@ -1038,6 +1061,27 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
       and trap the SIGILL signal to detect processor features.  Using
       this flag makes it possible to avoid the diagnostic output
       that you would otherwise get in such cases.</p>
+</dd>
+<dt>
+<a name="opt.keep-debuginfo"></a><span class="term">
+      <code class="option">--keep-debuginfo=&lt;yes|no&gt; [default: no] </code>
+    </span>
+</dt>
+<dd>
+<p>When enabled, keep ("archive") symbols and all other debuginfo
+      for unloaded code. This allows saved stack traces to include file/line
+      info for code that has been dlclose'd (or similar).  Be careful with
+      this, since it can lead to unbounded memory use for programs which
+      repeatedly load and unload shared objects.</p>
+<p>Some tools and some functionalities have only limited support
+      for archived debug info.  Memcheck fully supports it.  Generally,
+      tools that report errors can use archived debug info to show the error
+      stack traces.  The known limitations are: Helgrind's past access stack
+      trace of a race condition is does not use archived debug info. Massif
+      (and more generally the xtree Massif output format) does not make use
+      of archived debug info. Only Memcheck has been (somewhat) tested
+      with <code class="option">--keep-debuginfo=yes</code>, so other tools may have
+      unknown limitations. </p>
 </dd>
 <dt>
 <a name="opt.show-below-main"></a><span class="term">
@@ -1481,7 +1525,7 @@ Massif, Helgrind, DRD), the following options apply.</p>
         For massif and helgrind, specifying <code class="varname">full</code>
         implies to capture a stack trace for each free operation,
         while normally these tools only capture an allocation stack
-        trace.  For memcheck, the cpu overhead for the
+        trace.  For Memcheck, the cpu overhead for the
         value <code class="varname">full</code> is small, as this can only be
         used in combination with
         <code class="option">--keep-stacktraces=alloc-and-free</code> or
@@ -1795,7 +1839,8 @@ need to use them.</p>
           front of the inner debug logging lines.</p></li>
 <li class="listitem">
 <p><code class="option">no-nptl-pthread-stackcache: </code>
-            This hint is only relevant when running Valgrind on Linux.</p>
+            This hint is only relevant when running Valgrind on Linux;
+            it is ignored on Solaris and Mac OS X.</p>
 <p>The GNU glibc pthread library
             (<code class="function">libpthread.so</code>), which is used by
             pthread programs, maintains a cache of pthread stacks.
@@ -2194,6 +2239,73 @@ need to use them.</p>
          </p></li>
 </ul></div>
 </dd>
+<dt>
+<a name="opt.progress-interval"></a><span class="term">
+      <code class="option">--progress-interval=&lt;number&gt; [default: 0, meaning 'disabled'] </code>
+    </span>
+</dt>
+<dd>
+<p>This is an enhancement to Valgrind's debugging output.  It is
+        unlikely to be of interest to end users.</p>
+<p>When <code class="varname">number</code> is set to a non-zero value,
+        Valgrind will print a one-line progress summary
+        every <code class="varname">number</code> seconds.  Valid settings
+        for <code class="varname">number</code> are between 0 and 3600
+        inclusive.  Here's some example output
+        with <code class="varname">number</code>
+        set to 10:
+        </p>
+<pre class="programlisting">
+PROGRESS: U 110s, W 113s, 97.3% CPU, EvC 414.79M, TIn 616.7k, TOut 0.5k, #thr 67
+PROGRESS: U 120s, W 124s, 96.8% CPU, EvC 505.27M, TIn 636.6k, TOut 3.0k, #thr 64
+PROGRESS: U 130s, W 134s, 97.0% CPU, EvC 574.90M, TIn 657.5k, TOut 3.0k, #thr 63
+</pre>
+<p>
+        Each line shows:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<code class="varname">U</code>: total user time</li>
+<li class="listitem">
+<code class="varname">W</code>: total wallclock time</li>
+<li class="listitem">
+<code class="varname">CPU</code>: overall average cpu use</li>
+<li class="listitem">
+<code class="varname">EvC</code>: number of event checks.  An event
+         check is a backwards branch in the simulated program, so this is a
+         measure of forward progress of the program</li>
+<li class="listitem">
+<code class="varname">TIn</code>: number of code blocks instrumented
+          by the JIT</li>
+<li class="listitem">
+<code class="varname">TOut</code>: number of instrumented code
+          blocks that have been thrown away</li>
+<li class="listitem">
+<code class="varname">#thr</code>: number of threads in the
+        program</li>
+</ul></div>
+<p>
+      From the progress of these, it is possible to observe:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">when the program is compute bound (<code class="varname">TIn</code>
+          rises slowly, <code class="varname">EvC</code> rises rapidly)</li>
+<li class="listitem">when the program is in a spinloop
+          (<code class="varname">TIn</code>/<code class="varname">TOut</code>
+          fixed, <code class="varname">EvC</code> rises rapidly)</li>
+<li class="listitem">when the program is JIT-bound (<code class="varname">TIn</code>
+          rises rapidly)</li>
+<li class="listitem">when the program is rapidly discarding code
+          (<code class="varname">TOut</code> rises rapidly)</li>
+<li class="listitem">when the program is about to achieve some expected state
+          (<code class="varname">EvC</code> arrives at some value you
+          expect)</li>
+<li class="listitem"> when the program is idling (<code class="varname">U</code> rises
+          more slowly than <code class="varname">W</code>)</li>
+</ul></div>
+<p>
+      </p>
+</dd>
 </dl>
 </div>
 </div>
@@ -2450,7 +2562,7 @@ the "Massif Format".</p>
       xtree specificities, you must give the option
       <code class="option">--inclusive=yes</code> to callgrind_annotate.</p>
 <p>For graphical visualization of the data, you can use
-      <a class="ulink" href="http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/KcacheGrindIndex" target="_top">KCachegrind</a>, which is a KDE/Qt based
+      <a class="ulink" href="https://kcachegrind.github.io/html/Home.html" target="_top">KCachegrind</a>, which is a KDE/Qt based
       GUI that makes it easy to navigate the large amount of data that
       an xtree can contain.</p>
 </li>

@@ -174,19 +174,18 @@ This section explains :<br>
 (1) Check out 2 trees, "Inner" and "Outer".  Inner runs the app<br>
     directly.  Outer runs Inner.<br>
 <br>
-(2) Configure inner with --enable-inner and build/install as usual.<br>
+(2) Configure Inner with --enable-inner and build as usual.<br>
 <br>
-(3) Configure Outer normally and build/install as usual.<br>
+(3) Configure Outer normally and build+install as usual.<br>
+    Note: You must use a "make install"-ed valgrind.<br>
+    Do *not* use vg-in-place for the Outer valgrind.<br>
 <br>
 (4) Choose a very simple program (date) and try<br>
 <br>
     outer/.../bin/valgrind --sim-hints=enable-outer --trace-children=yes  \<br>
        --smc-check=all-non-file \<br>
        --run-libc-freeres=no --tool=cachegrind -v \<br>
-       inner/.../bin/valgrind --vgdb-prefix=./inner --tool=none -v prog<br>
-<br>
-Note: You must use a "make install"-ed valgrind.<br>
-Do *not* use vg-in-place for the outer valgrind.<br>
+       inner/.../vg-in-place --vgdb-prefix=./inner --tool=none -v prog<br>
 <br>
 If you omit the --trace-children=yes, you'll only monitor Inner's launcher<br>
 program, not its stage2. Outer needs --run-libc-freeres=no, as otherwise<br>
@@ -214,12 +213,12 @@ setup, this prefix causes the reg test diff to fail. Give <br>
 --sim-hints=no-inner-prefix to the Inner to disable the production<br>
 of the prefix in the stdout/stderr output of Inner.<br>
 <br>
-The allocator (coregrind/m_mallocfree.c) is annotated with client requests<br>
-so Memcheck can be used to find leaks and use after free in an Inner<br>
-Valgrind.<br>
+The allocators in coregrind/m_mallocfree.c and VEX/priv/main_util.h are<br>
+annotated with client requests so Memcheck can be used to find leaks<br>
+and use after free in an Inner Valgrind.<br>
 <br>
 The Valgrind "big lock" is annotated with helgrind client requests<br>
-so helgrind and drd can be used to find race conditions in an Inner<br>
+so Helgrind and DRD can be used to find race conditions in an Inner<br>
 Valgrind.<br>
 <br>
 All this has not been tested much, so don't be surprised if you hit problems.<br>
