@@ -31,6 +31,13 @@ perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
     perl -pni -e "s/\[UNRELEASED\]/v${VERSION} - $(date +%Y-%m-%d)/" CHANGELOG.md
     ```
 
+## Update CLO
+
+```
+(cd .. && ./verrou/docs/update-vr-clo)
+git add vr_clo.txt
+```
+
 ## Commit in a release branch
 
 1. Prepare the commit
@@ -108,7 +115,7 @@ perl -pni -e "s/verrou-dev/verrou-${VERSION}/" valgrind.diff
     mv ${VALGRIND} ${VALGRIND}+verrou-${VERSION}
     cd ${VALGRIND}+verrou-${VERSION}
     git clone --branch=v${VERSION} --single-branch https://github.com/edf-hpc/verrou
-    patch -p0 <verrou/valgrind.diff
+    patch -p1 <verrou/valgrind.diff
     cd ..
     tar cvzf ${VALGRIND}_verrou-${VERSION}.tar.gz ${VALGRIND}+verrou-${VERSION}
     ```
