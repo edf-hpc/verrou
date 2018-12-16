@@ -34,11 +34,11 @@
 #pragma once
 #include <limits>
 
-#ifndef LIBMATHINTERP
+//#ifndef LIBMATHINTERP
 extern vr_RoundingMode ROUNDINGMODE;
-#else
+//#else
 //extern vr_RoundingMode ROUNDINGMODE;
-#endif
+//#endif
 
 #include "vr_fpRepr.hxx"
 #include "vr_op.hxx"
@@ -324,7 +324,7 @@ class OpWithSelectedRoundingMode{
 
 };
 
-#ifndef LIBMATHINTERP
+//#ifndef LIBMATHINTERP
 template<class OP>
 class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
 public:
@@ -382,4 +382,4 @@ public:
   }
 };
 
-#endif
+//#endif

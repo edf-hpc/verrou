@@ -10,6 +10,7 @@
 
 #include <float.h>
 #include <quadmath.h>
+#include "../backend_verrou/interflop_verrou.h"
 #include "../backend_verrou/vr_rand.h"
 #include "../backend_verrou/vr_roundingOp.hxx"
 #include <iostream>
@@ -22,6 +23,12 @@
 
 
 
+vr_RoundingMode ROUNDINGMODE;
+void (*vr_cancellationHandler)(int)=NULL;
+void (*vr_panicHandler)(const char*)=NULL;
+void (*vr_nanHandler)()=NULL;
+
+
  void __attribute__((constructor)) init_interlibmath(){
    
    struct timeval now;
@@ -29,6 +36,36 @@
    unsigned int pid = getpid();
    unsigned int vr_seed=  now.tv_usec + pid;
    vr_rand_setSeed(&vr_rand, vr_seed);
+
+   const char* vrm=std::getenv("VERROU_ROUNDING_MODE");
+
+   if(vrm!=NULL){
+     std::string envString(vrm);
+     if(envString==std::string("random")){
+       ROUNDINGMODE=VR_RANDOM;
+     }
+     if(envString==std::string("average")){
+       ROUNDINGMODE=VR_AVERAGE;
+     }
+     if(envString==std::string("nearest")){
+       ROUNDINGMODE=VR_NEAREST;
+     }
+     if(envString==std::string("upward")){
+       ROUNDINGMODE=VR_UPWARD;
+     }
+     if(envString==std::string("downward")){
+       ROUNDINGMODE=VR_DOWNWARD;
+     }
+     if(envString==std::string("toward_zero")){
+       ROUNDINGMODE=VR_ZERO;
+     }
+     if(envString==std::string("farthest")){
+       ROUNDINGMODE=VR_FARTHEST;
+     }
+     if(envString==std::string("float")){
+       ROUNDINGMODE=VR_FLOAT;
+     }
+   }
 }
 
 
@@ -76,11 +113,13 @@ private:
 
 
 //myLibMathFunction1 myCos("cos");
-enum FunctionName {enumCos, enumSin, enumErf,size};
+enum FunctionName {enumCos, enumSin, enumErf, enumSqrt, size};
 
 myLibMathFunction1 functionNameTab[size]={myLibMathFunction1("cos"),
 					  myLibMathFunction1("sin"),
-					  myLibMathFunction1("erf")}; 
+					  myLibMathFunction1("erf"),
+					  myLibMathFunction1("sqrt")
+};
 
 
 template<int  MATHFUNCTIONINDEX, typename REALTYPE>
@@ -91,7 +130,7 @@ public:
   
 
 #ifdef DEBUG_PRINT_OP
-  static const char* OpName(){return "libmathcos";}
+  static const char* OpName(){return "libmath ?";}
 #endif
 
   static inline RealType nearestOp (const PackArgs& p) {
@@ -133,66 +172,66 @@ REALTYPE MAGIC(constraint_m1p1)(const REALTYPE& x ){
 
 
 
-
-template<class OP>
-class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
-public:
-  typedef typename OP::RealType RealType;
-  typedef typename OP::PackArgs PackArgs;
-  
-  static inline RealType apply(const PackArgs& p){    
-    // return RoundingNearest<OP>::apply (p);
-    //  return RoundingUpward<OP>::apply (p);
-    //  return RoundingDownward<OP>::apply (p);
-    //  return RoundingZero<OP>::apply (p);
-    return RoundingRandom<OP>::apply (p);
-    //return RoundingAverage<OP>::apply (p);
-    //  return RoundingFarthest<OP>::apply (p);
-  }
-};
-
-
 extern "C"{
-  //double cos(double a);
-  
 
 
   double cos(double a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumCos,double>,double > Op;
-    double res=Op::apply((Op::PackArgs(a) ));
+    double res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res); // not sur it is usefull
   }
 
   float cosf(float a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumCos,float>,float > Op;
-    float res=Op::apply((Op::PackArgs(a) ));
+    float res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res);
   }
 
 
   double sin(double a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumSin,double>,double > Op;
-    double res=Op::apply((Op::PackArgs(a) ));
+    double res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res); // not sur it is usefull
   }
 
   float sinf(float a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumSin,float>,float > Op;
-    float res=Op::apply((Op::PackArgs(a) ));
+    float res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res);
   }
 
 
   double erf(double a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumErf,double>,double > Op;
-    double res=Op::apply((Op::PackArgs(a) ));
+    double res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res); // not sur it is usefull
   }
 
   float erff(float a){
     typedef OpWithSelectedRoundingMode<libMathFunction<enumErf,float>,float > Op;
-    float res=Op::apply((Op::PackArgs(a) ));
+    float res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
     return MAGIC(constraint_m1p1)(res);
+  }
+
+
+  double sqrt(double a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumSqrt,double>,double > Op;
+    double res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
+    return res;
+  }
+
+  float sqrtf(float a){
+    typedef OpWithSelectedRoundingMode<libMathFunction<enumSqrt,float>,float > Op;
+    float res;
+    Op::apply(Op::PackArgs(a) ,&res,NULL);
+    return res;
   }
 
   
