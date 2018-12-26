@@ -37,7 +37,10 @@ void (*vr_nanHandler)()=NULL;
    unsigned int vr_seed=  now.tv_usec + pid;
    vr_rand_setSeed(&vr_rand, vr_seed);
 
-   const char* vrm=std::getenv("VERROU_ROUNDING_MODE");
+   char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
+   if(vrm==NULL){
+     vrm=std::getenv("VERROU_ROUNDING_MODE");
+   }
 
    if(vrm!=NULL){
      std::string envString(vrm);
