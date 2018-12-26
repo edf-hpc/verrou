@@ -58,6 +58,21 @@ public:
 };
 
 template<class OP>
+class RoundingNative{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nativeOp(p) ;
+    OP::check(p,res);
+    return res;
+  } ;
+
+};
+
+
+template<class OP>
 class RoundingFloat{
 public:
   typedef typename OP::RealType RealType;
@@ -376,6 +391,8 @@ public:
       return RoundingFarthest<OP>::apply (p);
     case VR_FLOAT:
       return RoundingFloat<OP>::apply (p);
+    case VR_NATIVE:
+      return RoundingNative<OP>::apply (p);
     }
 
     return 0;

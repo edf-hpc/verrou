@@ -95,6 +95,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "FARTHEST";
   case VR_FLOAT:
     return "FLOAT";
+  case VR_NATIVE:
+    return "NATIVE";
   }
 
   return "undefined";

@@ -214,6 +214,10 @@ public:
     return a+b;
   }
 
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
+
   static inline RealType error (const PackArgs& p, const RealType& x) {
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
@@ -263,6 +267,10 @@ public:
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
     return a-b;
+  }
+
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
   }
 
   static inline RealType error (const PackArgs& p, const RealType& x) {
@@ -326,6 +334,10 @@ public:
     const RealType & b(p.arg2);
     return a*b;
   };
+
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
 
   static inline RealType error (const PackArgs& p, const RealType& x) {
     /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
@@ -406,6 +418,10 @@ public:
     return a*b;
   };
 
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
+
   static inline RealType error (const PackArgs& p, const RealType& x) {
     /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
     const RealType a(p.arg1);
@@ -484,6 +500,10 @@ public:
     return a/b;
   };
 
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
+
   static inline RealType error (const PackArgs& p, const RealType& c) {
     const RealType & x(p.arg1);
     const RealType & y(p.arg2);
@@ -535,6 +555,10 @@ public:
     const RealType & b(p.arg2);
     return a/b;
   };
+
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
 
   static inline RealType error (const PackArgs& p, const RealType& c) {
     const RealType & x(p.arg1);
@@ -601,6 +625,10 @@ public:
 #endif
   };
 
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
+
   static inline RealType error (const PackArgs& p, const RealType& z) {
     //ErrFmaApp : Exact and Aproximated Error of the FMA By Boldo and Muller
     const RealType & a(p.arg1);
@@ -653,6 +681,10 @@ public:
     return (RealTypeOut)in;
   };
 
+  static inline RealType nativeOp(const PackArgs&  p){
+    return nearestOp(p);
+  }
+
   static inline RealTypeOut error (const PackArgs& p, const RealTypeOut& z) {
     const RealTypeIn & a(p.arg1);
     const RealTypeIn errorHo= a- (RealTypeIn)z;
@@ -666,7 +698,6 @@ public:
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
-
 
   static inline void check(const PackArgs& p, const RealTypeOut& d){
   };

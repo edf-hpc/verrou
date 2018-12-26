@@ -37,6 +37,8 @@ void (*vr_nanHandler)()=NULL;
    unsigned int vr_seed=  now.tv_usec + pid;
    vr_rand_setSeed(&vr_rand, vr_seed);
 
+   ROUNDINGMODE=VR_NATIVE; //Default value
+
    char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
    if(vrm==NULL){
      vrm=std::getenv("VERROU_ROUNDING_MODE");
@@ -67,6 +69,9 @@ void (*vr_nanHandler)()=NULL;
      }
      if(envString==std::string("float")){
        ROUNDINGMODE=VR_FLOAT;
+     }
+     if(envString==std::string("native")){
+       ROUNDINGMODE=VR_NATIVE;
      }
    }
 }
@@ -136,9 +141,15 @@ public:
   static const char* OpName(){return "libmath ?";}
 #endif
 
-  static inline RealType nearestOp (const PackArgs& p) {
+  static inline RealType nativeOp (const PackArgs& p) {
     const RealType & a(p.arg1);
     return functionNameTab[MATHFUNCTIONINDEX].apply(a);
+  };
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    const RealType & a(p.arg1);
+    __float128 ref=functionNameTab[MATHFUNCTIONINDEX].apply((__float128)a);
+    return (RealType)ref;
   };
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
