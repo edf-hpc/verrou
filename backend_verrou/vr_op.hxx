@@ -50,6 +50,12 @@ struct realTypeHelper<double>{
   static const int SimdLength=1;
 };
 
+template<>
+struct realTypeHelper<long double>{
+  typedef long double SimdBasicType;
+  static const int SimdLength=1;
+};
+
 
 template<class REALTYPESIMD>
 struct realTypeHelper<const REALTYPESIMD>{
