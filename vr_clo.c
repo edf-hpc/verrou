@@ -58,6 +58,8 @@ void vr_clo_defaults (void) {
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
 
+  vr.genTrace=False;
+
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
@@ -162,6 +164,8 @@ Bool vr_process_clo (const HChar *arg) {
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }
+  else if (VG_XACT_CLO (arg, "--gen-trace",
+                        vr.genTrace, True)) {}
 
   // Unknown option
   else{

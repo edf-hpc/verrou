@@ -116,6 +116,8 @@ typedef struct {
   HChar* includeSourceFile;
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
+
+  Bool genTrace;
 } Vr_State;
 
 extern Vr_State vr;

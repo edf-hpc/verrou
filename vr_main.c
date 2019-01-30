@@ -265,6 +265,8 @@ void vr_ppOpCount (void) {
   }
 }
 
+#include "vr_traceBB.c"
+
 
 // * Floating point operations overload
 
@@ -1138,6 +1140,12 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool doIRSBFContainFloat=False;
   const HChar *filename=NULL;
   UInt  linenum;
+  traceBB_t traceBB;
+  traceBB.irsb=NULL;//avoid warning
+  if(vr.genTrace){
+    vr_traceIRSB(sbOut,sbIn,NULL);
+    vr_traceBB_initBB(&traceBB,sbIn);
+  }
 
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
@@ -1158,7 +1166,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                                 &filename,
                                 NULL,
                                 &linenum);
-
+      if(vr.genTrace){
+	vr_traceBB_trace_imark(&traceBB,fnname, filename,linenum);
+      }
       if(!vr.genIncludeSource){
 	includeSource = vr_includeSource (&vr.includeSource, fnname, filename, linenum);
       }
@@ -1174,6 +1184,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     default:
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
+  }
+  if(vr.genTrace){
+    vr_traceBB_closeBB(&traceBB);
   }
 
   if(vr.genIncludeSource && doLineContainFloat &&filename !=NULL){
@@ -1206,6 +1219,9 @@ static void vr_fini(Int exitcode)
                               vr.includeSourceFile);
   }
 
+  if(vr.genTrace){
+    vr_traceBB_finalyze();
+  }
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
@@ -1280,6 +1296,10 @@ static void vr_post_clo_init(void)
      verrou_set_cancellation_handler(&vr_cancellation_handler);
    }
 
+
+   if(vr.genTrace){
+     vr_traceBB_initialize();
+   }
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;
