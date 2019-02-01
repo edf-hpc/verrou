@@ -1142,9 +1142,13 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   UInt  linenum;
   traceBB_t traceBB;
   traceBB.irsb=NULL;//avoid warning
-  if(vr.genTrace){
+
+
+  Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
+  if(genIRSBTrace){
     vr_traceIRSB(sbOut,sbIn,NULL);
     vr_traceBB_initBB(&traceBB,sbIn);
+    vr_traceBB_trace_backtrace(&traceBB);
   }
 
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
@@ -1166,7 +1170,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                                 &filename,
                                 NULL,
                                 &linenum);
-      if(vr.genTrace){
+      if(genIRSBTrace){
 	vr_traceBB_trace_imark(&traceBB,fnname, filename,linenum);
       }
       if(!vr.genIncludeSource){
@@ -1224,6 +1228,7 @@ static void vr_fini(Int exitcode)
   }
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
+  vr_freeIncludeTraceList  (vr.includeTrace );
   VG_(free)(vr.excludeFile);
   //  VG_(free)(vr.genAbove);
 }

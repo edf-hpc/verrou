@@ -59,6 +59,7 @@ void vr_clo_defaults (void) {
   vr.includeSource = NULL;
 
   vr.genTrace=False;
+  vr.includeTrace = NULL;
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
@@ -139,6 +140,11 @@ Bool vr_process_clo (const HChar *arg) {
     vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
     vr.genExclude = True;
   }
+  else if (VG_STR_CLO (arg, "--trace", str)) {
+    vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
+    vr.genTrace = True;
+  }
+
   /* else if (VG_STR_CLO (arg, "--gen-above", str)) { */
   /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */
   /* } */

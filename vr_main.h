@@ -87,6 +87,14 @@ struct Vr_Exclude_ {
   Vr_Exclude* next;
 };
 
+typedef struct Vr_Include_Trace_ Vr_Include_Trace;
+struct Vr_Include_Trace_ {
+  HChar*      fnname;
+  HChar*      objname;
+  Vr_Include_Trace* next;
+};
+
+
 typedef struct Vr_IncludeSource_ Vr_IncludeSource;
 struct Vr_IncludeSource_ {
   HChar*            fnname;
@@ -118,6 +126,8 @@ typedef struct {
   Vr_IncludeSource *genIncludeSourceUntil;
 
   Bool genTrace;
+  Vr_Include_Trace* includeTrace;
+
 } Vr_State;
 
 extern Vr_State vr;
@@ -184,6 +194,14 @@ Bool vr_includeSource (Vr_IncludeSource** list,
                        const HChar* fnname, const HChar* filename, UInt linenum);
 void vr_includeSource_generate (Vr_IncludeSource** list,
 				const HChar* fnname, const HChar* filename, UInt linenum);
+
+
+// ** vr_include_trace.c
+static Vr_Include_Trace* vr_addIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname);
+static Vr_Include_Trace * vr_findIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname);
+void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
+Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);
+Bool vr_includeTraceIRSB (const HChar** fnname, const HChar **objname);
 
 
 #define VR_FNNAME_BUFSIZE 4096
