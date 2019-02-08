@@ -34,6 +34,7 @@
 
 // * Start-stop instrumentation
 
+
 void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
   if (vr.instrument == state) {
     if(vr.verbose){
@@ -223,6 +224,10 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__DISPLAY_COUNTERS:
     vr_ppOpCount();
     *ret = 0; /* meaningless */
+    break;
+  case VR_USERREQ__DUMP_COVER:
+    vr_traceBB_dumpCov();
+    *ret=0;
     break;
   case VG_USERREQ__GDB_MONITOR_COMMAND:
     if (vr_handle_monitor_command((HChar*)args[1])) {

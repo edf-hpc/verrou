@@ -28,6 +28,7 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
+	vr_include_trace.c \
 	backend_verrou/interflop_verrou.cxx
 
 VERROU_FLAG_CXX = $(subst \
