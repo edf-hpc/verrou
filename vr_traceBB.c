@@ -149,8 +149,8 @@ void vr_traceBB_resetCov(void){
 }
 
 
-void vr_traceBB_dumpCov(void);
-void vr_traceBB_dumpCov(void){
+UInt vr_traceBB_dumpCov(void);
+UInt vr_traceBB_dumpCov(void){
   static UInt numPartialCov=0;
 
   VG_(fprintf)(vr_out_bb_cov, "cover-%d\n", numPartialCov);
@@ -163,6 +163,7 @@ void vr_traceBB_dumpCov(void){
   }
   numPartialCov+=1;
   vr_traceBB_resetCov();
+  return numPartialCov-1;
 }
 
 

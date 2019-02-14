@@ -226,8 +226,7 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__DUMP_COVER:
-    vr_traceBB_dumpCov();
-    *ret=0;
+    *ret=vr_traceBB_dumpCov();
     break;
   case VG_USERREQ__GDB_MONITOR_COMMAND:
     if (vr_handle_monitor_command((HChar*)args[1])) {
