@@ -10,8 +10,10 @@ pkginclude_HEADERS = verrou.h
 # verrou-<platform>
 #----------------------------------------------------------------------------
 
-bin_SCRIPTS = verrou_dd
-pkgpython_PYTHON = DD.py
+PYTHON_REP=pyTools
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd ${PYTHON_REP}/cmpTrace.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py
+
 install-exec-local:
 	mkdir -p ${pkgpythondir}
 	touch ${pkgpythondir}/__init__.py
