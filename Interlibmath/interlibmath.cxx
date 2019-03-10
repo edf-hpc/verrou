@@ -35,7 +35,7 @@ public:
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
-    load_real_sym((void**)&(real_name_float128) , name +std::string("q"));
+    //load_real_sym((void**)&(real_name_float128) , name +std::string("q"));
   }
   
   inline double apply(double a)const{
@@ -50,9 +50,9 @@ public:
     return real_name_float(a);
   }
 
-  inline __float128 apply(__float128 a)const{
-    return real_name_float128(a);
-  }
+  //  inline __float128 apply(__float128 a)const{
+  //    return real_name_float128(a);
+  //  }
 
   const std::string& name()const{
     return name_;
@@ -71,27 +71,27 @@ private:
   float (*real_name_float)(float) ;
   double (*real_name_double)(double) ;
   long double (*real_name_long_double)(long double) ;
-  __float128 (*real_name_float128)(__float128) ;
+  //  __float128 (*real_name_float128)(__float128) ;
   std::string name_;
 };
 
 
 
-enum FunctionName {enumcos, enumsin, enumerf, enumsqrt,
+enum Function1Name {enumcos, enumsin, enumerf, enumsqrt,
 		   enumlog, enumexp, enumtan, enumasin,
 		   enumacos, enumatan,
 		   enum_libm_function_name_size};
 
-myLibMathFunction1 functionNameTab[enum_libm_function_name_size]={myLibMathFunction1("cos"),
-								  myLibMathFunction1("sin"),
-								  myLibMathFunction1("erf"),
-								  myLibMathFunction1("sqrt"),
-								  myLibMathFunction1("log"),
-								  myLibMathFunction1("exp"),
-								  myLibMathFunction1("tan"),
-								  myLibMathFunction1("asin"),
-								  myLibMathFunction1("acos"),
-								  myLibMathFunction1("atan")};
+myLibMathFunction1 function1NameTab[enum_libm_function_name_size]={myLibMathFunction1("cos"),
+								   myLibMathFunction1("sin"),
+								   myLibMathFunction1("erf"),
+								   myLibMathFunction1("sqrt"),
+								   myLibMathFunction1("log"),
+								   myLibMathFunction1("exp"),
+								   myLibMathFunction1("tan"),
+								   myLibMathFunction1("asin"),
+								   myLibMathFunction1("acos"),
+								   myLibMathFunction1("atan")};
 
 unsigned int libMathCounter[enum_libm_function_name_size][3][2];
 void initLibMathCounter(){
@@ -136,7 +136,7 @@ void printCounter(){
     std::cerr<<  "---------------------------------------------------"<<std::endl;
 
     std::cerr << "=="<<my_pid<<"== ";
-    std::cerr<< functionNameTab[i].name();
+    std::cerr<< function1NameTab[i].name();
     int total=0;
     int totalInst=0;
     for(int j=0;j<3;j++){
@@ -163,31 +163,25 @@ void printCounter(){
 }
 
 
-template<int  MATHFUNCTIONINDEX, typename REALTYPE>
+template<class LIBMQ, typename REALTYPE >
 class libMathFunction{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
   
-
 #ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "libmath ?";}
 #endif
 
-  static inline RealType nativeOp (const PackArgs& p) {
-    const RealType & a(p.arg1);
-    return functionNameTab[MATHFUNCTIONINDEX].apply(a);
-  };
-
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
-    __float128 ref=functionNameTab[MATHFUNCTIONINDEX].apply((__float128)a);
+    __float128 ref=LIBMQ::apply((__float128)a);
     return (RealType)ref;
   };
 
-  static inline RealType error (const PackArgs& p, const RealType& z) {
+  static inline RealType error (const PackArgs& p, const RealType& z) {\
     const RealType & a(p.arg1);
-    __float128 ref=functionNameTab[MATHFUNCTIONINDEX].apply((__float128)a);
+    __float128 ref=LIBMQ::apply((__float128)a);
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -215,30 +209,43 @@ public:
 //   return x;
 // }
 
-extern "C"{
 
-#define DEFINE_INTERP_LIBM_C_IMPL(FCT)\
-  double FCT (double a){\
-    incCounter<double, enum##FCT ,0>();\
-    typedef OpWithSelectedRoundingMode<libMathFunction<enum##FCT,double>,double > Op;\
-    double res;\
-    Op::apply(Op::PackArgs(a) ,&res,NULL);\
-    return res;\
-  }\
-  \
-  float FCT##f (float a){\
-    incCounter<float, enum##FCT,0>();\
-    typedef OpWithSelectedRoundingMode<libMathFunction<enum##FCT,float>,float > Op;\
-    float res;\
-    Op::apply(Op::PackArgs(a) ,&res,NULL);\
-    return res;\
-  }\
-  \
-  long double FCT##l (long double a){\
-    incCounter<long double, enum##FCT,1>();\
-    typedef libMathFunction<enum##FCT,long double> lm;\
-    return lm::nativeOp(a) ;			      \
-  }
+#define DEFINE_INTERP_LIBM_C_IMPL(FCT)					\
+  struct libmq##FCT{							\
+    static __float128 apply(__float128 a){return FCT##q(a);}		\
+  };									\
+  extern "C"{								\
+  double FCT (double a){						\
+    if(ROUNDINGMODE==VR_NATIVE){					\
+      incCounter<double, enum##FCT ,1>();				\
+      return function1NameTab[enum##FCT].apply(a);			\
+    }else{								\
+      incCounter<double, enum##FCT ,0>();				\
+      typedef OpWithSelectedRoundingMode<libMathFunction<libmq##FCT,double>,double > Op; \
+      double res;							\
+      Op::apply(Op::PackArgs(a) ,&res,NULL);				\
+      return res;							\
+    }									\
+  }									\
+									\
+  float FCT##f (float a){						\
+    if(ROUNDINGMODE==VR_NATIVE){					\
+      incCounter<float, enum##FCT ,1>();				\
+      return function1NameTab[enum##FCT].apply(a);			\
+    }else{								\
+      incCounter<float, enum##FCT,0>();					\
+      typedef OpWithSelectedRoundingMode<libMathFunction<libmq##FCT,float>,float > Op; \
+      float res;							\
+      Op::apply(Op::PackArgs(a) ,&res,NULL);				\
+      return res;							\
+    }									\
+  }									\
+  									\
+  long double FCT##l (long double a){					\
+    incCounter<long double, enum##FCT,1>();				\
+    return function1NameTab[enum##FCT].apply(a);			\
+  }									\
+};
 
   DEFINE_INTERP_LIBM_C_IMPL(cos);
   DEFINE_INTERP_LIBM_C_IMPL(sin);
@@ -253,7 +260,7 @@ extern "C"{
 
 #undef DEFINE_INTERP_LIBM_C_IMPL
 
-};
+
 
 void __attribute__((constructor)) init_interlibmath(){
   struct timeval now;
