@@ -109,25 +109,88 @@ private:
 
 
 
-enum Function1Name {enumcos, enumsin, enumerf, enumsqrt,
-		    enumlog, enumexp, enumtan, enumasin,
-		    enumacos, enumatan,
-		    enum_libm_function1_name_size};
+//shell LIST1="acos acosh asin asinh atan atanh cbrt erf exp exp2 expm1 log log10 log1p log2 tgamma lgamma sin sinh cos cosh sqrt tan tanh j0 j1 y0 y1"
+enum Function1Name {
+  //shell comand to generate:  for i in $LIST1 ; do  echo "enum$i,"; done;
+  enumacos,
+  enumacosh,
+  enumasin,
+  enumasinh,
+  enumatan,
+  enumatanh,
+  enumcbrt,
+  enumerf,
+  enumexp,
+  enumexp2,
+  enumexpm1,
+  enumlog,
+  enumlog10,
+  enumlog1p,
+  enumlog2,
+  enumtgamma,
+  enumlgamma,
+  enumsin,
+  enumsinh,
+  enumcos,
+  enumcosh,
+  enumsqrt,
+  enumtan,
+  enumtanh,
+  enumj0,
+  enumj1,
+  enumy0,
+  enumy1,
+  //fin shell
+  enum_libm_function1_name_size};
 
-myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={myLibMathFunction1("cos"),
-								    myLibMathFunction1("sin"),
-								    myLibMathFunction1("erf"),
-								    myLibMathFunction1("sqrt"),
-								    myLibMathFunction1("log"),
-								    myLibMathFunction1("exp"),
-								    myLibMathFunction1("tan"),
-								    myLibMathFunction1("asin"),
-								    myLibMathFunction1("acos"),
-								    myLibMathFunction1("atan")};
-enum Function2Name {enumatan2,
-		    enum_libm_function2_name_size};
+myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={
+  //shell command to generate  for i in $LIST1 ; do  echo "myLibMathFunction1(\"$i\"),"; done;
+  myLibMathFunction1("acos"),
+  myLibMathFunction1("acosh"),
+  myLibMathFunction1("asin"),
+  myLibMathFunction1("asinh"),
+  myLibMathFunction1("atan"),
+  myLibMathFunction1("atanh"),
+  myLibMathFunction1("cbrt"),
+  myLibMathFunction1("erf"),
+  myLibMathFunction1("exp"),
+  myLibMathFunction1("exp2"),
+  myLibMathFunction1("expm1"),
+  myLibMathFunction1("log"),
+  myLibMathFunction1("log10"),
+  myLibMathFunction1("log1p"),
+  myLibMathFunction1("log2"),
+  myLibMathFunction1("tgamma"),
+  myLibMathFunction1("lgamma"),
+  myLibMathFunction1("sin"),
+  myLibMathFunction1("sinh"),
+  myLibMathFunction1("cos"),
+  myLibMathFunction1("cosh"),
+  myLibMathFunction1("sqrt"),
+  myLibMathFunction1("tan"),
+  myLibMathFunction1("tanh"),
+  myLibMathFunction1("j0"),
+  myLibMathFunction1("j1"),
+  myLibMathFunction1("y0"),
+  myLibMathFunction1("y1"),
+};
+enum Function2Name {
+  enumatan2,
+  enumfmod,
+  enumhypot,
+  enumpow,
+  enumfdim,
+  enumremainder,
+  enum_libm_function2_name_size};
 
-myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={myLibMathFunction2("atan2")};
+myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
+  myLibMathFunction2("atan2"),
+  myLibMathFunction2("fmod"),
+  myLibMathFunction2("hypot"),
+  myLibMathFunction2("pow"),
+  myLibMathFunction2("fdim"),
+  myLibMathFunction2("remainder"),
+};
 
 
 
@@ -194,7 +257,7 @@ void printCounter(){
   for(int nbParam=1; nbParam <=2; nbParam++){
     int paramSize= (int)enum_libm_function1_name_size;
     if(nbParam==2){
-      paramSize=enum_libm_function1_name_size;
+      paramSize=(int)enum_libm_function2_name_size;
     }
 
     for(int i=0; i< paramSize;i++){
@@ -392,21 +455,46 @@ public:
     long double FCT##l (long double a, long double b){				\
     incCounter2<long double, enum##FCT,1>();				\
     return function2NameTab[enum##FCT].apply(a,b);			\
-  }									\
-};
+    }									\
+  };
 
-  DEFINE_INTERP_LIBM1_C_IMPL(cos);
-  DEFINE_INTERP_LIBM1_C_IMPL(sin);
-  DEFINE_INTERP_LIBM1_C_IMPL(erf);
-  DEFINE_INTERP_LIBM1_C_IMPL(sqrt);
-  DEFINE_INTERP_LIBM1_C_IMPL(log);
-  DEFINE_INTERP_LIBM1_C_IMPL(exp);
-  DEFINE_INTERP_LIBM1_C_IMPL(tan);
-  DEFINE_INTERP_LIBM1_C_IMPL(asin);
-  DEFINE_INTERP_LIBM1_C_IMPL(acos);
-  DEFINE_INTERP_LIBM1_C_IMPL(atan);
+//shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
+ DEFINE_INTERP_LIBM1_C_IMPL(acos);
+ DEFINE_INTERP_LIBM1_C_IMPL(acosh);
+ DEFINE_INTERP_LIBM1_C_IMPL(asin);
+ DEFINE_INTERP_LIBM1_C_IMPL(asinh);
+ DEFINE_INTERP_LIBM1_C_IMPL(atan);
+ DEFINE_INTERP_LIBM1_C_IMPL(atanh);
+ DEFINE_INTERP_LIBM1_C_IMPL(cbrt);
+ DEFINE_INTERP_LIBM1_C_IMPL(erf);
+ DEFINE_INTERP_LIBM1_C_IMPL(exp);
+// DEFINE_INTERP_LIBM1_C_IMPL(exp2);
+ DEFINE_INTERP_LIBM1_C_IMPL(expm1);
+ DEFINE_INTERP_LIBM1_C_IMPL(log);
+ DEFINE_INTERP_LIBM1_C_IMPL(log10);
+ DEFINE_INTERP_LIBM1_C_IMPL(log1p);
+ DEFINE_INTERP_LIBM1_C_IMPL(log2);
+ DEFINE_INTERP_LIBM1_C_IMPL(tgamma);
+ DEFINE_INTERP_LIBM1_C_IMPL(lgamma);
+ DEFINE_INTERP_LIBM1_C_IMPL(sin);
+ DEFINE_INTERP_LIBM1_C_IMPL(sinh);
+ DEFINE_INTERP_LIBM1_C_IMPL(cos);
+ DEFINE_INTERP_LIBM1_C_IMPL(cosh);
+ DEFINE_INTERP_LIBM1_C_IMPL(sqrt);
+ DEFINE_INTERP_LIBM1_C_IMPL(tan);
+ DEFINE_INTERP_LIBM1_C_IMPL(tanh);
+ DEFINE_INTERP_LIBM1_C_IMPL(j0);
+ DEFINE_INTERP_LIBM1_C_IMPL(j1);
+ DEFINE_INTERP_LIBM1_C_IMPL(y0);
+ DEFINE_INTERP_LIBM1_C_IMPL(y1);
 
-  DEFINE_INTERP_LIBM2_C_IMPL(atan2);
+
+DEFINE_INTERP_LIBM2_C_IMPL(atan2);
+DEFINE_INTERP_LIBM2_C_IMPL(fmod);
+DEFINE_INTERP_LIBM2_C_IMPL(hypot);
+DEFINE_INTERP_LIBM2_C_IMPL(pow);
+DEFINE_INTERP_LIBM2_C_IMPL(fdim);
+DEFINE_INTERP_LIBM2_C_IMPL(remainder);
 
 #undef DEFINE_INTERP_LIBM1_C_IMPL
 #undef DEFINE_INTERP_LIBM2_C_IMPL
