@@ -32,6 +32,5 @@ int main(int argc, char** argv){
     std::cout << "diff sqrtl: " <<  sqrtl(al) -sqrtl(al) << std::endl;
   }
 
-  
-  
+  std::cout << "atan2: "<<atan2(a,a+0.1)<<std::endl;
 };
