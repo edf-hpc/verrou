@@ -28,7 +28,9 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
-	backend_verrou/interflop_verrou.cxx
+	backend_verrou/interflop_verrou.cxx\
+	backend_mcaquad/interflop_mcaquad.cxx\
+	backend_mcaquad/common/tinymt64.c
 
 VERROU_FLAG_CXX = $(subst \
 	-Wmissing-prototypes,,$(subst \

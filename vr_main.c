@@ -33,8 +33,15 @@
 //#pragma STDC FENV_ACCESS ON
 
 Vr_State vr;
-struct interflop_backend_interface_t backend;
-void* backend_context;
+
+struct interflop_backend_interface_t backend_verrou;
+void* backend_verrou_context;
+
+struct interflop_backend_interface_t backend_mcaquad;
+void* backend_mcaquad_context;
+
+
+
 VgFile * vr_outCancellationFile;
 extern int CHECK_C;
 // * Floating-point operations counter
@@ -272,8 +279,9 @@ void vr_ppOpCount (void) {
 // ** Overloaded operators
 
 
+#define CONTEXT backend_verrou_context
 #include "vr_interp_operator_impl.h"
-
+#undef CONTEXT
 
 
 
@@ -1194,7 +1202,9 @@ static void vr_fini(Int exitcode)
 
 
   vr_ppOpCount ();
-  interflop_verrou_finalyze(backend_context);
+  interflop_verrou_finalyze(backend_verrou_context);
+  interflop_mcaquad_finalyze(backend_mcaquad_context);
+
 
   if (vr.genExclude) {
     vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
@@ -1250,15 +1260,15 @@ static void vr_post_clo_init(void)
 
 
    //Verrou Backend Initilisation
-   backend=interflop_verrou_init(&backend_context);
+   backend_verrou=interflop_verrou_init(&backend_verrou_context);
    verrou_set_panic_handler(&VG_(tool_panic));
    verrou_set_nan_handler(&vr_handle_NaN);
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
-   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name(), interflop_verrou_get_backend_version()  );
+   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version()  );
 
-   interflop_verrou_configure(vr.roundingMode,backend_context);
-   
+   interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
+
    //Random Seed initialisation
    if(( (vr.roundingMode== VR_RANDOM) || (vr.roundingMode== VR_AVERAGE))){
      if(vr.firstSeed==(unsigned int )(-1)){
@@ -1280,6 +1290,22 @@ static void vr_post_clo_init(void)
      verrou_set_cancellation_handler(&vr_cancellation_handler);
    }
 
+   /*configuration of MCA backend*/
+   backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
+   mcaquad_set_panic_handler(&VG_(tool_panic));
+
+   VG_(umsg)("Backend %s : %s\n", interflop_mcaquad_get_backend_name(), interflop_mcaquad_get_backend_version()  );
+
+
+   mcaquad_conf_t mca_quad_conf;
+   mca_quad_conf.precision_float=32;
+   mca_quad_conf.precision_double=53;
+   mca_quad_conf.precision_double=20;
+   mca_quad_conf.mode=MCAMODE_MCA;
+  //MCAMODE_PB;
+  //MCAMODE_RR;
+   interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
+   mcaquad_set_seed(vr.firstSeed);
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

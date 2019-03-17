@@ -56,6 +56,8 @@
 #include "verrou.h"
 #include "backend_verrou/interflop_verrou.h"
 
+#include "backend_mcaquad/interflop_mcaquad.h"
+
 
 // * Type declarations
 

@@ -65,7 +65,7 @@ static VG_REGPARM(3) Long vr_MAdd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-  interflop_verrou_madd_double(*arg1, *arg2, *arg3, &res, backend_context);
+  interflop_verrou_madd_double(*arg1, *arg2, *arg3, &res, CONTEXT);
 #else
   double res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -80,7 +80,7 @@ static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-  interflop_verrou_madd_float(*arg1, *arg2, *arg3, &res,backend_context);
+  interflop_verrou_madd_float(*arg1, *arg2, *arg3, &res, CONTEXT);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -93,7 +93,7 @@ static VG_REGPARM(3) Int vr_MAdd32F (Long a, Long b, Long c) {
 static VG_REGPARM(3) Int vr_Cast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-  interflop_verrou_cast_double_to_float(*arg1, &res,backend_context);
+  interflop_verrou_cast_double_to_float(*arg1, &res,CONTEXT);
   Int *d = (Int*)(&res);
   return *d;
 }
@@ -107,7 +107,7 @@ static VG_REGPARM(3) Long vr_MSub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-  (*backend.interflop_madd_double) (*arg1, *arg2, -*arg3,&res, backend_context);
+  interflop_verrou_madd_double(*arg1, *arg2, -*arg3,&res, CONTEXT);
 #else
   double res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -122,7 +122,7 @@ static VG_REGPARM(3) Int vr_MSub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-  (*backend.interflop_madd_float) (*arg1, *arg2, -*arg3, &res, backend_context);
+  interflop_verrou_madd_float(*arg1, *arg2, -*arg3, &res, CONTEXT);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
