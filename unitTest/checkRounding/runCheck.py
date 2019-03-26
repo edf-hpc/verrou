@@ -99,7 +99,7 @@ def verrouCerrFilter(res):
     newRes=[]
     for line in res:
         newLine=line.replace(pidStr, "")
-        if newLine.startswith(" Backend verrou : simulating ") and newLine.endswith(" rounding mode"):
+        if newLine.startswith(" Backend verrou simulating ") and newLine.endswith(" rounding mode"):
             continue
         if newLine.startswith(" First seed : "):
             continue
