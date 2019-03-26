@@ -65,7 +65,7 @@ void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op) {
   VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
 
   HChar string[10];
-  VG_(snprintf)(string, 10, "%d", op);
+  VG_(snprintf)(string, 10, "%u", op);
 
   Vr_Error extra;
   extra.instr.op = op;

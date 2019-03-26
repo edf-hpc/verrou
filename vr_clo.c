@@ -44,6 +44,7 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
 }
 
 void vr_clo_defaults (void) {
+  vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
   vr.count = True;
   vr.instr_scalar = False;
@@ -64,15 +65,22 @@ void vr_clo_defaults (void) {
   }
 
   vr.firstSeed=(unsigned int)(-1);
-  
+  vr.mca_precision=53;
+  vr.mca_mode=MCAMODE_MCA;
+
 }
 
 Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
   const HChar * str;
+  //Option --backend=
+  if      (VG_XACT_CLO (arg, "--backend=verrou",
+                        vr.backend, vr_verrou)) {}
+  else if (VG_XACT_CLO (arg, "--backend=mcaquad",
+                        vr.backend, vr_mcaquad)) {}
 
   //Option --rounding-mode=
-  if      (VG_XACT_CLO (arg, "--rounding-mode=random",
+  else if (VG_XACT_CLO (arg, "--rounding-mode=random",
                         vr.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=average",
                         vr.roundingMode, VR_AVERAGE)) {}
@@ -90,6 +98,18 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.roundingMode, VR_FLOAT)) {}
   else if (VG_XACT_CLO (arg, "--rounding-mode=native",
                         vr.roundingMode, VR_NATIVE)) {}
+
+  //Option mcaquad
+  else if (VG_INT_CLO(arg, "--mca-precision",
+                      vr.mca_precision)){}
+  else if (VG_XACT_CLO (arg, "--mca-mode=rr",
+                        vr.mca_mode, MCAMODE_RR)) {}
+  else if (VG_XACT_CLO (arg, "--mca-mode=pb",
+                        vr.mca_mode, MCAMODE_PB)) {}
+  else if (VG_XACT_CLO (arg, "--mca-mode=mca",
+                        vr.mca_mode, MCAMODE_MCA)) {}
+  else if (VG_XACT_CLO (arg, "--mca-mode=ieee",
+                        vr.mca_mode, MCAMODE_IEEE)) {}
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",

@@ -59,6 +59,8 @@
 #include "backend_mcaquad/interflop_mcaquad.h"
 
 
+typedef enum vr_backend_name{vr_verrou,vr_mcaquad} vr_backend_name_t;
+
 // * Type declarations
 
 typedef enum {
@@ -98,6 +100,7 @@ struct Vr_IncludeSource_ {
 };
 
 typedef struct {
+  vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
   Bool count;
   Bool instr_op[VR_OP];
@@ -107,7 +110,7 @@ typedef struct {
   Bool unsafe_llo_optim;
 
   UInt firstSeed;
-  
+
   Bool genExclude;
   HChar * excludeFile;
   //  HChar * genAbove;
@@ -118,6 +121,9 @@ typedef struct {
   HChar* includeSourceFile;
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
+
+  UInt mca_precision;
+  UInt mca_mode;
 } Vr_State;
 
 extern Vr_State vr;

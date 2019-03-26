@@ -1,40 +1,10 @@
 
 
-
-#ifdef ADDINTERP
-#define FCTNAME(TYPEVAL,OPTION) vr_Add##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (interflop_verrou_add_##TYPEC)
-#endif
-#undef ADDINTERP
-
-#ifdef SUBINTERP
-#define FCTNAME(TYPEVAL,OPTION) vr_Sub##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (interflop_verrou_sub_##TYPEC)
-#endif
-#undef SUBINTERP
-
-#ifdef MULINTERP
-#define FCTNAME(TYPEVAL,OPTION) vr_Mul##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (interflop_verrou_mul_##TYPEC)
-#endif
-#undef MULINTERP
-
-
-#ifdef DIVINTERP
-#define FCTNAME(TYPEVAL,OPTION) vr_Div##TYPEVAL##OPTION
-#define BACKENDFUNC(TYPEC) (interflop_verrou_div_##TYPEC)
-#endif
-#undef DIVINTERP
-
-
-
-
-
 static VG_REGPARM(2) Long FCTNAME(64F,) (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-  (BACKENDFUNC(double))(*arg1, *arg2, &res, CONTEXT);
+  BACKENDFUNC(double)(*arg1, *arg2, &res, CONTEXT);
   Long *c = (Long*)(&res);
   return *c;
 }
@@ -43,17 +13,17 @@ static VG_REGPARM(3) void FCTNAME(64Fx2,)(/*OUT*/V128* output, ULong aHi, ULong 
   double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
   double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
   double* res=(double*) output;
-  (BACKENDFUNC(double))(arg1[0], arg2[0], res, CONTEXT);
-  (BACKENDFUNC(double))(arg1[1], arg2[1], res+1, CONTEXT);
+  BACKENDFUNC(double)(arg1[0], arg2[0], res, CONTEXT);
+  BACKENDFUNC(double)(arg1[1], arg2[1], res+1, CONTEXT);
 }
 
 static VG_REGPARM(3) void FCTNAME(64Fx4,) (/*OUT*/V256* output,
-							 ULong b0, ULong b1, ULong b2,ULong b3) {
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
 
   double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-    (BACKENDFUNC(double)) (arg1CopyAvxDouble[i], arg2[i], res+i, CONTEXT);
+     BACKENDFUNC(double)(arg1CopyAvxDouble[i], arg2[i], res+i, CONTEXT);
   }
 }
 
@@ -61,7 +31,7 @@ static VG_REGPARM(2) Int FCTNAME(32F,) (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-  (BACKENDFUNC(float))(*arg1, *arg2, &res, CONTEXT);
+  BACKENDFUNC(float)(*arg1, *arg2, &res, CONTEXT);
   Int *c = (Int*)(&res);
   return *c;
 }
@@ -73,7 +43,7 @@ static VG_REGPARM(3) void FCTNAME(32Fx8,) (/*OUT*/V256* output,
   float* arg1=arg1CopyAvxFloat;
   float* arg2=(float*) &reg2;
   for(int i=0; i<8; i++){
-    (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, CONTEXT);
+     BACKENDFUNC(float)(arg1[i], arg2[i], res+i, CONTEXT);
   }
 }
 
@@ -86,10 +56,8 @@ static VG_REGPARM(3) void FCTNAME(32Fx4,) (/*OUT*/V128* output, ULong aHi, ULong
   float* arg2=(float*) &reg2;
 
   for(int i=0; i<4;i++){
-    (BACKENDFUNC(float))(arg1[i], arg2[i], res+i, CONTEXT);
+     BACKENDFUNC(float)(arg1[i], arg2[i], res+i, CONTEXT);
   }
 }
 
 
-#undef FCTNAME
-#undef BACKENDFUNC

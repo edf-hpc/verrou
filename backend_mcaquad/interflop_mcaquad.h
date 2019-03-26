@@ -50,6 +50,8 @@ extern "C" {
 #define MCAMODE_PB   2
 #define MCAMODE_RR   3
    /* Fin Reprise depuis vfcwrapper.h*/
+
+  const char*  mcaquad_mode_name (unsigned int mode);
    
   struct mcaquad_conf {
      unsigned int precision_float;

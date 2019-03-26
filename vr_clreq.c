@@ -86,7 +86,7 @@ static void vr_deterministic_section_name (unsigned int level,
                             NULL,
                             &linenum);
   VG_(snprintf)(name, len,
-                "%s (%s:%d)", fnname, filename, linenum);
+                "%s (%s:%u)", fnname, filename, linenum);
 }
 
 static unsigned int vr_deterministic_section_hash (HChar const*const name)
@@ -109,7 +109,7 @@ static void vr_start_deterministic_section (unsigned int level) {
   hash = vr_deterministic_section_hash (name);
   verrou_set_seed (hash);
 
-  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %u: %s\n",
                hash, name);
 }
 

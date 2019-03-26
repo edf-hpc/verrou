@@ -38,7 +38,19 @@
 //template <typename REAL>
 //void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
-
+const char*  mcaquad_mode_name (unsigned int mode) {
+  switch (mode) {
+  case  MCAMODE_IEEE:
+    return "IEEE";
+  case  MCAMODE_MCA:
+    return "MCA";
+  case MCAMODE_PB:
+    return "PB";
+  case MCAMODE_RR:
+    return "RR";
+  }
+  return "undefined";
+}
 
 // * Global variables & parameters
 mcaquad_conf_t mcaquad_conf;
