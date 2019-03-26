@@ -949,6 +949,14 @@ static void vr_post_clo_init(void)
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
 
+   //Random Seed initialisation   
+   if(vr.firstSeed==(unsigned int )(-1)){
+      struct vki_timeval now;
+      VG_(gettimeofday)(&now, NULL);
+      unsigned int pid = VG_(getpid)();
+      vr.firstSeed = now.tv_usec + pid;
+   }
+   VG_(umsg)("First seed : %u\n", vr.firstSeed);
 
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
@@ -959,18 +967,8 @@ static void vr_post_clo_init(void)
    VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version()  );
 
    interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
+   verrou_set_seed (vr.firstSeed);
 
-   //Random Seed initialisation
-   if(( (vr.roundingMode== VR_RANDOM) || (vr.roundingMode== VR_AVERAGE))){
-     if(vr.firstSeed==(unsigned int )(-1)){
-       struct vki_timeval now;
-       VG_(gettimeofday)(&now, NULL);
-       unsigned int pid = VG_(getpid)();
-       vr.firstSeed = now.tv_usec + pid;
-     }
-     VG_(umsg)("First seed : %u\n", vr.firstSeed);
-     verrou_set_seed (vr.firstSeed);
-   }
 
    /*Init outfile cancellation*/
    if (CHECK_C != 0) {
@@ -1022,10 +1020,10 @@ static void vr_post_clo_init(void)
    }
 
    if(vr.backend==vr_verrou){
-      VG_(umsg)("Backend verrou : simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
+      VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
    }
    if(vr.backend==vr_mcaquad){
-      VG_(umsg)("Backend mcaquad : simulating mode %s, with precision %u\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision);
+      VG_(umsg)("Backend mcaquad simulating mode %s with precision %u\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision);
    }
 }
 

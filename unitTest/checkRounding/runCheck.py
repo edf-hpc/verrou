@@ -99,7 +99,7 @@ def verrouCerrFilter(res):
     newRes=[]
     for line in res:
         newLine=line.replace(pidStr, "")
-        if newLine.startswith(" Simulating ") and newLine.endswith(" rounding mode"):
+        if newLine.startswith(" Backend verrou : simulating ") and newLine.endswith(" rounding mode"):
             continue
         if newLine.startswith(" First seed : "):
             continue
@@ -156,6 +156,10 @@ def checkVerrouInvariant(allResult):
             continue
         (cout, cerr)=allResult[("valgrind", rounding)]
         if cerr!=ref:
+            for i in range(len(ref)):
+                if cerr[i]!=ref[i]:
+                    print("cerr:", cerr[i])
+                    print("ref:", ref[i])
             print("KO : incoherent number of operation ("+rounding+")")
             ko+=1
         else:
