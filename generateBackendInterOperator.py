@@ -72,7 +72,7 @@ if __name__=="__main__":
     
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, listOfBackend, listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1)
     
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
@@ -81,7 +81,7 @@ if __name__=="__main__":
 
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, listOfBackend, listOfOp3Args, 3)
+    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3)
 
     
     

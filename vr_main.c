@@ -797,7 +797,11 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
    }
    if(vr.backend==vr_mcaquad){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define IGNOREFMA
+#define IGNORECAST
 #include "vr_instrumentOp_impl.h"
+#undef IGNORECAST
+#undef IGNOREFMA
 #undef bcName
    }
    return False;

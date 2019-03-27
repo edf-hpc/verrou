@@ -110,18 +110,37 @@
 
 
     case Iop_MAddF32:
+#ifndef IGNOREFMA
        return vr_replaceFMA (sb, stmt, expr, bcName(madd32F), VR_OP_MADD, VR_PREC_FLT);
-
+#else
+       vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_SCAL,False);
+       addStmtToIRSB (sb, stmt);
+       break;
+#endif
     case Iop_MSubF32:
-       return vr_replaceFMA (sb, stmt, expr, bcName(msub32F), VR_OP_MSUB, VR_PREC_FLT);
-
+#ifndef IGNOREFMA
+          return vr_replaceFMA (sb, stmt, expr, bcName(msub32F), VR_OP_MSUB, VR_PREC_FLT);
+#else
+       vr_countOp (sb, VR_OP_MSUB, VR_PREC_FLT, VR_VEC_SCAL,False);
+       addStmtToIRSB (sb, stmt);
+       break;
+#endif
     case Iop_MAddF64:
-       return vr_replaceFMA (sb, stmt, expr, bcName(madd64F), VR_OP_MADD, VR_PREC_DBL);
-
+#ifndef IGNOREFMA
+          return vr_replaceFMA (sb, stmt, expr, bcName(madd64F), VR_OP_MADD, VR_PREC_DBL);
+#else
+       vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_SCAL,False);
+       addStmtToIRSB (sb, stmt);
+       break;
+#endif
     case Iop_MSubF64:
-       return vr_replaceFMA (sb, stmt, expr, bcName(msub64F), VR_OP_MSUB,  VR_PREC_DBL);
-
-
+#ifndef IGNOREFMA
+          return vr_replaceFMA (sb, stmt, expr, bcName(msub64F), VR_OP_MSUB,  VR_PREC_DBL);
+#else
+       vr_countOp (sb, VR_OP_MSUB, VR_PREC_DBL, VR_VEC_SCAL,False);
+       addStmtToIRSB (sb, stmt);
+       break;
+#endif
       //   Other FP operations
     case Iop_Add32Fx2:
       vr_countOp (sb, VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL2,False);
@@ -150,8 +169,13 @@
       break;
 
     case Iop_F64toF32:
-       return vr_replaceCast (sb, stmt, expr, bcName(cast64FTo32F), VR_OP_CONV,  VR_PREC_DBL_TO_FLT);
-      break;
+#ifndef IGNORECAST
+       return vr_replaceCast (sb, stmt, expr, bcName(cast64FTo32F), VR_OP_CONV, VR_PREC_DBL_TO_FLT);
+#else
+       vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_SCAL,False);
+       addStmtToIRSB (sb, stmt);
+#endif
+       break;
 
     case Iop_F64toI64S: /* IRRoundingMode(I32) x F64 -> signed I64 */
       vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_INT, VR_VEC_SCAL,False);

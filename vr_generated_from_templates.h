@@ -9,16 +9,6 @@ static VG_REGPARM(3) Int vr_verroucast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
-// generation of operation cast backend mcaquad 
-
-
-static VG_REGPARM(3) Int vr_mcaquadcast64FTo32F (Long a) {
-  double *arg1 = (double*)(&a);
-  float res;
-  interflop_mcaquad_cast_double_to_float(*arg1, &res,backend_mcaquad_context);
-  Int *d = (Int*)(&res);
-  return *d;
-}
 // generation of operation add backend verrou 
 
 
@@ -586,68 +576,6 @@ static VG_REGPARM(3) Int vr_verroumsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
-#else
-  float res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Int *d = (Int*)(&res);
-  return *d;
-}
-// generation of operation madd backend mcaquad 
-//FMA Operator
-static VG_REGPARM(3) Long vr_mcaquadmadd64F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double *arg3 = (double*)(&c);
-  double res;
-  interflop_mcaquad_madd_double(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
-#else
-  double res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Long *d = (Long*)(&res);
-  return *d;
-}
-
-static VG_REGPARM(3) Int vr_mcaquadmadd32F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float *arg3 = (float*)(&c);
-  float res;
-  interflop_mcaquad_madd_float(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
-#else
-  float res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Int *d = (Int*)(&res);
-  return *d;
-}
-// generation of operation msub backend mcaquad 
-//FMA Operator
-static VG_REGPARM(3) Long vr_mcaquadmsub64F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  double *arg1 = (double*)(&a);
-  double *arg2 = (double*)(&b);
-  double *arg3 = (double*)(&c);
-  double res;
-  interflop_mcaquad_madd_double(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
-#else
-  double res=0.;
-  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
-#endif
-  Long *d = (Long*)(&res);
-  return *d;
-}
-
-static VG_REGPARM(3) Int vr_mcaquadmsub32F (Long a, Long b, Long c) {
-#ifdef USE_VERROU_FMA
-  float *arg1 = (float*)(&a);
-  float *arg2 = (float*)(&b);
-  float *arg3 = (float*)(&c);
-  float res;
-  interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
