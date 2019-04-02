@@ -30,6 +30,7 @@
 #include "vr_main.h"
 #include "float.h"
 #include "pub_tool_libcfile.h"
+#include "coregrind/pub_core_transtab.h"
 //#pragma STDC FENV_ACCESS ON
 
 Vr_State vr;
@@ -400,7 +401,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -459,7 +460,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Vr_Prec prec,
 					    Vr_Vec vec){
   //instrumentation to count operation
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -511,7 +512,7 @@ static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
 					      Vr_Prec prec,
 					      Vr_Vec vec){
   //instrumentation to count operation
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -575,7 +576,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec) {
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -624,7 +625,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec) {
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -703,7 +704,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
 			   Vr_Op   Op,
 			   Vr_Prec Prec) {
-  if(!vr.instr_op[Op] ) {
+  if(!vr.instr_op[Op] || !vr.instrument) {
     vr_countOp (sb,  Op, Prec, VR_VEC_LLO,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -758,7 +759,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   Op,
 			    Vr_Prec Prec) {
-  if(!vr.instr_op[Op] ) {
+  if(!vr.instr_op[Op] || !vr.instrument ) {
     vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1020,7 +1021,7 @@ static void vr_post_clo_init(void)
 
    if(!vr.instrument){
      vr.instrument = True;
-     vr_set_instrument_state ("Program start", False);
+     vr_set_instrument_state ("Program start", False, False);
    }
 
    if(vr.backend==vr_verrou){
@@ -1030,6 +1031,7 @@ static void vr_post_clo_init(void)
       VG_(umsg)("Backend mcaquad simulating mode %s with precision %u\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision);
    }
 }
+
 
 static void vr_pre_clo_init(void)
 {
@@ -1047,6 +1049,7 @@ static void vr_pre_clo_init(void)
      = VG_(clo_px_file_backed)
      = VexRegUpdSpAtMemAccess; // overridable by the user.
 
+
    VG_(clo_vex_control).iropt_unroll_thresh = 0;   // cannot be overriden.
    VG_(clo_vex_control).guest_chase_thresh = 0;    // cannot be overriden.
 
@@ -1054,11 +1057,13 @@ static void vr_pre_clo_init(void)
                                  vr_instrument,
                                  vr_fini);
 
+
    VG_(needs_command_line_options)(vr_process_clo,
                                    vr_print_usage,
                                    vr_print_debug_usage);
 
    VG_(needs_client_requests)(vr_handle_client_request);
+
 
    VG_(needs_tool_errors)(vr_eq_Error,
                           vr_before_pp_Error,

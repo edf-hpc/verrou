@@ -33,6 +33,7 @@
 #include "vr_main.h"
 //#include "backend_verrou/vr_rand.h"
 #include "backend_verrou/interflop_verrou.h"
+#include "backend_mcaquad/interflop_mcaquad.h"
 
 void vr_env_clo (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
