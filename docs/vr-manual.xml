@@ -22,7 +22,7 @@
   <xi:include href="vr-localization.xml"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  
+
   <section id="vr-manual.advanced" xreflabel="Advanced features">
     <title>Advanced features</title>
 
@@ -229,6 +229,13 @@ det2
             </para></listitem>
           </varlistentry>
 
+	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
+            <term><option><![CDATA[--backend=<verrou|mcaquad> [default=verrou]]]></option></term>
+            <listitem><para>
+		Select the verrou or mcaquad backend. Verrou enables to perform several rounding mode (See --rounding-mode option). mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on extented precision in quad (See --mca-mode and --mca-precision options).
+            </para></listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
@@ -240,8 +247,8 @@ det2
             <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float> [default=nearest]]]></option></term>
             <listitem>
               <para>
-                Emulate the given <link
-                linkend="vr-manual.feat.rounding-mode">rounding mode</link>. If
+                Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
+		for operations instrumented with the verrou backend. If
                 this option is not provided, Verrou always rounds to the nearest
                 floating-point. Supported rounding modes are:
               </para>
@@ -262,6 +269,40 @@ det2
 		    <computeroutput>float</computeroutput>.
                 </para></listitem>
               </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
+            <term><option><![CDATA[--mca-mode=<mca|rr|pb|ieee> [default=mca]]]></option></term>
+            <listitem>
+              <para>
+                Emulate the given MCA mode for operations instrumented with the mcaquad backend. Supported mca modes are:
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>mca :</command> <computeroutput>full mca</computeroutput> (default)
+                </para></listitem>
+                <listitem><para>
+                  <command>rr :</command> <computeroutput> random rounding</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>pb :</command> <computeroutput> precision bounding</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>ieee :</command> <computeroutput> ieee (rounding to nearest)</computeroutput>
+                </para></listitem>
+              </itemizedlist>
+
+	      <para> The mcaquad backend implementation come from Verificarlo : <ulink url="https://github.com/verificarlo/verificarlo"> More information on Verificalo github </ulink>
+	      </para>
+            </listitem>
+          </varlistentry>
+	    <varlistentry id="vr-opt.mca-precion" xreflabel="--mca-precsion">
+            <term><option><![CDATA[--mca-precision= [default=53]]]></option></term>
+            <listitem>
+              <para>
+                Configure the magnitude of inexact function used by mcaquad backend.
+              </para>
             </listitem>
           </varlistentry>
 
