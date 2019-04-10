@@ -66,7 +66,8 @@ void vr_clo_defaults (void) {
   }
 
   vr.firstSeed=(unsigned int)(-1);
-  vr.mca_precision=53;
+  vr.mca_precision_double=53;
+  vr.mca_precision_double=24;
   vr.mca_mode=MCAMODE_MCA;
 
 }
@@ -101,8 +102,10 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.roundingMode, VR_NATIVE)) {}
 
   //Option mcaquad
-  else if (VG_INT_CLO(arg, "--mca-precision",
-                      vr.mca_precision)){}
+  else if (VG_INT_CLO(arg, "--mca-precision-double",
+                      vr.mca_precision_double)){}
+  else if (VG_INT_CLO(arg, "--mca-precision-float",
+                        vr.mca_precision_float)){}
   else if (VG_XACT_CLO (arg, "--mca-mode=rr",
                         vr.mca_mode, MCAMODE_RR)) {}
   else if (VG_XACT_CLO (arg, "--mca-mode=pb",

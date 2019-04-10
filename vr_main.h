@@ -122,7 +122,8 @@ typedef struct {
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
 
-  UInt mca_precision;
+  UInt mca_precision_double;
+  UInt mca_precision_float;
   UInt mca_mode;
 } Vr_State;
 

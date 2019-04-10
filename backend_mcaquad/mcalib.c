@@ -56,7 +56,8 @@
 #include "libmca-quad.h"
 
 static int MCALIB_OP_TYPE = MCAMODE_IEEE;
-static int MCALIB_T = 53;
+static int MCALIB_DOUBLE_T = 53;
+static int MCALIB_FLOAT_T = 24;
 
 // possible op values
 #define MCA_ADD 1
@@ -83,8 +84,9 @@ static int _set_mca_mode(int mode) {
   return 0;
 }
 
-static int _set_mca_precision(int precision) {
-  MCALIB_T = precision;
+static int _set_mca_precision(int precision_double, int precision_float) {
+  MCALIB_DOUBLE_T = precision_double;
+  MCALIB_FLOAT_T = precision_float;
   return 0;
 }
 
@@ -232,8 +234,8 @@ static bool _is_representableq(__float128 *qa) {
   GET_FLT128_WORDS64(hx, lx, *qa);
 
   /* compute representable bits in hx and lx */
-  char bits_in_hx = min((MCALIB_T - 1), QUAD_HX_PMAN_SIZE);
-  char bits_in_lx = (MCALIB_T - 1) - bits_in_hx;
+  char bits_in_hx = min((MCALIB_DOUBLE_T - 1), QUAD_HX_PMAN_SIZE);
+  char bits_in_lx = (MCALIB_DOUBLE_T - 1) - bits_in_hx;
 
   /* check bits in lx */
   /* here we know that bits_in_lx < 64 */
@@ -254,7 +256,7 @@ static bool _is_representabled(double *da) {
    * in the current virtual precision */
   uint64_t p_mantissa = (*((uint64_t *)da)) & DOUBLE_GET_PMAN;
   /* here we know that (MCALIB_T-1) < 53 */
-  return ((p_mantissa << (MCALIB_T - 1)) == 0);
+  return ((p_mantissa << (MCALIB_FLOAT_T - 1)) == 0);
 }
 
 static void _mca_inexactq(__float128 *qa) {
@@ -270,7 +272,7 @@ static void _mca_inexactq(__float128 *qa) {
 
   int32_t e_a = 0;
   e_a = rexpq(*qa);
-  int32_t e_n = e_a - (MCALIB_T - 1);
+  int32_t e_n = e_a - (MCALIB_DOUBLE_T - 1);
   __float128 noise = qnoise(e_n);
   *qa = noise + *qa;
 }
@@ -288,7 +290,7 @@ static void _mca_inexactd(double *da) {
 
   int32_t e_a = 0;
   e_a = rexpd(*da);
-  int32_t e_n = e_a - (MCALIB_T - 1);
+  int32_t e_n = e_a - (MCALIB_FLOAT_T - 1);
   double d_rand = (_mca_rand() - 0.5);
   *da = *da + pow2d(e_n) * d_rand;
 }

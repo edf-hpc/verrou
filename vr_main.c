@@ -991,8 +991,8 @@ static void vr_post_clo_init(void)
 
 
    mcaquad_conf_t mca_quad_conf;
-   mca_quad_conf.precision_float=vr.mca_precision;
-   mca_quad_conf.precision_double=vr.mca_precision;
+   mca_quad_conf.precision_float=vr.mca_precision_float;
+   mca_quad_conf.precision_double=vr.mca_precision_double;
    mca_quad_conf.mode=vr.mca_mode;
    interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
    mcaquad_set_seed(vr.firstSeed);
@@ -1028,7 +1028,7 @@ static void vr_post_clo_init(void)
       VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
    }
    if(vr.backend==vr_mcaquad){
-      VG_(umsg)("Backend mcaquad simulating mode %s with precision %u\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision);
+      VG_(umsg)("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
    }
 }
 
