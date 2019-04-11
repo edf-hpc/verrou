@@ -136,9 +136,9 @@ void IFMQ_FCTNAME(div_float) (float a, float b, float* res,void* context) {
   *res=_mca_sbin(a, b, MCA_DIV);
 }
 
-// void IFMQ_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
-//   *res=(float)a;
-// }
+void IFMQ_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
+   *res=_mca_dtosbin(a);
+}
 
 // void IFMQ_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
 //   *res=a*b+c;
@@ -164,7 +164,7 @@ struct interflop_backend_interface_t IFMQ_FCTNAME(init)(void ** context){
   config.interflop_mul_double = & IFMQ_FCTNAME(mul_double);
   config.interflop_div_double = & IFMQ_FCTNAME(div_double);
 
-  config.interflop_cast_double_to_float= NULL; //& IFMQ_FCTNAME(cast_double_to_float);
+  config.interflop_cast_double_to_float= & IFMQ_FCTNAME(cast_double_to_float);
 
   config.interflop_madd_float = NULL; //& IFMQ_FCTNAME(madd_float);
   config.interflop_madd_double = NULL; //& IFMQ_FCTNAME(madd_double);

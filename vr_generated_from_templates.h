@@ -9,6 +9,16 @@ static VG_REGPARM(3) Int vr_verroucast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+// generation of operation cast backend mcaquad 
+
+
+static VG_REGPARM(3) Int vr_mcaquadcast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_mcaquad_cast_double_to_float(*arg1, &res,backend_mcaquad_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation add backend verrou 
 
 

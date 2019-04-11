@@ -67,7 +67,7 @@ void vr_clo_defaults (void) {
 
   vr.firstSeed=(unsigned int)(-1);
   vr.mca_precision_double=53;
-  vr.mca_precision_double=24;
+  vr.mca_precision_float=24;
   vr.mca_mode=MCAMODE_MCA;
 
 }

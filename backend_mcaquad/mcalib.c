@@ -383,6 +383,28 @@ static inline double _mca_dbin(double a, double b, const int qop) {
   return NEAREST_DOUBLE(res);
 }
 
+static inline float _mca_dtosbin(double a){
+
+   float resf;
+   if (MCALIB_OP_TYPE != MCAMODE_RR) {
+      __float128 qa = (__float128)a;
+      _mca_inexactq(&qa);
+      resf=NEAREST_FLOAT(qa);
+   }else{
+      resf=(float)a;
+   }
+
+   if (MCALIB_OP_TYPE != MCAMODE_PB) {
+      double resd;
+      resd=(double)resf;
+      _mca_inexactd(&resd);
+      return NEAREST_FLOAT(resd);
+   }else{
+      return resf;
+   }
+}
+
+
 /************************* FPHOOKS FUNCTIONS *************************
 * These functions correspond to those inserted into the source code
 * during source to source compilation and are replacement to floating
