@@ -52,6 +52,7 @@
 
 #include "./common/mca_const.h"
 #include "./common/quadmath-imp.h"
+#include "./common/fmaqApprox.h"
 #include "./common/tinymt64.h"
 //#include "../vfcwrapper/vfcwrapper.h"
   //#include "interflop_mcaquad.h"
@@ -158,7 +159,7 @@ static inline uint32_t rexpd(double x) {
   return exp;
 }
 
-__float128 qnoise(int exp) {
+static inline __float128 qnoise(int exp) {
   double d_rand = (_mca_rand() - 0.5);
   uint64_t u_rand = *((uint64_t *)&d_rand);
   __float128 noise;
@@ -402,6 +403,48 @@ static inline float _mca_dtosbin(double a){
    }else{
       return resf;
    }
+}
+
+static inline double _mca_dbin_fma(double a, double b, double c) {
+  __float128 qa = (__float128)a;
+  __float128 qb = (__float128)b;
+  __float128 qc = (__float128)c;
+  __float128 res = 0;
+
+  if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    _mca_inexactq(&qa);
+    _mca_inexactq(&qb);
+    _mca_inexactq(&qc);
+  }
+
+  res=fmaqApprox(a,b,c);
+
+  if (MCALIB_OP_TYPE != MCAMODE_PB) {
+    _mca_inexactq(&res);
+  }
+
+  return NEAREST_DOUBLE(res);
+}
+
+static inline double _mca_sbin_fma(double a, double b, double c) {
+   double da = (double)a;
+   double db = (double)b;
+   double dc = (double)b;
+   double res = 0;
+
+  if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    _mca_inexactd(&da);
+    _mca_inexactd(&db);
+    _mca_inexactd(&dc);
+  }
+
+  res=fmaApprox(a,b,c);
+
+  if (MCALIB_OP_TYPE != MCAMODE_PB) {
+    _mca_inexactd(&res);
+  }
+
+  return ((float)res);
 }
 
 

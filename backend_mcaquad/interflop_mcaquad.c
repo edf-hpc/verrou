@@ -54,17 +54,10 @@ mcaquad_conf_t mcaquad_conf;
 unsigned int mcaquad_seed;
 
 void (*mcaquad_panicHandler)(const char*)=NULL;
-void (*mcaquad_nanHandler)()=NULL;
-
 
 void mcaquad_set_panic_handler(void (*panicHandler)(const char*)){
   mcaquad_panicHandler=panicHandler;
 }
-
-void mcaquad_set_nan_handler(void (*nanHandler)()){
-  mcaquad_nanHandler=nanHandler;
-}
-
 
 void (*mcaquad_debug_print_op)(int,const char*, const double*, const double*)=NULL;
 void mcaquad_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res)){
@@ -140,13 +133,13 @@ void IFMQ_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
    *res=_mca_dtosbin(a);
 }
 
-// void IFMQ_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-//   *res=a*b+c;
-// }
+ void IFMQ_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
+    *res=_mca_dbin_fma(a,b,c);
+ }
 
-// void IFMQ_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-//   *res=a*b+c;
-// }
+void IFMQ_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
+   *res=_mca_sbin_fma(a,b,c);
+ }
 
 
 
@@ -166,8 +159,8 @@ struct interflop_backend_interface_t IFMQ_FCTNAME(init)(void ** context){
 
   config.interflop_cast_double_to_float= & IFMQ_FCTNAME(cast_double_to_float);
 
-  config.interflop_madd_float = NULL; //& IFMQ_FCTNAME(madd_float);
-  config.interflop_madd_double = NULL; //& IFMQ_FCTNAME(madd_double);
+  config.interflop_madd_float = & IFMQ_FCTNAME(madd_float);
+  config.interflop_madd_double = & IFMQ_FCTNAME(madd_double);
 
   return config;
 }
