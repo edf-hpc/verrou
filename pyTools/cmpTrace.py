@@ -2,13 +2,40 @@
 import re
 import sys
 from operator import itemgetter, attrgetter
+import gzip
+import os
+
+
+class openGz:
+    """ Class to read/write  gzip file or ascii file """
+    def __init__(self,name, mode="r", compress=None):
+        self.name=name
+        if os.path.exists(name+".gz") and compress==None:
+            self.name=name+".gz"
+
+        if (self.name[-3:]==".gz" and compress==None) or compress==True:
+            self.compress=True
+            self.handler=gzip.open(self.name, mode)
+        else:
+            self.compress=False
+            self.handler=open(self.name, mode)
+
+    def readline(self):
+        return self.handler.readline().decode("ascii")
+
+    def readlines(self):
+        if self.compress:
+            return [line.decode("ascii") for line in self.handler.readlines()]
+        else:
+            self.handler.readlines()
+
+    def write(self, line):
+        self.handler.write(line)
 
 
 class bbInfoReader:
-
     def __init__(self,fileName):
         self.read(fileName)
-
 
     def read(self,fileName):
 
@@ -16,7 +43,7 @@ class bbInfoReader:
         self.dataMax={}
         self.dataCorrupted={}
         regularExp=re.compile("([0-9]+) : (.*) : (\S*) : ([0-9]+)")
-        fileHandler=open(fileName)
+        fileHandler=openGz(fileName)
 
         line=fileHandler.readline()
         counter=0
@@ -38,6 +65,7 @@ class bbInfoReader:
                 self.dataCorrupted[addr]=False
             counter+=1
             line=fileHandler.readline()
+
 
     def compressMarks(self, lineMarkInfoTab):
         lineToTreat=lineMarkInfoTab
@@ -104,8 +132,8 @@ class bbInfoReader:
 class traceReader:
 
     def __init__(self,pid):
-        self.trace=open("trace_bb_trace.log-"+str(pid))
-        self.traceOut=open("trace_bb_trace.log-"+str(pid)+"-post","w")
+        self.trace=openGz("trace_bb_trace.log-"+str(pid))
+        self.traceOut=openGz("trace_bb_trace.log-"+str(pid)+"-post","w")
         self.bbInfo=bbInfoReader("trace_bb_info.log-"+str(pid))
 
     def readLine(self,comment=True):
@@ -199,17 +227,14 @@ class cmpTools:
             counter+=1
         return (None,counter)
 
+class covReader:
+    def __init__(self,pid, rep):
+        self.pid=pid
+        self.rep=rep
+        self.bbInfo=bbInfoReader(self.rep+"/trace_bb_info.log-"+str(pid))
+        self.covFile=openGz(self.rep+"/trace_bb_cov.log-"+str(pid))
 
-class cmpToolsCov:
-
-    def __init__(self, pid1, pid2):
-        self.pid1=pid1
-        self.pid2=pid2
-        self.bbInfo1=bbInfoReader("trace_bb_info.log-"+str(pid1))
-        self.bbInfo2=bbInfoReader("trace_bb_info.log-"+str(pid2))
-        self.cov1=open("trace_bb_cov.log-"+str(pid1))
-        self.cov2=open("trace_bb_cov.log-"+str(pid2))
-
+        self.cov=self.readCov(self.covFile, self.bbInfo)
 
     def readCov(self, cov, bbinfo):
         res=[]
@@ -233,40 +258,47 @@ class cmpToolsCov:
         return res
 
     def writePartialCover(self,filenamePrefix=""):
-        res1=self.readCov(self.cov1, self.bbInfo1)
-        res2=self.readCov(self.cov2, self.bbInfo2)
 
-        for num in range(min(len(res1),len(res2))):
-            resTab1=[value for key,value in res1[num].items() ]
-            resTab2=[value for key,value in res2[num].items() ]
+        for num in range(len(self.cov)):
+            resTab=[value for key,value in self.cov[num].items() ]
+            resTab.sort( key= itemgetter(2,3,0))
 
-            resTab1.sort( key= itemgetter(2,3,0))
-            resTab2.sort( key= itemgetter(2,3,0))
-            handler1=open(filenamePrefix+"cover"+str(num)+"-"+str(self.pid1),"w")
-            handler2=open(filenamePrefix+"cover"+str(num)+"-"+str(self.pid2),"w")
-            for (index,count,sym, strBB) in resTab1:
-                handler1.write("%s\t: %s\n"%(count,strBB))
-            for (index,count,sym, strBB) in resTab2:
-                handler2.write("%s\t: %s\n"%(count,strBB))
+            handler=openGz(self.rep+"/"+filenamePrefix+"cover"+str(num)+"-"+str(self.pid),"w")
+            for (index,count,sym, strBB) in resTab:
+                handler.write("%s\t: %s\n"%(count,strBB))
 
 
+class cmpToolsCov:
 
-def extractPid(fileName):
+    def __init__(self, tabPidRep):
+        self.tabPidRep=tabPidRep
+        self.covTab=[covReader(pid,rep)  for (pid,rep) in self.tabPidRep]
+
+    def writePartialCover(self, filenamePrefix=""):
+        for cov in self.covTab:
+            cov.writePartialCover(filenamePrefix)
+
+
+def extractPidRep(fileName):
+    rep=os.path.dirname(fileName)
+    if rep=="":
+        rep="."
+    baseFile=os.path.basename(fileName)
     begin="trace_bb_cov.log-"
-    if fileName.startswith(begin):
-        return int(fileName.replace(begin,''))
+    if baseFile.startswith(begin):
+        pid=int((baseFile.replace(begin,'')).replace(".gz",""))
+        return (pid,rep)
     return None
 
-def selectPidFromFile(fileName1, fileName2):
-    return (extractPid(fileName1),extractPid(fileName2))
+def selectPidFromFile(fileNameTab):
+    return [extractPidRep(fileName)  for fileName in fileNameTab]
 
 
 if __name__=="__main__":
 
-    if len(sys.argv)!=3:
-        print("Two args required")
+    if len(sys.argv)<2:
+        print("At least 1 argument required")
         sys.exit()
 
-    (pid1,pid2)=selectPidFromFile(sys.argv[1], sys.argv[2])
-    cmp=cmpToolsCov(pid1,pid2)
+    cmp=cmpToolsCov(selectPidFromFile(sys.argv[1:]))
     cmp.writePartialCover()
