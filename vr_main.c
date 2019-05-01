@@ -43,10 +43,13 @@ void* backend_verrou_context;
 struct interflop_backend_interface_t backend_mcaquad;
 void* backend_mcaquad_context;
 
+struct interflop_backend_interface_t backend_checkcancellation;
+void* backend_checkcancellation_context;
+
 
 
 VgFile * vr_outCancellationFile;
-extern int CHECK_C;
+
 // * Floating-point operations counter
 
 
@@ -791,20 +794,46 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc) {
-   if(vr.backend==vr_verrou){
+   if(vr.backend==vr_verrou && !vr.checkCancellation){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
+#undef bcNameWithCC
    }
-   if(vr.backend==vr_mcaquad){
+   if(vr.backend==vr_verrou && vr.checkCancellation){
+#define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+   }
+
+   if(vr.backend==vr_mcaquad && !vr.checkCancellation){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
-#define IGNOREFMA
-//#define IGNORECAST
+#define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #include "vr_instrumentOp_impl.h"
-//#undef IGNORECAST
-#undef IGNOREFMA
 #undef bcName
+#undef bcNameWithCC
    }
+   if(vr.backend==vr_mcaquad && vr.checkCancellation){
+#define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+   }
+
+/*Exemple for partial backend implementation*/
+/*    if(vr.backend==vr_mcaquad){ */
+/* #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP */
+/* //#define IGNOREFMA */
+/* //#define IGNORECAST */
+/* #include "vr_instrumentOp_impl.h" */
+/* //#undef IGNORECAST */
+/* //#undef IGNOREFMA */
+/* #undef bcName */
+/*    } */
    return False;
 }
 
@@ -892,14 +921,15 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 static void vr_fini(Int exitcode)
 {
 
-  if (CHECK_C != 0) {
-    VG_(fclose)(vr_outCancellationFile);
-  }
+  //if (vr.checkCancellation) {
+     //VG_(fclose)(vr_outCancellationFile);
+  //}
 
 
   vr_ppOpCount ();
   interflop_verrou_finalyze(backend_verrou_context);
   interflop_mcaquad_finalyze(backend_mcaquad_context);
+  interflop_checkcancellation_finalyze(backend_checkcancellation_context);
 
 
   if (vr.genExclude) {
@@ -918,9 +948,9 @@ static void vr_fini(Int exitcode)
   //  VG_(free)(vr.genAbove);
 }
 
-void vr_cancellation_handler(int cancelled ){
-  VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
-}
+//void vr_cancellation_handler(int cancelled ){
+//  VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
+//}
 
 static void print_op(int nbArg, const char* name, const double* args,const double* res){
   if(nbArg==1){
@@ -975,14 +1005,6 @@ static void vr_post_clo_init(void)
    verrou_set_seed (vr.firstSeed);
 
 
-   /*Init outfile cancellation*/
-   if (CHECK_C != 0) {
-     vr_outCancellationFile = VG_(fopen)("vr.log",
-					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
-					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-     verrou_set_cancellation_handler(&vr_cancellation_handler);
-   }
-
    /*configuration of MCA backend*/
    backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
    mcaquad_set_panic_handler(&VG_(tool_panic));
@@ -996,6 +1018,21 @@ static void vr_post_clo_init(void)
    mca_quad_conf.mode=vr.mca_mode;
    interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
    mcaquad_set_seed(vr.firstSeed);
+
+
+   /*Init outfile cancellation*/
+   backend_checkcancellation=interflop_checkcancellation_init(&backend_checkcancellation_context);
+   interflop_checkcancellation_configure(NULL,backend_checkcancellation_context);
+   if (vr.checkCancellation) {
+     vr_outCancellationFile = VG_(fopen)("vr.log",
+					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+     checkcancellation_set_cancellation_handler(&vr_handle_CC);
+
+     VG_(umsg)("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version()  );
+
+   }
+
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

@@ -51,6 +51,9 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "Scalar instruction";
   case VR_ERROR_NAN:
     return "NaN";
+  case VR_ERROR_CC:
+    return "Cancellation";
+
   default:
     return NULL;
   }
@@ -108,6 +111,10 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind) {
 void vr_handle_NaN () {
   vr_maybe_record_ErrorRt(VR_ERROR_NAN);
 }
+void vr_handle_CC (int unused) {
+  vr_maybe_record_ErrorRt(VR_ERROR_CC);
+}
+
 
 static void vr_pp_ErrorRt (const Error* err) {
   VG_(umsg)("%s: ", vr_get_error_name(err));
@@ -149,6 +156,9 @@ void vr_pp_Error (const Error* err) {
     break;
   case VR_ERROR_NAN:
     vr_pp_ErrorRt (err);
+    break;
+  case VR_ERROR_CC:
+     vr_pp_ErrorRt (err);
     break;
   }
 }

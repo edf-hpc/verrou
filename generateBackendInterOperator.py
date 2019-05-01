@@ -5,7 +5,7 @@ import re
 
 
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs):
+def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post=""):
 
     templateStr=open(fileNameTemplate, "r").readlines()
 
@@ -16,25 +16,34 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs):
     for backend in listOfBackend:
         for op in listOfOp:
             if nargs in [1,2]:
-                applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, backend,op)
+                applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, backend,op, post)
             if nargs==3:
                 sign=""
                 if "msub" in op:
                     sign="-"
-                applyTemplate(fileOut, templateStr,FctNameRegExp,BckNameRegExp, backend, op, sign)
+                applyTemplate(fileOut, templateStr,FctNameRegExp,BckNameRegExp, backend, op, post, sign)
 
 
 
-def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op ,sign=None):
-    fileOut.write("// generation of operation %s backend %s \n"%(op,backend))
+def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post, sign=None):
+    fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
     def fctName(typeVal,opt):
-        return "vr_"+backend+op+typeVal+opt
+        return "vr_"+backend+post+op+typeVal+opt
     def bckName(typeVal):
         if sign!="-":
             return "interflop_"+backend+"_"+op+"_"+typeVal
         else:
             return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal
+
+    def bckNamePost(typeVal):
+        if sign!="-":
+            return "interflop_"+post+"_"+op+"_"+typeVal
+        else:
+            return "interflop_"+post+"_"+op.replace("sub","add")+"_"+typeVal
+
+
     contextName="backend_"+backend+"_context"
+    contextNamePost="backend_"+post+"_context"
 
     for line in templateStr:
         if "CONTEXT" in line:
@@ -54,6 +63,10 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op ,sign=
         if result!=None:
             res=result.group(1) + bckName(result.group(2)) + result.group(3)
             fileOut.write(res+"\n")
+            if post!="":
+                res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
+                res=res.replace(contextName, contextNamePost)
+                fileOut.write(res+"\n")
             continue
 
         fileOut.write(line)
@@ -75,8 +88,13 @@ if __name__=="__main__":
     listOfOp2Args=["add","sub","mul","div"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2)
 
+    listOfOp2Args=["add","sub"]
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2, post="checkcancellation")
+
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3)
+
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3, post="checkcancellation")
 
     fileOut.close()

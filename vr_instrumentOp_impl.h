@@ -5,56 +5,56 @@
       // Addition
       // - Double precision
     case Iop_AddF64: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL);
+       return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL);
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO);
+       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO);
 
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2);
+       return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2);
 
     case Iop_AddF32: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_SCAL);
+       return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_SCAL);
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO);
+       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO);
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(add32Fx4), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4);
+       return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add32Fx4), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4);
 
     case Iop_Add64Fx4: //AVX double
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4);
+       return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4);
 
     case Iop_Add32Fx8: //AVX Float
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(add32Fx8), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL8);
+       return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add32Fx8), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL8);
 
 
       // Subtraction
 
       // - Double precision
     case Iop_SubF64: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL);
+       return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL);
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO);
+      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO);
 
     case Iop_Sub64Fx2:
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2);
+       return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2);
 
     case Iop_SubF32: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_SCAL);
+       return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_SCAL);
 
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO);
+       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO);
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(sub32Fx4), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4);
+       return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub32Fx4), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4);
 
     case Iop_Sub64Fx4: //AVX double
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4);
+       return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4);
 
     case Iop_Sub32Fx8: //AVX Float
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(sub32Fx8), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL8);
+       return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub32Fx8), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL8);
 
       // Multiplication
 
@@ -111,7 +111,7 @@
 
     case Iop_MAddF32:
 #ifndef IGNOREFMA
-       return vr_replaceFMA (sb, stmt, expr, bcName(madd32F), VR_OP_MADD, VR_PREC_FLT);
+       return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT);
 #else
        vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_SCAL,False);
        addStmtToIRSB (sb, stmt);
@@ -119,7 +119,7 @@
 #endif
     case Iop_MSubF32:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcName(msub32F), VR_OP_MSUB, VR_PREC_FLT);
+          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT);
 #else
        vr_countOp (sb, VR_OP_MSUB, VR_PREC_FLT, VR_VEC_SCAL,False);
        addStmtToIRSB (sb, stmt);
@@ -127,7 +127,7 @@
 #endif
     case Iop_MAddF64:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcName(madd64F), VR_OP_MADD, VR_PREC_DBL);
+          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL);
 #else
        vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_SCAL,False);
        addStmtToIRSB (sb, stmt);
@@ -135,7 +135,7 @@
 #endif
     case Iop_MSubF64:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcName(msub64F), VR_OP_MSUB,  VR_PREC_DBL);
+          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL);
 #else
        vr_countOp (sb, VR_OP_MSUB, VR_PREC_DBL, VR_VEC_SCAL,False);
        addStmtToIRSB (sb, stmt);

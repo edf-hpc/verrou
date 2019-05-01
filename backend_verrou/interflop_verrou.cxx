@@ -31,7 +31,8 @@
 */
 
 #include "interflop_verrou.h"
-#include "vr_fpRepr.hxx"
+#include "vr_nextUlp.hxx"
+#include "vr_isNan.hxx"
 #include "vr_fma.hxx"
 #include <stddef.h>
 //extern "C" {
@@ -40,8 +41,6 @@
 
 
 
-template <typename REAL>
-void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
 #include "vr_roundingOp.hxx"
 #include "vr_op.hxx"
@@ -52,14 +51,10 @@ int CHECK_C  = 0;
 vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
 unsigned int vr_seed;
-void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
 void (*vr_nanHandler)()=NULL;
 
 
-void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
-  vr_cancellationHandler=cancellationHandler;
-}
 
 void verrou_set_panic_handler(void (*panicHandler)(const char*)){
   vr_panicHandler=panicHandler;
@@ -102,25 +97,6 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
   return "undefined";
 }
 
-
-
-template <typename REAL>
-inline
-void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
-  if (CHECK_C == 0)
-    return;
-
-  const int ea = exponentField (a);
-  const int eb = exponentField (b);
-  const int er = exponentField (r);
-
-  const int emax = ea>eb ? ea : eb;
-  const int cancelled = emax - er;
-
-  if (cancelled >= storedBits(a)) {
-    vr_cancellationHandler(cancelled);
-  }
-}
 
 
 

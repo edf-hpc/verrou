@@ -11,7 +11,7 @@ This document aims to explain shortly how to add a new backend in verrou.
 3- modify vr_main.h :
    - add #include "backend_mcaquad/interflop_NEWNAME.h"
    - add vr_NEWNAME in  enum vr_backend_name
-   - add usefull data for backend configuration in Vr_State struct
+   - add useful data for backend configuration in Vr_State struct
 
 #At this step you can test compilation
 
@@ -20,9 +20,9 @@ This document aims to explain shortly how to add a new backend in verrou.
    - generate a new vr_generated_from_templates.h file : ./generateBackendInterOperator.py
    - Remark : both file are followed in git
 
-#At this step you can test compilation
+#At this step you can't test compilation (you can after the first item of the next step)
 
-4- modify vr_main.c :
+5- modify vr_main.c :
    - add instanciation of backend_NEWNAME and  backend_NEWNAME_context as for verrou or mcaquad
    - modify vr_instrumentOp with a new switch. If there are missing call in the backend you can
    change the inclusion with #define macro. You may need to customize the file vr_instrumentOp_impl.h.
@@ -33,18 +33,18 @@ This document aims to explain shortly how to add a new backend in verrou.
 
 #At this step you can test compilation
 
-5- modify vr_clo.c :
-   - default option in vr_clo_defaults (initialisation of new attribut defined in vr_main.h )
+6- modify vr_clo.c :
+   - default option in vr_clo_defaults (initialization of new attribute defined in vr_main.h )
    - add user option in vr_process_clo
 
 #At this step you can test compilation and the use
 
-6- modify vr_clreq.c [if backend use random generator]
+7- modify vr_clreq.c [if backend use random generator]
    - add NEWBACKEND_set_seed(hash) in  vr_[start/stop]_deterministic_section functions
 
-7- add client-request to configure dynamicly the backend [optionnal]
+8- add client-request to configure dynamically the backend [optional]
 
-8- update documentation
+9- update documentation
   - modify vr-manual.xml
   - compile documentation : make -C docs html-docs man-pages
   - adapt docs/update-vr-clo to install path [no need to commit]

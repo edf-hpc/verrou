@@ -31,7 +31,8 @@ VERROU_SOURCES_COMMON = \
 	backend_verrou/interflop_verrou.cxx\
 	backend_mcaquad/interflop_mcaquad.c\
 	backend_mcaquad/common/tinymt64.c\
-	backend_mcaquad/common/fmaqApprox.c
+	backend_mcaquad/common/fmaqApprox.c\
+	backend_checkcancellation/interflop_checkcancellation.cxx
 
 VERROU_FLAG_CXX = $(subst \
 	-Wmissing-prototypes,,$(subst \

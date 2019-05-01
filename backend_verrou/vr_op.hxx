@@ -236,10 +236,6 @@ public:
   }
 
   static inline void check(const PackArgs& p,const RealType & c){
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-
-    vr_checkCancellation (a, b, c);
   }
 
   static inline void twoSum(const RealType& a,const RealType& b, RealType& x,RealType& y ){
@@ -287,9 +283,6 @@ public:
   }
 
   static inline void check(const PackArgs& p,const RealType & c){
-    const RealType & a(p.arg1);
-    const RealType & b(-p.arg2);
-    vr_checkCancellation (a, b, c);
   }
 
 };

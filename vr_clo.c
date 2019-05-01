@@ -70,6 +70,7 @@ void vr_clo_defaults (void) {
   vr.mca_precision_float=24;
   vr.mca_mode=MCAMODE_MCA;
 
+  vr.checkCancellation=False;
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -130,6 +131,11 @@ Bool vr_process_clo (const HChar *arg) {
                         vr.instr_op[VR_OP_MSUB] , True)) {}
   else if (VG_XACT_CLO (arg, "--vr-instr=conv",
                         vr.instr_op[VR_OP_CONV] , True)) {}
+
+  //Option to enable check-cancellation backend
+  else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
+     vr.checkCancellation= bool_val;
+  }
 
   
   //Options to choose op to instrument
