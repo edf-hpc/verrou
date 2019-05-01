@@ -50,8 +50,8 @@ const char*  mcaquad_mode_name (unsigned int mode) {
 }
 
 // * Global variables & parameters
-mcaquad_conf_t mcaquad_conf;
-unsigned int mcaquad_seed;
+//mcaquad_conf_t mcaquad_conf;
+//unsigned int mcaquad_seed;
 
 void (*mcaquad_panicHandler)(const char*)=NULL;
 

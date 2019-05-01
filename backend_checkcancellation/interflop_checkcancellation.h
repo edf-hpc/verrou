@@ -42,9 +42,15 @@ extern "C" {
 
 #include "../interflop_backend_interface.h"
 
+   struct checkcancellation_conf {
+     unsigned int threshold_float;
+     unsigned int threshold_double;
+  };
+
+  typedef struct checkcancellation_conf checkcancellation_conf_t;
 
 
-  void IFCC_FCTNAME(configure)(void* mode,void* context);
+  void IFCC_FCTNAME(configure)(checkcancellation_conf_t mode,void* context);
   void IFCC_FCTNAME(finalyze)(void* context);
 
   const char* IFCC_FCTNAME(get_backend_name)(void);

@@ -1021,13 +1021,16 @@ static void vr_post_clo_init(void)
 
 
    /*Init outfile cancellation*/
+   checkcancellation_conf_t checkcancellation_conf;
+   checkcancellation_conf.threshold_float=15;
+   checkcancellation_conf.threshold_double=40;
    backend_checkcancellation=interflop_checkcancellation_init(&backend_checkcancellation_context);
-   interflop_checkcancellation_configure(NULL,backend_checkcancellation_context);
+   interflop_checkcancellation_configure(checkcancellation_conf,backend_checkcancellation_context);
    if (vr.checkCancellation) {
-     vr_outCancellationFile = VG_(fopen)("vr.log",
-					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
-					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-     checkcancellation_set_cancellation_handler(&vr_handle_CC);
+//     vr_outCancellationFile = VG_(fopen)("vr.log",
+//					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+//					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+     checkcancellation_set_cancellation_handler(&vr_handle_CC); //valgrind error
 
      VG_(umsg)("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version()  );
 

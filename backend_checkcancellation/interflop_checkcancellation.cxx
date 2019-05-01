@@ -35,31 +35,41 @@
 #include <stddef.h>
 
 
-
+checkcancellation_conf_t checkcancellation_conf;
 
 template <typename REAL>
-void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
+void ifcc_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
 
 
 // * Global variables & parameters
 
-void (*vrcc_cancellationHandler)(int)=NULL;
-void (*vrcc_panicHandler)(const char*)=NULL;
+void (*ifcc_cancellationHandler)(int)=NULL;
+void (*ifcc_panicHandler)(const char*)=NULL;
 
 void checkcancellation_set_cancellation_handler(void (*cancellationHandler)(int)){
-  vrcc_cancellationHandler=cancellationHandler;
+  ifcc_cancellationHandler=cancellationHandler;
 }
 
 void checkcancellation_set_panic_handler(void (*panicHandler)(const char*)){
-  vrcc_panicHandler=panicHandler;
+  ifcc_panicHandler=panicHandler;
 }
 
+template<typename REAL>
+int ifcc_threshold(const REAL& a);
 
+template<>
+int ifcc_threshold(const float& a){
+  return checkcancellation_conf.threshold_float;
+}
+template<>
+int ifcc_threshold(const double& a){
+  return checkcancellation_conf.threshold_double;
+}
 
 
 template <typename REAL>
 inline
-void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
+void ifcc_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
 
   const int ea = exponentField (a);
   const int eb = exponentField (b);
@@ -68,16 +78,16 @@ void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r) {
   const int emax = ea>eb ? ea : eb;
   const int cancelled = emax - er;
 
-  if (cancelled >= storedBits(a)) {
-    vrcc_cancellationHandler(cancelled);
+  if (cancelled >= ifcc_threshold(a)) {
+    ifcc_cancellationHandler(cancelled);
   }
 }
 
 
 
 // * C interface
-void IFCC_FCTNAME(configure)(void* mode, void* context) {
-
+void IFCC_FCTNAME(configure)(checkcancellation_conf_t mode, void* context) {
+  checkcancellation_conf=mode;
 }
 
 void IFCC_FCTNAME(finalyze)(void* context){
@@ -92,28 +102,28 @@ const char* IFCC_FCTNAME(get_backend_version)() {
 }
 
 void IFCC_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  vr_checkCancellation(a,b,*res);
+  ifcc_checkCancellation(a,b,*res);
 }
 
 void IFCC_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  vr_checkCancellation(a,b,*res);
+  ifcc_checkCancellation(a,b,*res);
 }
 
 void IFCC_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
-  vr_checkCancellation(a,b,*res);
+  ifcc_checkCancellation(a,b,*res);
 }
 
 void IFCC_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  vr_checkCancellation(a,b,*res);
+  ifcc_checkCancellation(a,b,*res);
 }
 
 
 void IFCC_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-  vr_checkCancellation(a*b,c,*res);
+  ifcc_checkCancellation(a*b,c,*res);
 }
 
 void IFCC_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-  vr_checkCancellation(a*b,c,*res);
+  ifcc_checkCancellation(a*b,c,*res);
 }
 
 
