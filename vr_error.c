@@ -109,7 +109,9 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind) {
 }
 
 void vr_handle_NaN () {
-  vr_maybe_record_ErrorRt(VR_ERROR_NAN);
+   if(vr.checknan){
+      vr_maybe_record_ErrorRt(VR_ERROR_NAN);
+   }
 }
 void vr_handle_CC (int unused) {
   vr_maybe_record_ErrorRt(VR_ERROR_CC);

@@ -70,7 +70,11 @@ void vr_clo_defaults (void) {
   vr.mca_precision_float=24;
   vr.mca_mode=MCAMODE_MCA;
 
+  vr.checknan=True;
+
   vr.checkCancellation=False;
+  vr.cc_threshold_float=18;
+  vr.cc_threshold_double=40;
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -136,8 +140,15 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
      vr.checkCancellation= bool_val;
   }
+  else if (VG_INT_CLO(arg, "--cc_threshold_double",
+                      vr.cc_threshold_double)){}
+  else if (VG_INT_CLO(arg, "--cc_threshold_float",
+                      vr.cc_threshold_float)){}
 
-  
+  else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
+     vr.checknan= bool_val;
+  }
+
   //Options to choose op to instrument
   else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
     vr.instr_scalar= bool_val;

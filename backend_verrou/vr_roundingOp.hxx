@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- Implementation of the software implementation of rounding    ---*/
@@ -223,7 +222,7 @@ public:
 
     const RealType signError=OP::sameSignOfError(p,res);
 
-    if(signError>0.){     
+    if(signError>0.){
       if(res==0.){
 	return std::numeric_limits<RealType>::denorm_min();
       }
@@ -261,13 +260,13 @@ public:
 
 
     const RealType signError=OP::sameSignOfError(p,res);
-    if(signError<0){      
+    if(signError<0){
       if(res==0.){
 	return -std::numeric_limits<RealType>::denorm_min();
       }
       if(res==std::numeric_limits<RealType>::denorm_min()){
 	return 0.;
-      }  
+      }
       return nextPrev<RealType>(res);
     }
     return res;
@@ -326,7 +325,6 @@ class OpWithSelectedRoundingMode{
   static const int nbParam= OP::PackArgs::nb;
   typedef vr_packArg<const REALTYPESIMD,nbParam> PackArgs;
 
-  
   typedef realTypeHelper<REALTYPESIMD> typeHelper;
   static const int SimdLength=typeHelper::SimdLength  ;
 
@@ -349,7 +347,7 @@ public:
   typedef typename OP::PackArgs PackArgs;
   //  typedef realTypeHelper<RealType> typeHelper;
   //  typedef typename typeHelper::SimdBasicType  SimdBasicType;
-  
+
   static inline void apply(const PackArgs& p, RealType* res, void* context){
     *res=applySeq(p,context);
 #ifdef DEBUG_PRINT_OP
@@ -373,7 +371,6 @@ public:
   }
 #endif
 
-  
 
   static inline RealType applySeq(const PackArgs& p, void* context){
     switch (ROUNDINGMODE) {

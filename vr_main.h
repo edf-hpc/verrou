@@ -131,7 +131,11 @@ typedef struct {
   UInt mca_precision_float;
   UInt mca_mode;
 
+  Bool checknan;
+
   Bool checkCancellation;
+  UInt cc_threshold_double;
+  UInt cc_threshold_float;
 } Vr_State;
 
 extern Vr_State vr;

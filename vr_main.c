@@ -984,7 +984,7 @@ static void vr_post_clo_init(void)
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
 
-   //Random Seed initialisation   
+   //Random Seed initialisation
    if(vr.firstSeed==(unsigned int )(-1)){
       struct vki_timeval now;
       VG_(gettimeofday)(&now, NULL);
@@ -996,7 +996,9 @@ static void vr_post_clo_init(void)
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
    verrou_set_panic_handler(&VG_(tool_panic));
+
    verrou_set_nan_handler(&vr_handle_NaN);
+
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
    VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version()  );
@@ -1022,8 +1024,8 @@ static void vr_post_clo_init(void)
 
    /*Init outfile cancellation*/
    checkcancellation_conf_t checkcancellation_conf;
-   checkcancellation_conf.threshold_float=15;
-   checkcancellation_conf.threshold_double=40;
+   checkcancellation_conf.threshold_float= vr.cc_threshold_float;
+   checkcancellation_conf.threshold_double= vr.cc_threshold_double;
    backend_checkcancellation=interflop_checkcancellation_init(&backend_checkcancellation_context);
    interflop_checkcancellation_configure(checkcancellation_conf,backend_checkcancellation_context);
    if (vr.checkCancellation) {
