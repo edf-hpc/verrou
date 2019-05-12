@@ -114,7 +114,35 @@ void vr_handle_NaN () {
    }
 }
 void vr_handle_CC (int unused) {
-  vr_maybe_record_ErrorRt(VR_ERROR_CC);
+   ThreadId tid = VG_(get_running_tid)();
+   Addr addr;
+   VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
+
+   if(vr.dumpCancellation){
+      DiEpoch di=VG_(current_DiEpoch)();
+      const HChar* fileName;
+      const HChar* dirName;
+      const HChar* symName;
+      UInt lineNum;
+      //UInt errorName=
+      VG_(get_filename_linenum)(di,addr,
+                                &fileName,
+                                &dirName,
+                                &lineNum );
+      VG_(get_fnname)(di, addr, &symName);
+//      VG_(umsg)("test ? %s - %s : %u   --> %u \n", symName,fileName, lineNum,errorName);
+      vr_includeSource_generate (&vr.cancellationSource , symName, fileName, lineNum);
+   }
+
+   if(vr.checkCancellation){
+      HChar string[1];
+      string[0] = 0;
+      VG_(maybe_record_error)(tid,
+                              VR_ERROR_CC,
+                              addr,
+                              string,
+                              NULL);
+   }
 }
 
 

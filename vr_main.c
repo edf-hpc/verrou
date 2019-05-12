@@ -794,14 +794,15 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc) {
-   if(vr.backend==vr_verrou && !vr.checkCancellation){
+   Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
+   if(vr.backend==vr_verrou && !checkCancellation){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
    }
-   if(vr.backend==vr_verrou && vr.checkCancellation){
+   if(vr.backend==vr_verrou && checkCancellation){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
@@ -809,14 +810,14 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
 #undef bcNameWithCC
    }
 
-   if(vr.backend==vr_mcaquad && !vr.checkCancellation){
+   if(vr.backend==vr_mcaquad && !checkCancellation){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
    }
-   if(vr.backend==vr_mcaquad && vr.checkCancellation){
+   if(vr.backend==vr_mcaquad && checkCancellation){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
@@ -942,6 +943,9 @@ static void vr_fini(Int exitcode)
                               vr.includeSourceFile);
   }
 
+  if (vr.dumpCancellation){
+     vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );
+  }
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
   VG_(free)(vr.excludeFile);
@@ -1028,7 +1032,7 @@ static void vr_post_clo_init(void)
    checkcancellation_conf.threshold_double= vr.cc_threshold_double;
    backend_checkcancellation=interflop_checkcancellation_init(&backend_checkcancellation_context);
    interflop_checkcancellation_configure(checkcancellation_conf,backend_checkcancellation_context);
-   if (vr.checkCancellation) {
+   if (vr.checkCancellation || vr.dumpCancellation) {
 //     vr_outCancellationFile = VG_(fopen)("vr.log",
 //					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 //					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);

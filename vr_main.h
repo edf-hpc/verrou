@@ -136,6 +136,10 @@ typedef struct {
   Bool checkCancellation;
   UInt cc_threshold_double;
   UInt cc_threshold_float;
+
+  Bool dumpCancellation;
+  HChar* cancellationDumpFile;
+  Vr_IncludeSource * cancellationSource;
 } Vr_State;
 
 extern Vr_State vr;

@@ -75,6 +75,11 @@ void vr_clo_defaults (void) {
   vr.checkCancellation=False;
   vr.cc_threshold_float=18;
   vr.cc_threshold_double=40;
+
+  vr.dumpCancellation=False;
+  vr.cancellationSource=NULL;
+
+
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -197,6 +202,10 @@ Bool vr_process_clo (const HChar *arg) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
   }
 
+  else if (VG_STR_CLO (arg, "--cc-gen-file", str)) {
+     vr.cancellationDumpFile  = VG_(expand_file_name)("vr.process_clo.cc-file", str);
+     vr.dumpCancellation=True;
+  }
   // Set the pseudo-Random Number Generator
   else if (VG_STR_CLO (arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
