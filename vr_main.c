@@ -979,7 +979,8 @@ static void vr_post_clo_init(void)
    //   vr_env_clo("VERROU_GEN_ABOVE",     "--gen-above");
    vr_env_clo("VERROU_SOURCE",        "--source");
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
-
+   vr_env_clo("VERROU_MCA_MODE",      "--mca-mode");
+ 
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
