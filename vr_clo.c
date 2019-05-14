@@ -145,9 +145,9 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
      vr.checkCancellation= bool_val;
   }
-  else if (VG_INT_CLO(arg, "--cc_threshold_double",
+  else if (VG_INT_CLO(arg, "--cc-threshold-double",
                       vr.cc_threshold_double)){}
-  else if (VG_INT_CLO(arg, "--cc_threshold_float",
+  else if (VG_INT_CLO(arg, "--cc-threshold-float",
                       vr.cc_threshold_float)){}
 
   else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
