@@ -11,7 +11,7 @@ pkginclude_HEADERS = verrou.h
 #----------------------------------------------------------------------------
 
 PYTHON_REP=pyTools
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd ${PYTHON_REP}/cmpTrace.py
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd ${PYTHON_REP}/cmpCov.py
 pkgpython_PYTHON = ${PYTHON_REP}/DD.py
 
 install-exec-local:
