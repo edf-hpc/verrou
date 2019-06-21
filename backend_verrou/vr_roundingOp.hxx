@@ -317,36 +317,11 @@ public:
 
 #include "vr_op.hxx"
 
-template<class OP, class REALTYPESIMD>
-class OpWithSelectedRoundingMode{
-  public:
-  typedef typename OP::RealType RealType;
-  //  typedef typename OP::PackArgs PackArgs;
-  static const int nbParam= OP::PackArgs::nb;
-  typedef vr_packArg<const REALTYPESIMD,nbParam> PackArgs;
-
-  typedef realTypeHelper<REALTYPESIMD> typeHelper;
-  static const int SimdLength=typeHelper::SimdLength  ;
-
-  static inline void apply(const PackArgs& p, REALTYPESIMD* res,void* context){
-    for(int i=0; i<SimdLength ; i++){
-      (*res)[i]=OpWithSelectedRoundingMode<OP,RealType>::applySeq(p.getSubPack(i),context);
-#ifdef DEBUG_PRINT_OP
-      OpWithSelectedRoundingMode<OP,RealType>::print_debug(p.getSubPack(i),&((*res)[i]));
-#endif
-    }
-  }
-
-};
-
-//#ifndef LIBMATHINTERP
 template<class OP>
-class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
+class OpWithSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
-  //  typedef realTypeHelper<RealType> typeHelper;
-  //  typedef typename typeHelper::SimdBasicType  SimdBasicType;
 
   static inline void apply(const PackArgs& p, RealType* res, void* context){
     *res=applySeq(p,context);
@@ -354,7 +329,6 @@ public:
     print_debug(p,res);
 #endif
     if (isNan(*res)) {
-    //    vr_handle_NaN();
       vr_nanHandler();
     }
   }
