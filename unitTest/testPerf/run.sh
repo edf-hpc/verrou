@@ -9,13 +9,13 @@ BINO0FLOAT=$BIN-O0-FLOAT
 
 BINS="./$BINO3DOUBLE ./$BINO0DOUBLE ./$BINO3FLOAT ./$BINO0FLOAT"
 
-OPT=""
+OPT="--scale=1 2"
 
 
 
 for i in $BINS
 do
     echo $i
-    $PREFIX $i
+    $PREFIX $i $OPT
 
 done;
