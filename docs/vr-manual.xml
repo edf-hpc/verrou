@@ -232,7 +232,14 @@ det2
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
             <term><option><![CDATA[--backend=<verrou|mcaquad> [default=verrou]]]></option></term>
             <listitem><para>
-		Select the verrou or mcaquad backend. Verrou enables to perform several rounding mode (See --rounding-mode option). mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on extented precision in quad (See --mca-mode and --mca-precision options).
+		Select the <computeroutput>verrou</computeroutput> or
+		<computeroutput>mcaquad</computeroutput> backend. <computeroutput>verrou</computeroutput>
+		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
+		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
+		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>
+		and <option><xref linkend="vr-opt.mca-precision"/></option> options).
+		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
+		is still considered as experimental.
             </para></listitem>
           </varlistentry>
 
@@ -280,16 +287,16 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>mca :</command> <computeroutput>full mca</computeroutput> (default)
+                  <command>mca : </command> <computeroutput>full mca</computeroutput> (default)
                 </para></listitem>
                 <listitem><para>
-                  <command>rr :</command> <computeroutput> random rounding</computeroutput>
+                  <command>rr : </command> <computeroutput> random rounding</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>pb :</command> <computeroutput> precision bounding</computeroutput>
+                  <command>pb : </command> <computeroutput> precision bounding</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>ieee :</command> <computeroutput> ieee (rounding to nearest)</computeroutput>
+                  <command>ieee : </command> <computeroutput> ieee (rounding to nearest)</computeroutput>
                 </para></listitem>
               </itemizedlist>
 
@@ -297,7 +304,7 @@ det2
 	      </para>
             </listitem>
           </varlistentry>
-	    <varlistentry id="vr-opt.mca-precion" xreflabel="--mca-precsion">
+	    <varlistentry id="vr-opt.mca-precision" xreflabel="--mca-precision">
             <term><option><![CDATA[--mca-precision= [default=53]]]></option></term>
             <listitem>
               <para>
@@ -311,9 +318,9 @@ det2
             <listitem>
               <para>If present, this option allows setting the seed of the
               pseudo-Random Number Generator used for the
-              <command>random</command> or <command>average</command> <link
-              linkend="vr-manual.feat.rounding-mode">rounding modes</link>. This
-              helps reproducing the behaviour of a program under Verrou.
+		<command>random</command> or
+		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
+		This helps reproducing the behaviour of a program under Verrou.
               </para>
               <para>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
@@ -412,6 +419,58 @@ det2
                 list.</para>
             </listitem>
           </varlistentry>
+        </variablelist>
+      </section>
+
+      <section>
+        <title>Detection</title>
+        <variablelist id="vr.opts.detection.list">
+
+          <varlistentry id="vr.opt.check-nan" xreflabel="--check-nan">
+            <term><option><![CDATA[--check-nan=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+		Activate NaN detection. NaN produces a valgrind error.
+		This functionnality requires the verrou backend.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.check-cancellation" xreflabel="--check-cancellation">
+            <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate cancellation detection. Cancellation produces a valgrind error.
+		This functionnality is available for the verrou and mcaquad backends. The level
+		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
+		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.cc-gen-file" xreflabel="--cc-gen-file">
+            <term><option><![CDATA[--cc-gen-file=<FILE>]]></option></term>
+            <listitem><para>
+		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one cancellation.
+		This functionnality is available for verrou and mcaquad backends. The level
+		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
+		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+            </para></listitem>
+          </varlistentry>
+
+
+	  <varlistentry id="vr.opt.cc-threshold-float" xreflabel="--cc-threshold-float">
+            <term><option><![CDATA[--cc-threshold-float=<integer> [default=24]]]></option></term>
+            <listitem><para>
+		Configure the cancellation  dectection threshold for float operations.
+		Default value is still experimental and could have to change.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.cc-threshold-double" xreflabel="--cc-threshold-double">
+            <term><option><![CDATA[--cc-threshold-double=<integer> [default=40]]]></option></term>
+            <listitem><para>
+		Configure the cancellation  dectection threshold for double operations.
+		Default value is still experimental and could have to change.
+            </para></listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
