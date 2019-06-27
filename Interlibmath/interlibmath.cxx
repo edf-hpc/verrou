@@ -395,7 +395,7 @@ public:
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,double>,double > Op; \
+      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
       double res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
       return res;							\
@@ -408,7 +408,7 @@ public:
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<float, enum##FCT,0>();					\
-      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float>,float > Op; \
+      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
       return res;							\
@@ -432,7 +432,7 @@ public:
       return function2NameTab[enum##FCT].apply(a,b);			\
     }else{								\
       incCounter2<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,double>,double > Op; \
+      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
       double res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
       return res;							\
@@ -445,7 +445,7 @@ public:
       return function2NameTab[enum##FCT].apply(a,b);			\
     }else{								\
       incCounter2<float, enum##FCT,0>();					\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,float>,float > Op; \
+      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
       return res;							\

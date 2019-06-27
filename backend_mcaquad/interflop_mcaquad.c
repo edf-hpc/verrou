@@ -35,9 +35,6 @@
 
 
 
-//template <typename REAL>
-//void vr_checkCancellation (const REAL & a, const REAL & b, const REAL & r);
-
 const char*  mcaquad_mode_name (unsigned int mode) {
   switch (mode) {
   case  MCAMODE_IEEE:
@@ -53,25 +50,14 @@ const char*  mcaquad_mode_name (unsigned int mode) {
 }
 
 // * Global variables & parameters
-mcaquad_conf_t mcaquad_conf;
-unsigned int mcaquad_seed;
-//void (*vr_cancellationHandler)(int)=NULL;
+//mcaquad_conf_t mcaquad_conf;
+//unsigned int mcaquad_seed;
+
 void (*mcaquad_panicHandler)(const char*)=NULL;
-void (*mcaquad_nanHandler)()=NULL;
-
-
-// void verrou_set_cancellation_handler(void (*cancellationHandler)(int)){
-//   verrou_cancellationHandler=cancellationHandler;
-// }
 
 void mcaquad_set_panic_handler(void (*panicHandler)(const char*)){
   mcaquad_panicHandler=panicHandler;
 }
-
-void mcaquad_set_nan_handler(void (*nanHandler)()){
-  mcaquad_nanHandler=nanHandler;
-}
-
 
 void (*mcaquad_debug_print_op)(int,const char*, const double*, const double*)=NULL;
 void mcaquad_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res)){
@@ -84,7 +70,7 @@ void mcaquad_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name
 // * C interface
 void IFMQ_FCTNAME(configure)(mcaquad_conf_t mode,void* context) {  
   _set_mca_mode(mode.mode);
-  _set_mca_precision(mode.precision_double) ; 
+  _set_mca_precision(mode.precision_double, mode.precision_float);
 }
 
 void IFMQ_FCTNAME(finalyze)(void* context){
@@ -98,25 +84,17 @@ const char* IFMQ_FCTNAME(get_backend_version)() {
   return "1.x-dev";
 }
 
-// void verrou_begin_instr(){
-//   ROUNDINGMODE=DEFAULTROUNDINGMODE;
-// }
 
-// void verrou_end_instr(){
-//   ROUNDINGMODE= VR_NEAREST;
-// }
 static uint64_t mcaquadrandom_seed;
 
 void mcaquad_set_seed (unsigned int seed) {
   uint64_t seed64=(uint64_t) seed;
   _mca_set_seed(&seed64,1);
   mcaquadrandom_seed = tinymt64_generate_uint64(&random_state);
-  //  vr_rand_setSeed (&vr_rand, seed);
 }
 
 void mcaquad_set_random_seed () {
   _mca_set_seed(&mcaquadrandom_seed,1);
-  //vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
 void IFMQ_FCTNAME(add_double) (double a, double b, double* res,void* context) {
@@ -151,17 +129,17 @@ void IFMQ_FCTNAME(div_float) (float a, float b, float* res,void* context) {
   *res=_mca_sbin(a, b, MCA_DIV);
 }
 
-// void IFMQ_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
-//   *res=(float)a;
-// }
+void IFMQ_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
+   *res=_mca_dtosbin(a);
+}
 
-// void IFMQ_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-//   *res=a*b+c;
-// }
+ void IFMQ_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
+    *res=_mca_dbin_fma(a,b,c);
+ }
 
-// void IFMQ_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-//   *res=a*b+c;
-// }
+void IFMQ_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
+   *res=_mca_sbin_fma(a,b,c);
+ }
 
 
 
@@ -179,10 +157,10 @@ struct interflop_backend_interface_t IFMQ_FCTNAME(init)(void ** context){
   config.interflop_mul_double = & IFMQ_FCTNAME(mul_double);
   config.interflop_div_double = & IFMQ_FCTNAME(div_double);
 
-  config.interflop_cast_double_to_float= NULL; //& IFMQ_FCTNAME(cast_double_to_float);
+  config.interflop_cast_double_to_float= & IFMQ_FCTNAME(cast_double_to_float);
 
-  config.interflop_madd_float = NULL; //& IFMQ_FCTNAME(madd_float);
-  config.interflop_madd_double = NULL; //& IFMQ_FCTNAME(madd_double);
+  config.interflop_madd_float = & IFMQ_FCTNAME(madd_float);
+  config.interflop_madd_double = & IFMQ_FCTNAME(madd_double);
 
   return config;
 }

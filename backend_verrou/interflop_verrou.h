@@ -73,8 +73,6 @@ extern "C" {
   void verrou_set_seed (unsigned int seed);
   void verrou_set_random_seed (void);
 
-  void verrou_set_cancellation_handler(void (*)(int));
-
   extern void (*vr_panicHandler)(const char*);
   void verrou_set_panic_handler(void (*)(const char*));
   extern void (*vr_nanHandler)(void);

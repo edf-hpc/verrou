@@ -576,7 +576,8 @@ class DDsym(DDvr):
         retval = runCmd([self.run_, dirname],
                         os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
+                         "VERROU_MCA_MODE": "ieee",
+                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%p")})
         assert retval == 0, "Error during reference run"
 
 
@@ -708,8 +709,9 @@ class DDline(DDvr):
         retval = runCmd([self.run_, dirname],
                         os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_MCA_MODE": "ieee",
                          "VERROU_EXCLUDE":       os.path.join(dirname,"dd.exclude"),
-                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
+                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%p")})
         assert retval == 0, "Error during ddline reference run"
 
     def filterSourceRef(self, confSyms):
@@ -812,7 +814,7 @@ def ddLine(run, compare, refSym, confSymsTab):
 
 def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
 
-    confLines = []
+#    confLines = []
     for i in range(len(confSymsTab)):
         confSyms=confSymsTab[i]
         dd = DDline(run, compare, refSym, confSyms, os.path.join("dd.sym","ddmin-%d"%(i) ,"dd.line"))
@@ -839,7 +841,7 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
 
         for ddmin in ddminTab:
             dd.testLines(ddmin)
-        confLines+=ddmin
+        #confLines+=ddmin
 
 
 

@@ -80,8 +80,6 @@ extern "C" {
 
   extern void (*mcaquad_panicHandler)(const char*);
   void mcaquad_set_panic_handler(void (*)(const char*));
-  extern void (*mcaquad_nanHandler)(void);
-  void mcaquad_set_nan_handler(void (*nanHandler)(void));
 
   extern void (*mcaquad_debug_print_op)(int,const char*, const double* args, const double* res);
   void mcaquad_set_debug_print_op(void (*)(int nbArg, const char* name, const double* args, const double* res));

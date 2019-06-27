@@ -41,22 +41,26 @@
 //
 
 //BL #include <math.h>
-//BL #include <stdbool.h>
+#include <stdbool.h>
 //BL #include <stdint.h>
 //BL #include <stdio.h>
 //BL #include <stdlib.h>
 //BL #include <sys/time.h>
 //BL #include <unistd.h>
 
+
+
 #include "./common/mca_const.h"
 #include "./common/quadmath-imp.h"
+#include "./common/fmaqApprox.h"
 #include "./common/tinymt64.h"
 //#include "../vfcwrapper/vfcwrapper.h"
   //#include "interflop_mcaquad.h"
 #include "libmca-quad.h"
 
 static int MCALIB_OP_TYPE = MCAMODE_IEEE;
-static int MCALIB_T = 53;
+static int MCALIB_DOUBLE_T = 53;
+static int MCALIB_FLOAT_T = 24;
 
 // possible op values
 #define MCA_ADD 1
@@ -83,8 +87,9 @@ static int _set_mca_mode(int mode) {
   return 0;
 }
 
-static int _set_mca_precision(int precision) {
-  MCALIB_T = precision;
+static int _set_mca_precision(int precision_double, int precision_float) {
+  MCALIB_DOUBLE_T = precision_double;
+  MCALIB_FLOAT_T = precision_float;
   return 0;
 }
 
@@ -154,7 +159,7 @@ static inline uint32_t rexpd(double x) {
   return exp;
 }
 
-__float128 qnoise(int exp) {
+static inline __float128 qnoise(int exp) {
   double d_rand = (_mca_rand() - 0.5);
   uint64_t u_rand = *((uint64_t *)&d_rand);
   __float128 noise;
@@ -232,8 +237,8 @@ static bool _is_representableq(__float128 *qa) {
   GET_FLT128_WORDS64(hx, lx, *qa);
 
   /* compute representable bits in hx and lx */
-  char bits_in_hx = min((MCALIB_T - 1), QUAD_HX_PMAN_SIZE);
-  char bits_in_lx = (MCALIB_T - 1) - bits_in_hx;
+  char bits_in_hx = min((MCALIB_DOUBLE_T - 1), QUAD_HX_PMAN_SIZE);
+  char bits_in_lx = (MCALIB_DOUBLE_T - 1) - bits_in_hx;
 
   /* check bits in lx */
   /* here we know that bits_in_lx < 64 */
@@ -254,7 +259,7 @@ static bool _is_representabled(double *da) {
    * in the current virtual precision */
   uint64_t p_mantissa = (*((uint64_t *)da)) & DOUBLE_GET_PMAN;
   /* here we know that (MCALIB_T-1) < 53 */
-  return ((p_mantissa << (MCALIB_T - 1)) == 0);
+  return ((p_mantissa << (MCALIB_FLOAT_T - 1)) == 0);
 }
 
 static void _mca_inexactq(__float128 *qa) {
@@ -270,7 +275,7 @@ static void _mca_inexactq(__float128 *qa) {
 
   int32_t e_a = 0;
   e_a = rexpq(*qa);
-  int32_t e_n = e_a - (MCALIB_T - 1);
+  int32_t e_n = e_a - (MCALIB_DOUBLE_T - 1);
   __float128 noise = qnoise(e_n);
   *qa = noise + *qa;
 }
@@ -288,7 +293,7 @@ static void _mca_inexactd(double *da) {
 
   int32_t e_a = 0;
   e_a = rexpd(*da);
-  int32_t e_n = e_a - (MCALIB_T - 1);
+  int32_t e_n = e_a - (MCALIB_FLOAT_T - 1);
   double d_rand = (_mca_rand() - 0.5);
   *da = *da + pow2d(e_n) * d_rand;
 }
@@ -378,6 +383,70 @@ static inline double _mca_dbin(double a, double b, const int qop) {
 
   return NEAREST_DOUBLE(res);
 }
+
+static inline float _mca_dtosbin(double a){
+
+   float resf;
+   if (MCALIB_OP_TYPE != MCAMODE_RR) {
+      __float128 qa = (__float128)a;
+      _mca_inexactq(&qa);
+      resf=NEAREST_FLOAT(qa);
+   }else{
+      resf=(float)a;
+   }
+
+   if (MCALIB_OP_TYPE != MCAMODE_PB) {
+      double resd;
+      resd=(double)resf;
+      _mca_inexactd(&resd);
+      return NEAREST_FLOAT(resd);
+   }else{
+      return resf;
+   }
+}
+
+static inline double _mca_dbin_fma(double a, double b, double c) {
+  __float128 qa = (__float128)a;
+  __float128 qb = (__float128)b;
+  __float128 qc = (__float128)c;
+  __float128 res = 0;
+
+  if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    _mca_inexactq(&qa);
+    _mca_inexactq(&qb);
+    _mca_inexactq(&qc);
+  }
+
+  res=fmaqApprox(a,b,c);
+
+  if (MCALIB_OP_TYPE != MCAMODE_PB) {
+    _mca_inexactq(&res);
+  }
+
+  return NEAREST_DOUBLE(res);
+}
+
+static inline double _mca_sbin_fma(double a, double b, double c) {
+   double da = (double)a;
+   double db = (double)b;
+   double dc = (double)b;
+   double res = 0;
+
+  if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    _mca_inexactd(&da);
+    _mca_inexactd(&db);
+    _mca_inexactd(&dc);
+  }
+
+  res=fmaApprox(a,b,c);
+
+  if (MCALIB_OP_TYPE != MCAMODE_PB) {
+    _mca_inexactd(&res);
+  }
+
+  return ((float)res);
+}
+
 
 /************************* FPHOOKS FUNCTIONS *************************
 * These functions correspond to those inserted into the source code

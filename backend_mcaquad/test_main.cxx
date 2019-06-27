@@ -65,6 +65,11 @@ int main(int argc, char** argv){
   std::cout << "c1: "<<c1 << std::endl; 
   std::cout << "c2: "<<c2 << std::endl; 
 
+  ifmcaquad.interflop_madd_double(a,b,c1,&c2,context);
+
+  std::cout << "fma: "<<c2 << std::endl;
+
+  //  ifmcaquad.interflop_madd_double(a,b,c1,&c2,context)
   
   interflop_mcaquad_finalyze(context);
   
