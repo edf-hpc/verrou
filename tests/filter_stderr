@@ -3,6 +3,7 @@
 dir=`dirname $0`
 
 cmd="$dir/../../tests/filter_stderr_basic"
+cmd="${cmd} |perl -pne 's/For lists of detected and suppressed errors, rerun with: -s\n//'"
 while [ ! -z "$1" ]; do
     case "$1" in
         "-seed")
@@ -18,6 +19,7 @@ while [ ! -z "$1" ]; do
             ;;
 	"-backend-version")
             cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
+	    cmd="${cmd} | perl -pne 's/^(Backend mcaquad : )[^\s]*/\$1test-version/;'"
             ;;
 	"-addr-error")
             cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"

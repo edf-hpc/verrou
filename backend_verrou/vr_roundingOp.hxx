@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- Implementation of the software implementation of rounding    ---*/
@@ -40,7 +39,10 @@ extern vr_RoundingMode ROUNDINGMODE;
 //extern vr_RoundingMode ROUNDINGMODE;
 //#endif
 
-#include "vr_fpRepr.hxx"
+//#include "vr_fpRepr.hxx"
+#include "vr_nextUlp.hxx"
+#include "vr_isNan.hxx"
+
 #include "vr_op.hxx"
 
 template<class OP>
@@ -56,6 +58,8 @@ public:
   } ;
 
 };
+
+
 
 template<class OP>
 class RoundingFloat{
@@ -126,22 +130,34 @@ public:
     if(error==0.){
       return res;
     }
-    const int s = error>=0 ? 1 : -1;
-    const RealType u =ulp(res);
-    const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-			      > (vr_rand_max() * s * error));
 
-    if(doNotChange){
-      return res;
-    }else{
-      if(error>0){
-	return nextAfter<RealType>(res);
+
+    if(error>0){
+      const RealType nextRes(nextAfter<RealType>(res));
+      const RealType u(nextRes -res);
+      const int s(1);
+      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
+				> (vr_rand_max() * s * error));
+      if(doNotChange){
+	return res;
+      }else{
+	return nextRes;
       }
-      if(error<0){
-	return nextPrev<RealType>(res);
-      }
-      return res;
+
     }
+    if(error<0){
+      const RealType prevRes(nextPrev<RealType>(res));
+      const RealType u(res -prevRes);
+      const int s(-1);
+      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
+				> (vr_rand_max() * s * error));
+      if(doNotChange){
+	return res;
+      }else{
+	return prevRes;
+      }
+    }
+    return res; //Should not occur
   } ;
 };
 
@@ -206,7 +222,7 @@ public:
 
     const RealType signError=OP::sameSignOfError(p,res);
 
-    if(signError>0.){     
+    if(signError>0.){
       if(res==0.){
 	return std::numeric_limits<RealType>::denorm_min();
       }
@@ -244,13 +260,13 @@ public:
 
 
     const RealType signError=OP::sameSignOfError(p,res);
-    if(signError<0){      
+    if(signError<0){
       if(res==0.){
 	return -std::numeric_limits<RealType>::denorm_min();
       }
       if(res==std::numeric_limits<RealType>::denorm_min()){
 	return 0.;
-      }  
+      }
       return nextPrev<RealType>(res);
     }
     return res;
@@ -301,45 +317,18 @@ public:
 
 #include "vr_op.hxx"
 
-template<class OP, class REALTYPESIMD>
-class OpWithSelectedRoundingMode{
-  public:
-  typedef typename OP::RealType RealType;
-  //  typedef typename OP::PackArgs PackArgs;
-  static const int nbParam= OP::PackArgs::nb;
-  typedef vr_packArg<const REALTYPESIMD,nbParam> PackArgs;
-
-  
-  typedef realTypeHelper<REALTYPESIMD> typeHelper;
-  static const int SimdLength=typeHelper::SimdLength  ;
-
-  static inline void apply(const PackArgs& p, REALTYPESIMD* res,void* context){
-    for(int i=0; i<SimdLength ; i++){
-      (*res)[i]=OpWithSelectedRoundingMode<OP,RealType>::applySeq(p.getSubPack(i),context);
-#ifdef DEBUG_PRINT_OP
-      OpWithSelectedRoundingMode<OP,RealType>::print_debug(p.getSubPack(i),&((*res)[i]));
-#endif
-    }
-  }
-
-};
-
-//#ifndef LIBMATHINTERP
 template<class OP>
-class OpWithSelectedRoundingMode<OP,typename OP::RealType>{
+class OpWithSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
-  //  typedef realTypeHelper<RealType> typeHelper;
-  //  typedef typename typeHelper::SimdBasicType  SimdBasicType;
-  
+
   static inline void apply(const PackArgs& p, RealType* res, void* context){
     *res=applySeq(p,context);
 #ifdef DEBUG_PRINT_OP
     print_debug(p,res);
 #endif
     if (isNan(*res)) {
-    //    vr_handle_NaN();
       vr_nanHandler();
     }
   }
@@ -356,7 +345,6 @@ public:
   }
 #endif
 
-  
 
   static inline RealType applySeq(const PackArgs& p, void* context){
     switch (ROUNDINGMODE) {
@@ -376,6 +364,8 @@ public:
       return RoundingFarthest<OP>::apply (p);
     case VR_FLOAT:
       return RoundingFloat<OP>::apply (p);
+    case VR_NATIVE:
+      return RoundingNearest<OP>::apply (p);
     }
 
     return 0;

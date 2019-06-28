@@ -299,7 +299,7 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
   for (cell = list ; cell != end ; cell = cell->next) {
     VG_(write)(fd, cell->filename, VG_(strlen)(cell->filename));
     VG_(write)(fd, "\t", 1);
-    VG_(snprintf)(linenum_, 255, "%d", cell->linenum);
+    VG_(snprintf)(linenum_, 255, "%u", cell->linenum);
     VG_(write)(fd, linenum_, VG_(strlen)(linenum_));
     VG_(write)(fd, "\t", 1);
     VG_(write)(fd, cell->fnname, VG_(strlen)(cell->fnname));

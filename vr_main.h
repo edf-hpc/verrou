@@ -54,7 +54,16 @@
 #include "pub_tool_gdbserver.h"
 
 #include "verrou.h"
+
+//backend
 #include "backend_verrou/interflop_verrou.h"
+#include "backend_mcaquad/interflop_mcaquad.h"
+
+typedef enum vr_backend_name{vr_verrou,vr_mcaquad} vr_backend_name_t;
+
+//backend post-treatment
+#include "backend_checkcancellation/interflop_checkcancellation.h"
+typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation} vr_backendpost_name_t;
 
 
 // * Type declarations
@@ -104,6 +113,7 @@ struct Vr_IncludeSource_ {
 };
 
 typedef struct {
+  vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
   Bool count;
   Bool instr_op[VR_OP];
@@ -113,7 +123,7 @@ typedef struct {
   Bool unsafe_llo_optim;
 
   UInt firstSeed;
-  
+
   Bool genExclude;
   HChar * excludeFile;
   //  HChar * genAbove;
@@ -125,9 +135,22 @@ typedef struct {
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
 
+  UInt mca_precision_double;
+  UInt mca_precision_float;
+  UInt mca_mode;
+
+  Bool checknan;
+
+  Bool checkCancellation;
+  UInt cc_threshold_double;
+  UInt cc_threshold_float;
+
+  Bool dumpCancellation;
+  HChar* cancellationDumpFile;
+  Vr_IncludeSource * cancellationSource;
+
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
-
 } Vr_State;
 
 extern Vr_State vr;
@@ -144,7 +167,7 @@ void vr_cancellation_handler(int cancelled );
 // ** vr_clreq.c
 
 Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
-void vr_set_instrument_state (const HChar* reason, Vr_Instr state);
+void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard);
 
 
 // ** vr_error.c
@@ -153,6 +176,7 @@ typedef enum {
   VR_ERROR_UNCOUNTED,
   VR_ERROR_SCALAR,
   VR_ERROR_NAN,
+  VR_ERROR_CC,
   VR_ERROR
 } Vr_ErrorKind;
 
@@ -175,7 +199,7 @@ void vr_update_extra_suppression_use (const Error* err, const Supp* su);
 void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
 void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 void vr_handle_NaN (void);
-
+void vr_handle_CC (int);
 
 // ** vr_exclude.c
 

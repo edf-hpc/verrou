@@ -22,7 +22,7 @@
   <xi:include href="vr-localization.xml"
               xmlns:xi="http://www.w3.org/2001/XInclude" />
 
-  
+
   <section id="vr-manual.advanced" xreflabel="Advanced features">
     <title>Advanced features</title>
 
@@ -229,6 +229,20 @@ det2
             </para></listitem>
           </varlistentry>
 
+	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
+            <term><option><![CDATA[--backend=<verrou|mcaquad> [default=verrou]]]></option></term>
+            <listitem><para>
+		Select the <computeroutput>verrou</computeroutput> or
+		<computeroutput>mcaquad</computeroutput> backend. <computeroutput>verrou</computeroutput>
+		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
+		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
+		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>
+		and <option><xref linkend="vr-opt.mca-precision"/></option> options).
+		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
+		is still considered as experimental.
+            </para></listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
@@ -240,8 +254,8 @@ det2
             <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float> [default=nearest]]]></option></term>
             <listitem>
               <para>
-                Emulate the given <link
-                linkend="vr-manual.feat.rounding-mode">rounding mode</link>. If
+                Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
+		for operations instrumented with the verrou backend. If
                 this option is not provided, Verrou always rounds to the nearest
                 floating-point. Supported rounding modes are:
               </para>
@@ -265,14 +279,48 @@ det2
             </listitem>
           </varlistentry>
 
+          <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
+            <term><option><![CDATA[--mca-mode=<mca|rr|pb|ieee> [default=mca]]]></option></term>
+            <listitem>
+              <para>
+                Emulate the given MCA mode for operations instrumented with the mcaquad backend. Supported mca modes are:
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>mca : </command> <computeroutput>full mca</computeroutput> (default)
+                </para></listitem>
+                <listitem><para>
+                  <command>rr : </command> <computeroutput> random rounding</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>pb : </command> <computeroutput> precision bounding</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>ieee : </command> <computeroutput> ieee (rounding to nearest)</computeroutput>
+                </para></listitem>
+              </itemizedlist>
+
+	      <para> The mcaquad backend implementation come from Verificarlo : <ulink url="https://github.com/verificarlo/verificarlo"> More information on Verificalo github </ulink>
+	      </para>
+            </listitem>
+          </varlistentry>
+	    <varlistentry id="vr-opt.mca-precision" xreflabel="--mca-precision">
+            <term><option><![CDATA[--mca-precision= [default=53]]]></option></term>
+            <listitem>
+              <para>
+                Configure the magnitude of inexact function used by mcaquad backend.
+              </para>
+            </listitem>
+          </varlistentry>
+
           <varlistentry id="vr-opt.seed" xreflabel="--vr-seed">
             <term><option><![CDATA[--vr-seed=RNG_SEED [default=automatically generated]]]></option></term>
             <listitem>
               <para>If present, this option allows setting the seed of the
               pseudo-Random Number Generator used for the
-              <command>random</command> or <command>average</command> <link
-              linkend="vr-manual.feat.rounding-mode">rounding modes</link>. This
-              helps reproducing the behaviour of a program under Verrou.
+		<command>random</command> or
+		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
+		This helps reproducing the behaviour of a program under Verrou.
               </para>
               <para>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
@@ -371,6 +419,58 @@ det2
                 list.</para>
             </listitem>
           </varlistentry>
+        </variablelist>
+      </section>
+
+      <section>
+        <title>Detection</title>
+        <variablelist id="vr.opts.detection.list">
+
+          <varlistentry id="vr.opt.check-nan" xreflabel="--check-nan">
+            <term><option><![CDATA[--check-nan=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+		Activate NaN detection. NaN produces a valgrind error.
+		This functionnality requires the verrou backend.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.check-cancellation" xreflabel="--check-cancellation">
+            <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate cancellation detection. Cancellation produces a valgrind error.
+		This functionnality is available for the verrou and mcaquad backends. The level
+		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
+		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.cc-gen-file" xreflabel="--cc-gen-file">
+            <term><option><![CDATA[--cc-gen-file=<FILE>]]></option></term>
+            <listitem><para>
+		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one cancellation.
+		This functionnality is available for verrou and mcaquad backends. The level
+		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
+		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+            </para></listitem>
+          </varlistentry>
+
+
+	  <varlistentry id="vr.opt.cc-threshold-float" xreflabel="--cc-threshold-float">
+            <term><option><![CDATA[--cc-threshold-float=<integer> [default=24]]]></option></term>
+            <listitem><para>
+		Configure the cancellation  dectection threshold for float operations.
+		Default value is still experimental and could have to change.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.cc-threshold-double" xreflabel="--cc-threshold-double">
+            <term><option><![CDATA[--cc-threshold-double=<integer> [default=40]]]></option></term>
+            <listitem><para>
+		Configure the cancellation  dectection threshold for double operations.
+		Default value is still experimental and could have to change.
+            </para></listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 

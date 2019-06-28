@@ -31,11 +31,10 @@
 */
 
 #include "vr_main.h"
-
+#include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 
-
-void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
+void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard) {
   if (vr.instrument == state) {
     if(vr.verbose){
       VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
@@ -46,11 +45,15 @@ void vr_set_instrument_state (const HChar* reason, Vr_Instr state) {
   }
 
   vr.instrument = state;
-  if(vr.instrument == VR_INSTR_ON){
-    verrou_begin_instr();
-  }else{
-    verrou_end_instr();
+
+  if(discard){
+     VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
   }
+     /* if(vr.instrument == VR_INSTR_ON){ */
+  /*   verrou_begin_instr(); */
+  /* }else{ */
+  /*   verrou_end_instr(); */
+  /* } */
 
   if(vr.verbose){
     VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
@@ -87,7 +90,7 @@ static void vr_deterministic_section_name (unsigned int level,
                             NULL,
                             &linenum);
   VG_(snprintf)(name, len,
-                "%s (%s:%d)", fnname, filename, linenum);
+                "%s (%s:%u)", fnname, filename, linenum);
 }
 
 static unsigned int vr_deterministic_section_hash (HChar const*const name)
@@ -109,8 +112,8 @@ static void vr_start_deterministic_section (unsigned int level) {
 
   hash = vr_deterministic_section_hash (name);
   verrou_set_seed (hash);
-
-  VG_(message)(Vg_DebugMsg, "Entering deterministic section %d: %s\n",
+  mcaquad_set_seed (hash);
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %u: %s\n",
                hash, name);
 }
 
@@ -121,6 +124,7 @@ static void vr_stop_deterministic_section (unsigned int level) {
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
                name);
   verrou_set_random_seed ();
+  mcaquad_set_random_seed ();
 }
 
 
@@ -150,11 +154,11 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
   case -1: /* not found */
     return False;
   case 0: /* on */
-    vr_set_instrument_state("Monitor", VR_INSTR_ON);
+     vr_set_instrument_state("Monitor", VR_INSTR_ON, True);
     vr_handle_monitor_instrumentation_print();
     return True;
   case 1: /* off */
-    vr_set_instrument_state("Monitor", VR_INSTR_OFF);
+     vr_set_instrument_state("Monitor", VR_INSTR_OFF, True);
     vr_handle_monitor_instrumentation_print();
     return True;
   }
@@ -206,11 +210,11 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
 
   switch (args[0]) {
   case VR_USERREQ__START_INSTRUMENTATION:
-    vr_set_instrument_state ("Client Request", True);
+     vr_set_instrument_state ("Client Request", True, True);
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__STOP_INSTRUMENTATION:
-    vr_set_instrument_state ("Client Request", False);
+     vr_set_instrument_state ("Client Request", False, True);
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__START_DETERMINISTIC:

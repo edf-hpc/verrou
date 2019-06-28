@@ -47,6 +47,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include "valgrind/verrou.h"
 //#include "stencil_ispc.h"
 //using namespace ispc;
 
@@ -132,7 +133,7 @@ void InitData(int Nx, int Ny, int Nz, RealType *A[2], RealType *vsq) {
 
 
 int main(int argc, char *argv[]) {
-    static unsigned int test_iterations[] = {1, 1, 1};//the last two numbers must be equal here
+    static unsigned int test_iterations=1;
     int Nx = 256, Ny = 256, Nz = 256;
     int width = 4;
 
@@ -144,76 +145,36 @@ int main(int argc, char *argv[]) {
             Nz = Nz * scale;
         }
     }
-    if ((argc == 4) || (argc == 5)) {
-        for (int i = 0; i < 3; i++) {
-            test_iterations[i] = atoi(argv[argc - 3 + i]);
-        }
+    if ((argc == 3)) {
+      test_iterations = atoi(argv[2]);
     }
 
-    RealType *Aserial[2], *Aispc[2];
+    //Allocation and initialisation
+    RealType *Aserial[2];
     Aserial[0] = new RealType [Nx * Ny * Nz];
     Aserial[1] = new RealType [Nx * Ny * Nz];
-    Aispc[0] = new RealType [Nx * Ny * Nz];
-    Aispc[1] = new RealType [Nx * Ny * Nz];
     RealType *vsq = new RealType [Nx * Ny * Nz];
 
     RealType coeff[4] = { 0.5, -.25, .125, -.0625 }; 
 
-    //    InitData(Nx, Ny, Nz, Aispc, vsq);
-    //
-    // Compute the image using the ispc implementation on one core; report
-    // the minimum time of three runs.
-    //
-    double minTimeISPC = 1e30;
-    // for (unsigned int i = 0; i < test_iterations[0]; ++i) {
-    //     reset_and_start_timer();
-    //     loop_stencil_ispc(0, 6, width, Nx - width, width, Ny - width,
-    //                       width, Nz - width, Nx, Ny, Nz, coeff, vsq,
-    //                       Aispc[0], Aispc[1]);
-    //     double dt = get_elapsed_mcycles();
-    //     printf("@time of ISPC run:\t\t\t[%.3f] million cycles\n", dt);
-    //     minTimeISPC = std::min(minTimeISPC, dt);
-    // }
-
-    // printf("[stencil ispc 1 core]:\t\t[%.3f] million cycles\n", minTimeISPC);
-
-    // InitData(Nx, Ny, Nz, Aispc, vsq);
-
-    // //
-    // // Compute the image using the ispc implementation with tasks; report
-    // // the minimum time of three runs.
-    // //
-    double minTimeISPCTasks = 1e30;
-    // for (unsigned int i = 0; i < test_iterations[1]; ++i) {
-    //     reset_and_start_timer();
-    //     loop_stencil_ispc_tasks(0, 6, width, Nx - width, width, Ny - width,
-    //                             width, Nz - width, Nx, Ny, Nz, coeff, vsq,
-    //                             Aispc[0], Aispc[1]);
-    //     double dt = get_elapsed_mcycles();
-    //     printf("@time of ISPC + TASKS run:\t\t\t[%.3f] million cycles\n", dt);
-    //     minTimeISPCTasks = std::min(minTimeISPCTasks, dt);
-    // }
-
-    //    printf("[stencil ispc + tasks]:\t\t[%.3f] million cycles\n", minTimeISPCTasks);
 
     InitData(Nx, Ny, Nz, Aserial, vsq);
 
-    // 
-    // And run the serial implementation 3 times, again reporting the
-    // minimum time.
-    //
+
 
     double minTimeSerial = 1e30;
-    for (unsigned int i = 0; i < test_iterations[2]; ++i) {
+    for (unsigned int i = 0; i < test_iterations; ++i) {
         reset_and_start_timer();
+	VERROU_START_INSTRUMENTATION;
         loop_stencil_serial(0, 6, width, Nx-width, width, Ny - width,
                             width, Nz - width, Nx, Ny, Nz, coeff, vsq,
                             Aserial[0], Aserial[1]);
-        double dt = get_elapsed_msec();
-        printf("@time of serial run:\t\t\t[%.3f] milli secondes\n", dt);
-	//    minTimeSerial = std::min(minTimeSerial, dt);
+	VERROU_STOP_INSTRUMENTATION;
+        double dt = get_elapsed_sec();
+	printf("@time of serial run:\t\t\t[%.3f] secondes\n", dt);
+	minTimeSerial = std::min(minTimeSerial, dt);	
     }
-
+    printf("@mintime of serial run:\t\t\t[%.3f] secondes\n", minTimeSerial);
 
       
     // printf("\t\t\t\t(%.2fx speedup from ISPC, %.2fx speedup from ISPC + tasks)\n", 

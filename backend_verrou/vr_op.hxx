@@ -50,6 +50,12 @@ struct realTypeHelper<double>{
   static const int SimdLength=1;
 };
 
+template<>
+struct realTypeHelper<long double>{
+  typedef long double SimdBasicType;
+  static const int SimdLength=1;
+};
+
 
 template<class REALTYPESIMD>
 struct realTypeHelper<const REALTYPESIMD>{
@@ -230,10 +236,6 @@ public:
   }
 
   static inline void check(const PackArgs& p,const RealType & c){
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-
-    vr_checkCancellation (a, b, c);
   }
 
   static inline void twoSum(const RealType& a,const RealType& b, RealType& x,RealType& y ){
@@ -281,9 +283,6 @@ public:
   }
 
   static inline void check(const PackArgs& p,const RealType & c){
-    const RealType & a(p.arg1);
-    const RealType & b(-p.arg2);
-    vr_checkCancellation (a, b, c);
   }
 
 };
@@ -666,7 +665,6 @@ public:
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
-
 
   static inline void check(const PackArgs& p, const RealTypeOut& d){
   };

@@ -40,7 +40,7 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-#include "interflop_backend_interface.h"
+#include "../interflop_backend_interface.h"
 
 
   
@@ -52,7 +52,8 @@ extern "C" {
     VR_RANDOM, // Must be immediately after standard rounding modes
     VR_AVERAGE,
     VR_FARTHEST,
-    VR_FLOAT
+    VR_FLOAT,
+    VR_NATIVE
   };
 
 
@@ -71,8 +72,6 @@ extern "C" {
 
   void verrou_set_seed (unsigned int seed);
   void verrou_set_random_seed (void);
-
-  void verrou_set_cancellation_handler(void (*)(int));
 
   extern void (*vr_panicHandler)(const char*);
   void verrou_set_panic_handler(void (*)(const char*));
