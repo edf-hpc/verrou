@@ -123,6 +123,13 @@ try:
 except KeyError:
     pass
 
+ddDirectLine=False
+try:
+    ddDirectLine = os.environ["VERROU_DD_DIRECT_LINE"]
+    ddDirectLine=True
+except KeyError:
+    pass
+
 
 ddQuiet=False
 try:
@@ -309,6 +316,11 @@ def prepareOutput(dirname):
 
 def genExcludeFile(ref, dest, include):
     """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
+
+    if ref==None and include==None:
+        open(os.path.join(dest,"dd.exclude"),"w")
+        return
+        
     with open(os.path.join(ref,"dd.exclude"), "r") as f:
         excludes = f.readlines()
     with open(os.path.join(dest,"dd.include"), "w") as f:
@@ -577,7 +589,7 @@ class DDsym(DDvr):
                         os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%p")})
+                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
         assert retval == 0, "Error during reference run"
 
 
@@ -711,11 +723,15 @@ class DDline(DDvr):
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_MCA_MODE": "ieee",
                          "VERROU_EXCLUDE":       os.path.join(dirname,"dd.exclude"),
-                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%p")})
+                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
         assert retval == 0, "Error during ddline reference run"
 
+    def getDelta0(self):
+        with open(os.path.join(self.ref_ ,"dd.source"), "r") as f:
+            return f.readlines()
+            
     def filterSourceRef(self, confSyms):
-        """Filter dd.source ref by removing the line coming from the symbols (confSyms)"""
+        """Filter dd.source ref by keeping the line coming from the symbols (confSyms)"""
         deltas = []
         for sym in confSyms:
             symname = sym.partition("\t")[0]
@@ -843,14 +859,38 @@ def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
             dd.testLines(ddmin)
         #confLines+=ddmin
 
+def ddLineRDDMinDirect(run, compare, algo):
+
+        dd = DDline(run, compare, None, None, "dd.line.direct")
+        deltas=dd.getDelta0()
+
+        
+        if algo=="rddmin":
+            ddminTab = dd.RDDMin(deltas)
+        if algo.startswith("srddmin"):
+            ddminTab = dd.SRDDMin(deltas)
+        if algo.startswith("drddmin"):
+            ddminTab = dd.DRDDMin(deltas,granularity=splitGranularity)
+
+        for ddmin in ddminTab:
+            dd.testLines(ddmin)
 
 
 def main(run, compare,algoSearch="ddmax"):
+
+    if ddDirectLine:
+        if algoSearch=="ddmax":
+            print("ddmax not yet implemented for directLine option")
+            failure()
+        else:
+            ddLineRDDMinDirect(run, compare, algoSearch)
+            return
+        
     if algoSearch=="ddmax":
         (refSym, confSymsTab) = ddSym(run, compare)
         if not ddIgnoreLine:
             ddLine(run, compare, refSym, confSymsTab)
-    if "rddmin"in algoSearch:
+    if "rddmin" in algoSearch:
         (refSym, confSymsTab) = ddSymRDDMin(run, compare, algo=algoSearch)
         if not ddIgnoreLine:
             ddLineRDDMin(run, compare, refSym, confSymsTab, algo=algoSearch)
@@ -896,11 +936,15 @@ class exec_stat:
 
     def printNbRun(self, dirName="."):
         import glob
-        runSymTab=glob.glob(dirName+"/dd.sym/*/dd.run*/dd.run.out")
-        runSymFilter=[filename for filename in runSymTab if self.isNew(filename)]
-        print("sym  search : %i run (with cache included: %i)"%(len(runSymFilter),len(runSymTab)) )
+        if not ddDirectLine:
+            runSymTab=glob.glob(dirName+"/dd.sym/*/dd.run*/dd.run.out")
+            runSymFilter=[filename for filename in runSymTab if self.isNew(filename)]
+            print("sym  search : %i run (with cache included: %i)"%(len(runSymFilter),len(runSymTab)) )
 
-        runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")+ glob.glob("./dd.sym/*/dd.line/*/dd.run*/dd.run.out")
+        if ddDirectLine:
+            runLineTab=glob.glob(dirName+"/dd.line.direct/*/dd.run*/dd.run.out")
+        else:
+            runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")+ glob.glob("./dd.sym/*/dd.line/*/dd.run*/dd.run.out")
         runLineFilter=[filename for filename in runLineTab if self.isNew(filename)]
 
         print("line search : %i run (with cache included: %i)"%(len(runLineFilter),len(runLineTab)) )
