@@ -116,17 +116,10 @@ except KeyError:
     pass
 
 
-ddIgnoreLine=False
+ddSymOrLine="line"
 try:
-    ddIgnoreLine = os.environ["VERROU_DD_IGNORE_LINE"]
-    ddIgnoreLine=True
-except KeyError:
-    pass
-
-ddDirectLine=False
-try:
-    ddDirectLine = os.environ["VERROU_DD_DIRECT_LINE"]
-    ddDirectLine=True
+    sym = os.environ["VERROU_DD_SYM"]
+    ddSymOrLine="sym"
 except KeyError:
     pass
 
@@ -150,7 +143,7 @@ def printEnvDoc():
     VERROU_DD_DICHO_TAB : in ["exp", "all" ,"single", "half"] or int (default "half")
     VERROU_DD_DICHO_GRANULARITY : int
     VERROU_DD_QUIET : set or not (default not)
-    VERROU_DD_IGNORE_LINE : set or not (default not)
+    VERROU_DD_SYM : set or not (default not)
     """)
 
 
@@ -197,19 +190,19 @@ class verrouTask:
         self.PASS=DD.DD.PASS
         self.typeRun=typeRun
         self.subProcessRun={}
-        
+
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
             if self.typeRun=="exclude":
                 genExcludeFile(self.refDir, self.dirname, deltas)
             if self.typeRun=="source":
-        
+
                 with open(os.path.join(self.dirname,"dd.source"), "w") as f:
                     f.write("__unknown__\t0\n")
                     for d in deltas:
                         f.write(d)
         print(self.dirname,end="")
-        
+
     def nameDir(self,i):
         return  os.path.join(self.dirname,"dd.run%i" % (i+1))
 
@@ -257,16 +250,16 @@ class verrouTask:
 
         res= [x for x in range(nbRun) if not ('dd.run'+str(x+1)) in done]
         return res
-        
+
     def run(self):
         workToDo=self.sampleToComputeToGetFailure(self.nbRun)
         if workToDo==None:
             print(" --(cache) -> FAIL")
             return self.FAIL
-        
+
         if len(workToDo)!=0:
-            print(" --( run )-> ",end="",flush=True)        
-        
+            print(" --( run )-> ",end="",flush=True)
+
             if maxNbPROC==None:
                 returnVal=self.runSeq(workToDo)
             else:
@@ -277,7 +270,6 @@ class verrouTask:
             return returnVal
         print(" --(cache)-> PASS("+str(self.nbRun)+")")
         return self.PASS
-    
 
     def runSeq(self,workToDo):
 
@@ -285,19 +277,19 @@ class verrouTask:
             self.mkdir(run)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
-            
+
             if retVal=="FAIL":
                 return self.FAIL
         return self.PASS
 
-    def runPar(self,workToDo):            
+    def runPar(self,workToDo):
 
         for run in workToDo:
             self.mkdir(run)
             self.runOneSample(run)
         for run in workToDo:
             retVal=self.cmpOneSample(run)
-            
+
             if retVal=="FAIL":
                 return self.FAIL
 
@@ -320,7 +312,7 @@ def genExcludeFile(ref, dest, include):
     if ref==None and include==None:
         open(os.path.join(dest,"dd.exclude"),"w")
         return
-        
+
     with open(os.path.join(ref,"dd.exclude"), "r") as f:
         excludes = f.readlines()
     with open(os.path.join(dest,"dd.include"), "w") as f:
@@ -330,14 +322,14 @@ def genExcludeFile(ref, dest, include):
     with open(os.path.join(dest,"dd.exclude"), "w") as f:
         for line in excludes:
             f.write(line)
-            
+
 def mergeList(dirname, name="dd.exclude"):
-    """merge the file name.$PID into a uniq file called name """ 
+    """merge the file name.$PID into a uniq file called name """
     listOfExcludeFile=[ x for x in os.listdir(dirname) if x.startswith(name+".")]
     if len(listOfExcludeFile)<1:
         print("The generation of exclusion/source files failed")
         failure()
-                
+
     with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
         excludeMerged=f.readlines()
 
@@ -358,16 +350,76 @@ def symlink(src, dst):
 
 
 class DDvr(DD.DD):
-    def __init__(self, prefix):
+    def __init__(self, run, compare, prefix):
         DD.DD.__init__(self)
+        self.run_ = run
+        self.compare_ = compare
         self.cache_outcomes = False
         self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.ref_ = os.path.join(self.prefix_, "ref")
+
+        prepareOutput(self.ref_)
+        self.reference()
         self.index=0
+
+    def checkReference(self):
+        retval = runCmd([self.compare_,self.ref_, self.ref_],
+                        os.path.join(self.ref_,"checkRef"))
+        if retval != 0:
+            print("FAILURE: the reference is not valid ")
+            print("Suggestions:")
+            print("\t1) check the correctness of the %s script"%self.compare_)
+            print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
+
+            print("Files to analyze:")
+            print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+            print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
+            failure()
+
+    def testWithLink(self, deltas, linkname):
+        #by default the symlinks are generated when the test fail
+        testResult=self._test(deltas)
+        dirname = os.path.join(self.prefix_, md5Name(deltas))
+        symlink(dirname, os.path.join(self.prefix_,linkname))
+        return testResult
 
     def report_progress(self, c, title):
         if not ddQuiet:
             super().report_progress(c,title)
+
+    def configuration_found(self, kind_str, delta_config,verbose=True):
+        if verbose:
+            print("%s (%s):"%(kind_str,self.coerce(delta_config)))
+        self.testWithLink(delta_config, kind_str)
+
+    def run(self, deltas=None, algo=None, granularity=None):
+        if deltas==None:
+            deltas=self.getDelta0()
+
+        resConf=None
+        if algo=="rddmin":
+            resConf = self.RDDMin(deltas)
+        if algo.startswith("srddmin"):
+            resConf= self.SRDDMin(deltas)
+        if algo.startswith("drddmin"):
+            resConf = self.DRDDMin(deltas,granularity=granularity)
+        if algo=="ddmax":
+            resConf= self.DDMax(deltas)
+        else:
+            if resConf!=None:
+                flatRes=[c  for conf in resConf for c in conf]
+                cmp= [delta for delta in deltas if  delta not in flatRes ]
+                self.configuration_found("rddmin-cmp", cmp)
+
+        return resConf
+
+    def DDMax(self, deltas):
+        res=self.verrou_dd_max(deltas)
+        cmp=[delta for delta in deltas if delta not in res]
+        self.configuration_found("ddmax", cmp)
+        self.configuration_found("ddmax-cmp", res)
+
+        return cmp
 
     def RDDMin(self, deltas,nbRun=nbRUN):
         ddminTab=[]
@@ -379,7 +431,8 @@ class DDvr(DD.DD):
             conf = self.verrou_dd_min(deltas,nbRun)
 
             ddminTab += [conf]
-            print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
+            self.configuration_found("ddmin%d"%(self.index), conf)
+            #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
 
             #update deltas
             deltas=[delta for delta in deltas if delta not in conf]
@@ -418,7 +471,8 @@ class DDvr(DD.DD):
                 if status==self.FAIL:
                     if len(ci)==1:
                         #if the subset size is one the subset is a valid ddmin : treat as such
-                        print("ddmin%d (%s):"%(self.index,self.coerce(ci)))
+                        self.configuration_found("ddmin%d"%(self.index), ci)
+                        #print("ddmin%d (%s):"%(self.index,self.coerce(ci)))
                         self.index+=1
                         res.append(ci)
                     else:
@@ -556,12 +610,13 @@ class DDvr(DD.DD):
                 if len(conf)!=1:
                     #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
-                        conf = self.verrou_dd_min(conf,runIncValue)            
+                        conf = self.verrou_dd_min(conf,runIncValue)
                         if len(conf)==1:
                             break
-                    
+
                 ddminTab += [conf]
-                print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
+                self.configuration_found("ddmin%d"%(self.index), conf)
+                #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
                 self.index+=1
                 #update search space
                 deltas=[delta for delta in deltas if delta not in conf]
@@ -570,44 +625,7 @@ class DDvr(DD.DD):
 
         return ddminTab
 
-
-class DDsym(DDvr):
-    def __init__(self, run, compare):
-        DDvr.__init__(self, "dd.sym")
-        self.run_ = run
-        self.compare_ = compare
-
-        self.reference()
-        mergeList(self.ref_,"dd.exclude")
-        self.checkReference()
-
-    def reference(self):
-        dirname = self.ref_
-        prepareOutput(dirname)
-
-        retval = runCmd([self.run_, dirname],
-                        os.path.join(dirname,"dd"),
-                        {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
-        assert retval == 0, "Error during reference run"
-
-
-    def checkReference(self):
-        retval = runCmd([self.compare_,self.ref_, self.ref_],
-                        os.path.join(self.ref_,"checkRef"))
-        if retval != 0:
-            print("FAILURE: the reference is not valid ")
-            print("Suggestions:")
-            print("\t1) check the correctness of the %s script"%self.compare_)
-            print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
-
-            print("Files to analyze:")
-            print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
-            print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
-            failure()
-#            print("\t3) check the ")
-
+    #Error Msg
     def deltaFailedMsg(self,delta):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
@@ -626,95 +644,61 @@ class DDsym(DDvr):
         print ("\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
         print ("\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe")
 
+        dirname = md5Name(delta)
+        print("Directory to analyze: %s"%dirname)
         failure()
 
-        
 
     def noDeltaSucceedMsg(self,deltas=[]):
         print("FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed")
-        
+
         print("Suggestions:")
         print("\t1) check the libm library is correctly excluded")
         print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
         failure()
+
+
+
+class DDsym(DDvr):
+    def __init__(self, run, compare, prefix="dd.sym"):
+        DDvr.__init__(self, run, compare, prefix)
+        mergeList(self.ref_,"dd.exclude")
+        self.checkReference()
+
+    def getDelta0(self):
+        with open(os.path.join(self.ref_,"dd.exclude"), "r") as f:
+            deltas = f.readlines()
+            return deltas
+
+    def reference(self):
+        dirname = self.ref_
+        prepareOutput(dirname)
+
+        retval = runCmd([self.run_, dirname],
+                        os.path.join(dirname,"dd"),
+                        {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_MCA_MODE": "ieee",
+                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
+        assert retval == 0, "Error during reference run"
+
 
     def _test(self, deltas,nbRun=nbRUN):
 
         vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRun, "exclude")
         return vT.run()
 
-
-    
     def coerce(self, config):
         return "\n  " + "  ".join(config)
 
-    def testSym(self, deltas, symlinkconf=None):
-        #by default the symlinks are generated when the test fail
 
-        testResult=self._test(deltas)
 
-        syms = [delta.partition("\t")[0] for delta in deltas]
-        #symsname=reduce(lambda sym1,sym2 : sym1+","+sym2,syms)
-        symsname=",".join(syms)
 
-        if symlinkconf==True or (symlinkconf!=False and testResult==self.FAIL):
-            if symlinkconf==None:
-                linkname = "%s.%s"%(self.prefix_, symsname)
-            else:
-                linkname=  os.path.join(self.prefix_,symlinkconf)
-            dirname = os.path.join(self.prefix_, md5Name(deltas))
-            symlink(dirname, linkname)
-
-        if testResult==self.PASS:
-            print("WARNING: the symbol(s) " + symsname + " do not generate a FAIL")
-
-        return testResult
-
-def ddSym(run, compare):
-    dd = DDsym(run, compare)
-
-    with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
-        deltas = f.readlines()
-
-#    conf = dd.ddmax(deltas)
-    conf = dd.verrou_dd_max(deltas)
-    print("ddmax:" + dd.coerce(conf))
-
-    #for delta in conf:
-    #    dd.testSym(delta)
-    reducedConf=[delta for delta in conf if dd.testSym([delta])==dd.FAIL]
-
-    return (dd.ref_, [reducedConf])
-
-def ddSymRDDMin(run, compare, algo):
-    dd = DDsym(run,compare)
-    with open(os.path.join(dd.ref_,"dd.exclude"), "r") as f:
-        deltas = f.readlines()
-
-    if algo=="rddmin":
-        confTab = dd.RDDMin(deltas)
-    if algo.startswith("srddmin"):
-        confTab = dd.SRDDMin(deltas)
-
-    if algo.startswith("drddmin"):
-        confTab = dd.DRDDMin(deltas,granularity=splitGranularity)
-
-    for i in range(len(confTab)):
-        conf=confTab[i]
-        dd.testSym(conf, symlinkconf="ddmin-%d"%(i))
-
-    return (dd.ref_, confTab)
 
 class DDline(DDvr):
-    def __init__(self, run, compare, refSym, confSyms, prefix="dd.line"):
-        DDvr.__init__(self, prefix)
-        self.run_ = run
-        self.compare_ = compare
-
-        prepareOutput(self.ref_)
-        genExcludeFile(refSym, self.ref_, confSyms)
-        self.reference()
+    def __init__(self, run, compare, prefix="dd.line"):
+        DDvr.__init__(self, run, compare, prefix)
         mergeList(self.ref_,"dd.source")
+        self.checkReference()
 
     def reference(self):
         dirname = self.ref_
@@ -722,25 +706,12 @@ class DDline(DDvr):
                         os.path.join(dirname,"dd"),
                         {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_MCA_MODE": "ieee",
-                         "VERROU_EXCLUDE":       os.path.join(dirname,"dd.exclude"),
                          "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
         assert retval == 0, "Error during ddline reference run"
 
     def getDelta0(self):
         with open(os.path.join(self.ref_ ,"dd.source"), "r") as f:
             return f.readlines()
-            
-    def filterSourceRef(self, confSyms):
-        """Filter dd.source ref by keeping the line coming from the symbols (confSyms)"""
-        deltas = []
-        for sym in confSyms:
-            symname = sym.partition("\t")[0]
-            with open(os.path.join(self.ref_ ,"dd.source"), "r") as f:
-                for line in f:
-                    if line.endswith("\t%s\n"%symname) and line not in deltas:
-                        deltas.append(line)
-        return deltas
-
 
     def _test(self, deltas,nbRun=nbRUN):
         vT=verrouTask(self.prefix_, deltas, self.ref_,self.run_, self.compare_ ,nbRun, "source")
@@ -751,149 +722,20 @@ class DDline(DDvr):
                                       [(col[0], int(col[1]), col[2]) for col in
                                        [(l.strip()+"\t\t").split("\t") for l in config]]])
 
-    def testLine(self, delta, symlinkconf=None):
-        deltas = [delta]
-#        dirname = self.testName(deltas)
-        testResult=self._test(deltas)
-
-        (filename, linenum) = delta.strip().split("\t")[0:2]
-        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
-            linkname = "%s.%s:%s"%(self.prefix_, filename, linenum)
-            dirname=os.path.join(self.prefix_,md5Name(deltas))
-            symlink(dirname, linkname)
-        if testResult==self.PASS:
-            print("WARNING: the line %s:%s do not generate a FAIL"%(filename,linenum))
-
-
-    def testLines(self, deltas, symlinkconf=None):
-#        dirname = self.testName(deltas)
-        testResult=self._test(deltas)
-
-        #get the name of the conf
-        dictLines={}
-        for (filename, linenum) in [delta.strip().split("\t")[0:2] for delta in deltas]:
-            if filename in dictLines:
-                dictLines[filename]+=[linenum]
-            else:
-                dictLines[filename]=[linenum]
-        confname="_".join([f+":"+ (",".join(dictLines[f]))  for f in dictLines] )
-#        confname="_".join([f+":"+reduce(lambda l1,l2: l1+","+l2 ,dictLines[f])  for f in dictLines] )
-        
-        
-        if symlinkconf==True or (symlinkconf==None and testResult==self.FAIL):
-            linkname = "%s.%s"%(self.prefix_, confname)
-            dirname=os.path.join(self.prefix_,md5Name(deltas))
-            symlink(dirname, linkname)
-        if testResult==self.PASS:
-            print("WARNING: the line %s do not generate a FAIL"%(confname))
-
-
-    def noDeltaSucceedMsg(self,deltas=[]):
-        raise DDLineError("noDeltaSucceedMsg")
-
-    def deltaFailedMsg(self, deltas=[]):
-        raise DDLineError("deltaFailedMsg")
-
-    def allDeltaFailedMsg(self, deltas):
-        raise DDLineError("allDeltaFailedMsg")
 
 
 
-class DDLineError(Exception):
-    """Exception for DDLine Algorithm"""
-    def __init__(self,msg):
-        self.msg=msg
 
-
-def ddLine(run, compare, refSym, confSymsTab):
-    confLines = []
-
-    for confSyms in confSymsTab:
-        dd = DDline(run, compare, refSym, confSyms)
-
-        for confSym in confSyms:
-            deltas=dd.filterSourceRef([confSym])
-            try:
-                conf = dd.verrou_dd_max(deltas)
-                confLines += conf
-                symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
-                print("ddmax (%s):"%symname + dd.coerce(conf))
-
-                for delta in conf:
-                    dd.testLine(delta)
-            except DDLineError:
-                traceback.print_exc()
-
-    print("ddmax (global):" + dd.coerce(confLines))
-    return confLines
-
-
-def ddLineRDDMin(run, compare, refSym, confSymsTab, algo):
-
-#    confLines = []
-    for i in range(len(confSymsTab)):
-        confSyms=confSymsTab[i]
-        dd = DDline(run, compare, refSym, confSyms, os.path.join("dd.sym","ddmin-%d"%(i) ,"dd.line"))
-
-        deltas=dd.filterSourceRef(confSyms)
-        symname = ",".join([sym.partition("\t")[0] for sym in confSyms])
-
-        if(len(deltas)==0):
-            print("Warning ddLinerddMin(%s) : empty lines search (symbol compiled with debug option?)"%(symname))
-            continue
-
-        try:
-
-            if algo=="rddmin":
-                ddminTab = dd.RDDMin(deltas)
-            if algo.startswith("srddmin"):
-                ddminTab = dd.SRDDMin(deltas)
-            if algo.startswith("drddmin"):
-                ddminTab = dd.DRDDMin(deltas,granularity=splitGranularity)
-
-        except DDLineError:
-            ddminTab=[]
-            traceback.print_exc()
-
-        for ddmin in ddminTab:
-            dd.testLines(ddmin)
-        #confLines+=ddmin
-
-def ddLineRDDMinDirect(run, compare, algo):
-
-        dd = DDline(run, compare, None, None, "dd.line.direct")
-        deltas=dd.getDelta0()
-
-        
-        if algo=="rddmin":
-            ddminTab = dd.RDDMin(deltas)
-        if algo.startswith("srddmin"):
-            ddminTab = dd.SRDDMin(deltas)
-        if algo.startswith("drddmin"):
-            ddminTab = dd.DRDDMin(deltas,granularity=splitGranularity)
-
-        for ddmin in ddminTab:
-            dd.testLines(ddmin)
 
 
 def main(run, compare,algoSearch="ddmax"):
+    if ddSymOrLine=="line":
+        dd = DDline(run, compare)
+    if ddSymOrLine=="sym":
+        dd = DDsym(run,compare)
+    dd.run(algo=algo, granularity=splitGranularity)
+    return
 
-    if ddDirectLine:
-        if algoSearch=="ddmax":
-            print("ddmax not yet implemented for directLine option")
-            failure()
-        else:
-            ddLineRDDMinDirect(run, compare, algoSearch)
-            return
-        
-    if algoSearch=="ddmax":
-        (refSym, confSymsTab) = ddSym(run, compare)
-        if not ddIgnoreLine:
-            ddLine(run, compare, refSym, confSymsTab)
-    if "rddmin" in algoSearch:
-        (refSym, confSymsTab) = ddSymRDDMin(run, compare, algo=algoSearch)
-        if not ddIgnoreLine:
-            ddLineRDDMin(run, compare, refSym, confSymsTab, algo=algoSearch)
 
 def usageCmd():
     print("Usage: "+ sys.argv[0] + " runScript cmpScript")
@@ -936,19 +778,15 @@ class exec_stat:
 
     def printNbRun(self, dirName="."):
         import glob
-        if not ddDirectLine:
+        if ddSymOrLine=="sym":
             runSymTab=glob.glob(dirName+"/dd.sym/*/dd.run*/dd.run.out")
             runSymFilter=[filename for filename in runSymTab if self.isNew(filename)]
             print("sym  search : %i run (with cache included: %i)"%(len(runSymFilter),len(runSymTab)) )
 
-        if ddDirectLine:
-            runLineTab=glob.glob(dirName+"/dd.line.direct/*/dd.run*/dd.run.out")
-        else:
-            runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")+ glob.glob("./dd.sym/*/dd.line/*/dd.run*/dd.run.out")
-        runLineFilter=[filename for filename in runLineTab if self.isNew(filename)]
-
-        print("line search : %i run (with cache included: %i)"%(len(runLineFilter),len(runLineTab)) )
-
+        if ddSymOrLine=="line":
+            runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")
+            runLineFilter=[filename for filename in runLineTab if self.isNew(filename)]
+            print("line search : %i run (with cache included: %i)"%(len(runLineFilter),len(runLineTab)) )            
 
 if __name__ == "__main__":
     et=exec_stat()

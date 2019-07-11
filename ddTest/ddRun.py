@@ -62,6 +62,8 @@ class ddConfig:
     
     def getExcludeIntSymFromExclusionFile(self, excludeFile):
         """ Return the Int Symbol list excluded with excludeFile """
+        if excludeFile==None:
+            return []
         return [int((line.split()[0]).replace("sym-", "")) for line in ((open(excludeFile.strip(), "r")).readlines()) ]
 
     def getIncludeIntSymFromExclusionFile(self,excludeFile):
@@ -107,11 +109,9 @@ class ddConfig:
                     return 1
         return 0
 
-    def statusOfSourceConfig(self, configSym, configLine):
-        print("configSym:", configSym)
+    def statusOfSourceConfig(self, configLine):
         print("configLine:", configLine)
-        listOfSym=self.getExcludeIntSymFromExclusionFile(configSym)
-        print("listOfsym: ", listOfSym)
+        listOfSym=[]
         
         configLineLines=self.getIncludedLines(configLine)
         print("configLineLines:", configLineLines)
@@ -167,9 +167,12 @@ def generateFakeSource(ddCase):
     genSourceFile=os.environ["VERROU_GEN_SOURCE"]
     genSourceFile=genSourceFile.replace("%p", "4242")
 
-    
-    excludeFile= os.environ["VERROU_EXCLUDE"]
-    
+    excludeFile=None
+    try:
+        excludeFile= os.environ["VERROU_EXCLUDE"]
+    except:
+        excludeFile=None
+    print('excludeFile:',excludeFile) 
     f=open(genSourceFile, "w")
     for (source, line,  symName) in ddCase.listOfTxtLine(excludeFile):
         f.write(source +"\t" + str(line)+"\t"+symName+"\n")
