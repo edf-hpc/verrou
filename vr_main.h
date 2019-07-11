@@ -221,12 +221,16 @@ void vr_includeSource_generate (Vr_IncludeSource** list,
 
 
 // ** vr_include_trace.c
-static Vr_Include_Trace* vr_addIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname);
-static Vr_Include_Trace * vr_findIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname);
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
 Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);
 Bool vr_includeTraceIRSB (const HChar** fnname, const HChar **objname);
 
+
+//**  vr_traceBB.c
+
+
+void vr_traceBB_resetCov(void);
+UInt vr_traceBB_dumpCov(void);
 
 #define VR_FNNAME_BUFSIZE 4096
 

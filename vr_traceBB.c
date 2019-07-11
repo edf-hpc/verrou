@@ -1,4 +1,4 @@
-
+#include "vr_main.h"
 
 
 struct traceBB_T {
@@ -122,7 +122,7 @@ void vr_traceBB_initialize(void){
 
 void vr_traceBB_finalyze(void);
 void vr_traceBB_finalyze(void){
-  freeTraceBBList();
+   freeTraceBBList();
 
   if(vr_out_bb_info!=NULL){
     VG_(fclose)(vr_out_bb_info);
@@ -139,7 +139,7 @@ void vr_traceBB_finalyze(void){
 
 }
 
-void vr_traceBB_resetCov(void);
+
 void vr_traceBB_resetCov(void){
   traceBB_t* current=traceList;
   while (current != NULL) {
@@ -149,15 +149,15 @@ void vr_traceBB_resetCov(void){
 }
 
 
-UInt vr_traceBB_dumpCov(void);
+
 UInt vr_traceBB_dumpCov(void){
   static UInt numPartialCov=0;
 
-  VG_(fprintf)(vr_out_bb_cov, "cover-%d\n", numPartialCov);
+  VG_(fprintf)(vr_out_bb_cov, "cover-%u\n", numPartialCov);
   traceBB_t* current=traceList;
   while (current != NULL) {
     if(current->counter!=0){
-      VG_(fprintf)(vr_out_bb_cov,"%d:%d\n",(current->index),(current->counter));
+      VG_(fprintf)(vr_out_bb_cov,"%u:%u\n",(current->index),(current->counter));
     }
     current = current->next;
   }
@@ -171,7 +171,7 @@ UInt vr_traceBB_dumpCov(void){
 
 void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum);
 void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum){
-  VG_(fprintf)(vr_out_bb_info, "%d : %s : %s : %d\n", (tr->index), fnname, filename, lineNum);
+  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u\n", (tr->index), fnname, filename, lineNum);
 }
 
 
