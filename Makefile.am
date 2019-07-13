@@ -12,7 +12,7 @@ pkginclude_HEADERS = verrou.h
 
 PYTHON_REP=pyTools
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd ${PYTHON_REP}/cmpCov.py
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py
 
 install-exec-local:
 	mkdir -p ${pkgpythondir}
