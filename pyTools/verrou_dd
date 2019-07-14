@@ -6,14 +6,11 @@ import subprocess
 import sys
 import os
 import shutil
-#import md5
 import hashlib
 import copy
 from valgrind import DD
 from valgrind import dd_config
-import traceback
-import shutil
-import signal
+
 import time
 
 
@@ -51,7 +48,7 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, prefix,deltas, refDir,runCmd, cmpCmd,nbRun, maxNbPROC=None, typeRun="exclude"):
+    def __init__(self, prefix,deltas, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, lambdaGen, lambdaEnv):
         self.dirname=os.path.join(prefix, md5Name(deltas))
         self.refDir=refDir
         self.runCmd=runCmd
@@ -59,19 +56,14 @@ class verrouTask:
         self.nbRun=nbRun
         self.FAIL=DD.DD.FAIL
         self.PASS=DD.DD.PASS
-        self.typeRun=typeRun
+
         self.subProcessRun={}
         self.maxNbPROC= maxNbPROC
+        self.lambdaEnv=lambdaEnv
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
-            if self.typeRun=="exclude":
-                genExcludeFile(self.refDir, self.dirname, deltas)
-            if self.typeRun=="source":
+            lambdaGen(self.refDir, self.dirname, deltas)
 
-                with open(os.path.join(self.dirname,"dd.source"), "w") as f:
-                    f.write("__unknown__\t0\n")
-                    for d in deltas:
-                        f.write(d)
         print(self.dirname,end="")
 
     def nameDir(self,i):
@@ -84,15 +76,10 @@ class verrouTask:
 
     def runOneSample(self,i):
         rundir= self.nameDir(i)
-        env={}
-        if self.typeRun=="exclude":
-            env={"VERROU_EXCLUDE": os.path.join(self.dirname,"dd.exclude")}
-        if self.typeRun=="source":
-            env={"VERROU_SOURCE":  os.path.join(self.dirname,"dd.source")}
 
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
                                           os.path.join(rundir,"dd.run"),
-                                          env)
+                                          self.lambdaEnv(self.dirname))
 
     def cmpOneSample(self,i):
         rundir= self.nameDir(i)
@@ -177,28 +164,13 @@ def prepareOutput(dirname):
      shutil.rmtree(dirname, ignore_errors=True)
      os.makedirs(dirname)
 
-def genExcludeFile(ref, dest, include):
-    """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
 
-    if ref==None and include==None:
-        open(os.path.join(dest,"dd.exclude"),"w")
-        return
-
-    with open(os.path.join(ref,"dd.exclude"), "r") as f:
-        excludes = f.readlines()
-    with open(os.path.join(dest,"dd.include"), "w") as f:
-        for d in include:
-            excludes.remove(d)
-            f.write(d)
-    with open(os.path.join(dest,"dd.exclude"), "w") as f:
-        for line in excludes:
-            f.write(line)
-
+            
 def failure():
     sys.exit(42)
 
 
-def mergeList(dirname, name="dd.exclude"):
+def mergeList(dirname, name):
     """merge the file name.$PID into a uniq file called name """
     listOfExcludeFile=[ x for x in os.listdir(dirname) if x.startswith(name+".")]
     if len(listOfExcludeFile)<1:
@@ -224,20 +196,25 @@ def symlink(src, dst):
     os.symlink(src, dst)
 
 
-class DDvr(DD.DD):
+class DDStoch(DD.DD):
     def __init__(self, config, prefix):
         DD.DD.__init__(self)
         self.config_=config
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
         self.cache_outcomes = False
+        self.index=0
         self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.ref_ = os.path.join(self.prefix_, "ref")
 
         prepareOutput(self.ref_)
         self.reference()
-        self.index=0
+        
+        mergeList(self.ref_, self.getDeltaFileName())
+        self.checkReference()
 
+
+        
     def checkReference(self):
         retval = runCmd([self.compare_,self.ref_, self.ref_],
                         os.path.join(self.ref_,"checkRef"))
@@ -537,68 +514,93 @@ class DDvr(DD.DD):
         print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
         failure()
 
-
-
-class DDsym(DDvr):
-    def __init__(self, config, prefix="dd.sym"):
-        DDvr.__init__(self, config, prefix)
-        mergeList(self.ref_,"dd.exclude")
-        self.checkReference()
-
-    def getDelta0(self):
-        with open(os.path.join(self.ref_,"dd.exclude"), "r") as f:
-            deltas = f.readlines()
-            return deltas
-
     def reference(self):
-        dirname = self.ref_
-        prepareOutput(dirname)
-
-        retval = runCmd([self.run_, dirname],
-                        os.path.join(dirname,"dd"),
-                        {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(dirname,"dd.exclude.%%p")})
+        retval = runCmd([self.run_, self.ref_],
+                        os.path.join(self.ref_,"dd"),
+                        self.referenceRunEnv())
         assert retval == 0, "Error during reference run"
 
-
-    def _test(self, deltas,nbRun=None):
-        if nbRun==None:
-            nbRun=self.config_.get_nbRUN()
-        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() ,"exclude")
-        return vT.run()
-
-    def coerce(self, delta_config):
-        return "\n  " + "  ".join(delta_config)
-
-
-
-
-
-class DDline(DDvr):
-    def __init__(self, config, prefix="dd.line"):
-        DDvr.__init__(self, config, prefix)
-        mergeList(self.ref_,"dd.source")
-        self.checkReference()
-
-    def reference(self):
-        dirname = self.ref_
-        retval = runCmd([self.run_, dirname],
-                        os.path.join(dirname,"dd"),
-                        {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_SOURCE":    os.path.join(dirname,"dd.source.%%p")})
-        assert retval == 0, "Error during ddline reference run"
-
     def getDelta0(self):
-        with open(os.path.join(self.ref_ ,"dd.source"), "r") as f:
+        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
             return f.readlines()
 
     def _test(self, deltas,nbRun=None):
         if nbRun==None:
             nbRun=self.config_.get_nbRUN()
-        vT=verrouTask(self.prefix_, deltas, self.ref_,self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC(),"source")
+
+        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.lambdaGenDeltaFile() , self.lambdaSampleRunEnv())
         return vT.run()
+
+
+#debut DDsym
+def genExcludeFile(ref, dest, include):
+    """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
+
+    if ref==None and include==None:
+        open(os.path.join(dest,"dd.exclude"),"w")
+        return
+
+    with open(os.path.join(ref,"dd.exclude"), "r") as f:
+        excludes = f.readlines()
+    with open(os.path.join(dest,"dd.include"), "w") as f:
+        for d in include:
+            excludes.remove(d)
+            f.write(d)
+    with open(os.path.join(dest,"dd.exclude"), "w") as f:
+        for line in excludes:
+            f.write(line)
+
+    
+class DDsym(DDStoch):
+    def __init__(self, config, prefix="dd.sym"):
+        DDStoch.__init__(self, config, prefix)
+
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_MCA_MODE": "ieee",
+                         "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.exclude.%%p")}
+        
+    def lambdaSampleRunEnv(self):
+        return lambda dirName: {"VERROU_EXCLUDE": os.path.join(dirName,"dd.exclude")}
+
+    def lambdaGenDeltaFile(self):
+        return genExcludeFile
+    
+
+    def coerce(self, delta_config):
+        return "\n  " + "  ".join(delta_config)
+
+    def getDeltaFileName(self):
+        return "dd.exclude"
+        
+
+#Debut DDline
+
+def genSourceFile(ref, dest, deltas):
+    with open(os.path.join(dest,"dd.source"), "w") as f:
+        f.write("__unknown__\t0\n")
+        for d in deltas:
+            f.write(d)
+
+class DDline(DDStoch):
+    def __init__(self, config, prefix="dd.line"):
+        DDStoch.__init__(self, config, prefix)
+
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": "nearest",
+                "VERROU_MCA_MODE": "ieee",
+                "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.source.%%p")}
+        
+    def getDeltaFileName(self):
+        return "dd.source"
+    
+    def lambdaSampleRunEnv(self):
+        return lambda dirName: {"VERROU_SOURCE": os.path.join(dirName,"dd.source")}
+    
+    def lambdaGenDeltaFile(self):
+        return genSourceFile        
 
     def coerce(self, delta_config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
@@ -651,15 +653,10 @@ class exec_stat:
 
     def printNbRun(self, ddSymOrLine,dirName="."):
         import glob
-        if ddSymOrLine=="sym":
-            runSymTab=glob.glob(dirName+"/dd.sym/*/dd.run*/dd.run.out")
-            runSymFilter=[filename for filename in runSymTab if self.isNew(filename)]
-            print("sym  search : %i run (with cache included: %i)"%(len(runSymFilter),len(runSymTab)) )
 
-        if ddSymOrLine=="line":
-            runLineTab=glob.glob(dirName+"/dd.line/*/dd.run*/dd.run.out")
-            runLineFilter=[filename for filename in runLineTab if self.isNew(filename)]
-            print("line search : %i run (with cache included: %i)"%(len(runLineFilter),len(runLineTab)) )            
+        runTab=glob.glob(dirName+"/dd."+ddSymOrLine+"/*/dd.run*/dd.run.out")
+        runFilter=[filename for filename in runTab if self.isNew(filename)]
+        print(ddSymOrLine+"  search : %i run (with cache included: %i)"%(len(runFilter),len(runTab)) )
 
 if __name__ == "__main__":
     et=exec_stat()

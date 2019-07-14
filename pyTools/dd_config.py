@@ -33,7 +33,7 @@ class ddConfig:
             print(self.get_EnvDoc(self.config_keys[-1]))
             self.failure()
 
-            if len(argv)!=3:
+        if len(argv)!=3:
             self.usageCmd()
             self.failure()
 
