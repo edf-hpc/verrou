@@ -132,6 +132,8 @@ typedef struct {
 
   Bool genIncludeSource;
   HChar* includeSourceFile;
+
+  Bool sourceActivated;
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
 

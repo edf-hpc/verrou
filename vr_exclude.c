@@ -385,10 +385,6 @@ void vr_includeSource_generate (Vr_IncludeSource** list, const HChar* fnname, co
 }
 
 Bool vr_includeSource (Vr_IncludeSource** list, const HChar* fnname, const HChar* filename, UInt linenum) {
-  // No inclusion list => include everything
-  if (*list == NULL) {
-    return True;
-  }
 
   // Never include lines in unnamed source files (=> always use "-g" when compiling)
   if (filename[0] == 0) {

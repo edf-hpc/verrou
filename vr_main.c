@@ -908,7 +908,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	vr_traceBB_trace_imark(traceBB,fnname, filename,linenum);
       }
       if(!vr.genIncludeSource){
-	includeSource = vr_includeSource (&vr.includeSource, fnname, filename, linenum);
+	includeSource = vr.sourceActivated && vr_includeSource (&vr.includeSource, fnname, filename, linenum);
       }
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }

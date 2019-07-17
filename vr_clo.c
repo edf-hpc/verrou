@@ -59,6 +59,7 @@ void vr_clo_defaults (void) {
 
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
+  vr.sourceActivated= False;
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
@@ -208,6 +209,7 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_STR_CLO (arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
+    vr.sourceActivated = True;
   }
 
   else if (VG_STR_CLO (arg, "--cc-gen-file", str)) {
