@@ -13,75 +13,47 @@ import time
 
 
 
-#debut DDsym
-def genExcludeFile(ref, dest, include):
-    """Generate the dd.exclude and dd.include file in rep dest from the dd.exclude (coming from ref) and include tab (usually called deltas)"""
 
-    if ref==None and include==None:
-        open(os.path.join(dest,"dd.exclude"),"w")
-        return
-
-    with open(os.path.join(ref,"dd.exclude"), "r") as f:
-        excludes = f.readlines()
-    with open(os.path.join(dest,"dd.include"), "w") as f:
-        for d in include:
-            excludes.remove(d)
-            f.write(d)
-    with open(os.path.join(dest,"dd.exclude"), "w") as f:
-        for line in excludes:
-            f.write(line)
-
-    
 class DDsym(DD_stoch.DDStoch):
     def __init__(self, config, prefix="dd.sym"):
         DD_stoch.DDStoch.__init__(self, config, prefix)
 
-
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": "nearest",
                          "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.exclude.%%p")}
-        
-    def lambdaSampleRunEnv(self):
-        return lambda dirName: {"VERROU_EXCLUDE": os.path.join(dirName,"dd.exclude")}
+                         "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%%p")}
 
-    def lambdaGenDeltaFile(self):
-        return genExcludeFile
-    
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.sym.")
+
+    def getDeltaFileName(self):
+        return "dd.sym"
+
+    def sampleRunEnv(self,dirName):
+        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
 
     def coerce(self, delta_config):
         return "\n  " + "  ".join(delta_config)
 
-    def getDeltaFileName(self):
-        return "dd.exclude"
-        
 
-#Debut DDline
-
-def genSourceFile(ref, dest, deltas):
-    with open(os.path.join(dest,"dd.source"), "w") as f:
-        f.write("__unknown__\t0\n")
-        for d in deltas:
-            f.write(d)
 
 class DDline(DD_stoch.DDStoch):
     def __init__(self, config, prefix="dd.line"):
         DD_stoch.DDStoch.__init__(self, config, prefix)
 
-
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": "nearest",
                 "VERROU_MCA_MODE": "ieee",
-                "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.source.%%p")}
-        
+                "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.line.%%p")}
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.line.")
+    
     def getDeltaFileName(self):
-        return "dd.source"
-    
-    def lambdaSampleRunEnv(self):
-        return lambda dirName: {"VERROU_SOURCE": os.path.join(dirName,"dd.source")}
-    
-    def lambdaGenDeltaFile(self):
-        return genSourceFile        
+        return "dd.line"
+
+    def sampleRunEnv(self,dirName):
+        return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include")}
 
     def coerce(self, delta_config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in

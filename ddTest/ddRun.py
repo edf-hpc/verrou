@@ -84,7 +84,6 @@ class ddConfig:
         
     def getIncludedLines(self, sourceFile):
         includedLines=[line.split() for line in  (open(sourceFile.strip(), "r")).readlines()]
-        includedLines.remove(["__unknown__", "0"])
         return includedLines
 
 

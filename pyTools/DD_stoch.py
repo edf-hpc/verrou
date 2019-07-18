@@ -41,8 +41,8 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, prefix,deltas, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, lambdaGen, lambdaEnv):
-        self.dirname=os.path.join(prefix, md5Name(deltas))
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv):
+        self.dirname=dirname
         self.refDir=refDir
         self.runCmd=runCmd
         self.cmpCmd=cmpCmd
@@ -52,10 +52,7 @@ class verrouTask:
 
         self.subProcessRun={}
         self.maxNbPROC= maxNbPROC
-        self.lambdaEnv=lambdaEnv
-        if not os.path.exists(self.dirname):
-            os.makedirs(self.dirname)
-            lambdaGen(self.refDir, self.dirname, deltas)
+        self.runEnv=runEnv
 
         print(self.dirname,end="")
 
@@ -72,7 +69,7 @@ class verrouTask:
 
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
                                           os.path.join(rundir,"dd.run"),
-                                          self.lambdaEnv(self.dirname))
+                                          self.runEnv)
 
     def cmpOneSample(self,i):
         rundir= self.nameDir(i)
@@ -163,24 +160,6 @@ def failure():
     sys.exit(42)
 
 
-def mergeList(dirname, name):
-    """merge the file name.$PID into a uniq file called name """
-    listOfExcludeFile=[ x for x in os.listdir(dirname) if x.startswith(name+".")]
-    if len(listOfExcludeFile)<1:
-        print("The generation of exclusion/source files failed")
-        failure()
-
-    with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
-        excludeMerged=f.readlines()
-
-    for excludeFile in listOfExcludeFile[1:]:
-        with open(os.path.join(dirname,excludeFile), "r") as f:
-            for line in f.readlines():
-                if line not in excludeMerged:
-                    excludeMerged+=[line]
-    with open(os.path.join(dirname, name), "w" )as f:
-        for line in excludeMerged:
-            f.write(line)
 
 
 def symlink(src, dst):
@@ -202,10 +181,31 @@ class DDStoch(DD.DD):
 
         prepareOutput(self.ref_)
         self.reference()
-        
-        mergeList(self.ref_, self.getDeltaFileName())
+        self.mergeList()
         self.checkReference()
 
+
+    def mergeList(self):
+        """merge the file name.$PID into a uniq file called name """
+        dirname=self.ref_
+        name=self.getDeltaFileName()
+
+        listOfExcludeFile=[ x for x in os.listdir(dirname) if self.isFileValidToMerge(x) ]
+        if len(listOfExcludeFile)<1:
+            print("The generation of exclusion/source files failed")
+            failure()
+
+        with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
+                excludeMerged=f.readlines()
+
+        for excludeFile in listOfExcludeFile[1:]:
+            with open(os.path.join(dirname,excludeFile), "r") as f:
+                for line in f.readlines():
+                    if line not in excludeMerged:
+                        excludeMerged+=[line]
+        with open(os.path.join(dirname, name), "w" )as f:
+            for line in excludeMerged:
+                f.write(line)
 
         
     def checkReference(self):
@@ -517,10 +517,36 @@ class DDStoch(DD.DD):
         with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
             return f.readlines()
 
+
+    def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
+        """Generate the *.exclude and *.include file in dirname rep from deltas"""
+        excludes=self.getDelta0()
+        dd=self.getDeltaFileName()
+
+        if include:
+            with open(os.path.join(dirname,dd+".include"), "w") as f:
+                for d in deltas:
+                    f.write(d)
+
+        if exclude:
+            with open(os.path.join(dirname,dd+".exclude"), "w") as f:
+                for d in deltas:
+                    excludes.remove(d)
+
+                for line in excludes:
+                    f.write(line)
+
+
     def _test(self, deltas,nbRun=None):
         if nbRun==None:
             nbRun=self.config_.get_nbRUN()
 
-        vT=verrouTask(self.prefix_,deltas, self.ref_,self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.lambdaGenDeltaFile() , self.lambdaSampleRunEnv())
+        dirname=os.path.join(self.prefix_, md5Name(deltas))
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+            self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
+
+        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
+
         return vT.run()
 
