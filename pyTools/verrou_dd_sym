@@ -1,0 +1,46 @@
+#!/bin/sh
+''''exec python3 -u "$0" "$@" #'''
+# This hack is an ugly but portable alternative to #!/usr/bin/env -S python3 -u
+
+
+import sys
+import os
+from valgrind import dd_config
+from valgrind import DD_stoch
+from valgrind import DD_exec_stat
+
+
+class DDsym(DD_stoch.DDStoch):
+    def __init__(self, config, prefix="dd.sym"):
+        DD_stoch.DDStoch.__init__(self, config, prefix)
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": "nearest",
+                         "VERROU_MCA_MODE": "ieee",
+                         "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%%p")}
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.sym.")
+
+    def getDeltaFileName(self):
+        return "dd.sym"
+
+    def sampleRunEnv(self,dirName):
+        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
+
+    def coerce(self, delta_config):
+        return "\n  " + "  ".join(delta_config)
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    et=DD_exec_stat.exec_stat("dd.sym")
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    dd = DDsym(config)
+    dd.run()
+    et.terminate()

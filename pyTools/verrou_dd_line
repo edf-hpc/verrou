@@ -1,0 +1,43 @@
+#!/bin/sh
+''''exec python3 -u "$0" "$@" #'''
+# This hack is an ugly but portable alternative to #!/usr/bin/env -S python3 -u
+
+
+import sys
+import os
+from valgrind import dd_config
+from valgrind import DD_stoch
+from valgrind import DD_exec_stat
+
+
+class DDline(DD_stoch.DDStoch):
+    def __init__(self, config, prefix="dd.line"):
+        DD_stoch.DDStoch.__init__(self, config, prefix)
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": "nearest",
+                "VERROU_MCA_MODE": "ieee",
+                "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.line.%%p")}
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.line.")
+    
+    def getDeltaFileName(self):
+        return "dd.line"
+
+    def sampleRunEnv(self,dirName):
+        return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include")}
+
+    def coerce(self, delta_config):
+        return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
+                                      [(col[0], int(col[1]), col[2]) for col in
+                                       [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
+
+
+
+if __name__ == "__main__":
+    et=DD_exec_stat.exec_stat("dd.line")
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    dd = DDline(config)
+    dd.run()
+    et.terminate()
