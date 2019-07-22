@@ -1,5 +1,4 @@
 
-source install.sh
 
 PREFIX=" " ./run.sh 2>/dev/null > resNative
 PREFIX="valgrind --tool=verrou " ./run.sh 2>/dev/null >resNearest
