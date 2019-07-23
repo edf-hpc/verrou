@@ -43,7 +43,7 @@ inline int vr_rand_max () {
 }
 
 inline void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
-  r->reload_  = 31;
+  r->reload_  = 14; // 2**15= 32768
   r->count_   = 0;
   r->seed_    = c;
   r->next_    = c;
@@ -62,6 +62,7 @@ inline bool vr_rand_bool (Vr_Rand * r) {
   }
   bool res = (r->current_ >> (r->count_++)) & 1;
   // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
+  //printf("resBool : %u  count: %u  current: %u\n ",res, r->count_, r->current_);
   return res;
 }
 
