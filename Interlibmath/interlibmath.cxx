@@ -18,7 +18,12 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 
-//#define MAGIC(name) gugtd1az1dza ## name
+#ifdef CLIENTREQUEST
+#include "valgrind/verrou.h"
+#else
+#define VERROU_START_INSTRUMENTATION
+#define VERROU_STOP_INSTRUMENTATION
+#endif
 
 
 vr_RoundingMode ROUNDINGMODE;
@@ -250,7 +255,34 @@ unsigned int getCounter(int nbParam, int index,  int type, int isInst){
   return 0;
 };
 
+const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
+  switch (mode) {
+  case VR_NEAREST:
+    return "NEAREST";
+  case VR_UPWARD:
+    return "UPWARD";
+  case VR_DOWNWARD:
+    return "DOWNWARD";
+  case VR_ZERO:
+    return "TOWARD_ZERO";
+  case VR_RANDOM:
+    return "RANDOM";
+  case VR_AVERAGE:
+    return "AVERAGE";
+  case VR_FARTHEST:
+    return "FARTHEST";
+  case VR_FLOAT:
+    return "FLOAT";
+  case VR_NATIVE:
+    return "NATIVE";
+  }
+
+  return "undefined";
+}
+
+
 void printCounter(){
+  std::cerr  << "=="<<my_pid<<"== "<< "ROUNDINGMODE: "<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "Interlibm counter " <<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "\t\t Total \tInstrumented" <<std::endl;
 
@@ -397,7 +429,9 @@ public:
       incCounter1<double, enum##FCT ,0>();				\
       typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
       double res;							\
+      VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
+      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\
@@ -407,10 +441,12 @@ public:
       incCounter1<float, enum##FCT ,1>();				\
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
-      incCounter1<float, enum##FCT,0>();					\
-      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
+      incCounter1<float, enum##FCT,0>();			       	\
+      VERROU_STOP_INSTRUMENTATION;                                      \
+typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
+      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\
@@ -427,15 +463,17 @@ public:
   };									\
   extern "C"{								\
     double FCT (double a, double b){					\
-    if(ROUNDINGMODE==VR_NATIVE){					\
+      if(ROUNDINGMODE==VR_NATIVE){					\
       incCounter2<double, enum##FCT ,1>();				\
-      return function2NameTab[enum##FCT].apply(a,b);			\
-    }else{								\
+      return function2NameTab[enum##FCT].apply(a,b);       		\
+   }else{							        \
       incCounter2<double, enum##FCT ,0>();				\
       typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
+      VERROU_STOP_INSTRUMENTATION;                                      \
       double res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
-      return res;							\
+      VERROU_START_INSTRUMENTATION;                                     \
+    return res;								\
     }									\
   }									\
 									\
@@ -447,8 +485,10 @@ public:
       incCounter2<float, enum##FCT,0>();					\
       typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
       float res;							\
+      VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
-      return res;							\
+      VERROU_START_INSTRUMENTATION;                                     \
+      return res;								\
     }									\
   }									\
 									\

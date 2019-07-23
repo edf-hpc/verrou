@@ -2,6 +2,8 @@
 
 SRC=interlibmath.cxx
 FLAGS=-DLIBMATHINTERP -I../backend_verrou -Wall -O0
+#FLAGS+=-DCLIENTREQUEST #not required if the user include libgcc_s.so 
+
 CXX=g++
 
 interlibmath.so: $(SRC)
@@ -10,3 +12,6 @@ interlibmath.so: $(SRC)
 
 testCos: testCos.cxx
 	$(CXX) -g -Wall -lm  testCos.cxx -o testCos
+
+clean:
+	rm -f testCos interlibmath.so
