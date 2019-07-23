@@ -3,7 +3,7 @@ SRC=stencil.cpp
 BIN=stencil
 FLAGS=-Wall -g
 
-BUILDDEP=Makefile install.sh
+BUILDDEP=Makefile
 
 all: $(BIN)-O3-FLOAT $(BIN)-O3-DOUBLE $(BIN)-O0-FLOAT $(BIN)-O0-DOUBLE
 
