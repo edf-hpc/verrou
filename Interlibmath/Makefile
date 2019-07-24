@@ -1,7 +1,7 @@
 
 
-SRC=interlibmath.cxx
-FLAGS=-DLIBMATHINTERP -I../backend_verrou -Wall -O0
+SRC=interlibmath.cxx ../backend_mcaquad/common/tinymt64.c
+FLAGS= -std=c++14 -DLIBMATHINTERP -I../backend_verrou -Wall -O0
 #FLAGS+=-DCLIENTREQUEST #not required if the user include libgcc_s.so 
 
 CXX=g++

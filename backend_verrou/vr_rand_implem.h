@@ -33,39 +33,66 @@
 
 //Warning FILE include in vr_rand.h
 
-inline static int vr_rand_next (Vr_Rand * r){
-  r->next_ = r->next_ * 1103515245 + 12345;
-  return (unsigned int)(r->next_/65536) % 32768;
-}
 
-inline int vr_rand_max () {
+
+#ifdef VERROU_LOWGEN
+inline static uint64_t vr_rand_next (Vr_Rand * r){
+  r->next_ = r->next_ * 1103515245 + 12345;
+  return (uint64_t)((r->next_/65536) % 32768);
+}
+inline int32_t vr_rand_max () {
   return 32767;
 }
 
-inline void vr_rand_setSeed (Vr_Rand * r, unsigned int c) {
-  r->reload_  = 14; // 2**15= 32768
+inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   r->count_   = 0;
   r->seed_    = c;
   r->next_    = c;
   r->current_ = vr_rand_next (r);
 }
+inline int32_t vr_loop(){
+  return 14; // 2**15= 32768
+}
+
+#else
+inline static uint64_t vr_rand_next (Vr_Rand * r){
+  return tinymt64_generate_uint64(&(r->gen_) );
+}
+inline int32_t vr_rand_max () {
+  int32_t max=2147483647;  //2**21-1
+  return max;
+}
+inline int32_t vr_loop(){
+  return 63; // 2**15= 32768
+}
 
 
-inline unsigned int vr_rand_getSeed (Vr_Rand * r) {
+inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
+  tinymt64_init(&(r->gen_),c);
+  r->count_   = 0;
+  r->seed_    = c;
+  r->current_ = vr_rand_next (r);
+}
+
+#endif
+
+
+
+inline uint64_t vr_rand_getSeed (Vr_Rand * r) {
   return r->seed_;
 }
 
 inline bool vr_rand_bool (Vr_Rand * r) {
-  if (r->count_ == r->reload_){
+  if (r->count_ == vr_loop()){
     r->current_ = vr_rand_next (r);
     r->count_ = 0;
   }
   bool res = (r->current_ >> (r->count_++)) & 1;
   // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
-  //printf("resBool : %u  count: %u  current: %u\n ",res, r->count_, r->current_);
   return res;
 }
 
-inline int vr_rand_int (Vr_Rand * r) {
-  return vr_rand_next (r);
+inline int32_t vr_rand_int (Vr_Rand * r) {
+  uint64_t res=vr_rand_next (r) % vr_rand_max();
+  return (int32_t)res;
 }

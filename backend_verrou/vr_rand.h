@@ -33,14 +33,29 @@
 #define __VR_RAND_H
 
 //#include "pub_tool_basics.h"
+#include <cstdint>
+
+#define VERROU_LOWGEN
+
+#ifndef VERROU_LOWGEN
+#include "../backend_mcaquad/common/tinymt64.h"
+#endif
+
+
 
 typedef struct Vr_Rand_ Vr_Rand;
 struct Vr_Rand_ {
-  int current_;
-  int count_;
-  unsigned long int next_;
-  unsigned int seed_;
-  int reload_;
+#ifdef VERROU_LOWGEN
+  uint64_t current_;
+  uint64_t next_;
+  uint64_t seed_;
+  int32_t count_;
+#else
+  uint64_t current_;
+  tinymt64_t gen_;
+  uint64_t seed_;
+  int32_t count_;
+#endif
 };
 
 //extern Vr_Rand vr_rand;
