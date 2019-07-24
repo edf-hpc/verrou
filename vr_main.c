@@ -853,6 +853,17 @@ static Bool vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr) {
 }
 
 // * Valgrind tool interface
+#define UNAMED_FUNCTION_VERROU "unamed_function_verrou"
+#define UNAMED_OBJECT_VERROU "unamed_object_verrou"
+#define UNAMED_FILENAME_VERROU "unamed_filename_verrou"
+
+
+
+
+static HChar const * fnnoname=UNAMED_FUNCTION_VERROU;
+static HChar const * objnoname=UNAMED_OBJECT_VERROU;
+static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
+
 
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
@@ -862,22 +873,61 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                       const VexArchInfo* archinfo_host,
                       IRType gWordTy, IRType hWordTy )
 {
-  const HChar * fnname;
-  const HChar * objname;
-  if (vr_excludeIRSB (&fnname, &objname))
-    return sbIn;
+  /*Recuperation of the name of symbol and object of the IRSB*/
+  /*No externalized in a function because the call to get_fnname forbid other call 
+    in the function vr_instrument : to use fnname after the end of call you have to use
+    strdup
+  */
 
+  HChar const * fnname;
+  HChar const * objname;
+  HChar const ** fnnamePtr=&fnname;
+  HChar const ** objnamePtr=&objname;
+
+  Addr ips[256];
+  VG_(get_StackTrace)(VG_(get_running_tid)(),ips, 256,
+		      NULL, NULL,0);
+  Addr addr = ips[0];
+  DiEpoch de = VG_(current_DiEpoch)();
+
+  Bool errorFnname=VG_(get_fnname)(de, addr, fnnamePtr);
+  if(!errorFnname || **fnnamePtr==0){
+    fnnamePtr=&fnnoname;
+  }
+
+  if (VG_(strlen)(*fnnamePtr) == VR_FNNAME_BUFSIZE-1) {
+    VG_(umsg)("WARNING: Function name too long: %s\n", *fnnamePtr);
+  }
+
+  Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
+  if (!errorObjName || **objnamePtr == 0) {
+    objnamePtr=&objnoname;
+  }
+  /*End of recuperation*/
+
+  /*Early exit if not instrumented*/
+  if (vr_excludeIRSB (fnnamePtr, objnamePtr)){
+    return sbIn;
+  }
+
+
+  /*Instrumentation begin*/
   UInt i;
   IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
-  Bool includeSource = True;
 
-  Bool doLineContainFloat=False;
   Bool doIRSBFContainFloat=False;
-  const HChar *filename=NULL;
+
+  /*Data for Imark localisation*/
+  Bool includeSource = True;
+  Bool doLineContainFloat=False;
+
+  const HChar * filename=NULL;
+  const HChar ** filenamePtr=&filenamenoname;
   UInt  linenum;
+  UInt*  linenumPtr=&linenum;
+
+  /*Data for trace/coverage generation*/
   traceBB_t* traceBB=NULL;
-
-
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
     traceBB=getNewTraceBB(sbIn);
@@ -885,30 +935,36 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     vr_traceBB_trace_backtrace(traceBB);
   }
 
+
+  /*Loop over instructions*/
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
     IRStmt* st = sbIn->stmts[i];
 
     switch (st->tag) {
     case Ist_IMark: {
-      if(vr.genIncludeSource && doLineContainFloat && filename!=NULL){
-	  vr_includeSource_generate (&vr.includeSource, fnname, filename, linenum);
+      if(vr.genIncludeSource && doLineContainFloat){
+	  vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
       }
       doLineContainFloat=False;
 
-      Addr  addr;
-      addr = st->Ist.IMark.addr;
+      Addr  addrMark;
+      addrMark = st->Ist.IMark.addr;
 
       //      filename[0] = 0;
-      VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
-                                addr,
-                                &filename,
-                                NULL,
-                                &linenum);
+      filenamePtr=&filename;
+      Bool success=VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
+					     addrMark,
+					     filenamePtr,
+					     NULL,
+					     linenumPtr);
+      if(! success || (**filenamePtr)==0){
+	filenamePtr=&filenamenoname;
+      }
       if(genIRSBTrace){
-	vr_traceBB_trace_imark(traceBB,fnname, filename,linenum);
+	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr);
       }
       if(!vr.genIncludeSource){
-	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, fnname, filename, linenum));
+	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
@@ -927,10 +983,22 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   }
 
   if(vr.genIncludeSource && doLineContainFloat &&filename !=NULL){
-    vr_includeSource_generate (&vr.includeSource, fnname, filename, linenum);
+    vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
+
+
   }
   if(vr.genExclude && doIRSBFContainFloat){
-    vr_excludeIRSB_generate (&fnname, &objname);
+    vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
+    /* Debug to understand where come from floating point operation in uname symbole
+      if(fnnamePtr==&fnnoname){
+      for(int i=0 ; i< 6; i++){
+	Addr addr = ips[i];
+	Bool errorFnname =VG_(get_fnname)(de, addr, fnnamePtr);
+	Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
+	VG_(umsg)("stack %d : %s %s\n", i,*fnnamePtr, *objnamePtr);
+      }
+    }
+    */
   }
   return sbOut;
 }
@@ -962,7 +1030,7 @@ static void vr_fini(Int exitcode)
   if(vr.genTrace){
     vr_traceBB_dumpCov();
     vr_traceBB_finalyze();
-  } 
+  }
   if (vr.dumpCancellation){
      vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );
   }
@@ -1001,7 +1069,7 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_SOURCE",        "--source");
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
    vr_env_clo("VERROU_MCA_MODE",      "--mca-mode");
- 
+
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
