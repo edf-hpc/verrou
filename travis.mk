@@ -34,4 +34,3 @@ check-error:
 
 unit-test:
 	cd ../valgrind+verrou/verrou/unitTest && make
-	cd ../valgrind+verrou/verrou && make -C Interlibmath/testlibM/ check
