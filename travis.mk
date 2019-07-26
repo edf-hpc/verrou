@@ -27,10 +27,11 @@ check:
 	cd ../valgrind+verrou && make -C tests  check
 	cd ../valgrind+verrou && make -C verrou check
 	cd ../valgrind+verrou && perl tests/vg_regtest verrou
-	cd ../valgrind+verrou && make -C verrou/Interlibmath/testlibM/ check
+
 check-error:
 	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
 	@false
 
 unit-test:
 	cd ../valgrind+verrou/verrou/unitTest && make
+	cd ../valgrind+verrou/verrou && make -C Interlibmath/testlibM/ check
