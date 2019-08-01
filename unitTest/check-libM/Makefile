@@ -15,7 +15,7 @@ ifeq ($(REFERENCE), yes)
 endif
 
 INTERLIBMREP=../../Interlibmath/
-NUMSAMPLEIN=1000
+NUMSAMPLEIN=459 #probablility 0.99 and confidence level 1-alpha=0.99
 
 
 .PHONY: dat
