@@ -29,4 +29,5 @@ else
   AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 fi
 
+AC_SUBST(vg_cv_verrou_fma)
 AC_CONFIG_FILES([verrou/env.sh])

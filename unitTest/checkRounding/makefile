@@ -6,10 +6,21 @@ export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
 
+FMA_FLAG=
+HAS_FMA = $(shell grep VERROU_COMPILED_WITH_FMA= $(INSTALLPATH)/env.sh)
+ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=yes)
+	FMA_FLAG=-DTEST_FMA
+endif
+ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=no)
+	FMA_FLAG=-DTEST_NOFMA
+endif
+
+
 FLAGS1 = $(FLAGS) -mfpmath=sse
-FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mfma -DTEST_FMA -DTEST_SSE
+FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mfma $(FMA_FLAG) -DTEST_SSE
 
 .PHONY: run run1 run2
+
 
 run: run1 run2
 run1: $(EXEC1)
