@@ -62,30 +62,35 @@ def main(reference=None):
             outputReg.write(keyCase +" "+str(evalError[keyCase])+"\n")
         
     output.write(r"\begin{table}" +" \n")
-    output.write(r"\begin{tabular}{|c|cc|cc|}\hline" +" \n")
-    output.write(r"precision  & \multicolumn{2}{c|}{Float }& \multicolumn{2}{c|}{Double }\\"+"\n"+
-                 r"correction & Before& After & Before& After\\ \hline"+"\n")
+    output.write(r"\begin{center}" +" \n")
+    output.write(r"\begin{tabular}{l@{~}lccccc}\toprule" +" \n")
+    output.write(r"&  & \multicolumn{2}{c}{single precision}& \multicolumn{2}{c}{double precision}\\"+"\n"+
+                 r"&& first & second & first & second \\ \midrule"+"\n")
 
     if reference!=None:
-        output.write("IEEE Error & %.2f & %.2f & %.2f & %.2f"%(
+        output.write("&IEEE Error & %.2f & %.2f & %.2f & %.2f"%(
                      reference[("Float","Before")],reference[("Float","After")],
                      reference[("Double","Before")], reference[("Double","After")])
-                     + r"\\\hline"+"\n")
+                     + r"\\\midrule"+"\n")
                 
         
     
     for i in range(1,len(keys)):
         key=keys[i]            
         evalError=computeEvalError(data["Native"], data[key])
-        lineStr=r"%s  "%(key.replace("Random",""))
+        keyConvert={"Randominterlibm": r"\textit{(i)}&interlibm",
+                    "Randomverrou":    r"\textit{(ii)}&verrou",
+                    "Randomverrou+interlibm":r"\textit{(iii)}&verrou+interlib"}
+
+        lineStr=keyConvert[key]+ " "
         for typeFP in ["Float","Double"]:
             lineStr+=r"&%.2f &  %.2f  "%(evalError["BeforeCorrection_"+typeFP], evalError["AfterCorrection_"+typeFP]) 
         lineStr+=r"\\"+"\n"
         output.write(lineStr)
-    output.write(r"\hline")
+    output.write(r"\bottomrule"+"\n")    
     output.write(r"\end{tabular}"+"\n")
-
-    output.write(r"\caption{Number of significant bits for 4 implementations of function $f(a, a+3.ulp(a))$}"+"\n")
+    output.write(r"\end{center}" +" \n")
+    output.write(r"\caption{Number of significant bits for 4 implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
 
     output.write(r"\end{table}"+"\n")
 

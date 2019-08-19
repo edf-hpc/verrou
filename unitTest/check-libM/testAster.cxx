@@ -4,7 +4,7 @@
 
 #include <cfloat>
 #include <cmath>
-
+#include <limits>
 
 #ifdef WITH_REFERENCE
 #include <boost/multiprecision/mpfi.hpp> 
@@ -48,14 +48,20 @@ struct areaInstable{
   }
 };
 
+
+
 struct areaCorrected{
   template<class REALTYPE>
   static REALTYPE apply(REALTYPE a1, REALTYPE a2){
-    if(a1==a2){
+    REALTYPE c=a2/a1;
+    REALTYPE n=c-1;
+    if(std::abs(n) < 5*std::numeric_limits<REALTYPE>::epsilon()){
       return a1;
     }else{
-      REALTYPE x=a2/a1;
-      return a1*(x-1) / (std::log(x));
+      REALTYPE l=std::log(c);
+      REALTYPE f=n /l;
+      REALTYPE p=a1*f;
+      return p;
     }
   }
 };
@@ -76,7 +82,7 @@ int main(int argc, char** argv){
 
   double a= 4.2080034963016440E-005;
   float af= 4.2080034963016440E-005;
-  int numberEpsilon=3;
+  int numberEpsilon=6;
 
   double a1double= a, a2double=a+ numberEpsilon* DBL_EPSILON ;
   float a1float= af, a2float=af+ numberEpsilon* FLT_EPSILON ;
