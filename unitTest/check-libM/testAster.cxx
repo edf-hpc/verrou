@@ -15,6 +15,11 @@ namespace std{
   mpfi_realtype log(mpfi_realtype& a){
     return boost::multiprecision::log(a);
   };
+
+  mpfi_realtype abs(mpfi_realtype& a){
+    return boost::multiprecision::abs(a);
+  };
+
 };
 
 template<class FUNCTOR>
@@ -30,6 +35,12 @@ struct computeError{
     mpfi_realtype resMPFI=FUNCTOR::apply(interA1, interA2);
     
     mpfi_realtype nbBit= -log(abs((resIEEE_MPFI - resMPFI) / resMPFI))/log(mpfi_realtype(2.) );
+
+    int implicitMantissaSize=std::numeric_limits<REALTYPE>::digits;
+    if( lower(nbBit) >  implicitMantissaSize){
+      nbBit=(mpfi_realtype) implicitMantissaSize;
+    }
+
     return nbBit;
   }
 };

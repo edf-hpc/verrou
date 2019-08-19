@@ -30,7 +30,11 @@ def loadRef(fileName, num=2):
         spline=line.split(":")
         typeRealtype=spline[0].split()[0]
         correction=spline[0].split()[1]
-        [valueLow,valueUp]=spline[1].strip()[1:-1].split(",")
+        nbBitStr=spline[1].strip()
+        if nbBitStr in ["24","53"]:
+            res[(typeRealtype, correction)]=float(nbBitStr)
+            continue
+        [valueLow,valueUp]=nbBitStr[1:-1].split(",")
         if(float(valueUp)!=float(valueLow)):
             print("Please Increase the mpfi precision")
             sys.exit()
@@ -90,8 +94,8 @@ def main(reference=None):
     output.write(r"\bottomrule"+"\n")    
     output.write(r"\end{tabular}"+"\n")
     output.write(r"\end{center}" +" \n")
-    output.write(r"\caption{Number of significant bits for 4 implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
-
+    output.write(r"\caption{Number of significant bits for 4~implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
+    output.write(r"\label{sdAster}"+"\n")
     output.write(r"\end{table}"+"\n")
 
     
