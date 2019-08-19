@@ -30,7 +30,12 @@ def loadRef(fileName, num=2):
         spline=line.split(":")
         typeRealtype=spline[0].split()[0]
         correction=spline[0].split()[1]
-        [valueLow,valueUp]=spline[1].strip()[1:-1].split(",")
+        nbBitStr=spline[1].strip()
+        print("nbBit:", nbBitStr)
+        if nbBitStr in ["24","53"]:
+            res[(typeRealtype, correction)]=float(nbBitStr)
+            continue
+        [valueLow,valueUp]=nbBitStr[1:-1].split(",")
         if(float(valueUp)!=float(valueLow)):
             print("Please Increase the mpfi precision")
             sys.exit()
