@@ -31,6 +31,7 @@ def loadRef(fileName, num=2):
         typeRealtype=spline[0].split()[0]
         correction=spline[0].split()[1]
         nbBitStr=spline[1].strip()
+
         if nbBitStr in ["24","53"]:
             res[(typeRealtype, correction)]=float(nbBitStr)
             continue
