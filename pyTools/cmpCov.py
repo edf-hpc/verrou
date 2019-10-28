@@ -37,6 +37,14 @@ class openGz:
 
 
 class bbInfoReader:
+    """ Class to read trace_bb_info_log-PID(.gz) file and to provide a string describing
+    a basic bloc defined by an index (called addr) from the MARK (debug symbol)
+
+    After init the usual call are :
+      .compressMarksWithoutSym(addr)
+      .getStrToPrint(addr)
+
+    """
     def __init__(self,fileName):
         self.read(fileName)
 
@@ -273,6 +281,9 @@ class covReader:
 
 
 class covMerge:
+    """Class CovMerge allows to merge covers with counter of (success/failure) x (equal cover, diff cover).
+    The method writePartialCover will compute from this counter a correlation coefficient for each covered bb"""
+
     def __init__(self, covRef):
         self.covRef=covRef
         print("covMerged with reference : %s"%(self.covRef.rep))
@@ -304,17 +315,20 @@ class covMerge:
             return (counter[0]+diff, counter[1]+equal, counter[2], counter[3])
 
     def init(self):
-        self.covMerged=[]
+        #init global counter
         self.initCounterGlobal()
-        for num in range(len(self.covRef.cov)):
+        #load the first cover
+        self.covMerged=[]
+        for num in range(len(self.covRef.cov)): #loop over snapshots
             mergeDict={}
-            for index,num in self.covRef.cov[num].items():
+            for index,num in self.covRef.cov[num].items(): #loop over basic-bloc
+                #get basic-bloc information
                 sym=self.covRef.bbInfo.getListOfSym(index)[0]
                 strLine=self.covRef.bbInfo.compressMarksWithoutSym(index)
                 if not (sym,strLine) in mergeDict:
-                    mergeDict[(sym,strLine)]=(num,self.initCounterLine())
+                    mergeDict[(sym,strLine)]=(num,self.initCounterLine())#bb not yet seen
                 else:
-                    mergeDict[(sym,strLine)]=(mergeDict[(sym,strLine)][0]+num,self.initCounterLine())
+                    mergeDict[(sym,strLine)]=(mergeDict[(sym,strLine)][0]+num,self.initCounterLine()) #bb already seen
 
             self.covMerged+=[mergeDict]
 
@@ -324,7 +338,9 @@ class covMerge:
         if len(cov.cov) != len(self.covRef.cov):
             print("addMerge : problem with the number of sync point")
             sys.exit()
-        for num in range(len(cov.cov)):
+        for num in range(len(cov.cov)): #loop over snapshots
+
+            #use intermediate resDic to collapse bb with the same couple sym,strLine
             resDic={}
             for index,numLine in cov.cov[num].items():
                 sym=cov.bbInfo.getListOfSym(index)[0]
@@ -333,7 +349,7 @@ class covMerge:
                     resDic[(sym,strLine)]=numLine
                 else:
                     resDic[(sym,strLine)]+=numLine
-
+            #loop over collapse bb
             for ((sym, strLine), numLine) in resDic.items():
                 if (sym,strLine)in self.covMerged[num]:
                     merged=self.covMerged[num][(sym,strLine)]
@@ -341,6 +357,7 @@ class covMerge:
                 else:
                     merged=(0, self.incCounterLine(self.initCounterLine(), False,status))
                     self.covMerged[num][(sym,strLine)]=merged
+            #loop over bb not seen in this run
             for ((sym,strLine),merged) in self.covMerged[num].items():
                 if not (sym,strLine)  in resDic:
                     self.covMerged[num][(sym,strLine)]=(merged[0], self.incCounterLine(merged[1], False,status))
@@ -385,7 +402,7 @@ class covMerge:
 
     def writePartialCover(self,rep=".",filenamePrefix="", typeIndicator="standard"):
 
-        for num in range(len(self.covMerged)):
+        for num in range(len(self.covMerged)): #loop over snapshots
             maxIndicator=0
             handler=openGz(rep+"/"+filenamePrefix+"coverMerged"+str(num),"w")
             partialCovMerged=self.covMerged[num]
@@ -395,7 +412,7 @@ class covMerge:
                      self.indicatorFromCounter(partialCovMerged[(sym,strLine)][1], typeIndicator ) ) for ((sym,strLine),counter) in partialCovMerged.items() ]
 
             resTab.sort( key= itemgetter(0,1)) # 2 sym  3 compress string 0 index
-            for i in range(len(resTab)):
+            for i in range(len(resTab)): #loop over sorted cover item
                 sym,strLine,numLineRef,indicator=resTab[i]
                 if indicator==None:
                     print("resTab[i]:",resTab[i])
@@ -408,7 +425,8 @@ class covMerge:
             print("Num: ", num , "\tMaxindicator: ", maxIndicator)
 
 class statusReader:
-
+    """Class to provide the status of a run"""
+    # should maybe be a function instead of a class
     def __init__(self,pid, rep):
         self.pid=pid
         self.rep=rep
@@ -433,26 +451,30 @@ class statusReader:
 
 
 class cmpToolsCov:
+    """Class to write partial cover of several executions :
+    with writePartialCover the object write a partial cover for each execution
+    with mergedCov the object write one merged partial cover with correlation information"""
 
     def __init__(self, tabPidRep):
         self.tabPidRep=tabPidRep
-#        self.covTab=[covReader(pid,rep)  for (pid,rep) in self.tabPidRep]
-#        self.statusTab=[statusReader(pid,rep) for (pid,rep) in self.tabPidRep]
+
 
     def writePartialCover(self, filenamePrefix=""):
+        """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
             cov=covReader(pid,rep)
             cov.writePartialCover(filenamePrefix)
 
-    def writeStatus(self):
-        for i in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[i]
-            status=statusReader(pid,rep)
-            success=status.getStatus()
-            print( rep+":" + str(success))
+    # def writeStatus(self):
+    #     for i in range(len(self.tabPidRep)):
+    #         pid,rep=self.tabPidRep[i]
+    #         status=statusReader(pid,rep)
+    #         success=status.getStatus()
+    #         print( rep+":" + str(success))
 
     def countStatus(self):
+        """ Count the number of Success/Fail"""
         nbSuccess=0
         nbFail=0
         for i in range(len(self.tabPidRep)):
@@ -467,6 +489,7 @@ class cmpToolsCov:
 
 
     def findRef(self, pattern="ref", optionalPattern=None):
+        "return the index of the reference (required for correlation)"
         if optionalPattern!=None:
             for index in range(len(self.tabPidRep)):
                 (pid,rep)=self.tabPidRep[index]
@@ -492,27 +515,42 @@ class cmpToolsCov:
         print("Error fail only : cmpToolsCov is ineffective" )
         sys.exit(42)
 
-    def mergeCov(self):
+    def writeMergedCov(self):
+        """Write merged Cov with correlation indice  between coverage difference and sucess/failure status"""
 
+        #check the presence of success and failure
         (nbSuccess, nbFail)=self.countStatus()
         print("NbSuccess: %d \t nbFail %d"%(nbSuccess,nbFail))
         if nbFail==0 or nbSuccess==0:
             print("mergeCov need Success/Fail partition")
             sys.exit()
 
-        refIndex=self.findRef(pattern="ref", optionalPattern="dd.sym/ref")
+        #get the refIndex
+        refIndex=self.findRef(pattern="ref", optionalPattern="dd.line/ref")
+
         covMerged= covMerge(covReader(*self.tabPidRep[refIndex]))
+        #Loop with addMerge to reduce memory peak
+
+        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in range(0,100,10)]
+        printIndex +=[1,  len(self.tabPidRep)-1]
+
         for i in range(len(self.tabPidRep)):
             if i==refIndex:
                 continue
             pid,rep=self.tabPidRep[i]
             covMerged.addMerge(covReader(pid,rep), statusReader(pid,rep).getStatus())
-#        covMerged.writePartialCover(typeIndicator="standard")
+            if i in printIndex:
+                pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
+                if i >=refIndex:
+                    pourcent=float(i)/ float(len(self.tabPidRep)-1)
+                print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
+        #covMerged.writePartialCover(typeIndicator="standard")
         covMerged.writePartialCover(typeIndicator="biased")
 
 
 
 def extractPidRep(fileName):
+    """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
     rep=os.path.dirname(fileName)
     if rep=="":
         rep="."
@@ -524,6 +562,7 @@ def extractPidRep(fileName):
     return None
 
 def selectPidFromFile(fileNameTab):
+    """Return a list of pid from a list of file by using extractPidRep"""
     return [extractPidRep(fileName)  for fileName in fileNameTab]
 
 
@@ -544,7 +583,7 @@ if __name__=="__main__":
         options.remove("--genCovCorrelation")
         genCovCorrelation=True
 
-    if not (genCovCorrelation or genCovCorrelation):
+    if not (genCovCorrelation or genCov):
         genCov=True
 
     if "--help" in options:
@@ -557,11 +596,11 @@ if __name__=="__main__":
         sys.exit()
     if len(options)<2 and genCovCorrelation:
         usage()
-        print("--genCov required at least 2 arguments")
+        print("--genCovCorrelation required at least 2 arguments")
         sys.exit()
 
     cmp=cmpToolsCov(selectPidFromFile(options))
     if genCov:
         cmp.writePartialCover()
     if genCovCorrelation:
-        cmp.mergeCov()
+        cmp.writeMergedCov()
