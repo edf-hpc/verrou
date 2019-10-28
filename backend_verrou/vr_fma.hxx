@@ -34,7 +34,7 @@
 
 #ifdef    USE_VERROU_FMA
 #include  <immintrin.h>
-#include  <fmaintrin.h>
+//#include  <fmaintrin.h>
 
 template<class REALTYPE>
 inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&){
