@@ -813,6 +813,7 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
 #undef bcNameWithCC
    }
 
+#ifdef USE_VERROU_QUAD
    if(vr.backend==vr_mcaquad && !checkCancellation){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
@@ -827,6 +828,11 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
 #undef bcName
 #undef bcNameWithCC
    }
+#else
+  if(vr.backend==vr_mcaquad){
+    VG_(tool_panic) ( "Verrou compiled without quad support...  \n");
+  }
+#endif //USE_VERROU_QUAD
 
 /*Exemple for partial backend implementation*/
 /*    if(vr.backend==vr_mcaquad){ */
@@ -1013,7 +1019,9 @@ static void vr_fini(Int exitcode)
 
   vr_ppOpCount ();
   interflop_verrou_finalyze(backend_verrou_context);
+#ifdef USE_VERROU_QUAD
   interflop_mcaquad_finalyze(backend_mcaquad_context);
+#endif
   interflop_checkcancellation_finalyze(backend_checkcancellation_context);
 
 
@@ -1102,6 +1110,7 @@ static void vr_post_clo_init(void)
 
 
    /*configuration of MCA backend*/
+#ifdef USE_VERROU_QUAD
    backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
    mcaquad_set_panic_handler(&VG_(tool_panic));
 
@@ -1114,7 +1123,7 @@ static void vr_post_clo_init(void)
    mca_quad_conf.mode=vr.mca_mode;
    interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
    mcaquad_set_seed(vr.firstSeed);
-
+#endif
 
    /*Init outfile cancellation*/
    checkcancellation_conf_t checkcancellation_conf;
@@ -1166,7 +1175,11 @@ static void vr_post_clo_init(void)
       VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
    }
    if(vr.backend==vr_mcaquad){
-      VG_(umsg)("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
+#ifdef USE_VERROU_QUAD
+     VG_(umsg)("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
+#else
+     VG_(tool_panic)("Verrou compiled without quad support");
+#endif
    }
 }
 

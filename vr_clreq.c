@@ -112,7 +112,9 @@ static void vr_start_deterministic_section (unsigned int level) {
 
   hash = vr_deterministic_section_hash (name);
   verrou_set_seed (hash);
+#ifdef USE_VERROU_QUAD
   mcaquad_set_seed (hash);
+#endif
   VG_(message)(Vg_DebugMsg, "Entering deterministic section %u: %s\n",
                hash, name);
 }
@@ -124,7 +126,9 @@ static void vr_stop_deterministic_section (unsigned int level) {
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
                name);
   verrou_set_random_seed ();
+#ifdef USE_VERROU_QUAD 
   mcaquad_set_random_seed ();
+#endif
 }
 
 
