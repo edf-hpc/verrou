@@ -1,5 +1,6 @@
 AM_PATH_PYTHON([3])
 
+#--enable-verrou-fma
 AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
   [AC_ARG_ENABLE(verrou-fma,
     [  --enable-verrou-fma          enables verrou to use fma],
@@ -37,4 +38,20 @@ else
 fi
 
 AC_SUBST(vg_cv_verrou_fma)
+
+
+#--enable-verrou-quad
+AC_CACHE_CHECK([verrou quad], vg_cv_verrou_quad,
+  [AC_ARG_ENABLE(verrou-quad,
+    [  --enable-verrou-quad          enables verrou to use quad],
+    [vg_cv_verrou_quad=$enableval],
+    [vg_cv_verrou_quad=yes])])
+
+AM_CONDITIONAL([USE_QUAD], test x$vg_cv_verrou_quad = xyes,[])
+
+AC_SUBST(vg_cv_verrou_quad)
+
+
+
+
 AC_CONFIG_FILES([verrou/env.sh])

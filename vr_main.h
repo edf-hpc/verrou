@@ -57,8 +57,10 @@
 
 //backend
 #include "backend_verrou/interflop_verrou.h"
-#include "backend_mcaquad/interflop_mcaquad.h"
 
+#ifdef USE_VERROU_QUAD
+#include "backend_mcaquad/interflop_mcaquad.h"
+#endif
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad} vr_backend_name_t;
 
 //backend post-treatment

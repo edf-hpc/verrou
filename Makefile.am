@@ -32,10 +32,9 @@ VERROU_SOURCES_COMMON = \
 	vr_clo.c	\
 	vr_include_trace.c \
 	backend_verrou/interflop_verrou.cxx\
-	backend_mcaquad/interflop_mcaquad.c\
-	backend_mcaquad/common/tinymt64.c\
-	backend_mcaquad/common/fmaqApprox.c\
 	backend_checkcancellation/interflop_checkcancellation.cxx
+
+
 
 VERROU_FLAG_CXX = $(subst \
 	-Wmissing-prototypes,,$(subst \
@@ -44,6 +43,7 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
+VERROU_FLAG_C =
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
@@ -52,8 +52,18 @@ VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
 VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
-VERROU_FLAG_C= -march=native -DUSE_VERROU_FMA
+VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
 endif
+
+if USE_QUAD
+VERROU_SOURCES_COMMON+= \
+	backend_mcaquad/interflop_mcaquad.c\
+	backend_mcaquad/common/tinymt64.c\
+	backend_mcaquad/common/fmaqApprox.c
+VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
+VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
+endif
+
 
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
