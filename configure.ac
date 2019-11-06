@@ -13,8 +13,15 @@ if test "$vg_cv_verrou_fma" = yes; then
   AC_MSG_CHECKING([for fmaintrin.h ])
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include  <immintrin.h>
-      #include  <fmaintrin.h>
-    ]], [[
+      #include <stdlib.h>
+]], [[
+       double a,b,c,d;
+      __m128d ai, bi,ci,di;
+      ai = _mm_load_sd(&a);
+      bi = _mm_load_sd(&b);
+      ci = _mm_load_sd(&c);
+      di=_mm_fmadd_sd(ai,bi,ci);
+      d=_mm_cvtsd_f64(di);
       return EXIT_SUCCESS;
     ]])],
     [
