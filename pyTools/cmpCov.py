@@ -436,15 +436,21 @@ class statusReader:
     def read(self):
         pathName=os.path.join(self.rep, "returnVal")
         if os.path.exists(pathName):
-            value=int(open(pathName).readline().strip())
-            if value==0:
-                self.isSuccess=True
-            else:
-                self.isSuccess=False
+            try:
+                value=int(open(pathName).readline().strip())
+                if value==0:
+                    self.isSuccess=True
+                else:
+                    self.isSuccess=False
+            except:
+                print("Error while  reading "+pathName )
+                self.isSuccess=None
         else:
             if self.rep.endswith("ref"):
                 print("Consider ref as a success")
                 self.isSuccess=True
+            else:
+                self.isSuccess=None
 
     def getStatus(self):
         return self.isSuccess
@@ -477,14 +483,22 @@ class cmpToolsCov:
         """ Count the number of Success/Fail"""
         nbSuccess=0
         nbFail=0
+        listPidRepoIgnore=[]
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
             status=statusReader(pid,rep)
             success=status.getStatus()
-            if success:
-                nbSuccess+=1
+            if success==None:
+                listPidRepoIgnore+=[(pid,rep)]
             else:
-                nbFail+=1
+                if success:
+                    nbSuccess+=1
+                else:
+                    nbFail+=1
+        for (pid,rep) in listPidRepoIgnore:
+            print("directory ignored : "+rep)
+            self.tabPidRep.remove((pid,rep))
+
         return (nbSuccess, nbFail)
 
 
@@ -497,7 +511,7 @@ class cmpToolsCov:
                 success=status.getStatus()
                 if rep.endswith(pattern) and optionalPattern in rep and success:
                     return index
-        print('Optional failed')
+            print('Optional failed')
         for index in range(len(self.tabPidRep)):
             (pid,rep)=self.tabPidRep[index]
             status=statusReader(pid,rep)
@@ -531,7 +545,7 @@ class cmpToolsCov:
         covMerged= covMerge(covReader(*self.tabPidRep[refIndex]))
         #Loop with addMerge to reduce memory peak
 
-        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in range(0,100,10)]
+        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
         printIndex +=[1,  len(self.tabPidRep)-1]
 
         for i in range(len(self.tabPidRep)):
@@ -573,33 +587,64 @@ def usage():
 if __name__=="__main__":
     options=[arg for arg in sys.argv[1:]]
 
+    if "--help" in options:
+        usage()
+        sys.exit()
+
+    #cover
     genCov=False
     if "--genCov" in options:
         options.remove("--genCov")
         genCov=True
 
+    #cover with correlation
     genCovCorrelation=False
     if "--genCovCorrelation" in options:
         options.remove("--genCovCorrelation")
         genCovCorrelation=True
 
+    #default configuartion : genCov
     if not (genCovCorrelation or genCov):
         genCov=True
 
-    if "--help" in options:
-        usage()
-        sys.exit()
+    #select default
+    optionName="--select-default"
+    selectOptions=list(filter(lambda x: x.startswith(optionName),options))
+    for option in selectOptions:
+        options.remove(option)
 
-    if len(options)<1 and genCov:
+    selectOption=False
+    if len(selectOptions)>=1:
+        selectOption=selectOptions[-1]
+        selectOption=selectOption.replace(optionName,"")
+        if selectOption.startswith("="):
+            selectOption=int(selectOption[1:])
+        if selectOption=="":
+            selectOption=True
+
+
+    addFile=[]
+    if selectOption!=False:
+        import pathlib
+        addFile=[str(x) for x in pathlib.Path(".").rglob("trace_bb_cov.log*")]
+
+        if selectOption!=True:
+            addFile=addFile[0:selectOption]
+    for option in options:
+        if option not in addFile:
+            addFile+=[option]
+    listOfFile=addFile
+
+    if len(listOfFile)<1 and genCov:
         usage()
         print("--genCov required at least 1 argument")
         sys.exit()
-    if len(options)<2 and genCovCorrelation:
+    if len(listOfFile)<2 and genCovCorrelation:
         usage()
         print("--genCovCorrelation required at least 2 arguments")
         sys.exit()
 
-    cmp=cmpToolsCov(selectPidFromFile(options))
+    cmp=cmpToolsCov(selectPidFromFile(listOfFile))
     if genCov:
         cmp.writePartialCover()
     if genCovCorrelation:
