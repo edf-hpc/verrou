@@ -22,13 +22,18 @@ are likely to be responsible for Floating-Point-related instabilities.
 The documentation for Verrou is available as a dedicated [chapter in the
 Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html).
 
+**NB:** This is released version 2.2.0 of Verrou, based on Valgrind
+  v3.15.0. The development version of Verrou can always be found in
+  the [`master`](https://github.com/edf-hpc/verrou/) branch. For other
+  versions, please consult the list of
+  [releases](https://github.com/edf-hpc/verrou/releases).
 
 ## Installation
 
 ### Get the sources
 
 The preferred way to get Verrou sources is to download the latest *stable*
-version: [v2.1.0](https://github.com/edf-hpc/verrou/releases/latest).
+version: [v2.2.0](https://github.com/edf-hpc/verrou/releases/latest).
 Older versions are available in the [releases](https://github.com/edf-hpc/verrou/releases)
 page. After downloading one of the released versions, skip to the "Configure
 and build" section below.

@@ -51,7 +51,7 @@ index f8c798bf3..4eb86290d 100755
  
  # Process this file with autoconf to produce a configure script.
 -AC_INIT([Valgrind],[3.15.0],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.15.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.15.0+verrou-2.2.0],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
@@ -168,7 +168,7 @@ index fc5629db4..6a3de186a 100644
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
 -<!ENTITY rel-version "3.15.0">
-+<!ENTITY rel-version "3.15.0+verrou-dev">
++<!ENTITY rel-version "3.15.0+verrou-2.2.0">
  <!ENTITY rel-date    "12 April 2019">
  
  <!-- where the docs are installed -->
