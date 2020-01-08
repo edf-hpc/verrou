@@ -10,6 +10,35 @@ This version is based on Valgrind-3.15.0.
 
 ### Changed
 
+---
+
+## v2.2.0 - 2020-01-08
+
+This version is based on Valgrind-3.15.0.
+
+### Added
+
+- [EXPERIMENTAL] MCA back-ends
+  - use with valgrind option `--backend=mcaquad`
+  - deactivate support for MCA back-ends with configure switch `--enable-verrou-quad=no`
+
+- [EXPERIMENTAL] code coverage generation (`--trace=FILENAME`)
+
+- Generate the list of cancellations (`--cc-gen-source`)
+
+### Changed
+
+- Two scripts `verrou_dd_line` and `verrou_dd_sym` replace
+  `verrou_dd`.
+
+- Bug fix related to the random generator.
+
+- Bug fix: use the PID to generate the search space name.  This allows
+  using Delta-Debugging techniques with MPI programs.
+
+- Bug fix: correctly handle unnamed objects and source file lines.
+
+- Bug fix: allow gdb integration. (fixes gh-24)
 
 ---
 
