@@ -80,7 +80,7 @@ git add vr_clo.txt
 
     > ## [UNRELEASED]
     > 
-    > This version is based on Valgrind-3.14.0.
+    > This version is based on Valgrind-3.15.0.
     > 
     > ### Added
     > 
@@ -108,7 +108,7 @@ git add vr_clo.txt
 - Build a tgz archive for the full valgrind+verrou release
     
     ```
-    VALGRIND=valgrind-3.14.0
+    VALGRIND=valgrind-3.15.0
     cd /tmp
     wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
     tar xvpf ${VALGRIND}.tar.bz2

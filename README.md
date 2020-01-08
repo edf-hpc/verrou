@@ -38,7 +38,7 @@ and build" section below.
 In order to build the *development* version of Verrou, it is necesary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=VALGRIND_3_14_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.14.0+verrou-dev
+    git clone --branch=VALGRIND_3_15_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.15.0+verrou-dev
 
 Add verrou's sources to it:
 

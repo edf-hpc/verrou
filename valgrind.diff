@@ -1,19 +1,18 @@
 diff --git a/Makefile.am b/Makefile.am
-index 154f68f..be71626 100644
+index 242b38a14..5f4306426 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -10,7 +10,8 @@ TOOLS =		memcheck \
+@@ -14,6 +14,8 @@ TOOLS = \
  		lackey \
- 		none \
- 		helgrind \
--		drd
-+		drd \
-+		verrou
+ 		none
  
- EXP_TOOLS = 	exp-sgcheck \
- 		exp-bbv \
++TOOLS += verrou
++
+ EXP_TOOLS = \
+ 		exp-sgcheck \
+ 		exp-bbv
 diff --git a/README b/README
-index 6f333d3..dc0b98a 100644
+index 0d3ac1de4..78ba3f178 100644
 --- a/README
 +++ b/README
 @@ -1,4 +1,26 @@
@@ -44,19 +43,19 @@ index 6f333d3..dc0b98a 100644
  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  If you are building a binary package of Valgrind for distribution,
 diff --git a/configure.ac b/configure.ac
-index c18ae5f..61c1f92 100644
+index f8c798bf3..4eb86290d 100755
 --- a/configure.ac
 +++ b/configure.ac
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
  
  # Process this file with autoconf to produce a configure script.
--AC_INIT([Valgrind],[3.14.0],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.14.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
+-AC_INIT([Valgrind],[3.15.0],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.15.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
- AM_INIT_AUTOMAKE([foreign subdir-objects])
-@@ -4583,6 +4583,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+ AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
+@@ -4648,6 +4648,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -67,17 +66,17 @@ index c18ae5f..61c1f92 100644
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4675,6 +4679,8 @@ AC_CONFIG_FILES([
-    exp-bbv/tests/arm-linux/Makefile
-    exp-dhat/Makefile
-    exp-dhat/tests/Makefile
+@@ -4670,6 +4674,8 @@ AC_CONFIG_FILES([
+    auxprogs/Makefile
+    mpi/Makefile
+    coregrind/Makefile 
 +   verrou/Makefile
 +   verrou/tests/Makefile
-    shared/Makefile
-    solaris/Makefile
- ])
+    memcheck/Makefile
+    memcheck/tests/Makefile
+    memcheck/tests/common/Makefile
 diff --git a/docs/lib/vg_basic.css b/docs/lib/vg_basic.css
-index 49367fe..6dc3e5f 100644
+index 49367fed2..6dc3e5f7e 100644
 --- a/docs/lib/vg_basic.css
 +++ b/docs/lib/vg_basic.css
 @@ -65,3 +65,39 @@ blockquote {
@@ -121,10 +120,10 @@ index 49367fe..6dc3e5f 100644
 +    color: #8a6d3b;
 +}
 diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
-index 7d774e5..5c5c1e3 100644
+index a038ee416..a1fe14e6b 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
-@@ -43,5 +43,9 @@
+@@ -47,5 +47,9 @@
  <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  
@@ -135,20 +134,20 @@ index 7d774e5..5c5c1e3 100644
  </set>
  
 diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
-index 333e5b7..a0c471d 100644
+index b90514935..1422eb418 100644
 --- a/docs/xml/manual.xml
 +++ b/docs/xml/manual.xml
-@@ -44,6 +44,8 @@
-       xmlns:xi="http://www.w3.org/2001/XInclude" />      
+@@ -40,6 +40,8 @@
+       xmlns:xi="http://www.w3.org/2001/XInclude" />
    <xi:include href="../../lackey/docs/lk-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
 +  <xi:include href="../../verrou/docs/vr-manual.xml" parse="xml"
 +      xmlns:xi="http://www.w3.org/2001/XInclude" />
    <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
- 
+   <xi:include href="../../exp-sgcheck/docs/sg-manual.xml" parse="xml"  
 diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
-index 7498c61..62167e4 100644
+index 7498c614c..62167e45c 100644
 --- a/docs/xml/valgrind-manpage.xml
 +++ b/docs/xml/valgrind-manpage.xml
 @@ -230,6 +230,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
@@ -161,15 +160,15 @@ index 7498c61..62167e4 100644
  <refsect1 id="see_also">
  <title>See Also</title>
 diff --git a/docs/xml/vg-entities.xml b/docs/xml/vg-entities.xml
-index 6151c35..4905155 100644
+index fc5629db4..6a3de186a 100644
 --- a/docs/xml/vg-entities.xml
 +++ b/docs/xml/vg-entities.xml
 @@ -6,7 +6,7 @@
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
--<!ENTITY rel-version "3.14.0">
-+<!ENTITY rel-version "3.14.0+verrou-dev">
- <!ENTITY rel-date    "9 October 2018">
+-<!ENTITY rel-version "3.15.0">
++<!ENTITY rel-version "3.15.0+verrou-dev">
+ <!ENTITY rel-date    "12 April 2019">
  
  <!-- where the docs are installed -->

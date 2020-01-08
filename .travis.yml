@@ -2,7 +2,7 @@ language: cpp
 dist: trusty
 sudo: required
 env:
-  - VALGRIND_VERSION=VALGRIND_3_14_0
+  - VALGRIND_VERSION=VALGRIND_3_15_0
   - VALGRIND_VERSION=master
 matrix:
   allow_failures:
