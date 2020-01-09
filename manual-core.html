@@ -541,7 +541,7 @@ in most cases.  We group the available options by rough categories.</p>
 </dt>
 <dd><p>Run the Valgrind tool called <code class="varname">toolname</code>,
       e.g. memcheck, cachegrind, callgrind, helgrind, drd, massif,
-      lackey, none, exp-sgcheck, exp-bbv, exp-dhat, etc.</p></dd>
+      dhat, lackey, none, exp-sgcheck, exp-bbv, etc.</p></dd>
 </dl>
 </div>
 </div>
@@ -1042,6 +1042,29 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
 <p> Note that empty markers are accepted. So, only using a begin
       (or an end) marker is possible.</p>
 </dd>
+<dt>
+<a name="opt.show-error-list"></a><span class="term">
+      <code class="option">--show-error-list=no|yes [default: no]</code>
+    </span>
+</dt>
+<dd>
+<p>If this option is enabled, for tools that report errors, valgrind
+        will show the list of detected errors and the list of used suppressions
+        at exit.
+      </p>
+<p>Note that at verbosity 2 and above, valgrind automatically shows
+        the list of detected errors and the list of used suppressions
+        at exit, unless  <code class="option">--show-error-list=no</code> is selected.
+      </p>
+</dd>
+<dt>
+<a name="opt.s"></a><span class="term">
+      <code class="option">-s</code>
+    </span>
+</dt>
+<dd><p>Specifying <code class="option">-s</code> is equivalent to
+        <code class="option">--show-error-list=yes</code>.
+      </p></dd>
 <dt>
 <a name="opt.sigill-diagnostics"></a><span class="term">
       <code class="option">--sigill-diagnostics=&lt;yes|no&gt; [default: yes] </code>
@@ -1634,10 +1657,10 @@ need to use them.</p>
       function calls from DWARF3 debug info.  This slows Valgrind
       startup and makes it use more memory (typically for each inlined
       piece of code, 6 words and space for the function name), but it
-      results in more descriptive stacktraces.  For the 3.10.0
-      release, this functionality is enabled by default only for Linux,
-      Android and Solaris targets and only for the tools Memcheck, Helgrind
-      and DRD.  Here is an example of some stacktraces with
+      results in more descriptive stacktraces.  Currently,
+      this functionality is enabled by default only for Linux,
+      Android and Solaris targets and only for the tools Memcheck, Massif,
+      Helgrind and DRD.  Here is an example of some stacktraces with
       <code class="option">--read-inline-info=no</code>:
 </p>
 <pre class="programlisting">
@@ -2194,7 +2217,7 @@ need to use them.</p>
       malloc related functions, using the
       synonym <code class="varname">somalloc</code>.  This synonym is usable for
       all tools doing standard replacement of malloc related functions
-      (e.g. memcheck, massif, drd, helgrind, exp-dhat, exp-sgcheck).
+      (e.g. memcheck, helgrind, drd, massif, dhat, exp-sgcheck).
       </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -2565,6 +2588,9 @@ the "Massif Format".</p>
       <a class="ulink" href="https://kcachegrind.github.io/html/Home.html" target="_top">KCachegrind</a>, which is a KDE/Qt based
       GUI that makes it easy to navigate the large amount of data that
       an xtree can contain.</p>
+<p>Note that xtree Callgrind Format does not make use of the inline
+      information even when specifying <code class="option">--read-inline-info=yes</code>.
+    </p>
 </li>
 <li class="listitem">
 <p>Massif Format</p>
@@ -2578,9 +2604,12 @@ the "Massif Format".</p>
 <p>Different Massif Format file visualisers are available. Valgrind
       distribution includes the <code class="option">ms_print</code>
       command line utility that produces an easy to read reprentation of
-      a massif output file. See <a class="xref" href="ms-manual.html#ms-manual.running-massif" title="9.2.2. Running Massif">Running Massif</a> and
-      <a class="xref" href="ms-manual.html#ms-manual.using" title="9.2. Using Massif and ms_print">Using Massif and ms_print</a> for more details
+      a massif output file. See <a class="xref" href="ms-manual.html#ms-manual.using-print" title="9.2. Using Massif and ms_print">Using Massif and ms_print</a> and
+      <a class="xref" href="ms-manual.html#ms-manual.using-visualizer" title="9.3. Using massif-visualizer">Using massif-visualizer</a> for more details
       about visualising Massif Format output files.</p>
+<p>Note that xtree Massif Format makes use of the inline
+      information when specifying <code class="option">--read-inline-info=yes</code>.
+    </p>
 </li>
 </ul></div>
 <p>Note that for equivalent information, the Callgrind Format is more compact

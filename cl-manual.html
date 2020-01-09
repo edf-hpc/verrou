@@ -1038,18 +1038,34 @@ their arguments.</p>
     </span></dt>
 <dd><p>Only show figures for events A,B,C.</p></dd>
 <dt><span class="term">
+      <code class="option">--threshold=&lt;0--100&gt; [default: 99%] </code>
+    </span></dt>
+<dd>
+<p>Percentage of counts (of primary sort event) we are 
+        interested in.</p>
+<p>callgrind_annotate stops printing functions when the sum
+        of the cost percentage of the printed functions is bigger or equal
+        to the given threshold percentage.</p>
+</dd>
+<dt><span class="term">
       <code class="option">--sort=A,B,C</code>
     </span></dt>
 <dd>
 <p>Sort columns by events A,B,C [event column order].</p>
 <p>Optionally, each event is followed by a : and a threshold,
         to specify different thresholds depending on the event.</p>
+<p>callgrind_annotate stops printing functions when the sum
+        of the cost percentage of the printed functions for all the events
+        is bigger or equal to the given event threshold percentages.</p>
+<p>When one or more thresholds are given via this option,
+        the value of <code class="option">--threshold</code> is ignored.</p>
 </dd>
 <dt><span class="term">
-      <code class="option">--threshold=&lt;0--100&gt; [default: 99%] </code>
+      <code class="option">--show-percs=&lt;no|yes&gt; [default: no] </code>
     </span></dt>
-<dd><p>Percentage of counts (of primary sort event) we are 
-      interested in.</p></dd>
+<dd><p>When enabled, a percentage is printed next to all event counts.
+      This helps gauge the relative importance of each function and line.
+      </p></dd>
 <dt><span class="term">
       <code class="option">--auto=&lt;yes|no&gt; [default: no] </code>
     </span></dt>

@@ -21,7 +21,175 @@
 <div class="titlepage"><div><div><h1 class="title">
 <a name="dist.news"></a>2. NEWS</h1></div></div></div>
 <div class="literallayout"><p><br>
-      Release 3.14.0 (9 October 2018)<br>
+      <br>
+Release 3.15.0 (12 April 2019)<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+3.15.0 is a feature release with many improvements and the usual collection of<br>
+bug fixes.<br>
+<br>
+This release supports X86/Linux, AMD64/Linux, ARM32/Linux, ARM64/Linux,<br>
+PPC32/Linux, PPC64BE/Linux, PPC64LE/Linux, S390X/Linux, MIPS32/Linux,<br>
+MIPS64/Linux, ARM/Android, ARM64/Android, MIPS32/Android, X86/Android,<br>
+X86/Solaris, AMD64/Solaris and AMD64/MacOSX 10.12.  There is also preliminary<br>
+support for X86/macOS 10.13 and AMD64/macOS 10.13.<br>
+<br>
+* ==================== CORE CHANGES ===================<br>
+<br>
+* The XTree Massif output format now makes use of the information obtained<br>
+  when specifying --read-inline-info=yes.<br>
+<br>
+* amd64 (x86_64): the RDRAND and F16C insn set extensions are now supported.<br>
+<br>
+* ==================== TOOL CHANGES ====================<br>
+<br>
+* DHAT: <br>
+<br>
+  - DHAT been thoroughly overhauled, improved, and given a GUI.  As a result,<br>
+    it has been promoted from an experimental tool to a regular tool.  Run it<br>
+    with --tool=dhat instead of --tool=exp-dhat.<br>
+<br>
+  - DHAT now prints only minimal data when the program ends, instead writing<br>
+    the bulk of the profiling data to a file.  As a result, the --show-top-n<br>
+    and --sort-by options have been removed.<br>
+    <br>
+  - Profile results can be viewed with the new viewer, dh_view.html.  When<br>
+    a run ends, a short message is printed, explaining how to view the result.<br>
+    <br>
+  - See the documentation for more details.<br>
+<br>
+* Cachegrind:<br>
+<br>
+  - cg_annotate has a new option, --show-percs, which prints percentages next<br>
+    to all event counts.<br>
+<br>
+* Callgrind:<br>
+<br>
+  - callgrind_annotate has a new option, --show-percs, which prints percentages<br>
+    next to all event counts.<br>
+<br>
+  - callgrind_annotate now inserts commas in call counts, and<br>
+    sort the caller/callee lists in the call tree.<br>
+<br>
+* Massif:<br>
+<br>
+  - The default value for --read-inline-info is now "yes" on<br>
+    Linux/Android/Solaris. It is still "no" on other OS.<br>
+<br>
+* Memcheck:<br>
+<br>
+  - The option --xtree-leak=yes (to output leak result in xtree format)<br>
+    automatically activates the option --show-leak-kinds=all, as xtree<br>
+    visualisation tools such as kcachegrind can in any case select what kind<br>
+    of leak to visualise.<br>
+<br>
+  - There has been further work to avoid false positives.  In particular,<br>
+    integer equality on partially defined inputs (C == and !=) is now handled<br>
+    better.<br>
+<br>
+* ==================== OTHER CHANGES ====================<br>
+<br>
+* The new option --show-error-list=no|yes displays, at the end of the run, the<br>
+  list of detected errors and the used suppressions.  Prior to this change,<br>
+  showing this information could only be done by specifying "-v -v", but that<br>
+  also produced a lot of other possibly-non-useful messages.  The option -s is<br>
+  equivalent to --show-error-list=yes.<br>
+<br>
+* ==================== FIXED BUGS ====================<br>
+<br>
+The following bugs have been fixed or resolved.  Note that "n-i-bz"<br>
+stands for "not in bugzilla" -- that is, a bug that was reported to us<br>
+but never got a bugzilla entry.  We encourage you to file bugs in<br>
+bugzilla (https://bugs.kde.org/enter_bug.cgi?product=valgrind) rather<br>
+than mailing the developers (or mailing lists) directly -- bugs that<br>
+are not entered into bugzilla tend to get forgotten about or ignored.<br>
+<br>
+To see details of a given bug, visit<br>
+  https://bugs.kde.org/show_bug.cgi?id=XXXXXX<br>
+where XXXXXX is the bug number as listed below.<br>
+<br>
+385411  s390x: z13 vector floating-point instructions not implemented<br>
+397187  z13 vector register support for vgdb gdbserver<br>
+398183  Vex errors with _mm256_shuffle_epi8/vpshufb<br>
+398870  Please add support for instruction vcvtps2ph<br>
+399287  amd64 front end: Illegal Instruction vcmptrueps<br>
+399301  Use inlined frames in Massif XTree output. <br>
+399322  Improve callgrind_annotate output<br>
+399444  VEX/priv/guest_s390_toIR.c:17407: (style) Mismatching assignment [..]<br>
+400164  helgrind test encounters mips x-compiler warnings and assembler error<br>
+400490  s390x: VRs allocated as if separate from FPRs<br>
+400491  s390x: Operand of LOCH treated as unsigned integer<br>
+400975  Compile error: error: '-mips64r2' conflicts with the other architecture<br>
+        options, which specify a mips64 processor<br>
+401112  LLVM 5.0 generates comparison against partially initialized data<br>
+401277  More bugs in z13 support<br>
+401454  Add a --show-percs option to cg_annotate and callgrind_annotate.<br>
+401578  drd: crashes sometimes on fork()<br>
+401627  memcheck errors with glibc avx2 optimized wcsncmp<br>
+401822  none/tests/ppc64/jm-vmx fails and produces assembler warnings<br>
+401827  none/tests/ppc64/test_isa_2_06_part3 failure on ppc64le (xvrsqrtesp)<br>
+401828  none/tests/ppc64/test_isa_2_06_part1 failure on ppc64le (fcfids and<br>
+        fcfidus)<br>
+402006  mark helper regs defined in final_tidyup before freeres_wrapper call<br>
+402048  WARNING: unhandled ppc64[be|le]-linux syscall: 26 (ptrace)<br>
+402123  invalid assembler opcodes for mips32r2<br>
+402134  assertion fail in mc_translate.c (noteTmpUsesIn) Iex_VECRET on arm64<br>
+402327  Warning: DWARF2 CFI reader: unhandled DW_OP_ opcode 0x13 (DW_OP_drop)<br>
+402341  drd/tests/tsan_thread_wrappers_pthread.h:369: suspicious code ?<br>
+402351  mips64 libvexmultiarch_test fails on s390x<br>
+402369  Overhaul DHAT<br>
+402395  coregrind/vgdb-invoker-solaris.c: 2 * poor error checking<br>
+402480  Do not use %rsp in clobber list<br>
+402481  vbit-test fails on x86 for Iop_CmpEQ64 iselInt64Expr Sar64<br>
+402515  Implement new option --show-error-list=no|yes / -s<br>
+402519  POWER 3.0 addex instruction incorrectly implemented<br>
+402781  Redo the cache used to process indirect branch targets<br>
+403123  vex amd64-&gt;IR:0xF3 0x48 0xF 0xAE 0xD3 (wrfsbase)<br>
+403552  s390x: wrong facility bit checked for vector facility<br>
+404054  memcheck powerpc subfe x, x, x initializes x to 0 or -1 based on CA<br>
+404638  Add VG_(replaceIndexXA)<br>
+404843  s390x: backtrace sometimes ends prematurely<br>
+404888  autotools cleanup series<br>
+405079  unhandled ppc64le-linux syscall: 131 (quotactl)<br>
+405182  Valgrind fails to build with Clang<br>
+405205  filter_libc: remove the line holding the futex syscall error entirely<br>
+405356  PPC64, xvcvsxdsp, xvcvuxdsp are supposed to write the 32-bit result to<br>
+        the upper and lower 32-bits of the 64-bit result<br>
+405362  PPC64, vmsummbm instruction doesn't handle overflow case correctly<br>
+405363  PPC64, xvcvdpsxws, xvcvdpuxws, do not handle NaN arguments correctly.<br>
+405365  PPC64, function _get_maxmin_fp_NaN() doesn't handle QNaN, SNaN case<br>
+        correctly.<br>
+405403  s390x disassembler cannot be used on x86<br>
+405430  Use gcc -Wimplicit-fallthrough=2 by default if available<br>
+405458  MIPS mkFormVEC arguments swapped?<br>
+405716  drd: Fix an integer overflow in the stack margin calculation<br>
+405722  Support arm64 core dump<br>
+405733  PPC64, xvcvdpsp should write 32-bit result to upper and lower 32-bits<br>
+        of the 64-bit destination field.<br>
+405734  PPC64, vrlwnm, vrlwmi, vrldrm, vrldmi do not work properly when me &lt; mb<br>
+405782  "VEX temporary storage exhausted" when attempting to debug slic3r-pe<br>
+406198  none/tests/ppc64/test_isa_3_0_other test sporadically including CA<br>
+        bit in output.<br>
+406352  cachegrind/callgrind fails ann tests because of missing a.c<br>
+406354  dhat is broken on x86 (32bit)<br>
+406355  mcsignopass, mcsigpass, mcbreak fail due to difference in gdb output<br>
+406357  gdbserver_tests fails because of gdb output change<br>
+406360  memcheck/tests/libstdc++.supp needs more supression variants<br>
+406422  none/tests/amd64-linux/map_32bits.vgtest fails too easily<br>
+406465  arm64 insn selector fails on "t0 = &lt;expr&gt;" where &lt;expr&gt; has type Ity_F16<br>
+n-i-bz  add syswrap for PTRACE_GET|SET_THREAD_AREA on amd64.<br>
+n-i-bz  Fix callgrind_annotate non deterministic order for equal total<br>
+n-i-bz  callgrind_annotate --threshold=100 does not print all functions.<br>
+n-i-bz  callgrind_annotate Use of uninitialized value in numeric gt (&gt;)<br>
+n-i-bz  amd64 (x86_64): RDRAND and F16C insn set extensions are supported<br>
+<br>
+(3.15.0.RC1:  8 April 2019, git ce94d674de5b99df173aad4c3ee48fc2a92e5d9c)<br>
+(3.15.0.RC2: 11 April 2019, git 0c8be9bbede189ec580ec270521811766429595f)<br>
+(3.15.0:     14 April 2019, git 270037da8b508954f0f7d703a0bebf5364eec548)<br>
+<br>
+<br>
+<br>
+Release 3.14.0 (9 October 2018)<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 <br>
 3.14.0 is a feature release with many improvements and the usual collection of<br>

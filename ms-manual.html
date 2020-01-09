@@ -24,7 +24,7 @@
 <p><b>Table of Contents</b></p>
 <dl class="toc">
 <dt><span class="sect1"><a href="ms-manual.html#ms-manual.overview">9.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using">9.2. Using Massif and ms_print</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using-print">9.2. Using Massif and ms_print</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.anexample">9.2.1. An Example Program</a></span></dt>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.running-massif">9.2.2. Running Massif</a></span></dt>
@@ -36,11 +36,12 @@
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.not-measured">9.2.8. Measuring All Memory in a Process</a></span></dt>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.acting">9.2.9. Acting on Massif's Information</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.options">9.3. Massif Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.monitor-commands">9.4. Massif Monitor Commands</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.clientreqs">9.5. Massif Client Requests</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.ms_print-options">9.6. ms_print Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.fileformat">9.7. Massif's Output File Format</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using-visualizer">9.3. Using massif-visualizer</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.options">9.4. Massif Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.monitor-commands">9.5. Massif Monitor Commands</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.clientreqs">9.6. Massif Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.ms_print-options">9.7. ms_print Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.fileformat">9.8. Massif's Output File Format</a></span></dt>
 </dl>
 </div>
 <p>To use this tool, you must specify
@@ -82,7 +83,7 @@ which parts of your program are responsible for allocating the heap memory.
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.using"></a>9.2. Using Massif and ms_print</h2></div></div></div>
+<a name="ms-manual.using-print"></a>9.2. Using Massif and ms_print</h2></div></div></div>
 <p>First off, as for the other Valgrind tools, you should compile with
 debugging info (the <code class="option">-g</code> option).  It shouldn't
 matter much what optimisation level you compile your program with, as this
@@ -594,7 +595,17 @@ in a particular column, which makes following the allocation chains easier.
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.options"></a>9.3. Massif Command-line Options</h2></div></div></div>
+<a name="ms-manual.using-visualizer"></a>9.3. Using massif-visualizer</h2></div></div></div>
+<p>
+<a class="ulink" href="https://github.com/KDE/massif-visualizer" target="_top">massif-visualizer</a>
+is a graphical viewer for Massif data that is often easier to use than
+ms_print. massif-visualizer is not shipped within Valgrind, but is available in
+various places online.
+</p>
+</div>
+<div class="sect1">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="ms-manual.options"></a>9.4. Massif Command-line Options</h2></div></div></div>
 <p>Massif-specific command-line options are:</p>
 <div class="variablelist">
 <a name="ms.opts.list"></a><dl class="variablelist">
@@ -770,7 +781,7 @@ in a particular column, which makes following the allocation chains easier.
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.monitor-commands"></a>9.4. Massif Monitor Commands</h2></div></div></div>
+<a name="ms-manual.monitor-commands"></a>9.5. Massif Monitor Commands</h2></div></div></div>
 <p>The Massif tool provides monitor commands handled by the Valgrind
 gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5. Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
 </p>
@@ -795,7 +806,7 @@ gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbser
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.clientreqs"></a>9.5. Massif Client Requests</h2></div></div></div>
+<a name="ms-manual.clientreqs"></a>9.6. Massif Client Requests</h2></div></div></div>
 <p>Massif does not have a <code class="filename">massif.h</code> file, but it does
 implement two of the core client requests:
 <code class="function">VALGRIND_MALLOCLIKE_BLOCK</code> and
@@ -805,7 +816,7 @@ implement two of the core client requests:
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.ms_print-options"></a>9.6. ms_print Command-line Options</h2></div></div></div>
+<a name="ms-manual.ms_print-options"></a>9.7. ms_print Command-line Options</h2></div></div></div>
 <p>ms_print's options are:</p>
 <div class="variablelist">
 <a name="ms_print.opts.list"></a><dl class="variablelist">
@@ -835,7 +846,7 @@ implement two of the core client requests:
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="ms-manual.fileformat"></a>9.7. Massif's Output File Format</h2></div></div></div>
+<a name="ms-manual.fileformat"></a>9.8. Massif's Output File Format</h2></div></div></div>
 <p>Massif's file format is plain text (i.e. not binary) and deliberately
 easy to read for both humans and machines.  Nonetheless, the exact format
 is not described here.  This is because the format is currently very

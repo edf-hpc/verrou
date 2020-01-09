@@ -737,9 +737,11 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 <dd>
 <p>If set to yes, the results for the leak search done at exit will be
         output in a 'Callgrind Format' execution tree file. Note that this
-        automatically sets the option <code class="option">--leak-check=full</code>.
-        The produced file
-       will contain the following events:</p>
+        automatically sets the options <code class="option">--leak-check=full</code>
+        and <code class="option">--show-leak-kinds=all</code>, to allow
+        xtree visualisation tools such as kcachegrind to select what kind
+        to leak to visualise.
+        The produced file will contain the following events:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p><code class="option">RB</code> : Reachable Bytes</p></li>
 <li class="listitem"><p><code class="option">PB</code> : Possibly lost Bytes</p></li>

@@ -22,8 +22,8 @@
 <div>
 <div><h1 class="title">
 <a name="manual"></a>Valgrind User Manual</h1></div>
-<div><p class="releaseinfo">Release 3.14.0+verrou-2.1.0 9 October 2018</p></div>
-<div><p class="copyright">Copyright © 2000-2018 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
+<div><p class="releaseinfo">Release 3.15.0+verrou-dev 12 April 2019</p></div>
+<div><p class="copyright">Copyright © 2000-2019 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
 <div><div class="legalnotice">
 <a name="idm105"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
 </div></div>
@@ -248,7 +248,7 @@ function</a></span></dt>
 <dt><span class="chapter"><a href="ms-manual.html">9. Massif: a heap profiler</a></span></dt>
 <dd><dl>
 <dt><span class="sect1"><a href="ms-manual.html#ms-manual.overview">9.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using">9.2. Using Massif and ms_print</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using-print">9.2. Using Massif and ms_print</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.anexample">9.2.1. An Example Program</a></span></dt>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.running-massif">9.2.2. Running Massif</a></span></dt>
@@ -260,79 +260,86 @@ function</a></span></dt>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.not-measured">9.2.8. Measuring All Memory in a Process</a></span></dt>
 <dt><span class="sect2"><a href="ms-manual.html#ms-manual.acting">9.2.9. Acting on Massif's Information</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.options">9.3. Massif Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.monitor-commands">9.4. Massif Monitor Commands</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.clientreqs">9.5. Massif Client Requests</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.ms_print-options">9.6. ms_print Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="ms-manual.html#ms-manual.fileformat">9.7. Massif's Output File Format</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.using-visualizer">9.3. Using massif-visualizer</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.options">9.4. Massif Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.monitor-commands">9.5. Massif Monitor Commands</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.clientreqs">9.6. Massif Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.ms_print-options">9.7. ms_print Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="ms-manual.html#ms-manual.fileformat">9.8. Massif's Output File Format</a></span></dt>
 </dl></dd>
 <dt><span class="chapter"><a href="dh-manual.html">10. DHAT: a dynamic heap analysis tool</a></span></dt>
 <dd><dl>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.overview">10.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="dh-manual.html#dh-manual.understanding">10.2. Understanding DHAT's output</a></span></dt>
+<dt><span class="sect1"><a href="dh-manual.html#dh-manual.profile">10.2. Using DHAT</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="dh-manual.html#idm6022">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idm6036">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idm6056">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#dh-manual.running-DHAT">10.2.1. Running DHAT</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#dh-manual.outputfile">10.2.2. Output File</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="dh-manual.html#dh-manual.options">10.3. DHAT Command-line Options</a></span></dt>
-</dl></dd>
-<dt><span class="chapter"><a href="sg-manual.html">11. SGCheck: an experimental stack and global array overrun detector</a></span></dt>
+<dt><span class="sect1"><a href="dh-manual.html#dh-manual.viewer">10.3. DHAT's Viewer</a></span></dt>
 <dd><dl>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.overview">11.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.options">11.2. SGCheck Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.how-works.sg-checks">11.3. How SGCheck Works</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.cmp-w-memcheck">11.4. Comparison with Memcheck</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.limitations">11.5. Limitations</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.todo-user-visible">11.6. Still To Do: User-visible Functionality</a></span></dt>
-<dt><span class="sect1"><a href="sg-manual.html#sg-manual.todo-implementation">11.7. Still To Do: Implementation Tidying</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm6082">10.3.1. The Output Header</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm6090">10.3.2. The AP Tree</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm6171">10.3.3. The Output Footer</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idm6177">10.3.4. Sort Metrics</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="bbv-manual.html">12. BBV: an experimental basic block vector generation tool</a></span></dt>
+<dt><span class="sect1"><a href="dh-manual.html#dh-manual.options">10.4. DHAT Command-line Options</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lk-manual.html">11. Lackey: an example tool</a></span></dt>
 <dd><dl>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.overview">12.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.quickstart">12.2. Using Basic Block Vectors to create SimPoints</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.usage">12.3. BBV Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.fileformat">12.4. Basic Block Vector File Format</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.implementation">12.5. Implementation</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.threadsupport">12.6. Threaded Executable Support</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.validation">12.7. Validation</a></span></dt>
-<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.performance">12.8. Performance</a></span></dt>
+<dt><span class="sect1"><a href="lk-manual.html#lk-manual.overview">11.1. Overview</a></span></dt>
+<dt><span class="sect1"><a href="lk-manual.html#lk-manual.options">11.2. Lackey Command-line Options</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="lk-manual.html">13. Lackey: an example tool</a></span></dt>
+<dt><span class="chapter"><a href="vr-manual.html">12. Verrou: a floating-point rounding errors checker</a></span></dt>
 <dd><dl>
-<dt><span class="sect1"><a href="lk-manual.html#lk-manual.overview">13.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="lk-manual.html#lk-manual.options">13.2. Lackey Command-line Options</a></span></dt>
-</dl></dd>
-<dt><span class="chapter"><a href="vr-manual.html">14. Verrou: a floating-point rounding errors checker</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.overview">12.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.overview">14.1. Overview</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6322">12.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">12.1.2. Restriction of the perturbations scope</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat">12.2. Standard features</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6322">14.1.1. Basic usage</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">14.1.2. Restriction of the perturbations scope</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.count">12.2.1. Floating-point instructions counting</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.rounding-mode">12.2.2. Rounding-mode switching</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat">14.2. Standard features</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.scope">12.3. Restriction of the perturbations scope</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.count">14.2.1. Floating-point instructions counting</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.rounding-mode">14.2.2. Rounding-mode switching</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.exclude">12.3.1. Excluded symbols</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.instr">12.3.2. Instrumented sections</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.scope">14.3. Restriction of the perturbations scope</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization">12.4. Debugging and error localization</a></span></dt>
+<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd</strong></span> command</a></span></dt></dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.advanced">12.5. Advanced features</a></span></dt>
+<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.feat.deterministic">12.5.1. Deterministic sections</a></span></dt></dl></dd>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.reference">12.6. Reference</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.exclude">14.3.1. Excluded symbols</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.feat.instr">14.3.2. Instrumented sections</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.clo">12.6.1. Command-line options</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">12.6.2. Client requests</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm7125">12.6.3. Monitor commands</a></span></dt>
 </dl></dd>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization">14.4. Debugging and error localization</a></span></dt>
-<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">14.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd</strong></span> command</a></span></dt></dl></dd>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.advanced">14.5. Advanced features</a></span></dt>
-<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.feat.deterministic">14.5.1. Deterministic sections</a></span></dt></dl></dd>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.reference">14.6. Reference</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="nl-manual.html">13. Nulgrind: the minimal Valgrind tool</a></span></dt>
+<dd><dl><dt><span class="sect1"><a href="nl-manual.html#ms-manual.overview">13.1. Overview</a></span></dt></dl></dd>
+<dt><span class="chapter"><a href="sg-manual.html">14. SGCheck: an experimental stack and global array overrun detector</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.clo">14.6.1. Command-line options</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">14.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm7043">14.6.3. Monitor commands</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.overview">14.1. Overview</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.options">14.2. SGCheck Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.how-works.sg-checks">14.3. How SGCheck Works</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.cmp-w-memcheck">14.4. Comparison with Memcheck</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.limitations">14.5. Limitations</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.todo-user-visible">14.6. Still To Do: User-visible Functionality</a></span></dt>
+<dt><span class="sect1"><a href="sg-manual.html#sg-manual.todo-implementation">14.7. Still To Do: Implementation Tidying</a></span></dt>
 </dl></dd>
+<dt><span class="chapter"><a href="bbv-manual.html">15. BBV: an experimental basic block vector generation tool</a></span></dt>
+<dd><dl>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.overview">15.1. Overview</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.quickstart">15.2. Using Basic Block Vectors to create SimPoints</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.usage">15.3. BBV Command-line Options</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.fileformat">15.4. Basic Block Vector File Format</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.implementation">15.5. Implementation</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.threadsupport">15.6. Threaded Executable Support</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.validation">15.7. Validation</a></span></dt>
+<dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.performance">15.8. Performance</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="nl-manual.html">15. Nulgrind: the minimal Valgrind tool</a></span></dt>
-<dd><dl><dt><span class="sect1"><a href="nl-manual.html#ms-manual.overview">15.1. Overview</a></span></dt></dl></dd>
 </dl>
 </div>
 </div>
