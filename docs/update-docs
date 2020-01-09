@@ -66,7 +66,7 @@ rsync -av --delete --exclude .git ${INSTALLDIR}/share/doc/valgrind/html/ ${TMPDI
         echo "git diff --staged --stat"
     ) >../bashrc
     git config user.name  "François Févotte"
-    git config user.email "francois.fevotte@edf.fr"
+    git config user.email "francois.fevotte@triscale-innov.com"
     x-terminal-emulator -e "bash --init-file ../bashrc" &
     firefox --new-window "vr-manual.html" &
     git commit -t ../commit.msg
