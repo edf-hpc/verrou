@@ -12,20 +12,32 @@ patch-error:
 	test "$(VALGRIND_VERSION)" = "master"
 
 configure:
+	@echo "*** AUTOGEN ***"
 	cd ../valgrind+verrou && ./autogen.sh
+
+	@echo "*** CONFIGURE ***"
 	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/install
 
 build:
+	@echo "*** MAKE ***"
 	cd ../valgrind+verrou && make
-	cd ../valgrind+verrou && make install >/dev/null
+
+	@echo "*** MAKE INSTALL ***"
+	cd ../valgrind+verrou && make install
 
 check-install:
+	@echo "*** CHECK VERSION ***"
 	source ../valgrind+verrou/install/env.sh && valgrind --version
+
+	@echo "*** CHECK HELP ***"
 	source ../valgrind+verrou/install/env.sh && valgrind --tool=verrou --help
 
 check:
+	@echo "*** BUILD TESTS ***"
 	cd ../valgrind+verrou && make -C tests  check
 	cd ../valgrind+verrou && make -C verrou check
+
+	@echo "*** VALGRIND TESTS ***"
 	cd ../valgrind+verrou && perl tests/vg_regtest verrou
 
 check-error:
@@ -33,4 +45,5 @@ check-error:
 	@false
 
 unit-test:
+	@echo "*** UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
