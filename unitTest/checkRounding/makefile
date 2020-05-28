@@ -17,7 +17,7 @@ endif
 
 
 FLAGS1 = $(FLAGS) -mfpmath=sse
-FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mfma $(FMA_FLAG) -DTEST_SSE
+FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mno-avx512f -mfma $(FMA_FLAG) -DTEST_SSE
 
 .PHONY: run run1 run2
 
