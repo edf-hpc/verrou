@@ -1078,6 +1078,10 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
    vr_env_clo("VERROU_MCA_MODE",      "--mca-mode");
 
+   vr_env_clo("VERROU_BACKEND", "--backend");
+   vr_env_clo("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
+   vr_env_clo("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
+
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
