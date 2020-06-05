@@ -54,4 +54,23 @@ AC_SUBST(vg_cv_verrou_quad)
 
 
 
+# avx512
+vg_test_no_avx512f_flag=-mno-avx512f
+AC_LANG_PUSH(C++)
+CXXFLAGS="$safe_CXXFLAGS $vg_test_no_avx512f_flag"
+AC_MSG_CHECKING([for -mno-avx512f compil option])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <stdlib.h>
+      ]], [[return EXIT_SUCCESS;]])],
+    [
+      AC_MSG_RESULT([yes])
+    ],[
+     vg_test_no_avx512f_flag=
+      AC_MSG_RESULT([no])
+  ])
+AC_LANG_POP(C++)
+AC_SUBST(vg_test_no_avx512f_flag)
+
+
 AC_CONFIG_FILES([verrou/env.sh])
+AC_CONFIG_FILES([verrou/unitTest/flag.mk])

@@ -15,9 +15,10 @@ ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=no)
 	FMA_FLAG=-DTEST_NOFMA
 endif
 
+include ../flag.mk
 
-FLAGS1 = $(FLAGS) -mfpmath=sse
-FLAGS2 = $(FLAGS) -mfpmath=sse -march=native -mno-avx512f -mfma $(FMA_FLAG) -DTEST_SSE
+FLAGS1 = $(FLAGS) $(DEBUGFLAGS)
+FLAGS2 = $(FLAGS) $(NATIVEFLAGS) -mfma $(FMA_FLAG) -DTEST_SSE
 
 .PHONY: run run1 run2
 

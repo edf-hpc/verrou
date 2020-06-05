@@ -1,0 +1,6 @@
+# @configure_input@
+
+AVX512FLAG=@vg_test_no_avx512f_flag@
+
+DEBUGFLAGS = -mfpmath=sse $(AVX512FLAG)
+NATIVEFLAGS= -mfpmath=sse -march=native -mfma $(AVX512FLAG)

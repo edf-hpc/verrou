@@ -1,7 +1,10 @@
 export INSTALLPATH = $(shell bash ../installpath)
 export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou --check-nan=no
 
-FLAGS=-Wall -O0 -g -march=native  -mno-avx512f  -fabi-version=0 -std=c++11 -mavx
+include ../flag.mk
+
+
+FLAGS=-Wall -O0 -g $(NATIVEFLAGS)  -fabi-version=0 -std=c++11 -mavx
 
 SOURCE=testFloat.cxx
 EXEC=./testFloat
