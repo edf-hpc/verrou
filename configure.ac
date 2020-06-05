@@ -63,8 +63,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include <stdlib.h>
       ]], [[return EXIT_SUCCESS;]])],
     [
+      CXXFLAGS="$safe_CXXFLAGS"
       AC_MSG_RESULT([yes])
     ],[
+    CXXFLAGS="$safe_CXXFLAGS"
      vg_test_no_avx512f_flag=
       AC_MSG_RESULT([no])
   ])
