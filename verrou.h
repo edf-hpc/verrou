@@ -48,7 +48,8 @@ enum {
   VR_USERREQ__START_DETERMINISTIC,
   VR_USERREQ__STOP_DETERMINISTIC,
   VR_USERREQ__DISPLAY_COUNTERS,
-  VR_USERREQ__DUMP_COVER
+  VR_USERREQ__DUMP_COVER,
+  VR_USERREQ__COUNT_FP_INSTRUMENTED
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -75,5 +76,11 @@ enum {
   (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	      \
 					    VR_USERREQ__DUMP_COVER,   \
 					    0, 0, 0, 0, 0)
+
+#define VERROU_COUNT_FP_INSTRUMENTED \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__COUNT_FP_INSTRUMENTED,\
+					    0, 0, 0, 0, 0)
+
 
 #endif /* __VERROU_H */

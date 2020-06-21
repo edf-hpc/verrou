@@ -214,6 +214,29 @@ static unsigned int vr_frac (ULong a, ULong b) {
   return q;
 }
 
+unsigned int vr_count_fp_instrumented(void){
+   //Warning : the return type is small (to be consistent with return client request type)
+   //should be used only  as heuristic  to detect dynamicaly fp operations
+
+   if(!vr.count) {
+      VG_(tool_panic) ( "--count-op=no not allowed with vr_count_fp_instrumented function \n");
+   }
+   Vr_Op op;
+   Vr_Prec prec;
+   Vr_Vec vec;
+   ULong total=0;
+   for (op = 0 ; op<VR_OP ; ++op) {
+      for (prec = 0 ; prec < VR_PREC ; ++prec) {
+         for (vec = 0 ; vec < VR_VEC ; ++vec) {
+            total  += vr_opCount[op][prec][vec][VR_INSTR_ON];
+         }
+      }
+   }
+   return (unsigned int)total;
+}
+
+
+
 void vr_ppOpCount (void) {
   if(!vr.count)return ;
   Vr_Op op;
@@ -1221,7 +1244,7 @@ static void vr_pre_clo_init(void)
    VG_(needs_tool_errors)(vr_eq_Error,
                           vr_before_pp_Error,
                           vr_pp_Error,
-			  False,                          //show_ThreadIDs_for_errors
+                          False,                          //show_ThreadIDs_for_errors
                           vr_update_extra,
                           vr_recognised_suppression,
                           vr_read_extra_suppression_info,
