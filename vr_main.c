@@ -217,7 +217,6 @@ static unsigned int vr_frac (ULong a, ULong b) {
 unsigned int vr_count_fp_instrumented(void){
    //Warning : the return type is small (to be consistent with return client request type)
    //should be used only  as heuristic  to detect dynamicaly fp operations
-
    if(!vr.count) {
       VG_(tool_panic) ( "--count-op=no not allowed with vr_count_fp_instrumented function \n");
    }
@@ -229,6 +228,27 @@ unsigned int vr_count_fp_instrumented(void){
       for (prec = 0 ; prec < VR_PREC ; ++prec) {
          for (vec = 0 ; vec < VR_VEC ; ++vec) {
             total  += vr_opCount[op][prec][vec][VR_INSTR_ON];
+         }
+      }
+   }
+   return (unsigned int)total;
+}
+
+
+unsigned int vr_count_fp_not_instrumented(void){
+   //Warning : the return type is small (to be consistent with return client request type)
+   //should be used only  as heuristic  to detect dynamicaly fp operations
+   if(!vr.count) {
+      VG_(tool_panic) ( "--count-op=no not allowed with vr_count_fp_not_instrumented function \n");
+   }
+   Vr_Op op;
+   Vr_Prec prec;
+   Vr_Vec vec;
+   ULong total=0;
+   for (op = 0 ; op<VR_OP ; ++op) {
+      for (prec = 0 ; prec < VR_PREC ; ++prec) {
+         for (vec = 0 ; vec < VR_VEC ; ++vec) {
+            total  += vr_opCount[op][prec][vec][VR_INSTR_OFF];
          }
       }
    }
