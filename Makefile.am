@@ -4,14 +4,14 @@ EXTRA_DIST = \
 	docs/vr-manual.xml \
 	docs/verrou_dd-manpage.xml
 
-pkginclude_HEADERS = verrou.h
+pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
 
 #----------------------------------------------------------------------------
 # verrou-<platform>
 #----------------------------------------------------------------------------
 
 PYTHON_REP=pyTools
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/cmpCov.py
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/cmpCov.py ${PYTHON_REP}/verrou_dd_synchro
 pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py
 
 install-exec-local:
@@ -115,3 +115,29 @@ verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LINK = \
 	$(verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CFLAGS) \
 	$(verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS)
 endif
+
+
+
+
+
+#----------------------------------------------------------------------------
+# verrouSynchroLib-<platform>.so
+#----------------------------------------------------------------------------
+
+noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
+if VGCONF_HAVE_PLATFORM_SEC
+noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
+endif
+
+if VGCONF_OS_IS_DARWIN
+noinst_DSYMS = $(noinst_PROGRAMS)
+endif
+
+VERROUSYNCHROLIB_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
+
+verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
+	$(VERROUSYNCHROLIB_SOURCES_COMMON)
+verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
+	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
