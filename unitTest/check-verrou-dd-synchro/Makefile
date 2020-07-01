@@ -2,7 +2,7 @@
 export INSTALLPATH = $(shell bash ../installpath)
 
 
-FLAGS=-O0 -g -Wall -std=c++14 -DUSE_VERROU_SYNCHRO
+FLAGS=-O0 -g -Wall -std=c++11 -DUSE_VERROU_SYNCHRO
 VERROU_SYNCHRO_SO=$(INSTALLPATH)/lib/valgrind/verrouSynchroLib-amd64-linux.so
 
 CPP=g++
