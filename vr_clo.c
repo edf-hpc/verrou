@@ -40,7 +40,9 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
   if (val) {
     HChar tmp[256];
     VG_(snprintf)(tmp, 255, "%s=%s", clo, val);
-    vr_process_clo(tmp);
+    if (!vr_process_clo(tmp)) {
+      VG_(umsg)("WARNING: unknown command-line option `%s'\n", tmp);
+    }
   }
 }
 
@@ -90,44 +92,44 @@ Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
   const HChar * str;
   //Option --backend=
-  if      (VG_XACT_CLO (arg, "--backend=verrou",
-                        vr.backend, vr_verrou)) {}
-  else if (VG_XACT_CLO (arg, "--backend=mcaquad",
-                        vr.backend, vr_mcaquad)) {}
+  if      (VG_XACT_CLOM (cloPD, arg, "--backend=verrou",
+                         vr.backend, vr_verrou)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
+                         vr.backend, vr_mcaquad)) {}
 
   //Option --rounding-mode=
-  else if (VG_XACT_CLO (arg, "--rounding-mode=random",
-                        vr.roundingMode, VR_RANDOM)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=average",
-                        vr.roundingMode, VR_AVERAGE)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=nearest",
-                        vr.roundingMode, VR_NEAREST)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=upward",
-                        vr.roundingMode, VR_UPWARD)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=downward",
-                        vr.roundingMode, VR_DOWNWARD)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=toward_zero",
-                        vr.roundingMode, VR_ZERO)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=farthest",
-                        vr.roundingMode, VR_FARTHEST)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=float",
-                        vr.roundingMode, VR_FLOAT)) {}
-  else if (VG_XACT_CLO (arg, "--rounding-mode=native",
-                        vr.roundingMode, VR_NATIVE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random",
+                         vr.roundingMode, VR_RANDOM)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
+                         vr.roundingMode, VR_AVERAGE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearest",
+                         vr.roundingMode, VR_NEAREST)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=upward",
+                         vr.roundingMode, VR_UPWARD)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=downward",
+                         vr.roundingMode, VR_DOWNWARD)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=toward_zero",
+                         vr.roundingMode, VR_ZERO)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=farthest",
+                         vr.roundingMode, VR_FARTHEST)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=float",
+                         vr.roundingMode, VR_FLOAT)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=native",
+                         vr.roundingMode, VR_NATIVE)) {}
 
   //Option mcaquad
-  else if (VG_INT_CLO(arg, "--mca-precision-double",
-                      vr.mca_precision_double)){}
-  else if (VG_INT_CLO(arg, "--mca-precision-float",
-                        vr.mca_precision_float)){}
-  else if (VG_XACT_CLO (arg, "--mca-mode=rr",
-                        vr.mca_mode, MCAMODE_RR)) {}
-  else if (VG_XACT_CLO (arg, "--mca-mode=pb",
-                        vr.mca_mode, MCAMODE_PB)) {}
-  else if (VG_XACT_CLO (arg, "--mca-mode=mca",
-                        vr.mca_mode, MCAMODE_MCA)) {}
-  else if (VG_XACT_CLO (arg, "--mca-mode=ieee",
-                        vr.mca_mode, MCAMODE_IEEE)) {}
+  else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-double",
+                         vr.mca_precision_double)){}
+  else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-float",
+                         vr.mca_precision_float)){}
+  else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=rr",
+                         vr.mca_mode, MCAMODE_RR)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=pb",
+                         vr.mca_mode, MCAMODE_PB)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=mca",
+                         vr.mca_mode, MCAMODE_MCA)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=ieee",
+                         vr.mca_mode, MCAMODE_IEEE)) {}
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",
@@ -149,10 +151,10 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
      vr.checkCancellation= bool_val;
   }
-  else if (VG_INT_CLO(arg, "--cc-threshold-double",
-                      vr.cc_threshold_double)){}
-  else if (VG_INT_CLO(arg, "--cc-threshold-float",
-                      vr.cc_threshold_float)){}
+  else if (VG_INT_CLO (arg, "--cc-threshold-double",
+                       vr.cc_threshold_double)){}
+  else if (VG_INT_CLO (arg, "--cc-threshold-float",
+                       vr.cc_threshold_float)){}
 
   else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
      vr.checknan= bool_val;
@@ -179,56 +181,56 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   // Instrumentation at start
-  else if (VG_BOOL_CLO (arg, "--instr-atstart", bool_val)) {
+  else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart", bool_val)) {
     vr.instrument = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
   // Exclusion of specified symbols
-  else if (VG_STR_CLO (arg, "--gen-exclude", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--gen-exclude", str)) {
     //vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
     vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
     vr.genExclude = True;
   }
-  else if (VG_STR_CLO (arg, "--trace", str)) {
+  /* else if (VG_STR_CLOM (cloPD, arg, "--gen-above", str)) { */
+  /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */
+  /* } */
+  else if (VG_STR_CLOM (cloPD, arg, "--exclude", str)) {
+    vr.exclude = vr_loadExcludeList(vr.exclude, str);
+  }
+
+  else if (VG_XACT_CLOM (cloPD, arg, "--gen-trace",
+                         vr.genTrace, True)) {}
+  else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;
   }
 
-  /* else if (VG_STR_CLO (arg, "--gen-above", str)) { */
-  /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */
-  /* } */
-  else if (VG_STR_CLO (arg, "--exclude", str)) {
-    vr.exclude = vr_loadExcludeList(vr.exclude, str);
-  }
-
   // Instrumentation of only specified source lines
-  else if (VG_STR_CLO (arg, "--gen-source", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
     //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.includeSourceFile = VG_(expand_file_name)("vr.process_clo.gen-source", str);
     vr.genIncludeSource = True;
   }
-  else if (VG_STR_CLO (arg, "--source", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
     vr.sourceActivated = True;
   }
 
-  else if (VG_STR_CLO (arg, "--cc-gen-file", str)) {
-     vr.cancellationDumpFile  = VG_(expand_file_name)("vr.process_clo.cc-file", str);
-     vr.dumpCancellation=True;
+  else if (VG_STR_CLOM (cloPD, arg, "--cc-gen-file", str)) {
+     vr.cancellationDumpFile = VG_(expand_file_name)("vr.process_clo.cc-file", str);
+     vr.dumpCancellation = True;
   }
   // Set the pseudo-Random Number Generator
-  else if (VG_STR_CLO (arg, "--vr-seed", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
     vr.firstSeed=VG_(strtoull10)(str, NULL);
     if(vr.firstSeed==(unsigned int)(-1)){
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }
-  else if (VG_XACT_CLO (arg, "--gen-trace",
-                        vr.genTrace, True)) {}
 
   // Unknown option
-  else{
+  else {
     return False;
   }
 
