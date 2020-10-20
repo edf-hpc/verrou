@@ -4,6 +4,32 @@ import sys
 from operator import itemgetter, attrgetter
 import gzip
 import os
+import copy
+
+import subprocess
+import getopt
+import functools
+
+
+def runCmdAsync(cmd, fname, envvars=None):
+    """Run CMD, adding ENVVARS to the current environment, and redirecting standard
+    and error outputs to FNAME.out and FNAME.err respectively.
+
+    Returns CMD's exit code."""
+    if envvars is None:
+        envvars = {}
+
+    with open("%s.out"%fname, "w") as fout:
+        with open("%s.err"%fname, "w") as ferr:
+            env = copy.deepcopy(os.environ)
+            for var in envvars:
+                env[var] = envvars[var]
+            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
+
+def getResult(subProcess):
+    subProcess.wait()
+    return subProcess.returncode
+
 
 
 class openGz:
@@ -140,103 +166,6 @@ class bbInfoReader:
     def getListOfSym(self,addr):
         return list(set([sym for sym,fileName,num in self.data[addr]]))
 
-class traceReader:
-
-    def __init__(self,pid):
-        self.trace=openGz("trace_bb_trace.log-"+str(pid))
-        self.traceOut=openGz("trace_bb_trace.log-"+str(pid)+"-post","w")
-        self.bbInfo=bbInfoReader("trace_bb_info.log-"+str(pid))
-
-    def readLine(self,comment=True):
-        addr=self.trace.readline().strip()
-        if addr==None or addr=="":
-            return None
-
-        if not (self.bbInfo.addrToIgnore(addr, self.ignoreList ) or self.bbInfo.isCorrupted(bbAddr)):
-            if comment:
-                return addr + " " +self.bbInfo.getStrToPrint(addr)
-            else:
-                return addr
-        return ""
-
-    def writeFilteredAndComment(self,ignoreList=['vfprintf.c','printf_fp.c','rounding-mode.h']):
-        self.ignoreList=ignoreList
-        line=self.readLine()
-        while not line in [None]:
-            if line !="":
-                self.traceOut.write(line+"\n")
-            line=self.readLine()
-
-
-
-class cmpTools:
-    def __init__(self, pid1, pid2):
-        self.bbInfo1=bbInfoReader("trace_bb_info.log-"+str(pid1))
-        self.bbInfo2=bbInfoReader("trace_bb_info.log-"+str(pid2))
-
-        self.bbInfo1.print()
-        self.bbInfo2.print()
-        self.trace1=open("trace_bb_trace.log-"+str(pid1))
-        self.trace2=open("trace_bb_trace.log-"+str(pid2))
-        self.context=2
-        self.bufferContext=[None]*self.context
-
-
-    def writeLines(self, addr1,num1,addr2,num2):
-        toPrint1=self.bbInfo1.getStrToPrint(addr1)
-        toPrint2=self.bbInfo2.getStrToPrint(addr2)
-        if addr1==addr2:
-            resLine= "num: "+ str(num1)+"/"+str(num2) + " == " + addr1+ "\t"
-            if(toPrint1==toPrint2):
-                resLine+= toPrint1
-            else:
-                if self.bbInfo1.isCorrupted(addr1) and self.bbInfo2.isCorrupted(addr2):
-                    print("corrupted \n")
-                    print('toPrint1:',toPrint1)
-                    print('toPrint2:',toPrint2)
-                else:
-                    print("Serious problem")
-                    sys.exit()
-
-        if addr1!=addr2:
-            resLine= "num: "+ str(num1)+"/"+str(num2)+" " + addr1+" != " + addr2+ "\n" +toPrint1 +"\n"+toPrint2
-        print(resLine)
-
-    def printContext(self):
-        for i in range(self.context):
-            buffer=self.bufferContext[self.context-i-1]
-            if buffer !=None:
-                (addr1,lineNum1, addr2, lineNum2)=buffer
-                self.writeLines(addr1,lineNum1, addr2, lineNum2)
-
-    def readUntilDiffer(self, ignoreList=[]):
-        self.ignoreList=ignoreList
-        addr1, addr2=("","")
-        lineNum1,lineNum2=(0,0)
-#        lineNumInc1, lineNumInc2=(0,0)
-        while addr1==addr2:
-            self.bufferContext=[(addr1,lineNum1, addr2, lineNum2)]+self.bufferContext[0:-1]
-            addr1,lineNumInc1=self.read(self.trace1,self.bbInfo1)
-            addr2,lineNumInc2=self.read(self.trace2,self.bbInfo2)
-            lineNum1+=lineNumInc1
-            lineNum2+=lineNumInc2
-
-            if lineNum1 % 1000 ==0:
-                print( "lineNum1: ", lineNum1)
-
-        self.printContext()
-        self.writeLines( addr1, lineNum1, addr2,lineNum2)
-        #        print(self.compressMarks(self.data["587F00C0"]))
-
-    def read(self, traceFile, bbInfo):
-        addr=traceFile.readline().strip()
-        counter=1
-        while not addr in ["", None]:
-            if not (bbInfo.addrToIgnore(addr, self.ignoreList ) or bbInfo.isCorrupted(addr)):
-                return (addr,counter)
-            addr=traceFile.readline().strip()
-            counter+=1
-        return (None,counter)
 
 
 class covReader:
@@ -427,11 +356,33 @@ class covMerge:
 class statusReader:
     """Class to provide the status of a run"""
     # should maybe be a function instead of a class
-    def __init__(self,pid, rep):
+    def __init__(self,pid, rep, runEval=None,runCmp=None, repRef=None):
         self.pid=pid
         self.rep=rep
         self.isSuccess=None
+        if runCmp!=None:
+            self.runCmpScript(runCmp, repRef)
+            return
+        if runEval!=None:
+            self.runEvalScript(runEval)
+            return
         self.read()
+
+    def runCmpScript(self,runCmp,repref):
+        subProcessRun=runCmdAsync([runCmp, repref,self.rep], os.path.join(self.rep, "cmpCmd%i"%(self.pid)))
+        res=getResult(subProcessRun)
+        if res==0:
+            self.isSuccess=True
+        else:
+            self.isSuccess=False
+
+    def runEvalScript(self,runEval):
+        subProcessRun=runCmdAsync([runEval,self.rep], os.path.join(self.rep, "evalCmd%i"%(self.pid)))
+        res=getResult(subProcessRun)
+        if res==0:
+            self.isSuccess=True
+        else:
+            self.isSuccess=False
 
     def read(self):
         pathName=os.path.join(self.rep, "returnVal")
@@ -461,11 +412,20 @@ class cmpToolsCov:
     with writePartialCover the object write a partial cover for each execution
     with mergedCov the object write one merged partial cover with correlation information"""
 
-    def __init__(self, tabPidRep):
+    def __init__(self, tabPidRep, runCmp=None, runEval=None):
         self.tabPidRep=tabPidRep
+        self.runCmp=runCmp
+        self.runEval=runEval
+        if runCmp!=None:
+            self.refIndex=self.findRef(patternList=["ref","Ref","nearest","Nearest"])
+            return
+        if runEval!=None:
+            self.refIndex=self.findRefDD(pattern="ref", optionalPattern="Nearest")
+            return
+        self.refIndex=self.findRefDD(pattern="ref", optionalPattern="dd.line/ref")
 
 
-    def writePartialCover(self, filenamePrefix=""):
+    def writePartialCover(self,filenamePrefix=""):
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
@@ -478,6 +438,15 @@ class cmpToolsCov:
     #         status=statusReader(pid,rep)
     #         success=status.getStatus()
     #         print( rep+":" + str(success))
+    def getStatus(self,pid,rep):
+        if self.runCmp!=None:
+            status=statusReader(pid,rep, self.runCmp, self.tabPidRep[self.refIndex][1])
+            return status.getStatus()
+        if self.runEval!=None:
+            status=statusReader(pid,rep, runEval=self.runEval)
+            return status.getStatus()
+        status=statusReader(pid,rep)
+        return status.getStatus()
 
     def countStatus(self):
         """ Count the number of Success/Fail"""
@@ -486,8 +455,7 @@ class cmpToolsCov:
         listPidRepoIgnore=[]
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
-            status=statusReader(pid,rep)
-            success=status.getStatus()
+            success=self.getStatus(pid,rep)
             if success==None:
                 listPidRepoIgnore+=[(pid,rep)]
             else:
@@ -502,34 +470,42 @@ class cmpToolsCov:
         return (nbSuccess, nbFail)
 
 
-    def findRef(self, pattern="ref", optionalPattern=None):
+    def findRefDD(self, pattern="ref", optionalPattern=None):
         "return the index of the reference (required for correlation)"
         if optionalPattern!=None:
             for index in range(len(self.tabPidRep)):
                 (pid,rep)=self.tabPidRep[index]
-                status=statusReader(pid,rep)
-                success=status.getStatus()
+                success=self.getStatus(pid,rep)
                 if rep.endswith(pattern) and optionalPattern in rep and success:
                     return index
             print('Optional failed')
         for index in range(len(self.tabPidRep)):
             (pid,rep)=self.tabPidRep[index]
-            status=statusReader(pid,rep)
-            success=status.getStatus()
+            success=self.getStatus(pid,rep)
             if rep.endswith(pattern) and success:
                 return index
         print("Warning : pattern not found" )
         print("Switch to first Success reference selection")
         for index in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[index]
-            status=statusReader(pid,rep)
-            success=status.getStatus()
+            success=self.getStatus(pid,rep)
             if success:
                 return index
         print("Error fail only : cmpToolsCov is ineffective" )
         sys.exit(42)
 
-    def writeMergedCov(self):
+    def findRef(self, patternList):
+        "return the index of the reference (required for correlation)"
+
+        for index in range(len(self.tabPidRep)):
+            rep=self.tabPidRep[index][1]
+            for pattern in patternList:
+                if pattern in rep:
+                    return index
+        return 0
+
+
+    def writeMergedCov(self,estimator):
         """Write merged Cov with correlation indice  between coverage difference and sucess/failure status"""
 
         #check the presence of success and failure
@@ -539,27 +515,25 @@ class cmpToolsCov:
             print("mergeCov need Success/Fail partition")
             sys.exit()
 
-        #get the refIndex
-        refIndex=self.findRef(pattern="ref", optionalPattern="dd.line/ref")
 
-        covMerged= covMerge(covReader(*self.tabPidRep[refIndex]))
+        covMerged= covMerge(covReader(*self.tabPidRep[self.refIndex]))
         #Loop with addMerge to reduce memory peak
 
         printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
         printIndex +=[1,  len(self.tabPidRep)-1]
 
         for i in range(len(self.tabPidRep)):
-            if i==refIndex:
+            if i==self.refIndex:
                 continue
             pid,rep=self.tabPidRep[i]
-            covMerged.addMerge(covReader(pid,rep), statusReader(pid,rep).getStatus())
+            covMerged.addMerge(covReader(pid,rep), self.getStatus(pid,rep))
             if i in printIndex:
                 pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
-                if i >=refIndex:
+                if i >=self.refIndex:
                     pourcent=float(i)/ float(len(self.tabPidRep)-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
         #covMerged.writePartialCover(typeIndicator="standard")
-        covMerged.writePartialCover(typeIndicator="biased")
+        covMerged.writePartialCover(typeIndicator=estimator)
 
 
 
@@ -581,71 +555,88 @@ def selectPidFromFile(fileNameTab):
 
 
 
-def usage():
-    print ("Usage: genCov.py [--help] [--genCov] [--genCovCorrelation]  file list of type trace_bb_cov.log* " )
-
-if __name__=="__main__":
-    options=[arg for arg in sys.argv[1:]]
-
-    if "--help" in options:
-        usage()
-        sys.exit()
-
-    #cover
-    genCov=False
-    if "--genCov" in options:
-        options.remove("--genCov")
-        genCov=True
-
-    #cover with correlation
-    genCovCorrelation=False
-    if "--genCovCorrelation" in options:
-        options.remove("--genCovCorrelation")
-        genCovCorrelation=True
-
-    #default configuartion : genCov
-    if not (genCovCorrelation or genCov):
-        genCov=True
-
-    #select default
-    optionName="--select-default"
-    selectOptions=list(filter(lambda x: x.startswith(optionName),options))
-    for option in selectOptions:
-        options.remove(option)
-
-    selectOption=False
-    if len(selectOptions)>=1:
-        selectOption=selectOptions[-1]
-        selectOption=selectOption.replace(optionName,"")
-        if selectOption.startswith("="):
-            selectOption=int(selectOption[1:])
-        if selectOption=="":
-            selectOption=True
 
 
-    addFile=[]
-    if selectOption!=False:
+class config_option:
+    def __init__(self,argv):
+        #default Value
+        self.genCov=False
+        self.genCovCorrelation=False
+        self.select_default=None
+        self.run_cmp=None
+        self.run_eval=None
+        #parse Argv
+        self.parseOpt(argv[1:])
+
+    def usage(self):
+        print ("Usage: genCov.py [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* " )
+
+
+    def parseOpt(self,argv):
+        try:
+            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovCorrelation","select-default=", "run-cmp=", "run-eval="])
+        except getopt.GetoptError:
+            self.usage()
+            sys.exit()
+
+        for opt, arg in opts:
+            if opt in ["-h", "--help"]:
+                self.usage()
+                sys.exit()
+            if opt in ["--genCov"]:
+                self.genCov=True
+            if opt in ["--genCovCorrelation"]:
+                self.genCovCorrelation=True
+            if opt in ["--run-cmp"]:
+                self.run_cmp=arg
+            if opt in ["--run-eval"]:
+                self.run_eval=arg
+            if opt in ["--select-default"]:
+                if arg=="0":
+                    self.select_default=True
+                else:
+                    self.select_default=int(arg)
+
+        #default configuartion : genCov
+        if not (self.genCovCorrelation or self.genCov):
+            self.genCov=True
+        if self.run_eval!=None and self.run_cmp!=None:
+            print("--run-cmp= and --run-eval= are incompatible option")
+            sys.exit()
+
+        self.listOfFiles=self.search_default_param()
+
+        listArgToAdd=[]
+        for arg in args:
+            if arg not in self.listOfFiles:
+                listArgToAdd+=[arg]
+        self.listOfFiles=listArgToAdd +self.listOfFiles
+
+        if len(self.listOfFiles)<1 and self.genCov:
+            usage()
+            print("--genCov required at least 1 argument")
+            sys.exit()
+        if len(self.listOfFiles)<2 and self.genCovCorrelation:
+            usage()
+            print("--genCovCorrelation required at least 2 arguments")
+            sys.exit()
+
+    def search_default_param(self):
         import pathlib
         addFile=[str(x) for x in pathlib.Path(".").rglob("trace_bb_cov.log*")]
+        if self.select_default==True:
+            return addFile
+        if isinstance(self.select_default,int):
+            return addFile[0:self.select_default]
+        return []
 
-        if selectOption!=True:
-            addFile=addFile[0:selectOption]
-    for option in options:
-        if option not in addFile:
-            addFile+=[option]
-    listOfFile=addFile
 
-    if len(listOfFile)<1 and genCov:
-        usage()
-        print("--genCov required at least 1 argument")
-        sys.exit()
-    if len(listOfFile)<2 and genCovCorrelation:
-        usage()
-        print("--genCovCorrelation required at least 2 arguments")
-        sys.exit()
+if __name__=="__main__":
+    options=config_option(sys.argv)
 
-    cmp=cmpToolsCov(selectPidFromFile(listOfFile))
-    if genCov:
+    cmp=cmpToolsCov(selectPidFromFile(options.listOfFiles), options.run_cmp, options.run_eval)
+    if options.genCov:
         cmp.writePartialCover()
-    if genCovCorrelation:
-        cmp.writeMergedCov()
+    if options.genCovCorrelation:
+        cmp.writeMergedCov("biased")
+#        cmp.writeMergedCov("standard")
