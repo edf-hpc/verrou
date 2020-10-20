@@ -278,7 +278,7 @@ void vr_ppOpCount (void) {
   }
 }
 
-#include "vr_traceBB.c"
+#include "vr_traceBB_impl.h"
 
 
 // * Floating point operations overload
@@ -937,8 +937,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
     traceBB=getNewTraceBB(sbIn);
-    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter), instrCount);
-    vr_traceBB_trace_backtrace(traceBB);
+    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
+    //vr_traceBB_trace_backtrace(traceBB);
   }
 
 
