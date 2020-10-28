@@ -31,6 +31,7 @@
 */
 
 #include "vr_main.h"
+#include "coregrind/pub_core_debuginfo.h"
 
 typedef struct Vr_InstrError_ Vr_InstrError;
 struct Vr_InstrError_ {
@@ -129,7 +130,7 @@ void vr_handle_CC (int unused) {
                                 &fileName,
                                 &dirName,
                                 &lineNum );
-      VG_(get_fnname)(di, addr, &symName);
+      VG_(get_fnname_raw)(di, addr, &symName);
 //      VG_(umsg)("test ? %s - %s : %u   --> %u \n", symName,fileName, lineNum,errorName);
       vr_includeSource_generate (&vr.cancellationSource , symName, fileName, lineNum);
    }

@@ -31,8 +31,8 @@
 #include "float.h"
 #include "pub_tool_libcfile.h"
 #include "coregrind/pub_core_transtab.h"
+#include "coregrind/pub_core_debuginfo.h"
 //#pragma STDC FENV_ACCESS ON
-
 Vr_State vr;
 
 
@@ -896,7 +896,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Addr addr = ips[0];
   DiEpoch de = VG_(current_DiEpoch)();
 
-  Bool errorFnname=VG_(get_fnname)(de, addr, fnnamePtr);
+  Bool errorFnname=VG_(get_fnname_raw)(de, addr, fnnamePtr);
   if(!errorFnname || **fnnamePtr==0){
     fnnamePtr=&fnnoname;
   }
@@ -999,7 +999,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       if(fnnamePtr==&fnnoname){
       for(int i=0 ; i< 6; i++){
 	Addr addr = ips[i];
-	Bool errorFnname =VG_(get_fnname)(de, addr, fnnamePtr);
+	Bool errorFnname =VG_(get_fnname_raw)(de, addr, fnnamePtr);
 	Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
 	VG_(umsg)("stack %d : %s %s\n", i,*fnnamePtr, *objnamePtr);
       }
