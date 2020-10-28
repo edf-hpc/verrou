@@ -25,7 +25,6 @@ class ddConfig:
         self.param_rddmin_tab="exp"
         self.param_dicho_tab="half"
         self.splitGranularity=2
-        self.ddSym=False
         self.ddQuiet=False
 
     def parseArgv(self,argv):
@@ -84,7 +83,6 @@ class ddConfig:
         self.readOneOption("param_rddmin_tab", "string", "DD_RDDMIN_TAB", ["exp", "all", "single"])
         self.readOneOption("param_dicho_tab", "int/string", "DD_DICHO_TAB" , ["exp", "all", "half", "single"])
         self.readOneOption("splitGranularity", "int", "DD_DICHO_GRANULARITY")
-        self.readOneOption("ddSym", "bool", "DD_SYM")
         self.readOneOption("ddQuiet", "bool", "DD_QUIET")
 
     def readOneOption(self,attribut,conv_type ,key_name, acceptedValue=None):            
@@ -114,13 +112,6 @@ class ddConfig:
             exec("self."+attribut+"= value")
         except KeyError:
             pass
-
-
-    def get_SymOrLine(self):
-        if self.ddSym:
-            return "sym"
-        else:
-            return "line"
 
     def get_splitGranularity(self):
         return self.splitGranularity
@@ -174,6 +165,5 @@ class ddConfig:
         PREFIXENV_DD_DICHO_TAB : in ["exp", "all" ,"single", "half"] or int (default "half")
         PREFIXENV_DD_DICHO_GRANULARITY : int
         PREFIXENV_DD_QUIET : set or not (default not)
-        PREFIXENV_DD_SYM : set or not (default not)
         """
         return doc.replace("PREFIXENV_",PREFIX+"_")
