@@ -26,6 +26,7 @@ class ddConfig:
         self.param_dicho_tab="half"
         self.splitGranularity=2
         self.ddQuiet=False
+        self.cache="continue"
 
     def parseArgv(self,argv):
         if "-h" in argv or "--help" in argv:
@@ -60,6 +61,9 @@ class ddConfig:
     def get_cmpScript(self):
         return self.cmpScript
 
+    def get_cache(self):
+        return self.cache
+
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption
         self.PREFIX=PREFIX
@@ -84,6 +88,8 @@ class ddConfig:
         self.readOneOption("param_dicho_tab", "int/string", "DD_DICHO_TAB" , ["exp", "all", "half", "single"])
         self.readOneOption("splitGranularity", "int", "DD_DICHO_GRANULARITY")
         self.readOneOption("ddQuiet", "bool", "DD_QUIET")
+
+        self.readOneOption("cache", "string", "DD_CACHE" , ["clean", "rename", "keep_run", "continue"])
 
     def readOneOption(self,attribut,conv_type ,key_name, acceptedValue=None):            
         value=False

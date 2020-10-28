@@ -7,7 +7,8 @@ import shutil
 import hashlib
 import copy
 from valgrind import DD
-
+import glob
+import datetime
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -174,15 +175,40 @@ class DDStoch(DD.DD):
         self.config_=config
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
-        self.cache_outcomes = False
+        self.cache_outcomes = False # the cache of DD.DD is ignored
         self.index=0
         self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.ref_ = os.path.join(self.prefix_, "ref")
 
+        self.prepareCache()
         prepareOutput(self.ref_)
         self.reference()
         self.mergeList()
         self.checkReference()
+
+
+    def prepareCache(self):
+        cache=self.config_.get_cache()
+        if cache=="continue":
+            if not os.path.lexists(self.prefix_):
+                os.mkdir(self.prefix_)
+            return
+        if cache=="clean":
+            shutil.rmtree(self.prefix_, ignore_errors=True)
+            os.mkdir(self.prefix_)
+            return
+        if cache=="rename":
+            res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
+            res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
+            res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
+
+            timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in res])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+            os.rename(self.prefix_, self.prefix_+"-"+timeStr)
+            os.mkdir(self.prefix_)
+        if cache=="keep_run":
+            print("keep_run not yet implemented")
+            sys.exit()
+
 
 
     def mergeList(self):
