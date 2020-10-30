@@ -268,6 +268,20 @@ class DDStoch(DD.DD):
         if deltas==None:
             deltas=self.getDelta0()
 
+        if(len(deltas)==0):
+            print("Search space empty")
+            failure()
+
+        testResult=self._test(deltas)
+        self.configuration_found("FullPerturbation",deltas)
+        if testResult!=self.FAIL:
+            self.allDeltaFailedMsg(deltas)
+
+        testResult=self._test([])
+        self.configuration_found("NoPerturbation",[])
+        if testResult!=self.PASS:
+            self.noDeltaSucceedMsg()
+
         algo=self.config_.get_ddAlgo()
         resConf=None
         if algo=="rddmin":
