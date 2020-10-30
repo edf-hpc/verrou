@@ -163,11 +163,6 @@ def failure():
 
 
 
-def symlink(src, dst):
-    if os.path.lexists(dst):
-        os.remove(dst)
-    os.symlink(src, dst)
-
 
 class DDStoch(DD.DD):
     def __init__(self, config, prefix):
@@ -186,23 +181,43 @@ class DDStoch(DD.DD):
         self.mergeList()
         self.checkReference()
 
+    def symlink(self,src, dst):
+        if os.path.lexists(dst):
+            os.remove(dst)
+        relSrc=os.path.relpath(src, self.prefix_ )
+        relDist=os.path.relpath(dst, self.prefix_)
+        relPrefix=os.path.relpath(self.prefix_, os.getcwd())
+        os.symlink(relSrc, os.path.join(relPrefix, relDist))
+
+
+    def cleanSymLink(self):
+        symLinkTab=self.searchSymLink()
+        for symLink in symLinkTab:
+            if os.path.lexists(symLink):
+                os.remove(symLink)
+
+    def searchSymLink(self):
+        res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
+        res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
+        res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
+        res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
+        res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
+        return res
 
     def prepareCache(self):
         cache=self.config_.get_cache()
         if cache=="continue":
             if not os.path.lexists(self.prefix_):
                 os.mkdir(self.prefix_)
+            self.cleanSymLink()
             return
         if cache=="clean":
             shutil.rmtree(self.prefix_, ignore_errors=True)
             os.mkdir(self.prefix_)
             return
         if cache=="rename":
-            res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
-            res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
-            res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
-
-            timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in res])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+            symLinkTab=self.searchSymLink()
+            timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
             os.rename(self.prefix_, self.prefix_+"-"+timeStr)
             os.mkdir(self.prefix_)
         if cache=="keep_run":
@@ -241,7 +256,6 @@ class DDStoch(DD.DD):
             print("FAILURE: the reference is not valid ")
             print("Suggestions:")
             print("\t1) check the correctness of the %s script"%self.compare_)
-            print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
             print("Files to analyze:")
             print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
@@ -252,7 +266,8 @@ class DDStoch(DD.DD):
         #by default the symlinks are generated when the test fail
         testResult=self._test(deltas)
         dirname = os.path.join(self.prefix_, md5Name(deltas))
-        symlink(dirname, os.path.join(self.prefix_,linkname))
+        self.symlink(dirname, os.path.join(self.prefix_,linkname))
+
         return testResult
 
     def report_progress(self, c, title):
