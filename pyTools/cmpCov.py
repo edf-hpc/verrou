@@ -385,7 +385,7 @@ class statusReader:
             self.isSuccess=False
 
     def read(self):
-        pathName=os.path.join(self.rep, "returnVal")
+        pathName=os.path.join(self.rep, "dd.return.value")
         if os.path.exists(pathName):
             try:
                 value=int(open(pathName).readline().strip())

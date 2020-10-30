@@ -165,6 +165,7 @@ class ddConfig:
         doc="""List of en variable :
         PREFIXENV_DD_NRUNS : int (default:5)
         PREFIXENV_DD_NUM_THREADS : int (default None)
+        PREFIXENV_DD_CACHE : in ["clean", "rename", "keep_run", "continue"] (default "continue")
         PREFIXENV_DD_ALGO : in ["ddmax", "rddmin"] (default "rddmin")
         PREFIXENV_DD_RDDMIN : in ["s", "stoch", "dicho" ,"d", "strict",""] (default "d")
         PREFIXENV_DD_RDDMIN_TAB : in ["exp", "all" ,"single"] (default "exp")

@@ -55,10 +55,10 @@ class verrouTask:
         self.maxNbPROC= maxNbPROC
         self.runEnv=runEnv
 
-        print(self.dirname,end="")
+        print(os.path.relpath(self.dirname, os.getcwd()),end="")
 
     def nameDir(self,i):
-        return  os.path.join(self.dirname,"dd.run%i" % (i+1))
+        return  os.path.join(self.dirname,"dd.run%i" % (i))
 
     def mkdir(self,i):
          os.mkdir(self.nameDir(i))
@@ -72,14 +72,15 @@ class verrouTask:
                                           os.path.join(rundir,"dd.run"),
                                           self.runEnv)
 
-    def cmpOneSample(self,i):
+    def cmpOneSample(self,i, assertRun=True):
         rundir= self.nameDir(i)
-        if self.subProcessRun[i]!=None:
-            getResult(self.subProcessRun[i])
+        if assertRun:
+            if self.subProcessRun[i]!=None:
+                getResult(self.subProcessRun[i])
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
-        with open(os.path.join(self.dirname, rundir, "returnVal"),"w") as f:
+        with open(os.path.join(self.dirname, rundir, "dd.return.value"),"w") as f:
             f.write(str(retval))
         if retval != 0:
             print("FAIL(%d)" % i)
@@ -88,42 +89,83 @@ class verrouTask:
             return self.PASS
 
     def sampleToComputeToGetFailure(self, nbRun):
-        """Return the list of samples which have to be computed to perforn nbRun Success run : None mean Failure [] Mean Success """
-        listOfDir=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
-        done=[]
-        for runDir in listOfDir:
-            status=int((open(os.path.join(self.dirname, runDir, "returnVal")).readline()))
-            if status!=0:
-                return None
-            done+=[runDir]
+        """Return the two lists of samples which have to be compared or computed (and compared) to perforn nbRun Success run : None means Failure ([],[]) means Success """
+        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
+        listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
 
-        res= [x for x in range(nbRun) if not ('dd.run'+str(x+1)) in done]
-        return res
+        cmpDone=[]
+        runDone=[]
+        workToCmpOnly=[]
+        for runDir in listOfDirString:
+
+            returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
+            if os.path.exists(returnValuePath):
+                statusCmp=int((open(returnValuePath).readline()))
+                if statusCmp!=0:
+                    return None
+                cmpDone+=[int(runDir.replace("dd.run",""))]
+            else:
+                runPath=os.path.join(self.dirname, runDir, "dd.run.out")
+                if os.path.exists(runPath):
+                    runDone+=[int(runDir.replace("dd.run",""))]
+
+        workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
+        return (runDone, workToRun, cmpDone)
 
     def run(self):
         workToDo=self.sampleToComputeToGetFailure(self.nbRun)
         if workToDo==None:
             print(" --(cache) -> FAIL")
             return self.FAIL
+        cmpOnlyToDo=workToDo[0]
+        runToDo=workToDo[1]
+        cmpDone=workToDo[2]
 
-        if len(workToDo)!=0:
+        if len(cmpOnlyToDo)==0 and len(runToDo)==0:
+            print(" --(cache)-> PASS("+str(self.nbRun)+")")
+            return self.PASS
+
+        if len(cmpOnlyToDo)!=0:
+            print(" --( cmp )-> ",end="",flush=True)
+            returnVal=self.cmpSeq(cmpOnlyToDo)
+            if returnVal==self.FAIL:
+                return self.FAIL
+            else:
+                print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
+
+        if len(runToDo)!=0:
             print(" --( run )-> ",end="",flush=True)
 
             if self.maxNbPROC==None:
-                returnVal=self.runSeq(workToDo)
+                returnVal=self.runSeq(runToDo)
             else:
-                returnVal=self.runPar(workToDo)
+                returnVal=self.runPar(runToDo)
 
             if(returnVal==self.PASS):
-                print("PASS(+" + str(len(workToDo))+"->"+str(self.nbRun)+")" )
+                print("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
             return returnVal
-        print(" --(cache)-> PASS("+str(self.nbRun)+")")
+        else:
+            print("")
         return self.PASS
+
+
+
+    def cmpSeq(self,workToDo):
+        for run in workToDo:
+            retVal=self.cmpOneSample(run,assertRun=False)
+            if retVal=="FAIL":
+                return self.FAIL
+        return self.PASS
+
 
     def runSeq(self,workToDo):
 
         for run in workToDo:
-            self.mkdir(run)
+            if not os.path.exists(self.nameDir(run)):
+                self.mkdir(run)
+            else:
+                print("Manual cache modification detected (runSeq)")
+
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
@@ -134,7 +176,11 @@ class verrouTask:
     def runPar(self,workToDo):
 
         for run in workToDo:
-            self.mkdir(run)
+            if os.path.exists(self.nameDir(run)):
+                self.mkdir(run)
+            else:
+                print("Manual cache modification detected (runPar)")
+
             self.runOneSample(run)
         for run in workToDo:
             retVal=self.cmpOneSample(run)
@@ -173,6 +219,7 @@ class DDStoch(DD.DD):
         self.cache_outcomes = False # the cache of DD.DD is ignored
         self.index=0
         self.prefix_ = os.path.join(os.getcwd(),prefix)
+        self.relPrefix_=prefix
         self.ref_ = os.path.join(self.prefix_, "ref")
 
         self.prepareCache()
@@ -207,7 +254,7 @@ class DDStoch(DD.DD):
     def prepareCache(self):
         cache=self.config_.get_cache()
         if cache=="continue":
-            if not os.path.lexists(self.prefix_):
+            if not os.path.exists(self.prefix_):
                 os.mkdir(self.prefix_)
             self.cleanSymLink()
             return
@@ -221,8 +268,14 @@ class DDStoch(DD.DD):
             os.rename(self.prefix_, self.prefix_+"-"+timeStr)
             os.mkdir(self.prefix_)
         if cache=="keep_run":
-            print("keep_run not yet implemented")
-            sys.exit()
+            if not os.path.exists(self.prefix_):
+                os.mkdir(self.prefix_)
+            else:
+                self.cleanSymLink()
+                filesToDelete =glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.compare.*"))
+                filesToDelete +=glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.return.value"))
+                for fileToDelete in filesToDelete:
+                    os.remove(fileToDelete)
 
 
 
@@ -536,7 +589,6 @@ class DDStoch(DD.DD):
         print("Suggestions:")
         print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
         print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
-        print("\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
 
         dirname = md5Name(delta)
         print("Directory to analyze: %s"%dirname)
@@ -549,7 +601,7 @@ class DDStoch(DD.DD):
         print ("\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
         print ("\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe")
 
-        dirname = md5Name(delta)
+        dirname = md5Name(deltas)
         print("Directory to analyze: %s"%dirname)
         failure()
 
