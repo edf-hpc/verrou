@@ -1,6 +1,7 @@
 import os
 import math
 import sys
+import getopt
 
 def exponentialRange(nbRun):
     tab=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
@@ -11,37 +12,81 @@ def exponentialRange(nbRun):
 class ddConfig:
 
     def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
-        self.defaultValue()
         self.config_keys=config_keys
+        self.registerOptions()
+        self.readDefaultValueFromRegister()
         self.parseArgv(argv)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
+        self.normalizeOptions()
 
-    def defaultValue(self):
-        self.nbRUN=5
-        self.maxNbPROC=None
-        self.ddAlgo="rddmin"
-        self.rddminVariant="d"
-        self.param_rddmin_tab="exp"
-        self.param_dicho_tab="half"
-        self.splitGranularity=2
-        self.ddQuiet=False
-        self.cache="continue"
+    def registerOptions(self):
+        self.registryTab =[("nbRUN",                 "int",        "DD_NRUNS",                   ("--nruns="),                  5,          None, False)]
+        self.registryTab+=[("maxNbPROC",             "int",        "DD_NUM_THREADS",             ("--num-threads="),            None,       None, False )]
+        self.registryTab+=[("ddAlgo",                "string",     "DD_ALGO",                    ("--algo="),                   "rddmin",   ["ddmax", "rddmin"], False)]
+        self.registryTab+=[("rddminVariant",         "string",     "DD_RDDMIN",                  ("--rddmin="),                 "d",        ["s", "stoch", "d", "dicho", "", "strict"],False)]
+        self.registryTab+=[("param_rddmin_tab",      "string",     "DD_RDDMIN_TAB",              ("--rddmin-tab="),             "exp",      ["exp", "all", "single"], False)]
+        self.registryTab+=[("param_dicho_tab",       "int/string", "DD_DICHO_TAB" ,              ("--dicho-tab="),              "half",     ["exp", "all", "half", "single"], False)]
+        self.registryTab+=[("splitGranularity",      "int",        "DD_DICHO_GRANULARITY",       ("--dicho-granularity="),       2,         None, False)]
+        self.registryTab+=[("ddQuiet",               "bool",       "DD_QUIET",                   ("--quiet"),                    False,     None, False)]
+        self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "keep_run", "continue"], False)]
+        self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ("--rddmin-heuristics-cache="), "none",    ["none", "cache", "all_cache"], False)]
+        self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ("--rddmin-heuristics-rep="),   [] ,       "rep_exists", True)]
+
+
+    def readDefaultValueFromRegister(self):
+        for registry in self.registryTab:
+            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
+            exec("self."+attribut+"= default")
+
+    def optionToStr(self):
+        strOption=""
+        for registry in self.registryTab:
+            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
+            strOption+="\t%s : %s\n"%(attribut,eval("str(self."+attribut+")"))
+        return strOption
 
     def parseArgv(self,argv):
-        if "-h" in argv or "--help" in argv:
-            print(self.get_EnvDoc(self.config_keys[-1]))
-            self.failure()
-
-        if len(argv)!=3:
+        shortOptionsForGetOpt="h"
+        longOptionsForGetOpt=["help",*[x[3][2:] for x in self.registryTab]]
+        try:
+            opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
+        except getopt.GetoptError:
             self.usageCmd()
             self.failure()
 
-        self.runScript=self.checkScriptPath(argv[1])
-        self.cmpScript=self.checkScriptPath(argv[2])
+        for opt, arg in opts:
+            if opt in ["-h","--help"]:
+                self.usageCmd()
+                self.failure()
+            for registry in self.registryTab:
+                fromRegistryName=registry[3].replace("=","")
+                if opt==fromRegistryName:
+                    param=[registry[0], registry[1], registry[2],registry[3],registry[5], registry[6]]
+                    self.readOneOption(arg,*param, "parse")
+                    break
+        if len(args)==2:
+            self.runScript=self.checkScriptPath(args[0])
+            self.cmpScript=self.checkScriptPath(args[1])
+        else:
+            self.usageCmd()
+            failure()
+
+    def read_environ(self,environ, PREFIX):
+        self.environ=environ #configuration to prepare the call to readOneOption
+        self.PREFIX=PREFIX
+
+        for registry in self.registryTab:
+            try:
+                strValue=self.environ[self.PREFIX+"_"+registry[2]]
+                param=[registry[0], registry[1], registry[2], registry[3],registry[5], registry[6]]
+                self.readOneOption(strValue,*param, "environ")
+            except KeyError:
+                pass
 
     def usageCmd(self):
-        print("Usage: "+ sys.argv[0] + " runScript cmpScript")
+        print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
+        print(self.get_EnvDoc(self.config_keys[-1]))
 
     def failure(self):
         sys.exit(42)
@@ -55,28 +100,7 @@ class ddConfig:
             self.usageCmd()
             self.failure()
 
-    def get_runScript(self):
-        return self.runScript
-
-    def get_cmpScript(self):
-        return self.cmpScript
-
-    def get_cache(self):
-        return self.cache
-
-    def read_environ(self,environ, PREFIX):
-        self.environ=environ #configuration to prepare the call to readOneOption
-        self.PREFIX=PREFIX
-        self.readOneOption("nbRUN", "int", "DD_NRUNS")
-        self.readOneOption("maxNbPROC", "int", "DD_NUM_THREADS")
-        if self.maxNbPROC!=None:
-            if self.maxNbPROC < self.nbRUN:
-                print("Due due implementation limitation (nbRun <=maxNbPROC or maxNbPROC=1): maxNbPROC unset\n")
-                self.maxNbPROC=None
-
-        self.readOneOption("ddAlgo", "string", "DD_ALGO", ["ddmax", "rddmin"])
-
-        self.readOneOption("rddminVariant", "string","DD_RDDMIN", ["s", "stoch", "d", "dicho", "", "strict"])
+    def normalizeOptions(self):
         if self.rddminVariant=="stoch":
             self.rddminVariant="s"
         if self.rddminVariant=="dicho":
@@ -84,41 +108,95 @@ class ddConfig:
         if self.rddminVariant=="strict":
             self.rddminVariant=""
 
-        self.readOneOption("param_rddmin_tab", "string", "DD_RDDMIN_TAB", ["exp", "all", "single"])
-        self.readOneOption("param_dicho_tab", "int/string", "DD_DICHO_TAB" , ["exp", "all", "half", "single"])
-        self.readOneOption("splitGranularity", "int", "DD_DICHO_GRANULARITY")
-        self.readOneOption("ddQuiet", "bool", "DD_QUIET")
+        if self.maxNbPROC!=None:
+            if self.maxNbPROC < self.nbRUN:
+                print("Due due implementation limitation (nbRun <=maxNbPROC or maxNbPROC=1): maxNbPROC unset\n")
+                self.maxNbPROC=None
 
-        self.readOneOption("cache", "string", "DD_CACHE" , ["clean", "rename", "keep_run", "continue"])
-
-    def readOneOption(self,attribut,conv_type ,key_name, acceptedValue=None):            
+    def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue=None, addAttributTab=False, parse="environ"):
         value=False
-        try:
-            if conv_type=="int":
-                value = int(self.environ[self.PREFIX+"_"+key_name])
+
+        if conv_type=="int":
+            value = int(strOption)
+        else:
+            value = strOption
+
+        if conv_type=="bool":
+            value=True
+
+        if acceptedValue==None :
+            if addAttributTab:
+                exec("self."+attribut+"+= [value]")
             else:
-                value = self.environ[self.PREFIX+"_"+key_name]                    
-
-            if conv_type=="bool":
-                value=True
-
-            if acceptedValue==None :
                 exec("self."+attribut+"= value")
-            else:
-                if value in acceptedValue:
-                    exec("self."+attribut+"= value")
-                elif conv_type=="string/int":
-                    try:
-                        exec("self."+attribut+"= int(value)")
-                    except:
-                        print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue) +" or be a int value")
+        elif acceptedValue=="rep_exists":
+            if os.path.isdir(value):
+                if addAttributTab:
+                    exec("self."+attribut+"+= [value]")
                 else:
-                    print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue))
-                    self.failure()
-            exec("self."+attribut+"= value")
-        except KeyError:
-            pass
+                    exec("self."+attribut+"= [value]")
+            else:
+                if parse=="environ":
+                    print("Error : "+ self.PREFIX+"_"+key_name+ " should be a directory")
+                else:
+                    print("Error : "+ argv_name+" :  " + strOption+" should be a directory")
+                self.failure()
 
+        else:
+            if value in acceptedValue:
+                if addAttributTab:
+                    exec("self."+attribut+"+= [value]")
+                else:
+                    exec("self."+attribut+"= value")
+            elif conv_type=="string/int":
+                try:
+                    if addAttributTab:
+                        exec("self."+attribut+"+= [int(value)]")
+                    else:
+                        exec("self."+attribut+"= int(value)")
+                except:
+                    if parse=="environ":
+                        print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue) +" or be a int value")
+                    else:
+                        print("Error : "+ argv_name+" :  " + strOption+" should be in "+str(acceptedValue) +" or be a int value")
+                    self.failure()
+            else:
+                if parse=="environ":
+                    print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue))
+                else:
+                    print("Error : "+ argv_name+" :  " + strOption+" should be in "+str(acceptedValue))
+                self.failure()
+
+    def get_EnvDoc(self,PREFIX="INTERFLOP"):
+        doc="""List of env variables and options :\n"""
+        for registry in self.registryTab:
+            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
+            optionNameStr="%s or %s"%(PREFIX+"_"+envVar, option)
+
+            expectedValueStr=""
+            if expectedValue!=None:
+                expectedValueStr="in "+str(expectedValue)
+
+            typeStr=""
+            if attributType== "int":
+                typeStr="int"
+            if attributType== "int/string":
+                typeStr="or int"
+            if attributType=="bool":
+                typeStr="set or not"
+
+            defaultStr='(default "%s")'%(default)
+            if default==None:
+                defaultStr='(default none)'
+            if default==False:
+                defaultStr='(default not)'
+            if default==True:
+                defaultStr='(default set)'
+
+            doc+="\t%s : %s %s %s \n"%(optionNameStr,expectedValueStr,typeStr, defaultStr)
+        return doc
+
+    ## Accessors
     def get_splitGranularity(self):
         return self.splitGranularity
 
@@ -160,17 +238,19 @@ class ddConfig:
             splitTab=[self.param_dicho_tab]
         return splitTab
 
+    def get_runScript(self):
+        return self.runScript
 
-    def get_EnvDoc(self,PREFIX="INTERFLOP"):
-        doc="""List of en variable :
-        PREFIXENV_DD_NRUNS : int (default:5)
-        PREFIXENV_DD_NUM_THREADS : int (default None)
-        PREFIXENV_DD_CACHE : in ["clean", "rename", "keep_run", "continue"] (default "continue")
-        PREFIXENV_DD_ALGO : in ["ddmax", "rddmin"] (default "rddmin")
-        PREFIXENV_DD_RDDMIN : in ["s", "stoch", "dicho" ,"d", "strict",""] (default "d")
-        PREFIXENV_DD_RDDMIN_TAB : in ["exp", "all" ,"single"] (default "exp")
-        PREFIXENV_DD_DICHO_TAB : in ["exp", "all" ,"single", "half"] or int (default "half")
-        PREFIXENV_DD_DICHO_GRANULARITY : int
-        PREFIXENV_DD_QUIET : set or not (default not)
-        """
-        return doc.replace("PREFIXENV_",PREFIX+"_")
+    def get_cmpScript(self):
+        return self.cmpScript
+
+    def get_cache(self):
+        return self.cache
+
+
+    def get_rddminHeuristicsCache(self):
+        return self.rddminHeuristicsCache
+
+    def get_rddminHeuristicsRep_Tab(self):
+        return self.rddminHeuristicsRep
+

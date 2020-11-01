@@ -202,7 +202,6 @@ def prepareOutput(dirname):
      os.makedirs(dirname)
 
 
-            
 def failure():
     sys.exit(42)
 
@@ -214,6 +213,10 @@ class DDStoch(DD.DD):
     def __init__(self, config, prefix):
         DD.DD.__init__(self)
         self.config_=config
+        if not  self.config_.get_quiet():
+            print("delta debug options :")
+            print(self.config_.optionToStr())
+
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
         self.cache_outcomes = False # the cache of DD.DD is ignored
@@ -263,10 +266,18 @@ class DDStoch(DD.DD):
             os.mkdir(self.prefix_)
             return
         if cache=="rename":
-            symLinkTab=self.searchSymLink()
-            timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
-            os.rename(self.prefix_, self.prefix_+"-"+timeStr)
+            if os.path.exists(self.prefix_):
+                symLinkTab=self.searchSymLink()
+                if symLinkTab==[]:  #find alternative file to get time stamp
+                    refPath=os.path.join(self.prefix_, "ref")
+                    if os.path.exists(refPath):
+                        symLinkTab=[refPath]
+                    else:
+                        symLinkTab=[self.prefix_]
+                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                os.rename(self.prefix_, self.prefix_+"-"+timeStr)
             os.mkdir(self.prefix_)
+
         if cache=="keep_run":
             if not os.path.exists(self.prefix_):
                 os.mkdir(self.prefix_)
@@ -301,7 +312,7 @@ class DDStoch(DD.DD):
             for line in excludeMerged:
                 f.write(line)
 
-        
+
     def checkReference(self):
         retval = runCmd([self.compare_,self.ref_, self.ref_],
                         os.path.join(self.ref_,"checkRef"))
