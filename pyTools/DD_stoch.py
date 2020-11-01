@@ -224,8 +224,8 @@ class DDStoch(DD.DD):
         self.prefix_ = os.path.join(os.getcwd(),prefix)
         self.relPrefix_=prefix
         self.ref_ = os.path.join(self.prefix_, "ref")
-
         self.prepareCache()
+        self.rddminHeuristicLoadRep()
         prepareOutput(self.ref_)
         self.reference()
         self.mergeList()
@@ -241,10 +241,14 @@ class DDStoch(DD.DD):
 
 
     def cleanSymLink(self):
+        self.saveCleabSymLink=[]
         symLinkTab=self.searchSymLink()
         for symLink in symLinkTab:
             if os.path.lexists(symLink):
                 os.remove(symLink)
+                if self.config_.get_cache=="continue":
+                    self.saveCleanSymLink+=[symLink]
+
 
     def searchSymLink(self):
         res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
@@ -253,6 +257,41 @@ class DDStoch(DD.DD):
         res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
         res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
         return res
+
+    def rddminHeuristicLoadRep(self):
+        """ to be called after prepareCache"""
+
+        self.useRddminHeuristic=False
+        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0:
+            self.useRddminHeuristic=True
+        if self.useRddminHeuristic==False:
+            return
+
+        rddmin_heuristic_rep=[]
+        if "cache" in self.config_.get_rddminHeuristicsCache():
+            if self.config_.get_cache=="rename":
+                cacheRep=self.oldCacheName
+                if os.path.isdir(cacheRep):
+                    rddmin_heuristic_rep+=[cacheRep]
+            else:
+                cacheRep=self.prefix_
+                if os.path.isdir(cacheRep):
+                    rddmin_heuristic_rep+=[cacheRep]
+
+        if self.config_.get_rddminHeuristicsCache()=="all_cache":
+            rddmin_heuristic_rep+=glob.glob(self.prefix_+"-*-*-*_*h*m*s")
+
+        for rep in self.config_.get_rddminHeuristicsRep_Tab():
+            if rep not in rddmin_heuristic_rep:
+                rddmin_heuristic_rep+=[rep]
+
+        self.ddminHeuristic=[]
+        if self.config_.get_cache=="continue":
+            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in self.saveCleanSymLink if "ddmin" in rep]
+
+        for rep in rddmin_heuristic_rep:
+            repTab=glob.glob(os.path.join(rep, "ddmin*"))
+            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in repTab]
 
     def prepareCache(self):
         cache=self.config_.get_cache()
@@ -275,7 +314,10 @@ class DDStoch(DD.DD):
                     else:
                         symLinkTab=[self.prefix_]
                 timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
-                os.rename(self.prefix_, self.prefix_+"-"+timeStr)
+                self.oldCacheName=self.prefix_+"-"+timeStr
+                os.rename(self.prefix_,self.oldCacheName )
+
+
             os.mkdir(self.prefix_)
 
         if cache=="keep_run":
@@ -363,15 +405,24 @@ class DDStoch(DD.DD):
 
         algo=self.config_.get_ddAlgo()
         resConf=None
-        if algo=="rddmin":
-            resConf = self.RDDMin(deltas, self.config_.get_nbRUN())
-        if algo.startswith("srddmin"):
-            resConf= self.SRDDMin(deltas, self.config_.get_rddMinTab())
-        if algo.startswith("drddmin"):
-            resConf = self.DRDDMin(deltas,
-                                   self.config_.get_rddMinTab(),
-                                   self.config_.get_splitTab(),
-                                   self.config_.get_splitGranularity())
+
+        def rddminAlgo(localDeltas):
+            if algo=="rddmin":
+                localConf = self.RDDMin(localDeltas, self.config_.get_nbRUN())
+            if algo.startswith("srddmin"):
+                localConf= self.SRDDMin(localDeltas, self.config_.get_rddMinTab())
+            if algo.startswith("drddmin"):
+                localConf = self.DRDDMin(localDeltas,
+                                         self.config_.get_rddMinTab(),
+                                         self.config_.get_splitTab(),
+                                         self.config_.get_splitGranularity())
+            return localConf
+
+        if self.useRddminHeuristic and "rddmin" in algo:
+            resConf=self.applyRddminWithHeuristics(deltas,rddminAlgo)
+        else:
+            resConf=rddminAlgo(deltas)
+
         if algo=="ddmax":
             resConf= self.DDMax(deltas)
         else:
@@ -381,6 +432,40 @@ class DDStoch(DD.DD):
                 self.configuration_found("rddmin-cmp", cmp)
 
         return resConf
+
+    def applyRddminWithHeuristics(self,deltas, algo):
+        res=[]
+
+        for heuristicsDelta in self.ddminHeuristic:
+            if all(x in deltas for x in  heuristicsDelta): #check inclusion
+                testResult=self._test(heuristicsDelta, self.config_.get_nbRUN())
+                if testResult!=self.FAIL:
+                    if not self.config_.get_quiet():
+                        print("Bad rddmin heuristic : %s"%self.coerce(heuristicsDelta))
+                else:
+                    #print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
+                    if len(heuristicsDelta)==1:
+                        res+=[heuristicsDelta]
+                        self.configuration_found("ddmin%d"%(self.index), heuristicsDelta)
+                        self.index+=1
+                        deltas=[delta for delta in deltas if delta not in heuristicsDelta]
+                    else:
+                        resTab=algo(heuristicsDelta)
+                        for resMin in resTab:
+                            res+=[resMin] #add to res
+                            deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
+
+        print("Heuristics applied")
+        #after the heuristic filter a classic (s)rddmin is applied
+        testResult=self._test(deltas, self.config_.get_nbRUN())
+        if testResult!=self.FAIL:
+            return res
+        else:
+            return res+algo(deltas)
+
+
+
+
 
     def DDMax(self, deltas):
         res=self.verrou_dd_max(deltas)
