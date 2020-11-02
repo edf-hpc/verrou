@@ -29,7 +29,7 @@ class ddConfig:
         self.registryTab+=[("param_dicho_tab",       "int/string", "DD_DICHO_TAB" ,              ("--dicho-tab="),              "half",     ["exp", "all", "half", "single"], False)]
         self.registryTab+=[("splitGranularity",      "int",        "DD_DICHO_GRANULARITY",       ("--dicho-granularity="),       2,         None, False)]
         self.registryTab+=[("ddQuiet",               "bool",       "DD_QUIET",                   ("--quiet"),                    False,     None, False)]
-        self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "keep_run", "continue"], False)]
+        self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"], False)]
         self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ("--rddmin-heuristics-cache="), "none",    ["none", "cache", "all_cache"], False)]
         self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ("--rddmin-heuristics-rep="),   [] ,       "rep_exists", True)]
 

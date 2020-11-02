@@ -304,7 +304,18 @@ class DDStoch(DD.DD):
             shutil.rmtree(self.prefix_, ignore_errors=True)
             os.mkdir(self.prefix_)
             return
-        if cache=="rename":
+
+        if cache=="rename_keep_result":
+            #delete unusefull rep : rename treated later
+            symLinkTab=self.searchSymLink()
+            repToKeep=[os.readlink(x) for x in symLinkTab]
+            print(repToKeep)
+            for item in os.listdir(self.prefix_):
+                if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
+                    if not item in repToKeep:
+                        shutil.rmtree(os.path.join(self.prefix_, item))
+
+        if cache.startswith("rename"):
             if os.path.exists(self.prefix_):
                 symLinkTab=self.searchSymLink()
                 if symLinkTab==[]:  #find alternative file to get time stamp
@@ -316,9 +327,8 @@ class DDStoch(DD.DD):
                 timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
                 self.oldCacheName=self.prefix_+"-"+timeStr
                 os.rename(self.prefix_,self.oldCacheName )
-
-
             os.mkdir(self.prefix_)
+
 
         if cache=="keep_run":
             if not os.path.exists(self.prefix_):
