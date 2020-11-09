@@ -204,7 +204,7 @@ class covReader:
             resTab=[(index,num,self.bbInfo.getListOfSym(index),self.bbInfo.compressMarksWithoutSym(index)) for index,num in self.cov[num].items() ]
             resTab.sort( key= itemgetter(2,3,0)) # 2 sym  3 compress string 0 index
 
-            handler=openGz(self.rep+"/"+filenamePrefix+"cover"+str(num)+"-"+str(self.pid),"w")
+            handler=openGz(self.rep+"/%scover%05d-%d"%(filenamePrefix ,num,self.pid),"w")
             for (index,count,sym, strBB) in resTab:
                 handler.write("%d\t: %s\n"%(count,strBB))
 
@@ -333,7 +333,7 @@ class covMerge:
 
         for num in range(len(self.covMerged)): #loop over snapshots
             maxIndicator=0
-            handler=openGz(rep+"/"+filenamePrefix+"coverMerged"+str(num),"w")
+            handler=openGz(rep+"/%scoverMerged%05d"%(filenamePrefix ,num),"w")
             partialCovMerged=self.covMerged[num]
 
             resTab=[(sym, strLine,
@@ -416,6 +416,8 @@ class cmpToolsCov:
         self.tabPidRep=tabPidRep
         self.runCmp=runCmp
         self.runEval=runEval
+
+    def findRefForMerge(self):
         if runCmp!=None:
             self.refIndex=self.findRef(patternList=["ref","Ref","nearest","Nearest"])
             return
@@ -424,7 +426,8 @@ class cmpToolsCov:
             return
         self.refIndex=self.findRefDD(pattern="ref", optionalPattern="dd.line/ref")
 
-
+        
+        
     def writePartialCover(self,filenamePrefix=""):
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
@@ -569,15 +572,15 @@ class config_option:
         self.parseOpt(argv[1:])
 
     def usage(self):
-        print ("Usage: genCov.py [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* " )
-
+        print ("Usage: %s [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* "%(argv[0]) )
+        sys.exit(42)
 
     def parseOpt(self,argv):
         try:
             opts,args=getopt.getopt(argv, "h",["help","genCov","genCovCorrelation","select-default=", "run-cmp=", "run-eval="])
         except getopt.GetoptError:
             self.usage()
-            sys.exit()
+
 
         for opt, arg in opts:
             if opt in ["-h", "--help"]:
@@ -602,7 +605,8 @@ class config_option:
             self.genCov=True
         if self.run_eval!=None and self.run_cmp!=None:
             print("--run-cmp= and --run-eval= are incompatible option")
-            sys.exit()
+            self.usage()
+
 
         self.listOfFiles=self.search_default_param()
 
@@ -638,5 +642,6 @@ if __name__=="__main__":
     if options.genCov:
         cmp.writePartialCover()
     if options.genCovCorrelation:
+        cmp.findRefForMerge()
         cmp.writeMergedCov("biased")
 #        cmp.writeMergedCov("standard")
