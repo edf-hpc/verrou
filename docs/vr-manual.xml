@@ -423,6 +423,19 @@ det2
       </section>
 
       <section>
+        <title>Coverage generation </title>
+        <variablelist id="vr.opts.coverage.list">
+
+          <varlistentry id="vr.opt.trace" xreflabel="--trace">
+            <term><option><![CDATA[--trace=FILE]]></option></term>
+            <listitem><para>
+		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
+            </para></listitem>
+          </varlistentry>
+	</variablelist>
+      </section>
+
+      <section>
         <title>Detection</title>
         <variablelist id="vr.opts.detection.list">
 
@@ -540,6 +553,13 @@ det2
               a <link linkend="vr-manual.feat.deterministic">deterministic
               section</link>, i.e. resume rounding mode switching in a
               (pseudo-)random way.</para></listitem>
+        </varlistentry>
+
+
+	<varlistentry id="vr-cr.dump-cover"
+                      xreflabel="VERROU_DUMP_COVER">
+          <term><computeroutput>VERROU_DUMP_COVER</computeroutput></term>
+          <listitem><para> If <computeroutput>--trace</computeroutput> option is activated, the client request generates a partial cover and return the index of the cover.</para></listitem>
         </varlistentry>
 
       </variablelist>
