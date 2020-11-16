@@ -1015,8 +1015,9 @@ static void vr_fini(Int exitcode)
   //if (vr.checkCancellation) {
      //VG_(fclose)(vr_outCancellationFile);
   //}
-
-
+   if(vr.useExpectCLR){
+      vr_expect_clr_finalize();
+   }
   vr_ppOpCount ();
   interflop_verrou_finalyze(backend_verrou_context);
 #ifdef USE_VERROU_QUAD
@@ -1187,6 +1188,27 @@ static void vr_post_clo_init(void)
    }
 }
 
+static
+void vr_pre_syscall(ThreadId tid, UInt syscallno,
+                    UWord* args, UInt nArgs){
+}
+static
+void vr_post_syscall(ThreadId tid, UInt syscallno,
+                     UWord* args, UInt nArgs, SysRes res){
+   if(vr.useExpectCLR){
+      if(syscallno==1){//syscall write
+         int fd=(int)args[0];
+         if(fd==1){//sortie standard
+            const HChar* buf=(HChar*)args[1];
+
+            int size=(int)args[2];
+            VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
+            vr_expect_clr_checkmatch(buf,size);
+            VG_(ok_to_discard_translations)=False;
+         }
+      }
+   }
+}
 
 static void vr_pre_clo_init(void)
 {
@@ -1230,6 +1252,9 @@ static void vr_pre_clo_init(void)
                           vr_print_extra_suppression_info,
                           vr_print_extra_suppression_use,
                           vr_update_extra_suppression_use);
+
+   VG_(needs_syscall_wrapper)(vr_pre_syscall,
+                              vr_post_syscall);
 
    vr_clo_defaults();
 }

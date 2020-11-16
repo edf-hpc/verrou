@@ -85,7 +85,9 @@ void vr_clo_defaults (void) {
   vr.dumpCancellation=False;
   vr.cancellationSource=NULL;
 
-
+  vr.useExpectCLR=False;
+  vr.expectCLRFileInput=-1;
+  vr.expectCLRFileOutput=NULL;
 }
 
 Bool vr_process_clo (const HChar *arg) {
@@ -227,6 +229,10 @@ Bool vr_process_clo (const HChar *arg) {
     if(vr.firstSeed==(unsigned int)(-1)){
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
+  }
+  else if (VG_STR_CLOM(cloPD, arg, "--expect-clr",str)){
+     vr_expect_clr_init(str);
+     vr.useExpectCLR=True;
   }
 
   // Unknown option

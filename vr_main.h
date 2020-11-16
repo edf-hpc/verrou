@@ -155,6 +155,11 @@ typedef struct {
 
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
+
+  Bool useExpectCLR;
+  Int expectCLRFileInput;
+  VgFile* expectCLRFileOutput;
+
 } Vr_State;
 
 extern Vr_State vr;
@@ -246,6 +251,11 @@ void vr_clo_defaults (void);
 Bool vr_process_clo (const HChar *arg);
 void vr_print_usage (void);
 void vr_print_debug_usage (void);
+
+// ** vr_expect_clr.c
+void vr_expect_clr_init (const HChar * fileName);
+void vr_expect_clr_checkmatch(const HChar* writeLine, SizeT size);
+void vr_expect_clr_finalize (void);
 
 
 #endif /*ndef __VR_MAIN_H*/
