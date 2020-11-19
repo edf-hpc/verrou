@@ -229,9 +229,10 @@ class DDStoch(DD.DD):
         prepareOutput(self.ref_)
         self.reference()
         self.mergeList()
-        self.checkReference()
+
 
     def symlink(self,src, dst):
+        """Create a relative symlink"""
         if os.path.lexists(dst):
             os.remove(dst)
         relSrc=os.path.relpath(src, self.prefix_ )
@@ -241,6 +242,7 @@ class DDStoch(DD.DD):
 
 
     def cleanSymLink(self):
+        """Delete all symlink in the cache"""
         self.saveCleabSymLink=[]
         symLinkTab=self.searchSymLink()
         for symLink in symLinkTab:
@@ -251,6 +253,7 @@ class DDStoch(DD.DD):
 
 
     def searchSymLink(self):
+        """Return the list of symlink (created by DD_stoch) in the cache"""
         res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
         res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
         res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
@@ -258,8 +261,9 @@ class DDStoch(DD.DD):
         res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
         return res
 
+
     def rddminHeuristicLoadRep(self):
-        """ to be called after prepareCache"""
+        """ Load the results of previous ddmin. Need to be called after prepareCache"""
 
         self.useRddminHeuristic=False
         if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0:
@@ -340,6 +344,25 @@ class DDStoch(DD.DD):
                 for fileToDelete in filesToDelete:
                     os.remove(fileToDelete)
 
+    def reference(self):
+        """Run the reference and check the result"""
+        print(os.path.relpath(self.ref_, os.getcwd()),end="")
+        print(" -- (run) -> ",end="",flush=True)
+        retval = runCmd([self.run_, self.ref_],
+                        os.path.join(self.ref_,"dd"),
+                        self.referenceRunEnv())
+        if retval!=0:
+            print("")
+            self.referenceRunFailure()
+        else:
+            """Check the comparison between the reference and refrence is valid"""
+            retval = runCmd([self.compare_,self.ref_, self.ref_],
+                            os.path.join(self.ref_,"checkRef"))
+            if retval != 0:
+                print("FAIL")
+                self.referenceFailsFailure()
+            else:
+                print("PASS")
 
 
     def mergeList(self):
@@ -349,8 +372,7 @@ class DDStoch(DD.DD):
 
         listOfExcludeFile=[ x for x in os.listdir(dirname) if self.isFileValidToMerge(x) ]
         if len(listOfExcludeFile)<1:
-            print("The generation of exclusion/source files failed")
-            failure()
+            self.searchSpaceGenerationFailure()
 
         with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
                 excludeMerged=f.readlines()
@@ -365,25 +387,10 @@ class DDStoch(DD.DD):
                 f.write(line)
 
 
-    def checkReference(self):
-        retval = runCmd([self.compare_,self.ref_, self.ref_],
-                        os.path.join(self.ref_,"checkRef"))
-        if retval != 0:
-            print("FAILURE: the reference is not valid ")
-            print("Suggestions:")
-            print("\t1) check the correctness of the %s script"%self.compare_)
-
-            print("Files to analyze:")
-            print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
-            print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
-            failure()
-
     def testWithLink(self, deltas, linkname):
-        #by default the symlinks are generated when the test fail
         testResult=self._test(deltas)
         dirname = os.path.join(self.prefix_, md5Name(deltas))
         self.symlink(dirname, os.path.join(self.prefix_,linkname))
-
         return testResult
 
     def report_progress(self, c, title):
@@ -396,23 +403,27 @@ class DDStoch(DD.DD):
         self.testWithLink(delta_config, kind_str)
 
     def run(self, deltas=None):
+
+        # get the search space
         if deltas==None:
             deltas=self.getDelta0()
 
         if(len(deltas)==0):
-            print("Search space empty")
-            failure()
+            emptySearchSpaceFailure()
 
+        #basic verification
         testResult=self._test(deltas)
         self.configuration_found("FullPerturbation",deltas)
         if testResult!=self.FAIL:
-            self.allDeltaFailedMsg(deltas)
+            self.fullPerturbationSucceedsFailure()
 
         testResult=self._test([])
         self.configuration_found("NoPerturbation",[])
         if testResult!=self.PASS:
-            self.noDeltaSucceedMsg()
+            self.noPerturbationFailsFailure()
 
+
+        #select the right variant of algo and apply it
         algo=self.config_.get_ddAlgo()
         resConf=None
 
@@ -444,6 +455,8 @@ class DDStoch(DD.DD):
         return resConf
 
     def applyRddminWithHeuristics(self,deltas, algo):
+        """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
+
         res=[]
 
         for heuristicsDelta in self.ddminHeuristic:
@@ -489,7 +502,7 @@ class DDStoch(DD.DD):
         ddminTab=[]
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("RDDMIN", md5Name(deltas)+" should fail")
 
         while testResult==self.FAIL:
             conf = self.verrou_dd_min(deltas,nbRun)
@@ -623,7 +636,7 @@ class DDStoch(DD.DD):
         nbRun=SrunTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("DRDDMIN", md5Name(deltas)+" should fail")
 
         #apply dichotomy
         candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
@@ -659,7 +672,7 @@ class DDStoch(DD.DD):
         nbRun=runTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("SRDDMIN", md5Name(deltas)+" should fail")
 
         ddminTab=[]
 
@@ -690,41 +703,53 @@ class DDStoch(DD.DD):
         return ddminTab
 
     #Error Msg
-    def deltaFailedMsg(self,delta):
+    def emptySearchSpaceFailure(self):
+        print("FAILURE : delta-debug search space is empty")
+        failure()
+
+    def searchSpaceGenerationFailure(self):
+        print("The generation of exclusion/source files failed")
+        failure()
+
+    def fullPerturbationSucceedsFailure(self):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
         print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
-        print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
+        print("\t2) check if the number of samples (option --nruns=) is sufficient ")
 
-        dirname = md5Name(delta)
-        print("Directory to analyze: %s"%dirname)
+        print("Directory to analyze: FullPerturbation")
         failure()
 
-    def allDeltaFailedMsg(self,deltas):
-        print ("FAILURE: when verrou perturbs all parts of the program, its output is still detected as stable.")
-        print ("Suggestions:")
-        print ("\t1) check if the number of samples VERROU_DD_NRUNS is sufficient")
-        print ("\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
-        print ("\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe")
-
-        dirname = md5Name(deltas)
-        print("Directory to analyze: %s"%dirname)
-        failure()
-
-
-    def noDeltaSucceedMsg(self,deltas=[]):
-        print("FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed")
+    def noPerturbationFailsFailure(self):
+        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) andthe code without instrumentation failed")
 
         print("Suggestions:")
-        print("\t1) check the libm library is correctly excluded")
-        print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        print("\t2) check the libm library is not instrumented")
+        print("Directory to analyze: NoPerturbation")
         failure()
 
-    def reference(self):
-        retval = runCmd([self.run_, self.ref_],
-                        os.path.join(self.ref_,"dd"),
-                        self.referenceRunEnv())
-        assert retval == 0, "Error during reference run"
+    def referenceFailsFailure(self):
+        print("FAILURE: the reference is not valid ")
+        print("Suggestions:")
+        print("\t1) check the correctness of the %s script"%self.compare_)
+
+        print("Files to analyze:")
+        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
+        failure()
+
+    def referenceRunFailure(self):
+        print("FAILURE: the reference run fails ")
+        print("Suggestions:")
+        print("\t1) check the correctness of the %s script"%self.run_)
+
+        print("Files to analyze:")
+        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        failure()
+
+
+
 
     def getDelta0(self):
         with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
@@ -762,4 +787,3 @@ class DDStoch(DD.DD):
         vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
 
         return vT.run()
-
