@@ -214,7 +214,7 @@ static unsigned int vr_frac (ULong a, ULong b) {
   return q;
 }
 
-unsigned int vr_count_fp_instrumented(void){
+UInt vr_count_fp_instrumented(void){
    //Warning : the return type is small (to be consistent with return client request type)
    //should be used only  as heuristic  to detect dynamicaly fp operations
    if(!vr.count) {
@@ -231,11 +231,11 @@ unsigned int vr_count_fp_instrumented(void){
          }
       }
    }
-   return (unsigned int)total;
+   return (UInt)total;
 }
 
 
-unsigned int vr_count_fp_not_instrumented(void){
+UInt vr_count_fp_not_instrumented(void){
    //Warning : the return type is small (to be consistent with return client request type)
    //should be used only  as heuristic  to detect dynamicaly fp operations
    if(!vr.count) {
@@ -252,7 +252,7 @@ unsigned int vr_count_fp_not_instrumented(void){
          }
       }
    }
-   return (unsigned int)total;
+   return (UInt)total;
 }
 
 
@@ -450,14 +450,9 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  if(!vr.instr_op[op] ) {
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
-    return False;
-  }
-  if(!vr.instr_scalar) {
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
+  if(!vr.instr_op[op] || !vr.instrument || !vr.instr_scalar) {
+     vr_countOp (sb,  op, prec,vec, False);
+     addStmtToIRSB (sb, stmt);
     return False;
   }
   vr_countOp (sb,  op, prec,vec, True);
@@ -561,7 +556,7 @@ static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
 					      Vr_Prec prec,
 					      Vr_Vec vec){
   //instrumentation to count operation
-  if(!vr.instr_op[op] ) {
+  if(!vr.instr_op[op] || !vr.instrument) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -957,6 +952,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   /*Early exit if not instrumented*/
   if (vr_excludeIRSB (fnnamePtr, objnamePtr)){
     return sbIn;
+  }
   }
 
 
