@@ -953,8 +953,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   if (vr_excludeIRSB (fnnamePtr, objnamePtr)){
     return sbIn;
   }
-  }
-
 
   /*Instrumentation begin*/
   UInt i;
