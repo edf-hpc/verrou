@@ -1,4 +1,7 @@
-# Verrou [![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou)
+# Verrou
+
+[![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou) 
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](http://edf-hpc.github.io/verrou/vr-manual.html)
 
 Verrou helps you look for floating-point round-off errors in programs. It
 implements various forms of arithmetic, including:
@@ -38,7 +41,7 @@ and build" section below.
 In order to build the *development* version of Verrou, it is necesary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=VALGRIND_3_15_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.15.0+verrou-dev
+    git clone --branch=24f63fd435e7bdab5058f2ab52953eb53a768010 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.16.1+verrou-dev
 
 Add verrou's sources to it:
 
@@ -63,13 +66,19 @@ are put in parentheses as examples):
 Configure valgrind:
 
     ./autogen.sh
-    ./configure --enable-only64bit --prefix=PREFIX
+    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX
 
-It is recommended to add the `--enable-verrou-fma` flag to the configuration
-above if your system supports FMA instructions. Depending on your system, it may
-be required to set `CFLAGS` so that it enables the use of FMA in your compiler:
+As stated above, it is recommended to use the `--enable-verrou-fma` flag if your
+system supports FMA (Fused Multiply-Add) instructions. Depending on your system,
+it may be required to set `CFLAGS` in order to enable the use of FMA in your
+compiler:
 
     ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX CFLAGS="-mfma"
+
+Systems that don't support FMA instructions can drop the `--enable-verrou-fma`
+configure switch, but be aware that this causes some tests to fail:
+
+    ./configure --enable-only64bit --prefix=PREFIX
 
 <p>&nbsp;</p>
 
@@ -132,3 +141,27 @@ Beware, this requires lots of tools which are not necessarily tested for in
   - xsltproc
   - docbook-xsl
 
+
+## Bibliography & References
+
+The following papers explain in more details the internals of Verrou, as well as
+some of its applications. If you use Verrou for a research work, please consider
+citing one of these references:
+
+1. François Févotte and Bruno Lathuilière. Debugging and optimization of HPC
+   programs with the Verrou tool. In *International Workshop on Software
+   Correctness for HPC Applications (Correctness)*, Denver, CO, USA,
+   Nov. 2019. [DOI: 10.1109/Correctness49594.2019.00006](http://dx.doi.org/10.1109/Correctness49594.2019.00006)
+1. Hadrien Grasland, François Févotte, Bruno Lathuilière, and David
+   Chamont. Floating-point profiling of ACTS using Verrou. *EPJ Web Conf.*, 214, 2019.
+   [DOI: 10.1051/epjconf/201921405025](http://dx.doi.org/10.1051/epjconf/201921405025)
+1. François Févotte and Bruno Lathuilière. Studying the numerical quality of an
+   industrial computing code: A case study on code_aster. In *10th International
+   Workshop on Numerical Software Verification (NSV)*, pages 61--80, Heidelberg,
+   Germany,
+   July 2017. [DOI: 10.1007/978-3-319-63501-9_5](http://dx.doi.org/10.1007/978-3-319-63501-9_5)
+1. François Févotte and Bruno Lathuilière. VERROU: a CESTAC evaluation without
+   recompilation. In *International Symposium on Scientific Computing, Computer
+   Arithmetics and Verified Numerics (SCAN)*, Uppsala, Sweden, September 2016.
+
+(These references are also available in [bibtex format](verrou.bib))

@@ -11,7 +11,7 @@
   </para>
   
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
-    <title>Delta-debugging with the <command>verrou_dd</command> command</title>
+    <title>Delta-debugging with the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> commands</title>
 
     <para>
       The first technique builds upon Verrou's <xref linkend="vr-manual.feat.exclude"/> feature in
@@ -38,15 +38,21 @@
     <para>
       This algorithm is called <emphasis>Delta-Debugging</emphasis>.
       <!-- , and is for example used in <command>git bisect</command>. -->
-      It is automated by the <command>verrou_dd</command> command,
+      It is automated by the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> command,
       which can be used in the following way:
     </para>
     
     <simplesect>
       <title>Synopsis</title>
 
-      <screen><cmdsynopsis id="vr-manual.verrou_dd.synopsis">
-        <command>verrou_dd</command>    
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_sym.synopsis">
+        <command>verrou_dd_sym [options]</command>
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_line.synopsis">
+        <command>verrou_dd_line [options]</command>
         <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
         <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
       </cmdsynopsis></screen>
@@ -54,10 +60,14 @@
     </simplesect>
     <simplesect>
       <title>Description</title>
-        
+      <para>
+	<command> verrou_dd_sym </command> is dedicated to search instable symbols (it corresponds more or less to code function).
+	Whereas <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
+      </para>
+	
       <para id="vr-manual.verrou_dd.desc">
-        Arguments passed to <command>verrou_dd</command> are scripts, which must be identified by an
-        absolute path. These scripts will be called during the delta-debugging process to automate
+        Arguments passed to <command>verrou_dd_sym</command> or <command>verrou_dd_line</command> are scripts.
+	These scripts will be called during the delta-debugging process to automate
         the tasks of running your program under Verrou, and verifying the results. The scripts will
         be called with the following arguments:
         
@@ -109,16 +119,16 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
     </simplesect>
     
     <simplesect>
-      <title>Environment Variables</title>
+      <title>Options and environment variables</title>
       
       <para>
-        The following environment variables affect the behaviour of <command>verrou_dd</command>:
+        The following options or environment variables affect the behaviour of <command>verrou_dd_sym</command> and <command>verrou_dd_line</command>:
       </para>
       
       <variablelist id="vr-manual.verrou_dd.envvars">
         <varlistentry>
           <term>
-            <computeroutput>VERROU_DD_NRUNS</computeroutput>
+            <computeroutput>--nruns</computeroutput> or <computeroutput>VERROU_DD_NRUNS</computeroutput>
           </term>
           <listitem>
             <para>An integer setting the required number successful runs needed to consider a
@@ -126,44 +136,32 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
             5.</para>
           </listitem>
         </varlistentry>
-        <varlistentry>
-          <term>
-            <computeroutput>VERROU_DD_UNSAFE</computeroutput>
-          </term>
-          <listitem>
-            <para>If this variable is set (whatever its value), some Delta-Debugging assertions
-            are transformed in mere warnings. This allows getting a result faster, at the price of
-            said result being potentially incorrect (functions/lines listed as stable when they
-            are not, or vice versa).
-            </para>
-          </listitem>
-        </varlistentry>
+
+	<!-- <varlistentry> -->
+        <!--   <term> -->
+        <!--     <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> -->
+        <!--   </term> -->
+        <!--   <listitem> -->
+        <!--     <para> Experimental feature : Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel. -->
+	<!--      If this environment variable is not set, the parallelism is not activated. -->
+	<!--     </para> -->
+        <!--   </listitem> -->
+        <!-- </varlistentry> -->
 
 	<varlistentry>
           <term>
-            <computeroutput>VERROU_DD_NUM_THREADS</computeroutput>
-          </term>
-          <listitem>
-            <para> Experimental feature : Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel.
-	     If this environment variable is not set, the parallelism is not activated.
-	    </para>
-          </listitem>
-        </varlistentry>
-
-	<varlistentry>
-          <term>
-            <computeroutput>VERROU_DD_ALGO</computeroutput>
+            <computeroutput>--algo=</computeroutput> or <computeroutput>VERROU_DD_ALGO</computeroutput>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose one of the two Delta-Debugging algorithms (ddmax and rddmin).
+	      Option to choose one of the two Delta-Debugging algorithms (<computeroutput>ddmax</computeroutput> and <computeroutput>rddmin</computeroutput>).
 	    </para>
 	    <para>
 	      <computeroutput>rddmin</computeroutput>: return recursively the min-set of unstable
 	      symbols. <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> is ignored.
 	    </para>
 	    <para>
-	      <computeroutput>ddmax</computeroutput>: return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
+	      <computeroutput>ddmax</computeroutput>: return the max-set of stable symbols (or lines). 
 	    </para>
 
 	    <para>
@@ -174,11 +172,11 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
 	<varlistentry>
           <term>
-            <computeroutput>VERROU_DD_RDDMIN</computeroutput>
+            <computeroutput>--rddmin=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN</computeroutput>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose one of the variant of rddmin algorithms.
+	      Option to choose one of the variant of rddmin algorithms.
 	    </para>
 	    <para>
 	      "", <computeroutput>strict</computeroutput>: rddmin algorithm with constant number of samples
@@ -191,7 +189,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set to <computeroutput>dicho</computeroutput>.
+	    The default value is set to <computeroutput>dicho</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -199,11 +197,11 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
 	<varlistentry>
           <term>
-            <computeroutput>VERROU_DD_RDDMIN_TAB</computeroutput>
+            <computeroutput>--rddmin-tab=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_TAB</computeroutput>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose the evolution of the number of samples used by the srddmin algorithm.
+	      Option to choose the evolution of the number of samples used by the srddmin algorithm.
 	    </para>
 	    <para>
 	      <computeroutput>exp</computeroutput>: increases the number of samples from 1 to
@@ -220,18 +218,18 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set to <computeroutput>exp</computeroutput>.
+	    The default value is set to <computeroutput>exp</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
 
 	<varlistentry>
           <term>
-            <computeroutput>VERROU_DD_DICHO_TAB</computeroutput>
+	    <computeroutput>--dicho-tab=</computeroutput> or <computeroutput>VERROU_DD_DICHO_TAB</computeroutput>
           </term>
           <listitem>
             <para>
-	      Environment variable to choose the evolution of the number of samples used by the
+	      Option to choose the evolution of the number of samples used by the
               binary search in the first part of the drddmin algorithm.
 	    </para>
 	    <para>
@@ -251,48 +249,108 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      <computeroutput>VERROU_DD_NRUNS</computeroutput>.
 	    </para>
 	    <para>
-	      <replaceable>N</replaceable>: user-provided value (must be an integer comprised
+	      <replaceable>N</replaceable>: user-provided value (must be an integer 
 	      between 1 and <computeroutput>VERROU_DD_NRUNS</computeroutput>).
 	    </para>
 
 	    <para>
-	    If this environment variable is not set, the default value is set to <computeroutput>half</computeroutput>.
+	    The default value is set to <computeroutput>half</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
 
 	<varlistentry>
 	  <term>
-            <computeroutput>VERROU_DD_DICHO_GRANULARITY</computeroutput>
+            <computeroutput>--dicho-granularity=</computeroutput> or <computeroutput>VERROU_DD_DICHO_GRANULARITY</computeroutput>
           </term>
         <listitem>
             <para>
-	      Environment variable to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
+	      Option to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
 	    </para>
 	    <para>
-	    If this environment variable is not set, the default value is set to 2.
+	    The default value is set to 2.
 	    </para>
           </listitem>
         </varlistentry>
 
 	<varlistentry>
 	  <term>
-            <computeroutput>VERROU_DD_QUIET</computeroutput>
+            <computeroutput>--quiet</computeroutput> or <computeroutput>VERROU_DD_QUIET</computeroutput>
           </term>
         <listitem>
             <para>
-	      Environment variable to reduce the verbosity of <command>verrou_dd</command>.
+	      Option to reduce the verbosity of <command>verrou_dd_sym</command> or <command>verrou_dd_line</command>.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+
+	<varlistentry>
+          <term>
+	    <computeroutput>--cache=</computeroutput> or <computeroutput>VERROU_DD_CACHE</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Option to choose the policy with the existing cache <computeroutput>dd.sym</computeroutput> or <computeroutput>dd.line</computeroutput>
+	    </para>
+	    <para>
+	      <computeroutput>clean</computeroutput>: the previous cache is removed (after reading required information for <computeroutput>--rddmin-heuristics-cache</computeroutput>).
+	    </para>
+	    <para>
+	      <computeroutput>rename</computeroutput>: the previous cache is renamed with time information (time of last symlink creation).
+	    </para>
+	    <para>
+	      <computeroutput>rename_keep_result</computeroutput>: the previous cache is renamed and all configurations not pinpointed by symlink are removed.
+	      This option is a compromised between disk usage and the opportunity to used the <computeroutput>--rddmin-heuristics-cache=</computeroutput> option.	      
+	    </para>
+	    <para>
+	      <computeroutput>keep-run</computeroutput>: the previous cache is kept but the <computeroutput>cmp_script</computeroutput> is run again. Useful when
+	      only the <computeroutput>cmp_script</computeroutput> is modified.
+	    </para>
+	    <para>
+	      <computeroutput>continue</computeroutput>: the previous cache is kept for all computation. This option is really useful after manual cache modification to recover computation after
+	      error such as <computeroutput>No space left on device</computeroutput> or <computeroutput>job timeout</computeroutput>.
+	    </para>
+
+	    <para>
+	    The default value is set to <computeroutput>continue</computeroutput> (will probably change soon).
+	    </para>
+          </listitem>
+        </varlistentry>
+
+
+	<varlistentry>
+	  <term>
+	    <computeroutput>--rddmin-heuristics-cache=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_CACHE</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Option to choose the policy with cache to use to prefiltered the rddmin algorithm by previous ddmin results.
+	    </para>
+	    <para>
+	      <computeroutput>none</computeroutput>: the current cache and old cache directory are not used.
+	    </para>
+	    <para>
+	      <computeroutput>cache</computeroutput>: only the current cache directory is used.
+	    </para>
+	    <para>
+	      <computeroutput>all_cache</computeroutput>: the current and old cache directories are used. The old cache directories come from previous run with <computeroutput>rename</computeroutput> or <computeroutput>rename_keep_result</computeroutput> values for <computeroutput>--cache=</computeroutput> option. 
+	    </para>
+
+	    <para>
+	    The default value is set to <computeroutput>none</computeroutput>.
 	    </para>
           </listitem>
         </varlistentry>
 
 	<varlistentry>
 	  <term>
-          <computeroutput>VERROU_DD_IGNORE_LINE</computeroutput>
+	    <computeroutput>--rddmin-heuristics-rep=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_REP</computeroutput>
           </term>
-        <listitem>
+          <listitem>
             <para>
-	      Environment variable to limit the search to symbols.
+	      Option to choose the directory used to prefiltered the rddmin algorithm by previous ddmin results. Could be used several times (with option but not with environment variable). Usually
+	      useful after a manual cache renaming.
 	    </para>
           </listitem>
         </varlistentry>
@@ -301,55 +359,101 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
       </variablelist>
     </simplesect>
-    
-    <simplesect>
-      <title>Results ddmax</title>
-      <para id="vr-manual.verrou_dd.results">
-        <command>verrou_dd</command> stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> and <computeroutput>dd.line</computeroutput>
-        directories. Synthetic results are present in the form of symbolic links named in the
-        following way:
-        <variablelist>
-          <varlistentry>
-              <term>dd.sym.<replaceable>SYMNAME</replaceable></term>
-              <listitem><simpara>The presence of such a symbolic link indicates that the function
-              associated to symbol <replaceable>SYMNAME</replaceable> has been detected as
-              unstable. When the <option><xref linkend="opt.demangle"/>=no</option> option was
-              provided in the verrou command line in
-              <command><replaceable>run_script</replaceable></command>,
-              <replaceable>SYMNAME</replaceable> is in mangled form. In this case, the
-              human-readable name of the function can be retrieved using
-              <command>c++filt</command>.</simpara></listitem>
-          </varlistentry>
-          <varlistentry>
-            <term>dd.sym.<replaceable>FILENAME</replaceable>:<replaceable>LINENO</replaceable></term>
-            <listitem><simpara>Such a symbolic link indicates that an instability was found in line
-            <replaceable>LINENO</replaceable> of file
-            <replaceable>FILENAME</replaceable>.</simpara></listitem>
-          </varlistentry>
-        </variablelist>
-      </para>
-    </simplesect>
 
     <simplesect>
       <title>Results *rddmin </title>
       <para id="vr-manual.verrou_dd.results-rddmin">
-        <command>verrou_dd</command> stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> directory. Synthetic results are present in the form
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>) directory. Synthetic results are present in the form
         of symbolic links named after the pattern: <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput>.
       </para>
       <para>
-	The list of all symbols found to be unstable in the
+	The list of all symbols (resp. lines) found to be unstable in the
 	<computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> set can be retrieved in
 	the file: <computeroutput>ddmin-<replaceable>N</replaceable>/dd.include</computeroutput>.
       </para>
       <para>
-	Each <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> contains a
-	<computeroutput>dd.line</computeroutput> directory, organized in the same as described above
-	for the ddmax algorithm.
+	The symbolic link <computeroutput>rddmin-cmp</computeroutput>  pinpoints the configuration which is the complement of the union of all ddmin configuration. This successful
+	configuration terminates the rddmin algorithm.
+      </para>
+      <para>
+	For debug purpose there are one symbolic link (<computeroutput>FullPerturbation</computeroutput>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<computeroutput>NoPerturbation</computeroutput>) to pinpoint the configuration without any perturbation (should be a successful configuration).
+      </para>
+
+    </simplesect>
+
+    <simplesect>
+      <title>Results ddmax</title>
+      <para id="vr-manual.verrou_dd.results">
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>)
+        directories. The ddmax configuration is pinpointed by a symbolic link (<computeroutput>ddmax</computeroutput>).	
+
+	<!-- Synthetic results are present in the form of symbolic links named in the -->
+        <!-- following way: -->
+        <!-- <variablelist> -->
+        <!--   <varlistentry> -->
+        <!--       <term>dd.sym.<replaceable>SYMNAME</replaceable></term> -->
+        <!--       <listitem><simpara>The presence of such a symbolic link indicates that the function -->
+        <!--       associated to symbol <replaceable>SYMNAME</replaceable> has been detected as -->
+        <!--       unstable. When the <option><xref linkend="opt.demangle"/>=no</option> option was -->
+        <!--       provided in the verrou command line in -->
+        <!--       <command><replaceable>run_script</replaceable></command>, -->
+        <!--       <replaceable>SYMNAME</replaceable> is in mangled form. In this case, the -->
+        <!--       human-readable name of the function can be retrieved using -->
+        <!--       <command>c++filt</command>.</simpara></listitem> -->
+        <!--   </varlistentry> -->
+        <!--   <varlistentry> -->
+        <!--     <term>dd.sym.<replaceable>FILENAME</replaceable>:<replaceable>LINENO</replaceable></term> -->
+        <!--     <listitem><simpara>Such a symbolic link indicates that an instability was found in line -->
+        <!--     <replaceable>LINENO</replaceable> of file -->
+        <!--     <replaceable>FILENAME</replaceable>.</simpara></listitem> -->
+        <!--   </varlistentry> -->
+        <!-- </variablelist> -->
       </para>
     </simplesect>
+
   </section>
+
+    <section id="vr-manual.localization.coverage" xreflabel="Coverage">
+    <title>Code coverage comparison</title>
+    <para>
+      The first technique to localize unstable tests, is based on the compatibility with instrumentation provided by the compilers.
+      The idea is to produce with compiler tools (option <computeroutput>--coverage</computeroutput> and tool <computeroutput>gcov</computeroutput> for <computeroutput>gcc</computeroutput>) two code coverage for the analyzed test case.
+      The first one can be generate without verrou or with <computeroutput>nearest</computeroutput> rounding mode and the second one with <computeroutput>random</computeroutput> rounding mode. The second one can be produced several time, to
+      get a coverage with sufficient discrepancie compared to the one with  <computeroutput>nearest</computeroutput> rounding mode. Once both code coverage generated, simple graphical tools
+      as <computeroutput>meld</computeroutput> or <computeroutput>kompare</computeroutput> can be used to pinpoint potential unstable test.
+    </para>
+    </section>
+
+    <section id="vr-manual.localization.CovBB" xreflabel="CovBB">
+      <title>Basic Block coverage comparison</title>
+      <para>
+	The second technique to localize unstable tests, is based on Basic Block (BB) Coverage provided by verrou. The idea behind this technique is the same as behind code coverage comparison except in the way to produce the coverage.
+	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without library the following script can be used :
+	<programlisting>
+	 echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc
+	</programlisting>
+
+	With the <computeroutput> trace.inc</computeroutput> the BB coverage instrumenttion can be activated with the <computeroutput>--trace=</computeroutput> option :
+	<programlisting>
+	  valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <replaceable>program args</replaceable>
+	</programlisting>
+
+	Hence two files <computeroutput>trace_bb_cov.log-PID</computeroutput> and <computeroutput>trace_bb_info.log-PID</computeroutput> are generated.
+	The first one contains counter information for each Basic Blocks and the second one contains debug information for each Basic Bloc. These two files (which must be moved together)
+	can be post-treated to be as readable as possible with the <computeroutput>genCovBB</computeroutput> command.
+	<programlisting>
+	genCovBB trace_bb_cov.log-*
+	</programlisting>
+
+	The differences between generated coverage  are more difficult to analyze compared to the ones generated by code coverage tools, because the code structure is lost. Nevertheless
+	it is easier to generate  and can produced really powerful
+	information if used with the client request <computeroutput>VERROU_DUMP_COVER</computeroutput> to recover partially time information lost by coverage techniques.
+
+      </para>
+    </section>
+
 </section>
 
 <!-- Local Variables: -->

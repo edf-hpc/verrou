@@ -1,5 +1,5 @@
 diff --git a/Makefile.am b/Makefile.am
-index 242b38a14..5f4306426 100644
+index 08db83401..cfcd7679f 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -14,6 +14,8 @@ TOOLS = \
@@ -9,10 +9,10 @@ index 242b38a14..5f4306426 100644
 +TOOLS += verrou
 +
  EXP_TOOLS = \
- 		exp-sgcheck \
  		exp-bbv
+ 
 diff --git a/README b/README
-index 0d3ac1de4..78ba3f178 100644
+index 511027ae9..0f32e73ea 100644
 --- a/README
 +++ b/README
 @@ -1,4 +1,26 @@
@@ -43,19 +43,19 @@ index 0d3ac1de4..78ba3f178 100644
  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  If you are building a binary package of Valgrind for distribution,
 diff --git a/configure.ac b/configure.ac
-index f8c798bf3..4eb86290d 100755
+index b86e80220..f67bafdf1 100755
 --- a/configure.ac
 +++ b/configure.ac
 @@ -8,7 +8,7 @@
  ##------------------------------------------------------------##
  
  # Process this file with autoconf to produce a configure script.
--AC_INIT([Valgrind],[3.15.0],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.15.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
+-AC_INIT([Valgrind],[3.16.1],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.16.1+verrou-dev],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
-@@ -4648,6 +4648,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+@@ -4766,6 +4766,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -66,7 +66,7 @@ index f8c798bf3..4eb86290d 100755
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4670,6 +4674,8 @@ AC_CONFIG_FILES([
+@@ -4788,6 +4792,8 @@ AC_CONFIG_FILES([
     auxprogs/Makefile
     mpi/Makefile
     coregrind/Makefile 
@@ -120,21 +120,25 @@ index 49367fed2..6dc3e5f7e 100644
 +    color: #8a6d3b;
 +}
 diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
-index a038ee416..a1fe14e6b 100644
+index 17a81c99f..2086f49eb 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
-@@ -47,5 +47,9 @@
- <xi:include href="../../coregrind/docs/vgdb-manpage.xml"
+@@ -78,6 +78,13 @@
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+ </chapter>
  
 +<!-- verrou_dd -->
++<chapter>
++<title>verrou_dd</title>
 +<xi:include href="../../verrou/docs/verrou_dd-manpage.xml"
 +    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++</chapter>
 +
+ </book>
  </set>
  
 diff --git a/docs/xml/manual.xml b/docs/xml/manual.xml
-index b90514935..1422eb418 100644
+index 518be2964..5929b16a5 100644
 --- a/docs/xml/manual.xml
 +++ b/docs/xml/manual.xml
 @@ -40,6 +40,8 @@
@@ -145,12 +149,12 @@ index b90514935..1422eb418 100644
 +      xmlns:xi="http://www.w3.org/2001/XInclude" />
    <xi:include href="../../none/docs/nl-manual.xml" parse="xml"  
        xmlns:xi="http://www.w3.org/2001/XInclude" />
-   <xi:include href="../../exp-sgcheck/docs/sg-manual.xml" parse="xml"  
+   <xi:include href="../../exp-bbv/docs/bbv-manual.xml" parse="xml"  
 diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
-index 7498c614c..62167e45c 100644
+index 3c893c680..d36eadec3 100644
 --- a/docs/xml/valgrind-manpage.xml
 +++ b/docs/xml/valgrind-manpage.xml
-@@ -230,6 +230,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
+@@ -221,6 +221,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
  
  </refsect1>
  
@@ -160,15 +164,15 @@ index 7498c614c..62167e45c 100644
  <refsect1 id="see_also">
  <title>See Also</title>
 diff --git a/docs/xml/vg-entities.xml b/docs/xml/vg-entities.xml
-index fc5629db4..6a3de186a 100644
+index 7d04ee795..a105f0b50 100644
 --- a/docs/xml/vg-entities.xml
 +++ b/docs/xml/vg-entities.xml
 @@ -6,7 +6,7 @@
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
--<!ENTITY rel-version "3.15.0">
-+<!ENTITY rel-version "3.15.0+verrou-dev">
- <!ENTITY rel-date    "12 April 2019">
+-<!ENTITY rel-version "3.16.1">
++<!ENTITY rel-version "3.16.1+verrou-dev">
+ <!ENTITY rel-date    "22 June 2020">
  
  <!-- where the docs are installed -->

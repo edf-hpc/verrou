@@ -7,7 +7,8 @@ import shutil
 import hashlib
 import copy
 from valgrind import DD
-
+import glob
+import datetime
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -54,10 +55,10 @@ class verrouTask:
         self.maxNbPROC= maxNbPROC
         self.runEnv=runEnv
 
-        print(self.dirname,end="")
+        print(os.path.relpath(self.dirname, os.getcwd()),end="")
 
     def nameDir(self,i):
-        return  os.path.join(self.dirname,"dd.run%i" % (i+1))
+        return  os.path.join(self.dirname,"dd.run%i" % (i))
 
     def mkdir(self,i):
          os.mkdir(self.nameDir(i))
@@ -71,14 +72,15 @@ class verrouTask:
                                           os.path.join(rundir,"dd.run"),
                                           self.runEnv)
 
-    def cmpOneSample(self,i):
+    def cmpOneSample(self,i, assertRun=True):
         rundir= self.nameDir(i)
-        if self.subProcessRun[i]!=None:
-            getResult(self.subProcessRun[i])
+        if assertRun:
+            if self.subProcessRun[i]!=None:
+                getResult(self.subProcessRun[i])
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
-        with open(os.path.join(self.dirname, rundir, "returnVal"),"w") as f:
+        with open(os.path.join(self.dirname, rundir, "dd.return.value"),"w") as f:
             f.write(str(retval))
         if retval != 0:
             print("FAIL(%d)" % i)
@@ -87,42 +89,83 @@ class verrouTask:
             return self.PASS
 
     def sampleToComputeToGetFailure(self, nbRun):
-        """Return the list of samples which have to be computed to perforn nbRun Success run : None mean Failure [] Mean Success """
-        listOfDir=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
-        done=[]
-        for runDir in listOfDir:
-            status=int((open(os.path.join(self.dirname, runDir, "returnVal")).readline()))
-            if status!=0:
-                return None
-            done+=[runDir]
+        """Return the two lists of samples which have to be compared or computed (and compared) to perforn nbRun Success run : None means Failure ([],[]) means Success """
+        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
+        listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
 
-        res= [x for x in range(nbRun) if not ('dd.run'+str(x+1)) in done]
-        return res
+        cmpDone=[]
+        runDone=[]
+        workToCmpOnly=[]
+        for runDir in listOfDirString:
+
+            returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
+            if os.path.exists(returnValuePath):
+                statusCmp=int((open(returnValuePath).readline()))
+                if statusCmp!=0:
+                    return None
+                cmpDone+=[int(runDir.replace("dd.run",""))]
+            else:
+                runPath=os.path.join(self.dirname, runDir, "dd.run.out")
+                if os.path.exists(runPath):
+                    runDone+=[int(runDir.replace("dd.run",""))]
+
+        workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
+        return (runDone, workToRun, cmpDone)
 
     def run(self):
         workToDo=self.sampleToComputeToGetFailure(self.nbRun)
         if workToDo==None:
             print(" --(cache) -> FAIL")
             return self.FAIL
+        cmpOnlyToDo=workToDo[0]
+        runToDo=workToDo[1]
+        cmpDone=workToDo[2]
 
-        if len(workToDo)!=0:
+        if len(cmpOnlyToDo)==0 and len(runToDo)==0:
+            print(" --(cache)-> PASS("+str(self.nbRun)+")")
+            return self.PASS
+
+        if len(cmpOnlyToDo)!=0:
+            print(" --( cmp )-> ",end="",flush=True)
+            returnVal=self.cmpSeq(cmpOnlyToDo)
+            if returnVal==self.FAIL:
+                return self.FAIL
+            else:
+                print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
+
+        if len(runToDo)!=0:
             print(" --( run )-> ",end="",flush=True)
 
             if self.maxNbPROC==None:
-                returnVal=self.runSeq(workToDo)
+                returnVal=self.runSeq(runToDo)
             else:
-                returnVal=self.runPar(workToDo)
+                returnVal=self.runPar(runToDo)
 
             if(returnVal==self.PASS):
-                print("PASS(+" + str(len(workToDo))+"->"+str(self.nbRun)+")" )
+                print("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
             return returnVal
-        print(" --(cache)-> PASS("+str(self.nbRun)+")")
+        else:
+            print("")
         return self.PASS
+
+
+
+    def cmpSeq(self,workToDo):
+        for run in workToDo:
+            retVal=self.cmpOneSample(run,assertRun=False)
+            if retVal=="FAIL":
+                return self.FAIL
+        return self.PASS
+
 
     def runSeq(self,workToDo):
 
         for run in workToDo:
-            self.mkdir(run)
+            if not os.path.exists(self.nameDir(run)):
+                self.mkdir(run)
+            else:
+                print("Manual cache modification detected (runSeq)")
+
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
@@ -133,7 +176,11 @@ class verrouTask:
     def runPar(self,workToDo):
 
         for run in workToDo:
-            self.mkdir(run)
+            if os.path.exists(self.nameDir(run)):
+                self.mkdir(run)
+            else:
+                print("Manual cache modification detected (runPar)")
+
             self.runOneSample(run)
         for run in workToDo:
             retVal=self.cmpOneSample(run)
@@ -155,34 +202,167 @@ def prepareOutput(dirname):
      os.makedirs(dirname)
 
 
-            
 def failure():
     sys.exit(42)
 
 
 
 
-def symlink(src, dst):
-    if os.path.lexists(dst):
-        os.remove(dst)
-    os.symlink(src, dst)
-
 
 class DDStoch(DD.DD):
     def __init__(self, config, prefix):
         DD.DD.__init__(self)
         self.config_=config
+        if not  self.config_.get_quiet():
+            print("delta debug options :")
+            print(self.config_.optionToStr())
+
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
-        self.cache_outcomes = False
+        self.cache_outcomes = False # the cache of DD.DD is ignored
         self.index=0
         self.prefix_ = os.path.join(os.getcwd(),prefix)
+        self.relPrefix_=prefix
         self.ref_ = os.path.join(self.prefix_, "ref")
-
+        self.prepareCache()
+        self.rddminHeuristicLoadRep()
         prepareOutput(self.ref_)
         self.reference()
         self.mergeList()
-        self.checkReference()
+
+
+    def symlink(self,src, dst):
+        """Create a relative symlink"""
+        if os.path.lexists(dst):
+            os.remove(dst)
+        relSrc=os.path.relpath(src, self.prefix_ )
+        relDist=os.path.relpath(dst, self.prefix_)
+        relPrefix=os.path.relpath(self.prefix_, os.getcwd())
+        os.symlink(relSrc, os.path.join(relPrefix, relDist))
+
+
+    def cleanSymLink(self):
+        """Delete all symlink in the cache"""
+        self.saveCleabSymLink=[]
+        symLinkTab=self.searchSymLink()
+        for symLink in symLinkTab:
+            if os.path.lexists(symLink):
+                os.remove(symLink)
+                if self.config_.get_cache=="continue":
+                    self.saveCleanSymLink+=[symLink]
+
+
+    def searchSymLink(self):
+        """Return the list of symlink (created by DD_stoch) in the cache"""
+        res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
+        res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
+        res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
+        res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
+        res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
+        return res
+
+
+    def rddminHeuristicLoadRep(self):
+        """ Load the results of previous ddmin. Need to be called after prepareCache"""
+
+        self.useRddminHeuristic=False
+        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0:
+            self.useRddminHeuristic=True
+        if self.useRddminHeuristic==False:
+            return
+
+        rddmin_heuristic_rep=[]
+        if "cache" in self.config_.get_rddminHeuristicsCache():
+            if self.config_.get_cache=="rename":
+                cacheRep=self.oldCacheName
+                if os.path.isdir(cacheRep):
+                    rddmin_heuristic_rep+=[cacheRep]
+            else:
+                cacheRep=self.prefix_
+                if os.path.isdir(cacheRep):
+                    rddmin_heuristic_rep+=[cacheRep]
+
+        if self.config_.get_rddminHeuristicsCache()=="all_cache":
+            rddmin_heuristic_rep+=glob.glob(self.prefix_+"-*-*-*_*h*m*s")
+
+        for rep in self.config_.get_rddminHeuristicsRep_Tab():
+            if rep not in rddmin_heuristic_rep:
+                rddmin_heuristic_rep+=[rep]
+
+        self.ddminHeuristic=[]
+        if self.config_.get_cache=="continue":
+            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in self.saveCleanSymLink if "ddmin" in rep]
+
+        for rep in rddmin_heuristic_rep:
+            repTab=glob.glob(os.path.join(rep, "ddmin*"))
+            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in repTab]
+
+    def prepareCache(self):
+        cache=self.config_.get_cache()
+        if cache=="continue":
+            if not os.path.exists(self.prefix_):
+                os.mkdir(self.prefix_)
+            self.cleanSymLink()
+            return
+        if cache=="clean":
+            shutil.rmtree(self.prefix_, ignore_errors=True)
+            os.mkdir(self.prefix_)
+            return
+
+        if cache=="rename_keep_result":
+            #delete unusefull rep : rename treated later
+            symLinkTab=self.searchSymLink()
+            repToKeep=[os.readlink(x) for x in symLinkTab]
+            print(repToKeep)
+            for item in os.listdir(self.prefix_):
+                if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
+                    if not item in repToKeep:
+                        shutil.rmtree(os.path.join(self.prefix_, item))
+
+        if cache.startswith("rename"):
+            if os.path.exists(self.prefix_):
+                symLinkTab=self.searchSymLink()
+                if symLinkTab==[]:  #find alternative file to get time stamp
+                    refPath=os.path.join(self.prefix_, "ref")
+                    if os.path.exists(refPath):
+                        symLinkTab=[refPath]
+                    else:
+                        symLinkTab=[self.prefix_]
+                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                self.oldCacheName=self.prefix_+"-"+timeStr
+                os.rename(self.prefix_,self.oldCacheName )
+            os.mkdir(self.prefix_)
+
+
+        if cache=="keep_run":
+            if not os.path.exists(self.prefix_):
+                os.mkdir(self.prefix_)
+            else:
+                self.cleanSymLink()
+                filesToDelete =glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.compare.*"))
+                filesToDelete +=glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.return.value"))
+                for fileToDelete in filesToDelete:
+                    os.remove(fileToDelete)
+
+    def reference(self):
+        """Run the reference and check the result"""
+        print(os.path.relpath(self.ref_, os.getcwd()),end="")
+        print(" -- (run) -> ",end="",flush=True)
+        retval = runCmd([self.run_, self.ref_],
+                        os.path.join(self.ref_,"dd"),
+                        self.referenceRunEnv())
+        if retval!=0:
+            print("")
+            self.referenceRunFailure()
+        else:
+            """Check the comparison between the reference and refrence is valid"""
+            retval = runCmd([self.compare_,self.ref_, self.ref_],
+                            os.path.join(self.ref_,"checkRef"))
+            if retval != 0:
+                print("FAIL")
+                self.referenceFailsFailure()
+            else:
+                print("PASS")
 
 
     def mergeList(self):
@@ -192,8 +372,7 @@ class DDStoch(DD.DD):
 
         listOfExcludeFile=[ x for x in os.listdir(dirname) if self.isFileValidToMerge(x) ]
         if len(listOfExcludeFile)<1:
-            print("The generation of exclusion/source files failed")
-            failure()
+            self.searchSpaceGenerationFailure()
 
 #        with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
 #                excludeMerged=f.readlines()
@@ -208,26 +387,11 @@ class DDStoch(DD.DD):
             for line in excludeMerged:
                 f.write(line)
 
-        
-    def checkReference(self):
-        retval = runCmd([self.compare_,self.ref_, self.ref_],
-                        os.path.join(self.ref_,"checkRef"))
-        if retval != 0:
-            print("FAILURE: the reference is not valid ")
-            print("Suggestions:")
-            print("\t1) check the correctness of the %s script"%self.compare_)
-            print("\t2) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
-
-            print("Files to analyze:")
-            print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
-            print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
-            failure()
 
     def testWithLink(self, deltas, linkname):
-        #by default the symlinks are generated when the test fail
         testResult=self._test(deltas)
         dirname = os.path.join(self.prefix_, md5Name(deltas))
-        symlink(dirname, os.path.join(self.prefix_,linkname))
+        self.symlink(dirname, os.path.join(self.prefix_,linkname))
         return testResult
 
     def report_progress(self, c, title):
@@ -240,20 +404,47 @@ class DDStoch(DD.DD):
         self.testWithLink(delta_config, kind_str)
 
     def run(self, deltas=None):
+
+        # get the search space
         if deltas==None:
             deltas=self.getDelta0()
 
+        if(len(deltas)==0):
+            emptySearchSpaceFailure()
+
+        #basic verification
+        testResult=self._test(deltas)
+        self.configuration_found("FullPerturbation",deltas)
+        if testResult!=self.FAIL:
+            self.fullPerturbationSucceedsFailure()
+
+        testResult=self._test([])
+        self.configuration_found("NoPerturbation",[])
+        if testResult!=self.PASS:
+            self.noPerturbationFailsFailure()
+
+
+        #select the right variant of algo and apply it
         algo=self.config_.get_ddAlgo()
         resConf=None
-        if algo=="rddmin":
-            resConf = self.RDDMin(deltas, self.config_.get_nbRUN())
-        if algo.startswith("srddmin"):
-            resConf= self.SRDDMin(deltas, self.config_.get_rddMinTab())
-        if algo.startswith("drddmin"):
-            resConf = self.DRDDMin(deltas,
-                                   self.config_.get_rddMinTab(),
-                                   self.config_.get_splitTab(),
-                                   self.config_.get_splitGranularity())
+
+        def rddminAlgo(localDeltas):
+            if algo=="rddmin":
+                localConf = self.RDDMin(localDeltas, self.config_.get_nbRUN())
+            if algo.startswith("srddmin"):
+                localConf= self.SRDDMin(localDeltas, self.config_.get_rddMinTab())
+            if algo.startswith("drddmin"):
+                localConf = self.DRDDMin(localDeltas,
+                                         self.config_.get_rddMinTab(),
+                                         self.config_.get_splitTab(),
+                                         self.config_.get_splitGranularity())
+            return localConf
+
+        if self.useRddminHeuristic and "rddmin" in algo:
+            resConf=self.applyRddminWithHeuristics(deltas,rddminAlgo)
+        else:
+            resConf=rddminAlgo(deltas)
+
         if algo=="ddmax":
             resConf= self.DDMax(deltas)
         else:
@@ -263,6 +454,42 @@ class DDStoch(DD.DD):
                 self.configuration_found("rddmin-cmp", cmp)
 
         return resConf
+
+    def applyRddminWithHeuristics(self,deltas, algo):
+        """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
+
+        res=[]
+
+        for heuristicsDelta in self.ddminHeuristic:
+            if all(x in deltas for x in  heuristicsDelta): #check inclusion
+                testResult=self._test(heuristicsDelta, self.config_.get_nbRUN())
+                if testResult!=self.FAIL:
+                    if not self.config_.get_quiet():
+                        print("Bad rddmin heuristic : %s"%self.coerce(heuristicsDelta))
+                else:
+                    #print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
+                    if len(heuristicsDelta)==1:
+                        res+=[heuristicsDelta]
+                        self.configuration_found("ddmin%d"%(self.index), heuristicsDelta)
+                        self.index+=1
+                        deltas=[delta for delta in deltas if delta not in heuristicsDelta]
+                    else:
+                        resTab=algo(heuristicsDelta)
+                        for resMin in resTab:
+                            res+=[resMin] #add to res
+                            deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
+
+        print("Heuristics applied")
+        #after the heuristic filter a classic (s)rddmin is applied
+        testResult=self._test(deltas, self.config_.get_nbRUN())
+        if testResult!=self.FAIL:
+            return res
+        else:
+            return res+algo(deltas)
+
+
+
+
 
     def DDMax(self, deltas):
         res=self.verrou_dd_max(deltas)
@@ -276,7 +503,7 @@ class DDStoch(DD.DD):
         ddminTab=[]
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("RDDMIN", md5Name(deltas)+" should fail")
 
         while testResult==self.FAIL:
             conf = self.verrou_dd_min(deltas,nbRun)
@@ -410,7 +637,7 @@ class DDStoch(DD.DD):
         nbRun=SrunTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("DRDDMIN", md5Name(deltas)+" should fail")
 
         #apply dichotomy
         candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
@@ -446,7 +673,7 @@ class DDStoch(DD.DD):
         nbRun=runTab[-1]
         testResult=self._test(deltas,nbRun)
         if testResult!=self.FAIL:
-            self.deltaFailedMsg(deltas)
+            self.internalError("SRDDMIN", md5Name(deltas)+" should fail")
 
         ddminTab=[]
 
@@ -477,42 +704,53 @@ class DDStoch(DD.DD):
         return ddminTab
 
     #Error Msg
-    def deltaFailedMsg(self,delta):
+    def emptySearchSpaceFailure(self):
+        print("FAILURE : delta-debug search space is empty")
+        failure()
+
+    def searchSpaceGenerationFailure(self):
+        print("The generation of exclusion/source files failed")
+        failure()
+
+    def fullPerturbationSucceedsFailure(self):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
         print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
-        print("\t2) check if the number of samples VERROU_DD_NRUNS is sufficient ")
-        print("\t3) if your code contains C++ code (libraries included), check the presence of the valgrind option --demangle=no in the run script")
+        print("\t2) check if the number of samples (option --nruns=) is sufficient ")
 
-        dirname = md5Name(delta)
-        print("Directory to analyze: %s"%dirname)
+        print("Directory to analyze: FullPerturbation")
         failure()
 
-    def allDeltaFailedMsg(self,deltas):
-        print ("FAILURE: when verrou perturbs all parts of the program, its output is still detected as stable.")
-        print ("Suggestions:")
-        print ("\t1) check if the number of samples VERROU_DD_NRUNS is sufficient")
-        print ("\t2) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
-        print ("\t3) set the env variable VERROU_DD_UNSAFE : be careful it is realy unsafe")
-
-        dirname = md5Name(delta)
-        print("Directory to analyze: %s"%dirname)
-        failure()
-
-
-    def noDeltaSucceedMsg(self,deltas=[]):
-        print("FAILURE: the comparison between verrou with activated symbols in nearest mode (ref) and verrou without activated symbols failed")
+    def noPerturbationFailsFailure(self):
+        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) andthe code without instrumentation failed")
 
         print("Suggestions:")
-        print("\t1) check the libm library is correctly excluded")
-        print("\t2) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        print("\t2) check the libm library is not instrumented")
+        print("Directory to analyze: NoPerturbation")
         failure()
 
-    def reference(self):
-        retval = runCmd([self.run_, self.ref_],
-                        os.path.join(self.ref_,"dd"),
-                        self.referenceRunEnv())
-        assert retval == 0, "Error during reference run"
+    def referenceFailsFailure(self):
+        print("FAILURE: the reference is not valid ")
+        print("Suggestions:")
+        print("\t1) check the correctness of the %s script"%self.compare_)
+
+        print("Files to analyze:")
+        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
+        failure()
+
+    def referenceRunFailure(self):
+        print("FAILURE: the reference run fails ")
+        print("Suggestions:")
+        print("\t1) check the correctness of the %s script"%self.run_)
+
+        print("Files to analyze:")
+        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        failure()
+
+
+
 
     def getDelta0(self):
         with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
@@ -550,4 +788,3 @@ class DDStoch(DD.DD):
         vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
 
         return vT.run()
-

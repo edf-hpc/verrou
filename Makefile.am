@@ -11,7 +11,9 @@ pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
 #----------------------------------------------------------------------------
 
 PYTHON_REP=pyTools
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/cmpCov.py ${PYTHON_REP}/verrou_dd_synchro
+
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/plotStat.py ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro
+
 pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py
 
 install-exec-local:

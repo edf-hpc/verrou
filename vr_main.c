@@ -31,8 +31,8 @@
 #include "float.h"
 #include "pub_tool_libcfile.h"
 #include "coregrind/pub_core_transtab.h"
+#include "coregrind/pub_core_debuginfo.h"
 //#pragma STDC FENV_ACCESS ON
-
 Vr_State vr;
 
 
@@ -321,7 +321,7 @@ void vr_ppOpCount (void) {
   }
 }
 
-#include "vr_traceBB.c"
+#include "vr_traceBB_impl.h"
 
 
 // * Floating point operations overload
@@ -934,7 +934,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Addr addr = ips[0];
   DiEpoch de = VG_(current_DiEpoch)();
 
-  Bool errorFnname=VG_(get_fnname)(de, addr, fnnamePtr);
+  Bool errorFnname=VG_(get_fnname_raw)(de, addr, fnnamePtr);
   if(!errorFnname || **fnnamePtr==0){
     fnnamePtr=&fnnoname;
   }
@@ -974,8 +974,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
     traceBB=getNewTraceBB(sbIn);
-    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter), instrCount);
-    vr_traceBB_trace_backtrace(traceBB);
+    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
+    //vr_traceBB_trace_backtrace(traceBB);
   }
 
 
@@ -1036,7 +1036,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       if(fnnamePtr==&fnnoname){
       for(int i=0 ; i< 6; i++){
 	Addr addr = ips[i];
-	Bool errorFnname =VG_(get_fnname)(de, addr, fnnamePtr);
+	Bool errorFnname =VG_(get_fnname_raw)(de, addr, fnnamePtr);
 	Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
 	VG_(umsg)("stack %d : %s %s\n", i,*fnnamePtr, *objnamePtr);
       }

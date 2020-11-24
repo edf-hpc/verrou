@@ -507,9 +507,8 @@ class DD:
 
         testNoDelta=self.test([])
         if testNoDelta!=self.PASS:
-            self.noDeltaSucceedMsg()
-            print("ERROR: test([]) == FAILED")
-            sys.exit()
+            self.internalError("_dd", "ERROR: test([]) == FAILED")
+
 #        assert self.test([]) == self.PASS
 
         run = 1
@@ -519,15 +518,7 @@ class DD:
         while 1:
             tc = self._test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
-                if run==1:
-                    self.deltaFailedMsg(c)
-
-                if "VERROU_DD_UNSAFE" in os.environ:
-                    print ("WARNING: test([all deltas]) == PASS")
-                else:
-                    self.allDeltaFailedMsg(c)
-                    print ("ERROR: test([all deltas]) == PASS")
-                    sys.exit(1)
+                self.internalError("_dd","test([all deltas]) == PASS")
 
 
             if n > len(c):
@@ -622,10 +613,7 @@ class DD:
         
         testNoDelta=self.test([])
         if testNoDelta!=self.PASS:
-            self.noDeltaSucceedMsg()
-            print("ERROR: test([]) == FAILED")
-            sys.exit()
-#        assert self.test([]) == self.PASS
+            self.internalError("verrou_dd_max","ERROR: test([]) == FAILED")
 
         run = 1
         cbar_offset = 0
@@ -634,11 +622,7 @@ class DD:
         while 1:
             tc = self.test(c)
             if tc != self.FAIL and tc != self.UNRESOLVED:
-                if run==1:
-                    self.deltaFailedMsg(c)
-
-                if "VERROU_DD_UNSAFE" in os.environ:
-                    print ("WARNING: test([all deltas]) == PASS")
+                self.internalError("verrou_dd_max","test([all deltas]) == PASS")
 
 
             if n > len(c):
@@ -713,9 +697,7 @@ class DD:
 
         testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
-            print("ERROR: test([]) == FAILED")
-            self.noDeltaSucceedMsg()
-
+            self.internalError("verrou_dd_min","ERROR: test([]) == FAILED")
 
         run = 1
         cbar_offset = 0
@@ -724,16 +706,7 @@ class DD:
         while 1:
             tc = self._test(c ,nbRun)
             if tc != self.FAIL and tc != self.UNRESOLVED:
-                if run==1:
-                    self.deltaFailedMsg(c)
-
-                if "VERROU_DD_UNSAFE" in os.environ:
-                    print ("WARNING: test([all deltas]) == PASS")
-                else:
-                    print ("ERROR: test([all deltas]) == PASS")
-                    self.allDeltaFailedMsg(c)
-
-
+                self.internalError("verrou_dd_min","ERROR: test([all deltas]) == PASS")
 
 
             if n > len(c):
@@ -823,6 +796,8 @@ class DD:
     def ddmix(self, c):
         return self.ddgen(c, 1, 1)
 
+    def internalError(self, func, msg):
+        raise AssertionError(func +"\t"+ msg)
 
     # General delta debugging (new TSE version)
     def dddiff(self, c):
