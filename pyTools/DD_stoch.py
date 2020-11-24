@@ -195,10 +195,11 @@ class DDStoch(DD.DD):
             print("The generation of exclusion/source files failed")
             failure()
 
-        with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
-                excludeMerged=f.readlines()
-
-        for excludeFile in listOfExcludeFile[1:]:
+#        with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
+#                excludeMerged=f.readlines()
+#        for excludeFile in listOfExcludeFile[1:]:
+        excludeMerged=[]
+        for excludeFile in listOfExcludeFile:
             with open(os.path.join(dirname,excludeFile), "r") as f:
                 for line in f.readlines():
                     if line not in excludeMerged:
