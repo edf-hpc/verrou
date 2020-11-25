@@ -48,7 +48,7 @@ class ddConfig:
 
     def parseArgv(self,argv):
         shortOptionsForGetOpt="h"
-        longOptionsForGetOpt=["help",*[x[3][2:] for x in self.registryTab]]
+        longOptionsForGetOpt=["help"] + [x[3][2:] for x in self.registryTab]
         try:
             opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
         except getopt.GetoptError:
@@ -63,7 +63,7 @@ class ddConfig:
                 fromRegistryName=registry[3].replace("=","")
                 if opt==fromRegistryName:
                     param=[registry[0], registry[1], registry[2],registry[3],registry[5], registry[6]]
-                    self.readOneOption(arg,*param, "parse")
+                    self.readOneOption(arg,*param, parse="parse")
                     break
         if len(args)==2:
             self.runScript=self.checkScriptPath(args[0])
@@ -80,7 +80,7 @@ class ddConfig:
             try:
                 strValue=self.environ[self.PREFIX+"_"+registry[2]]
                 param=[registry[0], registry[1], registry[2], registry[3],registry[5], registry[6]]
-                self.readOneOption(strValue,*param, "environ")
+                self.readOneOption(strValue,*param, parse="environ")
             except KeyError:
                 pass
 

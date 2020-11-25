@@ -168,7 +168,8 @@ extern Vr_State vr;
 // * Functions declarations
 
 // ** vr_main.c
-
+UInt vr_count_fp_instrumented (void);
+UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
 void vr_cancellation_handler(int cancelled );
 

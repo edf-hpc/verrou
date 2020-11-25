@@ -67,6 +67,9 @@ vr_findExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
 
 void vr_freeExcludeList (Vr_Exclude* list) {
   while (list != NULL) {
+    if(!list->used){
+       VG_(umsg)("Warning exclude unused: %s\t%s\n", list->fnname,  list->objname );
+    }
     Vr_Exclude *next = list->next;
     VG_(free)(list->fnname);
     VG_(free)(list->objname);

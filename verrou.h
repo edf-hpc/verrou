@@ -33,8 +33,11 @@
 #ifndef __VERROU_H
 #define __VERROU_H
 
+#ifdef VERROU_SYNCHRO_INCLUDE
+#include "../include/valgrind.h"
+#else
 #include "valgrind.h"
-
+#endif
 /* !! ABIWARNING !! ABIWARNING !! ABIWARNING !! ABIWARNING !!
    This enum comprises an ABI exported by Valgrind to programs
    which use client requests.  DO NOT CHANGE THE ORDER OF THESE
@@ -48,7 +51,9 @@ enum {
   VR_USERREQ__START_DETERMINISTIC,
   VR_USERREQ__STOP_DETERMINISTIC,
   VR_USERREQ__DISPLAY_COUNTERS,
-  VR_USERREQ__DUMP_COVER
+  VR_USERREQ__DUMP_COVER,
+  VR_USERREQ__COUNT_FP_INSTRUMENTED,
+  VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -75,5 +80,16 @@ enum {
   (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	      \
 					    VR_USERREQ__DUMP_COVER,   \
 					    0, 0, 0, 0, 0)
+
+#define VERROU_COUNT_FP_INSTRUMENTED \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__COUNT_FP_INSTRUMENTED,\
+					    0, 0, 0, 0, 0)
+
+#define VERROU_COUNT_FP_NOT_INSTRUMENTED \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,\
+					    0, 0, 0, 0, 0)
+
 
 #endif /* __VERROU_H */
