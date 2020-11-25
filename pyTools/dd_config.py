@@ -48,7 +48,7 @@ class ddConfig:
 
     def parseArgv(self,argv):
         shortOptionsForGetOpt="h"
-        longOptionsForGetOpt=["help",*[x[3][2:] for x in self.registryTab]]
+        longOptionsForGetOpt=["help"] + [x[3][2:] for x in self.registryTab]
         try:
             opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
         except getopt.GetoptError:
