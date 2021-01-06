@@ -5,7 +5,7 @@
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
+   Copyright (C) 2014-2021 EDF
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 

@@ -2,19 +2,19 @@
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- Interface for floating-point operations overloading.         ---*/
-/*---                                                 vr_fpOps.cxx ---*/
+/*---                                         interflop_verrou.cxx ---*/
 /*--------------------------------------------------------------------*/
 
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
+   Copyright (C) 2014-2021 EDF
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
    This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -22,13 +22,14 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.
 
-   The GNU General Public License is contained in the file COPYING.
+   The GNU Lesser General Public License is contained in the file COPYING.
 */
+
 
 #include "interflop_verrou.h"
 #include "vr_nextUlp.hxx"
