@@ -230,16 +230,18 @@ det2
           </varlistentry>
 
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
-            <term><option><![CDATA[--backend=<verrou|mcaquad> [default=verrou]]]></option></term>
+            <term><option><![CDATA[--backend=<verrou|mcaquad|checkdenorm> [default=verrou]]]></option></term>
             <listitem><para>
-		Select the <computeroutput>verrou</computeroutput> or
-		<computeroutput>mcaquad</computeroutput> backend. <computeroutput>verrou</computeroutput>
+		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>
+		or <computeroutput>checkdenorm</computeroutput>
+		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
 		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>
 		and <option><xref linkend="vr-opt.mca-precision"/></option> options).
 		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
-		is still considered as experimental.
+		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
+		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
             </para></listitem>
           </varlistentry>
 
@@ -251,7 +253,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float|ftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -273,7 +275,8 @@ det2
                 </para></listitem>
                 <listitem><para>
                     <command>Other:</command> <computeroutput>farthest</computeroutput>,
-		    <computeroutput>float</computeroutput>.
+		    <computeroutput>float</computeroutput>,
+		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
               </itemizedlist>
             </listitem>
@@ -447,11 +450,12 @@ det2
             </para></listitem>
           </varlistentry>
 
+
 	  <varlistentry id="vr.opt.check-cancellation" xreflabel="--check-cancellation">
             <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>
             <listitem><para>
 		Activate cancellation detection. Cancellation produces a valgrind error.
-		This functionnality is available for the verrou and mcaquad backends. The level
+		This functionnality is available for the verrou, mcaquad  and checkdenorm backends. The level
 		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
 		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
             </para></listitem>
@@ -461,7 +465,7 @@ det2
             <term><option><![CDATA[--cc-gen-file=<FILE>]]></option></term>
             <listitem><para>
 		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one cancellation.
-		This functionnality is available for verrou and mcaquad backends. The level
+		This functionnality is available for verrou, mcaquad and checkdenorm backends. The level
 		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
 		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
             </para></listitem>
@@ -481,6 +485,24 @@ det2
             <listitem><para>
 		Configure the cancellation  dectection threshold for double operations.
 		Default value is still experimental and could have to change.
+            </para></listitem>
+          </varlistentry>
+
+
+
+	  <varlistentry id="vr.opt.check-denorm" xreflabel="--check-denorm">
+            <term><option><![CDATA[--check-denorm=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate denormal number detection. Denormal number produced by floating point operation produces a valgrind error.
+		This functionnality is available for the checkdenorm backend.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.cd-gen-file" xreflabel="--cd-gen-file">
+            <term><option><![CDATA[--cd-gen-file=<FILE>]]></option></term>
+            <listitem><para>
+		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one denormal number.
+		This functionnality is available for checkdenorm backend.
             </para></listitem>
           </varlistentry>
 
