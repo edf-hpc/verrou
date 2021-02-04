@@ -46,9 +46,14 @@ void* backend_mcaquad_context;
 struct interflop_backend_interface_t backend_checkcancellation;
 void* backend_checkcancellation_context;
 
+struct interflop_backend_interface_t backend_checkdenorm;
+void* backend_checkdenorm_context;
+
+
 
 
 VgFile * vr_outCancellationFile;
+VgFile * vr_outDenormFile;
 
 // * Floating-point operations counter
 
@@ -851,6 +856,21 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
 #undef bcNameWithCC
    }
 
+   if(vr.backend==vr_checkdenorm && !checkCancellation){
+#define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+   }
+   if(vr.backend==vr_checkdenorm && checkCancellation){
+#define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+   }
+
 #ifdef USE_VERROU_QUAD
    if(vr.backend==vr_mcaquad && !checkCancellation){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
@@ -1079,6 +1099,10 @@ static void vr_fini(Int exitcode)
   if (vr.dumpCancellation){
      vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );
   }
+
+  if (vr.dumpDenorm){
+     vr_dumpIncludeSourceList(vr.denormSource, NULL, vr.denormDumpFile );
+  }
   vr_freeExcludeList (vr.exclude);
   vr_freeIncludeSourceList (vr.includeSource);
   vr_freeIncludeTraceList  (vr.includeTrace );
@@ -1144,7 +1168,7 @@ static void vr_post_clo_init(void)
 
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
-   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version()  );
+   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version() );
 
    interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
    verrou_set_seed (vr.firstSeed);
@@ -1155,7 +1179,7 @@ static void vr_post_clo_init(void)
    backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
    mcaquad_set_panic_handler(&VG_(tool_panic));
 
-   VG_(umsg)("Backend %s : %s\n", interflop_mcaquad_get_backend_name(), interflop_mcaquad_get_backend_version()  );
+   VG_(umsg)("Backend %s : %s\n", interflop_mcaquad_get_backend_name(), interflop_mcaquad_get_backend_version() );
 
 
    mcaquad_conf_t mca_quad_conf;
@@ -1172,15 +1196,37 @@ static void vr_post_clo_init(void)
    checkcancellation_conf.threshold_double= vr.cc_threshold_double;
    backend_checkcancellation=interflop_checkcancellation_init(&backend_checkcancellation_context);
    interflop_checkcancellation_configure(checkcancellation_conf,backend_checkcancellation_context);
-   if (vr.checkCancellation || vr.dumpCancellation) {
-//     vr_outCancellationFile = VG_(fopen)("vr.log",
-//					 VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
-//					 VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-     checkcancellation_set_cancellation_handler(&vr_handle_CC); //valgrind error
 
-     VG_(umsg)("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version()  );
 
+   checkcancellation_set_cancellation_handler(&vr_handle_CC); //valgrind error
+
+   VG_(umsg)("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version() );
+
+
+
+
+   /*Init outfile cancellation*/
+   if(vr.roundingMode==VR_FTZ){
+      vr.ftz=True;
    }
+
+   checkdenorm_conf_t checkdenorm_conf;
+   checkdenorm_conf.flushtozero= vr.ftz;
+   backend_checkdenorm=interflop_checkdenorm_init(&backend_checkdenorm_context);
+   interflop_checkdenorm_configure(checkdenorm_conf,backend_checkdenorm_context);
+   checkdenorm_set_denorm_handler(&vr_handle_CD);
+   checkdenorm_set_panic_handler(&VG_(tool_panic));
+   VG_(umsg)("Backend %s : %s\n", interflop_checkdenorm_get_backend_name(), interflop_checkdenorm_get_backend_version()  );
+
+  if( vr.checkDenorm || vr.dumpDenorm || vr.ftz){
+     if( vr.backend==vr_mcaquad ||
+         (vr.backend==vr_verrou && !(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_FTZ || vr.roundingMode==VR_NATIVE))){
+        VG_(tool_panic)("backend checkDenorm incompatible with other backend");
+     }
+     vr.backend=vr_checkdenorm;
+  }
+
+
   if(vr.genTrace){
      vr_traceBB_initialize();
    }

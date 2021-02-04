@@ -367,6 +367,8 @@ public:
       return RoundingFloat<OP>::apply (p);
     case VR_NATIVE:
       return RoundingNearest<OP>::apply (p);
+    case VR_FTZ:
+      vr_panicHandler("FTZ not implemented in backend_verrou");
     }
 
     return 0;

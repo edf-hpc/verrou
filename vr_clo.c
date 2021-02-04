@@ -85,8 +85,12 @@ void vr_clo_defaults (void) {
   vr.dumpCancellation=False;
   vr.cancellationSource=NULL;
 
-
+  vr.checkDenorm=False;
+  vr.ftz=False;
+  vr.dumpDenorm=False;
+  vr.cancellationSource=NULL;
 }
+
 
 Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
@@ -96,6 +100,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.backend, vr_verrou)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
+                         vr.backend, vr_checkdenorm)) {}
 
   //Option --rounding-mode=
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random",
@@ -116,6 +122,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_FLOAT)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=native",
                          vr.roundingMode, VR_NATIVE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
+                         vr.roundingMode, VR_FTZ)) {}
 
   //Option mcaquad
   else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-double",
@@ -130,6 +138,11 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.mca_mode, MCAMODE_MCA)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=ieee",
                          vr.mca_mode, MCAMODE_IEEE)) {}
+
+  //Option checkdenorm
+  else if (VG_BOOL_CLO (arg, "--check-denorm", bool_val)) {
+     vr.checkDenorm= bool_val;
+  }
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",
@@ -220,6 +233,13 @@ Bool vr_process_clo (const HChar *arg) {
      vr.cancellationDumpFile = VG_(expand_file_name)("vr.process_clo.cc-file", str);
      vr.dumpCancellation = True;
   }
+
+  else if (VG_STR_CLOM (cloPD, arg, "--cd-gen-file", str)) {
+     vr.denormDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
+     vr.dumpDenorm = True;
+  }
+
+
   // Set the pseudo-Random Number Generator
   else if (VG_STR_CLOM (cloPD, arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));

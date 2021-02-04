@@ -61,7 +61,10 @@
 #ifdef USE_VERROU_QUAD
 #include "backend_mcaquad/interflop_mcaquad.h"
 #endif
-typedef enum vr_backend_name{vr_verrou,vr_mcaquad} vr_backend_name_t;
+
+#include "backend_checkdenorm/interflop_checkdenorm.h"
+
+typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
 //backend post-treatment
 #include "backend_checkcancellation/interflop_checkcancellation.h"
@@ -153,6 +156,12 @@ typedef struct {
   HChar* cancellationDumpFile;
   Vr_IncludeSource * cancellationSource;
 
+  Bool checkDenorm;
+  Bool ftz;
+  Bool dumpDenorm ;
+  HChar* denormDumpFile;
+  Vr_IncludeSource * denormSource;
+
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
 } Vr_State;
@@ -167,6 +176,7 @@ UInt vr_count_fp_instrumented (void);
 UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
 void vr_cancellation_handler(int cancelled );
+void vr_denorm_handler(void);
 
 
 // ** vr_clreq.c
@@ -182,6 +192,7 @@ typedef enum {
   VR_ERROR_SCALAR,
   VR_ERROR_NAN,
   VR_ERROR_CC,
+  VR_ERROR_CD,
   VR_ERROR
 } Vr_ErrorKind;
 
@@ -205,6 +216,7 @@ void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
 void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 void vr_handle_NaN (void);
 void vr_handle_CC (int);
+void vr_handle_CD (void);
 
 // ** vr_exclude.c
 
