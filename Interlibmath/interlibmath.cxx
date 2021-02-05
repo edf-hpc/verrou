@@ -275,6 +275,12 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "FLOAT";
   case VR_NATIVE:
     return "NATIVE";
+  case VR_FTZ:
+    std::cerr<< "Rounding VR_FTZ not yet implemented in interlibmath"<<std::endl;
+    exit(1);
+    return "FTZ";
+
+
   }
 
   return "undefined";
@@ -583,6 +589,10 @@ void __attribute__((constructor)) init_interlibmath(){
     }
     if(envString==std::string("native")){
       ROUNDINGMODE=VR_NATIVE;
+    }
+    if(envString==std::string("ftz")){
+        std::cerr<< "Rounding VR_FTZ not yet implemented in interlibmath"<<std::endl;
+	exit(1);
     }
   }
 
