@@ -23,5 +23,5 @@ check_PROGRAMS = clreq accuClreq sum denorm
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
 
-AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -g
-AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -std=c++11 -g
+AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3
+AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -std=c++11 -O0 -g3

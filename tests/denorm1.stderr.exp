@@ -19,11 +19,13 @@ Instrumented operations :
 	min : no
 Instrumented scalar operations : no
 Denorm: 
-   at 0x108720: main (denorm.c:6)
+   at 0x1086C0: main (denorm.c:6)
 
 Denorm: 
-   at 0x4C501B0: __fma_fma3 (s_fma.c:30)
-   by 0x1087CB: main (denorm.c:19)
+   at 0x108745: main (denorm.c:19)
+
+Denorm: 
+   at 0x108764: main (denorm.c:20)
 
 
  ---------------------------------------------------------------------
@@ -41,4 +43,4 @@ Denorm:
   `- dbl                        1                        1      (100%)
       `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
-ERROR SUMMARY: 3 errors from 2 contexts (suppressed: 0 from 0)
+ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)
