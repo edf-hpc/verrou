@@ -19,13 +19,13 @@ Instrumented operations :
 	min : no
 Instrumented scalar operations : no
 Denorm: 
-   at 0x1086C0: main (denorm.c:6)
+   at 0xFFFFFF: main (denorm.c:6)
 
 Denorm: 
-   at 0x108745: main (denorm.c:19)
+   at 0xFFFFFF: main (denorm.c:19)
 
 Denorm: 
-   at 0x108764: main (denorm.c:20)
+   at 0xFFFFFF: main (denorm.c:20)
 
 
  ---------------------------------------------------------------------
