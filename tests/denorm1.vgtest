@@ -1,3 +1,3 @@
 prog: denorm
 vgopts: --check-denorm=yes
-stderr_filter_args: -seed -cnt-cmp-conv -backend-version
+stderr_filter_args: -seed -cnt-cmp-conv -backend-version -addr-error
