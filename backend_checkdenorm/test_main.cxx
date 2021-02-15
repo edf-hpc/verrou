@@ -45,11 +45,16 @@ int main(int argc, char** argv){
 
   interflop_checkdenorm_madd_double(a1,a2,a3, &cfma,context);
 
+  double adouble=0.1;
+  float resFloat=1.;
+  interflop_checkdenorm_cast_double_to_float(adouble, &resFloat,context);
+
   std::cout << std::setprecision(16);
   std::cout << "c: "<<c << std::endl;
   std::cout << "c: "<<cf << std::endl;
   std::cout << "cfma: "<<cfma << std::endl;
 
+  std::cout << "cast: "<< resFloat<<std::endl;
   
   interflop_checkdenorm_finalyze(context);
 

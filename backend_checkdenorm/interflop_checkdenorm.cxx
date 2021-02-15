@@ -65,7 +65,7 @@ void flushToZeroAndCheck(REAL* res){
       (*ifcd_denormHandler)();
     }
     if( checkdenorm_conf.flushtozero ){
-      *res=0;
+      *res=0.;
     }
     
   }
@@ -160,7 +160,7 @@ void IFCD_FCTNAME(madd_double) (double a, double b, double c, double* res,void* 
 
 
 void IFCD_FCTNAME(cast_double_to_float) (double a, float* res,void* context) {
-#ifdef DOOP
+#ifdef  IFCD_DOOP
   *res=(float)a;
 #endif
   flushToZeroAndCheck(res);

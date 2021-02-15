@@ -30,7 +30,7 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck"]
+valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck" ,"ftz"]
 
 
 def printRes(res):
@@ -244,6 +244,7 @@ class assertRounding:
         self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
         self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
         self.diff_farthest     =getDiff(allResult[("valgrind", "farthest")], testName)
+        self.diff_ftz          =getDiff(allResult[("valgrind", "ftz")], testName)
 
 
         self.diff_random       =getDiff(allResult[("valgrind", "random")], testName)      
@@ -339,6 +340,7 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "downward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -391,6 +393,7 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -425,6 +428,7 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -455,6 +459,7 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -484,6 +489,7 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -513,6 +519,7 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "upward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -546,6 +553,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "downward")
             testCheck.assertEqual("downward", "upward")
             testCheck.assertEqual("upward", "nearest")
