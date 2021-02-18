@@ -93,10 +93,12 @@ struct vr_packArg<REALTYPE,1>{
   inline bool isOneArgNanInf()const{
     return isNanInf<RealType>(arg1);
   }
+
+  inline const uint64_t xorWithArgs(uint64_t n)const{
+      return n ^ arg1;
+  }
   
   const RealType& arg1;
-
-
 };
 
 
@@ -124,7 +126,10 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  
+  inline const uint64_t xorWithArgs(uint64_t n)const{
+      return n ^ arg1 ^ arg2;
+  }
+
   const RealType& arg1;
   const RealType& arg2;
 };
@@ -154,6 +159,9 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
+  inline const uint64_t xorWithArgs(uint64_t n)const{
+      return n ^ arg1 ^ arg2 ^ arg3;
+  }
   
   const RealType& arg1;
   const RealType& arg2;
