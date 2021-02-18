@@ -113,7 +113,8 @@ public:
 
 
 /*
- * TODO write doc
+ * Determinized Random Rounding
+ * Ensures that running a computation twice with the same seed will produce the same output
  */
 template<class OP>
 class RoundingRandomDet{

@@ -94,8 +94,8 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 }
 
 /*
- * TODO write doc
- * produces a random number in a deterministic way: the same seed and input will produce the same output
+ * produces a pseudo random number in a deterministic way
+ * the same seed and inputs will always produce the same output
  */
 template<class PackArgs>
 inline bool vr_rand_bool_det (Vr_Rand * r, const PackArgs& p) {
