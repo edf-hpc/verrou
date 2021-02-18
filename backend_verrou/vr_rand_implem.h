@@ -79,7 +79,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
 
 
 
-inline uint64_t vr_rand_getSeed (Vr_Rand * r) {
+inline uint64_t vr_rand_getSeed (const Vr_Rand * r) {
   return r->seed_;
 }
 
@@ -98,7 +98,7 @@ inline bool vr_rand_bool (Vr_Rand * r) {
  * the same seed and inputs will always produce the same output
  */
 template<class PackArgs>
-inline bool vr_rand_bool_det (Vr_Rand * r, const PackArgs& p) {
+inline bool vr_rand_bool_det (const Vr_Rand * r, const PackArgs& p) {
     const uint64_t seed = vr_rand_getSeed(r);
     const uint64_t argsHash = p.getHash();
     // returns a one bit hash using Dietzfelbinger's multiply shift hash function
