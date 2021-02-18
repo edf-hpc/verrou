@@ -101,7 +101,7 @@ template<class PackArgs>
 inline bool vr_rand_bool_det (Vr_Rand * r, const PackArgs& p) {
     typedef typename PackArgs::RealType RealType;
     // produce a seed by xoring the arguments with the seed of the random generator
-    uint64_t seed = p.xorWithArgs(vr_rand_getSeed(r));
+    uint64_t seed = vr_rand_getSeed(r) ^ p.xorWithArgs();
     // hash the seed as a pseudo random number generator
     // TODO we should provide our own hash to insure reproducibility and performance
     size_t hash = std::hash<uint64_t>{}(seed);
