@@ -34,7 +34,7 @@
 
 //Warning FILE include in vr_rand.h
 
-
+#include "vr_op.hxx"
 
 #ifdef VERROU_LOWGEN
 inline static uint64_t vr_rand_next (Vr_Rand * r){
@@ -91,6 +91,19 @@ inline bool vr_rand_bool (Vr_Rand * r) {
   bool res = (r->current_ >> (r->count_++)) & 1;
   // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
   return res;
+}
+
+/*
+ * TODO write doc
+ * produces a random number in a deterministic way: the same seed and input will produce the same output
+ */
+template<class PackArgs>
+inline bool vr_rand_bool_det (Vr_Rand * r, const PackArgs& p) {
+    typedef typename PackArgs::RealType RealType;
+    // TODO xor inputs with seed
+    // TODO hash result
+    // TODO turn it into a single bit
+    return true;
 }
 
 inline int32_t vr_rand_int (Vr_Rand * r) {
