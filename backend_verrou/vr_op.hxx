@@ -73,14 +73,15 @@ struct vr_packArg;
 
 /*
  * takes a real number and returns a uint64_t by reinterpreting its bits
- * used by the xorArgs function in the vr_packArg classes
+ * used by the getHash function in the vr_packArg classes
  */
 template<class REALTYPE>
 inline uint64_t realToUint64_reinterpret_cast(const REALTYPE x)
 {
     // insures we have a 64 bits representation
-    const double x_double = (double) x;
+    const double x_double = static_cast<double>(x);
     // transmute it to a uint64 by reinterpreting its bits
+    // WARNING: this is considered undefined behaviour by the standard
     const uint64_t x_int = *reinterpret_cast<uint64_t*>(&x_double);
     return x_int;
 }
@@ -108,7 +109,7 @@ struct vr_packArg<REALTYPE,1>{
     return isNanInf<RealType>(arg1);
   }
 
-  inline const uint64_t xorArgs()const{
+  inline const uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1);
   }
   
@@ -139,7 +140,7 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  inline const uint64_t xorArgs()const{
+  inline const uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2);
   }
 
@@ -172,7 +173,7 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
-  inline const uint64_t xorArgs()const{
+  inline const uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2) ^ realToUint64_reinterpret_cast<REALTYPE>(arg3);
   }
   

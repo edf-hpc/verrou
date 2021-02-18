@@ -99,14 +99,11 @@ inline bool vr_rand_bool (Vr_Rand * r) {
  */
 template<class PackArgs>
 inline bool vr_rand_bool_det (Vr_Rand * r, const PackArgs& p) {
-    typedef typename PackArgs::RealType RealType;
-    // produce a seed by xoring the arguments with the seed of the random generator
-    uint64_t seed = vr_rand_getSeed(r) ^ p.xorWithArgs();
-    // hash the seed as a pseudo random number generator
-    // TODO we should provide our own hash to insure reproducibility and performance
-    size_t hash = std::hash<uint64_t>{}(seed);
-    // turns the hash into a boolean
-    bool res = hash % 2;
+    const uint64_t seed = vr_rand_getSeed(r);
+    const uint64_t argsHash = p.getHash();
+    // returns a one bit hash using Dietzfelbinger's multiply shift hash function
+    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
+    const bool res = (seed*argsHash) >> 63;
     return res;
 }
 
