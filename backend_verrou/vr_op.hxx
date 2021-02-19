@@ -72,18 +72,17 @@ struct vr_packArg;
 
 
 /*
- * takes a real number and returns a uint64_t by reinterpreting its bits
+ * takes a real number and returns a uint64_t by reinterpreting its bits, NOT casting it
  * used by the getHash function in the vr_packArg classes
  */
 template<class REALTYPE>
 inline uint64_t realToUint64_reinterpret_cast(const REALTYPE x)
 {
     // insures we have a 64 bits representation
-    const double x_double = static_cast<double>(x);
+    double x_double = static_cast<double>(x);
     // transmute it to a uint64 by reinterpreting its bits
     // WARNING: this is considered undefined behaviour by the standard
-    const uint64_t x_int = *reinterpret_cast<uint64_t*>(&x_double);
-    return x_int;
+    return *reinterpret_cast<uint64_t*>(&x_double);
 }
 
 template<class REALTYPE>
