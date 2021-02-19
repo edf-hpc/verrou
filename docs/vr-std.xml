@@ -150,6 +150,12 @@
         <listitem><para><command>random:</command> Randomly pick one among upward and downward
         rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
         </listitem>
+        <listitem><para><command>random_det:</command> Randomly choose between upward and downward
+        rounding mode, with equal probabilities but insuring that, for a given seed, the same computation
+        (same inputs and operation) will always be rounded in the same way.
+        This is a variant of the <command>random</command> rounding mode that improves determinism and
+        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
+        </listitem>
         <listitem><para><command>average:</command> Randomly choose between upward and downward
         rounding mode, in such a way that the expectation of the random result equals the exact
         operation result (without rounding). This is called "uniform_absolute output randomization"
