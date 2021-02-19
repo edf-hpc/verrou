@@ -145,7 +145,7 @@
     <para>
       Finally, the main use for Verrou is to randomly switch rounding mode at each floating-point
       operation, in order to implement the "random rounding" variant of Monte Carlo Arithmetic
-      (MCA). Two strategies can be used to choose the rounding mode for a given operation:
+      (MCA). Three strategies can be used to choose the rounding mode for a given operation:
       <itemizedlist>
         <listitem><para><command>random:</command> Randomly pick one among upward and downward
         rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
