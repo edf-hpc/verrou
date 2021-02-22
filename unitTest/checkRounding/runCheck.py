@@ -30,7 +30,7 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck" ,"ftz"]
+valgrindRounding=stdRounding + ["random", "random_det","average", "float", "farthest", "memcheck" ,"ftz"]
 
 
 def printRes(res):
@@ -248,6 +248,7 @@ class assertRounding:
 
 
         self.diff_random       =getDiff(allResult[("valgrind", "random")], testName)      
+        self.diff_random_det   =getDiff(allResult[("valgrind", "random_det")], testName)      
         self.diff_average      =getDiff(allResult[("valgrind", "average")], testName)     
 
         self.KoStr="Warning"
@@ -349,12 +350,16 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertLeq("nearest", "upward")
 
             testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "random_det")
             testCheck.assertLess("downward", "average")
 
             testCheck.assertLess("random", "upward")
+            testCheck.assertLess("random_det", "upward")
+
             testCheck.assertLess("average", "upward")
 
             testCheck.assertAbsLess("average", "random")
+            testCheck.assertAbsLess("average", "random_det")
             testCheck.assertAbsLess("average", "upward")
             testCheck.assertAbsLess("average", "downward")
             testCheck.assertAbsLess("average", "nearest")
@@ -403,12 +408,15 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertLeq("farthest", "upward")
 
             testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "random_det")
             testCheck.assertLess("downward", "average")
             
             testCheck.assertLess("random", "upward")
+            testCheck.assertLess("random_det", "upward")
             testCheck.assertLess("average", "upward")
 
             testCheck.assertAbsLess("average", "random")
+            testCheck.assertAbsLess("average", "random_det")
             testCheck.assertAbsLess("average", "upward")
             testCheck.assertAbsLess("average", "downward")
             testCheck.assertAbsLess("average", "nearest")
@@ -438,9 +446,11 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testCheck.assertLeq("farthest", "upward")
 
         testCheck.assertLess("downward", "random")
+        testCheck.assertLess("downward", "random_det")
         testCheck.assertLess("downward", "average")
 
         testCheck.assertLess("random", "upward")
+        testCheck.assertLess("random_det", "upward")                
         testCheck.assertLess("average", "upward")
 
         ok+=testCheck.ok
@@ -469,9 +479,11 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertLeq("farthest", "upward")
 
             testCheck.assertLess("downward", "random")
+            testCheck.assertLess("downward", "random_det")
             testCheck.assertLess("downward", "average")
 
             testCheck.assertLess("random", "upward")
+            testCheck.assertLess("random_det", "upward")
             testCheck.assertLess("average", "upward")
 
             ok+=testCheck.ok
@@ -502,6 +514,7 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertLeq("downward", "average")
 
         testCheck.assertLeq("random", "upward")
+        testCheck.assertLeq("random_det", "upward")
         testCheck.assertLeq("average", "upward")
 
         ok+=testCheck.ok
@@ -529,9 +542,11 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertLeq("farthest", "upward")
 
         testCheck.assertLeq("downward", "random")
+        testCheck.assertLeq("downward", "random_det")
         testCheck.assertLeq("downward", "average")
 
         testCheck.assertLeq("random", "upward")
+        testCheck.assertLeq("random_det", "upward")
         testCheck.assertLeq("average", "upward")
 
         ok+=testCheck.ok
@@ -562,6 +577,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertEqual("nearest", "farthest")
 
             testCheck.assertEqual("downward", "random")
+            testCheck.assertEqual("downward", "random_det")
             testCheck.assertEqual("downward", "average")
 
             ok+=testCheck.ok
