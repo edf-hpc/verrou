@@ -1231,7 +1231,7 @@ static void vr_pre_clo_init(void)
    VG_(details_version)         (NULL);
    VG_(details_description)     ("Check floating-point rounding errors");
    VG_(details_copyright_author)(
-      "Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.");
+      "Copyright (C) 2014-2019, EDF (F. Fevotte & B. Lathuiliere). 2019-2021, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)\n ");
    VG_(details_bug_reports_to)  (VG_BUGS_TO);
 
    VG_(details_avg_translation_sizeB) ( 275 );
