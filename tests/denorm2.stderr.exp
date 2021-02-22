@@ -18,19 +18,20 @@ Instrumented operations :
 	max : no
 	min : no
 Instrumented scalar operations : no
-Backend verrou simulating UPWARD rounding mode
 
  ---------------------------------------------------------------------
  Operation                            Instruction count
   `- Precision
       `- Vectorization          Total             Instrumented
  ---------------------------------------------------------------------
- add                     3000                     2000          ( 67%)
-  `- flt                     3000                     2000      ( 67%)
-      `- llo                     3000                     2000  ( 67%)
+ mul                        2                        2          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
- sub                        3                        2          ( 67%)
-  `- flt                        3                        2      ( 67%)
-      `- llo                        3                        2  ( 67%)
+ mAdd                       1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

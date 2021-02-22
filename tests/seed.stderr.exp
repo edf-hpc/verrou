@@ -4,6 +4,8 @@ Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
 First seed : 42
 Backend verrou : test-version
 Backend mcaquad : test-version
+Backend checkcancellation : test-version
+Backend checkdenorm : test-version
 Instrumented operations :
 	add : yes
 	sub : yes

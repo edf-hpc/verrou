@@ -54,7 +54,8 @@ extern "C" {
     VR_AVERAGE,
     VR_FARTHEST,
     VR_FLOAT,
-    VR_NATIVE
+    VR_NATIVE,
+    VR_FTZ
   };
 
 

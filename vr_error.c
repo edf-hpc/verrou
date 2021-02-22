@@ -54,6 +54,8 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "NaN";
   case VR_ERROR_CC:
     return "Cancellation";
+  case VR_ERROR_CD:
+    return "Denorm";
 
   default:
     return NULL;
@@ -146,6 +148,39 @@ void vr_handle_CC (int unused) {
    }
 }
 
+void vr_handle_CD () {
+   ThreadId tid = VG_(get_running_tid)();
+   Addr addr;
+   VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
+
+   if(vr.dumpDenorm){
+      DiEpoch di=VG_(current_DiEpoch)();
+      const HChar* fileName;
+      const HChar* dirName;
+      const HChar* symName;
+      UInt lineNum;
+      //UInt errorName=
+      VG_(get_filename_linenum)(di,addr,
+                                &fileName,
+                                &dirName,
+                                &lineNum );
+      VG_(get_fnname_raw)(di, addr, &symName);
+//      VG_(umsg)("test ? %s - %s : %u   --> %u \n", symName,fileName, lineNum,errorName);
+      vr_includeSource_generate (&vr.denormSource , symName, fileName, lineNum);
+   }
+
+   if(vr.checkDenorm){
+      HChar string[1];
+      string[0] = 0;
+      VG_(maybe_record_error)(tid,
+                              VR_ERROR_CD,
+                              addr,
+                              string,
+                              NULL);
+   }
+}
+
+
 
 static void vr_pp_ErrorRt (const Error* err) {
   VG_(umsg)("%s: ", vr_get_error_name(err));
@@ -186,11 +221,10 @@ void vr_pp_Error (const Error* err) {
     vr_pp_ErrorOp (err);
     break;
   case VR_ERROR_NAN:
-    vr_pp_ErrorRt (err);
-    break;
   case VR_ERROR_CC:
+  case VR_ERROR_CD:
      vr_pp_ErrorRt (err);
-    break;
+     break;
   }
 }
 

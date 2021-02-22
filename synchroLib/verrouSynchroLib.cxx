@@ -72,6 +72,8 @@ void verrou_synchro_activation_init();
 void verrou_synchro_activation(const std::string& strName, int index);
 void verrou_synchro_activation_finalyze();
 
+void fileToActiveInactiveStore(std::ifstream& input, storeSynchroType& store);
+
 /*Public function*/
 void verrou_synchro_init(){
   readDebug();

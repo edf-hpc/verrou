@@ -106,19 +106,19 @@ if __name__=="__main__":
 
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
 
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
 
     listOfOp2Args=["add","sub"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2, post="checkcancellation")
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
 
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
 
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
 
     fileOut.close()

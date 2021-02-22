@@ -34,7 +34,8 @@ VERROU_SOURCES_COMMON = \
 	vr_clo.c	\
 	vr_include_trace.c \
 	backend_verrou/interflop_verrou.cxx\
-	backend_checkcancellation/interflop_checkcancellation.cxx
+	backend_checkcancellation/interflop_checkcancellation.cxx\
+	backend_checkdenorm/interflop_checkdenorm.cxx
 
 
 
