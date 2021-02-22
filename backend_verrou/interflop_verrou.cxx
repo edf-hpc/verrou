@@ -85,6 +85,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "TOWARD_ZERO";
   case VR_RANDOM:
     return "RANDOM";
+  case VR_RANDOM_DET:
+    return "RANDOM_DET";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_FARTHEST:

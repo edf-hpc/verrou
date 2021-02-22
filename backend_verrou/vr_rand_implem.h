@@ -34,7 +34,7 @@
 
 //Warning FILE include in vr_rand.h
 
-
+#include "vr_op.hxx"
 
 #ifdef VERROU_LOWGEN
 inline static uint64_t vr_rand_next (Vr_Rand * r){
@@ -79,7 +79,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
 
 
 
-inline uint64_t vr_rand_getSeed (Vr_Rand * r) {
+inline uint64_t vr_rand_getSeed (const Vr_Rand * r) {
   return r->seed_;
 }
 
@@ -90,6 +90,22 @@ inline bool vr_rand_bool (Vr_Rand * r) {
   }
   bool res = (r->current_ >> (r->count_++)) & 1;
   // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
+  return res;
+}
+
+/*
+ * produces a pseudo random number in a deterministic way
+ * the same seed and inputs will always produce the same output
+ */
+template<class PackArgs>
+inline bool vr_rand_bool_det (const Vr_Rand * r, const PackArgs& p) {
+  const uint64_t argsHash = p.getHash();
+  const uint64_t seed = vr_rand_getSeed(r);
+  // returns a one bit hash as a PRNG
+  // uses Dietzfelbinger's multiply shift hash function
+  // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
+  const uint64_t oddSeed = seed | 1; // insures seed is odd
+  const bool res = (oddSeed * argsHash) >> 63;
   return res;
 }
 

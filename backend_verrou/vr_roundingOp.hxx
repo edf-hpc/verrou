@@ -112,6 +112,43 @@ public:
 };
 
 
+/*
+ * Determinized Random Rounding
+ * Ensures that running a computation twice with the same seed will produce the same output
+ */
+template<class OP>
+class RoundingRandomDet{
+public:
+    typedef typename OP::RealType RealType;
+    typedef typename OP::PackArgs PackArgs;
+
+    static inline RealType apply(const PackArgs& p){
+        RealType res=OP::nearestOp(p);
+
+        if (isNanInf<RealType> (res)){
+            return res;
+        }
+
+        OP::check(p,res);
+        const RealType signError=OP::sameSignOfError(p,res);
+        if(signError==0.){
+            return res;
+        }else{
+            const bool doNoChange = vr_rand_bool_det<PackArgs>(&vr_rand, p);
+            if(doNoChange){
+                return res;
+            }else{
+                if(signError>0){
+                    return nextAfter<RealType>(res);
+                }else{
+                    return nextPrev<RealType>(res);
+                }
+            }
+        }
+    } ;
+};
+
+
 
 template<class OP>
 class RoundingAverage{
@@ -359,6 +396,8 @@ public:
       return RoundingZero<OP>::apply (p);
     case VR_RANDOM:
       return RoundingRandom<OP>::apply (p);
+    case VR_RANDOM_DET:
+      return RoundingRandomDet<OP>::apply (p);
     case VR_AVERAGE:
       return RoundingAverage<OP>::apply (p);
     case VR_FARTHEST:

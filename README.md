@@ -8,7 +8,7 @@ implements various forms of arithmetic, including:
 
 - all IEEE-754 standard rounding modes;
 
-- two variants of stochastic floating-point arithmetic based on random rounding:
+- three variants of stochastic floating-point arithmetic based on random rounding:
   all floating-point operations are perturbed by randomly switching rounding
   modes. These can be seen as an asynchronous variant of the CESTAC method, or a
   subset of Monte Carlo Arithmetic, performing only output randomization through
