@@ -32,6 +32,10 @@ import subprocess
 import getopt
 import functools
 
+def failure():
+    sys.exit(42)
+
+
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -57,7 +61,7 @@ def verrou_run_stat(script_run, rep, listOfStat):
     if not os.path.exists(rep):
         os.mkdir(rep)
 
-    for roundingMode in ["nearest","upward","downward", "toward_zero","farthest","random","average","float"]:
+    for roundingMode in ["nearest","upward","downward", "toward_zero","farthest","random","random_det","average","float"]:
         for i in range(listOfStat[roundingMode]):
             name=("%s-%d")%(roundingMode,i)
             repName=os.path.join(rep,name)
@@ -92,7 +96,7 @@ def verrou_run_stat(script_run, rep, listOfStat):
 
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
-    roundingModeList=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
+    roundingModeList=["nearest","upward","downward", "toward_zero","farthest","random", "random_det","average","float"]
     resDict={}
 
     for roundingMode in roundingModeList :
@@ -248,7 +252,7 @@ def plot_hist(data, png=False):
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]    # rounding mode plotted with histogram
     mcaMode=[ x  for x in data.keys()  if x.startswith("mca")  ]
-    verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
+    verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","random_det","average","float"]
     for roundingMode in verrouMode+mcaMode:
         if data[roundingMode]==None:
             continue
@@ -314,12 +318,15 @@ class config_stat:
         self.png=False
         self._hist=True
         self._time=False
+        self.random=True
+        self.average=True
+        self.random_det=True
 
         self.parseOpt(argv[1:])
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","no-random", "no-random_det","no-average", "samples=","rep=", "png=", "mca="])
         except getopt.GetoptError:
             self.help()
 
@@ -343,6 +350,16 @@ class config_stat:
             if opt in ("-p","--png"):
                 self.png=arg
                 continue
+            if opt in ("--no-random"):
+                self.random=False
+                continue
+            if opt in ("--no-random_det"):
+                self.random_det=False
+                continue
+            if opt in ("--no-average"):
+                self.average=False
+                continue
+
             if opt in ("--mca",):
                 if arg=="":
                     self.listMCA+=["mca-rr-53-24"]
@@ -369,15 +386,25 @@ class config_stat:
             if len(args)>2:
                 self.help()
                 sys.exit()
-            self._runScript=args[0]
-            self._extractScript=args[1]
+            self._runScript=self.checkScriptPath(args[0])
+            self._extractScript=self.checkScriptPath(args[1])
         if self._time:
             if len(args)>3:
                 self.help()
                 sys.exit()
-            self._runScript=args[0]
-            self._extractTimeScript=args[1]
-            self._extractVarScript=args[2]
+            self._runScript=self.checkScriptPath(args[0])
+            self._extractTimeScript=self.checkScriptPath(args[1])
+            self._extractVarScript=self.checkScriptPath(args[2])
+
+    def checkScriptPath(self,fpath):
+        if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
+            return os.path.abspath(fpath)
+        else:
+            print("Invalid Cmd:"+str(sys.argv))
+            print(fpath + " should be executable")
+            self.help()
+            self.failure()
+
 
     def help(self):
         name=sys.argv[0]
@@ -386,6 +413,9 @@ class config_stat:
         print( "\t -s --samples= : number of samples")
         print( "\t -p --png= : png file to export plot")
         print( "\t -m --montecarlo : stochastique analysis of deterministic rounding mode")
+        print( "\t --no-random :  ignore random rounding mode")
+        print( "\t --no-random_det :  ignore random_det rounding mode")
+        print( "\t --no-average :  ignore average rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
 
     def runScript(self):
@@ -414,6 +444,7 @@ class config_stat:
         if self.isMontcarlo:
             nbDet=self._nbSample
         nbSamples={"random":self._nbSample,
+                   "random_det":self._nbSample,
                    "average":self._nbSample,
                    "nearest":nbDet,
                    "upward":nbDet,
@@ -421,6 +452,14 @@ class config_stat:
                    "toward_zero":nbDet,
                    "farthest":nbDet,
                    "float":0 }
+        if not self.random_det:
+            nbSamples["random_det"]=0
+        if not self.random:
+            nbSamples["random"]=0
+        if not self.average:
+            nbSamples["average"]=0
+
+
         for mcaMode in self.listMCA:
                nbSamples[mcaMode]=self._nbSample
         return nbSamples
