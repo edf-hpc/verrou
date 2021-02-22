@@ -33,7 +33,7 @@
 
 #pragma once
 
-
+#include "vr_isNan.hxx"
 
 template<class> struct realTypeHelper;
 
@@ -108,7 +108,7 @@ struct vr_packArg<REALTYPE,1>{
     return isNanInf<RealType>(arg1);
   }
 
-  inline const uint64_t getHash()const{
+  inline uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1);
   }
   
@@ -139,7 +139,7 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  inline const uint64_t getHash()const{
+  inline uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2);
   }
 
@@ -172,7 +172,7 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
-  inline const uint64_t getHash()const{
+  inline uint64_t getHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2) ^ realToUint64_reinterpret_cast<REALTYPE>(arg3);
   }
   
