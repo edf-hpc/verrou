@@ -113,9 +113,11 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
-  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
+  while (! VG_(get_line (fd, &line, &nLine, &lineno))) {
+    if( *line== '#'){ //Workaround : VG_(get_line) can return a comment line for the last line without \n
+       continue;
+    }
     HChar * c;
-
     // Skip non-blank characters
     for (c = line;
 	 c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
@@ -261,9 +263,11 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   HChar *line = VG_(malloc)("vr.loadIncludeSources.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
-  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
+  while (! VG_(get_line (fd, &line, &nLine, &lineno))) {
+    if( *line== '#'){//Workaround : VG_(get_line) can return a comment line for the last line without \n
+       continue;
+    }
     HChar * c;
-
     HChar* filename = line;
     // Skip non-blank characters
     for (c = line;
