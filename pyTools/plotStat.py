@@ -408,7 +408,7 @@ class config_stat:
 
     def help(self):
         name=sys.argv[0]
-        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name)  )
+        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
         print( "\t -r --rep=:  working directory")
         print( "\t -s --samples= : number of samples")
         print( "\t -p --png= : png file to export plot")
