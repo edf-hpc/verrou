@@ -82,7 +82,9 @@ class verrouTask:
         self.maxNbPROC= maxNbPROC
         self.runEnv=runEnv
 
-        print(os.path.relpath(self.dirname, os.getcwd()),end="")
+        self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
+        self.alreadyFail=False
+        print(self.pathToPrint,end="")
 
     def nameDir(self,i):
         return  os.path.join(self.dirname,"dd.run%i" % (i))
@@ -110,12 +112,18 @@ class verrouTask:
         with open(os.path.join(self.dirname, rundir, "dd.return.value"),"w") as f:
             f.write(str(retval))
         if retval != 0:
-            print("FAIL(%d)" % i)
+            if not self.alreadyFail:
+                print("FAIL(%d)" % i)
+                self.alreadyFail=True
+            else:
+                print("FAIL(%d)" % i)
             return self.FAIL
         else:
+            if self.alreadyFail:
+                print("PASS(%d)" % i)
             return self.PASS
 
-    def sampleToComputeToGetFailure(self, nbRun):
+    def sampleToCompute(self, nbRun, earlyExit):
         """Return the two lists of samples which have to be compared or computed (and compared) to perforn nbRun Success run : None means Failure ([],[]) means Success """
         listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
         listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
@@ -129,7 +137,8 @@ class verrouTask:
             if os.path.exists(returnValuePath):
                 statusCmp=int((open(returnValuePath).readline()))
                 if statusCmp!=0:
-                    return None
+                    if earlyExit:
+                        return None
                 cmpDone+=[int(runDir.replace("dd.run",""))]
             else:
                 runPath=os.path.join(self.dirname, runDir, "dd.run.out")
@@ -139,8 +148,9 @@ class verrouTask:
         workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
         return (runDone, workToRun, cmpDone)
 
-    def run(self):
-        workToDo=self.sampleToComputeToGetFailure(self.nbRun)
+
+    def run(self, earlyExit=True):
+        workToDo=self.sampleToCompute(self.nbRun, earlyExit)
         if workToDo==None:
             print(" --(cache) -> FAIL")
             return self.FAIL
@@ -153,20 +163,21 @@ class verrouTask:
             return self.PASS
 
         if len(cmpOnlyToDo)!=0:
+
             print(" --( cmp )-> ",end="",flush=True)
             returnVal=self.cmpSeq(cmpOnlyToDo)
             if returnVal==self.FAIL:
-                return self.FAIL
+                if earlyExit:
+                    return self.FAIL
             else:
                 print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
 
         if len(runToDo)!=0:
-            print(" --( run )-> ",end="",flush=True)
 
             if self.maxNbPROC==None:
-                returnVal=self.runSeq(runToDo)
+                returnVal=self.runSeq(runToDo, earlyExit)
             else:
-                returnVal=self.runPar(runToDo)
+                returnVal=self.runPar(runToDo, earlyExit)
 
             if(returnVal==self.PASS):
                 print("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
@@ -177,31 +188,40 @@ class verrouTask:
 
 
 
-    def cmpSeq(self,workToDo):
+    def cmpSeq(self,workToDo, earlyExit):
+        res=self.PASS
         for run in workToDo:
             retVal=self.cmpOneSample(run,assertRun=False)
             if retVal=="FAIL":
-                return self.FAIL
-        return self.PASS
+                res=self.FAIL
+                if earlyExit:
+                    return res
+        return res
 
 
-    def runSeq(self,workToDo):
-
+    def runSeq(self,workToDo, earlyExit):
+        print(" --( run )-> ",end="",flush=True)
+        res=self.PASS
         for run in workToDo:
             if not os.path.exists(self.nameDir(run)):
                 self.mkdir(run)
             else:
                 print("Manual cache modification detected (runSeq)")
 
+            if self.alreadyFail:
+                print(" "*len(self.pathToPrint)+" --( run )-> ", end="", flush=True)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
             if retVal=="FAIL":
-                return self.FAIL
-        return self.PASS
+                res=self.FAIL
+                if earlyExit:
+                    return res
+        return res
 
-    def runPar(self,workToDo):
-
+    def runPar(self,workToDo, earlyExit):
+        print(" --( run )-> ",end="",flush=True)
+        res=self.PASS
         for run in workToDo:
             if os.path.exists(self.nameDir(run)):
                 self.mkdir(run)
@@ -213,9 +233,10 @@ class verrouTask:
             retVal=self.cmpOneSample(run)
 
             if retVal=="FAIL":
-                return self.FAIL
-
-        return self.PASS
+                res=self.FAIL
+                if earlyExit:
+                    return res
+        return res
 
 
 def md5Name(deltas):
@@ -415,8 +436,8 @@ class DDStoch(DD.DD):
                 f.write(line)
 
 
-    def testWithLink(self, deltas, linkname):
-        testResult=self._test(deltas)
+    def testWithLink(self, deltas, linkname, earlyExit=True):
+        testResult=self._test(deltas, self.config_.get_nbRUN() , earlyExit)
         dirname = os.path.join(self.prefix_, md5Name(deltas))
         self.symlink(dirname, os.path.join(self.prefix_,linkname))
         return testResult
@@ -428,7 +449,10 @@ class DDStoch(DD.DD):
     def configuration_found(self, kind_str, delta_config,verbose=True):
         if verbose:
             print("%s (%s):"%(kind_str,self.coerce(delta_config)))
-        self.testWithLink(delta_config, kind_str)
+        earlyExit=True
+        if self.config_.resWithAllSamples:
+            earlyExit=False
+        self.testWithLink(delta_config, kind_str, earlyExit)
 
     def run(self, deltas=None):
 
@@ -803,7 +827,7 @@ class DDStoch(DD.DD):
                     f.write(line)
 
 
-    def _test(self, deltas,nbRun=None):
+    def _test(self, deltas,nbRun=None, earlyExit=True):
         if nbRun==None:
             nbRun=self.config_.get_nbRUN()
 
@@ -814,4 +838,4 @@ class DDStoch(DD.DD):
 
         vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
 
-        return vT.run()
+        return vT.run(earlyExit=earlyExit)
