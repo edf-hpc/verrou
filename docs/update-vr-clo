@@ -4,6 +4,7 @@ import os
 import subprocess
 import re
 import os.path
+import sys
 
 env = os.environ
 env["COLUMNS"] = "81"
@@ -19,15 +20,26 @@ for conf in spline:
     if conf[1:-1].startswith("--prefix"):
         pathInstall=(conf[1:-1].partition('='))[2]
 
-man = subprocess.Popen(["man", os.path.join(pathInstall, "share/man/man1/valgrind.1")],
+manPath=os.path.join(pathInstall, "share/man/man1/valgrind.1")
+if not os.path.exists(manPath):
+    print("unable to find valgrind man file : "+ manPath)
+    sys.exit(42)
+
+man = subprocess.Popen(["man", manPath],
                        env = env,
                        stdout = subprocess.PIPE)
 
 
+verrouFound=False
 for line in man.stdout:
     line=line.decode("utf8")
     if line.startswith("VERROU"):
+        verrouFound=True
         break
+
+if not verrouFound:
+    print("valgrind man file does not contain VERROU options : "+ manPath)
+    sys.exit(42)
 
 title = re.compile("^[A-Z]")
 subtitle = re.compile("^\s{3}[A-Z]")

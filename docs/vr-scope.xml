@@ -150,9 +150,8 @@ modf            /lib/x86_64-linux-gnu/libm-2.23.so</screen>
       
       <note>
         <title>Note on C++ and symbol name mangling</title>
-        <para>When analyzing C++ programs, it is advised to also use
-        the <option><xref linkend="opt.demangle"/>=no</option> option in order
-        for C++ symbol names compared in their mangled form. Symbol names in
+        <para> The exclusion lists (generation and exclusion) use the mangled form.
+	When analyzing C++ programs, symbol names in
         the exclusion list can still be demangled using an external program
         such as <computeroutput>c++filt</computeroutput>.
         </para>

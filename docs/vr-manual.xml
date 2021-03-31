@@ -237,8 +237,8 @@ det2
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>
-		and <option><xref linkend="vr-opt.mca-precision"/></option> options).
+		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
+		<option><xref linkend="vr-opt.mca-precision-double"/></option> and  <option><xref linkend="vr-opt.mca-precision-float"/></option>  options).
 		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
@@ -307,11 +307,20 @@ det2
 	      </para>
             </listitem>
           </varlistentry>
-	    <varlistentry id="vr-opt.mca-precision" xreflabel="--mca-precision">
-            <term><option><![CDATA[--mca-precision= [default=53]]]></option></term>
+	  <varlistentry id="vr-opt.mca-precision-double" xreflabel="--mca-precision-double">
+            <term><option><![CDATA[--mca-precision-double= [default=53]]]></option></term>
             <listitem>
               <para>
-                Configure the magnitude of inexact function used by mcaquad backend.
+                Configure the magnitude of inexact function used by mcaquad backend for double operation.
+              </para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.mca-precision-float" xreflabel="--mca-precision-float">
+            <term><option><![CDATA[--mca-precision-float= [default=24]]]></option></term>
+            <listitem>
+              <para>
+                Configure the magnitude of inexact function used by mcaquad backend for float operation.
               </para>
             </listitem>
           </varlistentry>
