@@ -97,9 +97,9 @@ inline bool vr_rand_bool (Vr_Rand * r) {
  * produces a pseudo random number in a deterministic way
  * the same seed and inputs will always produce the same output
  */
-template<class PackArgs>
-inline bool vr_rand_bool_det (const Vr_Rand * r, const PackArgs& p) {
-  const uint64_t argsHash = p.getHash();
+template<class OP>
+inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
+  const uint64_t argsHash = OP::getHash() ^ p.getHash();
   const uint64_t seed = vr_rand_getSeed(r);
   // returns a one bit hash as a PRNG
   // uses Dietzfelbinger's multiply shift hash function

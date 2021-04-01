@@ -134,7 +134,7 @@ public:
         if(signError==0.){
             return res;
         }else{
-            const bool doNoChange = vr_rand_bool_det<PackArgs>(&vr_rand, p);
+            const bool doNoChange = vr_rand_bool_det<OP>(&vr_rand, p);
             if(doNoChange){
                 return res;
             }else{
