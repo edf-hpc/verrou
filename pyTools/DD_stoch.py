@@ -201,20 +201,12 @@ class verrouTask:
         return self.PASS
 
     def runPar(self,workToDo):
-
-        for run in workToDo:
-            if os.path.exists(self.nameDir(run)):
-                self.mkdir(run)
-            else:
-                print("Manual cache modification detected (runPar)")
-
-            self.runOneSample(run)
-        for run in workToDo:
-            retVal=self.cmpOneSample(run)
-
-            if retVal=="FAIL":
-                return self.FAIL
-
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
+            futures={executor.submit(self.runSeq, [work]) for work in workToDo}
+            concurrent.futures.wait(futures)
+        if self.FAIL in [futur.result() for futur in futures]:
+            return self.FAIL
         return self.PASS
 
 

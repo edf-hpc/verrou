@@ -132,10 +132,6 @@ class ddConfig:
         if self.rddminVariant=="strict":
             self.rddminVariant=""
 
-        if self.maxNbPROC!=None:
-            if self.maxNbPROC < self.nbRUN:
-                print("Due due implementation limitation (nbRun <=maxNbPROC or maxNbPROC=1): maxNbPROC unset\n")
-                self.maxNbPROC=None
 
     def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue=None, addAttributTab=False, parse="environ"):
         value=False
