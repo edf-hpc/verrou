@@ -122,7 +122,7 @@ These tests are more closely related to the arithmetic part in Verrou:
 ## Documentation
 
 The documentation for verrou is available as a
-[chapter in valgrind's manual](//edf-hpc.github.com/verrou/vr-manual.html).
+[chapter in valgrind's manual](//edf-hpc.github.io/verrou/vr-manual.html).
 
 <p>&nbsp;</p>
 
