@@ -167,7 +167,7 @@ class verrouTask:
 
         if len(cmpOnlyToDo)!=0:
             print(" --( cmp ) -> ",end="",flush=True)
-            returnVal=self.cmpSeq(cmpOnlyToDo)
+            returnVal=self.cmpSeq(cmpOnlyToDo, earlyExit)
             if returnVal==self.FAIL:
                 if earlyExit:
                     return self.FAIL
@@ -934,7 +934,7 @@ class DDStoch(DD.DD):
                 continue
             if len(cmpOnlyToDo)!=0: #launch Cmp asynchronously
                 indexCmp+=[i]
-                futureCmpTab[i]=[executor.submit(taskTab[i].cmpSeq, [cmpConf]) for cmpConf in cmpOnlyToDo]
+                futureCmpTab[i]=[executor.submit(taskTab[i].cmpSeq, [cmpConf],False) for cmpConf in cmpOnlyToDo]
                 continue
             if len(runToDo)!=0: #launch run asynchronously
                 indexRun+=[i]

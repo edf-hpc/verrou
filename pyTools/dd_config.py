@@ -94,7 +94,7 @@ class ddConfig:
             self.cmpScript=self.checkScriptPath(args[1])
         else:
             self.usageCmd()
-            failure()
+            self.failure()
 
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption
