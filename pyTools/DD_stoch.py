@@ -85,8 +85,6 @@ class verrouTask:
         self.verbose=verbose
         self.alreadyFail=False
         self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
-        if self.verbose:
-            self.printDir()
 
     def printDir(self):
         print(self.pathToPrint,end="")
@@ -118,12 +116,12 @@ class verrouTask:
             f.write(str(retval))
         if retval != 0:
             self.alreadyFail=True
-            if self.verbose:
-                print("FAIL(%d)" % i)
+#            if self.verbose:
+#                print("FAIL(%d)" % i)
             return self.FAIL
         else:
-            if self.alreadyFail:
-                print("PASS(%d)" % i)
+#            if self.alreadyFail:
+#                print("PASS(%d)" % i)
             return self.PASS
 
     def sampleToCompute(self, nbRun, earlyExit):
@@ -153,6 +151,9 @@ class verrouTask:
 
 
     def run(self, earlyExit=True):
+        if self.verbose:
+            self.printDir()
+
         workToDo=self.sampleToCompute(self.nbRun, earlyExit)
         if workToDo==None:
             print(" --(cache) -> FAIL")
@@ -170,15 +171,17 @@ class verrouTask:
             returnVal=self.cmpSeq(cmpOnlyToDo, earlyExit)
             if returnVal==self.FAIL:
                 if earlyExit:
+                    print("FAIL", end="\n",flush=True)
                     return self.FAIL
+                else:
+                    print("FAIL", end="",flush= True)
             else:
                 print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
 
         if len(runToDo)!=0:
-            print(" --( run ) -> ",end="",flush=True)
 
             if self.maxNbPROC==None:
-                returnVal=self.runSeq(runToDo, earlyExit)
+                returnVal=self.runSeq(runToDo, earlyExit, self.verbose)
             else:
                 returnVal=self.runPar(runToDo)
 
@@ -202,7 +205,9 @@ class verrouTask:
         return res
 
 
-    def runSeq(self,workToDo, earlyExit):
+    def runSeq(self,workToDo, earlyExit,printStatus=False):
+        if printStatus:
+            print(" --( run ) -> ",end="",flush=True)
         res=self.PASS
         for run in workToDo:
             if not os.path.exists(self.nameDir(run)):
@@ -211,23 +216,35 @@ class verrouTask:
                 print("Manual cache modification detected (runSeq)")
 
             if self.alreadyFail:
-                print(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
+                if printStatus:
+                    print(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
             if retVal=="FAIL":
                 res=self.FAIL
+
                 if earlyExit:
+                    if printStatus:
+                        print("FAIL(%i)"%(run))
                     return res
+                else:
+                    if printStatus:
+                        print("FAIL(%i)"%(run))
+                        self.alreadyFail=True
         return res
 
 
     def runPar(self,workToDo):
+        print(" --(/run ) -> ",end="",flush=True)
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
-            futures={executor.submit(self.runSeq, [work],False) for work in workToDo}
+            futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
             concurrent.futures.wait(futures)
         if self.FAIL in [futur.result() for futur in futures]:
+            indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
+            failIndices=[workToDo[indice] for indice in indices ]
+            print("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
             return self.FAIL
         return self.PASS
 
@@ -919,7 +936,7 @@ class DDStoch(DD.DD):
             if workToDo==None:
                 resTab[i]=(taskTab[i].FAIL,"cache")
                 taskTab[i].printDir()
-                print(" --(cache) -> FAIL")
+                print(" --(/cache) -> FAIL")
 
                 continue
 #            print("WorkToDo", workToDo)
@@ -930,7 +947,7 @@ class DDStoch(DD.DD):
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
                 resTab[i]=(taskTab[i].PASS,"cache")
                 taskTab[i].printDir()
-                print(" --(cache) -> PASS("+ str(nbRunTab[i])+")")
+                print(" --(/cache) -> PASS("+ str(nbRunTab[i])+")")
                 continue
             if len(cmpOnlyToDo)!=0: #launch Cmp asynchronously
                 indexCmp+=[i]
@@ -953,14 +970,14 @@ class DDStoch(DD.DD):
                 failIndex=cmpResult.index(taskTab[i].FAIL)
                 resTab[i]=(taskTab[i].FAIL, "cmp")
                 taskTab[i].printDir()
-                print(" -- (cmp)  -> FAIL(%i)"%(cmpOnlyToDo[failIndex]))
+                print(" --(/cmp/) -> FAIL(%i)"%(cmpOnlyToDo[failIndex]))
 
             else: #launch run asynchronously (depending of cmp result)
                 runToDo=workToDoTab[i][1]
                 if len(runToDo)==0:
                     resTab[i]=(taskTab[i].PASS,"cmp")
                     taskTab[i].printDir()
-                    print(" -- (cmp)  -> PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" )
+                    print(" --(/cmp/) -> PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" )
 
                     continue
                 else:
@@ -978,10 +995,10 @@ class DDStoch(DD.DD):
             if taskTab[i].FAIL in runResult:
                 indexRun=runResult.index(taskTab[i].FAIL)
                 resTab[i]=(taskTab[i].FAIL, "index//")
-                print(" -- (run)  -> FAIL(%i)"%(runToDo[indexRun]))
+                print(" --(/run/) -> FAIL(%i)"%(runToDo[indexRun]))
             else:
                 resTab[i]=(taskTab[i].PASS, "index//")
-                print(" -- (run)  -> PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+                print(" --(/run/) -> PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
 
         #affichage à faire
         return [res[0] for res in resTab]
