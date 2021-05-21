@@ -132,7 +132,7 @@ You can also re-build it:
 
 and browse it locally:
 
-    iceweasel docs/html/vr-manual.html
+    firefox docs/html/vr-manual.html
 
 
 Beware, this requires lots of tools which are not necessarily tested for in

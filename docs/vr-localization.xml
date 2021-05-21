@@ -9,7 +9,7 @@
     We describe in this section techniques which can help determining the origin of numerical errors
     in the source code of the analyzed program.
   </para>
-  
+
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
     <title>Delta-debugging with the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> commands</title>
 
@@ -41,7 +41,7 @@
       It is automated by the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> command,
       which can be used in the following way:
     </para>
-    
+
     <simplesect>
       <title>Synopsis</title>
 
@@ -64,13 +64,13 @@
 	<command> verrou_dd_sym </command> is dedicated to search instable symbols (it corresponds more or less to code function).
 	Whereas <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
       </para>
-	
+
       <para id="vr-manual.verrou_dd.desc">
         Arguments passed to <command>verrou_dd_sym</command> or <command>verrou_dd_line</command> are scripts.
 	These scripts will be called during the delta-debugging process to automate
         the tasks of running your program under Verrou, and verifying the results. The scripts will
         be called with the following arguments:
-        
+
         <variablelist>
           <varlistentry>
             <term>
@@ -108,7 +108,7 @@ valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replace
                 A minimal example could look like the following:
               </simpara>
               <programlisting>
-#!/bin/bash 
+#!/bin/bash
 REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
@@ -117,14 +117,14 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
         </variablelist>
       </para>
     </simplesect>
-    
+
     <simplesect>
       <title>Options and environment variables</title>
-      
+
       <para>
         The following options or environment variables affect the behaviour of <command>verrou_dd_sym</command> and <command>verrou_dd_line</command>:
       </para>
-      
+
       <variablelist id="vr-manual.verrou_dd.envvars">
         <varlistentry>
           <term>
@@ -137,16 +137,29 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </listitem>
         </varlistentry>
 
-	<!-- <varlistentry> -->
-        <!--   <term> -->
-        <!--     <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> -->
-        <!--   </term> -->
-        <!--   <listitem> -->
-        <!--     <para> Experimental feature : Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel. -->
-	<!--      If this environment variable is not set, the parallelism is not activated. -->
-	<!--     </para> -->
-        <!--   </listitem> -->
-        <!-- </varlistentry> -->
+
+	<varlistentry>
+          <term>
+             <computeroutput>--num-threads</computeroutput> or <computeroutput>VERROU_DD_NUM_THREADS</computeroutput>
+          </term>
+          <listitem>
+            <para> Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel.
+	     If this environment variable is not set, the parallelism is not activated.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+             <computeroutput>--resWithAllSamples </computeroutput> or <computeroutput>VERROU_DD_RES_WITH_ALL_SAMPLES</computeroutput>
+          </term>
+          <listitem>
+            <para> Disable the early exit for result directories. It is useful to compute estimator for all
+	    <computeroutput>ddmin*</computeroutput> directories with the same number of samples and hence
+	    to sort them.
+	    </para>
+          </listitem>
+        </varlistentry>
 
 	<varlistentry>
           <term>
@@ -301,7 +314,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    </para>
 	    <para>
 	      <computeroutput>rename_keep_result</computeroutput>: the previous cache is renamed and all configurations not pinpointed by symlink are removed.
-	      This option is a compromised between disk usage and the opportunity to used the <computeroutput>--rddmin-heuristics-cache=</computeroutput> option.	      
+	      This option is a compromised between disk usage and the opportunity to used the <computeroutput>--rddmin-heuristics-cache=</computeroutput> option.
 	    </para>
 	    <para>
 	      <computeroutput>keep-run</computeroutput>: the previous cache is kept but the <computeroutput>cmp_script</computeroutput> is run again. Useful when
@@ -334,7 +347,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      <computeroutput>cache</computeroutput>: only the current cache directory is used.
 	    </para>
 	    <para>
-	      <computeroutput>all_cache</computeroutput>: the current and old cache directories are used. The old cache directories come from previous run with <computeroutput>rename</computeroutput> or <computeroutput>rename_keep_result</computeroutput> values for <computeroutput>--cache=</computeroutput> option. 
+	      <computeroutput>all_cache</computeroutput>: the current and old cache directories are used. The old cache directories come from previous run with <computeroutput>rename</computeroutput> or <computeroutput>rename_keep_result</computeroutput> values for <computeroutput>--cache=</computeroutput> option.
 	    </para>
 
 	    <para>
