@@ -21,7 +21,7 @@ run_check: install
 
 
 install:
-	make -C .. install
+	make -C ../.. install
 
 clean:
 	rm -rf dd.line* dd.sym* ddmin-*
