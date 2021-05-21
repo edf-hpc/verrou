@@ -1,5 +1,8 @@
 
-SHELL=/bin/bash
+export INSTALLPATH = $(shell bash ../installpath)
+export BASH_ENV=$(INSTALLPATH)/env.sh
+export SHELL=bash
+
 
 .PHONY: clean run install
 all:run_check
