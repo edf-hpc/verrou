@@ -1,7 +1,7 @@
 # Notes about the release process
 
 ```
-VERSION=2.2.0
+VERSION=2.3.0
 ```
 
 ## Update the valgrind patch
