@@ -239,7 +239,7 @@ det2
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
 		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
 		<option><xref linkend="vr-opt.mca-precision-double"/></option> and  <option><xref linkend="vr-opt.mca-precision-float"/></option>  options).
-		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
+		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
             </para></listitem>

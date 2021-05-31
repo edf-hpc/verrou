@@ -31,7 +31,7 @@ Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html).
 ### Get the sources
 
 The preferred way to get Verrou sources is to download the latest *stable*
-version: [v2.2.0](https://github.com/edf-hpc/verrou/releases/latest).
+version: [v2.3.0](https://github.com/edf-hpc/verrou/releases/latest).
 Older versions are available in the [releases](https://github.com/edf-hpc/verrou/releases)
 page. After downloading one of the released versions, skip to the "Configure
 and build" section below.
