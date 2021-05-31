@@ -76,11 +76,11 @@ git add vr_clo.txt
     git checkout -- README.md valgrind.diff
     ```
 
-2. Add an `[UNRELEASED]` section in `Changelog.md`:
+2. Add an `[UNRELEASED]` section in `CHANGELOG.md`:
 
     > ## [UNRELEASED]
     > 
-    > This version is based on Valgrind-3.15.0.
+    > This version is based on Valgrind-3.17.0.
     > 
     > ### Added
     > 
