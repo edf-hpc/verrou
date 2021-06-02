@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Valgrind Frequently Asked Questions</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -101,8 +101,12 @@
     running?</a>
 </dd>
 </dl>
-<dl><dt>6.  <a href="faq.html#faq.help">How To Get Further Assistance</a>
-</dt></dl>
+<dl>
+<dt>6.  <a href="faq.html#faq.help">How To Get Further Assistance</a>
+</dt>
+<dd>6.1. <a href="faq.html#e-help">Where can I get more help?</a>
+</dd>
+</dl>
 <br><table width="100%" summary="Q and A Div" cellpadding="2" cellspacing="2" border="0">
 <tr class="qandadiv"><td align="left" valign="top" colspan="2">
 <a name="faq.background"></a><h3 class="title">
@@ -187,7 +191,7 @@
 <tr><td colspan="2"> </td></tr>
 <tr class="question">
 <td align="left" valign="top">
-<a name="faq.glibc_devel"></a><a name="idm7362"></a><b>2.2.</b>
+<a name="faq.glibc_devel"></a><a name="q-glibc_devel"></a><b>2.2.</b>
 </td>
 <td align="left" valign="top">
 <b>When building Valgrind, 'make' fails with this:</b><pre class="screen">
@@ -197,7 +201,7 @@ collect2: ld returned 1 exit status
 </td>
 </tr>
 <tr class="answer">
-<td align="left" valign="top"></td>
+<td align="left" valign="top"><a name="a-glibc_devel"></a></td>
 <td align="left" valign="top"><p>You need to install the glibc-static-devel package.</p></td>
 </tr>
 </table>
@@ -587,14 +591,9 @@ int main(void)
 </tr>
 <tr class="answer">
 <td align="left" valign="top"><a name="a-overruns"></a></td>
-<td align="left" valign="top">
-<p>Unfortunately, Memcheck doesn't do bounds checking on global
+<td align="left" valign="top"><p>Unfortunately, Memcheck doesn't do bounds checking on global
     or stack arrays.  We'd like to, but it's just not possible to do in
-    a reasonable way that fits with how Memcheck works.  Sorry.</p>
-<p>However, the experimental tool SGcheck can detect errors like
-    this.  Run Valgrind with the <code class="option">--tool=exp-sgcheck</code> option
-    to try it, but be aware that it is not as robust as Memcheck.</p>
-</td>
+    a reasonable way that fits with how Memcheck works.  Sorry.</p></td>
 </tr>
 </table>
 <br><table width="100%" summary="Q and A Div" cellpadding="2" cellspacing="2" border="0">
@@ -738,7 +737,15 @@ int main(void)
 <a name="faq.help"></a><h3 class="title">
 <a name="faq.help"></a>6. How To Get Further Assistance</h3>
 </td></tr>
-<tr class="toc" colspan="2"><td align="left" valign="top" colspan="2"></td></tr>
+<tr class="toc" colspan="2"><td align="left" valign="top" colspan="2">6.1. <a href="faq.html#e-help">Where can I get more help?</a><br>
+</td></tr>
+<tr><td colspan="2"> </td></tr>
+<tr class="question">
+<td align="left" valign="top">
+<a name="e-help"></a><a name="q-help"></a><b>6.1.</b>
+</td>
+<td align="left" valign="top"><b>Where can I get more help?</b></td>
+</tr>
 <tr class="answer">
 <td align="left" valign="top"><a name="a-help"></a></td>
 <td align="left" valign="top">

@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>11. README.mips</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -49,8 +49,14 @@ CFLAGS="-mips64 -mabi=64" will do the trick and compile Valgrind correc
  * --host=mips-linux-gnu is necessary if you compile it with cross toolchain<br>
    compiler for big endian platform.<br>
 <br>
- * --host=mipsel-linux-gnu is necessary if you compile it with cross toolchain<br>
+ * --host=mipsel-linux-musl is necessary if you compile it with cross toolchain<br>
    compiler for little endian platform.<br>
+<br>
+ * --host=nanomipseb-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for nanoMIPS big endian platform.<br>
+<br>
+ * --host=nanomips-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for nanoMIPS little endian platform.<br>
 <br>
  * --build=mips-linux is needed if you want to build it for MIPS32 on 64-bit<br>
    MIPS system.<br>
@@ -70,6 +76,12 @@ Limitations<br>
   then 4.6.1 due to a bug in the toolchain.<br>
 - Older GCC may have issues with some inline assembly blocks. Get a toolchain<br>
   based on newer GCC versions, if possible.<br>
+- Systems with a mips64 cpu having only o32 libraries will misconfigure in case<br>
+  no appropriate architecture flag is specified during configure time.<br>
+  Be sure to set either mips32 or mips32r2 as the target architecture in that<br>
+  case.<br>
+- Some tests can not be compiled for nanoMIPS due to limitations in<br>
+  preliminary GCC for nanoMIPS. You can use '-i' switch for building tests.<br>
 <br>
     </p></div>
 </div>

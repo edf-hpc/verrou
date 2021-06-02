@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>4. Memcheck: a memory error detector</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -91,7 +91,7 @@ problems that are common in C and C++ programs.</p>
 <p>Problems like these can be difficult to find by other means,
 often remaining undetected for long periods, then causing occasional,
   difficult-to-diagnose crashes.</p>
-<p>Memcheck also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> memory
+<p>Memcheck also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> memory
   profiling using the command line
   option <code class="computeroutput">--xtree-memory</code> and the monitor command
    <code class="computeroutput">xtmemory</code>.</p>
@@ -126,7 +126,8 @@ which has already been freed, you'll be informed of this, and also where
 the block was freed.  Likewise, if it should turn out to be just off
 the end of a heap block, a common result of off-by-one-errors in
 array subscripting, you'll be informed of this fact, and also where the
-block was allocated.  If you use the <code class="option"><a class="xref" href="manual-core.html#opt.read-var-info">--read-var-info</a></code> option Memcheck will run more slowly
+block was allocated.  If you use the <code class="option"><a class="link" href="manual-core.html#opt.read-var-info">--read-var-info</a></code> option
+Memcheck will run more slowly
 but may give a more detailed description of any illegal address.</p>
 <p>In this example, Memcheck can't identify the address.  Actually
 the address is on the stack, but, for some reason, this is not a valid
@@ -426,7 +427,7 @@ several ways we know of that an interior-pointer can occur:</p>
     this case, some compilers store a "magic cookie" containing the array
     length at the start of the allocated block, and return a pointer to just
     past that magic cookie, i.e. an interior-pointer.
-    See <a class="ulink" href="http://theory.uwinnipeg.ca/gnu/gcc/gxxint_14.html" target="_top">this
+    See <a class="ulink" href="https://docs.freebsd.org/info/gxxint/gxxint.info.Free_Store.html" target="_top">this
     page</a> for more information.</p></li>
 <li class="listitem"><p>It might be a pointer to an inner part of a C++ object using
     multiple inheritance. </p></li>
@@ -629,13 +630,20 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       <code class="option">--leak-check=&lt;no|summary|yes|full&gt; [default: summary] </code>
     </span>
 </dt>
-<dd><p>When enabled, search for memory leaks when the client
+<dd>
+<p>When enabled, search for memory leaks when the client
       program finishes.  If set to <code class="varname">summary</code>, it says how
       many leaks occurred.  If set to <code class="varname">full</code> or
       <code class="varname">yes</code>, each individual leak will be shown
       in detail and/or counted as an error, as specified by the options 
       <code class="option">--show-leak-kinds</code> and 
-      <code class="option">--errors-for-leak-kinds</code>. </p></dd>
+      <code class="option">--errors-for-leak-kinds</code>. </p>
+<p>If <code class="varname">--xml=yes</code> is given, memcheck will
+      automatically use the value <code class="varname">--leak-check=full</code>.
+      You can use <code class="option">--show-leak-kinds=none</code> to reduce
+      the size of the xml output if you are not interested in the leak
+      results.</p>
+</dd>
 <dt>
 <a name="opt.leak-resolution"></a><span class="term">
       <code class="option">--leak-resolution=&lt;low|med|high&gt; [default: high] </code>
@@ -703,6 +711,11 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
             <code class="option">--leak-check-heuristics=stdstring,length64,newarray,multipleinheritance</code>.</p></li>
 <li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
 </ul></div>
+<p>Note that these heuristics are dependent on the layout of
+        the objects produced by the C++ compiler. They have been
+        tested with some gcc versions (e.g. 4.4 and 4.7). They might
+        not work properly with other C++ compilers.
+      </p>
 </dd>
 <dt>
 <a name="opt.show-reachable"></a><span class="term">
@@ -728,6 +741,9 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
             <code class="option">--show-leak-kinds=all</code>.
 	  </p></li>
 </ul></div>
+<p> Note that <code class="option">--show-possibly-lost=no</code> has no
+	effect if <code class="option">--show-reachable=yes</code> is
+	specified.</p>
 </dd>
 <dt>
 <a name="opt.xtree-leak"></a><span class="term">
@@ -759,7 +775,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
         increase of the <code class="option">RB</code> event, <code class="option">dPBk</code> is the
         decrease of <code class="option">PBk</code> event. The values for the increase and
         decrease events will be zero for the first leak search done.</p>
-<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for a detailed explanation
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for a detailed explanation
         about execution trees.</p>
 </dd>
 <dt>
@@ -776,7 +792,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
         in exactly the same way as they are for <code class="option">--log-file</code>.
         See the description of <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>
         for details. </p>
-<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>
       for a detailed explanation about execution trees formats. </p>
 </dd>
 <dt>
@@ -947,7 +963,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       </p>
 <p>If you want to use
         <code class="computeroutput">--xtree-memory=full</code> memory profiling
-        (see <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> ), then you cannot
+        (see <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>), then you cannot
         specify <code class="varname">--keep-stacktraces=free</code>
         or <code class="varname">--keep-stacktraces=none</code>.</p>
 </dd>
@@ -1167,15 +1183,11 @@ leak kinds are matched by this suppression entry.
 same way as with the option <code class="option">--show-leak-kinds</code>, that is,
 one of the following:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">a comma separated list of one or more of
-    <code class="option">definite indirect possible reachable</code>.
-  </li>
-<li class="listitem">
-<code class="option">all</code> to specify the complete set (all leak kinds).
-  </li>
-<li class="listitem">
-<code class="option">none</code> for the empty set.
-  </li>
+<li class="listitem"><p>a comma separated list of one or more of
+    <code class="option">definite indirect possible reachable</code>.</p></li>
+<li class="listitem"><p><code class="option">all</code> to specify the complete set
+  (all leak kinds).</p></li>
+<li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
 </ul></div>
 <p>If this optional extra line is not present, the suppression
 entry will match all leak kinds.</p>
@@ -1615,7 +1627,7 @@ Address 0x8049E28 len 1 defined
     </p>
 <p>The value <code class="varname">xtleak</code> also produces a full leak report,
       but output it as an xtree in a file xtleak.kcg.%p.%n (see <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>).
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a>
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>
       for a detailed explanation about execution trees formats.
       See <a class="xref" href="mc-manual.html#opt.xtree-leak">--xtree-leak</a> for the description of the events
       in a xtree leak file.
@@ -1862,7 +1874,7 @@ Address 0x8049E28 len 1 defined
 </li>
 <li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
       requests Memcheck tool to produce an xtree heap memory report.
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for
       a detailed explanation about execution trees. </p></li>
 </ul></div>
 </div>

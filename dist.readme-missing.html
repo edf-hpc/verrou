@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>5. README_MISSING_SYSCALL_OR_IOCTL</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -134,6 +134,10 @@ following:<br>
 <br>
     This should tell you something like  __NR_mysyscallname.<br>
     Copy this entry to include/vki/vki-scnums-$(VG_PLATFORM).h.<br>
+<br>
+    If you can't find the system call in /usr/include, try looking in the<br>
+    strace source code (https://github.com/strace/strace). Some syscalls/ioctls<br>
+    are not defined explicitly, but strace may have already figured it out.<br>
 <br>
 <br>
 2.  Do 'man 2 mysyscallname' to get some idea of what the syscall<br>

@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>7. Helgrind: a thread error detector</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -81,7 +81,7 @@ pthreads API.  However, if you want to use custom threading
 primitives, you can describe their behaviour to Helgrind using the
 <code class="varname">ANNOTATE_*</code> macros defined
 in <code class="varname">helgrind.h</code>.</p>
-<p>Helgrind also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> memory
+<p>Helgrind also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> memory
   profiling using the command line
   option <code class="computeroutput">--xtree-memory</code> and the monitor command
    <code class="computeroutput">xtmemory</code>.</p>
@@ -1036,25 +1036,29 @@ unlock(mx)                             unlock(mx)
         using <code class="option">--delta-stacktrace=yes</code> :
         </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">In some cases (for example in a function prologue), the
-            valgrind unwinder might not properly unwind the stack, due to some
-            limitations and/or due to wrong unwind info. When using
-            --delta-stacktrace=yes, the wrong stack trace captured in the
-            function prologue will be kept till the next call or return.
-          </li>
-<li class="listitem">On the other hand, --delta-stacktrace=yes sometimes helps to
-            obtain a correct stacktrace, for example when the unwind info allows
-            a correct stacktrace to be done in the beginning of the sequence,
-            but not later on in the instruction sequence.</li>
-<li class="listitem">Determining which instructions are changing the callstack is
-            partially based on platform dependent heuristics, which have to be
-            tuned/validated specifically for the platform. Also, unwinding in a
-            function prologue must be good enough to allow using
-            --delta-stacktrace=yes. Currently, the option --delta-stacktrace=yes
-            has been reasonably validated only on linux x86 32 bits and linux
-            amd64 64 bits. For more details about how to validate
-            --delta-stacktrace=yes, see debug option --hg-sanity-flags and the
-            function check_cached_rcec_ok in libhb_core.c.</li>
+<li class="listitem"><p>In some cases (for example in a function
+            prologue), the valgrind unwinder might not properly unwind
+            the stack, due to some limitations and/or due to wrong
+            unwind info. When using --delta-stacktrace=yes, the wrong
+            stack trace captured in the function prologue will be kept
+            till the next call or return.
+          </p></li>
+<li class="listitem"><p>On the other hand, --delta-stacktrace=yes
+            sometimes helps to obtain a correct stacktrace, for
+            example when the unwind info allows a correct stacktrace
+            to be done in the beginning of the sequence, but not later
+            on in the instruction sequence.</p></li>
+<li class="listitem"><p>Determining which instructions are changing
+            the callstack is partially based on platform dependent
+            heuristics, which have to be tuned/validated specifically
+            for the platform. Also, unwinding in a function prologue
+            must be good enough to allow using
+            --delta-stacktrace=yes. Currently, the option
+            --delta-stacktrace=yes has been reasonably validated only
+            on linux x86 32 bits and linux amd64 64 bits. For more
+            details about how to validate --delta-stacktrace=yes, see
+            debug option --hg-sanity-flags and the function
+            check_cached_rcec_ok in libhb_core.c.</p></li>
 </ul></div>
 <p>
       </p>
@@ -1226,7 +1230,7 @@ write of size 4 at 0x8049D88 by thread #9 tid 2
 </li>
 <li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
       requests Helgrind tool to produce an xtree heap memory report.
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for
       a detailed explanation about execution trees. </p></li>
 </ul></div>
 </div>

@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>9. Massif: a heap profiler</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -76,7 +76,7 @@ time.  Massif can help identify these leaks.</p>
 program is using, it also gives very detailed information that indicates
 which parts of your program are responsible for allocating the heap memory.
 </p>
-<p>Massif also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> memory
+<p>Massif also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> memory
   profiling using the command line
   option <code class="computeroutput">--xtree-memory</code> and the monitor command
    <code class="computeroutput">xtmemory</code>.</p>
@@ -372,7 +372,7 @@ a small amount of information is recorded for each one:</p>
   larger number, usually 8 or 16.  This is required to ensure that elements
   within the block are suitably aligned.  If N bytes are asked for, Massif
   rounds N up to the nearest multiple of the value specified by the
-  <code class="option"><a class="xref" href="manual-core.html#opt.alignment">--alignment</a></code> option.
+  <code class="option"><a class="link" href="manual-core.html#opt.alignment">--alignment</a></code> option.
   </p>
 </li>
 <li class="listitem"><p>The size of the stack(s).  By default, stack profiling is
@@ -566,8 +566,7 @@ says:
 <pre class="screen">
 (page allocation syscalls) mmap/mremap/brk, --alloc-fns, etc.
 </pre>
-<p>instead of the usual</p>:
-
+<p>instead of the usual:</p>
 <pre class="screen">
 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
 </pre>
@@ -774,7 +773,7 @@ various places online.
       <code class="option">%p</code> and <code class="option">%q</code> format specifiers can be
       used to embed the process ID and/or the contents of an environment
       variable in the name, as is the case for the core option
-      <code class="option"><a class="xref" href="manual-core.html#opt.log-file">--log-file</a></code>.
+      <code class="option"><a class="link" href="manual-core.html#opt.log-file">--log-file</a></code>.
       </p></dd>
 </dl>
 </div>
@@ -800,7 +799,7 @@ gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbser
     </p></li>
 <li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
       requests Massif tool to produce an xtree heap memory report.
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for
       a detailed explanation about execution trees. </p></li>
 </ul></div>
 </div>

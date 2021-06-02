@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>6. README_DEVELOPERS</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -21,7 +21,11 @@
 <div class="titlepage"><div><div><h1 class="title">
 <a name="dist.readme-developers"></a>6. README_DEVELOPERS</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
+      Building and installing it<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+To build/install from the GIT repository or from a distribution<br>
+tarball, refer to the section with the same name in README.<br>
+<br>
 Building and not installing it<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 To run Valgrind without having to install it, run coregrind/valgrind<br>
@@ -118,16 +122,20 @@ without too much problem by following these steps:<br>
 <br>
 (2) Run gdb on the tool executable.  Eg:<br>
 <br>
-      gdb /usr/local/lib/valgrind/ppc32-linux/lackey<br>
+      gdb /usr/local/lib/valgrind/lackey-ppc32-linux<br>
 <br>
     or<br>
 <br>
-      gdb $DIR/.in_place/x86-linux/memcheck<br>
+      gdb $DIR/.in_place/memcheck-x86-linux<br>
 <br>
 (3) Do "handle SIGSEGV SIGILL nostop noprint" in GDB to prevent GDB from<br>
     stopping on a SIGSEGV or SIGILL:<br>
 <br>
     (gdb) handle SIGILL SIGSEGV nostop noprint<br>
+<br>
+    If you are using lldb, then the equivalent command is<br>
+<br>
+    (lldb) pro hand -p true -s false -n false SIGILL SIGSEGV<br>
 <br>
 (4) Set any breakpoints you want and proceed as normal for gdb. The<br>
     macro VG_(FUNC) is expanded to vgPlain_FUNC, so If you want to set<br>
@@ -346,7 +354,7 @@ Printing out problematic blocks<br>
 If you want to print out a disassembly of a particular block that<br>
 causes a crash, do the following.<br>
 <br>
-Try running with "--vex-guest-chase-thresh=0 --trace-flags=10000000<br>
+Try running with "--vex-guest-chase=no --trace-flags=10000000<br>
 --trace-notbelow=999999".  This should print one line for each block<br>
 translated, and that includes the address.<br>
 <br>

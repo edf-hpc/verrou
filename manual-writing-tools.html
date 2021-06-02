@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>2. Writing a New Valgrind Tool</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -48,10 +48,8 @@
 <dt><span class="sect1"><a href="manual-writing-tools.html#manual-writing-tools.finalwords">2.4. Final Words</a></span></dt>
 </dl>
 </div>
-
-So you want to write a Valgrind tool?  Here are some instructions that may
-help.
-
+<p>So you want to write a Valgrind tool?  Here are some instructions
+that may help.</p>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="manual-writing-tools.intro"></a>2.1. Introduction</h2></div></div></div>
@@ -134,7 +132,7 @@ top-level directory <code class="computeroutput">valgrind/</code>.</p>
    <code class="filename">foobar</code> to the
    <code class="computeroutput">TOOLS</code> or
    <code class="computeroutput">EXP_TOOLS</code> variables.</p></li>
-<li class="listitem"><p>Edit <code class="filename">configure.in</code>, adding
+<li class="listitem"><p>Edit <code class="filename">configure.ac</code>, adding
    <code class="filename">foobar/Makefile</code> and
    <code class="filename">foobar/tests/Makefile</code> to the
    <code class="computeroutput">AC_OUTPUT</code> list.</p></li>
@@ -455,13 +453,13 @@ Valgrind;  it's a bit fragile but can usually be made to work.</p>
 <code class="computeroutput">foobar/</code>, you will need to add
 an appropriate <code class="filename">Makefile.am</code> to it, and add a
 corresponding entry to the <code class="computeroutput">AC_OUTPUT</code>
-list in <code class="filename">configure.in</code>.</p>
+list in <code class="filename">configure.ac</code>.</p>
 <p>If you add any scripts to your tool (see Cachegrind for an
 example) you need to add them to the
 <code class="computeroutput">bin_SCRIPTS</code> variable in
 <code class="filename">foobar/Makefile.am</code> and possible also to the
 <code class="computeroutput">AC_OUTPUT</code> list in
-<code class="filename">configure.in</code>.</p>
+<code class="filename">configure.ac</code>.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">

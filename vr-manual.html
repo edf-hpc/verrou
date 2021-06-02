@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>12. Verrou: a floating-point rounding errors checker</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -25,7 +25,7 @@
 <dl class="toc">
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview">12.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6322">12.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6459">12.1.1. Basic usage</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">12.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat">12.2. Standard features</a></span></dt>
@@ -39,14 +39,18 @@
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat.instr">12.3.2. Instrumented sections</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization">12.4. Debugging and error localization</a></span></dt>
-<dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd</strong></span> command</a></span></dt></dl></dd>
+<dd><dl>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.coverage">12.4.2. Code coverage comparison</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.CovBB">12.4.3. Basic Block coverage comparison</a></span></dt>
+</dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.advanced">12.5. Advanced features</a></span></dt>
 <dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.feat.deterministic">12.5.1. Deterministic sections</a></span></dt></dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.reference">12.6. Reference</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">12.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">12.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm7125">12.6.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm7383">12.6.3. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -59,7 +63,7 @@
 <a name="vr-manual.overview"></a>12.1. Overview</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm6322"></a>12.1.1. Basic usage</h3></div></div></div>
+<a name="idm6459"></a>12.1.1. Basic usage</h3></div></div></div>
 <p>
       Verrou helps you look for floating-point round-off errors in programs. It implements a
       stochastic floating-point arithmetic based on random rounding: all floating-point operations
@@ -389,6 +393,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"><p><span class="command"><strong>float</strong></span>: in this mode, all double precision floating-point
 	operations are replaced by simple precision equivalent. Float operations remain unchanged.
 	</p></li>
+<li class="listitem"><p><span class="command"><strong>ftz</strong></span>: in this mode, denormal floating-point operations are flushed to zero.
+	</p></li>
 </ul></div>
 <p>
     </p>
@@ -426,7 +432,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"><p>to save time by avoiding costly perturbations in places which are known to be
       particularly stable; </p></li>
 <li class="listitem"><p>to help locating the origin of numerical instabilities by studying the overall
-      impact of localized perturbation; see the <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd command">Delta-Debugging</a> section
+      impact of localized perturbation; see the <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym and verrou_dd_line commands">Delta-Debugging</a> section
       for an instability localization method that build upon this idea.</p></li>
 </ul></div>
 <p>
@@ -443,7 +449,7 @@ Type "help", "copyright", "credits" or "license" for more information.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6525"></a>12.3.1.1. Exclusion files</h4></div></div></div>
+<a name="idm6665"></a>12.3.1.1. Exclusion files</h4></div></div></div>
 <p>
         This can be done by providing an exclusion file via the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line option. The file should follow the
         following format:
@@ -531,7 +537,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6567"></a>12.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
+<a name="idm6707"></a>12.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
 <p>
         Instead of manually establishing an exclusion list, using the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code> command-line option can help producing the complete
         list of <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
@@ -566,9 +572,8 @@ modf            /lib/x86_64-linux-gnu/libm-2.23.so</pre>
       </p>
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note on C++ and symbol name mangling</h3>
-<p>When analyzing C++ programs, it is advised to also use
-        the <code class="option"><a class="xref" href="manual-core.html#opt.demangle">--demangle</a>=no</code> option in order
-        for C++ symbol names compared in their mangled form. Symbol names in
+<p> The exclusion lists (generation and exclusion) use the mangled form.
+	When analyzing C++ programs, symbol names in
         the exclusion list can still be demangled using an external program
         such as <code class="computeroutput">c++filt</code>.
         </p>
@@ -625,7 +630,7 @@ s_sin.c         12       cos</pre>
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>This fine-grained selection of code parts to instrument is primarily meant to be used
-        by automatic debugging tools (see <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd command">Delta-Debugging</a>), not directly
+        by automatic debugging tools (see <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym and verrou_dd_line commands">Delta-Debugging</a>), not directly
         by humans.</p>
 </div>
 </div>
@@ -683,7 +688,7 @@ int main () {
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="vr-manual.localization.dd"></a>12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd</strong></span> command</h3></div></div></div>
+<a name="vr-manual.localization.dd"></a>12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> commands</h3></div></div></div>
 <p>
       The first technique builds upon Verrou's <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="12.3.1. Excluded symbols">Excluded symbols</a> feature in
       order to perform a search of functions and source code lines whose perturbation produces the
@@ -710,23 +715,28 @@ int main () {
 <p>
       This algorithm is called <span class="emphasis"><em>Delta-Debugging</em></span>.
       
-      It is automated by the <span class="command"><strong>verrou_dd</strong></span> command,
+      It is automated by the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> command,
       which can be used in the following way:
     </p>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6657"></a>Synopsis</h4></div></div></div>
-<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd.synopsis"></a><code class="command">verrou_dd</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+<a name="idm6797"></a>Synopsis</h4></div></div></div>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_sym.synopsis"></a><code class="command">verrou_dd_sym [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_line.synopsis"></a><code class="command">verrou_dd_line [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6666"></a>Description</h4></div></div></div>
+<a name="idm6813"></a>Description</h4></div></div></div>
+<p>
+	<span class="command"><strong> verrou_dd_sym </strong></span> is dedicated to search instable symbols (it corresponds more or less to code function).
+	Whereas <span class="command"><strong> verrou_dd_sym </strong></span> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
+      </p>
 <p><a name="vr-manual.verrou_dd.desc"></a>
-        Arguments passed to <span class="command"><strong>verrou_dd</strong></span> are scripts, which must be identified by an
-        absolute path. These scripts will be called during the delta-debugging process to automate
+        Arguments passed to <span class="command"><strong>verrou_dd_sym</strong></span> or <span class="command"><strong>verrou_dd_line</strong></span> are scripts.
+	These scripts will be called during the delta-debugging process to automate
         the tasks of running your program under Verrou, and verifying the results. The scripts will
         be called with the following arguments:
-        
+
         </p>
 <div class="variablelist"><dl class="variablelist">
 <dt><span class="term">
@@ -763,7 +773,7 @@ valgrind --tool=verrou --rounding-mode=random <em class="replaceable"><code>prog
                 A minimal example could look like the following:
               </p>
 <pre class="programlisting">
-#!/bin/bash 
+#!/bin/bash
 REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</pre>
@@ -774,56 +784,55 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6700"></a>Environment Variables</h4></div></div></div>
+<a name="idm6851"></a>Options and environment variables</h4></div></div></div>
 <p>
-        The following environment variables affect the behaviour of <span class="command"><strong>verrou_dd</strong></span>:
+        The following options or environment variables affect the behaviour of <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span>:
       </p>
 <div class="variablelist">
 <a name="vr-manual.verrou_dd.envvars"></a><dl class="variablelist">
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_NRUNS</code>
+            <code class="computeroutput">--nruns</code> or <code class="computeroutput">VERROU_DD_NRUNS</code>
           </span></dt>
 <dd><p>An integer setting the required number successful runs needed to consider a
             configuration as stable. If this environment variable is not set, the default value is
             5.</p></dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_UNSAFE</code>
+             <code class="computeroutput">--num-threads</code> or <code class="computeroutput">VERROU_DD_NUM_THREADS</code>
           </span></dt>
-<dd><p>If this variable is set (whatever its value), some Delta-Debugging assertions
-            are transformed in mere warnings. This allows getting a result faster, at the price of
-            said result being potentially incorrect (functions/lines listed as stable when they
-            are not, or vice versa).
-            </p></dd>
-<dt><span class="term">
-            <code class="computeroutput">VERROU_DD_NUM_THREADS</code>
-          </span></dt>
-<dd><p> Experimental feature : Allows to perform <code class="computeroutput">VERROU_DD_NUM_THREADS</code> runs in parallel.
+<dd><p> Allows to perform <code class="computeroutput">VERROU_DD_NUM_THREADS</code> runs in parallel.
 	     If this environment variable is not set, the parallelism is not activated.
 	    </p></dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_ALGO</code>
+             <code class="computeroutput">--resWithAllSamples </code> or <code class="computeroutput">VERROU_DD_RES_WITH_ALL_SAMPLES</code>
+          </span></dt>
+<dd><p> Disable the early exit for result directories. It is useful to compute estimator for all
+	    <code class="computeroutput">ddmin*</code> directories with the same number of samples and hence
+	    to sort them.
+	    </p></dd>
+<dt><span class="term">
+            <code class="computeroutput">--algo=</code> or <code class="computeroutput">VERROU_DD_ALGO</code>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose one of the two Delta-Debugging algorithms (ddmax and rddmin).
+	      Option to choose one of the two Delta-Debugging algorithms (<code class="computeroutput">ddmax</code> and <code class="computeroutput">rddmin</code>).
 	    </p>
 <p>
 	      <code class="computeroutput">rddmin</code>: return recursively the min-set of unstable
 	      symbols. <code class="computeroutput">VERROU_DD_NUM_THREADS</code> is ignored.
 	    </p>
 <p>
-	      <code class="computeroutput">ddmax</code>: return the max-set of stable symbols (or lines). Symlinks are created for each element of the complementary set.
+	      <code class="computeroutput">ddmax</code>: return the max-set of stable symbols (or lines). 
 	    </p>
 <p>
 	    If this environment variable is not set, the default value is set to <code class="computeroutput">rddmin</code>.
 	    </p>
 </dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_RDDMIN</code>
+            <code class="computeroutput">--rddmin=</code> or <code class="computeroutput">VERROU_DD_RDDMIN</code>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose one of the variant of rddmin algorithms.
+	      Option to choose one of the variant of rddmin algorithms.
 	    </p>
 <p>
 	      "", <code class="computeroutput">strict</code>: rddmin algorithm with constant number of samples
@@ -835,15 +844,15 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 	      <code class="computeroutput">d</code>, <code class="computeroutput">dicho</code>: srddmin algorithm pre-filtered by a dichotomy method (called drddmin)
 	    </p>
 <p>
-	    If this environment variable is not set, the default value is set to <code class="computeroutput">dicho</code>.
+	    The default value is set to <code class="computeroutput">dicho</code>.
 	    </p>
 </dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_RDDMIN_TAB</code>
+            <code class="computeroutput">--rddmin-tab=</code> or <code class="computeroutput">VERROU_DD_RDDMIN_TAB</code>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose the evolution of the number of samples used by the srddmin algorithm.
+	      Option to choose the evolution of the number of samples used by the srddmin algorithm.
 	    </p>
 <p>
 	      <code class="computeroutput">exp</code>: increases the number of samples from 1 to
@@ -859,15 +868,15 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
               this case.
 	    </p>
 <p>
-	    If this environment variable is not set, the default value is set to <code class="computeroutput">exp</code>.
+	    The default value is set to <code class="computeroutput">exp</code>.
 	    </p>
 </dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_DICHO_TAB</code>
+	    <code class="computeroutput">--dicho-tab=</code> or <code class="computeroutput">VERROU_DD_DICHO_TAB</code>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose the evolution of the number of samples used by the
+	      Option to choose the evolution of the number of samples used by the
               binary search in the first part of the drddmin algorithm.
 	    </p>
 <p>
@@ -887,85 +896,186 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 	      <code class="computeroutput">VERROU_DD_NRUNS</code>.
 	    </p>
 <p>
-	      <em class="replaceable"><code>N</code></em>: user-provided value (must be an integer comprised
+	      <em class="replaceable"><code>N</code></em>: user-provided value (must be an integer 
 	      between 1 and <code class="computeroutput">VERROU_DD_NRUNS</code>).
 	    </p>
 <p>
-	    If this environment variable is not set, the default value is set to <code class="computeroutput">half</code>.
+	    The default value is set to <code class="computeroutput">half</code>.
 	    </p>
 </dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_DICHO_GRANULARITY</code>
+            <code class="computeroutput">--dicho-granularity=</code> or <code class="computeroutput">VERROU_DD_DICHO_GRANULARITY</code>
           </span></dt>
 <dd>
 <p>
-	      Environment variable to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
+	      Option to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
 	    </p>
 <p>
-	    If this environment variable is not set, the default value is set to 2.
+	    The default value is set to 2.
 	    </p>
 </dd>
 <dt><span class="term">
-            <code class="computeroutput">VERROU_DD_QUIET</code>
+            <code class="computeroutput">--quiet</code> or <code class="computeroutput">VERROU_DD_QUIET</code>
           </span></dt>
 <dd><p>
-	      Environment variable to reduce the verbosity of <span class="command"><strong>verrou_dd</strong></span>.
+	      Option to reduce the verbosity of <span class="command"><strong>verrou_dd_sym</strong></span> or <span class="command"><strong>verrou_dd_line</strong></span>.
 	    </p></dd>
 <dt><span class="term">
-          <code class="computeroutput">VERROU_DD_IGNORE_LINE</code>
+	    <code class="computeroutput">--cache=</code> or <code class="computeroutput">VERROU_DD_CACHE</code>
+          </span></dt>
+<dd>
+<p>
+	      Option to choose the policy with the existing cache <code class="computeroutput">dd.sym</code> or <code class="computeroutput">dd.line</code>
+	    </p>
+<p>
+	      <code class="computeroutput">clean</code>: the previous cache is removed (after reading required information for <code class="computeroutput">--rddmin-heuristics-cache</code>).
+	    </p>
+<p>
+	      <code class="computeroutput">rename</code>: the previous cache is renamed with time information (time of last symlink creation).
+	    </p>
+<p>
+	      <code class="computeroutput">rename_keep_result</code>: the previous cache is renamed and all configurations not pinpointed by symlink are removed.
+	      This option is a compromised between disk usage and the opportunity to used the <code class="computeroutput">--rddmin-heuristics-cache=</code> option.
+	    </p>
+<p>
+	      <code class="computeroutput">keep-run</code>: the previous cache is kept but the <code class="computeroutput">cmp_script</code> is run again. Useful when
+	      only the <code class="computeroutput">cmp_script</code> is modified.
+	    </p>
+<p>
+	      <code class="computeroutput">continue</code>: the previous cache is kept for all computation. This option is really useful after manual cache modification to recover computation after
+	      error such as <code class="computeroutput">No space left on device</code> or <code class="computeroutput">job timeout</code>.
+	    </p>
+<p>
+	    The default value is set to <code class="computeroutput">continue</code> (will probably change soon).
+	    </p>
+</dd>
+<dt><span class="term">
+	    <code class="computeroutput">--rddmin-heuristics-cache=</code> or <code class="computeroutput">VERROU_DD_RDDMIN_HEURISTICS_CACHE</code>
+          </span></dt>
+<dd>
+<p>
+	      Option to choose the policy with cache to use to prefiltered the rddmin algorithm by previous ddmin results.
+	    </p>
+<p>
+	      <code class="computeroutput">none</code>: the current cache and old cache directory are not used.
+	    </p>
+<p>
+	      <code class="computeroutput">cache</code>: only the current cache directory is used.
+	    </p>
+<p>
+	      <code class="computeroutput">all_cache</code>: the current and old cache directories are used. The old cache directories come from previous run with <code class="computeroutput">rename</code> or <code class="computeroutput">rename_keep_result</code> values for <code class="computeroutput">--cache=</code> option.
+	    </p>
+<p>
+	    The default value is set to <code class="computeroutput">none</code>.
+	    </p>
+</dd>
+<dt><span class="term">
+	    <code class="computeroutput">--rddmin-heuristics-rep=</code> or <code class="computeroutput">VERROU_DD_RDDMIN_HEURISTICS_REP</code>
           </span></dt>
 <dd><p>
-	      Environment variable to limit the search to symbols.
+	      Option to choose the directory used to prefiltered the rddmin algorithm by previous ddmin results. Could be used several times (with option but not with environment variable). Usually
+	      useful after a manual cache renaming.
 	    </p></dd>
 </dl>
 </div>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6803"></a>Results ddmax</h4></div></div></div>
-<p><a name="vr-manual.verrou_dd.results"></a>
-        <span class="command"><strong>verrou_dd</strong></span> stores many intermediate results within the
-        <code class="computeroutput">dd.sym</code> and <code class="computeroutput">dd.line</code>
-        directories. Synthetic results are present in the form of symbolic links named in the
-        following way:
-        </p>
-<div class="variablelist"><dl class="variablelist">
-<dt><span class="term">dd.sym.<em class="replaceable"><code>SYMNAME</code></em></span></dt>
-<dd>The presence of such a symbolic link indicates that the function
-              associated to symbol <em class="replaceable"><code>SYMNAME</code></em> has been detected as
-              unstable. When the <code class="option"><a class="xref" href="manual-core.html#opt.demangle">--demangle</a>=no</code> option was
-              provided in the verrou command line in
-              <span class="command"><strong><em class="replaceable"><code>run_script</code></em></strong></span>,
-              <em class="replaceable"><code>SYMNAME</code></em> is in mangled form. In this case, the
-              human-readable name of the function can be retrieved using
-              <span class="command"><strong>c++filt</strong></span>.</dd>
-<dt><span class="term">dd.sym.<em class="replaceable"><code>FILENAME</code></em>:<em class="replaceable"><code>LINENO</code></em></span></dt>
-<dd>Such a symbolic link indicates that an instability was found in line
-            <em class="replaceable"><code>LINENO</code></em> of file
-            <em class="replaceable"><code>FILENAME</code></em>.</dd>
-</dl></div>
-<p>
-      </p>
-</div>
-<div class="simplesect">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm6830"></a>Results *rddmin </h4></div></div></div>
+<a name="idm7012"></a>Results *rddmin </h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.results-rddmin"></a>
-        <span class="command"><strong>verrou_dd</strong></span> stores many intermediate results within the
-        <code class="computeroutput">dd.sym</code> directory. Synthetic results are present in the form
+        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>) stores many intermediate results within the
+        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code>) directory. Synthetic results are present in the form
         of symbolic links named after the pattern: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code>.
       </p>
 <p>
-	The list of all symbols found to be unstable in the
+	The list of all symbols (resp. lines) found to be unstable in the
 	<code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code> set can be retrieved in
 	the file: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em>/dd.include</code>.
       </p>
 <p>
-	Each <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code> contains a
-	<code class="computeroutput">dd.line</code> directory, organized in the same as described above
-	for the ddmax algorithm.
+	The symbolic link <code class="computeroutput">rddmin-cmp</code>  pinpoints the configuration which is the complement of the union of all ddmin configuration. This successful
+	configuration terminates the rddmin algorithm.
+      </p>
+<p>
+	For debug purpose there are one symbolic link (<code class="computeroutput">FullPerturbation</code>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<code class="computeroutput">NoPerturbation</code>) to pinpoint the configuration without any perturbation (should be a successful configuration).
       </p>
 </div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm7031"></a>Results ddmax</h4></div></div></div>
+<p><a name="vr-manual.verrou_dd.results"></a>
+        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>) stores many intermediate results within the
+        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code>)
+        directories. The ddmax configuration is pinpointed by a symbolic link (<code class="computeroutput">ddmax</code>).	
+
+	
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.localization.coverage"></a>12.4.2. Code coverage comparison</h3></div></div></div>
+<p>
+      The first technique to localize unstable tests, is based on the compatibility with instrumentation provided by the compilers.
+      The idea is to produce with compiler tools (option <code class="computeroutput">--coverage</code> and tool <code class="computeroutput">gcov</code> for <code class="computeroutput">gcc</code>) two code coverage for the analyzed test case.
+      The first one can be generate without verrou or with <code class="computeroutput">nearest</code> rounding mode and the second one with <code class="computeroutput">random</code> rounding mode. The second one can be produced several time, to
+      get a coverage with sufficient discrepancie compared to the one with  <code class="computeroutput">nearest</code> rounding mode. Once both code coverage generated, simple graphical tools
+      as <code class="computeroutput">meld</code> or <code class="computeroutput">kompare</code> can be used to pinpoint potential unstable test.
+    </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="vr-manual.localization.CovBB"></a>12.4.3. Basic Block coverage comparison</h3></div></div></div>
+<p>
+	The second technique to localize unstable tests, is based on Basic Block (BB) Coverage provided by verrou. The idea behind this technique is the same as behind code coverage comparison except in the way to produce the coverage.
+	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without library the following script can be used :
+	</p>
+<pre class="programlisting">
+	 echo "*" ‘readlink -f <em class="replaceable"><code>program</code></em>‘ &gt; trace.inc
+	</pre>
+<p>
+
+	With the <code class="computeroutput"> trace.inc</code> the BB coverage instrumenttion can be activated with the <code class="computeroutput">--trace=</code> option :
+	</p>
+<pre class="programlisting">
+	  valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <em class="replaceable"><code>program args</code></em>
+	</pre>
+<p>
+
+	Hence two files <code class="computeroutput">trace_bb_cov.log-PID</code> and <code class="computeroutput">trace_bb_info.log-PID</code> are generated.
+	The first one contains counter information for each Basic Blocks and the second one contains debug information for each Basic Bloc. These two files (which must be moved together)
+	can be post-treated to be as readable as possible with the <code class="computeroutput">genCovBB</code> command.
+	</p>
+<pre class="programlisting">
+	genCovBB trace_bb_cov.log-*
+	</pre>
+<p>
+
+	The differences between generated coverage  are more difficult to analyze compared to the ones generated by code coverage tools, because the code structure is lost. Nevertheless
+	it is easier to generate  and can produced really powerful
+	information if used with the client request <code class="computeroutput">VERROU_DUMP_COVER</code> to recover partially time information lost by coverage techniques.
+
+      </p>
 </div>
 </div>
 <div class="section">
@@ -1011,7 +1121,7 @@ int main () {
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6859"></a>12.5.1.1. Basic usage</h4></div></div></div>
+<a name="idm7077"></a>12.5.1.1. Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -1054,7 +1164,7 @@ int main () {
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6868"></a>12.5.1.2. Advanced usage</h4></div></div></div>
+<a name="idm7086"></a>12.5.1.2. Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -1163,7 +1273,7 @@ det2
 <a name="vr-manual.clo"></a>12.6.1. Command-line options</h3></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6885"></a>12.6.1.1. General options</h4></div></div></div>
+<a name="idm7103"></a>12.6.1.1. General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -1180,28 +1290,30 @@ det2
                   operations counting</a>.
             </p></dd>
 <dt>
-<a name="vr-opt.backend"></a><span class="term"><code class="option">--backend=&lt;verrou|mcaquad&gt; [default=verrou]</code></span>
+<a name="vr-opt.backend"></a><span class="term"><code class="option">--backend=&lt;verrou|mcaquad|checkdenorm&gt; [default=verrou]</code></span>
 </dt>
 <dd><p>
-		Select the <code class="computeroutput">verrou</code> or
-		<code class="computeroutput">mcaquad</code> backend. <code class="computeroutput">verrou</code>
+		Select the <code class="computeroutput">verrou</code>, <code class="computeroutput">mcaquad</code>
+		or <code class="computeroutput">checkdenorm</code>
+		backend. <code class="computeroutput">verrou</code>
 		enables to perform several rounding mode (See <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a></code> option).
 		<code class="computeroutput">mcaquad</code> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extented precision in quad (See  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-mode">--mca-mode</a></code>
-		and <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-precision">--mca-precision</a></code> options).
-		The integration <code class="computeroutput">mcaquad</code> backend in the frontend verrou
-		is still considered as experimental.
+		based on extented precision in quad (See  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-mode">--mca-mode</a></code>,
+		<code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-precision-double">--mca-precision-double</a></code> and  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-precision-float">--mca-precision-float</a></code>  options).
+		The integration of <code class="computeroutput">mcaquad</code> backend in the frontend verrou
+		is still considered as experimental. <code class="computeroutput">checkdenorm</code> enables
+		the <code class="computeroutput">ftz</code> rounding-mode and the <code class="computeroutput">--check-denorm</code> and <code class="computeroutput">--cd-gen-file</code> options.
             </p></dd>
 </dl>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6915"></a>12.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
+<a name="idm7140"></a>12.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
-<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average|upward|downward|toward_zero|farthest|float&gt; [default=nearest]</code></span>
+<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random|average|upward|downward|toward_zero|farthest|float|ftz&gt; [default=nearest]</code></span>
 </dt>
 <dd>
 <p>
@@ -1224,7 +1336,8 @@ det2
                 </p></li>
 <li class="listitem"><p>
                     <span class="command"><strong>Other:</strong></span> <code class="computeroutput">farthest</code>,
-		    <code class="computeroutput">float</code>.
+		    <code class="computeroutput">float</code>,
+		    <code class="computeroutput">ftz</code>(imply checkdenorm backend).
                 </p></li>
 </ul></div>
 </dd>
@@ -1253,10 +1366,16 @@ det2
 	      </p>
 </dd>
 <dt>
-<a name="vr-opt.mca-precision"></a><span class="term"><code class="option">--mca-precision= [default=53]</code></span>
+<a name="vr-opt.mca-precision-double"></a><span class="term"><code class="option">--mca-precision-double= [default=53]</code></span>
 </dt>
 <dd><p>
-                Configure the magnitude of inexact function used by mcaquad backend.
+                Configure the magnitude of inexact function used by mcaquad backend for double operation.
+              </p></dd>
+<dt>
+<a name="vr-opt.mca-precision-float"></a><span class="term"><code class="option">--mca-precision-float= [default=24]</code></span>
+</dt>
+<dd><p>
+                Configure the magnitude of inexact function used by mcaquad backend for float operation.
               </p></dd>
 <dt>
 <a name="vr-opt.seed"></a><span class="term"><code class="option">--vr-seed=RNG_SEED [default=automatically generated]</code></span>
@@ -1295,7 +1414,7 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6991"></a>12.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
+<a name="idm7222"></a>12.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
@@ -1362,7 +1481,21 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7044"></a>12.6.1.4. Detection</h4></div></div></div>
+<a name="idm7275"></a>12.6.1.4. Coverage generation </h4></div></div></div>
+<div class="variablelist">
+<a name="vr.opts.coverage.list"></a><dl class="variablelist">
+<dt>
+<a name="vr.opt.trace"></a><span class="term"><code class="option">--trace=FILE</code></span>
+</dt>
+<dd><p>
+		Activate the <a class="link" href="vr-manual.html#vr-manual.localization.CovBB" title="12.4.3. Basic Block coverage comparison">Basic Blocks Coverage</a> for the symbols specified in <code class="computeroutput"> FILE</code>.
+            </p></dd>
+</dl>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm7285"></a>12.6.1.5. Detection</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.detection.list"></a><dl class="variablelist">
 <dt>
@@ -1377,7 +1510,7 @@ det2
 </dt>
 <dd><p>
 		Activate cancellation detection. Cancellation produces a valgrind error.
-		This functionnality is available for the verrou and mcaquad backends. The level
+		This functionnality is available for the verrou, mcaquad  and checkdenorm backends. The level
 		of detected cancellations can be configured with  <code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-float">--cc-threshold-float</a></code> and
 		<code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-double">--cc-threshold-double</a></code>.
             </p></dd>
@@ -1386,7 +1519,7 @@ det2
 </dt>
 <dd><p>
 		Generate in <code class="computeroutput">FILE </code> with the source format for each code source line which produces at least one cancellation.
-		This functionnality is available for verrou and mcaquad backends. The level
+		This functionnality is available for verrou, mcaquad and checkdenorm backends. The level
 		of detected cancellations can be configured with  <code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-float">--cc-threshold-float</a></code> and
 		<code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-double">--cc-threshold-double</a></code>.
             </p></dd>
@@ -1404,12 +1537,26 @@ det2
 		Configure the cancellation  dectection threshold for double operations.
 		Default value is still experimental and could have to change.
             </p></dd>
+<dt>
+<a name="vr.opt.check-denorm"></a><span class="term"><code class="option">--check-denorm=&lt;yes|no&gt; [default=no]</code></span>
+</dt>
+<dd><p>
+		Activate denormal number detection. Denormal number produced by floating point operation produces a valgrind error.
+		This functionnality is available for the checkdenorm backend.
+            </p></dd>
+<dt>
+<a name="vr.opt.cd-gen-file"></a><span class="term"><code class="option">--cd-gen-file=&lt;FILE&gt;</code></span>
+</dt>
+<dd><p>
+		Generate in <code class="computeroutput">FILE </code> with the source format for each code source line which produces at least one denormal number.
+		This functionnality is available for checkdenorm backend.
+            </p></dd>
 </dl>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7081"></a>12.6.1.5. Performance optimization</h4></div></div></div>
+<a name="idm7333"></a>12.6.1.6. Performance optimization</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.optim.list"></a><dl class="variablelist">
 <dt>
@@ -1465,11 +1612,15 @@ det2
               a <a class="link" href="vr-manual.html#vr-manual.feat.deterministic" title="12.5.1. Deterministic sections">deterministic
               section</a>, i.e. resume rounding mode switching in a
               (pseudo-)random way.</p></dd>
+<dt>
+<a name="vr-cr.dump-cover"></a><span class="term"><code class="computeroutput">VERROU_DUMP_COVER</code></span>
+</dt>
+<dd><p> If <code class="computeroutput">--trace</code> option is activated, the client request generates a partial cover and return the index of the cover.</p></dd>
 </dl></div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm7125"></a>12.6.3. Monitor commands</h3></div></div></div>
+<a name="idm7383"></a>12.6.3. Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2. Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of

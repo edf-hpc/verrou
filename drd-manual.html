@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>8. DRD: a thread error detector</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -37,7 +37,7 @@
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.lock-contention">8.2.3. Detected Errors: Lock Contention</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.api-checks">8.2.4. Detected Errors: Misuse of the POSIX threads API</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.clientreqs">8.2.5. Client Requests</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.C++11">8.2.6. Debugging C++11 Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.CXX11">8.2.6. Debugging C++11 Programs</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.gnome">8.2.7. Debugging GNOME Programs</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.boost.thread">8.2.8. Debugging Boost.Thread Programs</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.openmp">8.2.9. Debugging OpenMP Programs</a></span></dt>
@@ -339,7 +339,7 @@ behavior of the DRD tool itself:</p>
         Data races that occur between a statement at the end of one thread
 	and another thread can be missed if memory access information is
 	discarded immediately after a thread has been joined. This option
-	allows to specify for how many joined threads memory access information
+	allows one to specify for how many joined threads memory access information
 	should be retained.
       </p></dd>
 <dt><span class="term">
@@ -416,7 +416,7 @@ behavior of the DRD tool itself:</p>
 <dd><p>
         Perform segment merging only after the specified number of new
         segments have been created. This is an advanced configuration option
-        that allows to choose whether to minimize DRD's memory usage by
+        that allows one to choose whether to minimize DRD's memory usage by
         choosing a low value or to let DRD run faster by choosing a slightly
         higher value. The optimal value for this parameter depends on the
         program being analyzed. The default value works well for most programs.
@@ -856,7 +856,7 @@ available macros and client requests are:
       applications contain intentional races. There exist e.g. applications
       where the same value is assigned to a shared variable from two different
       threads. It may be more convenient to suppress such races than to solve
-      these. This client request allows to suppress such races.
+      these. This client request allows one to suppress such races.
     </p></li>
 <li class="listitem"><p>
       The macro <code class="literal">DRD_STOP_IGNORING_VAR(x)</code> and the
@@ -887,7 +887,7 @@ available macros and client requests are:
     </p></li>
 <li class="listitem"><p>
       The client request <code class="varname">VG_USERREQ__DRD_START_TRACE_ADDR</code>,
-      which allows to trace all load and store activity for the specified
+      which allows one to trace all load and store activity for the specified
       address range.
     </p></li>
 <li class="listitem"><p>
@@ -1049,7 +1049,7 @@ before Valgrind's header files are available.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.C++11"></a>8.2.6. Debugging C++11 Programs</h3></div></div></div>
+<a name="drd-manual.CXX11"></a>8.2.6. Debugging C++11 Programs</h3></div></div></div>
 <p>If you want to use the C++11 class std::thread you will need to do the
   following to annotate the std::shared_ptr&lt;&gt; objects used in the
   implementation of that class:
@@ -1137,7 +1137,7 @@ More information about Boost.Thread can be found here:
 OpenMP stands for <span class="emphasis"><em>Open Multi-Processing</em></span>. The OpenMP
 standard consists of a set of compiler directives for C, C++ and Fortran
 programs that allows a compiler to transform a sequential program into a
-parallel program. OpenMP is well suited for HPC applications and allows to
+parallel program. OpenMP is well suited for HPC applications and allows one to
 work at a higher level compared to direct use of the POSIX threads API. While
 OpenMP ensures that the POSIX API is used correctly, OpenMP programs can still
 contain data races. So it definitely makes sense to verify OpenMP programs

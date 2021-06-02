@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>3. Using and understanding the Valgrind core: Advanced Topics</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
@@ -216,6 +216,10 @@ tool-specific macros).</p>
     run-time. So, if it exists, it is preferable to use a specific
     client request to have better compile time verifications of the
     arguments.
+    </p></dd>
+<dt><span class="term"><span class="command"><strong><code class="computeroutput">VALGRIND_CLO_CHANGE(option)</code>:</strong></span></span></dt>
+<dd><p>Changes the value of a dynamically changeable option (a string).
+       See <a class="xref" href="manual-core.html#manual-core.dynopts" title="2.7.8. Dynamically Changing Options">Dynamically Change Options</a>.
     </p></dd>
 <dt><span class="term"><span class="command"><strong><code class="computeroutput">VALGRIND_STACK_REGISTER(start, end)</code>:</strong></span></span></dt>
 <dd>
@@ -595,7 +599,18 @@ vgdb --pid=3145 l f r a
 execution of the program after a standalone invocation of
 vgdb.  Monitor commands sent from GDB do not cause the program to
 continue: the program execution is controlled explicitly using GDB
-commands such as "continue" or "next".</p>
+  commands such as "continue" or "next".</p>
+<p>Many monitor commands (e.g. v.info location, memcheck who_points_at, ...) require an address
+  argument and an optional length: <code class="varname">&lt;addr&gt; [&lt;len&gt;]</code>.
+  The arguments can also be provided by using a 'C array like syntax' by providing the address
+  followed by the length between square brackets.</p>
+<p>For example, the following two monitor commands provide the same information:</p>
+<pre class="programlisting">
+(gdb) mo xb 0x804a2f0 10
+...
+(gdb) mo xb 0x804a2f0[10]
+...
+</pre>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
@@ -721,15 +736,15 @@ are however some limitations and peculiarities:</p>
      impact for memcheck is given for each option).
        </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
-<li class="listitem">
-<code class="option">--vex-iropt-register-updates=allregs-at-mem-access</code> (+10%)
+<li class="listitem"><p>
+           <code class="option">--vex-iropt-register-updates=allregs-at-mem-access</code> (+10%)
            ensures that all registers and flags are up to date at each memory
            access.
-         </li>
-<li class="listitem">
-<code class="option">--vex-iropt-register-updates=allregs-at-each-insn</code> (+25%)
+         </p></li>
+<li class="listitem"><p>
+           <code class="option">--vex-iropt-register-updates=allregs-at-each-insn</code> (+25%)
            ensures that all registers and flags are up to date at each instruction.
-         </li>
+         </p></li>
 </ul></div>
 <p>
        Note that <code class="option">--vgdb=full</code> (+500%, see above
@@ -1097,6 +1112,10 @@ vgdb v.set log_output -c leak_check any
 <dd><p>Instructs a standalone vgdb to report
     the list of the Valgrind gdbserver processes running and then
     exit.</p></dd>
+<dt><span class="term"><code class="option">-T</code></span></dt>
+<dd><p>Instructs vgdb to add timestamps to vgdb
+    information messages.
+    </p></dd>
 <dt><span class="term"><code class="option">-D</code></span></dt>
 <dd><p>Instructs a standalone vgdb to show the
     state of the shared memory used by the Valgrind gdbserver.  vgdb
@@ -1172,8 +1191,17 @@ client request.
     </p></li>
 <li class="listitem"><p><code class="varname">v.info open_fds</code> shows the list of open file
     descriptors and details related to the file descriptor.
-    This only works if <code class="option">--track-fds=yes</code>
-    was given at Valgrind startup.</p></li>
+    This only works if <code class="option">--track-fds=yes</code> or
+    <code class="option">--track-fds=all</code> (to include
+    <code class="computeroutput">stdin</code>,
+    <code class="computeroutput">stdout</code> and
+    <code class="computeroutput">stderr</code>) was given at Valgrindr
+    startup.</p></li>
+<li class="listitem"><p><code class="varname">v.clo &lt;clo_option&gt;...</code> changes one or more
+        dynamic command line options. If no clo_option is given, lists the
+        dynamically changeable options. See
+        <a class="xref" href="manual-core.html#manual-core.dynopts" title="2.7.8. Dynamically Changing Options">Dynamically Change Options</a>.
+      </p></li>
 <li class="listitem">
 <p><code class="varname">v.set {gdb_output | log_output |
     mixed_output}</code> allows redirection of the Valgrind output
@@ -1212,7 +1240,7 @@ client request.
     to a huge value and continue execution.</p></li>
 <li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
       requests the tool (Memcheck, Massif, Helgrind) to produce an xtree heap memory report. 
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.9. Execution Trees">Execution Trees</a> for
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for
       a detailed explanation about execution trees. </p></li>
 </ul></div>
 <p>The following Valgrind monitor commands are useful for
@@ -1317,8 +1345,7 @@ $3 = {lwpid = 0x4688, threadgroup = 0x4688, parent = 0x0,
 (gdb) p vex_control
 $5 = {iropt_verbosity = 0, iropt_level = 2, 
   iropt_register_updates = VexRegUpdUnwindregsAtMemAccess, 
-  iropt_unroll_thresh = 120, guest_max_insns = 60, guest_chase_thresh = 10, 
-  guest_chase_cond = 0 '\000'}
+  iropt_unroll_thresh = 120, guest_max_insns = 60, guest_chase_thresh = 10}
 (gdb) 
 </pre>
 </li>
