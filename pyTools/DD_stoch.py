@@ -149,6 +149,21 @@ class verrouTask:
         workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
         return (runDone, workToRun, cmpDone)
 
+    def getEstimatedFailProbability(self):
+        """Return an estimated probablity of fail for the configuration"""
+        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
+        listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
+
+        cacheCounter=0.
+        cacheFail=0.
+        for runDir in listOfDirString:
+            returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
+            if os.path.exists(returnValuePath):
+                cacheCounter+=1.
+                statusCmp=int((open(returnValuePath).readline()))
+                if statusCmp!=0:
+                    cacheFail+=1.
+        return cacheFail / cacheCounter
 
     def run(self, earlyExit=True):
         if self.verbose:
@@ -793,9 +808,13 @@ class DDStoch(DD.DD):
             self.internalError("SRDDMIN", md5Name(deltas)+" should fail")
 
         ddminTab=[]
+        nbMin=self._getSampleNumberToExpectFail(deltas)
 
+        filteredRunTab=[x for x in runTab if x>=nbMin]
+        if len(filteredRunTab)==0:
+            filteredRunTab=[nbRun]
         #increasing number of run
-        for run in runTab:
+        for run in filteredRunTab:
             testResult=self._test(deltas,run)
 
             #rddmin loop
@@ -906,6 +925,22 @@ class DDStoch(DD.DD):
 
         vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
         return vT.run(earlyExit=earlyExit)
+
+    def _getSampleNumberToExpectFail(self, deltas):
+        nbRun=self.config_.get_nbRUN()
+
+        dirname=os.path.join(self.prefix_, md5Name(deltas))
+        if not os.path.exists(dirname):
+            self.internalError("_getSampleNumberToExpectFail:", dirname+" should exist")
+
+        vT=verrouTask(dirname,None, None, None ,None, None, None)
+        p=vT.getEstimatedFailProbability()
+        if p==1.:
+            return 1
+        else:
+            alpha=0.85
+            return int(min( math.ceil(math.log(1-alpha) / math.log(1-p)), nbRun))
+
 
 
     def _testTab(self, deltasTab,nbRunTab=None):
