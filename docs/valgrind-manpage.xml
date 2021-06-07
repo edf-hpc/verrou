@@ -23,12 +23,20 @@
   </refsect2>
 
   <refsect2>
+    <title>Coverage generation</title>
+    <xi:include href="../../verrou/docs/vr-manual.xml"
+                xpointer="vr.opts.coverage.list"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect2>
+
+  <refsect2>
     <title>Detection options</title>
     <xi:include href="../../verrou/docs/vr-manual.xml"
                 xpointer="vr.opts.detection.list"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect2>
 
+  
   <refsect2>
     <title>Performance optimization</title>
     <xi:include href="../../verrou/docs/vr-manual.xml"
