@@ -265,8 +265,9 @@ def listOfHistogram(listOfBrutData):
     bins=  (numpy.histogram(listOfBrutData[0], bins=40, range=[minValue, maxValue]))[1]
     return bins,listOfBrutData
 
-def plot_hist(data, png=False):
-
+def plot_hist(data, png=False, relative=False):
+    if relative!=False:
+        plt.rcParams['text.usetex'] = True
     fig, ax = plt.subplots()
 
     plotWidth=1 #plot variable
@@ -284,11 +285,25 @@ def plot_hist(data, png=False):
         if len(data[roundingMode])>1:
             listOfTab+=[roundingMode]
 
+    convert= lambda x :x
+    legend= "X"
+    if relative!=False:
+
+        if relative in ["nearest", "upward" ,"toward_zero", "farthest"]:
+            valueRef=data[relative][0]
+            latexName=relative.replace("_","\_")
+            legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(latexName,latexName)
+        else:
+            valueRef=float(relative)
+            legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(relative,relative)
+        convert=lambda x:  (x-valueRef) /abs(valueRef)
+
+
 
     #extraction of same dataset size and histogram generation
     size=min([len(data[key]) for key in listOfTab  ])
-    hists=listOfHistogram([data[key][0:size] for key in listOfTab ])
-    bins,datas=listOfHistogram([data[key][0:size] for key in listOfTab ])
+#    hists=listOfHistogram([[convert(x) for x in data[key][0:size]] for key in listOfTab ])
+    bins,datas=listOfHistogram([[convert(x) for x in data[key][0:size]] for key in listOfTab ])
 
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
@@ -308,11 +323,14 @@ def plot_hist(data, png=False):
     #plot vertical line
     nameDet=listOfScalar
     for mode in nameDet:
-        value=data[mode][0]
+        value=convert(data[mode][0])
         #handle=plt.plot([value, value], [0, maxHist] , label=mode, linestyle='--', linewidth=plotWidth, color=lineColor[lineIndex])
         handle=plt.axvline(x=value,linestyle='--', linewidth=plotWidth, color=lineColor[lineIndex])
 
-        plt.text(value, 1., mode ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
+        modeStr=mode
+        if plt.rcParams['text.usetex']:
+            modeStr=mode.replace("_","\_")
+        plt.text(value, 1., modeStr ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
 
         lineIndex+=1
         #plthandle+=[handle[0]]
@@ -322,7 +340,10 @@ def plot_hist(data, png=False):
     plt.legend()
     plt.grid()
     plt.ylabel("#occurrence")
-    plt.xlabel("X")
+    if plt.rcParams['text.usetex']:
+        plt.ylabel("$\#occurrence$")
+
+    plt.xlabel(legend)
 
     if png!=False:
         plt.savefig(png,dpi=300,bbox_inches='tight')
@@ -342,11 +363,14 @@ class config_stat:
         self._hist=True
         self._time=False
         self._num_threads=None
+        self._relative=False
+
         self.parseOpt(argv[1:])
+
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=", "num-threads="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=", "num-threads=", "relative="])
         except getopt.GetoptError:
             self.help()
 
@@ -369,6 +393,9 @@ class config_stat:
                 continue
             if opt in ("-r","--rep"):
                 self._rep=arg
+                continue
+            if opt in ("--relative"):
+                self._relative=arg
                 continue
             if opt in ("-p","--png"):
                 self.png=arg
@@ -411,12 +438,13 @@ class config_stat:
 
     def help(self):
         name=sys.argv[0]
-        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name)  )
-        print( "\t -r --rep=:  working directory")
+        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
+        print( "\t -r --rep=:  working directory [default verrou.stat]")
         print( "\t -s --samples= : number of samples")
         print( "\t --num-threads= : number of parallel run")
+        print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
         print( "\t -p --png= : png file to export plot")
-        print( "\t -m --montecarlo : stochastique analysis of deterministic rounding mode")
+        print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
 
     def checkScriptPath(self,fpath):
@@ -470,6 +498,10 @@ class config_stat:
     def num_threads(self):
         return self._num_threads
 
+    def relative(self):
+        return self._relative
+
+
 if __name__=="__main__":
     conf=config_stat(sys.argv)
     nbSamples=conf.getSampleConfig()
@@ -478,7 +510,7 @@ if __name__=="__main__":
 
     if conf.isHist():
         dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples)
-        plot_hist(dataExtracted, png=conf.png)
+        plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)
