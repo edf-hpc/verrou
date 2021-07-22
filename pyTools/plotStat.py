@@ -455,7 +455,7 @@ class config_stat:
             print(fpath + " should be executable")
             self.help()
             self.failure()
-    def failure():
+    def failure(self):
         sys.exit(42)
 
     def runScript(self):
