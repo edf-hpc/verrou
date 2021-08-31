@@ -239,10 +239,19 @@ class ddConfig:
 
     def get_rddMinTab(self):
         rddMinTab=None
+        nbProc=1
+        if self.maxNbPROC!=None:
+            nbProc=self.maxNbPROC
         if self.param_rddmin_tab=="exp":
-            rddMinTab=exponentialRange(self.nbRUN)
+            if nbProc >self.nbRUN:
+                return [self.nbRUN]
+            else:
+                return [x for x in exponentialRange(self.nbRUN) if x>=nbProc]
         if self.param_rddmin_tab=="all":
-            rddMinTab=range(1,self.nbRUN+1)
+            if nbProc>self.nbRUN:
+                return range(1,self.nbRUN+1)
+            else:
+                return range(nbProc, self.nbRUN+1)
         if self.param_rddmin_tab=="single":
             rddMinTab=[self.nbRUN]
         return rddMinTab

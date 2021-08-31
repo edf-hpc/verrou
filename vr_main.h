@@ -164,6 +164,7 @@ typedef struct {
 
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
+  HChar* outputTraceRep;
 } Vr_State;
 
 extern Vr_State vr;

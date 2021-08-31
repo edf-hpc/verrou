@@ -1228,7 +1228,7 @@ static void vr_post_clo_init(void)
 
 
   if(vr.genTrace){
-     vr_traceBB_initialize();
+     vr_traceBB_initialize(vr.outputTraceRep);
    }
 
    /*If no operation selected the default is all*/

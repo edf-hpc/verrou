@@ -444,7 +444,15 @@ det2
 		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
             </para></listitem>
           </varlistentry>
+
+	<varlistentry id="vr.opt.output-trace-rep" xreflabel="--output-trace-rep">
+            <term><option><![CDATA[--output-trace-rep=REP]]></option></term>
+            <listitem><para>
+		Specify the <computeroutput>REP</computeroutput> directory for the trace output files.
+            </para></listitem>
+          </varlistentry>
 	</variablelist>
+
       </section>
 
       <section>
