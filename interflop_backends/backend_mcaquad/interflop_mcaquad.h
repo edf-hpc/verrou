@@ -40,7 +40,7 @@ extern "C" {
 #endif
 #define IFMQ_FCTNAME(FCT) interflop_mcaquad_##FCT
 
-#include "../interflop_backend_interface.h"
+#include "../interflop.h"
 
 
    /* Repris depuis vfcwrapper.h*/
@@ -62,7 +62,7 @@ extern "C" {
   typedef struct mcaquad_conf mcaquad_conf_t;
 
   void IFMQ_FCTNAME(configure)(mcaquad_conf_t mode,void* context);
-  void IFMQ_FCTNAME(finalyze)(void* context);
+  void IFMQ_FCTNAME(finalize)(void* context);
 
   const char* IFMQ_FCTNAME(get_backend_name)(void);
   const char* IFMQ_FCTNAME(get_backend_version)(void);

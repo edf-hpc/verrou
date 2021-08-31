@@ -172,8 +172,8 @@ void vr_traceBB_initialize(char* path){
   }
 };
 
-void vr_traceBB_finalyze(void);
-void vr_traceBB_finalyze(void){
+void vr_traceBB_finalize(void);
+void vr_traceBB_finalize(void){
    freeTraceBBList();
 
   if(vr_out_bb_info!=NULL){

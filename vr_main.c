@@ -1075,11 +1075,11 @@ static void vr_fini(Int exitcode)
 
 
   vr_ppOpCount ();
-  interflop_verrou_finalyze(backend_verrou_context);
+  interflop_verrou_finalize(backend_verrou_context);
 #ifdef USE_VERROU_QUAD
-  interflop_mcaquad_finalyze(backend_mcaquad_context);
+  interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
-  interflop_checkcancellation_finalyze(backend_checkcancellation_context);
+  interflop_checkcancellation_finalize(backend_checkcancellation_context);
 
 
   if (vr.genExclude) {
@@ -1094,7 +1094,7 @@ static void vr_fini(Int exitcode)
 
   if(vr.genTrace){
     vr_traceBB_dumpCov();
-    vr_traceBB_finalyze();
+    vr_traceBB_finalize();
   }
   if (vr.dumpCancellation){
      vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );

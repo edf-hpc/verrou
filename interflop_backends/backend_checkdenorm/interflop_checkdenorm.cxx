@@ -35,7 +35,7 @@
 #include <limits>
 #include <cmath>
 
-#include "../backend_verrou/vr_fma.hxx"
+#include "../interflop_verrou/vr_fma.hxx"
 
 checkdenorm_conf_t checkdenorm_conf;
 
@@ -78,7 +78,7 @@ void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode, void* context) {
   checkdenorm_conf=mode;
 }
 
-void IFCD_FCTNAME(finalyze)(void* context){
+void IFCD_FCTNAME(finalize)(void* context){
 }
 
 const char* IFCD_FCTNAME(get_backend_name)() {
@@ -170,23 +170,25 @@ void IFCD_FCTNAME(cast_double_to_float) (double a, float* res,void* context) {
 
 
 struct interflop_backend_interface_t IFCD_FCTNAME(init)(void ** context){
-  struct interflop_backend_interface_t config;
+  struct interflop_backend_interface_t config=interflop_backend_empty_interface;
 
-  config.interflop_add_float = & IFCD_FCTNAME(add_float);
-  config.interflop_sub_float = & IFCD_FCTNAME(sub_float);
-  config.interflop_mul_float = & IFCD_FCTNAME(mul_float);
-  config.interflop_div_float = & IFCD_FCTNAME(div_float);
+  config.add_float = & IFCD_FCTNAME(add_float);
+  config.sub_float = & IFCD_FCTNAME(sub_float);
+  config.mul_float = & IFCD_FCTNAME(mul_float);
+  config.div_float = & IFCD_FCTNAME(div_float);
 
-  config.interflop_add_double = & IFCD_FCTNAME(add_double);
-  config.interflop_sub_double = & IFCD_FCTNAME(sub_double);
-  config.interflop_mul_double = & IFCD_FCTNAME(mul_double);
-  config.interflop_div_double = & IFCD_FCTNAME(div_double);
+  config.add_double = & IFCD_FCTNAME(add_double);
+  config.sub_double = & IFCD_FCTNAME(sub_double);
+  config.mul_double = & IFCD_FCTNAME(mul_double);
+  config.div_double = & IFCD_FCTNAME(div_double);
 
 
-  config.interflop_cast_double_to_float=& IFCD_FCTNAME(cast_double_to_float);
+  config.cast_double_to_float=& IFCD_FCTNAME(cast_double_to_float);
 
-  config.interflop_madd_float = & IFCD_FCTNAME(madd_float);
-  config.interflop_madd_double =& IFCD_FCTNAME(madd_double);
+  config.madd_float = & IFCD_FCTNAME(madd_float);
+  config.madd_double =& IFCD_FCTNAME(madd_double);
+
+  config.finalize =& IFCD_FCTNAME(finalize);
 
   return config;
 }

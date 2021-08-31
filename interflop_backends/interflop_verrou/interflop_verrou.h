@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-#include "../interflop_backend_interface.h"
+#include "../interflop.h"
 
 
   
@@ -61,7 +61,7 @@ extern "C" {
 
 
   void IFV_FCTNAME(configure)(enum vr_RoundingMode mode,void* context);
-  void IFV_FCTNAME(finalyze)(void* context);
+  void IFV_FCTNAME(finalize)(void* context);
 
   const char* IFV_FCTNAME(get_backend_name)(void);
   const char* IFV_FCTNAME(get_backend_version)(void);

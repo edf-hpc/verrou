@@ -55,19 +55,11 @@
 
 #include "verrou.h"
 
-//backend
-#include "backend_verrou/interflop_verrou.h"
+#include "interflop_backends/statically_integrated_backends.h"
 
-#ifdef USE_VERROU_QUAD
-#include "backend_mcaquad/interflop_mcaquad.h"
-#endif
-
-#include "backend_checkdenorm/interflop_checkdenorm.h"
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
-//backend post-treatment
-#include "backend_checkcancellation/interflop_checkcancellation.h"
 typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation} vr_backendpost_name_t;
 
 

@@ -41,7 +41,7 @@ extern "C" {
 #define IFCD_FCTNAME(FCT) interflop_checkdenorm_##FCT
 #define IFCD_DOOP
    
-#include "../interflop_backend_interface.h"
+#include "../interflop.h"
 
    struct checkdenorm_conf {
       int flushtozero; //bool
@@ -51,7 +51,7 @@ extern "C" {
 
 
   void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode,void* context);
-  void IFCD_FCTNAME(finalyze)(void* context);
+  void IFCD_FCTNAME(finalize)(void* context);
 
   const char* IFCD_FCTNAME(get_backend_name)(void);
   const char* IFCD_FCTNAME(get_backend_version)(void);
