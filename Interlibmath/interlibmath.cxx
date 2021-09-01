@@ -10,9 +10,9 @@
 
 #include <float.h>
 #include <quadmath.h>
-#include "../backend_verrou/interflop_verrou.h"
-#include "../backend_verrou/vr_rand.h"
-#include "../backend_verrou/vr_roundingOp.hxx"
+#include "../interflop_backends/interflop_verrou/interflop_verrou.h"
+#include "../interflop_backends/interflop_verrou/vr_rand.h"
+#include "../interflop_backends/interflop_verrou/vr_roundingOp.hxx"
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
