@@ -112,7 +112,7 @@ class verrouTask:
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
-        with open(os.path.join(self.dirname, rundir, "dd.return.value"),"w") as f:
+        with open(os.path.join(rundir, "dd.return.value"),"w") as f:
             f.write(str(retval))
         if retval != 0:
             self.alreadyFail=True
