@@ -368,7 +368,8 @@ class DDStoch(DD.DD):
 
         for rep in rddmin_heuristic_rep:
             repTab=glob.glob(os.path.join(rep, "ddmin*"))
-            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in repTab]
+            deltaFileNameTab=[os.path.join(rep, self.getDeltaFileName()+".include") for rep in repTab ]
+            self.ddminHeuristic+=[ (open(fileName)).readlines()  for fileName in deltaFileNameTab if os.path.exists(fileName)]
 
     def prepareCache(self):
         cache=self.config_.get_cache()
