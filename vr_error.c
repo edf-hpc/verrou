@@ -56,6 +56,8 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "Cancellation";
   case VR_ERROR_CD:
     return "Denorm";
+  case VR_ERROR_FLT_MAX:
+    return "FLT_MAX";
 
   default:
     return NULL;
@@ -116,6 +118,14 @@ void vr_handle_NaN () {
       vr_maybe_record_ErrorRt(VR_ERROR_NAN);
    }
 }
+
+void vr_handle_FLT_MAX () {
+   if(vr.checkFloatMax){
+      vr_maybe_record_ErrorRt(VR_ERROR_FLT_MAX);
+   }
+}
+
+
 void vr_handle_CC (int unused) {
    ThreadId tid = VG_(get_running_tid)();
    Addr addr;
@@ -223,6 +233,7 @@ void vr_pp_Error (const Error* err) {
   case VR_ERROR_NAN:
   case VR_ERROR_CC:
   case VR_ERROR_CD:
+  case VR_ERROR_FLT_MAX:
      vr_pp_ErrorRt (err);
      break;
   }

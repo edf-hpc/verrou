@@ -49,6 +49,10 @@ void* backend_checkcancellation_context;
 struct interflop_backend_interface_t backend_checkdenorm;
 void* backend_checkdenorm_context;
 
+struct interflop_backend_interface_t backend_check_float_max;
+void* backend_check_float_max_context;
+
+
 
 
 
@@ -841,16 +845,24 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
-   if(vr.backend==vr_verrou && !checkCancellation){
+   if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
    }
-   if(vr.backend==vr_verrou && checkCancellation){
+   if(vr.backend==vr_verrou && checkCancellation && ! vr.checkFloatMax){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+   }
+
+   if(vr.backend==vr_verrou && !checkCancellation && vr.checkFloatMax){
+#define bcName(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
+#define bcNameWithCC(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
@@ -1080,6 +1092,7 @@ static void vr_fini(Int exitcode)
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
+  interflop_check_float_max_finalize(backend_check_float_max_context);
 
 
   if (vr.genExclude) {
@@ -1204,6 +1217,12 @@ static void vr_post_clo_init(void)
 
 
 
+   backend_check_float_max=interflop_check_float_max_init(&backend_check_float_max_context);
+   ifmax_set_max_handler(&vr_handle_FLT_MAX);
+
+   VG_(umsg)("Backend %s : %s\n", interflop_check_float_max_get_backend_name(), interflop_check_float_max_get_backend_version() );
+
+
 
    /*Init outfile cancellation*/
    if(vr.roundingMode==VR_FTZ){
@@ -1225,7 +1244,9 @@ static void vr_post_clo_init(void)
      }
      vr.backend=vr_checkdenorm;
   }
-
+  if(vr.checkFloatMax && vr.backend!=vr_verrou){
+    VG_(tool_panic)("backend check_float_max is only compatible with verrou backend");
+  }
 
   if(vr.genTrace){
      vr_traceBB_initialize(vr.outputTraceRep);

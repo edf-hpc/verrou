@@ -60,7 +60,7 @@
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
-typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation} vr_backendpost_name_t;
+typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation, vr_check_float_max} vr_backendpost_name_t;
 
 
 // * Type declarations
@@ -154,6 +154,8 @@ typedef struct {
   HChar* denormDumpFile;
   Vr_IncludeSource * denormSource;
 
+  Bool checkFloatMax;
+
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
   HChar* outputTraceRep;
@@ -170,6 +172,8 @@ UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
 void vr_cancellation_handler(int cancelled );
 void vr_denorm_handler(void);
+void vr_float_max_handler(void);
+
 
 
 // ** vr_clreq.c
@@ -186,6 +190,7 @@ typedef enum {
   VR_ERROR_NAN,
   VR_ERROR_CC,
   VR_ERROR_CD,
+  VR_ERROR_FLT_MAX,
   VR_ERROR
 } Vr_ErrorKind;
 
@@ -210,6 +215,8 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 void vr_handle_NaN (void);
 void vr_handle_CC (int);
 void vr_handle_CD (void);
+void vr_handle_FLT_MAX (void);
+
 
 // ** vr_exclude.c
 

@@ -90,6 +90,8 @@ void vr_clo_defaults (void) {
   vr.ftz=False;
   vr.dumpDenorm=False;
   vr.cancellationSource=NULL;
+
+  vr.checkFloatMax=False;
 }
 
 
@@ -172,6 +174,10 @@ Bool vr_process_clo (const HChar *arg) {
 
   else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
      vr.checknan= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
+    vr.checkFloatMax=bool_val;
   }
 
   //Options to choose op to instrument

@@ -523,6 +523,13 @@ det2
             </para></listitem>
           </varlistentry>
 
+	  <varlistentry id="vr.opt.float_max" xreflabel="--check-max-float">
+            <term><option><![CDATA[--check-max-float=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate max float detection. This functionnality is compatible only with verrou backend.
+            </para></listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
