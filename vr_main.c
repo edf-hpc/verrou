@@ -96,19 +96,6 @@ static const HChar* vr_ppOp (Vr_Op op) {
   return "unknown";
 }
 
-// *** Operation precision
-
-typedef enum {
-  VR_PREC_FLT,  // Single
-  VR_PREC_DBL,  // Double
-  VR_PREC_DBL_TO_FLT,
-  VR_PREC_FLT_TO_DBL,
-  VR_PREC_DBL_TO_INT,
-  VR_PREC_DBL_TO_SHT,
-  VR_PREC_FLT_TO_INT,
-  VR_PREC_FLT_TO_SHT,
-  VR_PREC
-} Vr_Prec;
 
 static const HChar* vr_ppPrec (Vr_Prec prec) {
   switch (prec) {
@@ -134,16 +121,7 @@ static const HChar* vr_ppPrec (Vr_Prec prec) {
   return "unknown";
 }
 
-// *** Vector operations
 
-typedef enum {
-  VR_VEC_SCAL,  // Scalar operation
-  VR_VEC_LLO,   // Vector operation, lowest lane only
-  VR_VEC_FULL2,  // Vector operation
-  VR_VEC_FULL4,  // Vector operation
-  VR_VEC_FULL8,  // Vector operation
-  VR_VEC
-} Vr_Vec;
 
 static const HChar* vr_ppVec (Vr_Vec vec) {
   switch (vec) {
@@ -444,6 +422,13 @@ static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
   return True;
 }
 
+
+static Bool vr_isInstrumented(Vr_Op op,
+			      Vr_Prec prec,
+			      Vr_Vec vec){
+   return vr.instr_op[op] && vr.instr_vec[vec]&&vr.instr_prec[prec] && vr.instrument;
+}
+
 /* Replace a given binary operation by a call to a function
  */
 static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
@@ -459,7 +444,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  if(!vr.instr_op[op] || !vr.instrument || !vr.instr_scalar) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
@@ -513,7 +498,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Vr_Prec prec,
 					    Vr_Vec vec){
   //instrumentation to count operation
-  if(!vr.instr_op[op] || !vr.instrument) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -565,7 +550,7 @@ static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
 					      Vr_Prec prec,
 					      Vr_Vec vec){
   //instrumentation to count operation
-  if(!vr.instr_op[op] || !vr.instrument) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -629,7 +614,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec) {
-  if(!vr.instr_op[op] || !vr.instrument) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -678,7 +663,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec) {
-  if(!vr.instr_op[op] || !vr.instrument) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -755,14 +740,14 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
-			   Vr_Op   Op,
-			   Vr_Prec Prec) {
-  if(!vr.instr_op[Op] || !vr.instrument) {
-    vr_countOp (sb,  Op, Prec, VR_VEC_LLO,False);
+			   Vr_Op   op,
+			   Vr_Prec prec) {
+  if(!(vr_isInstrumented(op,prec,VR_VEC_LLO))) {
+    vr_countOp (sb,  op, prec, VR_VEC_LLO,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  Op, Prec, VR_VEC_LLO,True);
+  vr_countOp (sb,  op, prec, VR_VEC_LLO,True);
 
 #ifdef USE_VERROU_FMA
   //  IRExpr * arg1 = expr->Iex.Qop.details->arg1; Rounding mode
@@ -770,13 +755,13 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr * arg3 = expr->Iex.Qop.details->arg3;
   IRExpr * arg4 = expr->Iex.Qop.details->arg4;
   IRTemp res = newIRTemp (sb->tyenv, Ity_I64);
-  if(Prec== VR_PREC_DBL){
+  if(prec== VR_PREC_DBL){
     arg2=vr_F64toI64(sb,arg2);
     arg3=vr_F64toI64(sb,arg3);
     arg4=vr_F64toI64(sb,arg4);
 
   }
-  if(Prec==VR_PREC_FLT){
+  if(prec==VR_PREC_FLT){
     arg2=vr_F32toI64(sb,arg2);
     arg3=vr_F32toI64(sb,arg3);
     arg4=vr_F32toI64(sb,arg4);
@@ -790,12 +775,12 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
-  if(Prec==VR_PREC_FLT){
+  if(prec==VR_PREC_FLT){
     IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
     				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
   }
-  if(Prec==VR_PREC_DBL){
+  if(prec==VR_PREC_DBL){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				     IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
   }
@@ -808,16 +793,17 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
+
 static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
-			    Vr_Op   Op,
-			    Vr_Prec Prec) {
-  if(!vr.instr_op[Op] || !vr.instrument ) {
-    vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,False);
+			    Vr_Op   op,
+			    Vr_Prec prec) {
+  if(!(vr_isInstrumented(op,prec,VR_VEC_SCAL))) {
+    vr_countOp (sb,  op, prec, VR_VEC_SCAL,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  Op, Prec, VR_VEC_SCAL,True);
+  vr_countOp (sb,  op, prec, VR_VEC_SCAL,True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
@@ -1034,6 +1020,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 					     linenumPtr);
       if(! success || (**filenamePtr)==0){
 	filenamePtr=&filenamenoname;
+        *linenumPtr=0;
       }
       if(genIRSBTrace){
 	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr);
@@ -1050,8 +1037,10 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
         Bool doInstrContainFloat= vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data);
 	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
-        break;
+      }else{
+         addStmtToIRSB (sbOut, sbIn->stmts[i]);
       }
+      break;
     default:
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
@@ -1271,9 +1260,21 @@ static void vr_post_clo_init(void)
      if(vr.instr_op[opIt]==True) VG_(umsg)("yes\n");
      else VG_(umsg)("no\n");
    }
-   VG_(umsg)("Instrumented scalar operations : ");
-   if(vr.instr_scalar) VG_(umsg)("yes\n");
-   else VG_(umsg)("no\n");
+   VG_(umsg)("Instrumented vectorized operations :\n");
+   int vecIt;
+   for (vecIt=0; vecIt< VR_VEC ;vecIt++){
+      VG_(umsg)("\t%s : ", vr_ppVec(vecIt));
+      if(vr.instr_vec[vecIt]==True) VG_(umsg)("yes\n");
+      else VG_(umsg)("no\n");
+   }
+
+   VG_(umsg)("Instrumented type :\n");
+   int precIt;
+   for (precIt=0; precIt< 3 ;precIt++){
+      VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
+      if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
+      else VG_(umsg)("no\n");
+   }
 
    if(!vr.instrument){
      vr.instrument = True;

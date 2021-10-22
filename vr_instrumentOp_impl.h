@@ -331,9 +331,10 @@
 
     case Iop_PwMax32Fx4: case Iop_PwMin32Fx4:
       vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
+      addStmtToIRSB (sb, stmt);
+      break;
 
     default:
-      //      ppIRStmt (stmt);
       addStmtToIRSB (sb, stmt);
       break;
     }

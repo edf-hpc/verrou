@@ -85,6 +85,30 @@ typedef enum {
   VR_OP
 } Vr_Op; //Warning : Operation after   VR_OP_CMP are not instrumented
 
+// *** Vector operations
+typedef enum {
+  VR_VEC_SCAL,  // Scalar operation
+  VR_VEC_LLO,   // Vector operation, lowest lane only
+  VR_VEC_FULL2,  // Vector operation
+  VR_VEC_FULL4,  // Vector operation
+  VR_VEC_FULL8,  // Vector operation
+  VR_VEC
+} Vr_Vec;
+
+// *** Operation precision
+typedef enum {
+  VR_PREC_FLT,  // Single
+  VR_PREC_DBL,  // Double
+  VR_PREC_DBL_TO_FLT,
+  VR_PREC_FLT_TO_DBL,
+  VR_PREC_DBL_TO_INT,
+  VR_PREC_DBL_TO_SHT,
+  VR_PREC_FLT_TO_INT,
+  VR_PREC_FLT_TO_SHT,
+  VR_PREC
+} Vr_Prec;
+
+
 typedef struct Vr_Exclude_ Vr_Exclude;
 struct Vr_Exclude_ {
   HChar*      fnname;
@@ -114,7 +138,9 @@ typedef struct {
   enum vr_RoundingMode roundingMode;
   Bool count;
   Bool instr_op[VR_OP];
-  Bool instr_scalar;
+  Bool instr_vec[VR_VEC];
+  Bool instr_prec[VR_PREC];
+
   Vr_Instr instrument;
   Bool verbose;
   Bool unsafe_llo_optim;

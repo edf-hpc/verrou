@@ -50,7 +50,6 @@ void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
   vr.count = True;
-  vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
@@ -71,6 +70,15 @@ void vr_clo_defaults (void) {
   for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
   }
+  int vecIt;
+  for(vecIt=0 ; vecIt<VR_VEC ; vecIt++){
+    vr.instr_vec[vecIt]=True;
+  }
+  vr.instr_vec[VR_VEC_SCAL]=False;
+
+  vr.instr_prec[VR_PREC_FLT]=True;
+  vr.instr_prec[VR_PREC_DBL]=True;
+  vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
   vr.firstSeed=(unsigned int)(-1);
   vr.mca_precision_double=53;
@@ -182,7 +190,31 @@ Bool vr_process_clo (const HChar *arg) {
 
   //Options to choose op to instrument
   else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
-    vr.instr_scalar= bool_val;
+    vr.instr_vec[VR_VEC_SCAL]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-llo", bool_val)) {
+    vr.instr_vec[VR_VEC_LLO]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec2", bool_val)) {
+    vr.instr_vec[VR_VEC_FULL2]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec4", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL4]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec8", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL8]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-flt", bool_val)) {
+     vr.instr_prec[VR_PREC_FLT]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-dbl", bool_val)) {
+     vr.instr_prec[VR_PREC_DBL]= bool_val;
   }
 
   //Option --vr-verbose (to avoid verbose of valgrind)

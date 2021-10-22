@@ -360,7 +360,29 @@ det2
             </para></listitem>
           </varlistentry>
 
-        </variablelist>
+	  <varlistentry id="vr-opt.instr-llo" xreflabel="--vr-instr-llo-">
+            <term><option><![CDATA[--vr-instr-llo=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of llo scalar instructions (all fma instructions are considered as llo).
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.instr-vec" xreflabel="--vr-instr-vec-">
+            <term><option><![CDATA[--vr-instr-vec<2,4,8>=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of vectorized instructions (number corresponds to the pack size)
+            </para></listitem>
+          </varlistentry>
+
+	      <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
+            <term><option><![CDATA[--vr-instr-[flt|dbl]=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of float (or double) instructions.
+              </para>
+	    </listitem>
+           </varlistentry>
+
+	  </variablelist>
       </section>
 
       <section>
