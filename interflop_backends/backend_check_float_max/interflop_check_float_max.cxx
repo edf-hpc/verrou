@@ -47,6 +47,12 @@ void ifmax_set_max_handler(void (*maxHandler)(void)){
   ifmax_maxHandler=maxHandler;
 }
 
+void (*ifmax_debug_print_op)(int,const char*, const double*, const double*)=NULL;
+void ifmax_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res)){
+  ifmax_debug_print_op=printOpHandler;
+};
+
+
 
 template<typename REAL>
 bool ifmax_is_flt_max(const REAL& a);
@@ -63,18 +69,28 @@ bool ifmax_is_flt_max(const double& a){
 
 template <typename REAL>
 inline
-void ifmax_checkmax (const REAL & a, const REAL & b, const REAL & r) {
+void ifmax_checkmax (const char* op, const REAL & a, const REAL & b, const REAL & r) {
 
   if (ifmax_is_flt_max(a) || ifmax_is_flt_max(b)) {
+    if(ifmax_debug_print_op!=NULL){
+      double param[2]={a,b};
+      double res[1]={r};
+      ifmax_debug_print_op(2,op,param,res);
+    }
     ifmax_maxHandler();
   }
 }
 
 template <typename REAL>
 inline
-void ifmax_checkmax (const REAL & a, const REAL & b,  const REAL & c, const REAL & r) {
+void ifmax_checkmax (const char* op, const REAL & a, const REAL & b,  const REAL & c, const REAL & r) {
 
   if (ifmax_is_flt_max(a) || ifmax_is_flt_max(b) || ifmax_is_flt_max(c) ) {
+    if(ifmax_debug_print_op!=NULL){
+      double param[3]={a,b,c};
+      double res[1]={r};
+      ifmax_debug_print_op(3,op,param,res);
+    }
     ifmax_maxHandler();
   }
 }
@@ -82,9 +98,14 @@ void ifmax_checkmax (const REAL & a, const REAL & b,  const REAL & c, const REAL
 
 template <typename REAL>
 inline
-void ifmax_checkmax (const REAL & a, const float & r) {
+void ifmax_checkmax (const char* op, const REAL & a, const float & r) {
 
   if (ifmax_is_flt_max(a) || ifmax_is_flt_max(r)) {
+    if(ifmax_debug_print_op!=NULL){
+      double param[1]={a};
+      double res[1]={r};
+      ifmax_debug_print_op(1,op,param,res);
+    }
     ifmax_maxHandler();
   }
 }
@@ -108,47 +129,47 @@ const char* IFMAX_FCTNAME(get_backend_version)() {
 }
 
 void IFMAX_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("add_double",a,b,*res);
 }
 
 void IFMAX_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("add_float",a,b,*res);
 }
 
 void IFMAX_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("sub_double",a,b,*res);
 }
 
 void IFMAX_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("sub_float",a,b,*res);
 }
 
 
 void IFMAX_FCTNAME(mul_double) (double a, double b, double* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("mul_double",a,b,*res);
 }
 
 void IFMAX_FCTNAME(mul_float) (float a, float b, float* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("mul_float",a,b,*res);
 }
 
 void IFMAX_FCTNAME(div_double) (double a, double b, double* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("div_double",a,b,*res);
 }
 
 void IFMAX_FCTNAME(div_float) (float a, float b, float* res,void* context) {
-  ifmax_checkmax(a,b,*res);
+  ifmax_checkmax("div_float",a,b,*res);
 }
 void IFMAX_FCTNAME(cast_double_to_float) (double a, float* res,void* context) {
-   ifmax_checkmax(a,*res);
+  ifmax_checkmax("cast_double_to_float",a,*res);
 }
 
 void IFMAX_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-  ifmax_checkmax(a,b,c,*res);
+  ifmax_checkmax("madd_double",a,b,c,*res);
 }
 
 void IFMAX_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-  ifmax_checkmax(a,b,c,*res);
+  ifmax_checkmax("madd_float",a,b,c,*res);
 }
 
 

@@ -1219,6 +1219,7 @@ static void vr_post_clo_init(void)
 
    backend_check_float_max=interflop_check_float_max_init(&backend_check_float_max_context);
    ifmax_set_max_handler(&vr_handle_FLT_MAX);
+   ifmax_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
    VG_(umsg)("Backend %s : %s\n", interflop_check_float_max_get_backend_name(), interflop_check_float_max_get_backend_version() );
 

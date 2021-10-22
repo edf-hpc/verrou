@@ -33,7 +33,6 @@
 #ifndef __INTERFLOP_CHECK_FLOAT_MAX_H
 #define __INTERFLOP_CHECK_FLOAT_MAX_H
 
-//#define DEBUG_PRINT_OP
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +50,7 @@ extern "C" {
   const char* IFMAX_FCTNAME(get_backend_version)(void);
 
   void ifmax_set_max_handler(void (*)(void));
-
+  void ifmax_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res));
 
   struct interflop_backend_interface_t IFMAX_FCTNAME(init)(void ** context);
    
