@@ -363,7 +363,7 @@ det2
 	  <varlistentry id="vr-opt.instr-llo" xreflabel="--vr-instr-llo-">
             <term><option><![CDATA[--vr-instr-llo=<yes|no> [default=yes]]]></option></term>
             <listitem><para>
-                Toggle instrumentation of llo scalar instructions (all fma instructions are considered as llo).
+                Toggle instrumentation of llo scalar instructions (cast and all fma instructions are considered as llo).
             </para></listitem>
           </varlistentry>
 

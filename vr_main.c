@@ -798,12 +798,12 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   op,
 			    Vr_Prec prec) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_SCAL))) {
-    vr_countOp (sb,  op, prec, VR_VEC_SCAL,False);
+  if(!(vr_isInstrumented(op,prec,VR_VEC_LLO))) {
+    vr_countOp (sb,  op, prec, VR_VEC_LLO,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec, VR_VEC_SCAL,True);
+  vr_countOp (sb,  op, prec, VR_VEC_LLO,True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
