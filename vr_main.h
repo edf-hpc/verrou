@@ -92,6 +92,7 @@ typedef enum {
   VR_VEC_FULL2,  // Vector operation
   VR_VEC_FULL4,  // Vector operation
   VR_VEC_FULL8,  // Vector operation
+  VR_VEC_UNK,
   VR_VEC
 } Vr_Vec;
 

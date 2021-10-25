@@ -135,6 +135,8 @@ static const HChar* vr_ppVec (Vr_Vec vec) {
     return "vec4 ";
   case VR_VEC_FULL8:
     return "vec8 ";
+  case VR_VEC_UNK:
+    return "unk ";
 
   default:
     return "unknown";
@@ -292,6 +294,9 @@ void vr_ppOpCount (void) {
                     vr_frac (countPrec[VR_INSTR_ON], countPrec[VR_INSTR_OFF]));
 
           for (vec = 0 ; vec<VR_VEC ; ++vec) {
+	    if(vec==VR_VEC_UNK){
+	      continue;
+	    }
             ULong * count = vr_opCount[op][prec][vec];
             if (count[VR_INSTR_ON] + count[VR_INSTR_OFF] > 0) {
               VG_(umsg)("      `- %-6s       %15llu          %15llu  (%3u%%)\n",
@@ -742,12 +747,12 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
 			   Vr_Op   op,
 			   Vr_Prec prec) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_LLO))) {
-    vr_countOp (sb,  op, prec, VR_VEC_LLO,False);
+  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+    vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec, VR_VEC_LLO,True);
+  vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
 
 #ifdef USE_VERROU_FMA
   //  IRExpr * arg1 = expr->Iex.Qop.details->arg1; Rounding mode
@@ -798,12 +803,12 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   op,
 			    Vr_Prec prec) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_LLO))) {
-    vr_countOp (sb,  op, prec, VR_VEC_LLO,False);
+  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+    vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec, VR_VEC_LLO,True);
+  vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
@@ -1270,7 +1275,7 @@ static void vr_post_clo_init(void)
 
    VG_(umsg)("Instrumented type :\n");
    int precIt;
-   for (precIt=0; precIt< 3 ;precIt++){
+   for (precIt=0; precIt< 2 ;precIt++){
       VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
       if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
       else VG_(umsg)("no\n");

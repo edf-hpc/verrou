@@ -24,10 +24,10 @@ Instrumented vectorized operations :
 	vec2  : yes
 	vec4  : yes
 	vec8  : yes
+	unk  : yes
 Instrumented type :
 	flt : yes
 	dbl : yes
-	dbl=>flt : yes
 Denorm: 
    at 0xFFFFFF: main (denorm.c:6)
 
@@ -51,6 +51,5 @@ Denorm:
  ---------------------------------------------------------------------
  mAdd                       1                        1          (100%)
   `- dbl                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)

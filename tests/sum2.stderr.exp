@@ -24,10 +24,10 @@ Instrumented vectorized operations :
 	vec2  : yes
 	vec4  : yes
 	vec8  : yes
+	unk  : yes
 Instrumented type :
 	flt : yes
 	dbl : yes
-	dbl=>flt : yes
 Backend verrou simulating RANDOM rounding mode
 
  ---------------------------------------------------------------------
@@ -53,8 +53,6 @@ Backend verrou simulating RANDOM rounding mode
  ---------------------------------------------------------------------
  conv                       4                        0          (  0%)
   `- dbl=>flt                   2                        0      (  0%)
-      `- scal                       2                        0  (  0%)
   `- flt=>dbl                   2                        0      (  0%)
-      `- scal                       2                        0  (  0%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
