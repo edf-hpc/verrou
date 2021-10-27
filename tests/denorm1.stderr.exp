@@ -29,13 +29,14 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:6)
+   at 0xFFFFFF: main (denorm.cxx:8)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:19)
+   at 0xFFFFFF: main (denorm.cxx:21)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:20)
+   at 0xFFFFFF: double vr_fma<double>(double const&, double const&, double const&) (fmaintrin.h:73)
+   by 0x109203: main (denorm.cxx:22)
 
 
  ---------------------------------------------------------------------
