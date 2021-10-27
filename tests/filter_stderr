@@ -26,6 +26,7 @@ while [ ! -z "$1" ]; do
             ;;
 	"-addr-error")
             cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"
+	    cmd="${cmd} | perl -pne 's/   by 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   by 0xFFFFFF: \$1 \$2/;'"
             ;;
 	"-copyright")
             cmd="${cmd} | perl -pne 's/^(Copyright \(C\) )[\S\s]*/\$1XXXXX/;'"
