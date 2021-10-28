@@ -1,5 +1,29 @@
 #!/usr/bin/env python3
 
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
 import sys
 import re
 
@@ -82,19 +106,22 @@ if __name__=="__main__":
 
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
 
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
 
     listOfOp2Args=["add","sub"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad"], listOfOp2Args, 2, post="checkcancellation")
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
 
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
 
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
 
     fileOut.close()

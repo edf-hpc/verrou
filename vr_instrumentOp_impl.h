@@ -113,7 +113,7 @@
 #ifndef IGNOREFMA
        return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT);
 #else
-       vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_SCAL,False);
+       vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
@@ -121,7 +121,7 @@
 #ifndef IGNOREFMA
           return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT);
 #else
-       vr_countOp (sb, VR_OP_MSUB, VR_PREC_FLT, VR_VEC_SCAL,False);
+       vr_countOp (sb, VR_OP_MSUB, VR_PREC_FLT, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
@@ -129,7 +129,7 @@
 #ifndef IGNOREFMA
           return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL);
 #else
-       vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_SCAL,False);
+       vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
@@ -137,7 +137,7 @@
 #ifndef IGNOREFMA
           return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL);
 #else
-       vr_countOp (sb, VR_OP_MSUB, VR_PREC_DBL, VR_VEC_SCAL,False);
+       vr_countOp (sb, VR_OP_MSUB, VR_PREC_DBL, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
@@ -164,7 +164,7 @@
       break;
 
     case Iop_F32toF64:  /*                       F32 -> F64 */
-      vr_countOp (sb, VR_OP_CONV, VR_PREC_FLT_TO_DBL, VR_VEC_SCAL,False);
+      vr_countOp (sb, VR_OP_CONV, VR_PREC_FLT_TO_DBL, VR_VEC_UNK,False);
       addStmtToIRSB (sb, stmt);
       break;
 
@@ -172,7 +172,7 @@
 #ifndef IGNORECAST
        return vr_replaceCast (sb, stmt, expr, bcName(cast64FTo32F), VR_OP_CONV, VR_PREC_DBL_TO_FLT);
 #else
-       vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_SCAL,False);
+       vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
 #endif
        break;
@@ -207,7 +207,7 @@
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Max64Fx2:
-        vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_FULL2,False);
+      vr_countOp (sb, VR_OP_MAX, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Max64F0x2:
@@ -226,7 +226,7 @@
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Min64Fx2:
-        vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_FULL2,False);
+      vr_countOp (sb, VR_OP_MIN, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_Min64F0x2:
@@ -305,14 +305,25 @@
 
     case Iop_RSqrtEst5GoodF64: /* reciprocal square root estimate, 5 good bits */
 
+
+    case Iop_Log2_64Fx2:
+    case Iop_Scale2_64Fx2:
+    case Iop_RecipEst64Fx2:    // unary
+    case Iop_RecipStep64Fx2:   // binary
+    case Iop_RSqrtEst64Fx2:   // unary
+    case Iop_RSqrtStep64Fx2:   // binary
+
     case Iop_RecipStep32Fx4:
     case Iop_RSqrtEst32Fx4:
     case Iop_RSqrtStep32Fx4:
     case Iop_RecipEst32F0x4:
     case Iop_Sqrt32F0x4:
     case Iop_RSqrtEst32F0x4:
-
+    case Iop_Scale2_32Fx4:
+    case Iop_Log2_32Fx4:
+    case Iop_Exp2_32Fx4:
       /*AVX*/
+    case Iop_Sqrt16Fx8:
     case Iop_Sqrt32Fx8:
     case Iop_Sqrt64Fx4:
     case Iop_RSqrtEst32Fx8:
@@ -323,6 +334,10 @@
     case Iop_RoundF64toF64_PosINF:  /* frip */
     case Iop_RoundF64toF64_ZERO:    /* friz */
 
+    case Iop_F32toF16x4:
+    case Iop_F16toF32x4:
+    case Iop_F16toF64x2:
+
     case Iop_F128toF64:  /* IRRoundingMode(I32) x F128 -> F64         */
     case Iop_F128toF32:  /* IRRoundingMode(I32) x F128 -> F32         */
     case Iop_F64toI16S: /* IRRoundingMode(I32) x F64 -> signed I16 */
@@ -331,9 +346,10 @@
 
     case Iop_PwMax32Fx4: case Iop_PwMin32Fx4:
       vr_maybe_record_ErrorOp (VR_ERROR_UNCOUNTED, op);
+      addStmtToIRSB (sb, stmt);
+      break;
 
     default:
-      //      ppIRStmt (stmt);
       addStmtToIRSB (sb, stmt);
       break;
     }

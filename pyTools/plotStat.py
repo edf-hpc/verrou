@@ -1,5 +1,28 @@
 #!/usr/bin/env python3
 
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
 import numpy
 import matplotlib.pyplot as plt
 import sys
@@ -8,7 +31,9 @@ import copy
 import subprocess
 import getopt
 import functools
+import glob
 
+maxNbPROC=None
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -30,22 +55,26 @@ def getResult(subProcess):
     return subProcess.returncode
 
 
-def verrou_run_stat(script_run, rep, listOfStat):
+def verrou_run_stat(script_run, rep, listOfStat, maxNbPROC=None):
     if not os.path.exists(rep):
         os.mkdir(rep)
-
+    listToRun=[]
     for roundingMode in ["nearest","upward","downward", "toward_zero","farthest","random","average","float"]:
         for i in range(listOfStat[roundingMode]):
             name=("%s-%d")%(roundingMode,i)
             repName=os.path.join(rep,name)
             endFile=os.path.join(repName,"std")
             if not os.path.exists(endFile+".out"):
-                print(repName)
                 os.mkdir(repName)
-                subProcessRun=runCmdAsync([script_run, repName],
-                                          endFile,
-                                          {"VERROU_ROUNDING_MODE":roundingMode })
-                getResult(subProcessRun)
+                #subProcessRun=runCmdAsync([script_run, repName],
+                #                          endFile,
+                #                          {"VERROU_ROUNDING_MODE":roundingMode })
+                #getResult(subProcessRun)
+                listToRun+=[{"script_run":script_run,
+                             "repName": repName,
+                             "output_prefix": endFile,
+                             "env":{"VERROU_ROUNDING_MODE":roundingMode }}]
+
 
     listOfMcaKey=[ (x.split("-")[1:] +[listOfStat[x]])  for x in listOfStat.keys()  if x.startswith("mca")  ]
     for mcaConfig in listOfMcaKey:
@@ -59,13 +88,28 @@ def verrou_run_stat(script_run, rep, listOfStat):
             if not os.path.exists(endFile+".out"):
                 print(repName)
                 os.mkdir(repName)
-                subProcessRun=runCmdAsync([script_run, repName],
-                                          endFile,
-                                          {"VERROU_BACKEND":"mcaquad",
-                                           "VERROU_MCA_MODE":mode,
-                                           "VERROU_MCA_PRECISION_DOUBLE": doublePrec,
-                                           "VERROU_MCA_PRECISION_FLOAT": floatPrec})
-                getResult(subProcessRun)
+
+                listToRun+=[{"script_run":script_run,
+                             "repName": repName,
+                             "output_prefix": endFile,
+                             "env":{"VERROU_BACKEND":"mcaquad",
+                                    "VERROU_MCA_MODE":mode,
+                                    "VERROU_MCA_PRECISION_DOUBLE": doublePrec,
+                                    "VERROU_MCA_PRECISION_FLOAT": floatPrec}}]
+    if maxNbPROC==None:
+        maxNbPROC=1
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=maxNbPROC) as executor:
+        futures=[executor.submit(run, dicParam) for dicParam in listToRun]
+        concurrent.futures.wait(futures)
+
+def run(dicParam):
+    print(dicParam["repName"], "begin")
+    subProcessRun=runCmdAsync([dicParam["script_run"], dicParam["repName"]],
+                              dicParam["output_prefix"],
+                              dicParam["env"])
+    getResult(subProcessRun)
+    print(dicParam["repName"],"end")
 
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
@@ -111,8 +155,53 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
 def verrou_extract_stat(extract_run, rep, listOfStat):
     def getValueData(repName):
-        return float(subprocess.getoutput(extract_run +" "+ repName))
+        try:
+            return float(subprocess.getoutput(extract_run +" "+ repName))
+        except ValueError as err:
+            print("Value Error while extracting value from :"+ extract_run +" "+ repName)
+            sys.exit(42)
+
+
     return extractLoopOverComputation(rep,listOfStat, getValueData)
+
+def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None):
+    def getValueData(repName):
+        try:
+            return float(subprocess.getoutput(extract_run +" "+ repName))
+        except ValueError as err:
+            print("Value Error while extracting value from :"+ extract_run +" "+ repName)
+            sys.exit(42)
+
+    if listOfName==None:
+        listOfSplitName=[pattern.split("/") for pattern in listOfPattern ]
+        #cleaning begin
+        for i in range(len(listOfSplitName[0])):
+            listOfName_i=[x[0] for x in listOfSplitName]
+            if len(set(listOfName_i))==1:
+                   listOfSplitName=[x[1:] for x in listOfSplitName]
+            else:
+                break
+        #cleaning end
+        for i in range(len(listOfSplitName[0])):
+            listOfName_i=[x[-1] for x in listOfSplitName]
+            if len(set(listOfName_i))==1:
+                   listOfSplitName=[x[0:-1] for x in listOfSplitName]
+            else:
+                break
+        #name generation
+        listOfName=["/".join(x) for x in listOfSplitName]
+        for i in range(len(listOfName)):
+            if listOfName[i]=="":
+                listOfName[i]="pattern"+str(i)
+    res={}
+    for i  in range(len(listOfPattern)):
+        pattern=listOfPattern[i]
+        listOfCatchPattern=[n for n in glob.glob(os.path.join(rep,pattern)) if os.path.isdir(n)]
+        listOfValue=[getValueData(repName) for repName in listOfCatchPattern]
+
+        res[listOfName[i]]=listOfValue
+    return res
+
 
 def verrou_extract_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
@@ -209,14 +298,18 @@ def runParaview(rep):
 
 
 def listOfHistogram(listOfBrutData):
-    maxValue=max([max(data) for data in listOfBrutData ])
-    minValue=min([min(data) for data in listOfBrutData ])
-#    bins=  numpy.histogram(data[0], bins=40, range=[minValue, maxValue])
+    maxValue=max([max([a for a in data if a!=float("inf")]) for data in listOfBrutData])
+    minValue=min([min([a for a in data if a!=float("-inf")]) for data in listOfBrutData])
+
+    numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")) } for data in listOfBrutData]
+    listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN")] for data in listOfBrutData  ]
+
     bins=  (numpy.histogram(listOfBrutData[0], bins=40, range=[minValue, maxValue]))[1]
-    return bins,listOfBrutData
+    return bins,listOfFilteredBrutData,numOfSpecialFloat
 
-def plot_hist(data, png=False):
-
+def plot_hist(data, png=False, relative=False):
+    if relative!=False:
+        plt.rcParams['text.usetex'] = True
     fig, ax = plt.subplots()
 
     plotWidth=1 #plot variable
@@ -224,9 +317,10 @@ def plot_hist(data, png=False):
     #selection of plot
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]    # rounding mode plotted with histogram
-    mcaMode=[ x  for x in data.keys()  if x.startswith("mca")  ]
-    verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
-    for roundingMode in verrouMode+mcaMode:
+    #mcaMode=[ x  for x in data.keys()  if x.startswith("mca")  ]
+    #verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
+#    for roundingMode in verrouMode+mcaMode:
+    for roundingMode in sorted([x for x in data.keys()]):
         if data[roundingMode]==None:
             continue
         if len(data[roundingMode])==1:
@@ -234,11 +328,25 @@ def plot_hist(data, png=False):
         if len(data[roundingMode])>1:
             listOfTab+=[roundingMode]
 
+    convert= lambda x :x
+    legend= "X"
+    if relative!=False:
+
+        if relative in ["nearest", "upward" ,"toward_zero", "farthest"]:
+            valueRef=data[relative][0]
+            latexName=relative.replace("_","\_")
+            legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(latexName,latexName)
+        else:
+            valueRef=float(relative)
+            legend=r"$\frac{X-%s}{|%s|}$"%(relative,relative)
+        convert=lambda x:  (x-valueRef) /abs(valueRef)
+
+
 
     #extraction of same dataset size and histogram generation
     size=min([len(data[key]) for key in listOfTab  ])
-    hists=listOfHistogram([data[key][0:size] for key in listOfTab ])
-    bins,datas=listOfHistogram([data[key][0:size] for key in listOfTab ])
+#    hists=listOfHistogram([[convert(x) for x in data[key][0:size]] for key in listOfTab ])
+    bins,datas, numOfSpecialFloat=listOfHistogram([[convert(x) for x in data[key][0:size] ] for key in listOfTab  ])
 
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
@@ -251,18 +359,30 @@ def plot_hist(data, png=False):
     name+=listOfTab
     plthandle=[]
     for i in range(len(name)):
-        handle=plt.hist(datas[i],bins=bins, label=name[i], linewidth=plotWidth,  alpha=0.6,color=lineColor[lineIndex])#, linestyle="-")
+        special=numOfSpecialFloat[i]["-inf"] + numOfSpecialFloat[i]["inf"]+numOfSpecialFloat[i]["NaN"]
+        namei=name[i]
+        if special!=0:
+            namei+=":"
+            for k in numOfSpecialFloat[i].keys():
+                if numOfSpecialFloat[i][k]!=0:
+                    namei+= k+"("+str(numOfSpecialFloat[i][k])+"):"
+            namei=namei[0:-1]
+
+        handle=plt.hist(datas[i],bins=bins, label=namei, linewidth=plotWidth,  alpha=0.6,color=lineColor[lineIndex])#, linestyle="-")
         lineIndex+=1
         plthandle+=[handle[0]]
 
     #plot vertical line
     nameDet=listOfScalar
     for mode in nameDet:
-        value=data[mode][0]
+        value=convert(data[mode][0])
         #handle=plt.plot([value, value], [0, maxHist] , label=mode, linestyle='--', linewidth=plotWidth, color=lineColor[lineIndex])
         handle=plt.axvline(x=value,linestyle='--', linewidth=plotWidth, color=lineColor[lineIndex])
 
-        plt.text(value, 1., mode ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
+        modeStr=mode
+        if plt.rcParams['text.usetex']:
+            modeStr=mode.replace("_","\_")
+        plt.text(value, 1., modeStr ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
 
         lineIndex+=1
         #plthandle+=[handle[0]]
@@ -272,7 +392,10 @@ def plot_hist(data, png=False):
     plt.legend()
     plt.grid()
     plt.ylabel("#occurrence")
-    plt.xlabel("X")
+    if plt.rcParams['text.usetex']:
+        plt.ylabel("$\#occurrence$")
+
+    plt.xlabel(legend)
 
     if png!=False:
         plt.savefig(png,dpi=300,bbox_inches='tight')
@@ -285,18 +408,28 @@ def plot_hist(data, png=False):
 class config_stat:
     def __init__(self, argv):
         self.isMontcarlo=False
-        self._nbSample=200
+        self._nbSample=None
         self._rep="verrou.stat"
         self.listMCA=[]
         self.png=False
         self._hist=True
         self._time=False
+        self._num_threads=None
+        self._relative=False
+        self._pattern=[]
 
         self.parseOpt(argv[1:])
 
+        if len(self._pattern)!=0 and (self.isMontcarlo==True or self._nbSample!=None or self._time==True):
+            print("--specific-pattern is incompatible with montecarlo, samples and time options")
+            self.failure()
+
+        if self._nbSample==None:
+            self._nbSample=200
+
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
 
@@ -314,11 +447,20 @@ class config_stat:
             if opt in ("-s","--samples"):
                 self._nbSample=int(arg)
                 continue
+            if opt in ("--num-threads"):
+                self._num_threads=int(arg)
+                continue
             if opt in ("-r","--rep"):
                 self._rep=arg
                 continue
+            if opt in ("--relative"):
+                self._relative=arg
+                continue
             if opt in ("-p","--png"):
                 self.png=arg
+                continue
+            if opt in ["--specific-pattern"]:
+                self._pattern+=[arg]
                 continue
             if opt in ("--mca",):
                 if arg=="":
@@ -327,43 +469,63 @@ class config_stat:
                     argSplit=arg.split("-")
                     if len(argSplit)!=4:
                         self.help()
-                        sys.exit()
+                        self.failure()
                     else:
                         if not (argSplit[1] in ["rr","pb","mca"]):
                             self.help()
-                            sys.exit()
+                            self.failure()
                         try:
                             a=int(argSplit[2])
                             b=int(argSplit[3])
                         except:
                             self.help()
-                            sys.exit()
+                            self.failure()
                     self.listMCA+=["mca-"+arg]
                 continue
             print("unknown option :", opt)
 
-        if self._hist:
+        if self._hist and len(self._pattern)==0:
             if len(args)>2:
                 self.help()
-                sys.exit()
-            self._runScript=args[0]
-            self._extractScript=args[1]
+                self.failure()
+            self._runScript=self.checkScriptPath(args[0])
+            self._extractScript=self.checkScriptPath(args[1])
+        if len(self._pattern)!=0:
+            if len(args)>1:
+                self.help()
+                self.failure()
+            self._extractScript=self.checkScriptPath(args[0])
+            self._runScript=None
         if self._time:
             if len(args)>3:
                 self.help()
-                sys.exit()
-            self._runScript=args[0]
-            self._extractTimeScript=args[1]
-            self._extractVarScript=args[2]
+                self.failure()
+            self._runScript=self.checkScriptPath(args[0])
+            self._extractTimeScript=self.checkScriptPath(args[1])
+            self._extractVarScript=self.checkScriptPath(args[2])
 
     def help(self):
         name=sys.argv[0]
-        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name)  )
-        print( "\t -r --rep=:  working directory")
+        print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
+        print( "\t -r --rep=:  working directory [default verrou.stat]")
         print( "\t -s --samples= : number of samples")
+        print( "\t --num-threads= : number of parallel run")
+        print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
         print( "\t -p --png= : png file to export plot")
-        print( "\t -m --montecarlo : stochastique analysis of deterministic rounding mode")
+        print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
+        print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
+
+    def checkScriptPath(self,fpath):
+        if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
+            return os.path.abspath(fpath)
+        else:
+            print("Invalid Cmd:"+str(sys.argv))
+            print(fpath + " should be executable")
+            self.help()
+            self.failure()
+    def failure(self):
+        sys.exit(42)
 
     def runScript(self):
         return self._runScript
@@ -402,15 +564,32 @@ class config_stat:
                nbSamples[mcaMode]=self._nbSample
         return nbSamples
 
+    def num_threads(self):
+        return self._num_threads
+
+    def relative(self):
+        return self._relative
+
+    def useSpecificPattern(self):
+        return len(self._pattern)!=0
+
+    def pattern(self):
+        return self._pattern
+
 if __name__=="__main__":
     conf=config_stat(sys.argv)
     nbSamples=conf.getSampleConfig()
 
-    verrou_run_stat(conf.runScript(), conf.repName(), nbSamples)
+    if conf.runScript()!=None:
+        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.num_threads())
 
     if conf.isHist():
-        dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples)
-        plot_hist(dataExtracted, png=conf.png)
+        if not conf.useSpecificPattern():
+            dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples)
+            plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+        else:
+            dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern())
+            plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)

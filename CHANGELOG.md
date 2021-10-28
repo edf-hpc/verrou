@@ -1,14 +1,39 @@
 # Change Log
 
-
 ## [UNRELEASED]
 
-This version is based on Valgrind-3.15.0.
+This version is based on Valgrind-3.17.0.
 
 ### Added
 
 
 ### Changed
+
+
+---
+
+## v2.3.1 - 2021-05-31
+
+This version is based on Valgrind-3.17.0.
+
+### Added
+ - [EXPERIMENTAL] verrou_dd_syncho
+	- Enable temporal delta-debug
+	- Enable delta-debug for python code
+ - checkdenorm back-end
+        - The option --rounding-mode=ftz enable mode flush to zero
+ - delta-debug improvments
+	- Options with cmd options and env variables.
+	- Add symlink FullPerturbation and NoPerturbation
+	- Use relative path to print delta-debug progress
+	- Add --cache option
+	- Add heuristics to improve delta-debug (--rddmin-heuristics-cache= and --rddmin-heuristics-rep= options)
+	- Add option --res-with-all-samples to be able to compare estimator between ddmin-*
+	- Add parallelism (for samples and dichotomy)
+
+### Changed
+	- The option --demangle=no is no more required for --gen-exclude, --exclude, --gen-source, --source  options  and so for the delta-debug process
+	- License change : The verrou backends and python tools switch to LGPL v2.1. The frontend remains in GPL.
 
 ---
 

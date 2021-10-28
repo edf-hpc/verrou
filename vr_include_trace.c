@@ -1,16 +1,17 @@
 
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
-/*--- This file contains code allowing to exclude some symbols     ---*/
-/*--- from the instrumentation.                                    ---*/
-/*---                                                 vr_exclude.c ---*/
+/*--- This file contains code allowing to include some symbols     ---*/
+/*--- for the trace instrumentation.                               ---*/
+/*---                                           vr_include_trace.c ---*/
 /*--------------------------------------------------------------------*/
+
+/* The code is a fork of vr_exclude.c*/
 
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
-     F. Févotte     <francois.fevotte@edf.fr>
+   Copyright (C) 2014-2021 EDF
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
    This program is free software; you can redistribute it and/or

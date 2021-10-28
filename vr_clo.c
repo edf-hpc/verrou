@@ -8,7 +8,7 @@
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
+   Copyright (C) 2014-2021 EDF
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
@@ -32,8 +32,8 @@
 
 #include "vr_main.h"
 //#include "backend_verrou/vr_rand.h"
-#include "backend_verrou/interflop_verrou.h"
-#include "backend_mcaquad/interflop_mcaquad.h"
+//#include "backend_verrou/interflop_verrou.h"
+//#include "backend_mcaquad/interflop_mcaquad.h"
 
 void vr_env_clo (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
@@ -50,7 +50,6 @@ void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
   vr.count = True;
-  vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
@@ -65,11 +64,21 @@ void vr_clo_defaults (void) {
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
+  vr.outputTraceRep = NULL;
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
   }
+  int vecIt;
+  for(vecIt=0 ; vecIt<VR_VEC ; vecIt++){
+    vr.instr_vec[vecIt]=True;
+  }
+  vr.instr_vec[VR_VEC_SCAL]=False;
+
+  vr.instr_prec[VR_PREC_FLT]=True;
+  vr.instr_prec[VR_PREC_DBL]=True;
+  vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
   vr.firstSeed=(unsigned int)(-1);
   vr.mca_precision_double=53;
@@ -88,7 +97,16 @@ void vr_clo_defaults (void) {
   vr.useExpectCLR=False;
   vr.expectCLRFileInput=-1;
   vr.expectCLRFileOutput=NULL;
+
+  vr.checkDenorm=False;
+  vr.ftz=False;
+  vr.dumpDenorm=False;
+  vr.cancellationSource=NULL;
+
+  vr.checkFloatMax=False;
+
 }
+
 
 Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
@@ -98,6 +116,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.backend, vr_verrou)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
+                         vr.backend, vr_checkdenorm)) {}
 
   //Option --rounding-mode=
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random",
@@ -118,6 +138,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_FLOAT)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=native",
                          vr.roundingMode, VR_NATIVE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
+                         vr.roundingMode, VR_FTZ)) {}
 
   //Option mcaquad
   else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-double",
@@ -132,6 +154,11 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.mca_mode, MCAMODE_MCA)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--mca-mode=ieee",
                          vr.mca_mode, MCAMODE_IEEE)) {}
+
+  //Option checkdenorm
+  else if (VG_BOOL_CLO (arg, "--check-denorm", bool_val)) {
+     vr.checkDenorm= bool_val;
+  }
 
   //Options to choose op to instrument
   else if (VG_XACT_CLO (arg, "--vr-instr=add",
@@ -162,9 +189,37 @@ Bool vr_process_clo (const HChar *arg) {
      vr.checknan= bool_val;
   }
 
+  else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
+    vr.checkFloatMax=bool_val;
+  }
+
   //Options to choose op to instrument
   else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
-    vr.instr_scalar= bool_val;
+    vr.instr_vec[VR_VEC_SCAL]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-llo", bool_val)) {
+    vr.instr_vec[VR_VEC_LLO]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec2", bool_val)) {
+    vr.instr_vec[VR_VEC_FULL2]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec4", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL4]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec8", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL8]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-flt", bool_val)) {
+     vr.instr_prec[VR_PREC_FLT]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-dbl", bool_val)) {
+     vr.instr_prec[VR_PREC_DBL]= bool_val;
   }
 
   //Option --vr-verbose (to avoid verbose of valgrind)
@@ -207,6 +262,10 @@ Bool vr_process_clo (const HChar *arg) {
     vr.genTrace = True;
   }
 
+  else if (VG_STR_CLOM (cloPD, arg, "--output-trace-rep", str)) {
+    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
+    vr.outputTraceRep = VG_(expand_file_name)("vr.process_clo.trace-rep", str);
+  }
   // Instrumentation of only specified source lines
   else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
     //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
@@ -222,6 +281,13 @@ Bool vr_process_clo (const HChar *arg) {
      vr.cancellationDumpFile = VG_(expand_file_name)("vr.process_clo.cc-file", str);
      vr.dumpCancellation = True;
   }
+
+  else if (VG_STR_CLOM (cloPD, arg, "--cd-gen-file", str)) {
+     vr.denormDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
+     vr.dumpDenorm = True;
+  }
+
+
   // Set the pseudo-Random Number Generator
   else if (VG_STR_CLOM (cloPD, arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));

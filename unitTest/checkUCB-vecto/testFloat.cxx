@@ -187,6 +187,16 @@ float convertStringToRealType(std::string str){
 }
 
 double convertStringToRealType(std::string str, std::string str2){
+  if(str==std::string("0")){
+    str=std::string("00000000");
+  }
+  if(str2==std::string("0")){
+    str2=std::string("00000000");
+  }
+  if(str2==std::string("1")){
+    str2=std::string("00000001");
+  }
+
   char buff[19];
   buff[0]='0';
   buff[1]='x';

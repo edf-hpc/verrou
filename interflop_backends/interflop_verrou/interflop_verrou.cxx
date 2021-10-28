@@ -2,19 +2,19 @@
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- Interface for floating-point operations overloading.         ---*/
-/*---                                                 vr_fpOps.cxx ---*/
+/*---                                         interflop_verrou.cxx ---*/
 /*--------------------------------------------------------------------*/
 
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
+   Copyright (C) 2014-2021 EDF
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
    This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -22,13 +22,14 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.
 
-   The GNU General Public License is contained in the file COPYING.
+   The GNU Lesser General Public License is contained in the file COPYING.
 */
+
 
 #include "interflop_verrou.h"
 #include "vr_nextUlp.hxx"
@@ -92,6 +93,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "FLOAT";
   case VR_NATIVE:
     return "NATIVE";
+  case VR_FTZ:
+    return "FTZ";
   }
 
   return "undefined";
@@ -106,7 +109,7 @@ void IFV_FCTNAME(configure)(vr_RoundingMode mode,void* context) {
   ROUNDINGMODE=mode;
 }
 
-void IFV_FCTNAME(finalyze)(void* context){
+void IFV_FCTNAME(finalize)(void* context){
 }
 
 const char* IFV_FCTNAME(get_backend_name)() {
@@ -192,23 +195,144 @@ void IFV_FCTNAME(madd_float) (float a, float b, float c, float* res, void* conte
 
 
 
+
 struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
-  struct interflop_backend_interface_t config;
+  struct interflop_backend_interface_t config=interflop_backend_empty_interface;
 
-  config.interflop_add_float = & IFV_FCTNAME(add_float);
-  config.interflop_sub_float = & IFV_FCTNAME(sub_float);
-  config.interflop_mul_float = & IFV_FCTNAME(mul_float);
-  config.interflop_div_float = & IFV_FCTNAME(div_float);
+  config.add_float = & IFV_FCTNAME(add_float);
+  config.sub_float = & IFV_FCTNAME(sub_float);
+  config.mul_float = & IFV_FCTNAME(mul_float);
+  config.div_float = & IFV_FCTNAME(div_float);
 
-  config.interflop_add_double = & IFV_FCTNAME(add_double);
-  config.interflop_sub_double = & IFV_FCTNAME(sub_double);
-  config.interflop_mul_double = & IFV_FCTNAME(mul_double);
-  config.interflop_div_double = & IFV_FCTNAME(div_double);
+  config.add_double = & IFV_FCTNAME(add_double);
+  config.sub_double = & IFV_FCTNAME(sub_double);
+  config.mul_double = & IFV_FCTNAME(mul_double);
+  config.div_double = & IFV_FCTNAME(div_double);
 
-  config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
+  config.cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 
-  config.interflop_madd_float = & IFV_FCTNAME(madd_float);
-  config.interflop_madd_double =& IFV_FCTNAME(madd_double);
+  config.madd_float  = & IFV_FCTNAME(madd_float);
+  config.madd_double = & IFV_FCTNAME(madd_double);
+
+  config.finalize = & IFV_FCTNAME(finalize);
 
   return config;
 }
+
+
+//#ifdef INTERFLOP_DYN_INTERFACE_ENABLED
+#ifndef INTERFLOP_STATIC_INTERFACE_ENABLED
+
+#include <argp.h>
+#include <string.h>
+#include <strings.h>
+#include <iostream>
+#include <sys/time.h>
+#include <unistd.h>
+
+typedef struct verrou_conf{
+  vr_RoundingMode mode;
+  unsigned int seed;
+} verrou_conf_t;
+
+typedef enum {
+  KEY_ROUNDING_MODE,
+  KEY_SEED
+} key_args;
+
+static const char key_rounding_mode_str[] = "rounding-mode";
+static const char key_seed_str[] = "seed";
+
+
+static struct argp_option options[] = {
+  {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz}", 0},
+  {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
+  {0}};
+
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+  verrou_conf_t *conf = (verrou_conf_t *)state->input;
+
+  switch (key) {
+  case KEY_ROUNDING_MODE:
+    if (strcasecmp("nearest", arg) == 0) {
+      conf->mode=VR_NEAREST;
+    } else if (strcasecmp("upward", arg) == 0) {
+      conf->mode=VR_UPWARD;
+    } else if (strcasecmp("downward", arg) == 0) {
+      conf->mode=VR_DOWNWARD;
+    } else if (strcasecmp("toward_zero", arg) == 0) {
+      conf->mode=VR_ZERO;
+    } else if (strcasecmp("random", arg) == 0) {
+      conf->mode=VR_RANDOM;
+    } else if (strcasecmp("average", arg) == 0) {
+      conf->mode=VR_AVERAGE;
+    } else if (strcasecmp("farthest", arg) == 0) {
+      conf->mode=VR_FARTHEST;
+    } else if (strcasecmp("float", arg) == 0) {
+      conf->mode=VR_FLOAT;
+    } else if (strcasecmp("native", arg) == 0) {
+      conf->mode=VR_NATIVE;
+    } else if (strcasecmp("ftz", arg) == 0) {
+      conf->mode=VR_FTZ;
+    } else {
+      std::cerr << key_rounding_mode_str <<" invalid value provided, must be one of: "
+		<<" nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz."
+		<<std::endl;
+      exit(42);
+    }
+    break;
+
+  case KEY_SEED:
+    /* seed */
+    errno = 0;
+    char *endptr;
+    conf->seed = strtoull(arg, &endptr, 10);
+    if (errno != 0) {
+      std::cerr << key_seed_str <<" invalid value provided, must be an integer"
+		<< std::endl;
+      exit(42);
+    }
+    break;
+
+  default:
+    return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
+
+}
+
+static struct argp argp = {options, parse_opt, "", "", NULL, NULL, NULL};
+
+
+verrou_conf_t IFV_FCTNAME(parse)(int argc, char** argv, void* context){
+
+  verrou_conf_t conf;
+  conf.mode=VR_NEAREST ; //default value
+  conf.seed=(unsigned int) -1;
+
+  argp_parse(&argp, argc, argv, 0, 0, &conf);
+  std::cerr << "VERROU ROUNDING MODE : " << verrou_rounding_mode_name(conf.mode)<<std::endl;
+  return conf;
+}
+
+
+struct interflop_backend_interface_t interflop_init(int argc, char **argv,
+                                                    void **context){
+  struct interflop_backend_interface_t config=IFV_FCTNAME(init)(context);
+
+
+  verrou_conf_t conf=IFV_FCTNAME(parse)(argc, argv, *context);
+  IFV_FCTNAME(configure)(conf.mode, *context);
+
+  if(conf.seed==(unsigned int) -1){
+    struct timeval t1;
+    gettimeofday(&t1, NULL);
+    conf.seed =  t1.tv_usec + getpid();
+  }
+  verrou_set_seed (conf.seed);
+
+  return config;
+}
+#endif

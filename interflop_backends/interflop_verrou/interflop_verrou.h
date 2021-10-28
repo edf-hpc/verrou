@@ -2,19 +2,19 @@
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- Interface for floatin-point operations overloading.          ---*/
-/*---                                                   vr_fpops.h ---*/
+/*---                                           interflop_verrou.h ---*/
 /*--------------------------------------------------------------------*/
 
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
+   Copyright (C) 2014-2021 EDF
      F. Févotte     <francois.fevotte@edf.fr>
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
    This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -22,13 +22,14 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Lesser General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307, USA.
 
-   The GNU General Public License is contained in the file COPYING.
+   The GNU Lesser General Public License is contained in the file COPYING.
 */
+
 
 #ifndef __INTERFLOP_VERROU_H
 #define __INTERFLOP_VERROU_H
@@ -40,7 +41,7 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-#include "../interflop_backend_interface.h"
+#include "../interflop.h"
 
 
   
@@ -53,13 +54,14 @@ extern "C" {
     VR_AVERAGE,
     VR_FARTHEST,
     VR_FLOAT,
-    VR_NATIVE
+    VR_NATIVE,
+    VR_FTZ
   };
 
 
 
   void IFV_FCTNAME(configure)(enum vr_RoundingMode mode,void* context);
-  void IFV_FCTNAME(finalyze)(void* context);
+  void IFV_FCTNAME(finalize)(void* context);
 
   const char* IFV_FCTNAME(get_backend_name)(void);
   const char* IFV_FCTNAME(get_backend_version)(void);

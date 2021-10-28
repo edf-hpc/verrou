@@ -1,3 +1,27 @@
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
 import os
 import math
 import sys
@@ -32,7 +56,7 @@ class ddConfig:
         self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"], False)]
         self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ("--rddmin-heuristics-cache="), "none",    ["none", "cache", "all_cache"], False)]
         self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ("--rddmin-heuristics-rep="),   [] ,       "rep_exists", True)]
-
+        self.registryTab+=[("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ("--res-with-all-samples"),     False,     None, False)]
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
@@ -70,7 +94,7 @@ class ddConfig:
             self.cmpScript=self.checkScriptPath(args[1])
         else:
             self.usageCmd()
-            failure()
+            self.failure()
 
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption
@@ -108,10 +132,6 @@ class ddConfig:
         if self.rddminVariant=="strict":
             self.rddminVariant=""
 
-        if self.maxNbPROC!=None:
-            if self.maxNbPROC < self.nbRUN:
-                print("Due due implementation limitation (nbRun <=maxNbPROC or maxNbPROC=1): maxNbPROC unset\n")
-                self.maxNbPROC=None
 
     def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue=None, addAttributTab=False, parse="environ"):
         value=False
@@ -214,12 +234,24 @@ class ddConfig:
     def get_quiet(self):
         return self.ddQuiet
 
+    def get_resWithAllsamples(self):
+        return self.resWithAllSamples
+
     def get_rddMinTab(self):
         rddMinTab=None
+        nbProc=1
+        if self.maxNbPROC!=None:
+            nbProc=self.maxNbPROC
         if self.param_rddmin_tab=="exp":
-            rddMinTab=exponentialRange(self.nbRUN)
+            if nbProc >self.nbRUN:
+                return [self.nbRUN]
+            else:
+                return [x for x in exponentialRange(self.nbRUN) if x>=nbProc]
         if self.param_rddmin_tab=="all":
-            rddMinTab=range(1,self.nbRUN+1)
+            if nbProc>self.nbRUN:
+                return range(1,self.nbRUN+1)
+            else:
+                return range(nbProc, self.nbRUN+1)
         if self.param_rddmin_tab=="single":
             rddMinTab=[self.nbRUN]
         return rddMinTab

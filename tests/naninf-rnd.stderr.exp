@@ -1,9 +1,12 @@
 Verrou, Check floating-point rounding errors
-Copyright (C) 2014-2016, F. Fevotte & B. Lathuiliere.
+Copyright (C) XXXXX 
 
 First seed : XXX
 Backend verrou : test-version
 Backend mcaquad : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
 Instrumented operations :
 	add : yes
 	sub : yes
@@ -15,7 +18,16 @@ Instrumented operations :
 	conv : yes
 	max : no
 	min : no
-Instrumented scalar operations : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
 Backend verrou simulating RANDOM rounding mode
 NaN: 
    at 0xFFFFFF: main (naninf.cxx:34)

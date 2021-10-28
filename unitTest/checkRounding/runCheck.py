@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
 
 import os
 import sys
@@ -7,7 +30,7 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck"]
+valgrindRounding=stdRounding + ["random", "average", "float", "farthest", "memcheck" ,"ftz"]
 
 
 def printRes(res):
@@ -57,13 +80,13 @@ class cmdPrepare:
     def __init__(self, arg):
         self.valgrindPath=os.path.join(os.environ["INSTALLPATH"], "bin", "valgrind")
         self.execPath=arg
-    
+
     def run(self,env="fenv", rounding="nearest"):
         self.checkRounding(env, rounding)
         cmd=None
         if env=="fenv":
             cmd=self.execPath + " fenv "+ rounding
-            
+
         if env=="valgrind":
             if rounding=="memcheck":
                 cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
@@ -221,6 +244,7 @@ class assertRounding:
         self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
         self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
         self.diff_farthest     =getDiff(allResult[("valgrind", "farthest")], testName)
+        self.diff_ftz          =getDiff(allResult[("valgrind", "ftz")], testName)
 
 
         self.diff_random       =getDiff(allResult[("valgrind", "random")], testName)      
@@ -316,6 +340,7 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "downward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -368,6 +393,7 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -402,6 +428,7 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -432,6 +459,7 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertLess("downward", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -461,6 +489,7 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -490,6 +519,7 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
+        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "upward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -523,6 +553,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "downward")
             testCheck.assertEqual("downward", "upward")
             testCheck.assertEqual("upward", "nearest")

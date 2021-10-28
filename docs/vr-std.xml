@@ -4,7 +4,7 @@
 
 <section id="vr-manual.feat" xreflabel="Features">
   <title>Standard features</title>
-  
+
   <section id="vr-manual.feat.count" xreflabel="Floating-point instructions counting">
     <title>Floating-point instructions counting</title>
     <para>
@@ -139,6 +139,10 @@
 	<listitem><para><command>float</command>: in this mode, all double precision floating-point
 	operations are replaced by simple precision equivalent. Float operations remain unchanged.
 	</para></listitem>
+
+	<listitem><para><command>ftz</command>: in this mode, denormal floating-point operations are flushed to zero.
+	</para></listitem>
+
 
       </itemizedlist>
     </para>

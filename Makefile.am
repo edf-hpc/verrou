@@ -34,8 +34,10 @@ VERROU_SOURCES_COMMON = \
 	vr_clo.c	\
 	vr_include_trace.c \
 	vr_expect_clr.c\
-	backend_verrou/interflop_verrou.cxx\
-	backend_checkcancellation/interflop_checkcancellation.cxx
+	interflop_backends/interflop_verrou/interflop_verrou.cxx\
+	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
+	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
+	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx
 
 
 
@@ -60,13 +62,16 @@ endif
 
 if USE_QUAD
 VERROU_SOURCES_COMMON+= \
-	backend_mcaquad/interflop_mcaquad.c\
-	backend_mcaquad/common/tinymt64.c\
-	backend_mcaquad/common/fmaqApprox.c
+	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
+	interflop_backends/backend_mcaquad/common/tinymt64.c\
+	interflop_backends/backend_mcaquad/common/fmaqApprox.c
 VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
 VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
 endif
 
+
+VERROU_FLAG_C   += -DINTERFLOP_STATIC_INTERFACE_ENABLED
+VERROU_FLAG_CXX += -DINTERFLOP_STATIC_INTERFACE_ENABLED
 
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)

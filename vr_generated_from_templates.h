@@ -19,6 +19,27 @@ static VG_REGPARM(3) Int vr_mcaquadcast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+// generation of operation cast backend checkdenorm
+
+
+static VG_REGPARM(3) Int vr_checkdenormcast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_checkdenorm_cast_double_to_float(*arg1, &res,backend_checkdenorm_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation cast backend verrou
+
+
+static VG_REGPARM(3) Int vr_verroucheck_float_maxcast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_verrou_cast_double_to_float(*arg1, &res,backend_verrou_context);
+  interflop_check_float_max_cast_double_to_float(*arg1, &res,backend_check_float_max_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation add backend verrou
 
 
@@ -531,6 +552,546 @@ static VG_REGPARM(3) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output, ULong aHi, UL
 }
 
 
+// generation of operation add backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_add_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_add_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+
+// generation of operation sub backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_sub_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_sub_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+
+// generation of operation mul backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormmul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_mul_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkdenorm_mul_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormmul64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_mul_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormmul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormmul32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+
+// generation of operation div backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormdiv64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_div_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_div_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkdenorm_div_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormdiv64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_div_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormdiv32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_div_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormdiv32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+  }
+}
+
+
+// generation of operation add backend verrou
+
+
+static VG_REGPARM(2) Long vr_verroucheck_float_maxadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_add_double(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_add_double(*arg1, *arg2, &res, backend_check_float_max_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_check_float_max_add_double(arg1[0], arg2[0], res, backend_check_float_max_context);
+  interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
+  interflop_check_float_max_add_double(arg1[1], arg2[1], res+1, backend_check_float_max_context);
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verroucheck_float_maxadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_add_float(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_add_float(*arg1, *arg2, &res, backend_check_float_max_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+
+// generation of operation sub backend verrou
+
+
+static VG_REGPARM(2) Long vr_verroucheck_float_maxsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_sub_double(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_sub_double(*arg1, *arg2, &res, backend_check_float_max_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_check_float_max_sub_double(arg1[0], arg2[0], res, backend_check_float_max_context);
+  interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
+  interflop_check_float_max_sub_double(arg1[1], arg2[1], res+1, backend_check_float_max_context);
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verroucheck_float_maxsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_sub_float(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_sub_float(*arg1, *arg2, &res, backend_check_float_max_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+
+// generation of operation mul backend verrou
+
+
+static VG_REGPARM(2) Long vr_verroucheck_float_maxmul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_mul_double(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_mul_double(*arg1, *arg2, &res, backend_check_float_max_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_check_float_max_mul_double(arg1[0], arg2[0], res, backend_check_float_max_context);
+  interflop_verrou_mul_double(arg1[1], arg2[1], res+1, backend_verrou_context);
+  interflop_check_float_max_mul_double(arg1[1], arg2[1], res+1, backend_check_float_max_context);
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxmul64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_mul_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_mul_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verroucheck_float_maxmul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_mul_float(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_mul_float(*arg1, *arg2, &res, backend_check_float_max_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxmul32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+
+// generation of operation div backend verrou
+
+
+static VG_REGPARM(2) Long vr_verroucheck_float_maxdiv64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_div_double(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_div_double(*arg1, *arg2, &res, backend_check_float_max_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_check_float_max_div_double(arg1[0], arg2[0], res, backend_check_float_max_context);
+  interflop_verrou_div_double(arg1[1], arg2[1], res+1, backend_verrou_context);
+  interflop_check_float_max_div_double(arg1[1], arg2[1], res+1, backend_check_float_max_context);
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxdiv64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_div_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_div_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verroucheck_float_maxdiv32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_div_float(*arg1, *arg2, &res, backend_verrou_context);
+  interflop_check_float_max_div_float(*arg1, *arg2, &res, backend_check_float_max_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxdiv32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verroucheck_float_maxdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
+     interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
+  }
+}
+
+
 // generation of operation add backend verrou
 
 
@@ -815,6 +1376,148 @@ static VG_REGPARM(3) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* outp
 }
 
 
+// generation of operation add backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormcheckcancellationadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_add_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
+  interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(arg1[1], arg2[1], res+1, backend_checkcancellation_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormcheckcancellationadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_add_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+
+// generation of operation sub backend checkdenorm
+
+
+static VG_REGPARM(2) Long vr_checkdenormcheckcancellationsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_checkdenorm_sub_double(*arg1, *arg2, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
+  interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(arg1[1], arg2[1], res+1, backend_checkcancellation_context);
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_checkdenorm_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_checkdenormcheckcancellationsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_checkdenorm_sub_float(*arg1, *arg2, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+
 // generation of operation madd backend verrou
 //FMA Operator
 static VG_REGPARM(3) Long vr_verroumadd64F (Long a, Long b, Long c) {
@@ -932,6 +1635,68 @@ static VG_REGPARM(3) Int vr_mcaquadmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend checkdenorm
+//FMA Operator
+static VG_REGPARM(3) Long vr_checkdenormmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_checkdenorm_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_checkdenormmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_checkdenorm_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend checkdenorm
+//FMA Operator
+static VG_REGPARM(3) Long vr_checkdenormmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_checkdenorm_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_checkdenormmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -1064,6 +1829,138 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellationmsub32F (Long a, Long b, Lon
   float res;
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend checkdenorm
+//FMA Operator
+static VG_REGPARM(3) Long vr_checkdenormcheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_checkdenorm_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_checkdenormcheckcancellationmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_checkdenorm_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend checkdenorm
+//FMA Operator
+static VG_REGPARM(3) Long vr_checkdenormcheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_checkdenorm_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_checkdenormcheckcancellationmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend verrou
+//FMA Operator
+static VG_REGPARM(3) Long vr_verroucheck_float_maxmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_double(*arg1, *arg2,  *arg3, &res, backend_check_float_max_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verroucheck_float_maxmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_float(*arg1, *arg2,  *arg3, &res, backend_check_float_max_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend verrou
+//FMA Operator
+static VG_REGPARM(3) Long vr_verroucheck_float_maxmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_double(*arg1, *arg2, - *arg3, &res, backend_check_float_max_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verroucheck_float_maxmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_float(*arg1, *arg2, - *arg3, &res, backend_check_float_max_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
