@@ -61,7 +61,9 @@ void vr_clo_defaults (void) {
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
   vr.sourceActivated= False;
-
+  vr.excludeSourceRead = NULL;
+  vr.excludeSourceDyn = NULL;
+  vr.sourceExcludeActivated = False;
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
@@ -270,6 +272,12 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
     vr.sourceActivated = True;
+  }
+
+  else if (VG_STR_CLOM (cloPD, arg, "--warn-unknown-source", str)) {
+    vr.excludeSourceRead = vr_loadIncludeSourceList(vr.excludeSourceRead, str);
+    vr.excludeSourceDyn=vr.excludeSourceRead;
+    vr.sourceExcludeActivated = True;
   }
 
   else if (VG_STR_CLOM (cloPD, arg, "--cc-gen-file", str)) {

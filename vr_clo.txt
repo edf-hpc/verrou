@@ -120,6 +120,7 @@
 "\n"
 "          In combination with --source, only list source code lines which\n"
 "          were not already present in the provided list.\n"
+"      --warn-unknown-source=FILE\n"
 "\n"
 "    Coverage generation\n"
 "      --trace=FILE\n"

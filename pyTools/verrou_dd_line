@@ -47,7 +47,8 @@ class DDline(DD_stoch.DDStoch):
         return "dd.line"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include")}
+        return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include"),
+                "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".exclude")}
 
     def coerce(self, delta_config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
