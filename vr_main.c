@@ -1211,6 +1211,8 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
    vr_env_clo("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
 
+   vr_env_clo("VERROU_INSTR","--vr-instr");
+
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
