@@ -242,7 +242,10 @@ det2
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
+
+	    </listitem>
           </varlistentry>
 
         </variablelist>
@@ -279,6 +282,7 @@ det2
 		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
               </itemizedlist>
+	      <para>This option can be activated with the env variable <command>VERROU_ROUNDING_MODE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -313,6 +317,8 @@ det2
               <para>
                 Configure the magnitude of inexact function used by mcaquad backend for double operation.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_DOUBLE</command>.</para>
+
             </listitem>
           </varlistentry>
 
@@ -322,6 +328,7 @@ det2
               <para>
                 Configure the magnitude of inexact function used by mcaquad backend for float operation.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_FLOAT</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -346,10 +353,11 @@ det2
               <para>Toggle instrumentation of floating-point additions,
                 subtractions, multiplications, divisions, fused multiply
                 additions, fused multiply subtractions, conversions (only double to float cast) respectively.
-		This option can be set multiple times to instrument multiple types of
+		This option can be set multiple times (or use "," to separate arguments) to instrument multiple types of
                 operations.</para>
               <para>If this option is not provided, all supported operations
-              types are instrumented.</para>
+		types are instrumented.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_INSTR</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -395,7 +403,9 @@ det2
                   state</link> on or off at program start. Useful in combination
                   with <link linkend="vr-cr.start-instrumentation">client
                   requests</link>.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART</command>.</para>
+	    </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
@@ -404,6 +414,7 @@ det2
                 in <computeroutput>FILE</computeroutput> will be
                 left <link linkend="vr-manual.feat.exclude">uninstrumented</link>.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -429,6 +440,7 @@ det2
                 advised to avoid perturbating rounding-modes
                 using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_GEN_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -437,7 +449,17 @@ det2
             <listitem><para>When this option is present, only instructions
                 coming from <link linkend="vr-manual.feat.source">source code
                 lines</link> listed in <computeroutput>FILE</computeroutput>
-                are instrumented.</para></listitem>
+                are instrumented.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_SOURCE</command>.</para>
+	    </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.warn-unknown-source" xreflabel="--warn-unknown-source">
+            <term><option><![CDATA[--warn-unknown-source=FILE]]></option></term>
+            <listitem><para> This option require the use of <command>--source</command> option. When used, verrou generates warning for each line of code (which execute floating point operation) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
+	      </para>
+	      <para>This option can be activated with the env variable <command>VERROU_WARN_UNKNOWN_SOURCE</command>.</para>
+	    </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.gen-source" xreflabel="--gen-source">
@@ -451,6 +473,7 @@ det2
                 <option><xref linkend="vr-opt.source"/></option>, only list
                 source code lines which were not already present in the provided
                 list.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_GEN_SOURCE</command>.</para>
             </listitem>
           </varlistentry>
         </variablelist>
