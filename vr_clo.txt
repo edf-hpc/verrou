@@ -1,212 +1,213 @@
-"    General options\n"
-"      --vr-verbose=<yes|no> [default=no]\n"
-"          Toggle verbosity: prints messages for x387 instructions and client\n"
-"          requests.\n"
-"\n"
-"      --count-op=<yes|no> [default=yes]\n"
-"          Toggle floating-point operations counting.\n"
-"\n"
-"      --backend=<verrou|mcaquad|checkdenorm> [default=verrou]\n"
-"          Select the verrou, mcaquad or checkdenorm backend.  verrou enables\n"
-"          to perform several rounding mode (See --rounding-mode option).\n"
-"          mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on\n"
-"          extented precision in quad (See --mca-mode, --mca-precision-double\n"
-"          and --mca-precision-float options). The integration of mcaquad\n"
-"          backend in the frontend verrou is still considered as experimental.\n"
-"          checkdenorm enables the ftz rounding-mode and the --check-denorm\n"
-"          and --cd-gen-file options.\n"
-"\n"
-"          This option can be activated with the env variable VERROU_BACKEND\n"
-"\n"
-"    Perturbation of floating-point operations\n"
-"      --rounding-mode=<random|average|upward|downward|toward_zero|farthest|float|ftz>\n"
-"      [default=nearest]\n"
-"          Emulate the given rounding mode for operations instrumented with\n"
-"          the verrou backend. If this option is not provided, Verrou always\n"
-"          rounds to the nearest floating-point. Supported rounding modes are:\n"
-"\n"
-"          •   Random rounding modes: random, average.\n"
-"\n"
-"          •   IEEE-754 rounding modes: nearest (default), upward, downward,\n"
-"              toward_zero.\n"
-"\n"
-"          •   Other: farthest, float, ftz(imply checkdenorm backend).\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_ROUNDING_MODE\n"
-"\n"
-"      --mca-mode=<mca|rr|pb|ieee> [default=mca]\n"
-"          Emulate the given MCA mode for operations instrumented with the\n"
-"          mcaquad backend. Supported mca modes are:\n"
-"\n"
-"          •   mca : full mca (default)\n"
-"\n"
-"          •   rr : random rounding\n"
-"\n"
-"          •   pb : precision bounding\n"
-"\n"
-"          •   ieee : ieee (rounding to nearest)\n"
-"\n"
-"          The mcaquad backend implementation come from Verificarlo : More\n"
-"          information on Verificalo github[1]\n"
-"\n"
-"      --mca-precision-double= [default=53]\n"
-"          Configure the magnitude of inexact function used by mcaquad backend\n"
-"          for double operation.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_MCA_PRECISION_DOUBLE\n"
-"\n"
-"      --mca-precision-float= [default=24]\n"
-"          Configure the magnitude of inexact function used by mcaquad backend\n"
-"          for float operation.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_MCA_PRECISION_FLOAT\n"
-"\n"
-"      --vr-seed=RNG_SEED [default=automatically generated]\n"
-"          If present, this option allows setting the seed of the\n"
-"          pseudo-Random Number Generator used for the random or average\n"
-"          rounding modes. This helps reproducing the behaviour of a program\n"
-"          under Verrou.\n"
-"\n"
-"          If this option is omitted, the pRNG is seeded with a value based on\n"
-"          the current time and process id, so that it should change at each\n"
-"          execution.\n"
-"\n"
-"      --vr-instr=<add|sub|mul|div|mAdd|mSub|conv> [default=all]\n"
-"          Toggle instrumentation of floating-point additions, subtractions,\n"
-"          multiplications, divisions, fused multiply additions, fused\n"
-"          multiply subtractions, conversions (only double to float cast)\n"
-"          respectively. This option can be set multiple times (or use "," to\n"
-"          separate arguments) to instrument multiple types of operations.\n"
-"\n"
-"          If this option is not provided, all supported operations types are\n"
-"          instrumented.\n"
-"\n"
-"          This option can be activated with the env variable VERROU_INSTR\n"
-"\n"
-"      --vr-instr-scalar=<yes|no> [default=no]\n"
-"          Toggle instrumentation of x387 scalar instructions.\n"
-"\n"
-"      --vr-instr-llo=<yes|no> [default=yes]\n"
-"          Toggle instrumentation of llo scalar instructions (cast and all fma\n"
-"          instructions are considered as llo).\n"
-"\n"
-"      --vr-instr-vec<2,4,8>=<yes|no> [default=yes]\n"
-"          Toggle instrumentation of vectorized instructions (number\n"
-"          corresponds to the pack size)\n"
-"\n"
-"      --vr-instr-[flt|dbl]=<yes|no> [default=yes]\n"
-"          Toggle instrumentation of float (or double) instructions.\n"
-"\n"
-"    Instrumentation scope\n"
-"      --instr-atstart=<yes|no> [default=yes]\n"
-"          Toggle instrumentation state on or off at program start. Useful in\n"
-"          combination with client requests.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_INSTR_ATSTART\n"
-"\n"
-"      --exclude=FILE\n"
-"          Symbols listed in FILE will be left uninstrumented.\n"
-"\n"
-"          This option can be activated with the env variable VERROU_EXCLUDE\n"
-"\n"
-"      --gen-exclude=FILE\n"
-"          Generate in FILE a list of all symbols (which contain perturbated\n"
-"          floating point instruction) encountered during program execution.\n"
-"          This is useful to build an exclusion list.\n"
-"\n"
-"          In combination with --exclude, only list symbols which were not\n"
-"          already present in the provided exclusion list.\n"
-"\n"
-"          WARNING: in order to generate a correct list, the whole binary\n"
-"          (including symbols listed in the list provided using --exclude)\n"
-"          must be instrumented. When using both --gen-exclude and --exclude,\n"
-"          it is advised to avoid perturbating rounding-modes using\n"
-"          --rounding-mode=nearest.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_GEN_EXCLUDE\n"
-"\n"
-"      --source=FILE\n"
-"          When this option is present, only instructions coming from source\n"
-"          code lines listed in FILE are instrumented.\n"
-"\n"
-"          This option can be activated with the env variable VERROU_SOURCE\n"
-"\n"
-"      --warn-unknown-source=FILE\n"
-"          This option require the use of --source option. When used, verrou\n"
-"          generates warning for each line of code (which execute floating\n"
-"          point operation) neither present in the FILE defined by --source\n"
-"          option nor in the FILE provided by --warn-unknown-source option.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_WARN_UNKNOWN_SOURCE\n"
-"\n"
-"      --gen-source=FILE\n"
-"          Generate in FILE the list of all source code lines (which contain\n"
-"          perturbated floating point instruction) encountered during program\n"
-"          execution.\n"
-"\n"
-"          In combination with --source, only list source code lines which\n"
-"          were not already present in the provided list.\n"
-"\n"
-"          This option can be activated with the env variable\n"
-"          VERROU_GEN_SOURCE\n"
-"\n"
-"    Coverage generation\n"
-"      --trace=FILE\n"
-"          Activate the Basic Blocks Coverage for the symbols specified in\n"
-"          FILE.\n"
-"\n"
-"      --output-trace-rep=REP\n"
-"          Specify the REP directory for the trace output files.\n"
-"\n"
-"    Detection options\n"
-"      --check-nan=<yes|no> [default=yes]\n"
-"          Activate NaN detection. NaN produces a valgrind error. This\n"
-"          functionnality requires the verrou backend.\n"
-"\n"
-"      --check-cancellation=<yes|no> [default=no]\n"
-"          Activate cancellation detection. Cancellation produces a valgrind\n"
-"          error. This functionnality is available for the verrou, mcaquad and\n"
-"          checkdenorm backends. The level of detected cancellations can be\n"
-"          configured with --cc-threshold-float and --cc-threshold-double.\n"
-"\n"
-"      --cc-gen-file=<FILE>\n"
-"          Generate in FILE with the source format for each code source line\n"
-"          which produces at least one cancellation. This functionnality is\n"
-"          available for verrou, mcaquad and checkdenorm backends. The level\n"
-"          of detected cancellations can be configured with --cc-threshold-\n"
-"          float and --cc-threshold-double.\n"
-"\n"
-"      --cc-threshold-float=<integer> [default=24]\n"
-"          Configure the cancellation dectection threshold for float\n"
-"          operations. Default value is still experimental and could have to\n"
-"          change.\n"
-"\n"
-"      --cc-threshold-double=<integer> [default=40]\n"
-"          Configure the cancellation dectection threshold for double\n"
-"          operations. Default value is still experimental and could have to\n"
-"          change.\n"
-"\n"
-"      --check-denorm=<yes|no> [default=no]\n"
-"          Activate denormal number detection. Denormal number produced by\n"
-"          floating point operation produces a valgrind error. This\n"
-"          functionnality is available for the checkdenorm backend.\n"
-"\n"
-"      --cd-gen-file=<FILE>\n"
-"          Generate in FILE with the source format for each code source line\n"
-"          which produces at least one denormal number. This functionnality is\n"
-"          available for checkdenorm backend.\n"
-"\n"
-"      --check-max-float=<yes|no> [default=no]\n"
-"          Activate max float detection. This functionnality is compatible\n"
-"          only with verrou backend.\n"
-"\n"
-"    Performance optimization\n"
-"      --vr-unsafe-llo-optim=<yes|no> [default=no]\n"
-"          Activate faster instrumentation process but unsafe when binary\n"
-"          mixes llo and vect instructions.\n"
-"\n"
+"    General options\n\
+      --vr-verbose=<yes|no> [default=no]\n\
+          Toggle verbosity: prints messages for x387 instructions and client\n\
+          requests.\n\
+\n\
+      --count-op=<yes|no> [default=yes]\n\
+          Toggle floating-point operations counting.\n\
+\n\
+      --backend=<verrou|mcaquad|checkdenorm> [default=verrou]\n\
+          Select the verrou, mcaquad or checkdenorm backend.  verrou enables\n\
+          to perform several rounding mode (See --rounding-mode option).\n\
+          mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on\n\
+          extented precision in quad (See --mca-mode, --mca-precision-double\n\
+          and --mca-precision-float options). The integration of mcaquad\n\
+          backend in the frontend verrou is still considered as experimental.\n\
+          checkdenorm enables the ftz rounding-mode and the --check-denorm\n\
+          and --cd-gen-file options.\n\
+\n\
+          This option can be activated with the env variable VERROU_BACKEND\n\
+\n\
+    Perturbation of floating-point operations\n\
+      --rounding-mode=<random|average|upward|downward|toward_zero|farthest|float|ftz>\n\
+      [default=nearest]\n\
+          Emulate the given rounding mode for operations instrumented with\n\
+          the verrou backend. If this option is not provided, Verrou always\n\
+          rounds to the nearest floating-point. Supported rounding modes are:\n\
+\n\
+          •   Random rounding modes: random, average.\n\
+\n\
+          •   IEEE-754 rounding modes: nearest (default), upward, downward,\n\
+              toward_zero.\n\
+\n\
+          •   Other: farthest, float, ftz(imply checkdenorm backend).\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_ROUNDING_MODE.\n\
+\n\
+      --mca-mode=<mca|rr|pb|ieee> [default=mca]\n\
+          Emulate the given MCA mode for operations instrumented with the\n\
+          mcaquad backend. Supported mca modes are:\n\
+\n\
+          •   mca : full mca (default)\n\
+\n\
+          •   rr : random rounding\n\
+\n\
+          •   pb : precision bounding\n\
+\n\
+          •   ieee : ieee (rounding to nearest)\n\
+\n\
+          The mcaquad backend implementation come from Verificarlo : More\n\
+          information on Verificalo github[1]\n\
+\n\
+      --mca-precision-double= [default=53]\n\
+          Configure the magnitude of inexact function used by mcaquad backend\n\
+          for double operation.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_MCA_PRECISION_DOUBLE.\n\
+\n\
+      --mca-precision-float= [default=24]\n\
+          Configure the magnitude of inexact function used by mcaquad backend\n\
+          for float operation.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_MCA_PRECISION_FLOAT.\n\
+\n\
+      --vr-seed=RNG_SEED [default=automatically generated]\n\
+          If present, this option allows setting the seed of the\n\
+          pseudo-Random Number Generator used for the random or average\n\
+          rounding modes. This helps reproducing the behaviour of a program\n\
+          under Verrou.\n\
+\n\
+          If this option is omitted, the pRNG is seeded with a value based on\n\
+          the current time and process id, so that it should change at each\n\
+          execution.\n\
+\n\
+      --vr-instr=<add|sub|mul|div|mAdd|mSub|conv> [default=all]\n\
+          Toggle instrumentation of floating-point additions, subtractions,\n\
+          multiplications, divisions, fused multiply additions, fused\n\
+          multiply subtractions, conversions (only double to float cast)\n\
+          respectively. This option can be set multiple times (or use \",\" to\n\
+          separate arguments) to instrument multiple types of operations.\n\
+\n\
+          If this option is not provided, all supported operations types are\n\
+          instrumented.\n\
+\n\
+          This option can be activated with the env variable VERROU_INSTR.\n\
+\n\
+      --vr-instr-scalar=<yes|no> [default=no]\n\
+          Toggle instrumentation of x387 scalar instructions.\n\
+\n\
+      --vr-instr-llo=<yes|no> [default=yes]\n\
+          Toggle instrumentation of llo scalar instructions (cast and all fma\n\
+          instructions are considered as llo).\n\
+\n\
+      --vr-instr-vec<2,4,8>=<yes|no> [default=yes]\n\
+          Toggle instrumentation of vectorized instructions (number\n\
+          corresponds to the pack size)\n\
+\n\
+      --vr-instr-[flt|dbl]=<yes|no> [default=yes]\n\
+          Toggle instrumentation of float (or double) instructions.\n\
+\n\
+    Instrumentation scope\n\
+      --instr-atstart=<yes|no> [default=yes]\n\
+          Toggle instrumentation state on or off at program start. Useful in\n\
+          combination with client requests.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_INSTR_ATSTART.\n\
+\n\
+      --exclude=FILE\n\
+          Symbols listed in FILE will be left uninstrumented.\n\
+\n\
+          This option can be activated with the env variable VERROU_EXCLUDE.\n\
+\n\
+      --gen-exclude=FILE\n\
+          Generate in FILE a list of all symbols (which contain perturbated\n\
+          floating point instruction) encountered during program execution.\n\
+          This is useful to build an exclusion list.\n\
+\n\
+          In combination with --exclude, only list symbols which were not\n\
+          already present in the provided exclusion list.\n\
+\n\
+          WARNING: in order to generate a correct list, the whole binary\n\
+          (including symbols listed in the list provided using --exclude)\n\
+          must be instrumented. When using both --gen-exclude and --exclude,\n\
+          it is advised to avoid perturbating rounding-modes using\n\
+          --rounding-mode=nearest.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_GEN_EXCLUDE.\n\
+\n\
+      --source=FILE\n\
+          When this option is present, only instructions coming from source\n\
+          code lines listed in FILE are instrumented.\n\
+\n\
+          This option can be activated with the env variable VERROU_SOURCE.\n\
+\n\
+      --warn-unknown-source=FILE\n\
+          This option require the use of --source option. When used, verrou\n\
+          generates warning for each line of code (which execute floating\n\
+          point operation) neither present in the FILE defined by --source\n\
+          option nor in the FILE provided by --warn-unknown-source option.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_WARN_UNKNOWN_SOURCE.\n\
+\n\
+      --gen-source=FILE\n\
+          Generate in FILE the list of all source code lines (which contain\n\
+          perturbated floating point instruction) encountered during program\n\
+          execution.\n\
+\n\
+          In combination with --source, only list source code lines which\n\
+          were not already present in the provided list.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_GEN_SOURCE.\n\
+\n\
+    Coverage generation\n\
+      --trace=FILE\n\
+          Activate the Basic Blocks Coverage for the symbols specified in\n\
+          FILE.\n\
+\n\
+      --output-trace-rep=REP\n\
+          Specify the REP directory for the trace output files.\n\
+\n\
+    Detection options\n\
+      --check-nan=<yes|no> [default=yes]\n\
+          Activate NaN detection. NaN produces a valgrind error. This\n\
+          functionnality requires the verrou backend.\n\
+\n\
+      --check-cancellation=<yes|no> [default=no]\n\
+          Activate cancellation detection. Cancellation produces a valgrind\n\
+          error. This functionnality is available for the verrou, mcaquad and\n\
+          checkdenorm backends. The level of detected cancellations can be\n\
+          configured with --cc-threshold-float and --cc-threshold-double.\n\
+\n\
+      --cc-gen-file=<FILE>\n\
+          Generate in FILE with the source format for each code source line\n\
+          which produces at least one cancellation. This functionnality is\n\
+          available for verrou, mcaquad and checkdenorm backends. The level\n\
+          of detected cancellations can be configured with --cc-threshold-\n\
+          float and --cc-threshold-double.\n\
+\n\
+      --cc-threshold-float=<integer> [default=24]\n\
+          Configure the cancellation dectection threshold for float\n\
+          operations. Default value is still experimental and could have to\n\
+          change.\n\
+\n\
+      --cc-threshold-double=<integer> [default=40]\n\
+          Configure the cancellation dectection threshold for double\n\
+          operations. Default value is still experimental and could have to\n\
+          change.\n\
+\n\
+      --check-denorm=<yes|no> [default=no]\n\
+          Activate denormal number detection. Denormal number produced by\n\
+          floating point operation produces a valgrind error. This\n\
+          functionnality is available for the checkdenorm backend.\n\
+\n\
+      --cd-gen-file=<FILE>\n\
+          Generate in FILE with the source format for each code source line\n\
+          which produces at least one denormal number. This functionnality is\n\
+          available for checkdenorm backend.\n\
+\n\
+      --check-max-float=<yes|no> [default=no]\n\
+          Activate max float detection. This functionnality is compatible\n\
+          only with verrou backend.\n\
+\n\
+    Performance optimization\n\
+      --vr-unsafe-llo-optim=<yes|no> [default=no]\n\
+          Activate faster instrumentation process but unsafe when binary\n\
+          mixes llo and vect instructions.\n\
+"

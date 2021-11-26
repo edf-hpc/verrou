@@ -43,15 +43,28 @@ if not verrouFound:
 
 title = re.compile("^[A-Z]")
 subtitle = re.compile("^\s{3}[A-Z]")
+
+linesRes=[]
+for line in man.stdout:
+    line=line.decode("utf8")
+    if title.search(line):
+        break
+    if subtitle.search(line):
+        line = " " + line
+    else:
+        line = line[1:]
+
+    line=line.replace('","','\\",\\"')
+    linesRes+=[line.rstrip()]
+
+#with open("verrou/vr_clo_gen.c", "w") as f:
+#    for line in linesRes:
+#        f.write ('VG_(printf)( "'+line+'\\n"'+"    );\n")
+
 with open("verrou/vr_clo.txt", "w") as f:
-    for line in man.stdout:
-        line=line.decode("utf8")
-        if title.search(line):
-            break
+    f.write('"')
+    for line in linesRes[0:-1]:
+        f.write (line+'\\n\\'+"\n")
+    f.write(linesRes[-1]+'"\n')
 
-        if subtitle.search(line):
-            line = " " + line
-        else:
-            line = line[1:]
 
-        f.write ('"'+line.rstrip()+'\\n"'+"\n")
