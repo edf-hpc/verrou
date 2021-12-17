@@ -27,16 +27,17 @@
 
 import sys
 import os
-
 import subprocess
-
 import shutil
 import hashlib
 import copy
-from valgrind import DD
 import glob
 import datetime
 import math
+from valgrind import convNumLineTool
+from valgrind import DD
+
+
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -283,7 +284,8 @@ def failure():
 
 
 class DDStoch(DD.DD):
-    def __init__(self, config, prefix):
+    def __init__(self, config, prefix,
+                 selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x ):
         DD.DD.__init__(self)
         self.config_=config
         if not  self.config_.get_quiet():
@@ -298,10 +300,10 @@ class DDStoch(DD.DD):
         self.relPrefix_=prefix
         self.ref_ = os.path.join(self.prefix_, "ref")
         self.prepareCache()
-        self.rddminHeuristicLoadRep()
         prepareOutput(self.ref_)
-        self.reference()
-        self.mergeList()
+        self.reference() #generate the reference computation
+        self.mergeList() #generate the search space
+        self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space
 
 
     def symlink(self,src, dst):
@@ -335,7 +337,7 @@ class DDStoch(DD.DD):
         return res
 
 
-    def rddminHeuristicLoadRep(self):
+    def rddminHeuristicLoadRep(self, selectBlocAndNumLine, joinBlocAndNumLine):
         """ Load the results of previous ddmin. Need to be called after prepareCache"""
 
         self.useRddminHeuristic=False
@@ -346,7 +348,7 @@ class DDStoch(DD.DD):
 
         rddmin_heuristic_rep=[]
         if "cache" in self.config_.get_rddminHeuristicsCache():
-            if self.config_.get_cache=="rename":
+            if self.config_.get_cache()=="rename":
                 cacheRep=self.oldCacheName
                 if os.path.isdir(cacheRep):
                     rddmin_heuristic_rep+=[cacheRep]
@@ -364,12 +366,30 @@ class DDStoch(DD.DD):
 
         self.ddminHeuristic=[]
         if self.config_.get_cache=="continue":
-            self.ddminHeuristic+=[ (open(os.path.join(rep, self.getDeltaFileName()+".include"))).readlines()  for rep in self.saveCleanSymLink if "ddmin" in rep]
+            self.ddminHeuristic+=[ self.loadDeltaFile(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
 
         for rep in rddmin_heuristic_rep:
+            deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
+            cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
             repTab=glob.glob(os.path.join(rep, "ddmin*"))
-            deltaFileNameTab=[os.path.join(rep, self.getDeltaFileName()+".include") for rep in repTab ]
-            self.ddminHeuristic+=[ (open(fileName)).readlines()  for fileName in deltaFileNameTab if os.path.exists(fileName)]
+
+            for repDDmin in repTab:
+                deltas=self.loadDeltaFile(repDDmin)
+                deltasNew=[]
+                for delta in deltas:
+                    deltasNew+= cvTool.getNewLines(delta)
+                self.ddminHeuristic+=[deltasNew]
+
+    def loadDeltaFile(self,rep, ref=False):
+        fileName=os.path.join(rep, self.getDeltaFileName()+".include")
+        if ref:
+            fileName=os.path.join(rep, self.getDeltaFileName())
+        if os.path.exists(fileName):
+            deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
+            return deltasTab
+        else:
+            print(fileName + " do not exist")
+        return None
 
     def prepareCache(self):
         cache=self.config_.get_cache()
@@ -455,11 +475,12 @@ class DDStoch(DD.DD):
         for excludeFile in listOfExcludeFile:
             with open(os.path.join(dirname,excludeFile), "r") as f:
                 for line in f.readlines():
-                    if line not in excludeMerged:
-                        excludeMerged+=[line]
+                    rsline=line.rstrip()
+                    if rsline not in excludeMerged:
+                        excludeMerged+=[rsline]
         with open(os.path.join(dirname, name), "w" )as f:
             for line in excludeMerged:
-                f.write(line)
+                f.write(line+"\n")
 
 
     def testWithLink(self, deltas, linkname, earlyExit=True):
@@ -544,7 +565,8 @@ class DDStoch(DD.DD):
                     if not self.config_.get_quiet():
                         print("Bad rddmin heuristic : %s"%self.coerce(heuristicsDelta))
                 else:
-                    #print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
+                    if not self.config_.get_quiet():
+                        print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
                     if len(heuristicsDelta)==1:
                         res+=[heuristicsDelta]
                         self.configuration_found("ddmin%d"%(self.index), heuristicsDelta)
@@ -890,8 +912,9 @@ class DDStoch(DD.DD):
 
 
     def getDelta0(self):
-        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
-            return f.readlines()
+        return self.loadDeltaFile(self.ref_, True)
+#        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
+#            return f.readlines()
 
 
     def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
@@ -902,7 +925,7 @@ class DDStoch(DD.DD):
         if include:
             with open(os.path.join(dirname,dd+".include"), "w") as f:
                 for d in deltas:
-                    f.write(d)
+                    f.write(d+"\n")
 
         if exclude:
             with open(os.path.join(dirname,dd+".exclude"), "w") as f:
@@ -910,7 +933,7 @@ class DDStoch(DD.DD):
                     excludes.remove(d)
 
                 for line in excludes:
-                    f.write(line)
+                    f.write(line+"\n")
 
 
 
