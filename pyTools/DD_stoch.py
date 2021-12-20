@@ -375,6 +375,8 @@ class DDStoch(DD.DD):
 
             for repDDmin in repTab:
                 deltas=self.loadDeltaFile(repDDmin)
+                if deltas==None:
+                    continue
                 deltasNew=[]
                 for delta in deltas:
                     deltasNew+= cvTool.getNewLines(delta)
