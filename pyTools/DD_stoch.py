@@ -584,7 +584,6 @@ class DDStoch(DD.DD):
                         self.index+=1
                         deltas=[delta for delta in deltas if delta not in heuristicsDelta]
                     else:
-                        resTab=algo(heuristicsDelta)
                         resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN())
                         for resMin in resTab:
                             res+=[resMin] #add to res
