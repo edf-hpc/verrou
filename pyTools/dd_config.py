@@ -56,7 +56,9 @@ class ddConfig:
         self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"], False)]
         self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ("--rddmin-heuristics-cache="), "none",    ["none", "cache", "all_cache"], False)]
         self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ("--rddmin-heuristics-rep="),   [] ,       "rep_exists", True)]
+        self.registryTab+=[("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ("--rddmin-heuristics-line-conv="),     False,     None, False)]
         self.registryTab+=[("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ("--res-with-all-samples"),     False,     None, False)]
+
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
@@ -286,3 +288,5 @@ class ddConfig:
     def get_rddminHeuristicsRep_Tab(self):
         return self.rddminHeuristicsRep
 
+    def get_rddminHeuristicsLineConv(self):
+        return self.rddminHeuristicsLineConv

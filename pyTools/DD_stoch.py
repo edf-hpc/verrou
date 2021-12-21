@@ -368,19 +368,28 @@ class DDStoch(DD.DD):
         if self.config_.get_cache=="continue":
             self.ddminHeuristic+=[ self.loadDeltaFile(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
 
-        for rep in rddmin_heuristic_rep:
-            deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
-            cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
-            repTab=glob.glob(os.path.join(rep, "ddmin*"))
+        if self.config_.get_rddminHeuristicsLineConv():
+            for rep in rddmin_heuristic_rep:
+                deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
+                cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
+                repTab=glob.glob(os.path.join(rep, "ddmin*"))
 
-            for repDDmin in repTab:
-                deltas=self.loadDeltaFile(repDDmin)
-                if deltas==None:
-                    continue
-                deltasNew=[]
-                for delta in deltas:
-                    deltasNew+= cvTool.getNewLines(delta)
-                self.ddminHeuristic+=[deltasNew]
+                for repDDmin in repTab:
+                    deltas=self.loadDeltaFile(repDDmin)
+                    if deltas==None:
+                        continue
+                    deltasNew=[]
+                    for delta in deltas:
+                        deltasNew+= cvTool.getNewLines(delta)
+                    self.ddminHeuristic+=[deltasNew]
+        else:
+            for rep in rddmin_heuristic_rep:
+                repTab=glob.glob(os.path.join(rep, "ddmin*"))
+                for repDDmin in repTab:
+                    deltas=self.loadDeltaFile(repDDmin)
+                    if deltas==None:
+                        continue
+                    self.ddminHeuristic+=[deltas]
 
     def loadDeltaFile(self,rep, ref=False):
         fileName=os.path.join(rep, self.getDeltaFileName()+".include")
@@ -576,6 +585,7 @@ class DDStoch(DD.DD):
                         deltas=[delta for delta in deltas if delta not in heuristicsDelta]
                     else:
                         resTab=algo(heuristicsDelta)
+                        resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN())
                         for resMin in resTab:
                             res+=[resMin] #add to res
                             deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
@@ -618,6 +628,22 @@ class DDStoch(DD.DD):
             testResult=self._test(deltas,nbRun)
             self.index+=1
         return ddminTab
+
+    def check1Min(self, deltas,nbRun):
+        ddminTab=[]
+        testResult=self._test(deltas)
+        if testResult!=self.FAIL:
+            self.internalError("Check1-MIN", md5Name(deltas)+" should fail")
+
+        for deltaMin1 in deltas:
+            newDelta=[delta for delta in deltas if delta!=deltaMin1]
+            testResult=self._test(deltas)
+            if testResult==self.FAIL:
+                return self.RDDMin(deltas, nbRun)
+        self.configuration_found("ddmin%d"%(self.index), deltas)
+        self.index+=1
+        return [deltas]
+
 
     def splitDeltas(self, deltas,nbRun,granularity):
         nbProc=self.config_.get_maxNbPROC()
