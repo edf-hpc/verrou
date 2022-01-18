@@ -636,8 +636,10 @@ class DDStoch(DD.DD):
 
         for deltaMin1 in deltas:
             newDelta=[delta for delta in deltas if delta!=deltaMin1]
-            testResult=self._test(deltas)
+            testResult=self._test(newDelta)
             if testResult==self.FAIL:
+                if not self.config_.get_quiet():
+                    print("Heuristics not 1-Minimal")
                 return self.RDDMin(deltas, nbRun)
         self.configuration_found("ddmin%d"%(self.index), deltas)
         self.index+=1
