@@ -31,9 +31,19 @@ from valgrind import DD_stoch
 from valgrind import DD_exec_stat
 
 
+def selectBlocAndNumLine(line):
+    [v1, v2,v3] =(line.strip()).split("\t")
+    return ((v1,v3),int(v2))
+
+def joinBlocAndNumLine(bloc, numLine):
+    return bloc[0]+"\t"+str(numLine)+"\t"+bloc[1]
+
+
 class DDline(DD_stoch.DDStoch):
     def __init__(self, config, prefix="dd.line"):
-        DD_stoch.DDStoch.__init__(self, config, prefix)
+        DD_stoch.DDStoch.__init__(self, config, prefix,
+                                  selectBlocAndNumLine,
+                                  joinBlocAndNumLine)
 
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": "nearest",
@@ -42,7 +52,7 @@ class DDline(DD_stoch.DDStoch):
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.line.")
-    
+
     def getDeltaFileName(self):
         return "dd.line"
 

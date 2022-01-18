@@ -50,7 +50,7 @@ class DDsym(DD_stoch.DDStoch):
         return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
 
     def coerce(self, delta_config):
-        return "\n  " + "  ".join(delta_config)
+        return "\n  " + "\n  ".join(delta_config)
 
 
 
