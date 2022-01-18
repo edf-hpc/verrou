@@ -61,7 +61,9 @@ void vr_clo_defaults (void) {
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
   vr.sourceActivated= False;
-
+  vr.excludeSourceRead = NULL;
+  vr.excludeSourceDyn = NULL;
+  vr.sourceExcludeActivated = False;
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
@@ -111,6 +113,8 @@ void vr_clo_defaults (void) {
 Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
   const HChar * str;
+  UInt setResult;
+
   //Option --backend=
   if      (VG_XACT_CLOM (cloPD, arg, "--backend=verrou",
                          vr.backend, vr_verrou)) {}
@@ -161,20 +165,21 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   //Options to choose op to instrument
-  else if (VG_XACT_CLO (arg, "--vr-instr=add",
-                        vr.instr_op[VR_OP_ADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=sub",
-                        vr.instr_op[VR_OP_SUB] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mul",
-                        vr.instr_op[VR_OP_MUL] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=div",
-                        vr.instr_op[VR_OP_DIV] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mAdd",
-                        vr.instr_op[VR_OP_MADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mSub",
-                        vr.instr_op[VR_OP_MSUB] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=conv",
-                        vr.instr_op[VR_OP_CONV] , True)) {}
+  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv", setResult)){
+    UInt instrTab[]={0,0,0,0,0,0,0};
+    UInt currentFlags=setResult;
+    for(UInt i=0; i<7;i++){
+      instrTab[i]=currentFlags%2;
+      currentFlags=currentFlags/2;
+    }
+    if(instrTab[0]!=0) vr.instr_op[VR_OP_ADD]=True;
+    if(instrTab[1]!=0) vr.instr_op[VR_OP_SUB]=True;
+    if(instrTab[2]!=0) vr.instr_op[VR_OP_MUL]=True;
+    if(instrTab[3]!=0) vr.instr_op[VR_OP_DIV]=True;
+    if(instrTab[4]!=0) vr.instr_op[VR_OP_MADD]=True;
+    if(instrTab[5]!=0) vr.instr_op[VR_OP_MSUB]=True;
+    if(instrTab[6]!=0) vr.instr_op[VR_OP_CONV]=True;
+  }
 
   //Option to enable check-cancellation backend
   else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
@@ -275,6 +280,12 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
     vr.sourceActivated = True;
+  }
+
+  else if (VG_STR_CLOM (cloPD, arg, "--warn-unknown-source", str)) {
+    vr.excludeSourceRead = vr_loadIncludeSourceList(vr.excludeSourceRead, str);
+    vr.excludeSourceDyn=vr.excludeSourceRead;
+    vr.sourceExcludeActivated = True;
   }
 
   else if (VG_STR_CLOM (cloPD, arg, "--cc-gen-file", str)) {
