@@ -255,8 +255,6 @@ Bool vr_process_clo (const HChar *arg) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
-  else if (VG_XACT_CLOM (cloPD, arg, "--gen-trace",
-                         vr.genTrace, True)) {}
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;

@@ -1213,6 +1213,9 @@ static void vr_post_clo_init(void)
 
    vr_env_clo("VERROU_INSTR","--vr-instr");
 
+   vr_env_clo("VERROU_TRACE","--trace");
+   vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
+
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
