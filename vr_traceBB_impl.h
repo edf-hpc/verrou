@@ -159,11 +159,11 @@ void vr_traceBB_initialize(char* path){
   const HChar * strExpCov=  VG_(expand_file_name)("vr.traceBB.strCov",   absfileCov);
 
   vr_out_bb_info = VG_(fopen)(strExpInfo,
-			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 
   vr_out_bb_cov = VG_(fopen)(strExpCov,
-			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 
   if(/*vr_out_bb_trace==NULL || */ vr_out_bb_info==NULL /*|| vr_out_bb_info_backtrace==NULL */|| vr_out_bb_cov==NULL){

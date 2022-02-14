@@ -70,7 +70,6 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
         if ignoreEmpty:
             fileName="trace_bb_info.log-"+str(pid)
             pathFile=os.path.join(rep,fileName)
- #           print("pathFile : ",pathFile)
             if  fileName in  otherOldFileList and (os.stat(pathFile)).st_size==0:
                 if clean:
                     mapClean(rep,otherOldFileList+coverOldFileList, verbose)
@@ -79,6 +78,7 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
         if what=="all":
             mapRename(rep,pid,count, coverOldFileList, verbose)
             mapRename(rep,pid,count, otherOldFileList, verbose)
+
         if what=="cover":
             mapRename(rep,pid,count, coverOldFileList, verbose)
             if clean:
@@ -89,19 +89,33 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
 
 def postRunTrace(runDir):
     expr="%s/cover/trace_bb_cov.log*"%(runDir)
-    listOfTraceBBFile=glob.glob(expr)
+    globListOfTraceBBFile=glob.glob(expr)
+
+    listOfTraceBBFile=[]
+    log=""
+    for traceBBFile in globListOfTraceBBFile:
+        traceInfo=traceBBFile.replace("cover/trace_bb_cov.log","cover/trace_bb_info.log")
+        if (os.stat(traceInfo)).st_size!=0:
+            listOfTraceBBFile+=[traceBBFile]
+        else:
+            log+="traceBBFile %s ignored\n"%(traceBBFile)
+    if log!="":
+        with open(os.path.join(runDir, "covBBLog"),"w") as f:
+            f.write(log)
 
     if len(listOfTraceBBFile)==0:
         print("Problem in trace generation detected")
         sys.exit(42)
 
     cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
-    os.system(cmd+ "  > "+ "%s/covBBLog"%(runDir))
+    os.system(cmd+ "  >> "+ "%s/covBBLog"%(runDir))
     rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="cover", clean=True,ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):
-    env["VERROU_OUTPUT_TRACE_REP"]=os.path.join(runDir,"cover")
+    coverRep=os.path.join(runDir,"cover")
+    os.mkdir(coverRep)
+    env["VERROU_OUTPUT_TRACE_REP"]=coverRep
 
 def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     runScript=config.get_runScript()
@@ -156,8 +170,9 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             ddminNew+="-trace"
 
         for instr in instrList:
-            if instr!="":
-                ddminNew=ddminNew+"-"+instr
+            ddminNewInstr=ddminNew+"-"+instr
+            if instr=="":
+                ddminNewInstr=ddminNew
 
             runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
                     "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}  
@@ -166,9 +181,9 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 
             for rounding in roundNonDetTab:
                 if rounding=="":
-                    ddminNewRep=ddminNew
+                    ddminNewRep=ddminNewInstr
                 else:
-                    ddminNewRep=ddminNew+"-"+rounding
+                    ddminNewRep=ddminNewInstr+"-"+rounding
                     runEnv["VERROU_ROUNDING_MODE"]=rounding
 
                 if not os.path.exists(ddminNewRep):
@@ -178,7 +193,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 runOneConfig(config, refDir, ddminNewRep, runEnv, nbRun, traceFile)
 
             if len(roundDetTab)!=0:
-                ddminNewRep=ddminNew+"-det"
+                ddminNewRep=ddminNewInstr+"-det"
                 if not os.path.exists(ddminNewRep):
                     os.mkdir(ddminNewRep)
 
