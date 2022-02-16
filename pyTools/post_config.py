@@ -293,5 +293,5 @@ class postConfig:
 
 
     def findDDmin(self, rep):
-        ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp")]
+        ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="ref"]
         return ddminList

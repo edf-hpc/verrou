@@ -2,11 +2,11 @@
 import os
 import sys
 import re
-from valgrind import DD_stoch
-from valgrind import post_config
 import fnmatch
 import glob
-
+import functools
+from valgrind import DD_stoch
+from valgrind import post_config
 
 
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
@@ -151,20 +151,9 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 
     nbRun=config.get_nbRUN()
 
-    for instr in instrList:
-        refNewDirInstr=refNewDir
-        if instr!="":
-            refNewDirInstr=refNewDir+"-"+instr
-
-        if not os.path.exists(refNewDirInstr):
-            os.mkdir(refNewDirInstr)
-
-            envvars={"VERROU_ROUNDING_MODE": "nearest"}
-            if instr!="":
-                envvars["VERROU_INSTR"]=instr
-            runOneConfig(config, refDir,refNewDirInstr, envvars,1,traceFile)            
 
     for ddmin in ddMinList:
+
         ddminNew=ddmin
         if config.get_trace():
             ddminNew+="-trace"
@@ -174,14 +163,19 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             if instr=="":
                 ddminNewInstr=ddminNew
 
-            runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
-                    "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}  
+            if ddmin.endswith("ref"):
+                runEnv={}
+            else:
+                runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
+                        "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}
             if instr!="":
                 runEnv["VERROU_INSTR"]= instr
 
             for rounding in roundNonDetTab:
                 if rounding=="":
                     ddminNewRep=ddminNewInstr
+                    if ddmin.endswith("ref"):
+                        runEnv["VERROU_ROUNDING_MODE"]="nearest"
                 else:
                     ddminNewRep=ddminNewInstr+"-"+rounding
                     runEnv["VERROU_ROUNDING_MODE"]=rounding
@@ -209,6 +203,26 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                         os.mkdir(detRep)
                     runOneConfig(config, refDir, detRep, runEnv, 1, traceFile)
 
+def sortSubRep(subRepTab):
+    def normalized(x):
+        return  x.split("/")[-1]
+
+    refTab=[x for x in subRepTab if normalized(x)=="ref"]
+    ddminTab=[x for x in subRepTab if normalized(x).startswith("ddmin")]
+    otherTab=[x for x in subRepTab if (not x in refTab) and (not x in ddminTab)]
+
+    ddminWithKeySort=[]
+    for ddmin in ddminTab:
+        try:
+            xi=int((normalized(ddmin)).replace("ddmin",""))
+            ddminWithKeySort+=[(ddmin, xi)]
+        except:
+            otherTab+=ddmin
+
+    ddminTab=[ddmin[0] for ddmin in sorted(ddminWithKeySort, key=lambda x:x[1])]
+    res=sorted(refTab) + ddminTab + sorted(otherTab)
+
+    return res
 
 
 if __name__=="__main__":
@@ -217,11 +231,11 @@ if __name__=="__main__":
     repSubRep=config.get_rep_sub_rep()
     print("selected sub_rep to postreat:")
     pwd=os.getcwd()
-    for rep in repSubRep:
-        ddMinList=sorted(repSubRep[rep])
+    for rep in sorted(repSubRep.keys()):
+        ddMinList=sortSubRep(repSubRep[rep])
         for ddmin in ddMinList:
             print("\t", os.path.relpath(ddmin,pwd) )
-    for rep in repSubRep:
-        ddMinList=sorted(repSubRep[rep])
+    for rep in sorted(repSubRep.keys()):
+        ddMinList=sortSubRep(repSubRep[rep])
         refDir=os.path.abspath(os.path.join(rep,"ref"))
         runSubRepForOneInstr(config, rep, refDir, ddMinList)
