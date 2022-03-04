@@ -18,13 +18,13 @@ class postConfig:
         self.check_trace_file()
 
     def registerOptions(self):
-        self.registryTab =[("nbRUN",      "int", "POST_NRUNS",       ["--nruns="],           5, None, False)]
-        self.registryTab+=[("maxNbPROC",  "int", "POST_NUM_THREADS", ["--num-threads="],  None, None, False)]
-        self.registryTab+=[("ddQuiet",   "bool", "POST_QUIET",       ["--quiet"],        False, None, False)]
-        self.registryTab+=[("rep",     "string", "POST_REP",         ["--rep"], "dd.line", "rep_exists", False)]
-        self.registryTab+=[("sub_rep", "string", "POST_SUB_REP",     ["--sub-rep="],  [] , "rep_exists", True)]
-        self.registryTab+=[("instr"  , "string", "POST_INSTR",       ["--instr="],   [] ,   None, True)]
-        self.registryTab+=[("rounding","string", "POST_ROUNDING",    ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det","random","average","upward","downward", "farthest", "toward_zero","random_det","average_det"], True)]
+        self.registryTab =[("nbRUN",      "int", "POST_NRUNS",        ["--nruns="],           5, None, False)]
+        self.registryTab+=[("maxNbPROC",  "int", "POST_NUM_THREADS",  ["--num-threads="],  None, None, False)]
+        self.registryTab+=[("ddQuiet",   "bool", "POST_QUIET",        ["--quiet"],        False, None, False)]
+        self.registryTab+=[("rep",     "string", "POST_REP",          ["--rep="], "dd.line", "rep_exists", False)]
+        self.registryTab+=[("sub_rep", "string", "POST_CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)]
+        self.registryTab+=[("instr"  , "string", "POST_INSTR",        ["--instr="],   [] ,   None, True)]
+        self.registryTab+=[("rounding","string", "POST_ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det","random","average","upward","downward", "farthest", "toward_zero","random_det","average_det"], True)]
         self.registryTab+=[("trace_bin",    "bool",   "POST_TRACE_BIN",     ["--trace-bin"],     False, None, False)]
         self.registryTab+=[("trace_pattern","string", "POST_TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
         self.registryTab+=[("trace_file", "string",   "POST_TRACE_FILE",    ["--trace-file="],    None, None, False)]
