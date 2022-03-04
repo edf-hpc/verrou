@@ -368,6 +368,17 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </listitem>
         </varlistentry>
 
+	<varlistentry>
+	  <term>
+	    <computeroutput>--rddmin-heuristics-line-conv</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_LINE_CONV</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Option to shift the line number of the line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
+	      for a new delta debug with the same test case and few code modifications.
+	    </para>
+          </listitem>
+        </varlistentry>
 
 
       </variablelist>
