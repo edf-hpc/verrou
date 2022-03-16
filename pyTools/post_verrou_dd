@@ -171,13 +171,16 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             if instr!="":
                 runEnv["VERROU_INSTR"]= instr
 
+            if not os.path.exists(ddminNewInstr):
+                os.mkdir(ddminNewInstr)
+
             for rounding in roundNonDetTab:
                 if rounding=="":
-                    ddminNewRep=ddminNewInstr
+                    ddminNewRep=os.path.join(ddminNewInstr,"default")
                     if ddmin.endswith("ref"):
                         runEnv["VERROU_ROUNDING_MODE"]="nearest"
                 else:
-                    ddminNewRep=ddminNewInstr+"-"+rounding
+                    ddminNewRep=os.path.join(ddminNewInstr,rounding)
                     runEnv["VERROU_ROUNDING_MODE"]=rounding
 
                 if not os.path.exists(ddminNewRep):
@@ -187,7 +190,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 runOneConfig(config, refDir, ddminNewRep, runEnv, nbRun, traceFile)
 
             if len(roundDetTab)!=0:
-                ddminNewRep=ddminNewInstr+"-det"
+                ddminNewRep=os.path.join(ddminNewInstr,"det")
                 if not os.path.exists(ddminNewRep):
                     os.mkdir(ddminNewRep)
 

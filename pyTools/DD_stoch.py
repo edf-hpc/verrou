@@ -118,6 +118,9 @@ class verrouTask:
 
 
     def cmpOneSample(self,i, assertRun=True):
+        if self.refDir==None: #if there are no reference provided cmp is ignored
+            return self.PASS
+
         rundir= self.nameDir(i)
         if assertRun:
             if self.subProcessRun[i]!=None:

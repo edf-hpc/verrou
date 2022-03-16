@@ -230,7 +230,7 @@ class postConfig:
         return list(filter(lambda x : x in ["random", "random_det", "average","average_det"], self.rounding ))
 
     def getDetTab(self):
-        return list(filter(lambda x: x in ["upward","downward", "farthest", "toward_zero"], self.rounding ))
+        return list(filter(lambda x: x in ["upward","downward", "farthest", "toward_zero", "nearest"], self.rounding ))
 
 
     def get_trace_bin(self):
@@ -257,7 +257,7 @@ class postConfig:
             self.trace_file=os.path.abspath(self.trace_file)
         if "all_det" in self.rounding:
             self.rounding.remove("all_det")
-            self.rounding+=["upward","downward", "farthest", "toward_zero"]
+            self.rounding+=["upward","downward", "farthest", "toward_zero", "nearest"]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
             self.rounding+=["random","average"]
