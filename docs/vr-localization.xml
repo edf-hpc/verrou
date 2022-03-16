@@ -524,7 +524,8 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para> Allows to perform <computeroutput>VERROU_POST_NUM_THREADS</computeroutput> runs in parallel.
-	     If this variable is not set, the parallelism is not activated.
+	    If this variable is not set, the parallelism is not activated.
+	    To use this option <command> run_script </command> has to be thread safe.
 	    </para>
           </listitem>
         </varlistentry>
@@ -535,7 +536,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Set the cache repository ti find the default configuration.
+	      Set the cache repository to find the default configuration.
 	      If this variable is not set, its value is  <computeroutput>dd.line</computeroutput>
 	    </para>
           </listitem>
@@ -594,7 +595,8 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      [<computeroutput>upward </computeroutput>,
 	      <computeroutput>downward</computeroutput>,
 	      <computeroutput>farthest</computeroutput>,
-	      <computeroutput>toward_zero</computeroutput>]
+	      <computeroutput>toward_zero</computeroutput>,
+	      <computeroutput>nearest</computeroutput>]
 	    </para>
 	    <para>
 	      <computeroutput>no_det</computeroutput> corresponds to the list :
@@ -610,7 +612,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Activate the BB coverage trace generation. The verrou trace file is automatically generated with a the binary
+	      Activate the BB coverage trace generation. The verrou trace file is automatically generated with the binary
 	      object (without library). If the trace file
 	      is not the one expected, the option <computeroutput>--trace-file=</computeroutput> has to be used.
 	    </para>
@@ -648,6 +650,149 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
     </simplesect>
 
     </section>
+    <section id="vr-manual.plotstat" xreflabel="ploStat">
+      <title> verrou_plot_stat</title>
+    <simplesect>
+   <title>Synopsis</title>
+
+      <screen><cmdsynopsis id="vr-manual.plotstat.synopsis">
+        <command>verrou_plot_stat [options] [/path/to/run_script]</command>
+        <arg choice="req"><replaceable>/path/to/extract_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
+    </simplesect>
+
+    <simplesect>
+      <title>Description</title>
+      <para>
+	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
+	of the result (extracted with <command> extract_script</command>) of a code run under verrou.
+      </para>
+
+      <para>
+	The scripts <command> run_script </command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by exemple with
+	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>
+
+	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print
+	the extracted value on the first line of the standard output.
+      </para>
+    </simplesect>
+
+    <simplesect>
+      <title>Options</title>
+
+      <variablelist id="vr-manual.plotStat.envvars">
+	<varlistentry>
+          <term>
+            <computeroutput>--help=</computeroutput> or <computeroutput>-h</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Print help.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--rep=DIR</computeroutput> or <computeroutput>-r DIR</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Set the repository to store/read computation. By default <computeroutput>DIR</computeroutput> is set
+	      to <computeroutput>verrou.stat</computeroutput>. If the option <computeroutput>--specific-pattern</computeroutput> is used
+	      the default is set to <computeroutput>./</computeroutput>.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--samples=</computeroutput> or <computeroutput>-s</computeroutput>
+          </term>
+          <listitem>
+            <para>An integer setting the run number of random and average distribution. If this variable is not set, the default value is
+              100. -1 means the highest number without running additional computation.</para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--num-threads=</computeroutput>
+          </term>
+          <listitem>
+            <para>An integer setting the run number of threads to run code thanks <command> run_script </command>.  Default is sequential computation.
+	      To use this option <command> run_script </command> has to be thread safe.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--montecarlo</computeroutput> or <computeroutput>-m</computeroutput>
+          </term>
+          <listitem>
+            <para> If this option is set, the deterministic mode use also the number of sample defined by <computeroutput>--samples=</computeroutput>.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--png=FILE</computeroutput> or <computeroutput>-p FILE</computeroutput>
+          </term>
+          <listitem>
+            <para> Defined the output file for histogram. By default the plot is interactive.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--relative=VALUE</computeroutput> or <computeroutput>-r VALUE</computeroutput>
+          </term>
+          <listitem>
+            <para> With this option the abscissa is relative. The reference (defined by VALUE) is either a numerical value
+	      or a key to a deterministic mode (nearest, upward, ...)
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--mca=MODE-DBL-FLT</computeroutput>
+          </term>
+          <listitem>
+            <para> Add the MODE-DBL-FLT mca mode to the study. MODE has to be in ["rr","pb","mca"]. DBL is mca noise for double and FLT for float.
+	      Typical configuration is  <computeroutput>--mca=rr-53-24</computeroutput>
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--specific-pattern=</computeroutput>
+          </term>
+          <listitem>
+            <para> This option enables to plot histogram for computation run without the framework or after files renaming.
+	      Typical calls  are :
+	    </para>
+	    <para>
+	      <computeroutput>--rep="." --specific-pattern=verrou.stat/random/dd.run* </computeroutput>
+	    </para>
+	    <para>
+	      <computeroutput>--rep="verrou.stat" --specific-pattern=random/dd.run* </computeroutput>
+	    </para>
+          </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+    </simplesect>
+
+    </section>
+
+
 </section>
 
 <!-- Local Variables: -->
