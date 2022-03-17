@@ -29,6 +29,18 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 Backend verrou simulating RANDOM rounding mode
++/-Inf: 
+   at 0xFFFFFF: main (naninf.cxx:27)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf.cxx:28)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf.cxx:29)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf.cxx:30)
+
 NaN: 
    at 0xFFFFFF: main (naninf.cxx:34)
 
@@ -74,4 +86,4 @@ NaN:
   `- dbl                        3                        3      (100%)
       `- llo                        3                        3  (100%)
  ---------------------------------------------------------------------
-ERROR SUMMARY: 9 errors from 9 contexts (suppressed: 0 from 0)
+ERROR SUMMARY: 13 errors from 13 contexts (suppressed: 0 from 0)
