@@ -30,6 +30,7 @@ vr_RoundingMode ROUNDINGMODE;
 void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
 void (*vr_nanHandler)()=NULL;
+void (*vr_infHandler)()=NULL;
 
 unsigned int my_pid;
 
