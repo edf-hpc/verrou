@@ -54,6 +54,7 @@ vr_RoundingMode ROUNDINGMODE;
 unsigned int vr_seed;
 void (*vr_panicHandler)(const char*)=NULL;
 void (*vr_nanHandler)()=NULL;
+void (*vr_infHandler)()=NULL;
 
 
 
@@ -63,6 +64,10 @@ void verrou_set_panic_handler(void (*panicHandler)(const char*)){
 
 void verrou_set_nan_handler(void (*nanHandler)()){
   vr_nanHandler=nanHandler;
+}
+
+void verrou_set_inf_handler(void (*infHandler)()){
+  vr_infHandler=infHandler;
 }
 
 

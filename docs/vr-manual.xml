@@ -506,12 +506,19 @@ det2
 
           <varlistentry id="vr.opt.check-nan" xreflabel="--check-nan">
             <term><option><![CDATA[--check-nan=<yes|no> [default=yes]]]></option></term>
-            <listitem><para>
-		Activate NaN detection. NaN produces a valgrind error.
-		This functionnality requires the verrou backend.
-            </para></listitem>
-          </varlistentry>
+              <listitem><para>
+		  Activate NaN detection. NaN produces a valgrind error.
+		  This functionnality requires the verrou backend.
+              </para></listitem>
+            </varlistentry>
 
+	    <varlistentry id="vr.opt.check-inf" xreflabel="--check-inf">
+              <term><option><![CDATA[--check-inf=<yes|no> [default=yes]]]></option></term>
+		<listitem><para>
+		    Activate Inf detection. +/-Inf produces a valgrind error.
+		    This functionnality requires the verrou backend.
+		</para></listitem>
+              </varlistentry>
 
 	  <varlistentry id="vr.opt.check-cancellation" xreflabel="--check-cancellation">
             <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>

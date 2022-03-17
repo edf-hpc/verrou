@@ -1238,6 +1238,7 @@ static void vr_post_clo_init(void)
    verrou_set_panic_handler(&VG_(tool_panic));
 
    verrou_set_nan_handler(&vr_handle_NaN);
+   verrou_set_inf_handler(&vr_handle_Inf);
 
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
