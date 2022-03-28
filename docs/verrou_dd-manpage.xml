@@ -18,7 +18,9 @@
   </refnamediv>
 
   <refsynopsisdiv>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd.synopsis"
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_sym.synopsis"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_line.synopsis"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsynopsisdiv>
 
@@ -32,7 +34,7 @@
   </refsect1>
 
   <refsect1>
-    <title>Environment Variables</title>
+    <title>Options and Environment Variables</title>
     <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd.envvars"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>

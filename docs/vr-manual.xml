@@ -237,12 +237,15 @@ det2
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>
-		and <option><xref linkend="vr-opt.mca-precision"/></option> options).
-		The integration <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
+		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
+		<option><xref linkend="vr-opt.mca-precision-double"/></option> and  <option><xref linkend="vr-opt.mca-precision-float"/></option>  options).
+		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
+
+	    </listitem>
           </varlistentry>
 
         </variablelist>
@@ -279,6 +282,7 @@ det2
 		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
               </itemizedlist>
+	      <para>This option can be activated with the env variable <command>VERROU_ROUNDING_MODE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -307,12 +311,24 @@ det2
 	      </para>
             </listitem>
           </varlistentry>
-	    <varlistentry id="vr-opt.mca-precision" xreflabel="--mca-precision">
-            <term><option><![CDATA[--mca-precision= [default=53]]]></option></term>
+	  <varlistentry id="vr-opt.mca-precision-double" xreflabel="--mca-precision-double">
+            <term><option><![CDATA[--mca-precision-double= [default=53]]]></option></term>
             <listitem>
               <para>
-                Configure the magnitude of inexact function used by mcaquad backend.
+                Configure the magnitude of inexact function used by mcaquad backend for double operation.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_DOUBLE</command>.</para>
+
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.mca-precision-float" xreflabel="--mca-precision-float">
+            <term><option><![CDATA[--mca-precision-float= [default=24]]]></option></term>
+            <listitem>
+              <para>
+                Configure the magnitude of inexact function used by mcaquad backend for float operation.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_FLOAT</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -337,10 +353,11 @@ det2
               <para>Toggle instrumentation of floating-point additions,
                 subtractions, multiplications, divisions, fused multiply
                 additions, fused multiply subtractions, conversions (only double to float cast) respectively.
-		This option can be set multiple times to instrument multiple types of
+		This option can be set multiple times (or use "," to separate arguments) to instrument multiple types of
                 operations.</para>
               <para>If this option is not provided, all supported operations
-              types are instrumented.</para>
+		types are instrumented.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_INSTR</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -351,7 +368,29 @@ det2
             </para></listitem>
           </varlistentry>
 
-        </variablelist>
+	  <varlistentry id="vr-opt.instr-llo" xreflabel="--vr-instr-llo-">
+            <term><option><![CDATA[--vr-instr-llo=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of llo scalar instructions (cast and all fma instructions are considered as llo).
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.instr-vec" xreflabel="--vr-instr-vec-">
+            <term><option><![CDATA[--vr-instr-vec<2,4,8>=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of vectorized instructions (number corresponds to the pack size)
+            </para></listitem>
+          </varlistentry>
+
+	      <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
+            <term><option><![CDATA[--vr-instr-[flt|dbl]=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of float (or double) instructions.
+              </para>
+	    </listitem>
+           </varlistentry>
+
+	  </variablelist>
       </section>
 
       <section>
@@ -364,7 +403,9 @@ det2
                   state</link> on or off at program start. Useful in combination
                   with <link linkend="vr-cr.start-instrumentation">client
                   requests</link>.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART</command>.</para>
+	    </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
@@ -373,6 +414,7 @@ det2
                 in <computeroutput>FILE</computeroutput> will be
                 left <link linkend="vr-manual.feat.exclude">uninstrumented</link>.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -398,6 +440,7 @@ det2
                 advised to avoid perturbating rounding-modes
                 using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
               </para>
+	      <para>This option can be activated with the env variable <command>VERROU_GEN_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -406,7 +449,17 @@ det2
             <listitem><para>When this option is present, only instructions
                 coming from <link linkend="vr-manual.feat.source">source code
                 lines</link> listed in <computeroutput>FILE</computeroutput>
-                are instrumented.</para></listitem>
+                are instrumented.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_SOURCE</command>.</para>
+	    </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.warn-unknown-source" xreflabel="--warn-unknown-source">
+            <term><option><![CDATA[--warn-unknown-source=FILE]]></option></term>
+            <listitem><para> This option require the use of <command>--source</command> option. When used, verrou generates warning for each line of code (which execute floating point operation) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
+	      </para>
+	      <para>This option can be activated with the env variable <command>VERROU_WARN_UNKNOWN_SOURCE</command>.</para>
+	    </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.gen-source" xreflabel="--gen-source">
@@ -420,6 +473,7 @@ det2
                 <option><xref linkend="vr-opt.source"/></option>, only list
                 source code lines which were not already present in the provided
                 list.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_GEN_SOURCE</command>.</para>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -435,7 +489,15 @@ det2
 		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
             </para></listitem>
           </varlistentry>
+
+	<varlistentry id="vr.opt.output-trace-rep" xreflabel="--output-trace-rep">
+            <term><option><![CDATA[--output-trace-rep=REP]]></option></term>
+            <listitem><para>
+		Specify the <computeroutput>REP</computeroutput> directory for the trace output files.
+            </para></listitem>
+          </varlistentry>
 	</variablelist>
+
       </section>
 
       <section>
@@ -444,12 +506,19 @@ det2
 
           <varlistentry id="vr.opt.check-nan" xreflabel="--check-nan">
             <term><option><![CDATA[--check-nan=<yes|no> [default=yes]]]></option></term>
-            <listitem><para>
-		Activate NaN detection. NaN produces a valgrind error.
-		This functionnality requires the verrou backend.
-            </para></listitem>
-          </varlistentry>
+              <listitem><para>
+		  Activate NaN detection. NaN produces a valgrind error.
+		  This functionnality requires the verrou backend.
+              </para></listitem>
+            </varlistentry>
 
+	    <varlistentry id="vr.opt.check-inf" xreflabel="--check-inf">
+              <term><option><![CDATA[--check-inf=<yes|no> [default=yes]]]></option></term>
+		<listitem><para>
+		    Activate Inf detection. +/-Inf produces a valgrind error.
+		    This functionnality requires the verrou backend.
+		</para></listitem>
+              </varlistentry>
 
 	  <varlistentry id="vr.opt.check-cancellation" xreflabel="--check-cancellation">
             <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>
@@ -503,6 +572,13 @@ det2
             <listitem><para>
 		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one denormal number.
 		This functionnality is available for checkdenorm backend.
+            </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.float_max" xreflabel="--check-max-float">
+            <term><option><![CDATA[--check-max-float=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Activate max float detection. This functionnality is compatible only with verrou backend.
             </para></listitem>
           </varlistentry>
 

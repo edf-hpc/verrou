@@ -5,6 +5,7 @@ First seed : XXX
 Backend verrou : test-version
 Backend mcaquad : test-version
 Backend checkcancellation : test-version
+Backend check_float_max : test-version
 Backend checkdenorm : test-version
 Instrumented operations :
 	add : yes
@@ -17,15 +18,25 @@ Instrumented operations :
 	conv : yes
 	max : no
 	min : no
-Instrumented scalar operations : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:6)
+   at 0xFFFFFF: main (denorm.cxx:8)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:19)
+   at 0xFFFFFF: main (denorm.cxx:21)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.c:20)
+   at 0xFFFFFF: double vr_fma<double>(double const&, double const&, double const&) (fmaintrin.h:73)
+   by 0xFFFFFF: main (denorm.cxx:22)
 
 
  ---------------------------------------------------------------------
@@ -41,6 +52,5 @@ Denorm:
  ---------------------------------------------------------------------
  mAdd                       1                        1          (100%)
   `- dbl                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)

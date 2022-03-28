@@ -181,7 +181,7 @@ vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
 
 
 
-static Vr_IncludeSource*
+Vr_IncludeSource*
 vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
 		     const HChar * filename, UInt linenum) {
   Vr_IncludeSource * cell = VG_(malloc)("vr.addIncludeSource.1", sizeof(Vr_IncludeSource));

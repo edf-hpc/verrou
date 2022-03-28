@@ -50,12 +50,12 @@ index b86e80220..f67bafdf1 100755
  ##------------------------------------------------------------##
  
  # Process this file with autoconf to produce a configure script.
--AC_INIT([Valgrind],[3.16.1],[valgrind-users@lists.sourceforge.net])
-+AC_INIT([Valgrind],[3.16.1+verrou-dev],[valgrind-users@lists.sourceforge.net])
+-AC_INIT([Valgrind],[3.17.0],[valgrind-users@lists.sourceforge.net])
++AC_INIT([Valgrind],[3.17.0+verrou-dev],[valgrind-users@lists.sourceforge.net])
  AC_CONFIG_SRCDIR(coregrind/m_main.c)
  AC_CONFIG_HEADERS([config.h])
  AM_INIT_AUTOMAKE([foreign dist-bzip2 subdir-objects])
-@@ -4766,6 +4766,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
+@@ -4898,6 +4898,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
                 [test x$ac_have_shared_pointer_annotation = xyes])
  
  
@@ -66,7 +66,7 @@ index b86e80220..f67bafdf1 100755
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -4788,6 +4792,8 @@ AC_CONFIG_FILES([
+@@ -4920,6 +4924,8 @@ AC_CONFIG_FILES([
     auxprogs/Makefile
     mpi/Makefile
     coregrind/Makefile 
@@ -154,15 +154,17 @@ diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
 index 3c893c680..d36eadec3 100644
 --- a/docs/xml/valgrind-manpage.xml
 +++ b/docs/xml/valgrind-manpage.xml
-@@ -221,6 +221,8 @@ system: <filename>&vg-docs-path;</filename>, or online:
- 
+@@ -235,6 +235,9 @@
+             xmlns:xi="http://www.w3.org/2001/XInclude" />
  </refsect1>
  
 +<xi:include href="../../verrou/docs/valgrind-manpage.xml"
 +            xmlns:xi="http://www.w3.org/2001/XInclude" />
- 
++
  <refsect1 id="see_also">
  <title>See Also</title>
+ 
+
 diff --git a/docs/xml/vg-entities.xml b/docs/xml/vg-entities.xml
 index 7d04ee795..a105f0b50 100644
 --- a/docs/xml/vg-entities.xml
@@ -171,8 +173,8 @@ index 7d04ee795..a105f0b50 100644
  
  <!-- valgrind release + version stuff -->
  <!ENTITY rel-type    "Release">
--<!ENTITY rel-version "3.16.1">
-+<!ENTITY rel-version "3.16.1+verrou-dev">
- <!ENTITY rel-date    "22 June 2020">
+-<!ENTITY rel-version "3.17.0">
++<!ENTITY rel-version "3.17.0+verrou-dev">
+ <!ENTITY rel-date    "19 Mar 2021">
  
  <!-- where the docs are installed -->

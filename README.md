@@ -41,11 +41,19 @@ and build" section below.
 In order to build the *development* version of Verrou, it is necesary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=24f63fd435e7bdab5058f2ab52953eb53a768010 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.16.1+verrou-dev
+    git clone --branch=VALGRIND_3_17_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.17.0+verrou-dev
+
+or if you have proxy problem with git:// protocol:
+
+    export https_proxy=ADDRESS_OF_PROXY
+    wget https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2
+    tar xvfj valgrind-3.17.0.tar.bz2
+    mv valgrind-3.17.0 valgrind-3.17.0+verrou-dev
+
 
 Add verrou's sources to it:
 
-    cd valgrind
+    cd valgrind-3.17.0+verrou-dev
     git clone --branch=master --single-branch https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
@@ -122,7 +130,7 @@ These tests are more closely related to the arithmetic part in Verrou:
 ## Documentation
 
 The documentation for verrou is available as a
-[chapter in valgrind's manual](//edf-hpc.github.com/verrou/vr-manual.html).
+[chapter in valgrind's manual](//edf-hpc.github.io/verrou/vr-manual.html).
 
 <p>&nbsp;</p>
 
@@ -132,7 +140,7 @@ You can also re-build it:
 
 and browse it locally:
 
-    iceweasel docs/html/vr-manual.html
+    firefox docs/html/vr-manual.html
 
 
 Beware, this requires lots of tools which are not necessarily tested for in

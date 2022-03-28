@@ -20,11 +20,13 @@ while [ ! -z "$1" ]; do
 	"-backend-version")
             cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
 	    cmd="${cmd} | perl -pne 's/^(Backend mcaquad : )[^\s]*/\$1test-version/;'"
+	    cmd="${cmd} | perl -pne 's/^(Backend check_float_max : )[^\s]*/\$1test-version/;'"
 	    cmd="${cmd} | perl -pne 's/^(Backend checkdenorm : )[^\s]*/\$1test-version/;'"
 	    cmd="${cmd} | perl -pne 's/^(Backend checkcancellation : )[^\s]*/\$1test-version/;'"
             ;;
 	"-addr-error")
             cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"
+	    cmd="${cmd} | perl -pne 's/   by 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   by 0xFFFFFF: \$1 \$2/;'"
             ;;
 	"-copyright")
             cmd="${cmd} | perl -pne 's/^(Copyright \(C\) )[\S\s]*/\$1XXXXX/;'"

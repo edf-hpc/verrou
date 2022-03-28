@@ -4,7 +4,7 @@ export BASH_ENV=$(INSTALLPATH)/env.sh
 export SHELL=bash
 
 FLAGS=-O0 -g -Wall -std=c++11 -DUSE_VERROU_SYNCHRO
-VERROU_SYNCHRO_SO=$(INSTALLPATH)/lib/valgrind/verrouSynchroLib-amd64-linux.so
+VERROU_SYNCHRO_SO=$(INSTALLPATH)/libexec/valgrind/verrouSynchroLib-amd64-linux.so
 
 CPP=g++
 

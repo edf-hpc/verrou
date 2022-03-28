@@ -5,6 +5,7 @@ First seed : XXX
 Backend verrou : test-version
 Backend mcaquad : test-version
 Backend checkcancellation : test-version
+Backend check_float_max : test-version
 Backend checkdenorm : test-version
 Instrumented operations :
 	add : yes
@@ -17,7 +18,16 @@ Instrumented operations :
 	conv : yes
 	max : no
 	min : no
-Instrumented scalar operations : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
 
  ---------------------------------------------------------------------
  Operation                            Instruction count
@@ -32,6 +42,5 @@ Instrumented scalar operations : no
  ---------------------------------------------------------------------
  mAdd                       1                        1          (100%)
   `- dbl                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

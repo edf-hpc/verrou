@@ -32,8 +32,8 @@
 
 #include "vr_main.h"
 //#include "backend_verrou/vr_rand.h"
-#include "backend_verrou/interflop_verrou.h"
-#include "backend_mcaquad/interflop_mcaquad.h"
+//#include "backend_verrou/interflop_verrou.h"
+//#include "backend_mcaquad/interflop_mcaquad.h"
 
 void vr_env_clo (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
@@ -50,7 +50,6 @@ void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
   vr.count = True;
-  vr.instr_scalar = False;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
@@ -62,14 +61,26 @@ void vr_clo_defaults (void) {
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
   vr.sourceActivated= False;
-
+  vr.excludeSourceRead = NULL;
+  vr.excludeSourceDyn = NULL;
+  vr.sourceExcludeActivated = False;
   vr.genTrace=False;
   vr.includeTrace = NULL;
+  vr.outputTraceRep = NULL;
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
     vr.instr_op[opIt]=False;
   }
+  int vecIt;
+  for(vecIt=0 ; vecIt<VR_VEC ; vecIt++){
+    vr.instr_vec[vecIt]=True;
+  }
+  vr.instr_vec[VR_VEC_SCAL]=False;
+
+  vr.instr_prec[VR_PREC_FLT]=True;
+  vr.instr_prec[VR_PREC_DBL]=True;
+  vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
   vr.firstSeed=(unsigned int)(-1);
   vr.mca_precision_double=53;
@@ -77,7 +88,8 @@ void vr_clo_defaults (void) {
   vr.mca_mode=MCAMODE_MCA;
 
   vr.checknan=True;
-
+  vr.checkinf=True;
+  
   vr.checkCancellation=False;
   vr.cc_threshold_float=18;
   vr.cc_threshold_double=40;
@@ -89,12 +101,16 @@ void vr_clo_defaults (void) {
   vr.ftz=False;
   vr.dumpDenorm=False;
   vr.cancellationSource=NULL;
+
+  vr.checkFloatMax=False;
 }
 
 
 Bool vr_process_clo (const HChar *arg) {
   Bool bool_val;
   const HChar * str;
+  UInt setResult;
+
   //Option --backend=
   if      (VG_XACT_CLOM (cloPD, arg, "--backend=verrou",
                          vr.backend, vr_verrou)) {}
@@ -147,20 +163,21 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   //Options to choose op to instrument
-  else if (VG_XACT_CLO (arg, "--vr-instr=add",
-                        vr.instr_op[VR_OP_ADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=sub",
-                        vr.instr_op[VR_OP_SUB] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mul",
-                        vr.instr_op[VR_OP_MUL] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=div",
-                        vr.instr_op[VR_OP_DIV] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mAdd",
-                        vr.instr_op[VR_OP_MADD] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=mSub",
-                        vr.instr_op[VR_OP_MSUB] , True)) {}
-  else if (VG_XACT_CLO (arg, "--vr-instr=conv",
-                        vr.instr_op[VR_OP_CONV] , True)) {}
+  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv", setResult)){
+    UInt instrTab[]={0,0,0,0,0,0,0};
+    UInt currentFlags=setResult;
+    for(UInt i=0; i<7;i++){
+      instrTab[i]=currentFlags%2;
+      currentFlags=currentFlags/2;
+    }
+    if(instrTab[0]!=0) vr.instr_op[VR_OP_ADD]=True;
+    if(instrTab[1]!=0) vr.instr_op[VR_OP_SUB]=True;
+    if(instrTab[2]!=0) vr.instr_op[VR_OP_MUL]=True;
+    if(instrTab[3]!=0) vr.instr_op[VR_OP_DIV]=True;
+    if(instrTab[4]!=0) vr.instr_op[VR_OP_MADD]=True;
+    if(instrTab[5]!=0) vr.instr_op[VR_OP_MSUB]=True;
+    if(instrTab[6]!=0) vr.instr_op[VR_OP_CONV]=True;
+  }
 
   //Option to enable check-cancellation backend
   else if (VG_BOOL_CLO (arg, "--check-cancellation", bool_val)) {
@@ -174,10 +191,42 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
      vr.checknan= bool_val;
   }
+  else if (VG_BOOL_CLO (arg, "--check-inf", bool_val)) {
+     vr.checkinf= bool_val;
+  }
+
+  
+  else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
+    vr.checkFloatMax=bool_val;
+  }
 
   //Options to choose op to instrument
   else if (VG_BOOL_CLO (arg, "--vr-instr-scalar", bool_val)) {
-    vr.instr_scalar= bool_val;
+    vr.instr_vec[VR_VEC_SCAL]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-llo", bool_val)) {
+    vr.instr_vec[VR_VEC_LLO]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec2", bool_val)) {
+    vr.instr_vec[VR_VEC_FULL2]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec4", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL4]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-vec8", bool_val)) {
+     vr.instr_vec[VR_VEC_FULL8]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-flt", bool_val)) {
+     vr.instr_prec[VR_PREC_FLT]= bool_val;
+  }
+
+  else if (VG_BOOL_CLO (arg, "--vr-instr-dbl", bool_val)) {
+     vr.instr_prec[VR_PREC_DBL]= bool_val;
   }
 
   //Option --vr-verbose (to avoid verbose of valgrind)
@@ -213,13 +262,15 @@ Bool vr_process_clo (const HChar *arg) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
-  else if (VG_XACT_CLOM (cloPD, arg, "--gen-trace",
-                         vr.genTrace, True)) {}
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;
   }
 
+  else if (VG_STR_CLOM (cloPD, arg, "--output-trace-rep", str)) {
+    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
+    vr.outputTraceRep = VG_(expand_file_name)("vr.process_clo.trace-rep", str);
+  }
   // Instrumentation of only specified source lines
   else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
     //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
@@ -229,6 +280,12 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--source", str)) {
     vr.includeSource = vr_loadIncludeSourceList(vr.includeSource, str);
     vr.sourceActivated = True;
+  }
+
+  else if (VG_STR_CLOM (cloPD, arg, "--warn-unknown-source", str)) {
+    vr.excludeSourceRead = vr_loadIncludeSourceList(vr.excludeSourceRead, str);
+    vr.excludeSourceDyn=vr.excludeSourceRead;
+    vr.sourceExcludeActivated = True;
   }
 
   else if (VG_STR_CLOM (cloPD, arg, "--cc-gen-file", str)) {

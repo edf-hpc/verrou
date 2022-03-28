@@ -107,10 +107,12 @@ if __name__=="__main__":
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
     generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
 
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
 
     listOfOp2Args=["add","sub"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
@@ -120,5 +122,6 @@ if __name__=="__main__":
     generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
 
     generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
 
     fileOut.close()

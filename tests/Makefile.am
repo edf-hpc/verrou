@@ -18,10 +18,13 @@ EXTRA_DIST = \
 	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp
 
-check_PROGRAMS = clreq accuClreq sum denorm
+check_PROGRAMS = clreq accuClreq sum
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
 
+check_PROGRAMS += denorm
+denorm_SOURCES = denorm.cxx
+
 AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3
-AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -std=c++11 -O0 -g3
+AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -lm

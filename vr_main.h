@@ -55,20 +55,12 @@
 
 #include "verrou.h"
 
-//backend
-#include "backend_verrou/interflop_verrou.h"
+#include "interflop_backends/statically_integrated_backends.h"
 
-#ifdef USE_VERROU_QUAD
-#include "backend_mcaquad/interflop_mcaquad.h"
-#endif
-
-#include "backend_checkdenorm/interflop_checkdenorm.h"
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
-//backend post-treatment
-#include "backend_checkcancellation/interflop_checkcancellation.h"
-typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation} vr_backendpost_name_t;
+typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation, vr_check_float_max} vr_backendpost_name_t;
 
 
 // * Type declarations
@@ -92,6 +84,31 @@ typedef enum {
   VR_OP_MIN,    // Minimum
   VR_OP
 } Vr_Op; //Warning : Operation after   VR_OP_CMP are not instrumented
+
+// *** Vector operations
+typedef enum {
+  VR_VEC_SCAL,  // Scalar operation
+  VR_VEC_LLO,   // Vector operation, lowest lane only
+  VR_VEC_FULL2,  // Vector operation
+  VR_VEC_FULL4,  // Vector operation
+  VR_VEC_FULL8,  // Vector operation
+  VR_VEC_UNK,
+  VR_VEC
+} Vr_Vec;
+
+// *** Operation precision
+typedef enum {
+  VR_PREC_FLT,  // Single
+  VR_PREC_DBL,  // Double
+  VR_PREC_DBL_TO_FLT,
+  VR_PREC_FLT_TO_DBL,
+  VR_PREC_DBL_TO_INT,
+  VR_PREC_DBL_TO_SHT,
+  VR_PREC_FLT_TO_INT,
+  VR_PREC_FLT_TO_SHT,
+  VR_PREC
+} Vr_Prec;
+
 
 typedef struct Vr_Exclude_ Vr_Exclude;
 struct Vr_Exclude_ {
@@ -122,7 +139,9 @@ typedef struct {
   enum vr_RoundingMode roundingMode;
   Bool count;
   Bool instr_op[VR_OP];
-  Bool instr_scalar;
+  Bool instr_vec[VR_VEC];
+  Bool instr_prec[VR_PREC];
+
   Vr_Instr instrument;
   Bool verbose;
   Bool unsafe_llo_optim;
@@ -142,11 +161,16 @@ typedef struct {
   Vr_IncludeSource *includeSource;
   Vr_IncludeSource *genIncludeSourceUntil;
 
+  Bool sourceExcludeActivated;
+  Vr_IncludeSource *excludeSourceRead;
+  Vr_IncludeSource *excludeSourceDyn;
+
   UInt mca_precision_double;
   UInt mca_precision_float;
   UInt mca_mode;
 
   Bool checknan;
+  Bool checkinf;
 
   Bool checkCancellation;
   UInt cc_threshold_double;
@@ -162,8 +186,11 @@ typedef struct {
   HChar* denormDumpFile;
   Vr_IncludeSource * denormSource;
 
+  Bool checkFloatMax;
+
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
+  HChar* outputTraceRep;
 } Vr_State;
 
 extern Vr_State vr;
@@ -177,6 +204,8 @@ UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
 void vr_cancellation_handler(int cancelled );
 void vr_denorm_handler(void);
+void vr_float_max_handler(void);
+
 
 
 // ** vr_clreq.c
@@ -191,8 +220,10 @@ typedef enum {
   VR_ERROR_UNCOUNTED,
   VR_ERROR_SCALAR,
   VR_ERROR_NAN,
+  VR_ERROR_INF,
   VR_ERROR_CC,
   VR_ERROR_CD,
+  VR_ERROR_FLT_MAX,
   VR_ERROR
 } Vr_ErrorKind;
 
@@ -215,8 +246,11 @@ void vr_update_extra_suppression_use (const Error* err, const Supp* su);
 void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
 void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 void vr_handle_NaN (void);
+void vr_handle_Inf (void);
 void vr_handle_CC (int);
 void vr_handle_CD (void);
+void vr_handle_FLT_MAX (void);
+
 
 // ** vr_exclude.c
 
@@ -236,6 +270,8 @@ Bool vr_includeSource (Vr_IncludeSource** list,
 void vr_includeSource_generate (Vr_IncludeSource** list,
 				const HChar* fnname, const HChar* filename, UInt linenum);
 
+Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
+					const HChar * filename, UInt linenum);
 
 // ** vr_include_trace.c
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;

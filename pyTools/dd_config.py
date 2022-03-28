@@ -56,6 +56,8 @@ class ddConfig:
         self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ("--cache=") ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"], False)]
         self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ("--rddmin-heuristics-cache="), "none",    ["none", "cache", "all_cache"], False)]
         self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ("--rddmin-heuristics-rep="),   [] ,       "rep_exists", True)]
+        self.registryTab+=[("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ("--rddmin-heuristics-line-conv"),     False,     None, False)]
+        self.registryTab+=[("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ("--res-with-all-samples"),     False,     None, False)]
 
 
     def readDefaultValueFromRegister(self):
@@ -94,7 +96,7 @@ class ddConfig:
             self.cmpScript=self.checkScriptPath(args[1])
         else:
             self.usageCmd()
-            failure()
+            self.failure()
 
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption
@@ -132,10 +134,6 @@ class ddConfig:
         if self.rddminVariant=="strict":
             self.rddminVariant=""
 
-        if self.maxNbPROC!=None:
-            if self.maxNbPROC < self.nbRUN:
-                print("Due due implementation limitation (nbRun <=maxNbPROC or maxNbPROC=1): maxNbPROC unset\n")
-                self.maxNbPROC=None
 
     def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue=None, addAttributTab=False, parse="environ"):
         value=False
@@ -238,12 +236,24 @@ class ddConfig:
     def get_quiet(self):
         return self.ddQuiet
 
+    def get_resWithAllsamples(self):
+        return self.resWithAllSamples
+
     def get_rddMinTab(self):
         rddMinTab=None
+        nbProc=1
+        if self.maxNbPROC!=None:
+            nbProc=self.maxNbPROC
         if self.param_rddmin_tab=="exp":
-            rddMinTab=exponentialRange(self.nbRUN)
+            if nbProc >self.nbRUN:
+                return [self.nbRUN]
+            else:
+                return [x for x in exponentialRange(self.nbRUN) if x>=nbProc]
         if self.param_rddmin_tab=="all":
-            rddMinTab=range(1,self.nbRUN+1)
+            if nbProc>self.nbRUN:
+                return range(1,self.nbRUN+1)
+            else:
+                return range(nbProc, self.nbRUN+1)
         if self.param_rddmin_tab=="single":
             rddMinTab=[self.nbRUN]
         return rddMinTab
@@ -278,3 +288,5 @@ class ddConfig:
     def get_rddminHeuristicsRep_Tab(self):
         return self.rddminHeuristicsRep
 
+    def get_rddminHeuristicsLineConv(self):
+        return self.rddminHeuristicsLineConv

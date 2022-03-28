@@ -25,6 +25,7 @@
 */
 
 
+
 struct traceBB_T {
   IRSB* irsb;
   UInt index;
@@ -114,38 +115,65 @@ void freeTraceBBList(void){
     }
 }
 
+Bool vr_is_dir ( const HChar* f );
+Bool vr_is_dir ( const HChar* f )
+{ //copy of /coregrind/m_libcfile.c which is not public
+   struct vg_stat buf;
+   SysRes res = VG_(stat)(f, &buf);
+   return sr_isError(res) ? False
+     : VKI_S_ISDIR(buf.mode) ? True : False;
+}
 
-void vr_traceBB_initialize(void);
-void vr_traceBB_initialize(void){
-  const HChar * strInfo="trace_bb_info.log-%p";
-//  const HChar * strTrace="trace_bb_trace.log-%p";
-  const HChar * strCov="trace_bb_cov.log-%p";
-//  const HChar * strInfoBack="trace_bb_info_backtrace.log-%p";
-  const HChar * strExpInfo=   VG_(expand_file_name)("vr.traceBB.strInfo",  strInfo);
-//  const HChar * strExpTrace=  VG_(expand_file_name)("vr.traceBB.strTrace", strTrace);
-  const HChar * strExpCov=  VG_(expand_file_name)("vr.traceBB.strCov", strCov);
-//  const HChar * strExpBack=  VG_(expand_file_name)("vr.traceBB.strBack", strInfoBack);
+
+
+void vr_traceBB_initialize(char* path);
+void vr_traceBB_initialize(char* path){
+  const HChar * strInfo="./trace_bb_info.log-%p";
+  const HChar * strCov="./trace_bb_cov.log-%p";
+
+  HChar absfileInfo[512];
+  HChar absfileCov[512];
+
+  if (path!=NULL) {
+    if(VG_(strlen)(path) >400){
+      VG_(tool_panic)("too long output path\n");
+    }
+
+    if(!vr_is_dir(path) ){
+      HChar mkdCmd[512];
+      VG_(sprintf)(mkdCmd, "mkdir -p %s", path);
+      VG_(umsg)("Cmd : %s\n",mkdCmd);
+      Int r=VG_(system)(mkdCmd);
+      if(r){
+	VG_(tool_panic)("not able to create directory");
+      }
+    }
+    VG_(sprintf)(absfileInfo, "%s/%s", path, strInfo);
+    VG_(sprintf)(absfileCov,  "%s/%s", path, strCov);
+  } else {
+    VG_(sprintf)(absfileInfo, "./%s", strInfo);
+    VG_(sprintf)(absfileCov,  "./%s", strCov);
+  }
+
+  const HChar * strExpInfo= VG_(expand_file_name)("vr.traceBB.strInfo",  absfileInfo);
+  const HChar * strExpCov=  VG_(expand_file_name)("vr.traceBB.strCov",   absfileCov);
 
   vr_out_bb_info = VG_(fopen)(strExpInfo,
-			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-  /* vr_out_bb_trace = VG_(fopen)(strExpTrace, */
-  /*       		       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC, */
-  /*       		       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH); */
+
   vr_out_bb_cov = VG_(fopen)(strExpCov,
-			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
-  /* vr_out_bb_info_backtrace = VG_(fopen)(strExpBack, */
-  /*       		       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC, */
-  /*       		       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH); */
 
   if(/*vr_out_bb_trace==NULL || */ vr_out_bb_info==NULL /*|| vr_out_bb_info_backtrace==NULL */|| vr_out_bb_cov==NULL){
-    VG_(tool_panic)("trace file initialization failed\n");
+    VG_(umsg)("Error with %s or %s",strExpInfo,strExpCov);
+    VG_(tool_panic)("trace file initialization failed");
   }
 };
 
-void vr_traceBB_finalyze(void);
-void vr_traceBB_finalyze(void){
+void vr_traceBB_finalize(void);
+void vr_traceBB_finalize(void){
    freeTraceBBList();
 
   if(vr_out_bb_info!=NULL){

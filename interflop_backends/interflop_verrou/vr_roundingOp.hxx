@@ -33,7 +33,7 @@
 
 #pragma once
 #include <limits>
-
+#include <math.h> //pour isinf
 //#ifndef LIBMATHINTERP
 extern vr_RoundingMode ROUNDINGMODE;
 //#else
@@ -366,8 +366,13 @@ public:
 #ifdef DEBUG_PRINT_OP
     print_debug(p,res);
 #endif
-    if (isNan(*res)) {
-      vr_nanHandler();
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
     }
   }
 

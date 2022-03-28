@@ -2,6 +2,8 @@
 #include <string.h>
 #include <math.h>
 
+#define    USE_VERROU_FMA
+#include "../interflop_backends/interflop_verrou/vr_fma.hxx"
 
 int main (int argc, char **argv) {
 
@@ -17,7 +19,7 @@ int main (int argc, char **argv) {
 
    printf("c: %e\n", a*b);
    printf("cf: %e\n", af*bf);
-   printf("cfma: %e\n", fma(a1,a2,a3));
+   printf("cfma: %e\n", vr_fma(a1,a2,a3));
       
    
    

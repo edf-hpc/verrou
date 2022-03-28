@@ -639,13 +639,11 @@ class config_option:
         self.listOfFiles=listArgToAdd +self.listOfFiles
 
         if len(self.listOfFiles)<1 and self.genCov:
-            usage()
             print("--genCov required at least 1 argument")
-            sys.exit()
+            self.usage()
         if len(self.listOfFiles)<2 and self.genCovCorrelation:
-            usage()
             print("--genCovCorrelation required at least 2 arguments")
-            sys.exit()
+            self.usage()
 
     def search_default_param(self):
         import pathlib

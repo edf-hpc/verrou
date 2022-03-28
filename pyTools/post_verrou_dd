@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import fnmatch
+import glob
+import functools
+from valgrind import DD_stoch
+from valgrind import post_config
+
+
+def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
+
+    listOfFile=[os.path.join(refDir,candidat) for candidat in os.listdir(refDir) if candidat.startswith("dd.sym.") ]
+    res=[]
+    for fileSym in listOfFile:
+        for line in open(fileSym):
+            objectVerrou=(line.strip()).split("\t")[1]
+            if binary and (".so" not in objectVerrou and objectVerrou not in res):
+                res+=[objectVerrou]
+                continue
+            for expr in listOfExpr:
+                if fnmatch.fnmatch(objectVerrou, expr) and objectVerrou not in res:
+                    res+=[objectVerrou]
+                    break
+    outputFileName=os.path.join(refDir,"defaultTrace")
+    output=open(outputFileName,"w")
+    for objectVerrou in res:
+        output.write("*\t"+objectVerrou+"\n")
+    output.close()
+    return outputFileName
+
+
+def getSortedPidList(rep):
+    pidList=[(int(x.replace("trace_bb_cov.log-","")), os.stat(os.path.join(rep,x)).st_mtime) for x in  os.listdir(rep) if x.startswith("trace_bb_cov.log-") if "trace_bb_cov.log-seqCount" not in x]
+#    print("pidList :", pidList)
+    sortedPidList=sorted(pidList, key=lambda x: x[1])
+    return sortedPidList
+
+
+def mapClean(rep, listOfFile, verbose):
+    for fileName in listOfFile:
+        pathName=os.path.join(rep,fileName)
+        if verbose:
+            print("delete : ", pathName)
+        os.remove(pathName)
+
+def mapRename(rep, pid, count, listOfFile,verbose):
+    convList=[(x, x.replace(str(pid), "seqCount"+str(count))) for x in listOfFile]
+    for (old,new) in convList:
+        oldPath=os.path.join(rep,old)
+        newPath=os.path.join(rep,new)
+        if os.path.exists(newPath):
+            print("Problem with "+oldPath + " "+ newPath)
+
+        if verbose:
+            print(oldPath + " => " + newPath)
+        os.rename(oldPath, newPath)
+
+
+def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verbose=False):
+    pidList=getSortedPidList(rep)
+    count=0
+    convList=[]
+    for pidTuple in pidList:
+        pid=pidTuple[0]
+        coverOldFileList=[x for x in os.listdir(rep) if x.startswith("cover") and x.endswith("-"+str(pid)) and not x.endswith("-seqCount"+str(pid)) ]
+        otherOldFileList=[x for x in os.listdir(rep) if (x.startswith("trace_bb_cov.log-") or x.startswith("trace_bb_info.log-")  )and x.endswith("-"+str(pid)) ]
+
+        if ignoreEmpty:
+            fileName="trace_bb_info.log-"+str(pid)
+            pathFile=os.path.join(rep,fileName)
+            if  fileName in  otherOldFileList and (os.stat(pathFile)).st_size==0:
+                if clean:
+                    mapClean(rep,otherOldFileList+coverOldFileList, verbose)
+                continue
+
+        if what=="all":
+            mapRename(rep,pid,count, coverOldFileList, verbose)
+            mapRename(rep,pid,count, otherOldFileList, verbose)
+
+        if what=="cover":
+            mapRename(rep,pid,count, coverOldFileList, verbose)
+            if clean:
+                mapClean(rep,otherOldFileList,verbose)
+        count+=1
+
+
+
+def postRunTrace(runDir):
+    expr="%s/cover/trace_bb_cov.log*"%(runDir)
+    globListOfTraceBBFile=glob.glob(expr)
+
+    listOfTraceBBFile=[]
+    log=""
+    for traceBBFile in globListOfTraceBBFile:
+        traceInfo=traceBBFile.replace("cover/trace_bb_cov.log","cover/trace_bb_info.log")
+        if (os.stat(traceInfo)).st_size!=0:
+            listOfTraceBBFile+=[traceBBFile]
+        else:
+            log+="traceBBFile %s ignored\n"%(traceBBFile)
+    if log!="":
+        with open(os.path.join(runDir, "covBBLog"),"w") as f:
+            f.write(log)
+
+    if len(listOfTraceBBFile)==0:
+        print("Problem in trace generation detected")
+        sys.exit(42)
+
+    cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
+    os.system(cmd+ "  >> "+ "%s/covBBLog"%(runDir))
+    rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="cover", clean=True,ignoreEmpty=True)
+
+
+def preRunTrace(runDir, env):
+    coverRep=os.path.join(runDir,"cover")
+    os.mkdir(coverRep)
+    env["VERROU_OUTPUT_TRACE_REP"]=coverRep
+
+def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
+    runScript=config.get_runScript()
+    cmpScript=config.get_cmpScript()
+    maxNbPROC=config.get_maxNbPROC()
+
+    if traceFile!=None:
+        envvars["VERROU_TRACE"]=traceFile
+
+    task=DD_stoch.verrouTask(outputDir, refDir,runScript, cmpScript,nbRun, maxNbPROC, envvars , verbose=True)
+    if config.get_trace():
+        task.setPreRun(preRunTrace)
+        task.setPostRun(postRunTrace)
+
+    task.run(earlyExit=False)
+
+
+
+def runSubRepForOneInstr( config, rep, refDir,ddMinList):
+    roundNonDetTab=config.getNonDetTab()
+    roundDetTab=config.getDetTab()
+    instrList=config.get_instr()
+
+    refNewDir=refDir
+    traceFile=None
+    if config.get_trace():
+        traceFile=config.get_trace_file()
+        if traceFile==None:
+            traceFile=genDefaultTraceFile(config, refDir,
+                                          config.get_trace_bin(),
+                                          config.get_trace_pattern())
+        refNewDir+="-trace"
+
+    nbRun=config.get_nbRUN()
+
+
+    for ddmin in ddMinList:
+
+        ddminNew=ddmin
+        if config.get_trace():
+            ddminNew+="-trace"
+
+        for instr in instrList:
+            ddminNewInstr=ddminNew+"-"+instr
+            if instr=="":
+                ddminNewInstr=ddminNew
+
+            if ddmin.endswith("ref"):
+                runEnv={}
+            else:
+                runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
+                        "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}
+            if instr!="":
+                runEnv["VERROU_INSTR"]= instr
+
+            if not os.path.exists(ddminNewInstr):
+                os.mkdir(ddminNewInstr)
+
+            for rounding in roundNonDetTab:
+                if rounding=="":
+                    ddminNewRep=os.path.join(ddminNewInstr,"default")
+                    if ddmin.endswith("ref"):
+                        runEnv["VERROU_ROUNDING_MODE"]="nearest"
+                else:
+                    ddminNewRep=os.path.join(ddminNewInstr,rounding)
+                    runEnv["VERROU_ROUNDING_MODE"]=rounding
+
+                if not os.path.exists(ddminNewRep):
+                    os.mkdir(ddminNewRep)
+
+                print("ddminNew : ",ddminNewRep)
+                runOneConfig(config, refDir, ddminNewRep, runEnv, nbRun, traceFile)
+
+            if len(roundDetTab)!=0:
+                ddminNewRep=os.path.join(ddminNewInstr,"det")
+                if not os.path.exists(ddminNewRep):
+                    os.mkdir(ddminNewRep)
+
+                for det in roundDetTab:
+                    runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
+                            "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude"),
+                            "VERROU_ROUNDING_MODE":det}
+                    if instr!="":
+                        runEnv["VERROU_INSTR"]=instr
+
+                    detRep=os.path.join(ddminNewRep, det)
+                    if not os.path.exists(detRep):
+                        os.mkdir(detRep)
+                    runOneConfig(config, refDir, detRep, runEnv, 1, traceFile)
+
+def sortSubRep(subRepTab):
+    def normalized(x):
+        return  x.split("/")[-1]
+
+    refTab=[x for x in subRepTab if normalized(x)=="ref"]
+    ddminTab=[x for x in subRepTab if normalized(x).startswith("ddmin")]
+    otherTab=[x for x in subRepTab if (not x in refTab) and (not x in ddminTab)]
+
+    ddminWithKeySort=[]
+    for ddmin in ddminTab:
+        try:
+            xi=int((normalized(ddmin)).replace("ddmin",""))
+            ddminWithKeySort+=[(ddmin, xi)]
+        except:
+            otherTab+=ddmin
+
+    ddminTab=[ddmin[0] for ddmin in sorted(ddminWithKeySort, key=lambda x:x[1])]
+    res=sorted(refTab) + ddminTab + sorted(otherTab)
+
+    return res
+
+
+if __name__=="__main__":
+    config=post_config.postConfig(sys.argv,os.environ, ["VERROU"])
+
+    repSubRep=config.get_rep_sub_rep()
+    print("selected sub_rep to postreat:")
+    pwd=os.getcwd()
+    for rep in sorted(repSubRep.keys()):
+        ddMinList=sortSubRep(repSubRep[rep])
+        for ddmin in ddMinList:
+            print("\t", os.path.relpath(ddmin,pwd) )
+    for rep in sorted(repSubRep.keys()):
+        ddMinList=sortSubRep(repSubRep[rep])
+        refDir=os.path.abspath(os.path.join(rep,"ref"))
+        runSubRepForOneInstr(config, rep, refDir, ddMinList)
