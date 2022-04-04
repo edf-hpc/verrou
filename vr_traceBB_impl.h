@@ -225,9 +225,14 @@ UInt vr_traceBB_dumpCov(void){
 
 
 
-void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum);
-void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum){
-  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u\n", (tr->index), fnname, filename, lineNum);
+void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
+			    Bool doLineContainFloat, Bool doLineContainFloatCmp);
+void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
+			    Bool doLineContainFloat, Bool doLineContainFloatCmp){
+  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u : %s : %s\n",
+	       (tr->index), fnname, filename, lineNum,
+	       doLineContainFloat?"1":"0",
+	       doLineContainFloatCmp?"1":"0");
 }
 
 
