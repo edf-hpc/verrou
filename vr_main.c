@@ -1033,10 +1033,10 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   }
   /*End of recuperation*/
 
-  /*Early exit if not instrumented*/
-  if (vr_excludeIRSB (fnnamePtr, objnamePtr)){
-    return sbIn;
-  }
+  Bool excludeIrsb=vr_excludeIRSB (fnnamePtr, objnamePtr);
+  //if (excludeIrsb && !genIRSBTrace){
+  //    return sbIn;
+  //  }
 
   /*Instrumentation begin*/
   UInt i;
@@ -1073,7 +1073,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      if(vr.genIncludeSource && doLineContainFloat){
+      if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat){
 	  vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
       }
       if(genIRSBTrace){
@@ -1084,7 +1084,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       doLineContainFloatCmp=False;
       Addr  addrMark;
       addrMark = st->Ist.IMark.addr;
-
       //      filename[0] = 0;
       filenamePtr=&filename;
       Bool success=VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
@@ -1105,21 +1104,19 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
       break;
     case Ist_WrTmp:
-      if (includeSource) {
-	instrStatus=vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data,False);
+      {
+	Bool countOnly=False;
+	if (excludeIrsb || !includeSource){
+	  countOnly=True;
+	}
+	instrStatus=vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data,countOnly);
 	Bool doInstrContainFloat=instrStatus.containFloatModOp;
 	Bool doInstrContainFloatCmp=instrStatus.containFloatCmp;
 	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
 	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
-      }else{
-	if(!vr.sourceExcludeActivated){
-	  addStmtToIRSB (sbOut, sbIn->stmts[i]);
-	}else{
-	  instrStatus=vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data, True);
-	  Bool doInstrContainFloat=instrStatus.containFloatModOp;
-	  Bool doInstrContainFloatCmp=instrStatus.containFloatCmp;
-	  doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
+
+	if((!includeSource) && vr.sourceActivated){
 	  if(doInstrContainFloat && !vr_includeSource(&vr.excludeSourceDyn, *fnnamePtr, *filenamePtr, *linenumPtr)){
 	    VG_(umsg)("Warning new source line with fp operation discovered :\n");
 	    VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
@@ -1133,28 +1130,15 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  if(vr.genIncludeSource && doLineContainFloat &&filename !=NULL){
+  if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat &&filename !=NULL){
     vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-
-
   }
   if(genIRSBTrace){
     vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
   }
 
-
   if(vr.genExclude && doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
-    /* Debug to understand where come from floating point operation in uname symbole
-      if(fnnamePtr==&fnnoname){
-      for(int i=0 ; i< 6; i++){
-	Addr addr = ips[i];
-	Bool errorFnname =VG_(get_fnname_raw)(de, addr, fnnamePtr);
-	Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
-	VG_(umsg)("stack %d : %s %s\n", i,*fnnamePtr, *objnamePtr);
-      }
-    }
-    */
   }
   return sbOut;
 }
