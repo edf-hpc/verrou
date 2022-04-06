@@ -38,11 +38,11 @@
 #define UNAMED_FUNCTION_VERROU "unamed_function_verrou"
 #define UNAMED_OBJECT_VERROU "unamed_object_verrou"
 
-static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
+static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname, Bool used) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
   cell->objname = VG_(strdup)("vr.addExclude.3", objname);
-  cell->used    = False;
+  cell->used    = used;
   cell->next    = list;
   return cell;
 }
@@ -135,7 +135,9 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
     list = vr_addExclude (list,
 			  line, /*fnname=*/
-			  c);/*objname*/
+			  c,/*objname*/
+			  False
+			  );
   }
 
   VG_(free)(line);
@@ -147,17 +149,12 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 }
 
 Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr) {
-  // Never exclude anything when generating the list
-  if (vr.genExclude)
-    return False;
 
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
   if (exclude == NULL) {
     return False;
   }
-
-
 
   // Inform the first time a rule is used
   if (!exclude->used) {
@@ -175,7 +172,7 @@ vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
   if(exclude==NULL){
-    vr.exclude = vr_addExclude (vr.exclude, *fnnamePtr, *objnamePtr);
+    vr.exclude = vr_addExclude (vr.exclude, *fnnamePtr, *objnamePtr, False);
   }
 }
 

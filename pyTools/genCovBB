@@ -101,7 +101,7 @@ class bbInfoReader:
         self.data={}
         self.dataMax={}
         self.dataCorrupted={}
-        regularExp=re.compile("([0-9]+) : (.*) : (\S*) : ([0-9]+)")
+        regularExp=re.compile("([0-9]+) : (.*) : (\S*) : ([0-9]+) : ([0,1]) : ([0,1])")
         fileHandler=openGz(fileName)
 
         line=fileHandler.readline()
@@ -111,15 +111,17 @@ class bbInfoReader:
             if m==None :
                 print("error read fileName line:",[line])
                 sys.exit()
-            addr, sym, sourceFile, lineNum= m.groups()
+            addr, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
+            containFloat=(containFloat=="1")
+            containFloatCmp=(containFloatCmp=="1")
             if addr in self.data:
-                if not (sym,sourceFile,lineNum) in self.data[addr]:
-                    self.data[addr]+=[(sym,sourceFile,lineNum)]
+                if not (sym,sourceFile,lineNum,containFloat, containFloatCmp) in self.data[addr]:
+                    self.data[addr]+=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
                 if self.dataMax[addr]+1!= counter:
                     self.dataCorrupted[addr]=True
                 self.dataMax[addr]=counter
             else:
-                self.data[addr]=[(sym,sourceFile,lineNum)]
+                self.data[addr]=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
                 self.dataMax[addr]=counter
                 self.dataCorrupted[addr]=False
             counter+=1
@@ -136,9 +138,23 @@ class bbInfoReader:
             res+=" "+symName +"["+self.compressFileNames(select)+"] |"
         return res[0:-1]
 
+    def containFloatMod(self,addr):
+        select=[ x[3] for x in self.data[addr]]
+        return (True in select)
+
+    def containFloatCmp(self,addr):
+        select=[ x[4] for x in self.data[addr]]
+        return (True in select)
+
     def compressMarksWithoutSym(self, addr):
         select=[(x[1],x[2]) for x in self.data[addr]  ]
-        return self.compressFileNames(select)
+        res=self.compressFileNames(select)
+        res+=" "
+        if self.containFloatMod(addr):
+            res+="F"
+        if self.containFloatCmp(addr):
+            res+="?"
+        return res
 
     def compressFileNames(self, tabFile):
         tabToTreat=tabFile
@@ -179,14 +195,14 @@ class bbInfoReader:
             print(self.compressMarks(self.data[addr]))
 
     def addrToIgnore(self, addr, ignoreList):
-        listOfFile=[fileName for sym,fileName,num in self.data[addr]]
+        listOfFile=[fileName for sym,fileName,num, containFloatMod, containFloatCmp in self.data[addr]]
         for fileName in listOfFile:
             if fileName in ignoreList:
                 return True
         return False
 
     def getListOfSym(self,addr):
-        return list(set([sym for sym,fileName,num in self.data[addr]]))
+        return list(set([sym for sym,fileName,num, containFloatMod, containFloatCmp in self.data[addr]]))
 
 
 
@@ -448,8 +464,8 @@ class cmpToolsCov:
             return
         self.refIndex=self.findRefDD(pattern="ref", optionalPattern="dd.line/ref")
 
-        
-        
+
+
     def writePartialCover(self,filenamePrefix=""):
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):

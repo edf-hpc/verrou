@@ -1,142 +1,180 @@
 
 
-
+    Vr_instr_kind res;
+    res.containFloatCmp=False;
+    res.containFloatModOp=False;
     switch (op) {
       // Addition
       // - Double precision
     case Iop_AddF64: // Scalar
-      return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      break;
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO, countOnly);
-
+      res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      break;
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp=vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      break;
 
     case Iop_AddF32: // Scalar
-      return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+      break;
 
     case Iop_Add32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add32F), VR_OP_ADD, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+      break;
 
     case Iop_Add32Fx4: // 128b vector, 4 lanes
-      return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add32Fx4), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp=vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add32Fx4), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+      break;
 
     case Iop_Add64Fx4: //AVX double
-      return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp=vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      break;
 
     case Iop_Add32Fx8: //AVX Float
-      return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add32Fx8), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
-
+      res.containFloatModOp=vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add32Fx8), VR_OP_ADD, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+      break;
 
       // Subtraction
 
       // - Double precision
     case Iop_SubF64: // Scalar
-      return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      break;
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      break;
 
     case Iop_Sub64Fx2:
-      return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      break;
 
     case Iop_SubF32: // Scalar
-      return vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+      break;
 
     case Iop_Sub32F0x4: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub32F), VR_OP_SUB, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+      break;
 
     case Iop_Sub32Fx4: // 128b vector, 4 lanes
-      return vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub32Fx4), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub32Fx4), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+      break;
 
     case Iop_Sub64Fx4: //AVX double
-      return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      break;
 
     case Iop_Sub32Fx8: //AVX Float
-      return vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub32Fx8), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
-
+      res.containFloatModOp=vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub32Fx8), VR_OP_SUB, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+      break;
       // Multiplication
 
       // - Double precision
     case Iop_MulF64: // Scalar
-      return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcName(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      break;
 
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
-      return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      break;
 
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      return vr_replaceBinFullSSE (sb, stmt, expr, bcName(mul64Fx2), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcName(mul64Fx2), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      break;
 
     case Iop_MulF32: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(mul32F), VR_OP_MUL, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcName(mul32F), VR_OP_MUL, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+       break;
 
     case Iop_Mul32F0x4: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(mul32F), VR_OP_MUL, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(mul32F), VR_OP_MUL, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+       break;
 
     case Iop_Mul32Fx4: // 128b vector, 4 lanes
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(mul32Fx4), VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcName(mul32Fx4), VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+       break;
 
     case Iop_Mul64Fx4: //AVX double
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(mul64Fx4), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(mul64Fx4), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       break;
 
     case Iop_Mul32Fx8: //AVX Float
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(mul32Fx8), VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(mul32Fx8), VR_OP_MUL, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+       break;
 
     case Iop_DivF32:
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(div32F), VR_OP_DIV, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcName(div32F), VR_OP_DIV, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+       break;
 
     case Iop_Div32F0x4: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(div32F), VR_OP_DIV, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(div32F), VR_OP_DIV, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+       break;
 
     case Iop_Div32Fx4: // 128b vector, 4 lanes
-       return vr_replaceBinFullSSE (sb, stmt, expr, bcName(div32Fx4), VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcName(div32Fx4), VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+       break;
 
     case Iop_DivF64: // Scalar
-       return vr_replaceBinFpOpScal (sb, stmt, expr, bcName(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcName(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+       break;
 
     case Iop_Div64F0x2: // 128b vector, lowest-lane-only
-       return vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       break;
 
     case Iop_Div64Fx2: // 128b vector, 2 lanes
-       return vr_replaceBinFullSSE(sb, stmt, expr, bcName(div64Fx2), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+       res.containFloatModOp= vr_replaceBinFullSSE(sb, stmt, expr, bcName(div64Fx2), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+       break;
 
     case Iop_Div64Fx4: //AVX double
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(div64Fx4), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(div64Fx4), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       break;
 
     case Iop_Div32Fx8: //AVX Float
-       return vr_replaceBinFullAVX(sb, stmt, expr, bcName(div32Fx8), VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
-
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(div32Fx8), VR_OP_DIV, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+       break;
 
 
     case Iop_MAddF32:
 #ifndef IGNOREFMA
-       return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT, countOnly);
+       res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT, countOnly);
+       break;
 #else
        vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_UNK,False);
+       res.containFloatModOp=False;
        addStmtToIRSB (sb, stmt);
        break;
 #endif
     case Iop_MSubF32:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT, countOnly);
+      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT, countOnly);
+      break;
 #else
+      res.containFloatModOp=False;
        vr_countOp (sb, VR_OP_MSUB, VR_PREC_FLT, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
     case Iop_MAddF64:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+      break;
 #else
-       vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_UNK,False);
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_MADD, VR_PREC_DBL, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
 #endif
     case Iop_MSubF64:
 #ifndef IGNOREFMA
-          return vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+      res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+      break;
 #else
+      res.containFloatModOp=False;
        vr_countOp (sb, VR_OP_MSUB, VR_PREC_DBL, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
        break;
@@ -154,11 +192,13 @@
       break;
 
     case Iop_CmpF64:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
 
     case Iop_CmpF32:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_SCAL,False);
       addStmtToIRSB (sb, stmt);
       break;
@@ -170,8 +210,10 @@
 
     case Iop_F64toF32:
 #ifndef IGNORECAST
-       return vr_replaceCast (sb, stmt, expr, bcName(cast64FTo32F), VR_OP_CONV, VR_PREC_DBL_TO_FLT, countOnly);
+      res.containFloatModOp=vr_replaceCast (sb, stmt, expr, bcName(cast64FTo32F), VR_OP_CONV, VR_PREC_DBL_TO_FLT, countOnly);
+      break;
 #else
+       res.containFloatModOp=False;
        vr_countOp (sb, VR_OP_CONV, VR_PREC_DBL_TO_FLT, VR_VEC_UNK,False);
        addStmtToIRSB (sb, stmt);
 #endif
@@ -237,22 +279,26 @@
 
     case Iop_CmpEQ64Fx2: case Iop_CmpLT64Fx2:
     case Iop_CmpLE64Fx2: case Iop_CmpUN64Fx2:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_FULL2,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_CmpEQ64F0x2: case Iop_CmpLT64F0x2:
     case Iop_CmpLE64F0x2: case Iop_CmpUN64F0x2:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_DBL, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_CmpEQ32Fx4: case Iop_CmpLT32Fx4:
     case Iop_CmpLE32Fx4: case Iop_CmpUN32Fx4:
     case Iop_CmpGT32Fx4: case Iop_CmpGE32Fx4:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_FULL4,False);
       addStmtToIRSB (sb, stmt);
       break;
     case Iop_CmpEQ32F0x4: case Iop_CmpLT32F0x4:
     case Iop_CmpLE32F0x4: case Iop_CmpUN32F0x4:
+      res.containFloatCmp=True;
       vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
@@ -353,4 +399,4 @@
       addStmtToIRSB (sb, stmt);
       break;
     }
-    return False;
+    return res;
