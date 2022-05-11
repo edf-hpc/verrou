@@ -54,6 +54,7 @@ enum {
   VR_USERREQ__DUMP_COVER,
   VR_USERREQ__COUNT_FP_INSTRUMENTED,
   VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,
+  VR_USERREQ__PRINT_PROFILING_EXACT,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -74,6 +75,9 @@ enum {
 
 #define VERROU_DISPLAY_COUNTERS                                      \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__DISPLAY_COUNTERS,      \
+                                  0, 0, 0, 0, 0)
+#define VERROU_PRINT_PROFILING_EXACT                                      \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRINT_PROFILING_EXACT,	\
                                   0, 0, 0, 0, 0)
 
 #define VERROU_DUMP_COVER \

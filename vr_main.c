@@ -1149,7 +1149,12 @@ static void vr_fini(Int exitcode)
   //if (vr.checkCancellation) {
      //VG_(fclose)(vr_outCancellationFile);
   //}
-
+#ifdef PROFILING_EXACT
+  unsigned int num;
+  unsigned int numExact;
+  verrou_get_profiling_exact(&num,&numExact);
+  VG_(umsg)("%s #total: %u #exact: %u\n","Profiling exact - last -", num, numExact);
+#endif
 
   vr_ppOpCount ();
   interflop_verrou_finalize(backend_verrou_context);
@@ -1251,6 +1256,10 @@ static void vr_post_clo_init(void)
 
    verrou_set_nan_handler(&vr_handle_NaN);
    verrou_set_inf_handler(&vr_handle_Inf);
+
+#ifdef PROFILING_EXACT
+   verrou_init_profiling_exact();
+#endif
 
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
