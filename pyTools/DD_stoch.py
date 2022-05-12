@@ -86,6 +86,15 @@ class verrouTask:
         self.verbose=verbose
         self.alreadyFail=False
         self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
+        self.preRunLambda=None
+        self.postRunLambda=None
+
+    def setPostRun(self, postLambda):
+        self.postRunLambda=postLambda
+
+    def setPreRun(self, preLambda):
+        self.preRunLambda=preLambda
+
 
     def printDir(self):
         print(self.pathToPrint,end="")
@@ -100,16 +109,24 @@ class verrouTask:
 
     def runOneSample(self,i):
         rundir= self.nameDir(i)
-
+        env={key:self.runEnv[key] for key in self.runEnv}
+        if self.preRunLambda!=None:
+            self.preRunLambda(rundir, env)
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
                                           os.path.join(rundir,"dd.run"),
-                                          self.runEnv)
+                                          env)
+
 
     def cmpOneSample(self,i, assertRun=True):
+        if self.refDir==None: #if there are no reference provided cmp is ignored
+            return self.PASS
+
         rundir= self.nameDir(i)
         if assertRun:
             if self.subProcessRun[i]!=None:
                 getResult(self.subProcessRun[i])
+                if self.postRunLambda!=None:
+                    self.postRunLambda(rundir)
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 

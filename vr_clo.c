@@ -88,7 +88,8 @@ void vr_clo_defaults (void) {
   vr.mca_mode=MCAMODE_MCA;
 
   vr.checknan=True;
-
+  vr.checkinf=True;
+  
   vr.checkCancellation=False;
   vr.cc_threshold_float=18;
   vr.cc_threshold_double=40;
@@ -193,7 +194,11 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--check-nan", bool_val)) {
      vr.checknan= bool_val;
   }
+  else if (VG_BOOL_CLO (arg, "--check-inf", bool_val)) {
+     vr.checkinf= bool_val;
+  }
 
+  
   else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
     vr.checkFloatMax=bool_val;
   }
@@ -260,8 +265,6 @@ Bool vr_process_clo (const HChar *arg) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
-  else if (VG_XACT_CLOM (cloPD, arg, "--gen-trace",
-                         vr.genTrace, True)) {}
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;

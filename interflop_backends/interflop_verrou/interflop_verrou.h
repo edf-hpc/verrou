@@ -44,7 +44,7 @@ extern "C" {
 #include "../interflop.h"
 
 
-  
+
   enum vr_RoundingMode {
     VR_NEAREST,
     VR_UPWARD,
@@ -75,10 +75,17 @@ extern "C" {
   void verrou_set_seed (unsigned int seed);
   void verrou_set_random_seed (void);
 
+  void verrou_init_profiling_exact(void);
+  void verrou_get_profiling_exact(unsigned int* num, unsigned int* numExact);
+
   extern void (*vr_panicHandler)(const char*);
   void verrou_set_panic_handler(void (*)(const char*));
   extern void (*vr_nanHandler)(void);
   void verrou_set_nan_handler(void (*nanHandler)(void));
+
+  extern void (*vr_infHandler)(void);
+  void verrou_set_inf_handler(void (*infHandler)(void));
+
 
   extern void (*vr_debug_print_op)(int,const char*, const double* args, const double* res);
   void verrou_set_debug_print_op(void (*)(int nbArg, const char* name, const double* args, const double* res));
@@ -99,7 +106,7 @@ extern "C" {
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 
-  
+
 #ifdef __cplusplus
 }
 #endif

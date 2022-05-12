@@ -51,6 +51,15 @@ AM_CONDITIONAL([USE_QUAD], test x$vg_cv_verrou_quad = xyes,[])
 
 AC_SUBST(vg_cv_verrou_quad)
 
+#--enable-profiling for axact operation
+AC_CACHE_CHECK([verrou profiling exact], vg_cv_verrou_profiling_exact,
+  [AC_ARG_ENABLE(verrou-profiling-exact,
+    [  --enable-verrou-profiling-exact          enables profiling of exact operation],
+    [vg_cv_verrou_profiling_exact=$enableval],
+    [vg_cv_verrou_profiling_exact=no])])
+
+AM_CONDITIONAL([USE_PROFILING_EXACT], test x$vg_cv_verrou_profiling_exact = xyes,[])
+AC_SUBST(vg_cv_verrou_profiling_exact)
 
 
 

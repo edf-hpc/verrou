@@ -35,73 +35,54 @@ import glob
 
 maxNbPROC=None
 
-def runCmdAsync(cmd, fname, envvars=None):
-    """Run CMD, adding ENVVARS to the current environment, and redirecting standard
-    and error outputs to FNAME.out and FNAME.err respectively.
+from valgrind import DD_stoch
 
-    Returns CMD's exit code."""
-    if envvars is None:
-        envvars = {}
+roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
+roundingNonDetTab=["random", "average"]
 
-    with open("%s.out"%fname, "w") as fout:
-        with open("%s.err"%fname, "w") as ferr:
-            env = copy.deepcopy(os.environ)
-            for var in envvars:
-                env[var] = envvars[var]
-            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
-
-def getResult(subProcess):
-    subProcess.wait()
-    return subProcess.returncode
 
 
 def verrou_run_stat(script_run, rep, listOfStat, maxNbPROC=None):
     if not os.path.exists(rep):
         os.mkdir(rep)
-    listToRun=[]
-    for roundingMode in ["nearest","upward","downward", "toward_zero","farthest","random","average","float"]:
-        for i in range(listOfStat[roundingMode]):
-            name=("%s-%d")%(roundingMode,i)
-            repName=os.path.join(rep,name)
-            endFile=os.path.join(repName,"std")
-            if not os.path.exists(endFile+".out"):
-                os.mkdir(repName)
-                #subProcessRun=runCmdAsync([script_run, repName],
-                #                          endFile,
-                #                          {"VERROU_ROUNDING_MODE":roundingMode })
-                #getResult(subProcessRun)
-                listToRun+=[{"script_run":script_run,
-                             "repName": repName,
-                             "output_prefix": endFile,
-                             "env":{"VERROU_ROUNDING_MODE":roundingMode }}]
 
-
-    listOfMcaKey=[ (x.split("-")[1:] +[listOfStat[x]])  for x in listOfStat.keys()  if x.startswith("mca")  ]
-    for mcaConfig in listOfMcaKey:
-        for i in range(mcaConfig[-1]):
+    listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
+    for roundingMode in roundingNonDetTab+ roundingDetTab+ listOfMcaKey:
+        nbSample=listOfStat[roundingMode]
+        if nbSample==0:
+            continue
+        name=("%s")%(roundingMode)
+        envvars={"VERROU_ROUNDING_MODE":roundingMode }
+        if roundingMode in roundingDetTab:
+            detName=os.path.join(rep,"det")
+            if not os.path.exists(detName):
+                os.mkdir(detName)
+            name=("det/%s")%(roundingMode)
+        if roundingMode in listOfMcaKey:
+            mcaConfig=roundingMode.split("-")[1:]
             mode=mcaConfig[0]
             doublePrec=mcaConfig[1]
             floatPrec=mcaConfig[2]
-            name=("mca%s_%s_%s-%d")%(mode,doublePrec, floatPrec,i)
-            repName=os.path.join(rep,name)
-            endFile=os.path.join(repName,"std")
-            if not os.path.exists(endFile+".out"):
-                print(repName)
-                os.mkdir(repName)
+            name=("mca/%s_%s_%s")%(mode,doublePrec, floatPrec)
+            mcaName=os.path.join(rep,"mca")
+            if not os.path.exists(mcaName):
+                os.mkdir(mcaName)
 
-                listToRun+=[{"script_run":script_run,
-                             "repName": repName,
-                             "output_prefix": endFile,
-                             "env":{"VERROU_BACKEND":"mcaquad",
-                                    "VERROU_MCA_MODE":mode,
-                                    "VERROU_MCA_PRECISION_DOUBLE": doublePrec,
-                                    "VERROU_MCA_PRECISION_FLOAT": floatPrec}}]
-    if maxNbPROC==None:
-        maxNbPROC=1
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor(max_workers=maxNbPROC) as executor:
-        futures=[executor.submit(run, dicParam) for dicParam in listToRun]
-        concurrent.futures.wait(futures)
+            envvars={"VERROU_BACKEND":"mcaquad",
+                     "VERROU_MCA_MODE":mode,
+                     "VERROU_MCA_PRECISION_DOUBLE": doublePrec,
+                     "VERROU_MCA_PRECISION_FLOAT": floatPrec}
+
+        repName=os.path.join(rep,name)
+        if not os.path.exists(repName):
+            os.mkdir(repName)
+
+        refDir=None
+        script_cmp=None
+
+        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, envvars , verbose=True)
+        task.run(earlyExit=False)
+
 
 def run(dicParam):
     print(dicParam["repName"], "begin")
@@ -113,44 +94,47 @@ def run(dicParam):
 
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
-    roundingModeList=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
     resDict={}
 
-    for roundingMode in roundingModeList :
-        nbSample=listOfStat[roundingMode]
+    listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
+    for roundingMode in roundingNonDetTab+ roundingDetTab+ listOfMcaKey:
+        name=("%s")%(roundingMode)
+        if roundingMode in roundingDetTab:
+            name=("det/%s")%(roundingMode)
+        if roundingMode in listOfMcaKey:
+            mcaConfig=roundingMode.split("-")[1:]
+            mode=mcaConfig[0]
+            doublePrec=mcaConfig[1]
+            floatPrec=mcaConfig[2]
+            name=("mca/%s_%s_%s")%(mode,doublePrec, floatPrec)
+
         resTab=[]
+        nbSample=listOfStat[roundingMode]
+
         if nbSample==0:
             resDict[roundingMode]=None
             continue
-        for i in range(nbSample):
-            name=("%s-%d")%(roundingMode,i)
-            repName=os.path.join(rep,name)
+        if nbSample==-1:
+            i=0
+            while True:
+                nameSample=os.path.join(rep,name, "dd.run%i"%(i))
+                if os.path.exists(nameSample):
+                    value=extractFunc(nameSample)
+                    resTab+=[value]
+                    i+=1
+                else:
+                    break
 
-            value=extractFunc(repName)
+        for i in range(nbSample):
+            nameSample=os.path.join(rep,name, "dd.run%i"%(i))
+
+            value=extractFunc(nameSample)
             resTab+=[value]
+
         resDict[roundingMode]=resTab
 
-
-    listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
-    for mcaKey in listOfMcaKey:
-        mcaConfig=(mcaKey.split("-")[1:] +[listOfStat[mcaKey]])
-        nbSample=mcaConfig[-1]
-        if nbSample==0:
-            continue
-        resTab=[]
-        mode=mcaConfig[0]
-        doublePrec=mcaConfig[1]
-        floatPrec=mcaConfig[2]
-        for i in range(nbSample):
-            name=("mca%s_%s_%s-%d")%(mode,doublePrec, floatPrec,i)
-            repName=os.path.join(rep,name)
-
-            value=extractFunc(repName)
-            resTab+=[value]
-
-        resDict[mcaKey]=resTab
-
     return resDict
+
 
 
 def verrou_extract_stat(extract_run, rep, listOfStat):
@@ -197,6 +181,10 @@ def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=
     for i  in range(len(listOfPattern)):
         pattern=listOfPattern[i]
         listOfCatchPattern=[n for n in glob.glob(os.path.join(rep,pattern)) if os.path.isdir(n)]
+
+        if len(listOfCatchPattern)==0:
+            print("empty pattern :%s/%s"%(rep,pattern))
+            sys.exit(42)
         listOfValue=[getValueData(repName) for repName in listOfCatchPattern]
 
         res[listOfName[i]]=listOfValue
@@ -409,7 +397,8 @@ class config_stat:
     def __init__(self, argv):
         self.isMontcarlo=False
         self._nbSample=None
-        self._rep="verrou.stat"
+        self._rep=None
+        self._defaultRep="verrou.stat"
         self.listMCA=[]
         self.png=False
         self._hist=True
@@ -425,7 +414,13 @@ class config_stat:
             self.failure()
 
         if self._nbSample==None:
-            self._nbSample=200
+            self._nbSample=100
+        if self._rep==None:
+            if len(self._pattern)!=0:
+                self._rep="."
+            else:
+                self._rep=self._defaultRep
+
 
     def parseOpt(self,argv):
         try:
@@ -464,20 +459,23 @@ class config_stat:
                 continue
             if opt in ("--mca",):
                 if arg=="":
-                    self.listMCA+=["mca-rr-53-24"]
+                    self.listMCA+=["rr-53-24"]
                 else:
                     argSplit=arg.split("-")
-                    if len(argSplit)!=4:
+                    if len(argSplit)!=3:
+                        print("invalid mca format : invalid number of \"-\"")
                         self.help()
                         self.failure()
                     else:
-                        if not (argSplit[1] in ["rr","pb","mca"]):
+                        if not (argSplit[0] in ["rr","pb","mca"]):
+                            print("invalid mca format : first element shoukld be in [\"rr\",\"pb\",\"mca\"]")
                             self.help()
                             self.failure()
                         try:
-                            a=int(argSplit[2])
-                            b=int(argSplit[3])
+                            a=int(argSplit[1])
+                            b=int(argSplit[2])
                         except:
+                            print("invalid mca format : two last parameter should be integer")
                             self.help()
                             self.failure()
                     self.listMCA+=["mca-"+arg]
@@ -488,8 +486,13 @@ class config_stat:
             if len(args)>2:
                 self.help()
                 self.failure()
-            self._runScript=self.checkScriptPath(args[0])
-            self._extractScript=self.checkScriptPath(args[1])
+            if len(args)==2:
+                self._runScript=self.checkScriptPath(args[0])
+                self._extractScript=self.checkScriptPath(args[1])
+            if len(args)==1:
+                self._runScript=None
+                self._extractScript=self.checkScriptPath(args[0])
+
         if len(self._pattern)!=0:
             if len(args)>1:
                 self.help()
@@ -508,7 +511,7 @@ class config_stat:
         name=sys.argv[0]
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
         print( "\t -r --rep=:  working directory [default verrou.stat]")
-        print( "\t -s --samples= : number of samples")
+        print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
         print( "\t --num-threads= : number of parallel run")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
         print( "\t -p --png= : png file to export plot")
@@ -550,6 +553,8 @@ class config_stat:
 
     def getSampleConfig(self):
         nbDet=1
+        if self._nbSample==-1:
+            nbDet=-1
         if self.isMontcarlo:
             nbDet=self._nbSample
         nbSamples={"random":self._nbSample,

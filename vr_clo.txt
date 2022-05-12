@@ -169,6 +169,10 @@
           Activate NaN detection. NaN produces a valgrind error. This\n\
           functionnality requires the verrou backend.\n\
 \n\
+      --check-inf=<yes|no> [default=yes]\n\
+          Activate Inf detection. +/-Inf produces a valgrind error. This\n\
+          functionnality requires the verrou backend.\n\
+\n\
       --check-cancellation=<yes|no> [default=no]\n\
           Activate cancellation detection. Cancellation produces a valgrind\n\
           error. This functionnality is available for the verrou, mcaquad and\n\

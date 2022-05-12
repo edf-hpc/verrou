@@ -52,8 +52,31 @@ int CHECK_C  = 0;
 vr_RoundingMode DEFAULTROUNDINGMODE;
 vr_RoundingMode ROUNDINGMODE;
 unsigned int vr_seed;
+
+#ifdef PROFILING_EXACT
+unsigned int vr_NumOp;
+unsigned int vr_NumExactOp;
+#endif
+
 void (*vr_panicHandler)(const char*)=NULL;
 void (*vr_nanHandler)()=NULL;
+void (*vr_infHandler)()=NULL;
+
+
+void verrou_init_profiling_exact(void){
+#ifdef PROFILING_EXACT
+  vr_NumOp=0;
+  vr_NumExactOp=0;
+#endif
+}
+
+void verrou_get_profiling_exact(unsigned int* num, unsigned int* numExact){
+#ifdef PROFILING_EXACT
+  *num=vr_NumOp;
+  *numExact=vr_NumExactOp;
+#endif
+}
+
 
 
 
@@ -65,6 +88,9 @@ void verrou_set_nan_handler(void (*nanHandler)()){
   vr_nanHandler=nanHandler;
 }
 
+void verrou_set_inf_handler(void (*infHandler)()){
+  vr_infHandler=infHandler;
+}
 
 void (*vr_debug_print_op)(int,const char*, const double*, const double*)=NULL;
 void verrou_set_debug_print_op(void (*printOpHandler)(int nbArg,const char*name, const double* args,const double* res)){

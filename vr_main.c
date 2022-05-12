@@ -36,6 +36,11 @@
 Vr_State vr;
 
 
+typedef struct {
+  Bool containFloatModOp;
+  Bool containFloatCmp;
+} Vr_instr_kind;
+
 
 struct interflop_backend_interface_t backend_verrou;
 void* backend_verrou_context;
@@ -884,7 +889,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 
-static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
+static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
@@ -955,17 +960,23 @@ static Bool vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_
 /* //#undef IGNOREFMA */
 /* #undef bcName */
 /*    } */
-   return False;
+  Vr_instr_kind res;
+  res.containFloatCmp=False;
+  res.containFloatModOp=False;
+  return res;
 }
 
-static Bool vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr, Bool countOnly) {
+static Vr_instr_kind vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr, Bool countOnly) {
   IROp op;
   //  ppIRStmt(stmt);VG_(printf)("\n");
   if (vr_getOp (expr, &op)) {
     return vr_instrumentOp (sb, stmt, expr, op, vr.backend, countOnly);
   } else {
     addStmtToIRSB (sb, stmt);
-    return False;
+    Vr_instr_kind res;
+    res.containFloatModOp=False;
+    res.containFloatCmp=False;
+    return res;
   }
 }
 
@@ -1022,20 +1033,24 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   }
   /*End of recuperation*/
 
-  /*Early exit if not instrumented*/
-  if (vr_excludeIRSB (fnnamePtr, objnamePtr)){
-    return sbIn;
-  }
+  Bool excludeIrsb=vr_excludeIRSB (fnnamePtr, objnamePtr);
+  //if (excludeIrsb && !genIRSBTrace){
+  //    return sbIn;
+  //  }
 
   /*Instrumentation begin*/
   UInt i;
   IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
 
+  Vr_instr_kind instrStatus;
+
   Bool doIRSBFContainFloat=False;
+
 
   /*Data for Imark localisation*/
   Bool includeSource = True;
   Bool doLineContainFloat=False;
+  Bool doLineContainFloatCmp=False;
 
   const HChar * filename=NULL;
   const HChar ** filenamePtr=&filenamenoname;
@@ -1058,14 +1073,17 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      if(vr.genIncludeSource && doLineContainFloat){
+      if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat){
 	  vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
       }
-      doLineContainFloat=False;
+      if(genIRSBTrace){
+	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+      }
 
+      doLineContainFloat=False;
+      doLineContainFloatCmp=False;
       Addr  addrMark;
       addrMark = st->Ist.IMark.addr;
-
       //      filename[0] = 0;
       filenamePtr=&filename;
       Bool success=VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
@@ -1075,11 +1093,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 					     linenumPtr);
       if(! success || (**filenamePtr)==0){
 	filenamePtr=&filenamenoname;
-        *linenumPtr=0;
+	*linenumPtr=0;
       }
-      if(genIRSBTrace){
-	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr);
-      }
+
       if(!vr.genIncludeSource){
 	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
@@ -1088,15 +1104,19 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
       break;
     case Ist_WrTmp:
-      if (includeSource) {
-        Bool doInstrContainFloat= vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data,False);
+      {
+	Bool countOnly=False;
+	if (excludeIrsb || !includeSource){
+	  countOnly=True;
+	}
+	instrStatus=vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data,countOnly);
+	Bool doInstrContainFloat=instrStatus.containFloatModOp;
+	Bool doInstrContainFloatCmp=instrStatus.containFloatCmp;
 	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
+	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
-      }else{
-	if(!vr.sourceExcludeActivated){
-	  addStmtToIRSB (sbOut, sbIn->stmts[i]);
-	}else{
-	  Bool doInstrContainFloat= vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data, True);
+
+	if((!includeSource) && vr.sourceActivated){
 	  if(doInstrContainFloat && !vr_includeSource(&vr.excludeSourceDyn, *fnnamePtr, *filenamePtr, *linenumPtr)){
 	    VG_(umsg)("Warning new source line with fp operation discovered :\n");
 	    VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
@@ -1110,23 +1130,15 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  if(vr.genIncludeSource && doLineContainFloat &&filename !=NULL){
+  if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat &&filename !=NULL){
     vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-
-
   }
+  if(genIRSBTrace){
+    vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+  }
+
   if(vr.genExclude && doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
-    /* Debug to understand where come from floating point operation in uname symbole
-      if(fnnamePtr==&fnnoname){
-      for(int i=0 ; i< 6; i++){
-	Addr addr = ips[i];
-	Bool errorFnname =VG_(get_fnname_raw)(de, addr, fnnamePtr);
-	Bool errorObjName=VG_(get_objname)(de, addr, objnamePtr);
-	VG_(umsg)("stack %d : %s %s\n", i,*fnnamePtr, *objnamePtr);
-      }
-    }
-    */
   }
   return sbOut;
 }
@@ -1137,9 +1149,17 @@ static void vr_fini(Int exitcode)
   //if (vr.checkCancellation) {
      //VG_(fclose)(vr_outCancellationFile);
   //}
-   if(vr.useExpectCLR){
+#ifdef PROFILING_EXACT
+  unsigned int num;
+  unsigned int numExact;
+  verrou_get_profiling_exact(&num,&numExact);
+  VG_(umsg)("%s #total: %u #exact: %u\n","Profiling exact - last -", num, numExact);
+#endif
+
+  if(vr.useExpectCLR){
       vr_expect_clr_finalize();
    }
+
   vr_ppOpCount ();
   interflop_verrou_finalize(backend_verrou_context);
 #ifdef USE_VERROU_QUAD
@@ -1151,12 +1171,12 @@ static void vr_fini(Int exitcode)
 
   if (vr.genExclude) {
     vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
-                       vr.excludeFile);
+		       vr.excludeFile);
   }
 
   if (vr.genIncludeSource) {
     vr_dumpIncludeSourceList (vr.includeSource, vr.genIncludeSourceUntil,
-                              vr.includeSourceFile);
+			      vr.includeSourceFile);
   }
 
   if(vr.genTrace){
@@ -1214,6 +1234,9 @@ static void vr_post_clo_init(void)
 
    vr_env_clo("VERROU_INSTR","--vr-instr");
 
+   vr_env_clo("VERROU_TRACE","--trace");
+   vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
+
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;
    }
@@ -1236,6 +1259,11 @@ static void vr_post_clo_init(void)
    verrou_set_panic_handler(&VG_(tool_panic));
 
    verrou_set_nan_handler(&vr_handle_NaN);
+   verrou_set_inf_handler(&vr_handle_Inf);
+
+#ifdef PROFILING_EXACT
+   verrou_init_profiling_exact();
+#endif
 
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 

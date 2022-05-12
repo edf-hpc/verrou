@@ -52,6 +52,8 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "Scalar instruction";
   case VR_ERROR_NAN:
     return "NaN";
+  case VR_ERROR_INF:
+    return "+/-Inf";
   case VR_ERROR_CC:
     return "Cancellation";
   case VR_ERROR_CD:
@@ -116,6 +118,11 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind) {
 void vr_handle_NaN () {
    if(vr.checknan){
       vr_maybe_record_ErrorRt(VR_ERROR_NAN);
+   }
+}
+void vr_handle_Inf () {
+   if(vr.checkinf){
+      vr_maybe_record_ErrorRt(VR_ERROR_INF);
    }
 }
 
@@ -231,6 +238,7 @@ void vr_pp_Error (const Error* err) {
     vr_pp_ErrorOp (err);
     break;
   case VR_ERROR_NAN:
+  case VR_ERROR_INF:
   case VR_ERROR_CC:
   case VR_ERROR_CD:
   case VR_ERROR_FLT_MAX:

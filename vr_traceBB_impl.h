@@ -159,11 +159,11 @@ void vr_traceBB_initialize(char* path){
   const HChar * strExpCov=  VG_(expand_file_name)("vr.traceBB.strCov",   absfileCov);
 
   vr_out_bb_info = VG_(fopen)(strExpInfo,
-			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			      VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			      VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 
   vr_out_bb_cov = VG_(fopen)(strExpCov,
-			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
+			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
 			       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 
   if(/*vr_out_bb_trace==NULL || */ vr_out_bb_info==NULL /*|| vr_out_bb_info_backtrace==NULL */|| vr_out_bb_cov==NULL){
@@ -225,9 +225,14 @@ UInt vr_traceBB_dumpCov(void){
 
 
 
-void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum);
-void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum){
-  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u\n", (tr->index), fnname, filename, lineNum);
+void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
+			    Bool doLineContainFloat, Bool doLineContainFloatCmp);
+void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
+			    Bool doLineContainFloat, Bool doLineContainFloatCmp){
+  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u : %s : %s\n",
+	       (tr->index), fnname, filename, lineNum,
+	       doLineContainFloat?"1":"0",
+	       doLineContainFloatCmp?"1":"0");
 }
 
 

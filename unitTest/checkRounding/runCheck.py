@@ -91,7 +91,7 @@ class cmdPrepare:
             if rounding=="memcheck":
                 cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
             else:
-                cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --rounding-mode=" + rounding+ " " +self.execPath +" valgrind"
+                cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --check-inf=no --rounding-mode=" + rounding+ " " +self.execPath +" valgrind"
 
         return runCmd(cmd)
         # print cmd
