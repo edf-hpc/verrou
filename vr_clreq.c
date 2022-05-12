@@ -34,6 +34,10 @@
 #include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 
+#ifdef PROFILING_EXACT
+#include "interflop_backends/interflop_verrou/interflop_verrou.h"
+#endif
+
 void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard) {
   if (vr.instrument == state) {
     if(vr.verbose){
@@ -131,9 +135,14 @@ static void vr_stop_deterministic_section (unsigned int level) {
 #endif
 }
 
-
-
-
+#ifdef PROFILING_EXACT
+static void vr_print_profiling_exact(void){
+  unsigned int num;
+  unsigned int numExact;
+  verrou_get_profiling_exact(&num,&numExact);
+  VG_(umsg)("%s #total: %u #exact: %u\n","Profiling exact", num, numExact);
+  }
+#endif
 
 // * Handle client requests
 
@@ -236,6 +245,15 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__DUMP_COVER:
     *ret=vr_traceBB_dumpCov();
     break;
+  case VR_USERREQ__PRINT_PROFILING_EXACT:
+#ifdef PROFILING_EXACT
+    vr_print_profiling_exact();
+    verrou_init_profiling_exact();
+#else
+    VG_(umsg)("Warning : verrou need to be compiled with --enable-verrou-profiling-exact to use the client request VERROU_PRINT_PROFILING_EXACT;\n");
+#endif
+      *ret=0;
+      break;
   case VR_USERREQ__COUNT_FP_INSTRUMENTED:
      *ret=(UWord)vr_count_fp_instrumented();
      break;

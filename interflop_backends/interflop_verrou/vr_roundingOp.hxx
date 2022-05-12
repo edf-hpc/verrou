@@ -40,6 +40,16 @@ extern vr_RoundingMode ROUNDINGMODE;
 //extern vr_RoundingMode ROUNDINGMODE;
 //#endif
 
+#ifdef PROFILING_EXACT
+extern unsigned int vr_NumOp;
+extern unsigned int vr_NumExactOp;
+#define INC_OP {vr_NumOp++;}
+#define INC_EXACTOP {vr_NumExactOp++;}
+#else
+#define INC_OP
+#define INC_EXACTOP
+#endif
+
 //#include "vr_fpRepr.hxx"
 #include "vr_nextUlp.hxx"
 #include "vr_isNan.hxx"
@@ -87,14 +97,17 @@ public:
 
   static inline RealType apply(const PackArgs& p ){
     RealType res=OP::nearestOp(p);
-
+    INC_OP;
     if (isNanInf<RealType> (res)){
       return res;
     }
 
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
+
+
     if(signError==0.){
+      INC_EXACTOP;
       return res;
     }else{
       const bool doNoChange = vr_rand_bool(&vr_rand);
@@ -159,6 +172,7 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
 
+    INC_OP;
     if (isNanInf<RealType> (res)){
       return res;
     }
@@ -166,6 +180,7 @@ public:
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
+      INC_EXACTOP;
       return res;
     }
 
@@ -209,6 +224,7 @@ public:
 
   static inline RealType apply(const PackArgs& p){
     RealType res=OP::nearestOp(p) ;
+    INC_OP;
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
 
@@ -227,6 +243,11 @@ public:
 	  }
       }
     }
+#ifdef PROFILING_EXACT
+    if(signError==0.){
+      INC_EXACTOP;
+    }
+#endif
 
     if( (signError>0 && res <0)||(signError<0 && res>0) ){
       return nextTowardZero<RealType>(res);
@@ -245,6 +266,7 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
+    INC_OP;
 
     if(isNanInf<RealType>(res)){
       if(res!=-std::numeric_limits<RealType>::infinity()){
@@ -259,6 +281,11 @@ public:
     }
 
     const RealType signError=OP::sameSignOfError(p,res);
+#ifdef PROFILING_EXACT
+    if(signError==0.){
+      INC_EXACTOP;
+    }
+#endif
 
     if(signError>0.){
       if(res==0.){
@@ -283,7 +310,7 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
-
+    INC_OP;
     if(isNanInf<RealType>(res)){
       if(res!=std::numeric_limits<RealType>::infinity()){
 	return res;
@@ -298,6 +325,11 @@ public:
 
 
     const RealType signError=OP::sameSignOfError(p,res);
+#ifdef PROFILING_EXACT
+    if(signError==0){
+      INC_EXACTOP;
+    }
+#endif
     if(signError<0){
       if(res==0.){
 	return -std::numeric_limits<RealType>::denorm_min();
@@ -321,6 +353,7 @@ public:
 
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
+    INC_OP;
     if (isNanInf<RealType> (res)){
       return res;
     }
@@ -328,6 +361,7 @@ public:
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
+      INC_EXACTOP;
       return res;
     }
     if(error>0){
