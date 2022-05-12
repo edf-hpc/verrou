@@ -62,7 +62,7 @@ extern void loop_stencil_serial(int t0, int t1, int x0, int x1,
                                 int Nx, int Ny, int Nz,
                                 const RealType coef[5], 
                                 const RealType vsq[],
-                                double Aeven[], RealType Aodd[]);
+                                RealType Aeven[], RealType Aodd[]);
 
 
 static void
@@ -155,30 +155,29 @@ int main(int argc, char *argv[]) {
     Aserial[1] = new RealType [Nx * Ny * Nz];
     RealType *vsq = new RealType [Nx * Ny * Nz];
 
-    RealType coeff[4] = { 0.5, -.25, .125, -.0625 }; 
-
-
-    InitData(Nx, Ny, Nz, Aserial, vsq);
-
+    RealType coeff[4] = { 0.5, -.25, .125, -.0625 };
 
 
     double minTimeSerial = 1e30;
     for (unsigned int i = 0; i < test_iterations; ++i) {
-        reset_and_start_timer();
+
+      InitData(Nx, Ny, Nz, Aserial, vsq);
+
+      reset_and_start_timer();
+      //	VERROU_PRINT_PROFILING_EXACT;
+      VERROU_START_INSTRUMENTATION;
+      loop_stencil_serial(0, 6, width, Nx-width, width, Ny - width,
+			  width, Nz - width, Nx, Ny, Nz, coeff, vsq,
+			  Aserial[0], Aserial[1]);
+      VERROU_STOP_INSTRUMENTATION;
 	//	VERROU_PRINT_PROFILING_EXACT;
-	VERROU_START_INSTRUMENTATION;
-        loop_stencil_serial(0, 6, width, Nx-width, width, Ny - width,
-                            width, Nz - width, Nx, Ny, Nz, coeff, vsq,
-                            Aserial[0], Aserial[1]);
-	VERROU_STOP_INSTRUMENTATION;
-	//	VERROU_PRINT_PROFILING_EXACT;
-        double dt = get_elapsed_sec();
-	printf("@time of serial run:\t\t\t[%.3f] secondes\n", dt);
-	minTimeSerial = std::min(minTimeSerial, dt);	
+      double dt = get_elapsed_sec();
+      printf("@time of serial run:\t\t\t[%.3f] secondes\n", dt);
+      minTimeSerial = std::min(minTimeSerial, dt);
     }
     printf("@mintime of serial run:\t\t\t[%.3f] secondes\n", minTimeSerial);
 
-      
+
     // printf("\t\t\t\t(%.2fx speedup from ISPC, %.2fx speedup from ISPC + tasks)\n", 
     //        minTimeSerial / minTimeISPC, minTimeSerial / minTimeISPCTasks);
 
