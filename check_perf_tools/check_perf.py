@@ -3,10 +3,13 @@
 import os
 import re
 import sys
+import subprocess
 
 verrouConfigList={
-    "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"     ,"flags":"--enable-verrou-fma"},
-    "random_det": { "valgrind":"valgrind-3.17.0", "branch_verrou":"random_det" ,"flags":"--enable-verrou-fma"}
+    "local":      {"special_rounding_tab":["random_det"]},
+    "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
+    "random_det": { "valgrind":"valgrind-3.17.0", "branch_verrou":"random_det"  ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det"]},
+    "average_det":{ "valgrind":"valgrind-3.17.0", "branch_verrou":"average_det" ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det","average_det"]}
     }
 
 
@@ -26,16 +29,23 @@ binNameList=["stencil-"+i for i in ["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FL
 
 cmdParam= "--scale=1 "+str(nbRunTuple[0])
 
+def runCmd(cmd):
+    subprocess.call(cmd, shell=True)
 
 def buildConfig(name):
-    verrouConfigParam=verrouConfigList[name]
     buildRep="buildRep-"+name
-    os.system("./buildConfig.sh %s %s %s \"%s\""%(
-        buildRep,
-        valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
-        verrouConfigParam["branch_verrou"],
-        verrouConfigParam["flags"])
-    )
+    if name=="local":
+        if not os.path.exists(buildRep):
+            os.mkdir(buildRep)
+        return
+    verrouConfigParam=verrouConfigList[name]
+    if not os.path.exists(buildRep):
+        runCmd("./buildConfig.sh %s %s %s \"%s\""%(
+            buildRep,
+            valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
+            verrouConfigParam["branch_verrou"],
+            verrouConfigParam["flags"])
+        )
 
 
 def runConfig(name):
@@ -44,7 +54,8 @@ def runConfig(name):
         os.mkdir(repMeasure)
     for binName in binNameList:
         for (optName, opt) in verrouOptionsList:
-            for rounding in roundingList:
+            roundingTab=roundingList + verrouConfigList[name]["special_rounding_tab"]
+            for rounding in roundingTab:
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathBin+"/"+binName,cmdParam)
                 toPrint=True
                 for i in range(nbRunTuple[1]):
@@ -53,7 +64,11 @@ def runConfig(name):
                         if toPrint:
                             print(cmd)
                             toPrint=False
-                        os.system(". ./buildRep-%s/install/env.sh ; %s > %s 2> %s"%(name,cmd,outputName, outputName+".err"))
+                        if name!="local":
+                            runCmd(". ./buildRep-%s/install/env.sh ; %s > %s 2> %s"%(name,cmd,outputName, outputName+".err"))
+                        else:
+                            runCmd("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
+
 def runRef():
     repMeasure="measureRef"
     if not os.path.exists(repMeasure):
@@ -67,7 +82,7 @@ def runRef():
                 if toPrint:
                     print(cmd)
                     toPrint=False
-                os.system("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
+                runCmd("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
 
 
 timeRegExp = re.compile("@time of serial run:\s*\[(.+)\] secondes\s*")
@@ -99,7 +114,7 @@ def extract(name):
         res[binName]={}
         for (optName, opt) in verrouOptionsList:
             res[binName][optName]={}
-            for rounding in roundingList:
+            for rounding in roundingList+verrouConfigList[name]["special_rounding_tab"]:
                 resPerf=None
                 for i in range(nbRunTuple[1]):
                     outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
@@ -136,8 +151,8 @@ def nonPerfRegressionAnalyze(data, refName, refOption=""):
         for (optionStr, optionVal) in verrouOptionsList:
             print("\truntime verrou option : ", optionStr)
             dataNew=data[newVersion]
-
-            for rounding in roundingList:
+            roundingTab=roundingList +list(set(verrouConfigList[refName]["special_rounding_tab"]).intersection(set(verrouConfigList[newVersion]["special_rounding_tab"])))
+            for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  binNameList:
                     minTimeRef=dataRef[binName][refOption][rounding]["min"]
@@ -152,8 +167,8 @@ def slowDownAnalyze(data):
         for (optionStr, optionVal) in verrouOptionsList:
             print("\t runtime verrou option : ", optionStr)
             dataNew=data[version]
-
-            for rounding in roundingList:
+            roundingTab=roundingList + verrouConfigList[version]["special_rounding_tab"]
+            for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  binNameList:
                     minTimeNew=dataNew[binName][optionStr][rounding]["min"]
@@ -162,7 +177,10 @@ def slowDownAnalyze(data):
 
 
 if __name__=="__main__":
-    slowDown=False
+    slowDown=True
+
+    for name in verrouConfigList:
+        buildConfig(name)
 
     for name in verrouConfigList:
         runConfig(name)
