@@ -274,7 +274,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, average, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -294,6 +294,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_ZERO;
     } else if (strcasecmp("random", arg) == 0) {
       conf->mode=VR_RANDOM;
+    } else if (strcasecmp("random_det", arg) == 0) {
+      conf->mode=VR_RANDOM_DET;
     } else if (strcasecmp("average", arg) == 0) {
       conf->mode=VR_AVERAGE;
     } else if (strcasecmp("farthest", arg) == 0) {
@@ -306,7 +308,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_FTZ;
     } else {
       std::cerr << key_rounding_mode_str <<" invalid value provided, must be one of: "
-		<<" nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz."
+		<<" nearest, upward, downward, toward_zero, random, random_det, average, farthest,float,native,ftz."
 		<<std::endl;
       exit(42);
     }

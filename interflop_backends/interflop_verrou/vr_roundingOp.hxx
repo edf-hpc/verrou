@@ -137,7 +137,7 @@ public:
 
     static inline RealType apply(const PackArgs& p){
         RealType res=OP::nearestOp(p);
-
+	INC_OP;
         if (isNanInf<RealType> (res)){
             return res;
         }
@@ -145,7 +145,8 @@ public:
         OP::check(p,res);
         const RealType signError=OP::sameSignOfError(p,res);
         if(signError==0.){
-            return res;
+	  INC_EXACTOP;
+	  return res;
         }else{
             const bool doNoChange = vr_rand_bool_det<OP>(&vr_rand, p);
             if(doNoChange){

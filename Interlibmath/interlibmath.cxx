@@ -38,7 +38,7 @@ unsigned int my_pid;
 class myLibMathFunction1{
 public:
   myLibMathFunction1(std::string name, uint64_t enumName):name_(name),
-							  hash_(enumName){
+							  hash_(enumName+nbOpHash){
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
@@ -82,7 +82,7 @@ private:
 class myLibMathFunction2{
 public:
   myLibMathFunction2(std::string name, uint64_t enumName):name_(name),
-							  hash_(enumName)
+							  hash_(enumName+ nbOpHash)
   {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);

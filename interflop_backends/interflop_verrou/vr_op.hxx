@@ -66,18 +66,20 @@ struct realTypeHelper<const REALTYPESIMD>{
 
 
 enum opHash : uint64_t{
-  addHash,
-  subHash,
-  mulHash,
-  divHash,
-  maddHash,
-  castHash
+  addHash=0,
+  subHash=1,
+  mulHash=2,
+  divHash=3,
+  maddHash=4,
+  castHash=5,
+  nbOpHash=6
 };
 
 enum typeHash : uint64_t{
-  floatHash,
-  doubleHash,
-  otherHash
+  floatHash=0,
+  doubleHash=1,
+  otherHash=2,
+  nbTypeHash=3
 };
 
 
@@ -257,7 +259,7 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static const char* OpName(){return "add";}
-  static inline uint64_t getHash(){return opHash::addHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -300,8 +302,7 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static const char* OpName(){return "sub";}
-  static inline uint64_t getHash(){return opHash::subHash ;}
-
+  static inline uint64_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -358,7 +359,7 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static const char* OpName(){return "mul";}
-  static inline  uint64_t getHash(){return opHash::mulHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
 
 
@@ -438,7 +439,8 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static const char* OpName(){return "mul";}
-    static inline uint64_t getHash(){return opHash::mulHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
 
 
   static inline RealType nearestOp (const PackArgs& p) {
@@ -516,7 +518,7 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static const char* OpName(){return "div";}
-  static inline uint64_t getHash(){return opHash::divHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
 
   static RealType inline nearestOp (const PackArgs& p) {
@@ -569,7 +571,7 @@ public:
 
 
   static const char* OpName(){return "div";}
-  static inline uint64_t getHash(){return opHash::divHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
 
   static RealType inline nearestOp (const PackArgs& p) {
@@ -628,7 +630,7 @@ public:
   typedef vr_packArg<RealType,3> PackArgs;
 
   static const char* OpName(){return "madd";}
-  static inline uint64_t getHash(){return opHash::maddHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
@@ -682,7 +684,7 @@ public:
   typedef vr_packArg<RealTypeIn,1> PackArgs;
 
   static const char* OpName(){return "cast";}
-  static inline uint64_t getHash(){return opHash::castHash ^ getTypeHash<RealType>();}
+  static inline uint64_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealTypeOut nearestOp (const PackArgs& p) {
     const RealTypeIn & in(p.arg1);
