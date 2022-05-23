@@ -35,36 +35,6 @@
 
 #include "vr_isNan.hxx"
 
-template<class> struct realTypeHelper;
-
-template<>
-struct realTypeHelper<float>{
-  typedef float SimdBasicType;
-  static const int SimdLength=1;
-};
-
-
-
-template<>
-struct realTypeHelper<double>{
-  typedef double SimdBasicType;
-  static const int SimdLength=1;
-};
-
-template<>
-struct realTypeHelper<long double>{
-  typedef long double SimdBasicType;
-  static const int SimdLength=1;
-};
-
-
-template<class REALTYPESIMD>
-struct realTypeHelper<const REALTYPESIMD>{
-  typedef typename realTypeHelper<REALTYPESIMD>::SimdBasicType SimdBasicType;
-  static const int SimdLength=realTypeHelper<REALTYPESIMD>::SimdLength;
-};
-
-
 enum opHash : uint64_t{
   addHash=0,
   subHash=1,
@@ -114,16 +84,11 @@ template<class REALTYPE>
 struct vr_packArg<REALTYPE,1>{
   static const int nb= 1;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,1> SubPack;
 
   inline vr_packArg(const RealType& v1):arg1(v1)
   {
   };
 
-  inline const SubPack& getSubPack(int I)const{
-    return SubPack(arg1[I]);
-  }
 
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
@@ -133,8 +98,22 @@ struct vr_packArg<REALTYPE,1>{
     return isNanInf<RealType>(arg1);
   }
 
-  inline uint64_t getHash()const{
+  inline uint64_t getXorHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1);
+  }
+
+  inline uint64_t getMersenneHash(uint64_t seed)const{
+    const uint64_t keys[2]={
+      seed,
+      realToUint64_reinterpret_cast<REALTYPE>(arg1)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 2);
+    return tinymt64_generate_uint64(&localGen );
+  }
+
+  inline uint64_t getMultiply(const uint64_t* seedTab)const{
+    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0];
   }
 
   const RealType& arg1;
@@ -144,16 +123,10 @@ template<class REALTYPE>
 struct vr_packArg<REALTYPE,2>{
   static const int nb= 2;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,2> SubPack;
 
   vr_packArg(const RealType& v1,const RealType& v2):arg1(v1),arg2(v2)
   {
   };
-
-  inline const SubPack getSubPack(int I)const{
-    return SubPack(arg1[I],arg2[I]);
-  }
 
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
@@ -164,8 +137,25 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  inline uint64_t getHash()const{
+  inline uint64_t getXorHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2);
+  }
+
+  inline uint64_t getMersenneHash(uint64_t seed)const{
+    const uint64_t keys[3]={
+      seed,
+      realToUint64_reinterpret_cast<REALTYPE>(arg1),
+      realToUint64_reinterpret_cast<REALTYPE>(arg2)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 3);
+    return tinymt64_generate_uint64(&localGen );
+  }
+
+
+  inline uint64_t getMultiply(const uint64_t* seedTab)const{
+  return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
+    +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1];
   }
 
   const RealType& arg1;
@@ -177,15 +167,9 @@ template<class REALTYPE>
 struct vr_packArg<REALTYPE,3>{
   static const int nb= 3;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,3> SubPack;
 
   vr_packArg(const RealType& v1,const RealType& v2,const RealType& v3):arg1(v1),arg2(v2),arg3(v3){
   };
-
-  inline const SubPack& getSubPack(int I)const{
-    return SubPack(arg1[I],arg2[I],arg3[I]);
-  }
 
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
@@ -197,9 +181,28 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
-  inline uint64_t getHash()const{
+  inline uint64_t getXorHash()const{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2) ^ realToUint64_reinterpret_cast<REALTYPE>(arg3);
   }
+
+  inline uint64_t getMersenneHash(uint64_t seed){
+    const uint64_t keys[3]={
+      seed,
+      realToUint64_reinterpret_cast<REALTYPE>(arg1),
+      realToUint64_reinterpret_cast<REALTYPE>(arg2),
+      realToUint64_reinterpret_cast<REALTYPE>(arg3)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 4);
+    return tinymt64_generate_uint64(&localGen );
+  }
+
+  inline uint64_t getMultiply(const uint64_t* seedTab)const{
+    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
+      +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1]
+      +    realToUint64_reinterpret_cast<REALTYPE>(arg3) * seedTab[2];
+  }
+
 
   const RealType& arg1;
   const RealType& arg2;

@@ -33,6 +33,7 @@ VERROU_SOURCES_COMMON = \
 	vr_clreq.c	\
 	vr_clo.c	\
 	vr_include_trace.c \
+	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
@@ -62,10 +63,24 @@ endif
 if USE_QUAD
 VERROU_SOURCES_COMMON+= \
 	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
-	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/backend_mcaquad/common/fmaqApprox.c
 VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
 VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
+endif
+
+if USE_VERROU_FAST_GEN
+VERROU_FLAG_CXX +=  -DVERROU_FAST_GEN
+VERROU_FLAG_C   +=  -DVERROU_FAST_GEN
+endif
+
+if USE_VERROU_DET_FAST_HASH
+VERROU_FLAG_CXX +=  -DVERROU_DET_FAST_HASH
+VERROU_FLAG_C   +=  -DVERROU_DET_FAST_HASH
+endif
+
+if USE_VERROU_DET_REF_HASH
+VERROU_FLAG_CXX +=  -DVERROU_DET_REF_HASH
+VERROU_FLAG_C   +=  -DVERROU_DET_REF_HASH
 endif
 
 if USE_PROFILING_EXACT

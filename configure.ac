@@ -62,6 +62,36 @@ AM_CONDITIONAL([USE_PROFILING_EXACT], test x$vg_cv_verrou_profiling_exact = xyes
 AC_SUBST(vg_cv_verrou_profiling_exact)
 
 
+#--enable-random-fast-gen for random/average operation
+AC_CACHE_CHECK([verrou fast gen], vg_cv_verrou_fast_gen,
+  [AC_ARG_ENABLE(verrou-fast-gen,
+    [  --enable-verrou-fast-gen          enables fast random generator for random and average rounding mode],
+    [vg_cv_verrou_fast_gen=$enableval],
+    [vg_cv_verrou_fast_gen=yes])])
+
+AM_CONDITIONAL([USE_VERROU_FAST_GEN], test x$vg_cv_verrou_fast_gen = xyes,[])
+AC_SUBST(vg_cv_verrou_fast_gen)
+
+#--enable-det-fast-hash for random-det/average-det operation
+AC_CACHE_CHECK([verrou det fast-hash], vg_cv_verrou_det_fast_hash,
+  [AC_ARG_ENABLE(verrou-det-fast-hash,
+    [  --enable-verrou-det-fast-hash          enables fast hash function for random-det and average-det rounding mode],
+    [vg_cv_verrou_det_fast_hash=$enableval],
+    [vg_cv_verrou_det_fast_hash=$enableval=no])])
+
+AM_CONDITIONAL([USE_VERROU_DET_FAST_HASH], test x$vg_cv_verrou_det_fast_hash = xyes,[])
+AC_SUBST(vg_cv_verrou_det_fast_hash)
+
+#--enable-det-ref-hash for random-det/average-det operation
+AC_CACHE_CHECK([verrou det ref-hash], vg_cv_verrou_det_ref_hash,
+  [AC_ARG_ENABLE(verrou-det-ref-hash,
+    [  --enable-verrou-det-ref-hash          enables reference hash function for random-det and average-det rounding mode],
+    [vg_cv_verrou_det_ref_hash=$enableval],
+    [vg_cv_verrou_det_ref_hash=$enableval=no])])
+
+AM_CONDITIONAL([USE_VERROU_DET_REF_HASH], test x$vg_cv_verrou_det_ref_hash = xyes,[])
+AC_SUBST(vg_cv_verrou_det_ref_hash)
+
 
 # avx512
 vg_test_no_avx512f_flag=-mno-avx512f
