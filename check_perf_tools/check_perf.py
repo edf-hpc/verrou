@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 verrouConfigList={
-    "local":      {"special_rounding_tab":["random_det"]},
+    "local":      {"special_rounding_tab":["random_det", "average_det"]},
     "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
     "random_det": { "valgrind":"valgrind-3.17.0", "branch_verrou":"random_det"  ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det"]},
     "average_det":{ "valgrind":"valgrind-3.17.0", "branch_verrou":"average_det" ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det","average_det"]}

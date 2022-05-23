@@ -112,6 +112,17 @@ struct vr_packArg<REALTYPE,1>{
     return tinymt64_generate_uint64(&localGen );
   }
 
+  inline double getMersenneRatio(uint64_t seed)const{
+    const uint64_t keys[2]={
+      seed,
+      realToUint64_reinterpret_cast<REALTYPE>(arg1)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 2);
+    return tinymt64_generate_doubleOO(&localGen );
+  }
+
+
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
     return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0];
   }
@@ -153,6 +164,18 @@ struct vr_packArg<REALTYPE,2>{
   }
 
 
+  inline double getMersenneRatio(uint64_t seed)const{
+    const uint64_t keys[3]={
+      seed,
+      realToUint64_reinterpret_cast<REALTYPE>(arg1),
+      realToUint64_reinterpret_cast<REALTYPE>(arg2)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 3);
+    return tinymt64_generate_doubleOO(&localGen );
+  }
+
+
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
   return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
     +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1];
@@ -185,7 +208,7 @@ struct vr_packArg<REALTYPE,3>{
       return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2) ^ realToUint64_reinterpret_cast<REALTYPE>(arg3);
   }
 
-  inline uint64_t getMersenneHash(uint64_t seed){
+  inline uint64_t getMersenneHash(uint64_t seed)const{
     const uint64_t keys[3]={
       seed,
       realToUint64_reinterpret_cast<REALTYPE>(arg1),
@@ -196,6 +219,19 @@ struct vr_packArg<REALTYPE,3>{
     tinymt64_init_by_array(&localGen, keys, 4);
     return tinymt64_generate_uint64(&localGen );
   }
+
+  inline double getMersenneRatio(uint64_t seed)const{
+    const uint64_t keys[3]={
+			    seed,
+			    realToUint64_reinterpret_cast<REALTYPE>(arg1),
+			    realToUint64_reinterpret_cast<REALTYPE>(arg2),
+			    realToUint64_reinterpret_cast<REALTYPE>(arg3)
+    };
+    tinymt64_t localGen;
+    tinymt64_init_by_array(&localGen, keys, 4);
+    return tinymt64_generate_doubleOO(&localGen );
+  }
+
 
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
     return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]

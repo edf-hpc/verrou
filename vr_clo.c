@@ -126,6 +126,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
+                         vr.roundingMode, VR_AVERAGE_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearest",
                          vr.roundingMode, VR_NEAREST)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=upward",

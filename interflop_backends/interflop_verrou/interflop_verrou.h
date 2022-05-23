@@ -53,6 +53,7 @@ extern "C" {
     VR_RANDOM, // Must be immediately after standard rounding modes
     VR_RANDOM_DET,
     VR_AVERAGE,
+    VR_AVERAGE_DET,
     VR_FARTHEST,
     VR_FLOAT,
     VR_NATIVE,

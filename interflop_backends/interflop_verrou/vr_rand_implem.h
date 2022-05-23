@@ -110,9 +110,9 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 template<class REALTYPE, int NB, class OP>
 class dietzfelbingerHash{
 public:
-  static bool apply(const Vr_Rand * r,
-		    const vr_packArg<REALTYPE,NB>& pack,
-		    uint32_t hashOp){
+  static bool hashBool(const Vr_Rand * r,
+		       const vr_packArg<REALTYPE,NB>& pack,
+		       uint32_t hashOp){
 
     const uint64_t argsHash =  pack.getXorHash();
     const uint64_t seed = vr_rand_getSeed(r) ^ OP::getHash();
@@ -123,15 +123,30 @@ public:
     const bool res = (oddSeed * argsHash) >> 63;
     return res;
   }
+
+  static uint32_t hashUint32(const Vr_Rand * r,
+		       const vr_packArg<REALTYPE,NB>& pack,
+		       uint32_t hashOp){
+
+    const uint64_t argsHash =  pack.getXorHash();
+    const uint64_t seed = vr_rand_getSeed(r) ^ OP::getHash();
+    // returns a one bit hash as a PRNG
+    // uses Dietzfelbinger's multiply shift hash function
+    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
+    const uint64_t oddSeed = seed | 1; // insures seed is odd
+    const uint32_t res = (oddSeed * argsHash) >> 32;
+    return res;
+  }
+
 };
 
 
 template<class REALTYPE, int NB>
 class tableHash{
 public:
-  static bool apply(const Vr_Rand * r,
-		    const vr_packArg<REALTYPE,NB>& pack,
-		    uint32_t hashOp){
+  static bool hashBool(const Vr_Rand * r,
+		       const vr_packArg<REALTYPE,NB>& pack,
+		       uint32_t hashOp){
 
     const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
     const uint64_t* seedTab=vr_rand_getSeedTab(r);
@@ -139,6 +154,19 @@ public:
     const uint64_t m=pack.getMultiply(seedTab);
     return (m+seed)>>63;
   }
+
+  static double hashRatio(const Vr_Rand * r,
+		       const vr_packArg<REALTYPE,NB>& pack,
+		       uint32_t hashOp){
+
+    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
+    const uint64_t* seedTab=vr_rand_getSeedTab(r);
+
+    const uint64_t m=pack.getMultiply(seedTab);
+    const uint32_t v=(m+seed)>>32;
+    return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
+  }
+
 };
 
 
@@ -147,12 +175,18 @@ public:
 template<class REALTYPE, int NB>
 class mersenneHash{
 public:
-  static bool apply(const Vr_Rand * r,
-		    const vr_packArg<REALTYPE,NB>& pack,
-		    uint32_t hashOp){
+  static bool hashBool(const Vr_Rand * r,
+		       const vr_packArg<REALTYPE,NB>& pack,
+		       uint32_t hashOp){
       const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
       const uint64_t res64=pack.getMersenneHash(seed);
       return res64>>63;
+  }
+  static REALTYPE hashRatio(const Vr_Rand * r,
+			    const vr_packArg<REALTYPE,NB>& pack,
+			    uint32_t hashOp){
+    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
+    return pack.getMersenneRatio(seed);
   }
 };
 
@@ -160,16 +194,43 @@ template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
 #ifdef VERROU_FAST_HASH
   typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return hash::apply(r, p, OP::getHash());
+  return hash::hashBool(r, p, OP::getHash());
 #endif
 #ifdef VERROU_PRECISE_HASH
   typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return hash::apply(r, p, OP::getHash());
+  return hash::hashBool(r, p, OP::getHash());
 #endif
 
 #if !defined(VERROU_PRECISE_HASH) && ! defined(VERROU_PRECISE_HASH)
   typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return hash::apply(r, p, OP::getHash());
+  return hash::hashBool(r, p, OP::getHash());
+#endif
+}
+
+
+inline int32_t vr_rand_int (Vr_Rand * r) {
+  uint64_t res=vr_rand_next (r) % vr_rand_max();
+  return (int32_t)res;
+}
+
+
+template<class OP>
+inline
+const typename OP::RealType
+vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
+  typedef  typename OP::RealType RealType;
+#ifdef VERROU_FAST_HASH
+  typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+  return (RealType)hash::hashRatio(r, p, OP::getHash());
+#endif
+#ifdef VERROU_PRECISE_HASH
+  typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+  return (RealType)hash::hashRatio(r, p, OP::getHash());
+#endif
+
+#if !defined(VERROU_PRECISE_HASH) && ! defined(VERROU_PRECISE_HASH)
+  typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+  return (RealType)hash::hashRatio(r, p, OP::getHash());
 #endif
   /*
   const uint64_t argsHash = OP::getHash() ^ p.getHash();
@@ -181,11 +242,4 @@ inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p)
   const bool res = (oddSeed * argsHash) >> 63;
   return res;
 */
-}
-
-
-
-inline int32_t vr_rand_int (Vr_Rand * r) {
-  uint64_t res=vr_rand_next (r) % vr_rand_max();
-  return (int32_t)res;
 }
