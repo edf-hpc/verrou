@@ -192,16 +192,16 @@ public:
 
 template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
-#ifdef VERROU_FAST_HASH
+#ifdef VERROU_DET_FAST_HASH
   typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return hash::hashBool(r, p, OP::getHash());
 #endif
-#ifdef VERROU_PRECISE_HASH
+#ifdef VERROU_DET_REF_HASH
   typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return hash::hashBool(r, p, OP::getHash());
 #endif
 
-#if !defined(VERROU_PRECISE_HASH) && ! defined(VERROU_PRECISE_HASH)
+#if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
   typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return hash::hashBool(r, p, OP::getHash());
 #endif
@@ -219,16 +219,16 @@ inline
 const typename OP::RealType
 vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
   typedef  typename OP::RealType RealType;
-#ifdef VERROU_FAST_HASH
+#ifdef VERROU_DET_FAST_HASH
   typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return (RealType)hash::hashRatio(r, p, OP::getHash());
 #endif
-#ifdef VERROU_PRECISE_HASH
+#ifdef VERROU_DET_REF_HASH
   typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return (RealType)hash::hashRatio(r, p, OP::getHash());
 #endif
 
-#if !defined(VERROU_PRECISE_HASH) && ! defined(VERROU_PRECISE_HASH)
+#if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
   typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   return (RealType)hash::hashRatio(r, p, OP::getHash());
 #endif
