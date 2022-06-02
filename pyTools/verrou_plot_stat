@@ -38,7 +38,7 @@ maxNbPROC=None
 from valgrind import DD_stoch
 
 roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
-roundingNonDetTab=["random", "average"]
+roundingNonDetTab=["random", "average", "random_det","average_det"]
 
 
 
@@ -400,7 +400,8 @@ class config_stat:
         self._rep=None
         self._defaultRep="verrou.stat"
         self.listMCA=[]
-        self.random=True
+        self.defaultRoundingTab=["random","average","det"]
+        self.roundingTab=[]
         self.average=True
         self.random_det=True
         self.png=False
@@ -427,7 +428,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=","no-random", "no-random_det","no-average", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
 
@@ -454,20 +455,14 @@ class config_stat:
             if opt in ("--relative"):
                 self._relative=arg
                 continue
-            if opt in ("--no-random"):
-                self.random=False
-                continue
-            if opt in ("--no-random_det"):
-                self.random_det=False
-                continue
-            if opt in ("--no-average"):
-                self.average=False
-                continue
             if opt in ("-p","--png"):
                 self.png=arg
                 continue
             if opt in ["--specific-pattern"]:
                 self._pattern+=[arg]
+                continue
+            if opt in ["--rounding-list"]:
+                self.roundingTab+=arg.split(",")
                 continue
             if opt in ("--mca",):
                 if arg=="":
@@ -493,6 +488,13 @@ class config_stat:
                     self.listMCA+=["mca-"+arg]
                 continue
             print("unknown option :", opt)
+
+        if self.roundingTab==[]:
+            self.roundingTab=self.defaultRoundingTab
+        if "det" in self.roundingTab:
+            self.roundingTab.remove("det")
+            self.roundingTab+=roundingDetTab
+        print("rounding list :", self.roundingTab)
 
         if self._hist and len(self._pattern)==0:
             if len(args)>2:
@@ -525,12 +527,10 @@ class config_stat:
         print( "\t -r --rep=:  working directory [default verrou.stat]")
         print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
         print( "\t --num-threads= : number of parallel run")
+        print( "\t --rounding-list= : rounding mode (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
         print( "\t -p --png= : png file to export plot")
         print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
-        print( "\t --no-random :  ignore random rounding mode")
-        print( "\t --no-random_det :  ignore random_det rounding mode")
-        print( "\t --no-average :  ignore average rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
         print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
 
@@ -575,18 +575,16 @@ class config_stat:
         nbSamples={"random":self._nbSample,
                    "random_det":self._nbSample,
                    "average":self._nbSample,
+                   "average_det":self._nbSample,
                    "nearest":nbDet,
                    "upward":nbDet,
                    "downward":nbDet,
                    "toward_zero":nbDet,
                    "farthest":nbDet,
                    "float":0 }
-        if not self.random_det:
-            nbSamples["random_det"]=0
-        if not self.random:
-            nbSamples["random"]=0
-        if not self.average:
-            nbSamples["average"]=0
+        for key in nbSamples:
+            if key not in self.roundingTab:
+                nbSamples[key]=0
 
 
         for mcaMode in self.listMCA:
