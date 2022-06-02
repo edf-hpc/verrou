@@ -530,8 +530,8 @@ class config_stat:
         print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --no-random :  ignore random rounding mode")
         print( "\t --no-random_det :  ignore random_det rounding mode")
-        print( "\t --no-average :  ignore average rounding mode")        
-	print( "\t --mca=rr-53-24 : add mca ins the study")
+        print( "\t --no-average :  ignore average rounding mode")
+        print( "\t --mca=rr-53-24 : add mca ins the study")
         print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
 
     def checkScriptPath(self,fpath):
