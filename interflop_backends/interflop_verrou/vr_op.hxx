@@ -209,7 +209,7 @@ struct vr_packArg<REALTYPE,3>{
   }
 
   inline uint64_t getMersenneHash(uint64_t seed)const{
-    const uint64_t keys[3]={
+    const uint64_t keys[4]={
       seed,
       realToUint64_reinterpret_cast<REALTYPE>(arg1),
       realToUint64_reinterpret_cast<REALTYPE>(arg2),
@@ -221,7 +221,7 @@ struct vr_packArg<REALTYPE,3>{
   }
 
   inline double getMersenneRatio(uint64_t seed)const{
-    const uint64_t keys[3]={
+    const uint64_t keys[4]={
 			    seed,
 			    realToUint64_reinterpret_cast<REALTYPE>(arg1),
 			    realToUint64_reinterpret_cast<REALTYPE>(arg2),
