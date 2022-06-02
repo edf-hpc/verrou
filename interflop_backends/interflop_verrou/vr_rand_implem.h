@@ -107,7 +107,7 @@ inline bool vr_rand_bool (Vr_Rand * r) {
  * produces a pseudo random number in a deterministic way
  * the same seed and inputs will always produce the same output
  */
-template<class REALTYPE, int NB, class OP>
+template<class REALTYPE, int NB>
 class dietzfelbingerHash{
 public:
   static bool hashBool(const Vr_Rand * r,
@@ -115,7 +115,7 @@ public:
 		       uint32_t hashOp){
 
     const uint64_t argsHash =  pack.getXorHash();
-    const uint64_t seed = vr_rand_getSeed(r) ^ OP::getHash();
+    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -124,18 +124,19 @@ public:
     return res;
   }
 
-  static uint32_t hashUint32(const Vr_Rand * r,
-		       const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
+  static double hashRatio(const Vr_Rand * r,
+			  const vr_packArg<REALTYPE,NB>& pack,
+			  uint32_t hashOp){
 
     const uint64_t argsHash =  pack.getXorHash();
-    const uint64_t seed = vr_rand_getSeed(r) ^ OP::getHash();
+    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
     const uint64_t oddSeed = seed | 1; // insures seed is odd
     const uint32_t res = (oddSeed * argsHash) >> 32;
-    return res;
+
+    return ((double)res / (double)(4294967296) ); //2**32 = 4294967296
   }
 
 };
