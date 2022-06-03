@@ -124,7 +124,10 @@ struct vr_packArg<REALTYPE,1>{
 
 
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
-    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0];
+    //    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0];
+    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
+    return  (x1 + seedTab[0]) * ((x1 >>32) +seedTab[2]);
+
   }
 
   const RealType& arg1;
@@ -177,8 +180,14 @@ struct vr_packArg<REALTYPE,2>{
 
 
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
-  return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
-    +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1];
+    //  return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
+    //    +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1];
+    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
+    uint64_t x2=realToUint64_reinterpret_cast<REALTYPE>(arg2);
+    return  (x1 + seedTab[0]) * ((x1 >>32) +seedTab[2])
+      +     (x2 + seedTab[3]) * ((x2 >>32) +seedTab[4]);
+
+
   }
 
   const RealType& arg1;
@@ -234,9 +243,15 @@ struct vr_packArg<REALTYPE,3>{
 
 
   inline uint64_t getMultiply(const uint64_t* seedTab)const{
-    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
-      +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1]
-      +    realToUint64_reinterpret_cast<REALTYPE>(arg3) * seedTab[2];
+    //    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
+    //      +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1]
+    //      +    realToUint64_reinterpret_cast<REALTYPE>(arg3) * seedTab[2];
+    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
+    uint64_t x2=realToUint64_reinterpret_cast<REALTYPE>(arg2);
+    uint64_t x3=realToUint64_reinterpret_cast<REALTYPE>(arg3);
+    return (x1 + seedTab[0]) * ((x1 >>32)  + seedTab[2])
+         + (x2 + seedTab[3]) * ((x2 >>32)  + seedTab[4])
+         + (x3 + seedTab[4]) * ((x3 >>32)  + seedTab[5]);
   }
 
 
