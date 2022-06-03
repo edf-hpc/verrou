@@ -402,14 +402,14 @@ class config_stat:
         self.listMCA=[]
         self.defaultRoundingTab=["random","average","det"]
         self.roundingTab=[]
-        self.average=True
-        self.random_det=True
+
         self.png=False
         self._hist=True
         self._time=False
         self._num_threads=None
         self._relative=False
         self._pattern=[]
+        self._runOnly=False
 
         self.parseOpt(argv[1:])
 
@@ -428,7 +428,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","samples=","rep=", "png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "samples=","rep=", "png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
 
@@ -442,6 +442,9 @@ class config_stat:
                 continue
             if opt in ("-m","--montecarlo"):
                 self.isMontcarlo=True
+                continue
+            if opt in ("--run-only"):
+                self._runOnly=True
                 continue
             if opt in ("-s","--samples"):
                 self._nbSample=int(arg)
@@ -496,6 +499,14 @@ class config_stat:
             self.roundingTab+=roundingDetTab
         print("rounding list :", self.roundingTab)
 
+        if self.run_only():
+            if len(args)==1:
+                self._runScript=self.checkScriptPath(args[0])
+            if len(args)>1:
+                self.help()
+                self.failure()
+            return
+
         if self._hist and len(self._pattern)==0:
             if len(args)>2:
                 self.help()
@@ -527,6 +538,7 @@ class config_stat:
         print( "\t -r --rep=:  working directory [default verrou.stat]")
         print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
         print( "\t --num-threads= : number of parallel run")
+        print( "\t --run-only= : do not plot")
         print( "\t --rounding-list= : rounding mode (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
         print( "\t -p --png= : png file to export plot")
@@ -597,6 +609,9 @@ class config_stat:
     def relative(self):
         return self._relative
 
+    def run_only(self):
+        return self._runOnly
+
     def useSpecificPattern(self):
         return len(self._pattern)!=0
 
@@ -609,6 +624,8 @@ if __name__=="__main__":
 
     if conf.runScript()!=None:
         verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.num_threads())
+    if conf.run_only():
+        sys.exit(0)
 
     if conf.isHist():
         if not conf.useSpecificPattern():
