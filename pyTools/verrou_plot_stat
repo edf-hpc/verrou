@@ -431,6 +431,8 @@ class config_stat:
             opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "samples=","rep=", "png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
+            print("argv:", argv)
+            self.failure()
 
         for opt, arg in opts:
             if opt in ("-h","--help"):
