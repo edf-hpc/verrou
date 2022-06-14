@@ -58,7 +58,6 @@
 #include "interflop_backends/statically_integrated_backends.h"
 
 
-
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
 typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation, vr_check_float_max} vr_backendpost_name_t;
@@ -147,7 +146,7 @@ typedef struct {
   Bool verbose;
   Bool unsafe_llo_optim;
 
-  UInt firstSeed;
+  ULong firstSeed;
 
   Bool genExclude;
   HChar * excludeFile;

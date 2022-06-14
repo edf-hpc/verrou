@@ -21,12 +21,12 @@ FLAGS = $(FLAGS) $(DEBUGFLAGS)
 
 .PHONY: run 
 
-run: $(EXEC) run.sh extract.sh
-	verrou_plot_stat run.sh extract.sh
+run: $(EXEC) run.sh extract.py
+	ALGO_TYPE=float ALGO=Seq verrou_plot_stat run.sh extract.py
 
 $(EXEC): $(SOURCE)
 	$(CXX) $(FLAGS1) -o $(EXEC) $(SOURCE)
 
 
 clean:
-	rm $(EXEC)
+	rm -rf $(EXEC) verrou.stat

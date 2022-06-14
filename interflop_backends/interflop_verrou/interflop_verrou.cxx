@@ -159,7 +159,7 @@ void verrou_end_instr(){
 }
 
 void verrou_set_seed (unsigned int seed) {
-  vr_seed = vr_rand_int (&vr_rand);
+  vr_seed = vr_rand_next(&vr_rand);
   vr_rand_setSeed (&vr_rand, seed);
 }
 

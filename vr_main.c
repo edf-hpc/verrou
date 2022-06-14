@@ -1242,13 +1242,13 @@ static void vr_post_clo_init(void)
    //   }
 
    //Random Seed initialisation
-   if(vr.firstSeed==(unsigned int )(-1)){
+   if(vr.firstSeed==(ULong )(-1)){
       struct vki_timeval now;
       VG_(gettimeofday)(&now, NULL);
-      unsigned int pid = VG_(getpid)();
+      ULong pid = VG_(getpid)();
       vr.firstSeed = now.tv_usec + pid;
    }
-   VG_(umsg)("First seed : %u\n", vr.firstSeed);
+   VG_(umsg)("First seed : %llu\n", vr.firstSeed);
 
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);

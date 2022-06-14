@@ -97,9 +97,9 @@ static void vr_deterministic_section_name (unsigned int level,
                 "%s (%s:%u)", fnname, filename, linenum);
 }
 
-static unsigned int vr_deterministic_section_hash (HChar const*const name)
+static ULong vr_deterministic_section_hash (HChar const*const name)
 {
-  unsigned int hash = VG_(getpid)();
+  ULong hash = VG_(getpid)();
   int i = 0;
   while (name[i] != 0) {
     hash += i * name[i];
@@ -110,7 +110,7 @@ static unsigned int vr_deterministic_section_hash (HChar const*const name)
 
 static void vr_start_deterministic_section (unsigned int level) {
   HChar name[256];
-  unsigned int hash;
+  ULong hash;
 
   vr_deterministic_section_name (level, name, 256);
 
@@ -119,7 +119,7 @@ static void vr_start_deterministic_section (unsigned int level) {
 #ifdef USE_VERROU_QUAD
   mcaquad_set_seed (hash);
 #endif
-  VG_(message)(Vg_DebugMsg, "Entering deterministic section %u: %s\n",
+  VG_(message)(Vg_DebugMsg, "Entering deterministic section %llu: %s\n",
                hash, name);
 }
 

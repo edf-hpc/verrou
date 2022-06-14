@@ -36,39 +36,22 @@
 
 #include "vr_op.hxx"
 
-#ifdef VERROU_FAST_GEN
-inline static uint64_t vr_rand_next (Vr_Rand * r){
-  r->next_ = r->next_ * 1103515245 + 12345;
-  return (uint64_t)((r->next_/65536) % 32768);
-}
-inline int32_t vr_rand_max () {
-  return 32767;
-}
 
-inline int32_t vr_loop(){
-  return 14; // 2**15= 32768
-}
-
-inline void private_gen_init(Vr_Rand * r){
-    r->next_    = r->seed_;
-}
-
-#else
 inline static uint64_t vr_rand_next (Vr_Rand * r){
   return tinymt64_generate_uint64(&(r->gen_) );
 }
-inline int32_t vr_rand_max () {
-  int32_t max=2147483647;  //2**21-1
-  return max;
+
+inline uint32_t vr_loop(){
+  return 63;
 }
 
-inline int32_t vr_loop(){
-  return 63; // 2**15= 32768
+inline int32_t vr_rand_max () {
+  int32_t max=2147483647;  //2**31-1
+  return max;
 }
 
 inline void private_gen_init(Vr_Rand * r){
 }
-#endif
 
 
 inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
@@ -102,6 +85,56 @@ inline bool vr_rand_bool (Vr_Rand * r) {
   // VG_(umsg)("Count : %u  res: %u\n", r->count_ ,res);
   return res;
 }
+
+
+
+#ifndef VERROU_NUM_AVG
+#define VERROU_NUM_AVG 2
+#endif
+
+#if VERROU_NUM_AVG==4
+uint64_t maskAvg = 0x000000000000FFFF;  ;
+uint64_t shiftAvg= 16 ;
+uint32_t loopAvg = 4  ;
+uint64_t umaxAvg(65536);
+#elif VERROU_NUM_AVG==3
+uint64_t maskAvg = 0x00000000001FFFFF;// 21bit
+uint64_t shiftAvg= 21 ;
+uint32_t loopAvg = 3  ;
+uint64_t umaxAvg(2097152);
+#elif VERROU_NUM_AVG==2
+uint64_t maskAvg = 0x00000000FFFFFFFF;  ;
+uint64_t shiftAvg= 32 ;
+uint32_t loopAvg = 2  ;
+uint64_t umaxAvg(4294967296);
+#elif VERROU_NUM_AVG==1
+uint64_t maskAvg = 0xFFFFFFFFFFFFFFFF;  ;
+uint64_t shiftAvg= 64 ;
+uint32_t loopAvg = 1  ;
+uint64_t umaxAvg(-1);
+#else
+#error 'VERROU_NUM_AVG is not defined'
+#endif
+
+
+
+inline double vr_rand_ratio(Vr_Rand *r){
+#if VERROU_NUM_AVG==1
+  double res=tinymt64_generate_double(&(r->gen_) );
+#else
+  if(r->count_==loopAvg){
+    r->current_= tinymt64_generate_uint64(&(r->gen_) );
+    r->count_=0;
+  }
+  uint64_t local= r->current_ & maskAvg;
+  double res = (double) local / (double)umaxAvg;
+  (r->current_)=((r->current_)>>shiftAvg);
+  (r->count_)++;
+#endif
+  //  double res=vr_rand_next(r)/ vr_rand_max();
+  return res;
+}
+
 
 /*
  * produces a pseudo random number in a deterministic way
@@ -209,10 +242,10 @@ inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p)
 }
 
 
-inline int32_t vr_rand_int (Vr_Rand * r) {
-  uint64_t res=vr_rand_next (r) % vr_rand_max();
-  return (int32_t)res;
-}
+// inline int32_t vr_rand_int (Vr_Rand * r) {
+//   uint64_t res=vr_rand_next (r) % vr_rand_max();
+//   return (int32_t)res;
+// }
 
 
 template<class OP>

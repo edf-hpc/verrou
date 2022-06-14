@@ -82,7 +82,7 @@ void vr_clo_defaults (void) {
   vr.instr_prec[VR_PREC_DBL]=True;
   vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
-  vr.firstSeed=(unsigned int)(-1);
+  vr.firstSeed=(ULong)(-1);
   vr.mca_precision_double=53;
   vr.mca_precision_float=24;
   vr.mca_mode=MCAMODE_MCA;
@@ -305,7 +305,7 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
     vr.firstSeed=VG_(strtoull10)(str, NULL);
-    if(vr.firstSeed==(unsigned int)(-1)){
+    if(vr.firstSeed==(ULong)(-1)){
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }

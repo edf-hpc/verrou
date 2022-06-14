@@ -190,8 +190,8 @@ public:
       const RealType nextRes(nextAfter<RealType>(res));
       const RealType u(nextRes -res);
       const int s(1);
-      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-				> (vr_rand_max() * s * error));
+      const bool doNotChange = ((vr_rand_ratio(&vr_rand) * u)
+				>  (s * error));
       if(doNotChange){
 	return res;
       }else{
@@ -203,8 +203,8 @@ public:
       const RealType prevRes(nextPrev<RealType>(res));
       const RealType u(res -prevRes);
       const int s(-1);
-      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-				> (vr_rand_max() * s * error));
+      const bool doNotChange = ((vr_rand_ratio(&vr_rand) * u)
+				> (s * error));
       if(doNotChange){
 	return res;
       }else{

@@ -567,7 +567,7 @@ void __attribute__((constructor)) init_interlibmath(){
   struct timeval now;
   gettimeofday(&now, NULL);
   my_pid = getpid();
-  unsigned int vr_seed=  now.tv_usec + my_pid;
+  uint64_t vr_seed=  now.tv_usec + my_pid;
   vr_rand_setSeed(&vr_rand, vr_seed);
 
   ROUNDINGMODE=VR_NATIVE; //Default value
