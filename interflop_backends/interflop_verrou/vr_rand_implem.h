@@ -92,7 +92,12 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 #define VERROU_NUM_AVG 2
 #endif
 
-#if VERROU_NUM_AVG==4
+#if VERROU_NUM_AVG==8
+uint64_t maskAvg = 0x00000000000000FF;  ;
+uint64_t shiftAvg= 8 ;
+uint32_t loopAvg = 8  ;
+double maxAvgInv(1./256.);
+#elif VERROU_NUM_AVG==4
 uint64_t maskAvg = 0x000000000000FFFF;  ;
 uint64_t shiftAvg= 16 ;
 uint32_t loopAvg = 4  ;
