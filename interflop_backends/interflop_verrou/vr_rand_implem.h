@@ -101,22 +101,18 @@ double maxAvgInv(1./256.);
 uint64_t maskAvg = 0x000000000000FFFF;  ;
 uint64_t shiftAvg= 16 ;
 uint32_t loopAvg = 4  ;
-uint64_t umaxAvg(65536);
+double maxAvgInv(1/65536.);
 #elif VERROU_NUM_AVG==3
 uint64_t maskAvg = 0x00000000001FFFFF;// 21bit
 uint64_t shiftAvg= 21 ;
 uint32_t loopAvg = 3  ;
-uint64_t umaxAvg(2097152);
+double maxAvgInv(1/2097152.);
 #elif VERROU_NUM_AVG==2
 uint64_t maskAvg = 0x00000000FFFFFFFF;  ;
 uint64_t shiftAvg= 32 ;
 uint32_t loopAvg = 2  ;
-uint64_t umaxAvg(4294967296);
+double maxAvgInv(1/4294967296.);
 #elif VERROU_NUM_AVG==1
-uint64_t maskAvg = 0xFFFFFFFFFFFFFFFF;  ;
-uint64_t shiftAvg= 64 ;
-uint32_t loopAvg = 1  ;
-uint64_t umaxAvg(-1);
 #else
 #error 'VERROU_NUM_AVG is not defined'
 #endif
@@ -132,7 +128,7 @@ inline double vr_rand_ratio(Vr_Rand *r){
     r->count_=0;
   }
   uint64_t local= r->current_ & maskAvg;
-  double res = (double) local / (double)umaxAvg;
+  double res = (double) local *maxAvgInv;
   (r->current_)=((r->current_)>>shiftAvg);
   (r->count_)++;
 #endif
