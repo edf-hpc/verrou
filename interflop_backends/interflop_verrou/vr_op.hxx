@@ -80,6 +80,16 @@ inline uint64_t realToUint64_reinterpret_cast(const REALTYPE x)
     return *reinterpret_cast<uint64_t*>(&x_double);
 }
 
+
+inline uint32_t realToUint32_reinterpret_cast(const float x)
+{
+    // insures we have a 64 bits representation
+    float x_float = static_cast<float>(x);
+    // transmute it to a uint64 by reinterpreting its bits
+    // WARNING: this is considered undefined behaviour by the standard
+    return *reinterpret_cast<uint32_t*>(&x_float);
+}
+
 template<class REALTYPE>
 struct vr_packArg<REALTYPE,1>{
   static const int nb= 1;

@@ -36,6 +36,7 @@
 
 #include "vr_op.hxx"
 
+#include "tableHash.hxx"
 
 inline static uint64_t vr_rand_next (Vr_Rand * r){
   return tinymt64_generate_uint64(&(r->gen_) );
@@ -54,6 +55,8 @@ inline void private_gen_init(Vr_Rand * r){
 }
 
 
+
+
 inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   r->count_   = 0;
   r->seed_    = c;
@@ -63,6 +66,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
     r->seedTab_[i]=tinymt64_generate_uint64(&(r->gen_));
   }
   r->current_ = vr_rand_next (r);
+  tabulationHash::genTable((r->gen_));
 }
 
 
@@ -177,7 +181,7 @@ public:
 
 
 template<class REALTYPE, int NB>
-class tableHash{
+class multiplyShiftHash{
 public:
   static bool hashBool(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
@@ -203,6 +207,7 @@ public:
   }
 
 };
+
 
 
 
@@ -237,8 +242,10 @@ inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p)
 #endif
 
 #if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
-  typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return hash::hashBool(r, p, OP::getHash());
+  //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+  //  return hash::hashBool(r, p, OP::getHash());
+  typedef tabulationHash hash;
+  return hash::hashBool(p, OP::getHash());
 #endif
 }
 
@@ -264,8 +271,10 @@ vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
 #endif
 
 #if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
-  typedef tableHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return (RealType)hash::hashRatio(r, p, OP::getHash());
+  //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+  //  return (RealType)hash::hashRatio(r, p, OP::getHash());
+  typedef tabulationHash hash;
+  return (RealType)hash::hashRatio(p, OP::getHash());
 #endif
   /*
   const uint64_t argsHash = OP::getHash() ^ p.getHash();
