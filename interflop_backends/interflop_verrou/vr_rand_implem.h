@@ -67,6 +67,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   }
   r->current_ = vr_rand_next (r);
   tabulationHash::genTable((r->gen_));
+  twistedTabulationHash::genTable((r->gen_));
 }
 
 
@@ -212,23 +213,7 @@ public:
 
 
 
-template<class REALTYPE, int NB>
-class mersenneHash{
-public:
-  static bool hashBool(const Vr_Rand * r,
-		       const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
-      const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-      const uint64_t res64=pack.getMersenneHash(seed);
-      return res64>>63;
-  }
-  static REALTYPE hashRatio(const Vr_Rand * r,
-			    const vr_packArg<REALTYPE,NB>& pack,
-			    uint32_t hashOp){
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-    return pack.getMersenneRatio(seed);
-  }
-};
+#include "mersenneHash.hxx"
 
 template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
@@ -237,14 +222,13 @@ inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p)
   return hash::hashBool(r, p, OP::getHash());
 #endif
 #ifdef VERROU_DET_REF_HASH
-  typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return hash::hashBool(r, p, OP::getHash());
+  return mersenneHash::hashBool(p, vr_rand_getSeed(r), OP::getHash());
 #endif
 
 #if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
   //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   //  return hash::hashBool(r, p, OP::getHash());
-  typedef tabulationHash hash;
+  typedef doubleTabulationHash<twistedTabulationHash> hash;
   return hash::hashBool(p, OP::getHash());
 #endif
 }
@@ -260,21 +244,21 @@ template<class OP>
 inline
 const typename OP::RealType
 vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
-  typedef  typename OP::RealType RealType;
+
 #ifdef VERROU_DET_FAST_HASH
   typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return (RealType)hash::hashRatio(r, p, OP::getHash());
+  return (typename OP::RealType)hash::hashRatio(r, p, OP::getHash());
 #endif
 #ifdef VERROU_DET_REF_HASH
-  typedef mersenneHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  return (RealType)hash::hashRatio(r, p, OP::getHash());
+  return (typename OP::RealType)mersenneHash::hashRatio(p, vr_rand_getSeed(r), OP::getHash());
 #endif
 
 #if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
   //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
   //  return (RealType)hash::hashRatio(r, p, OP::getHash());
-  typedef tabulationHash hash;
-  return (RealType)hash::hashRatio(p, OP::getHash());
+  //  typedef tabulationHash hash;
+  typedef doubleTabulationHash<twistedTabulationHash> hash;
+  return hash::hashRatio(p, OP::getHash());
 #endif
   /*
   const uint64_t argsHash = OP::getHash() ^ p.getHash();
