@@ -13,22 +13,22 @@ class tabulationHash{
 public:
 
   template<class REALTYPE, int NB>
-  static bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
+  static inline bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
+			      uint32_t hashOp){
     const uint32_t v=tabulationHash::hash(pack,hashOp);
     return v&1;
   }
 
   template<class REALTYPE, int NB>
-  static double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
-			    uint32_t hashOp){
+  static inline double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
+				 uint32_t hashOp){
     const uint32_t v=tabulationHash::hash(pack,hashOp);
     return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
   }
 
 
-  static uint32_t hash(const vr_packArg<double,1>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,1>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
@@ -36,8 +36,8 @@ public:
     return res;
   }
 
-  static uint32_t hash(const vr_packArg<float,1>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,1>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
@@ -46,8 +46,8 @@ public:
   }
 
 
-  static uint32_t hash(const vr_packArg<double,2>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,2>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
@@ -57,8 +57,8 @@ public:
     return res;
   }
 
-  static uint32_t hash(const vr_packArg<float,2>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,2>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
@@ -70,8 +70,8 @@ public:
 
 
 
-  static uint32_t hash(const vr_packArg<double,3>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,3>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
@@ -84,8 +84,8 @@ public:
   }
 
 
-  static uint32_t hash(const vr_packArg<float,3>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,3>& pack,
+			      uint32_t hashOp){
     uint32_t res=0;
     tabulationHash::hash_op(res, (uint16_t)hashOp);
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
@@ -98,7 +98,7 @@ public:
   }
 
 
-  static void  hash_op(uint32_t& h, uint16_t optEnum){
+  static inline void  hash_op(uint32_t& h, uint16_t optEnum){
     uint32_t x(optEnum);
     uint32_t i;
     uint8_t c;
@@ -108,7 +108,7 @@ public:
       x = x >> 8;
     }
   }
-  static void hash_aux(uint32_t& h, uint32_t index, uint64_t value){
+  static inline void hash_aux(uint32_t& h, uint32_t index, uint64_t value){
     uint64_t x(value);
     uint32_t i;
     uint8_t c;
@@ -119,7 +119,7 @@ public:
     }
   }
 
-  static void hash_aux(uint32_t& h, uint32_t index, uint32_t value){
+  static inline void hash_aux(uint32_t& h, uint32_t index, uint32_t value){
     uint32_t x(value);
     uint32_t i;
     uint8_t c;
@@ -130,7 +130,7 @@ public:
     }
   }
 
-  static void genTable(tinymt64_t& gen){
+  static inline void genTable(tinymt64_t& gen){
     for(int i=0 ; i< 3; i++){
       for(int j=0 ; j< 8; j++){
 	for(int k=0; k<256 /2; k++ ){
@@ -160,22 +160,22 @@ class twistedTabulationHash{
 public:
 
   template<class REALTYPE, int NB>
-  static bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
+  static inline bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
+			      uint32_t hashOp){
     const uint32_t v=twistedTabulationHash::hash(pack,hashOp);
     return v&1;
   }
 
   template<class REALTYPE, int NB>
-  static double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
-			    uint32_t hashOp){
+  static inline double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
+				 uint32_t hashOp){
     const uint32_t v=twistedTabulationHash::hash(pack,hashOp);
     return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
   }
 
 
-  static uint32_t hash(const vr_packArg<double,1>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,1>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
     twistedTabulationHash::hash_aux(res, 0, a1);
@@ -183,8 +183,8 @@ public:
     return (uint32_t)res;
   }
 
-  static uint32_t hash(const vr_packArg<float,1>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,1>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
     twistedTabulationHash::hash_aux(res, 0, a1);
@@ -193,8 +193,8 @@ public:
   }
 
 
-  static uint32_t hash(const vr_packArg<double,2>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,2>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
     uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
@@ -204,8 +204,8 @@ public:
     return (uint32_t)res;
   }
 
-  static uint32_t hash(const vr_packArg<float,2>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,2>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
     uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
@@ -217,8 +217,8 @@ public:
 
 
 
-  static uint32_t hash(const vr_packArg<double,3>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<double,3>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
     uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
@@ -231,8 +231,8 @@ public:
   }
 
 
-  static uint32_t hash(const vr_packArg<float,3>& pack,
-		       uint32_t hashOp){
+  static inline uint32_t hash(const vr_packArg<float,3>& pack,
+			      uint32_t hashOp){
     uint64_t res=0;
     uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
     uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
@@ -245,7 +245,7 @@ public:
   }
 
 
-  static void  hash_op(uint64_t& h, uint16_t optEnum){
+  static inline void  hash_op(uint64_t& h, uint16_t optEnum){
     uint32_t x(optEnum);
     uint32_t i;
     uint8_t c;
@@ -260,7 +260,7 @@ public:
     //    h>>=32;
     h>>=8;
   }
-  static void hash_aux(uint64_t& h, uint32_t index, uint64_t value){
+  static inline void hash_aux(uint64_t& h, uint32_t index, uint64_t value){
     uint64_t x(value);
     uint32_t i;
     uint8_t c;
@@ -271,7 +271,7 @@ public:
     }
   }
 
-  static void hash_aux(uint64_t& h, uint32_t index, uint32_t value){
+  static inline void hash_aux(uint64_t& h, uint32_t index, uint32_t value){
     uint32_t x(value);
     uint32_t i;
     uint8_t c;
@@ -282,7 +282,7 @@ public:
     }
   }
 
-  static void genTable(tinymt64_t& gen){
+  static inline  void genTable(tinymt64_t& gen){
     for(int i=0 ; i< 3; i++){
       for(int j=0 ; j< 8; j++){
 	for(int k=0; k<256; k++ ){
@@ -306,8 +306,8 @@ class doubleTabulationHash{
 public:
 
   template<class REALTYPE, int NB>
-  static bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
+  static inline  bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
+			       uint32_t hashOp){
     const uint32_t tmp=TABULATION::hash(pack,hashOp);
     uint32_t res=0;
     tabulationHash::hash_aux(res, 0, tmp);
@@ -315,8 +315,8 @@ public:
   }
 
   template<class REALTYPE, int NB>
-  static double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
-			    uint32_t hashOp){
+  static inline double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
+				 uint32_t hashOp){
     const uint32_t tmp=TABULATION::hash(pack,hashOp);
     uint32_t res=0;
     tabulationHash::hash_aux(res, 0, tmp);
