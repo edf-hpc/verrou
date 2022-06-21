@@ -1,12 +1,14 @@
 #pragma once
 
-class mersenneHash{
+class vr_mersenne_twister_hash{
 public:
+  typedef vr_mersenne_twister_hash mersenneHash;
 
   template<class REALTYPE, int NB>
-  static inline bool hashBool(const vr_packArg<REALTYPE,NB>& pack,
-			      uint64_t seed,
+  static inline bool hashBool(const Vr_Rand * r,
+			      const vr_packArg<REALTYPE,NB>& pack,
 			      uint32_t hashOp){
+    uint64_t seed=vr_rand_getSeed(r);
     tinymt64_t localGen;
     mersenneHash::setGen(localGen, pack, seed^ hashOp);
     uint32_t res=tinymt64_generate_uint64(&localGen);
@@ -14,9 +16,10 @@ public:
   };
 
   template<class REALTYPE, int NB>
-  static inline double hashRatio(const vr_packArg<REALTYPE,NB>& pack,
-				 uint64_t seed,
+  static inline double hashRatio(const Vr_Rand * r,
+				 const vr_packArg<REALTYPE,NB>& pack,
 				 uint32_t hashOp){
+    uint64_t seed=vr_rand_getSeed(r);
     tinymt64_t localGen;
     mersenneHash::setGen(localGen, pack, seed^hashOp);
     return tinymt64_generate_doubleOO(&localGen);

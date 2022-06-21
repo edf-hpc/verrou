@@ -66,8 +66,8 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
     r->seedTab_[i]=tinymt64_generate_uint64(&(r->gen_));
   }
   r->current_ = vr_rand_next (r);
-  tabulationHash::genTable((r->gen_));
-  twistedTabulationHash::genTable((r->gen_));
+  vr_tabulation_hash::genTable((r->gen_));
+  vr_twisted_tabulation_hash::genTable((r->gen_));
 }
 
 
@@ -93,9 +93,9 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 
 
 
-#ifndef VERROU_NUM_AVG
-#define VERROU_NUM_AVG 2
-#endif
+//#ifndef VERROU_NUM_AVG
+//#define VERROU_NUM_AVG 2
+//#endif
 
 #if VERROU_NUM_AVG==8
 uint64_t maskAvg = 0x00000000000000FF;  ;
@@ -147,7 +147,7 @@ inline double vr_rand_ratio(Vr_Rand *r){
  * the same seed and inputs will always produce the same output
  */
 
-class dietzfelbingerHash{
+class vr_dietzfelbinger_hash{
 public:
   template<class REALTYPE, int NB>
   static bool hashBool(const Vr_Rand * r,
@@ -183,7 +183,7 @@ public:
 
 
 
-class multiplyShiftHash{
+class vr_multiply_shift_hash{
 public:
   template<class REALTYPE, int NB>
   static bool hashBool(const Vr_Rand * r,
@@ -220,18 +220,13 @@ public:
 
 template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
-#if VERROU_DET_HASH==dietzfelbinger
-  typedef dietzfelbingerHash hash;
+
+#ifdef VERROU_DET_HASH
+  typedef generic_double_tabulation<vr_twisted_tabulation_hash> vr_double_tabulation_hash;
+  typedef VERROU_DET_HASH hash;
   return hash::hashBool(r, p, OP::getHash());
-#elif VERROU_DET_HASH==mersenne_twister
-  return mersenneHash::hashBool(p, vr_rand_getSeed(r), OP::getHash());
-#elif VERROU_DET_HASH==multiply_shift
-  return multiplyShiftHash::hashBool(r, p, OP::getHash());
-#elif VERROU_DET_HASH==double_tabulation
-  typedef doubleTabulationHash<twistedTabulationHash> hash;
-  return hash::hashBool(p, OP::getHash());
 #else
-  #error "VERROU_DET_REF has to be defined"
+  #error "VERROU_DET_HASH has to be defined"
 #endif
 }
 
@@ -241,18 +236,11 @@ template<class OP>
 inline
 const typename OP::RealType
 vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
-
-#if VERROU_DET_HASH==dietzfelbinger
-  typedef dietzfelbingerHash hash;
-  return (typename OP::RealType)hash::hashRatio(r, p, OP::getHash());
-#elif VERROU_DET_HASH==mersenne_twister
-  return (typename OP::RealType)mersenneHash::hashRatio(p, vr_rand_getSeed(r), OP::getHash());
-#elif VERROU_DET_HASH==multiply_shift
-  return (RealType)multiplyShiftHash::hashRatio(r, p, OP::getHash());
-#elif VERROU_DET_HASH==double_tabulation
-  typedef doubleTabulationHash<twistedTabulationHash> hash;
-  return hash::hashRatio(p, OP::getHash());
+#ifdef VERROU_DET_HASH
+  typedef generic_double_tabulation<vr_twisted_tabulation_hash> vr_double_tabulation_hash;
+  typedef VERROU_DET_HASH hash;
+  return hash::hashRatio(r, p, OP::getHash());
 #else
-  #error "VERROU_DET_REF has to be defined"
+  #error "VERROU_DET_HASH has to be defined"
 #endif
 }
