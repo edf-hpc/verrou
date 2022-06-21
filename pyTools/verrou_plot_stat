@@ -298,6 +298,7 @@ def listOfHistogram(listOfBrutData):
 def plot_hist(data, png=False, relative=False):
     if relative!=False:
         plt.rcParams['text.usetex'] = True
+
     fig, ax = plt.subplots()
 
     plotWidth=1 #plot variable
@@ -356,6 +357,8 @@ def plot_hist(data, png=False, relative=False):
                     namei+= k+"("+str(numOfSpecialFloat[i][k])+"):"
             namei=namei[0:-1]
 
+        if plt.rcParams['text.usetex']:
+            namei=namei.replace("_","\_")
         handle=plt.hist(datas[i],bins=bins, label=namei, linewidth=plotWidth,  alpha=0.6,color=lineColor[lineIndex])#, linestyle="-")
         lineIndex+=1
         plthandle+=[handle[0]]
@@ -498,7 +501,8 @@ class config_stat:
             self.roundingTab=self.defaultRoundingTab
         if "det" in self.roundingTab:
             self.roundingTab.remove("det")
-            self.roundingTab+=roundingDetTab
+            self.roundingTab+=[x for x in roundingDetTab if x!="float"]
+
         print("rounding list :", self.roundingTab)
 
         if self.run_only():
