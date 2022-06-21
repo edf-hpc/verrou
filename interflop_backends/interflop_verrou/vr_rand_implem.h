@@ -146,9 +146,10 @@ inline double vr_rand_ratio(Vr_Rand *r){
  * produces a pseudo random number in a deterministic way
  * the same seed and inputs will always produce the same output
  */
-template<class REALTYPE, int NB>
+
 class dietzfelbingerHash{
 public:
+  template<class REALTYPE, int NB>
   static bool hashBool(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
@@ -162,7 +163,7 @@ public:
     const bool res = (oddSeed * argsHash) >> 63;
     return res;
   }
-
+  template<class REALTYPE, int NB>
   static double hashRatio(const Vr_Rand * r,
 			  const vr_packArg<REALTYPE,NB>& pack,
 			  uint32_t hashOp){
@@ -181,9 +182,10 @@ public:
 };
 
 
-template<class REALTYPE, int NB>
+
 class multiplyShiftHash{
 public:
+  template<class REALTYPE, int NB>
   static bool hashBool(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
@@ -195,6 +197,7 @@ public:
     return (m+seed)>>63;
   }
 
+  template<class REALTYPE, int NB>
   static double hashRatio(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
@@ -217,27 +220,21 @@ public:
 
 template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
-#ifdef VERROU_DET_FAST_HASH
-  typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+#if VERROU_DET_HASH==dietzfelbinger
+  typedef dietzfelbingerHash hash;
   return hash::hashBool(r, p, OP::getHash());
-#endif
-#ifdef VERROU_DET_REF_HASH
+#elif VERROU_DET_HASH==mersenne_twister
   return mersenneHash::hashBool(p, vr_rand_getSeed(r), OP::getHash());
-#endif
-
-#if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
-  //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  //  return hash::hashBool(r, p, OP::getHash());
+#elif VERROU_DET_HASH==multiply_shift
+  return multiplyShiftHash::hashBool(r, p, OP::getHash());
+#elif VERROU_DET_HASH==double_tabulation
   typedef doubleTabulationHash<twistedTabulationHash> hash;
   return hash::hashBool(p, OP::getHash());
+#else
+  #error "VERROU_DET_REF has to be defined"
 #endif
 }
 
-
-// inline int32_t vr_rand_int (Vr_Rand * r) {
-//   uint64_t res=vr_rand_next (r) % vr_rand_max();
-//   return (int32_t)res;
-// }
 
 
 template<class OP>
@@ -245,29 +242,17 @@ inline
 const typename OP::RealType
 vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
 
-#ifdef VERROU_DET_FAST_HASH
-  typedef dietzfelbingerHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
+#if VERROU_DET_HASH==dietzfelbinger
+  typedef dietzfelbingerHash hash;
   return (typename OP::RealType)hash::hashRatio(r, p, OP::getHash());
-#endif
-#ifdef VERROU_DET_REF_HASH
+#elif VERROU_DET_HASH==mersenne_twister
   return (typename OP::RealType)mersenneHash::hashRatio(p, vr_rand_getSeed(r), OP::getHash());
-#endif
-
-#if !defined(VERROU_DET_FAST_HASH) && ! defined(VERROU_DET_REF_HASH)
-  //  typedef multiplyShiftHash<typename OP::PackArgs::RealType, OP::PackArgs::nb> hash;
-  //  return (RealType)hash::hashRatio(r, p, OP::getHash());
-  //  typedef tabulationHash hash;
+#elif VERROU_DET_HASH==multiply_shift
+  return (RealType)multiplyShiftHash::hashRatio(r, p, OP::getHash());
+#elif VERROU_DET_HASH==double_tabulation
   typedef doubleTabulationHash<twistedTabulationHash> hash;
   return hash::hashRatio(p, OP::getHash());
+#else
+  #error "VERROU_DET_REF has to be defined"
 #endif
-  /*
-  const uint64_t argsHash = OP::getHash() ^ p.getHash();
-  const uint64_t seed = vr_rand_getSeed(r);
-  // returns a one bit hash as a PRNG
-  // uses Dietzfelbinger's multiply shift hash function
-  // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
-  const uint64_t oddSeed = seed | 1; // insures seed is odd
-  const bool res = (oddSeed * argsHash) >> 63;
-  return res;
-*/
 }
