@@ -1,10 +1,10 @@
 #pragma once
 
-static uint32_t hashTable[3][8][256];
+static uint32_t hashTable[4][8][256];
 static uint32_t hashTableOp[2][256];
 
-static uint64_t hashTwistedTable[3][8][256];
-static uint64_t hashTwistedTableOp[2][256];
+//static uint64_t hashTwistedTable[3][8][256];
+//static uint64_t hashTwistedTableOp[2][256];
 
 
 
@@ -25,7 +25,8 @@ public:
 				 const vr_packArg<REALTYPE,NB>& pack,
 				 uint32_t hashOp){
     const uint32_t v=vr_tabulation_hash::hash(pack,hashOp);
-    return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)v *invMax );
   }
 
 
@@ -133,7 +134,7 @@ public:
   }
 
   static inline void genTable(tinymt64_t& gen){
-    for(int i=0 ; i< 3; i++){
+    for(int i=0 ; i< 4; i++){
       for(int j=0 ; j< 8; j++){
 	for(int k=0; k<256 /2; k++ ){
 	  uint64_t current= tinymt64_generate_uint64(&gen );
@@ -156,7 +157,7 @@ public:
 
 
 
-
+/*
 
 class vr_twisted_tabulation_hash{
 public:
@@ -174,7 +175,8 @@ public:
 				 const vr_packArg<REALTYPE,NB>& pack,
 				 uint32_t hashOp){
     const uint32_t v=vr_twisted_tabulation_hash::hash(pack,hashOp);
-    return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)v *invMax );
   }
 
 
@@ -304,18 +306,18 @@ public:
   };
 
 };
+*/
 
-template<class TABULATION>
-class generic_double_tabulation{
+class vr_double_tabulation_hash{
 public:
 
   template<class REALTYPE, int NB>
   static inline  bool hashBool(__attribute__((unused)) const Vr_Rand * r,
 			       const vr_packArg<REALTYPE,NB>& pack,
 			       uint32_t hashOp){
-    const uint32_t tmp=TABULATION::hash(pack,hashOp);
+    const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
-    vr_tabulation_hash::hash_aux(res, 0, tmp);
+    vr_tabulation_hash::hash_aux(res, 3, tmp);
     return res&1;
   }
 
@@ -323,9 +325,10 @@ public:
   static inline double hashRatio(__attribute__((unused)) const Vr_Rand * r,
 				 const vr_packArg<REALTYPE,NB>& pack,
 				 uint32_t hashOp){
-    const uint32_t tmp=TABULATION::hash(pack,hashOp);
+    const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
-    vr_tabulation_hash::hash_aux(res, 0, tmp);
-    return ((double)res / (double)(4294967296) ); //2**32 = 4294967296
+    vr_tabulation_hash::hash_aux(res, 3, tmp);
+    constexpr double invMax=(1./ 4294967296.); //2**32 = 4294967296
+    return ((double)res *invMax );
   }
 };

@@ -72,7 +72,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
 
   r->current_ = vr_rand_next (r);
   vr_tabulation_hash::genTable((r->gen_));
-  vr_twisted_tabulation_hash::genTable((r->gen_));
+  //  vr_twisted_tabulation_hash::genTable((r->gen_));
   vr_multiply_shift_hash::genTable((r->gen_));
 }
 
@@ -154,7 +154,6 @@ template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
 
 #ifdef VERROU_DET_HASH
-  typedef generic_double_tabulation<vr_twisted_tabulation_hash> vr_double_tabulation_hash;
   typedef VERROU_DET_HASH hash;
   return hash::hashBool(r, p, OP::getHash());
 #else
@@ -169,7 +168,6 @@ inline
 const typename OP::RealType
 vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
 #ifdef VERROU_DET_HASH
-  typedef generic_double_tabulation<vr_twisted_tabulation_hash> vr_double_tabulation_hash;
   typedef VERROU_DET_HASH hash;
   return hash::hashRatio(r, p, OP::getHash());
 #else
