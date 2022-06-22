@@ -70,22 +70,34 @@ class testInc0d1{
     return acc;
   }
 
-  REALTYPE computeRecurssiveTree(){
-    return init+computeTreeHelper(0, size);
+  REALTYPE computeRecurssiveTree(int threadOf=1024, int base=4){
+    return init+computeTreeHelper(0, size, threadOf, base);
   }
-  REALTYPE computeTreeHelper(int begin, int end){    
+  REALTYPE computeTreeHelper(int begin, int end, int threadOf, int base){
     if(begin==end){
       return 0;
     }
     if(begin+1==end){
       return step;
     }
+    if(begin+threadOf> end){
+      REALTYPE res=0;
+      for(int i=begin; i<end;i++){
+	res+=step;
+      }
+      return res;
+    }
     
     if(end> begin){
-      int mid= (end+begin)/2;
-      REALTYPE a1= computeTreeHelper(begin,mid);
-      REALTYPE a2= computeTreeHelper(mid, end);
-      return a1+ a2;
+      int step= (end-begin)/base;
+      REALTYPE res=0;
+
+      for(int i=0; i<base ; i++){
+	int ibegin=begin+i*step;
+	int inext=std::min(ibegin+step,end);
+	res+= computeTreeHelper(ibegin,inext, threadOf, base);
+      }
+      return res;
     }
 
     return 0.;
