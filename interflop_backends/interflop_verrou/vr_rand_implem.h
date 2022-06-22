@@ -36,7 +36,14 @@
 
 #include "vr_op.hxx"
 
+inline uint64_t vr_rand_getSeed (const Vr_Rand * r);
+
+
 #include "tableHash.hxx"
+#include "dietzfelbingerHash.hxx"
+#include "multiplyShiftHash.hxx"
+#include "mersenneHash.hxx"
+
 
 inline static uint64_t vr_rand_next (Vr_Rand * r){
   return tinymt64_generate_uint64(&(r->gen_) );
@@ -62,22 +69,17 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   r->seed_    = c;
   private_gen_init(r);
   tinymt64_init(&(r->gen_), r->seed_);
-  for(int i=0 ;i < 6; i++  ){
-    r->seedTab_[i]=tinymt64_generate_uint64(&(r->gen_));
-  }
+
   r->current_ = vr_rand_next (r);
   vr_tabulation_hash::genTable((r->gen_));
   vr_twisted_tabulation_hash::genTable((r->gen_));
+  vr_multiply_shift_hash::genTable((r->gen_));
 }
 
 
 
 inline uint64_t vr_rand_getSeed (const Vr_Rand * r) {
   return r->seed_;
-}
-
-inline const uint64_t* vr_rand_getSeedTab (const Vr_Rand * r) {
-  return r->seedTab_;
 }
 
 
@@ -147,76 +149,6 @@ inline double vr_rand_ratio(Vr_Rand *r){
  * the same seed and inputs will always produce the same output
  */
 
-class vr_dietzfelbinger_hash{
-public:
-  template<class REALTYPE, int NB>
-  static bool hashBool(const Vr_Rand * r,
-		       const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
-
-    const uint64_t argsHash =  pack.getXorHash();
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-    // returns a one bit hash as a PRNG
-    // uses Dietzfelbinger's multiply shift hash function
-    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
-    const uint64_t oddSeed = seed | 1; // insures seed is odd
-    const bool res = (oddSeed * argsHash) >> 63;
-    return res;
-  }
-  template<class REALTYPE, int NB>
-  static double hashRatio(const Vr_Rand * r,
-			  const vr_packArg<REALTYPE,NB>& pack,
-			  uint32_t hashOp){
-
-    const uint64_t argsHash =  pack.getXorHash();
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-    // returns a one bit hash as a PRNG
-    // uses Dietzfelbinger's multiply shift hash function
-    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
-    const uint64_t oddSeed = seed | 1; // insures seed is odd
-    const uint32_t res = (oddSeed * argsHash) >> 32;
-
-    return ((double)res / (double)(4294967296) ); //2**32 = 4294967296
-  }
-
-};
-
-
-
-class vr_multiply_shift_hash{
-public:
-  template<class REALTYPE, int NB>
-  static bool hashBool(const Vr_Rand * r,
-		       const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
-
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-    const uint64_t* seedTab=vr_rand_getSeedTab(r);
-
-    const uint64_t m=pack.getMultiply(seedTab);
-    return (m+seed)>>63;
-  }
-
-  template<class REALTYPE, int NB>
-  static double hashRatio(const Vr_Rand * r,
-		       const vr_packArg<REALTYPE,NB>& pack,
-		       uint32_t hashOp){
-
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
-    const uint64_t* seedTab=vr_rand_getSeedTab(r);
-
-    const uint64_t m=pack.getMultiply(seedTab);
-    const uint32_t v=(m+seed)>>32;
-    return ((double)v / (double)(4294967296) ); //2**32 = 4294967296
-  }
-
-};
-
-
-
-
-
-#include "mersenneHash.hxx"
 
 template<class OP>
 inline bool vr_rand_bool_det (const Vr_Rand * r, const typename OP::PackArgs& p) {

@@ -35,7 +35,7 @@
 
 #include "vr_isNan.hxx"
 
-enum opHash : uint64_t{
+enum opHash : uint32_t{
   addHash=0,
   subHash=1,
   mulHash=2,
@@ -45,7 +45,7 @@ enum opHash : uint64_t{
   nbOpHash=6
 };
 
-enum typeHash : uint64_t{
+enum typeHash : uint32_t{
   floatHash=0,
   doubleHash=1,
   otherHash=2,
@@ -108,17 +108,6 @@ struct vr_packArg<REALTYPE,1>{
     return isNanInf<RealType>(arg1);
   }
 
-  inline uint64_t getXorHash()const{
-      return realToUint64_reinterpret_cast<REALTYPE>(arg1);
-  }
-
-  inline uint64_t getMultiply(const uint64_t* seedTab)const{
-    //    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0];
-    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
-    return  (x1 + seedTab[0]) * ((x1 >>32) +seedTab[2]);
-
-  }
-
   const RealType& arg1;
 };
 
@@ -138,21 +127,6 @@ struct vr_packArg<REALTYPE,2>{
 
   inline bool isOneArgNanInf()const{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
-  }
-
-  inline uint64_t getXorHash()const{
-      return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2);
-  }
-
-  inline uint64_t getMultiply(const uint64_t* seedTab)const{
-    //  return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
-    //    +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1];
-    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
-    uint64_t x2=realToUint64_reinterpret_cast<REALTYPE>(arg2);
-    return  (x1 + seedTab[0]) * ((x1 >>32) +seedTab[2])
-      +     (x2 + seedTab[3]) * ((x2 >>32) +seedTab[4]);
-
-
   }
 
   const RealType& arg1;
@@ -177,23 +151,6 @@ struct vr_packArg<REALTYPE,3>{
   inline bool isOneArgNanInf()const{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
-
-  inline uint64_t getXorHash()const{
-      return realToUint64_reinterpret_cast<REALTYPE>(arg1) ^ realToUint64_reinterpret_cast<REALTYPE>(arg2) ^ realToUint64_reinterpret_cast<REALTYPE>(arg3);
-  }
-
-  inline uint64_t getMultiply(const uint64_t* seedTab)const{
-    //    return realToUint64_reinterpret_cast<REALTYPE>(arg1) * seedTab[0]
-    //      +    realToUint64_reinterpret_cast<REALTYPE>(arg2) * seedTab[1]
-    //      +    realToUint64_reinterpret_cast<REALTYPE>(arg3) * seedTab[2];
-    uint64_t x1=realToUint64_reinterpret_cast<REALTYPE>(arg1);
-    uint64_t x2=realToUint64_reinterpret_cast<REALTYPE>(arg2);
-    uint64_t x3=realToUint64_reinterpret_cast<REALTYPE>(arg3);
-    return (x1 + seedTab[0]) * ((x1 >>32)  + seedTab[2])
-         + (x2 + seedTab[3]) * ((x2 >>32)  + seedTab[4])
-         + (x3 + seedTab[4]) * ((x3 >>32)  + seedTab[5]);
-  }
-
 
   const RealType& arg1;
   const RealType& arg2;

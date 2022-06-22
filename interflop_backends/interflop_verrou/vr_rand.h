@@ -45,8 +45,6 @@ struct Vr_Rand_ {
   tinymt64_t gen_;
   uint64_t seed_;
   uint32_t count_;
-
-  uint64_t seedTab_[6];
 };
 
 //extern Vr_Rand vr_rand;
@@ -54,14 +52,6 @@ struct Vr_Rand_ {
 Vr_Rand vr_rand;
 
 #include "vr_rand_implem.h"
-
-
-
-/* void vr_rand_setSeed (Vr_Rand * r, unsigned int c); */
-/* unsigned int vr_rand_getSeed (Vr_Rand * r); */
-/* bool vr_rand_bool (Vr_Rand * r); */
-/* int vr_rand_int (Vr_Rand * r); */
-/* int vr_rand_max (void); */
 
 
 
