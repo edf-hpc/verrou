@@ -5,14 +5,17 @@ import re
 import sys
 import subprocess
 
+
+detRounding=["random_det","average_det"]
+#detRounding=[]
 verrouConfigList={
-    "local":      {"special_rounding_tab":["random_det", "average_det"]},
+#    "local":      {"special_rounding_tab":["random_det", "average_det"]},
     "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
-#    "random_det": { "valgrind":"valgrind-3.17.0", "branch_verrou":"random_det"  ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det"]},
-#    "average_det":{ "valgrind":"valgrind-3.17.0", "branch_verrou":"average_det" ,"flags":"--enable-verrou-fma", "special_rounding_tab":["random_det","average_det"]},
-    "merge": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --enable-verrou-fast-gen=yes ", "special_rounding_tab":["random_det","average_det"]},
-    "merge_ref":  { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --enable-verrou-det-ref-hash=yes --enable-verrou-fast-gen=no ", "special_rounding_tab":["random_det","average_det"]},
-    "merge_fasthash":  { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --enable-verrou-det-fast-hash=yes", "special_rounding_tab":["random_det","average_det"]},
+    "merge-NUM_AVG_1-dietzfelbinger": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=1 --with-verrou-det-hash=dietzfelbinger", "special_rounding_tab":detRounding},
+    "merge-NUM_AVG_2-multiply_shift": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=2 --with-verrou-det-hash=multiply_shift", "special_rounding_tab":detRounding},
+    "merge-NUM_AVG_3-double_tabulation": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=3 --with-verrou-det-hash=double_tabulation", "special_rounding_tab":detRounding},
+    "merge-NUM_AVG_4-mersenne_twister": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=4 --with-verrou-det-hash=mersenne_twister", "special_rounding_tab":detRounding},
+    "merge-NUM_AVG_8": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=8", "special_rounding_tab":detRounding},
 }
 
 
@@ -20,7 +23,7 @@ valgrindConfigList={
     "valgrind-3.17.0": {"file": "/home/E52654/srcVerrou/valgrind-3.17.0.tar.bz2"}
 }
 
-nbRunTuple=(2,5)
+nbRunTuple=(5,5)
 
 roundingList=["random", "average", "nearest", "upward"]
 roundingList=["random", "average"]#, "nearest", "upward"]
@@ -29,13 +32,14 @@ verrouOptionsList=[("","")]
 
 pathPerfBin="../unitTest/testPerf"
 perfBinNameList=["stencil-"+i for i in ["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FLOAT"] ]
+#perfBinNameList=["stencil-"+i for i in ["O3-DOUBLE"] ]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
 pathNumBin="../unitTest/checkStatRounding"
 runNum="run.sh"
 extractNum="extract.py"
 numEnvConfigTab=[{"ALGO":algo, "ALGO_TYPE":realtype} for realtype in ["double", "float"] for algo in ["Seq", "Rec"]]
-
+#numEnvConfigTab=[{"ALGO":algo, "ALGO_TYPE":realtype} for realtype in ["double", "float"] for algo in ["Seq"]]
 
 
 
