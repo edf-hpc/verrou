@@ -100,25 +100,25 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 //#endif
 
 #if VERROU_NUM_AVG==8
-uint64_t maskAvg = 0x00000000000000FF;  ;
-uint64_t shiftAvg= 8 ;
-uint32_t loopAvg = 8  ;
-double maxAvgInv(1./256.);
+constexpr uint64_t maskAvg = 0x00000000000000FF;  ;
+constexpr uint64_t shiftAvgTab[]= {0, 8 , 16, 24, 32, 40, 48, 56 };
+constexpr uint32_t loopAvg = 8  ;
+constexpr double maxAvgInv(1./256.)w;
 #elif VERROU_NUM_AVG==4
-uint64_t maskAvg = 0x000000000000FFFF;  ;
-uint64_t shiftAvg= 16 ;
-uint32_t loopAvg = 4  ;
-double maxAvgInv(1/65536.);
+constexpr uint64_t maskAvg = 0x000000000000FFFF;  ;
+constexpr uint64_t shiftAvgTab[]= {0,16, 32, 48};
+constexpr uint32_t loopAvg = 4  ;
+constexpr double maxAvgInv(1/65536.);
 #elif VERROU_NUM_AVG==3
-uint64_t maskAvg = 0x00000000001FFFFF;// 21bit
-uint64_t shiftAvg= 21 ;
-uint32_t loopAvg = 3  ;
-double maxAvgInv(1/2097152.);
+constexpr uint64_t maskAvg = 0x00000000001FFFFF;// 21bit
+constexpr uint64_t shiftAvgTab[]={0,21,42} ;
+constexpr uint32_t loopAvg = 3  ;
+constexpr double maxAvgInv(1/2097152.);
 #elif VERROU_NUM_AVG==2
-uint64_t maskAvg = 0x00000000FFFFFFFF;  ;
-uint64_t shiftAvg= 32 ;
-uint32_t loopAvg = 2  ;
-double maxAvgInv(1/4294967296.);
+constexpr uint64_t maskAvg = 0x00000000FFFFFFFF;  ;
+constexpr uint64_t shiftAvgTab[]={0,32} ;
+constexpr uint32_t loopAvg = 2  ;
+constexpr double maxAvgInv(1/4294967296.);
 #elif VERROU_NUM_AVG==1
 #else
 #error 'VERROU_NUM_AVG is not defined'
@@ -128,19 +128,22 @@ double maxAvgInv(1/4294967296.);
 
 inline double vr_rand_ratio(Vr_Rand *r){
 #if VERROU_NUM_AVG==1
-  double res=tinymt64_generate_double(&(r->gen_) );
+  const double res=tinymt64_generate_double(&(r->gen_) );
+  return res;
 #else
   if(r->count_==loopAvg){
-    r->current_= tinymt64_generate_uint64(&(r->gen_) );
-    r->count_=0;
+    const uint64_t localGen=tinymt64_generate_uint64(&(r->gen_) );
+    const uint64_t local= localGen & maskAvg;
+    const double res = local *maxAvgInv;
+    r->count_=1;
+    r->current_= localGen;
+    return res;
   }
-  uint64_t local= r->current_ & maskAvg;
-  double res = (double) local *maxAvgInv;
-  (r->current_)=((r->current_)>>shiftAvg);
+  const uint64_t local= (r->current_ >> (shiftAvgTab[r->count_])) & maskAvg;
+  const double res = local *maxAvgInv;
   (r->count_)++;
-#endif
-  //  double res=vr_rand_next(r)/ vr_rand_max();
   return res;
+#endif
 }
 
 

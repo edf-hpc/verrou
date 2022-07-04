@@ -42,9 +42,9 @@
 typedef struct Vr_Rand_ Vr_Rand;
 struct Vr_Rand_ {
   uint64_t current_;
+  uint32_t count_;
   tinymt64_t gen_;
   uint64_t seed_;
-  uint32_t count_;
 };
 
 //extern Vr_Rand vr_rand;
