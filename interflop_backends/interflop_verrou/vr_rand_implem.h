@@ -174,3 +174,31 @@ vr_rand_ratio_det (const Vr_Rand * r, const typename OP::PackArgs& p) {
   #error "VERROU_DET_HASH has to be defined"
 #endif
 }
+
+template<class OP>
+inline bool vr_rand_bool_comdet (const Vr_Rand * r, const typename OP::PackArgs& p) {
+
+#ifdef VERROU_DET_HASH
+  typedef VERROU_DET_HASH hash;
+  sort_pack<typename OP::PackArgs::RealType,OP::PackArgs::nb> st(p);
+  return hash::hashBool(r, st.getPack(), OP::getHash());
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+}
+
+
+
+template<class OP>
+inline
+const typename OP::RealType
+vr_rand_ratio_comdet (const Vr_Rand * r, const typename OP::PackArgs& p) {
+#ifdef VERROU_DET_HASH
+  typedef VERROU_DET_HASH hash;
+  //  const typename OP::PackArgs;
+  sort_pack<typename OP::PackArgs::RealType,OP::PackArgs::nb> st(p);
+  return hash::hashRatio(r, st.getPack(), OP::getHash());
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+}

@@ -38,7 +38,7 @@ maxNbPROC=None
 from valgrind import DD_stoch
 
 roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
-roundingNonDetTab=["random", "average", "random_det","average_det"]
+roundingNonDetTab=["random", "average", "random_det","average_det", "random_comdet","average_comdet"]
 
 
 
@@ -592,8 +592,10 @@ class config_stat:
             nbDet=self._nbSample
         nbSamples={"random":self._nbSample,
                    "random_det":self._nbSample,
+                   "random_comdet":self._nbSample,
                    "average":self._nbSample,
                    "average_det":self._nbSample,
+                   "average_comdet":self._nbSample,
                    "nearest":nbDet,
                    "upward":nbDet,
                    "downward":nbDet,

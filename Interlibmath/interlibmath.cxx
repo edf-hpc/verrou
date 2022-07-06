@@ -281,10 +281,14 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "RANDOM";
   case VR_RANDOM_DET:
     return "RANDOM_DET";
+  case VR_RANDOM_COMDET:
+    return "RANDOM_COMDET";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
     return "AVERAGE_DET";
+  case VR_AVERAGE_COMDET:
+    return "AVERAGE_COMDET";
   case VR_FARTHEST:
     return "FARTHEST";
   case VR_FLOAT:
@@ -585,11 +589,17 @@ void __attribute__((constructor)) init_interlibmath(){
     if(envString==std::string("random_det")){
       ROUNDINGMODE=VR_RANDOM_DET;
     }
+    if(envString==std::string("random_comdet")){
+      ROUNDINGMODE=VR_RANDOM_COMDET;
+    }
     if(envString==std::string("average")){
       ROUNDINGMODE=VR_AVERAGE;
     }
     if(envString==std::string("average_det")){
       ROUNDINGMODE=VR_AVERAGE_DET;
+    }
+    if(envString==std::string("average_comdet")){
+      ROUNDINGMODE=VR_AVERAGE_COMDET;
     }
     if(envString==std::string("nearest")){
       ROUNDINGMODE=VR_NEAREST;

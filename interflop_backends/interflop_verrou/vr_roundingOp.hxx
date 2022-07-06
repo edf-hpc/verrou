@@ -162,6 +162,39 @@ public:
     } ;
 };
 
+template<class OP>
+class RoundingRandomComDet{
+public:
+    typedef typename OP::RealType RealType;
+    typedef typename OP::PackArgs PackArgs;
+
+    static inline RealType apply(const PackArgs& p){
+        RealType res=OP::nearestOp(p);
+	INC_OP;
+        if (isNanInf<RealType> (res)){
+            return res;
+        }
+
+        OP::check(p,res);
+        const RealType signError=OP::sameSignOfError(p,res);
+        if(signError==0.){
+	  INC_EXACTOP;
+	  return res;
+        }else{
+            const bool doNoChange = vr_rand_bool_comdet<OP>(&vr_rand, p);
+            if(doNoChange){
+                return res;
+            }else{
+                if(signError>0){
+                    return nextAfter<RealType>(res);
+                }else{
+                    return nextPrev<RealType>(res);
+                }
+            }
+        }
+    } ;
+};
+
 
 
 template<class OP>
@@ -255,6 +288,55 @@ public:
       const RealType u(res -prevRes);
       const int s(-1);
       const bool doNotChange = ((vr_rand_ratio_det<OP>(&vr_rand, p) * u) >  s * error);
+      if(doNotChange){
+	return res;
+      }else{
+	return prevRes;
+      }
+    }
+    return res; //Should not occur
+  } ;
+};
+
+template<class OP>
+class RoundingAverageComDet{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p) ;
+
+    INC_OP;
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+
+    OP::check(p,res);
+    const RealType error=OP::error(p,res);
+    if(error==0.){
+      INC_EXACTOP;
+      return res;
+    }
+
+
+    if(error>0){
+      const RealType nextRes(nextAfter<RealType>(res));
+      const RealType u(nextRes -res);
+      const int s(1);
+      const bool doNotChange = ((vr_rand_ratio_comdet<OP>(&vr_rand, p) * u) >  s * error);
+      if(doNotChange){
+	return res;
+      }else{
+	return nextRes;
+      }
+
+    }
+    if(error<0){
+      const RealType prevRes(nextPrev<RealType>(res));
+      const RealType u(res -prevRes);
+      const int s(-1);
+      const bool doNotChange = ((vr_rand_ratio_comdet<OP>(&vr_rand, p) * u) >  s * error);
       if(doNotChange){
 	return res;
       }else{
@@ -488,10 +570,14 @@ public:
       return RoundingRandom<OP>::apply (p);
     case VR_RANDOM_DET:
       return RoundingRandomDet<OP>::apply (p);
+    case VR_RANDOM_COMDET:
+      return RoundingRandomComDet<OP>::apply (p);
     case VR_AVERAGE:
       return RoundingAverage<OP>::apply (p);
     case VR_AVERAGE_DET:
       return RoundingAverageDet<OP>::apply (p);
+    case VR_AVERAGE_COMDET:
+      return RoundingAverageComDet<OP>::apply (p);
     case VR_FARTHEST:
       return RoundingFarthest<OP>::apply (p);
     case VR_FLOAT:
