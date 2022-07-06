@@ -103,7 +103,7 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 constexpr uint64_t maskAvg = 0x00000000000000FF;  ;
 constexpr uint64_t shiftAvgTab[]= {0, 8 , 16, 24, 32, 40, 48, 56 };
 constexpr uint32_t loopAvg = 8  ;
-constexpr double maxAvgInv(1./256.)w;
+constexpr double maxAvgInv(1./256.);
 #elif VERROU_NUM_AVG==4
 constexpr uint64_t maskAvg = 0x000000000000FFFF;  ;
 constexpr uint64_t shiftAvgTab[]= {0,16, 32, 48};
