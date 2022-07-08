@@ -10,9 +10,9 @@ public:
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
 
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
+    const uint64_t seed = vr_rand_getSeed(r);
     const uint64_t m=vr_multiply_shift_hash::multiply(pack);
-    return (m+seed)>>63;
+    return (m*(seed+hashOp))>>63;
   }
 
   template<class REALTYPE, int NB>
@@ -20,44 +20,44 @@ public:
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
 
-    const uint64_t seed = vr_rand_getSeed(r) ^ hashOp;
+    const uint64_t seed = vr_rand_getSeed(r);
     const uint64_t m=vr_multiply_shift_hash::multiply(pack);
-    const uint32_t v=(m+seed)>>32;
+    const uint32_t v=(m*(seed+hashOp))>>32;
     constexpr double  invMax= (1./4294967296.);//2**32 = 4294967296
     return ((double)v * invMax );
   }
 
   static inline uint64_t multiply(const vr_packArg<float,1>& pack){
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
     return a1+seedTab[0];
   }
   static inline uint64_t multiply(const vr_packArg<float,2>& pack){
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
-    uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    const uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
     return (a1+seedTab[0]) * (a2+seedTab[1]) ;
   }
   static inline uint64_t multiply(const vr_packArg<float,3>& pack){
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
-    uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
-    uint32_t a3=realToUint32_reinterpret_cast(pack.arg3);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    const uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
+    const uint32_t a3=realToUint32_reinterpret_cast(pack.arg3);
     return (a1+seedTab[0]) * (a2+seedTab[1]) * (a3+seedTab[2]);
   }
 
   static inline uint64_t multiply(const vr_packArg<double,1>& pack){
-    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
-    uint32_t a1_1=a1;
-    uint32_t a1_2=a1>>32;
+    const uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
+    const uint32_t a1_1=a1;
+    const uint32_t a1_2=a1>>32;
     return (a1_1+seedTab[0]) * (a1_2+seedTab[1]);
   }
 
   static inline uint64_t multiply(const vr_packArg<double,2>& pack){
-    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
-    uint32_t a1_1=a1;
-    uint32_t a1_2=a1>>32;
+    const uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
+    const uint32_t a1_1=a1;
+    const uint32_t a1_2=a1>>32;
 
-    uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
-    uint32_t a2_1=a2;
-    uint32_t a2_2=a2>>32;
+    const uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
+    const uint32_t a2_1=a2;
+    const uint32_t a2_2=a2>>32;
 
     return (a1_1+seedTab[0]) * (a1_2+seedTab[1]) * (a2_1+seedTab[2]) * (a2_2+seedTab[3]);
   }
