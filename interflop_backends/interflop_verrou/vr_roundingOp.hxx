@@ -96,7 +96,7 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p ){
-    RealType res=OP::nearestOp(p);
+    const RealType res=OP::nearestOp(p);
     INC_OP;
     if (isNanInf<RealType> (res)){
       return res;
@@ -132,67 +132,67 @@ public:
 template<class OP>
 class RoundingRandomDet{
 public:
-    typedef typename OP::RealType RealType;
-    typedef typename OP::PackArgs PackArgs;
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
 
-    static inline RealType apply(const PackArgs& p){
-        RealType res=OP::nearestOp(p);
-	INC_OP;
-        if (isNanInf<RealType> (res)){
-            return res;
-        }
-
-        OP::check(p,res);
-        const RealType signError=OP::sameSignOfError(p,res);
-        if(signError==0.){
-	  INC_EXACTOP;
-	  return res;
-        }else{
-            const bool doNoChange = vr_rand_bool_det<OP>(&vr_rand, p);
-            if(doNoChange){
-                return res;
-            }else{
-                if(signError>0){
-                    return nextAfter<RealType>(res);
-                }else{
-                    return nextPrev<RealType>(res);
-                }
-            }
-        }
-    } ;
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+    
+    OP::check(p,res);
+    const RealType signError=OP::sameSignOfError(p,res);
+    if(signError==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      const bool doNoChange = vr_rand_bool_det<OP>(&vr_rand, p);
+      if(doNoChange){
+	return res;
+      }else{
+	if(signError>0){
+	  return nextAfter<RealType>(res);
+	}else{
+	  return nextPrev<RealType>(res);
+	}
+      }
+    }
+  } ;
 };
 
 template<class OP>
 class RoundingRandomComDet{
 public:
-    typedef typename OP::RealType RealType;
-    typedef typename OP::PackArgs PackArgs;
-
-    static inline RealType apply(const PackArgs& p){
-        RealType res=OP::nearestOp(p);
-	INC_OP;
-        if (isNanInf<RealType> (res)){
-            return res;
-        }
-
-        OP::check(p,res);
-        const RealType signError=OP::sameSignOfError(p,res);
-        if(signError==0.){
-	  INC_EXACTOP;
-	  return res;
-        }else{
-            const bool doNoChange = vr_rand_bool_comdet<OP>(&vr_rand, p);
-            if(doNoChange){
-                return res;
-            }else{
-                if(signError>0){
-                    return nextAfter<RealType>(res);
-                }else{
-                    return nextPrev<RealType>(res);
-                }
-            }
-        }
-    } ;
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+  
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+    
+    OP::check(p,res);
+    const RealType signError=OP::sameSignOfError(p,res);
+    if(signError==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      const bool doNoChange = vr_rand_bool_comdet<OP>(&vr_rand, p);
+      if(doNoChange){
+	return res;
+      }else{
+	if(signError>0){
+	  return nextAfter<RealType>(res);
+	}else{
+	  return nextPrev<RealType>(res);
+	}
+      }
+    }
+  } ;
 };
 
 
@@ -356,7 +356,7 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p){
-    RealType res=OP::nearestOp(p) ;
+    const RealType res=OP::nearestOp(p) ;
     INC_OP;
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
@@ -498,16 +498,16 @@ public:
       return res;
     }
     if(error>0){
-      RealType newRes=nextAfter<RealType>(res);
-      RealType ulp(newRes-res);
+      const RealType newRes=nextAfter<RealType>(res);
+      const RealType ulp(newRes-res);
       if(2*error < ulp ){
 	return newRes;
       }else{
 	return res;
       }
     }else{//error<0
-      RealType newRes=nextPrev<RealType>(res);
-      RealType ulp(res-newRes);
+      const RealType newRes=nextPrev<RealType>(res);
+      const RealType ulp(res-newRes);
       if(-2*error < ulp ){
 	return newRes;
       }else{
