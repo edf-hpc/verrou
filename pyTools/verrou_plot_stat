@@ -32,6 +32,7 @@ import subprocess
 import getopt
 import functools
 import glob
+import math
 
 maxNbPROC=None
 
@@ -393,6 +394,43 @@ def plot_hist(data, png=False, relative=False):
     else:
         plt.show()
 
+def maxDiff(tab,ref):
+    res=max([abs(x-ref) for x in tab ])
+    return res
+
+def print_stat(data, ref="nearest"):
+    listOfScalar=[] # rounding mode plotted with vertical ligne
+    listOfTab=[]
+
+    for roundingMode in sorted([x for x in data.keys()]):
+        if data[roundingMode]==None:
+            continue
+        if len(data[roundingMode])==1:
+            listOfScalar+=[roundingMode]
+        if len(data[roundingMode])>1:
+            listOfTab+=[roundingMode]
+
+    refValue=None
+    if ref in listOfScalar:
+        refValue=data[ref][0]
+    else:
+        refValue=numpy.mean(data[ref])
+    print("\nrefValue[%s] : %.17e"%(ref,refValue))
+    print("estimator\tabs\trel\trel(in bit)")
+    maxEstim=0
+    for rounding in listOfTab:
+        estim=    maxDiff(data[rounding],refValue)
+        estimRel= estim / refValue
+        estimRelBit= -math.log2(estimRel)
+        maxEstim=max(estim,maxEstim)
+        print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+    for rounding in listOfScalar:
+        estim=    maxDiff(data[rounding],refValue)
+        maxEstim=max(estim,maxEstim)
+
+    estimRel= maxEstim / refValue
+    estimRelBit= -math.log2(estimRel)
+    print("%s:\t%e\t%.4e\t%.2fbit"%("all", estim,estimRel, estimRelBit))
 
 
 
@@ -639,9 +677,11 @@ if __name__=="__main__":
         if not conf.useSpecificPattern():
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples)
             plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+            print_stat(dataExtracted)
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern())
             plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+            print_stat(dataExtracted)
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)
