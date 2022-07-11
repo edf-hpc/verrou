@@ -71,7 +71,7 @@ public:
     uint32_t a2_1=a2;
     uint32_t a2_2=a2>>32;
 
-    uint64_t a3=realToUint64_reinterpret_cast<double>(pack.arg2);
+    uint64_t a3=realToUint64_reinterpret_cast<double>(pack.arg3);
     uint32_t a3_1=a3;
     uint32_t a3_2=a3>>32;
 
