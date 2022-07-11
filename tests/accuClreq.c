@@ -11,7 +11,6 @@ float compute () {
 }
 
 int main () {
-  
 
   float res_init=compute();
   // Uninstrumented part
@@ -20,19 +19,26 @@ int main () {
   VERROU_START_INSTRUMENTATION;
 
   float res_end=compute();
-  
+
   printf ("%f %f %f\n", res_init, res_uninst, res_end);
 
-    
-  if (res_init == res_uninst || res_init==res_end ){    
-    printf ("OK\n");
+  if (res_init == res_uninst){
+    printf ("NO INSTR AT START\n");
   }else{
-    printf( "KO\n");
+    printf ("INSTR AT START\n");
   }
-  if(res_end != res_uninst){
-    printf("OK\n");
+
+  if (res_init == res_end){
+    printf ("DET\n");
   }else{
-    printf( "KO\n");
+    printf( "NO_DET\n");
   }
+
+  if (res_end == res_uninst){
+    printf ("START FAIL\n");
+  }else{
+    printf ("START SUCCEED\n");
+  }
+
   return RUNNING_ON_VALGRIND;
 }

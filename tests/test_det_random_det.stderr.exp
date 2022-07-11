@@ -1,7 +1,7 @@
 Verrou, Check floating-point rounding errors
 Copyright (C) XXXXX 
 
-First seed : 422
+First seed : 1048889
 Backend verrou : test-version
 Backend mcaquad : test-version
 Backend checkcancellation : test-version
@@ -35,12 +35,20 @@ Backend verrou simulating RANDOM_DET rounding mode
   `- Precision
       `- Vectorization          Total             Instrumented
  ---------------------------------------------------------------------
- add                   100001                   100000          (100%)
-  `- flt                   100001                   100000      (100%)
-      `- llo                   100001                   100000  (100%)
+ add                   400000                   400000          (100%)
+  `- flt                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
+  `- dbl                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
  ---------------------------------------------------------------------
- mul                        1                        0          (  0%)
-  `- flt                        1                        0      (  0%)
-      `- llo                        1                        0  (  0%)
+ sub                        2                        2          (100%)
+  `- flt                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
+ ---------------------------------------------------------------------
+ mul                   600000                   600000          (100%)
+  `- flt                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
+  `- dbl                   400000                   400000      (100%)
+      `- llo                   400000                   400000  (100%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

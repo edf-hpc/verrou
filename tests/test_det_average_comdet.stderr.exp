@@ -1,0 +1,54 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : 42
+Backend verrou : test-version
+Backend mcaquad : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend verrou simulating AVERAGE_COMDET rounding mode
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                   400000                   400000          (100%)
+  `- flt                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
+  `- dbl                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
+ ---------------------------------------------------------------------
+ sub                        2                        2          (100%)
+  `- flt                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
+ ---------------------------------------------------------------------
+ mul                   600000                   600000          (100%)
+  `- flt                   200000                   200000      (100%)
+      `- llo                   200000                   200000  (100%)
+  `- dbl                   400000                   400000      (100%)
+      `- llo                   400000                   400000  (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

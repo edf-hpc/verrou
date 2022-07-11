@@ -16,9 +16,13 @@ EXTRA_DIST = \
 	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
 	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp \
 	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp \
-	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp
+	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
+	test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
+	test_det_average_det.stderr.exp test_det_average_det.stdout.exp test_det_average_det.vgtest \
+	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
+	test_det_random_det.stderr.exp  test_det_random_det.stdout.exp  test_det_random_det.vgtest
 
-check_PROGRAMS = clreq accuClreq sum
+check_PROGRAMS = clreq accuClreq sum test_det
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
