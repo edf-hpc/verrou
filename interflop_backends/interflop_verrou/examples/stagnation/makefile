@@ -5,8 +5,8 @@ SRC=stagnation.cxx
 #CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=2 -DVERROU_DET_HASH=vr_double_tabulation_hash
 CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=2 -DVERROU_DET_HASH=vr_mersenne_twister_hash
 
-stagnationError.pdf: stagnation.gp AVERAGE_DET.out
-	gnuplot stagnation.gp
+stagnationErrorLog.pdf: stagnationLog.gp AVERAGE_DET.out
+	gnuplot stagnationLog.gp
 %.o: %.cxx
 	g++ -o $@ -c $< $(CFLAGS)
 
@@ -22,4 +22,4 @@ AVERAGE_DET.out:stagnation
 stagnation:makefile
 
 clean:
-	rm *.o stagnation *.out stagnationError.pdf stagnation.pdf
+	rm *.o stagnation *.out stagnationErrorLog.pdf 
