@@ -100,6 +100,7 @@ static int _set_mca_precision(int precision_double, int precision_float) {
 
 /* random generator internal state */
 static tinymt64_t random_state;
+static uint64_t _mca_det_key;
 
 static double _mca_rand(void) {
   /* Returns a random double in the (0,1) open interval */
@@ -312,8 +313,10 @@ static void _mca_inexactd(double *da) {
 //BL   tinymt64_init_by_array(&random_state, init_key, key_length);
 //BL }
 
+
 static void _mca_set_seed(uint64_t* init_key, int key_length) {
   tinymt64_init_by_array(&random_state, init_key, key_length);
+  _mca_det_key=tinymt64_generate_uint64(&random_state);
 }
 
 /******************** MCA ARITHMETIC FUNCTIONS ********************
@@ -351,10 +354,21 @@ static inline float _mca_sbin(float a, float b, const int dop) {
 
   double res = 0;
 
+
   if (MCALIB_OP_TYPE != MCAMODE_RR) {
+
+    uint64_t keya[2]={*((uint64_t*)(&da)), _mca_det_key};
+    tinymt64_init_by_array(&random_state,keya, 2);
+
     _mca_inexactd(&da);
+    uint64_t keyb[2]={*((uint64_t*)(&db)), _mca_det_key};
+    tinymt64_init_by_array(&random_state,keyb, 2);
+
     _mca_inexactd(&db);
   }
+
+  uint64_t key[4]={*((uint64_t*)(&da)),*((uint64_t*)(&db)),dop, _mca_det_key};
+  tinymt64_init_by_array(&random_state,key, 4);
 
   perform_bin_op(dop, res, da, db);
 
@@ -370,10 +384,20 @@ static inline double _mca_dbin(double a, double b, const int qop) {
   __float128 qb = (__float128)b;
   __float128 res = 0;
 
+
   if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    uint64_t keya[2]={*((uint64_t*)(&a)), _mca_det_key};
+    tinymt64_init_by_array(&random_state,keya, 2);
+
     _mca_inexactq(&qa);
+
+    uint64_t keyb[2]={*((uint64_t*)(&b)), _mca_det_key};
+    tinymt64_init_by_array(&random_state,keyb, 2);
     _mca_inexactq(&qb);
   }
+
+  uint64_t key[4]={*((uint64_t*)(&a)),*((uint64_t*)(&b)),qop, _mca_det_key};
+  tinymt64_init_by_array(&random_state,key, 4);
 
   perform_bin_op(qop, res, qa, qb);
 
@@ -387,6 +411,10 @@ static inline double _mca_dbin(double a, double b, const int qop) {
 static inline float _mca_dtosbin(double a){
 
    float resf;
+
+   uint64_t key[3]={*((uint64_t*)(&a)),0x12313, _mca_det_key};
+   tinymt64_init_by_array(&random_state,key, 3);
+
    if (MCALIB_OP_TYPE != MCAMODE_RR) {
       __float128 qa = (__float128)a;
       _mca_inexactq(&qa);
@@ -411,6 +439,9 @@ static inline double _mca_dbin_fma(double a, double b, double c) {
   __float128 qc = (__float128)c;
   __float128 res = 0;
 
+  uint64_t key[5]={*((uint64_t*)(&a)),*((uint64_t*)(&b)), *((uint64_t*)(&c)),13674, _mca_det_key};
+  tinymt64_init_by_array(&random_state,key, 5);
+
   if (MCALIB_OP_TYPE != MCAMODE_RR) {
     _mca_inexactq(&qa);
     _mca_inexactq(&qb);
@@ -431,6 +462,8 @@ static inline double _mca_sbin_fma(double a, double b, double c) {
    double db = (double)b;
    double dc = (double)b;
    double res = 0;
+   uint64_t key[5]={*((uint64_t*)(&a)),*((uint64_t*)(&b)), *((uint64_t*)(&c)),13674, _mca_det_key};
+   tinymt64_init_by_array(&random_state,key, 5);
 
   if (MCALIB_OP_TYPE != MCAMODE_RR) {
     _mca_inexactd(&da);
@@ -454,8 +487,8 @@ static inline double _mca_sbin_fma(double a, double b, double c) {
 * point operators
 **********************************************************************/
 
-#define QUADMCAVERROU 
-#ifndef QUADMCAVERROU 
+#define QUADMCAVERROU
+#ifndef QUADMCAVERROU
 static float _floatadd(float a, float b) { return _mca_sbin(a, b, MCA_ADD); }
 
 static float _floatsub(float a, float b) {
