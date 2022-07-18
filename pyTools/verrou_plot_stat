@@ -43,9 +43,12 @@ roundingNonDetTab=["random", "average", "random_det","average_det", "random_comd
 
 
 
-def verrou_run_stat(script_run, rep, listOfStat, maxNbPROC=None):
+def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None):
     if not os.path.exists(rep):
         os.mkdir(rep)
+    listOfStat=copy.deepcopy(listOfConfigStat)
+    if listOfConfigStat[ref]==0:
+        listOfStat[ref]=1
 
     listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
     for roundingMode in roundingNonDetTab+ roundingDetTab+ listOfMcaKey:
@@ -95,6 +98,7 @@ def run(dicParam):
 
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
+
     resDict={}
 
     listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
@@ -138,7 +142,12 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
 
 
-def verrou_extract_stat(extract_run, rep, listOfStat):
+def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref):
+
+    listOfStat=copy.deepcopy(listOfConfigStat)
+    if listOfConfigStat[ref]==0:
+        listOfStat[ref]=1
+
     def getValueData(repName):
         try:
             return float(subprocess.getoutput(extract_run +" "+ repName))
@@ -147,7 +156,9 @@ def verrou_extract_stat(extract_run, rep, listOfStat):
             sys.exit(42)
 
 
-    return extractLoopOverComputation(rep,listOfStat, getValueData)
+    res=extractLoopOverComputation(rep,listOfStat, getValueData)
+    res["ref"]=res[ref]
+    return res
 
 def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None):
     def getValueData(repName):
@@ -310,7 +321,7 @@ def plot_hist(data, png=False, relative=False):
     #mcaMode=[ x  for x in data.keys()  if x.startswith("mca")  ]
     #verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
 #    for roundingMode in verrouMode+mcaMode:
-    for roundingMode in sorted([x for x in data.keys()]):
+    for roundingMode in sorted([x for x in data.keys() if x!="ref"]):
         if data[roundingMode]==None:
             continue
         if len(data[roundingMode])==1:
@@ -398,7 +409,7 @@ def maxDiff(tab,ref):
     res=max([abs(x-ref) for x in tab ])
     return res
 
-def print_stat(data, ref="nearest"):
+def print_stat(data, ref):
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
 
@@ -411,10 +422,10 @@ def print_stat(data, ref="nearest"):
             listOfTab+=[roundingMode]
 
     refValue=None
-    if ref in listOfScalar:
-        refValue=data[ref][0]
+    if len(data["ref"])==1:
+        refValue=data["ref"][0]
     else:
-        refValue=numpy.mean(data[ref])
+        refValue=numpy.mean(data["ref"])
     print("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
     maxEstim=0
@@ -430,7 +441,7 @@ def print_stat(data, ref="nearest"):
 
     estimRel= maxEstim / refValue
     estimRelBit= -math.log2(estimRel)
-    print("%s:\t%e\t%.4e\t%.2fbit"%("all", estim,estimRel, estimRelBit))
+    print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
 
 
 
@@ -451,6 +462,8 @@ class config_stat:
         self._relative=False
         self._pattern=[]
         self._runOnly=False
+        self._ref="nearest"
+        self._noPlot=False
 
         self.parseOpt(argv[1:])
 
@@ -469,7 +482,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "samples=","rep=", "png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","rep=", "ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
             print("argv:", argv)
@@ -509,6 +522,12 @@ class config_stat:
                 continue
             if opt in ["--rounding-list"]:
                 self.roundingTab+=arg.split(",")
+                continue
+            if opt in ["--ref"]:
+                self._ref=arg
+                continue
+            if opt in ["--no-plot"]:
+                self._noPlot=True
                 continue
             if opt in ("--mca",):
                 if arg=="":
@@ -582,9 +601,12 @@ class config_stat:
         print( "\t -r --rep=:  working directory [default verrou.stat]")
         print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
         print( "\t --num-threads= : number of parallel run")
-        print( "\t --run-only= : do not plot")
-        print( "\t --rounding-list= : rounding mode (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
+        print( "\t --run-only : only run  neither plot histogramm nor print stat ")
+        print( "\t --no-plot : do not plot hist (ie. print stat only)")
+
+        print( "\t --rounding-list= : rounding modes (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
+        print( "\t --ref= reference rounding mode for error estimator (in list [nearest,upward,downward,toward_zero,farthest, [random|average][|_det|_comdet]]) [default nearest]" )
         print( "\t -p --png= : png file to export plot")
         print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
@@ -640,6 +662,14 @@ class config_stat:
                    "toward_zero":nbDet,
                    "farthest":nbDet,
                    "float":0 }
+        for key in self.roundingTab:
+            if key in self.listMCA:
+                continue
+            if not key in nbSamples.keys():
+                print("invalid rounding mode :",key)
+                self.help()
+                self.failure()
+
         for key in nbSamples:
             if key not in self.roundingTab:
                 nbSamples[key]=0
@@ -658,30 +688,38 @@ class config_stat:
     def run_only(self):
         return self._runOnly
 
+    def no_plot(self):
+        return self._noPlot
+
     def useSpecificPattern(self):
         return len(self._pattern)!=0
 
     def pattern(self):
         return self._pattern
 
+    def ref(self):
+        return self._ref
+
 if __name__=="__main__":
     conf=config_stat(sys.argv)
     nbSamples=conf.getSampleConfig()
 
     if conf.runScript()!=None:
-        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.num_threads())
+        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.ref(),conf.num_threads())
     if conf.run_only():
         sys.exit(0)
 
     if conf.isHist():
         if not conf.useSpecificPattern():
-            dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples)
-            plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
-            print_stat(dataExtracted)
+            dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref())
+            if not conf.no_plot():
+                plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+            print_stat(dataExtracted, conf.ref())
         else:
-            dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern())
-            plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
-            print_stat(dataExtracted)
+            dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref())
+            if not conf.no_plot():
+                plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+            print_stat(dataExtracted, conf.ref())
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)
