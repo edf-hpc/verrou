@@ -118,8 +118,6 @@ class verrouTask:
 
 
     def cmpOneSample(self,i, assertRun=True):
-        if self.refDir==None: #if there are no reference provided cmp is ignored
-            return self.PASS
 
         rundir= self.nameDir(i)
         if assertRun:
@@ -127,6 +125,9 @@ class verrouTask:
                 getResult(self.subProcessRun[i])
                 if self.postRunLambda!=None:
                     self.postRunLambda(rundir)
+
+        if self.refDir==None: #if there are no reference provided cmp is ignored
+            return self.PASS
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
@@ -274,7 +275,8 @@ class verrouTask:
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
             futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
             concurrent.futures.wait(futures)
-        if self.FAIL in [futur.result() for futur in futures]:
+        results=[futur.result() for futur in futures]
+        if self.FAIL in results:
             indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
             failIndices=[workToDo[indice] for indice in indices ]
             print("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
