@@ -158,6 +158,8 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref):
 
     res=extractLoopOverComputation(rep,listOfStat, getValueData)
     res["ref"]=res[ref]
+    if listOfConfigStat[ref]==0:
+        res.pop(ref)
     return res
 
 def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None):
