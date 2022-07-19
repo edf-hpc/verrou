@@ -1,4 +1,4 @@
-.PHONY: checkRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
+.PHONY: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
 
 
 all: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro
