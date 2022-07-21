@@ -6,27 +6,24 @@ import sys
 import subprocess
 
 
-detRounding=["random_det","average_det"]
-#detRounding=[]
+detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 verrouConfigList={
-#    "local":      {"special_rounding_tab":["random_det", "average_det"]},
     "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
-    "merge-NUM_AVG_1-dietzfelbinger": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=1 --with-verrou-det-hash=dietzfelbinger", "special_rounding_tab":detRounding},
-    "merge-NUM_AVG_2-multiply_shift": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=2 --with-verrou-det-hash=multiply_shift", "special_rounding_tab":detRounding},
-    "merge-NUM_AVG_3-double_tabulation": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=3 --with-verrou-det-hash=double_tabulation", "special_rounding_tab":detRounding},
-    "merge-NUM_AVG_4-mersenne_twister": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=4 --with-verrou-det-hash=mersenne_twister", "special_rounding_tab":detRounding},
-    "merge-NUM_AVG_8": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=8", "special_rounding_tab":detRounding},
+    "dietzfelbinger": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger", "special_rounding_tab":detRounding},
+    "multiply_shift": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift", "special_rounding_tab":detRounding},
+    "double_tabulation": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation", "special_rounding_tab":detRounding},
+    "mersenne_twister": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister", "special_rounding_tab":detRounding},
 }
-
 
 valgrindConfigList={
-    "valgrind-3.17.0": {"file": "/home/E52654/srcVerrou/valgrind-3.17.0.tar.bz2"}
+    "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
+    "valgrind-3.19.0": {"file": "valgrind-3.19.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2"}
 }
 
-nbRunTuple=(5,5)
+nbRunTuple=(2,5)
 
-roundingList=["random", "average", "nearest", "upward"]
-roundingList=["random", "average"]#, "nearest", "upward"]
+roundingListPerf=["random", "average", "nearest"]
+roundingListNum=["random", "average", "nearest", "upward", "downward"]#, "nearest", "upward"]
 verrouOptionsList=[("","")]
 
 
@@ -53,6 +50,12 @@ def buildConfig(name):
             os.mkdir(buildRep)
         return
     verrouConfigParam=verrouConfigList[name]
+
+    valgrindArchive=valgrindConfigList[verrouConfigParam["valgrind"]]["file"]
+    if not os.path.exists(valgrindArchive):
+        valgrindUrl=valgrindConfigList[verrouConfigParam["valgrind"]]["url"]
+        runCmd("wget --output-document=%s %s"%(valgrindArchive,valgrindUrl))
+
     if not os.path.exists(buildRep):
         runCmd("./buildConfig.sh %s %s %s \"%s\""%(
             buildRep,
@@ -68,7 +71,7 @@ def runPerfConfig(name):
         os.mkdir(repMeasure)
     for binName in perfBinNameList:
         for (optName, opt) in verrouOptionsList:
-            roundingTab=roundingList + verrouConfigList[name]["special_rounding_tab"]
+            roundingTab=roundingListPerf + verrouConfigList[name]["special_rounding_tab"]
             for rounding in roundingTab:
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin+"/"+binName,perfCmdParam)
                 toPrint=True
@@ -92,7 +95,7 @@ def runNumConfig(name):
         if opt!="":
             print("verrou opt not take into account")
             sys.exit(42)
-        roundingTab=roundingList + verrouConfigList[name]["special_rounding_tab"]
+        roundingTab=roundingListNum + verrouConfigList[name]["special_rounding_tab"]
         roundingStr=",".join(roundingTab)
         cmd="verrou_plot_stat --rep=%s --rounding-list=%s --run-only %s"%( repNum, roundingStr,  pathNumBin+"/"+runNum)
         print(cmd)
@@ -106,19 +109,24 @@ def plotNumConfig(name):
     if not os.path.exists(repNum):
         os.mkdir(repNum)
 
+    histRep="histPng"
+    if not os.path.exists(histRep):
+            os.mkdir(histRep)
+
     for (optName, opt) in verrouOptionsList:
         if opt!="":
             print("verrou opt not take into account")
             sys.exit(42)
 
-        roundingTab=roundingList + verrouConfigList[name]["special_rounding_tab"]
+        roundingTab=roundingListNum + verrouConfigList[name]["special_rounding_tab"]
         roundingStr=",".join(roundingTab)
         for envConfig in numEnvConfigTab:
             envStr=""
+            pngStr=os.path.join(histRep,name+"-")
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
-
-            cmd="verrou_plot_stat --rep=%s --rounding-list=%s %s %s"%( repNum, roundingStr,  pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+                pngStr+=envConfig[key]
+            cmd="verrou_plot_stat --rep=%s --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
                 runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
@@ -172,7 +180,7 @@ def extractPerf(name):
         res[binName]={}
         for (optName, opt) in verrouOptionsList:
             res[binName][optName]={}
-            for rounding in roundingList+verrouConfigList[name]["special_rounding_tab"]:
+            for rounding in roundingListPerf+verrouConfigList[name]["special_rounding_tab"]:
                 resPerf=None
                 for i in range(nbRunTuple[1]):
                     outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
@@ -209,7 +217,7 @@ def nonPerfRegressionAnalyze(data, refName, refOption=""):
         for (optionStr, optionVal) in verrouOptionsList:
             print("\truntime verrou option : ", optionStr)
             dataNew=data[newVersion]
-            roundingTab=roundingList +list(set(verrouConfigList[refName]["special_rounding_tab"]).intersection(set(verrouConfigList[newVersion]["special_rounding_tab"])))
+            roundingTab=roundingListPerf +list(set(verrouConfigList[refName]["special_rounding_tab"]).intersection(set(verrouConfigList[newVersion]["special_rounding_tab"])))
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
@@ -225,7 +233,7 @@ def slowDownAnalyze(data):
         for (optionStr, optionVal) in verrouOptionsList:
             print("\t runtime verrou option : ", optionStr)
             dataNew=data[version]
-            roundingTab=roundingList + verrouConfigList[version]["special_rounding_tab"]
+            roundingTab=roundingListPerf + verrouConfigList[version]["special_rounding_tab"]
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
