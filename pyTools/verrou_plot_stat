@@ -299,17 +299,17 @@ def runParaview(rep):
     process.wait()
 
 
-def listOfHistogram(listOfBrutData):
+def listOfHistogram(listOfBrutData, nb_bin):
     maxValue=max([max([a for a in data if a!=float("inf")]) for data in listOfBrutData])
     minValue=min([min([a for a in data if a!=float("-inf")]) for data in listOfBrutData])
 
     numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")) } for data in listOfBrutData]
     listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN")] for data in listOfBrutData  ]
 
-    bins=  (numpy.histogram(listOfBrutData[0], bins=40, range=[minValue, maxValue]))[1]
+    bins=  (numpy.histogram(listOfBrutData[0], bins=nb_bin, range=[minValue, maxValue]))[1]
     return bins,listOfFilteredBrutData,numOfSpecialFloat
 
-def plot_hist(data, png=False, relative=False):
+def plot_hist(data, png=False, relative=False, nb_bin=40):
     if relative!=False:
         plt.rcParams['text.usetex'] = True
 
@@ -349,7 +349,7 @@ def plot_hist(data, png=False, relative=False):
     #extraction of same dataset size and histogram generation
     size=min([len(data[key]) for key in listOfTab  ])
 #    hists=listOfHistogram([[convert(x) for x in data[key][0:size]] for key in listOfTab ])
-    bins,datas, numOfSpecialFloat=listOfHistogram([[convert(x) for x in data[key][0:size] ] for key in listOfTab  ])
+    bins,datas, numOfSpecialFloat=listOfHistogram([[convert(x) for x in data[key][0:size] ] for key in listOfTab  ], nb_bin)
 
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
@@ -466,6 +466,7 @@ class config_stat:
         self._runOnly=False
         self._ref="nearest"
         self._noPlot=False
+        self._nbBin=40
 
         self.parseOpt(argv[1:])
 
@@ -484,7 +485,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","rep=", "ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
             print("argv:", argv)
@@ -528,6 +529,9 @@ class config_stat:
             if opt in ["--ref"]:
                 self._ref=arg
                 continue
+            if opt in ["--nb-bin"]:
+                self._nbBin=int(arg)
+                continue
             if opt in ["--no-plot"]:
                 self._noPlot=True
                 continue
@@ -562,7 +566,7 @@ class config_stat:
             self.roundingTab.remove("det")
             self.roundingTab+=[x for x in roundingDetTab if x!="float"]
 
-        print("rounding list :", self.roundingTab)
+#        print("rounding list :", self.roundingTab)
 
         if self.run_only():
             if len(args)==1:
@@ -605,6 +609,7 @@ class config_stat:
         print( "\t --num-threads= : number of parallel run")
         print( "\t --run-only : only run  neither plot histogramm nor print stat ")
         print( "\t --no-plot : do not plot hist (ie. print stat only)")
+        print( "\t --nb-bin= : number of bins for histogram [default 40] ")
 
         print( "\t --rounding-list= : rounding modes (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
@@ -624,6 +629,9 @@ class config_stat:
             self.failure()
     def failure(self):
         sys.exit(42)
+
+    def nbBin(self):
+        return self._nbBin
 
     def runScript(self):
         return self._runScript
@@ -715,12 +723,12 @@ if __name__=="__main__":
         if not conf.useSpecificPattern():
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref())
             if not conf.no_plot():
-                plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+                plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
             print_stat(dataExtracted, conf.ref())
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref())
             if not conf.no_plot():
-                plot_hist(dataExtracted, png=conf.png, relative=conf.relative())
+                plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
             print_stat(dataExtracted, conf.ref())
 
     if conf.isTime():

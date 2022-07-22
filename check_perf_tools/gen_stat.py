@@ -18,6 +18,9 @@ extractNum="extract.py"
 numEnvConfigTab=[{"ALGO":algo, "ALGO_TYPE":realtype} for realtype in ["double", "float"] for algo in ["Seq", "Rec"]]
 
 
+def runCmd(cmd):
+    subprocess.call(cmd, shell=True)
+
 def runCmdToLines(cmd):
     process=subprocess.run(cmd, shell=True,capture_output=True, text=True)
     return process.stdout.split("\n")
@@ -73,7 +76,7 @@ def checkCoherence(stat):
                 bitTab=[float(x) for x in set(resTab)]
                 maxError=max([abs(x-bitTab[0])/ bitTab[0] for x in bitTab ])
                 if maxError > 0.01:
-                    print(code + " "+rounding+ " " +str(resTab)) 
+                    print(code + " "+rounding+ " " +str(resTab))
                     print("maxError:",maxError)
                     return False
         resTab =[stat[conf][code]["nearest"] for conf in buildConfList]
@@ -115,18 +118,60 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
     tab.end()
 
-if __name__=="__main__":
-    statRes=extractStat()
 
+
+def plotNumConfig():
+    histRep="histPng"
+    if not os.path.exists(histRep):
+        os.mkdir(histRep)
+
+    for name in buildConfList:
+        repNum="buildRep-%s/num"%(name)
+        if not os.path.exists(repNum):
+            os.mkdir(repNum)
+
+        roundingTab=detRounding+ roundingListNum
+        roundingStr=",".join(roundingTab)
+        for envConfig in numEnvConfigTab:
+            envStr=""
+            pngStr=os.path.join(histRep,name+"-")
+            for key in envConfig:
+                envStr+= " "+key+"="+envConfig[key]
+                pngStr+=envConfig[key]
+            cmd="verrou_plot_stat --rep=%s --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            print(envStr, cmd)
+            if name!="local":
+                runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
+            else:
+                runCmd("%s %s "%(envStr,cmd))
+
+
+if __name__=="__main__":
+
+    plotNumConfig()
+
+    statRes=extractStat()
     if checkCoherence(statRes):
         print("checkCoherence OK")
     else:
         print("checkCoherence FAILURE")
 
-#    tab=tabular()
     tab=tabularLatex("lcccc", output="tabDet.tex")
     feedTab(statRes,detTab=["_det"], ref=2**20*0.1)
 
 
     tab=tabularLatex("lcccc", output="tabComDet.tex")
     feedTab(statRes,detTab=["_comdet"], ref=2**20*0.1)
+
+
+    cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    print(cmd)
+    runCmd(cmd)
+
+
+    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloatmersenne_twisterDetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    print(cmd)
+    runCmd(cmd)
+    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    print(cmd)
+    runCmd(cmd)
