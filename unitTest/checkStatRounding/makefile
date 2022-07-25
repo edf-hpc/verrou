@@ -1,3 +1,4 @@
+
 SOURCE=checkStatRounding.cxx
 EXEC=checkStatRounding
 
@@ -22,17 +23,22 @@ include ../flag.mk
 FLAGS = $(FLAGS) $(DEBUGFLAGS)
 
 
-.PHONY: run 
+.PHONY: run cleanStat
 
 
-test:$(EXEC) run.sh extract.py
+test:$(EXEC) cleanStat run.sh extract.py
 	ALGO_TYPE=float ALGO=Seq verrou_plot_stat --sample=2 --num-threads=2 --rounding=det,random,random_det,average,average_det --ref=upward --relative=104857.6 --png=floatSeq.png run.sh extract.py
 	ALGO_TYPE=double ALGO=Seq verrou_plot_stat --rep=verrou.stat.2 --sample=2  --rounding=random  --no-plot run.sh extract.py
-
+	ALGO_TYPE=double ALGO=Seq verrou_plot_stat --rep=verrou.stat.3 --seed=42 --sample=2  --rounding=random  --no-plot run.sh extract.py |sed s/verrou.stat.3/verrou.stat.x/ >  res3
+	ALGO_TYPE=double ALGO=Seq verrou_plot_stat --rep=verrou.stat.4 --seed=42 --sample=2  --rounding=random  --no-plot run.sh extract.py |sed s/verrou.stat.4/verrou.stat.x/ > res4
+	diff res3 res4
 
 $(EXEC): $(SOURCE)
 	$(CXX) $(FLAGS1) -o $(EXEC) $(SOURCE)
 
 
-clean:
-	rm -rf $(EXEC) verrou.stat verrou.stat.2
+clean: cleanStat
+	rm -rf $(EXEC)
+
+cleanStat:
+	rm -rf verrou.stat verrou.stat.2 verrou.stat.3 verrou.stat.4

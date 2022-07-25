@@ -60,7 +60,7 @@ def extractStat():
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 concatStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --rounding-list=%s --no-plot %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             lineTab=runCmdToLines(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
             resName[concatStr]=parsePlotStat(lineTab)
@@ -138,7 +138,7 @@ def plotNumConfig():
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 pngStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
                 runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
@@ -164,14 +164,14 @@ if __name__=="__main__":
     feedTab(statRes,detTab=["_comdet"], ref=2**20*0.1)
 
 
-    cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
     print(cmd)
     runCmd(cmd)
 
 
-    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloatmersenne_twisterDetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloatmersenne_twisterDetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
     print(cmd)
     runCmd(cmd)
-    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
     print(cmd)
     runCmd(cmd)

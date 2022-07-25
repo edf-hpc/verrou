@@ -339,11 +339,14 @@ det2
               pseudo-Random Number Generator used for the
 		<command>random</command> or
 		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
+		The same option can also be used to set the seed of the hash function  used for the random_[com]det and average_[com]det
+		rounding mode.
 		This helps reproducing the behaviour of a program under Verrou.
               </para>
               <para>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
               at each execution.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_SEED</command>.</para>
             </listitem>
           </varlistentry>
 

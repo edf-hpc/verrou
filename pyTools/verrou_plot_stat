@@ -43,7 +43,7 @@ roundingNonDetTab=["random", "average", "random_det","average_det", "random_comd
 
 
 
-def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None):
+def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None):
     if not os.path.exists(rep):
         os.mkdir(rep)
     listOfStat=copy.deepcopy(listOfConfigStat)
@@ -53,6 +53,12 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None):
     listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
     for roundingMode in roundingNonDetTab+ roundingDetTab+ listOfMcaKey:
         nbSample=listOfStat[roundingMode]
+
+        seedTab=None
+        if seed!=None:
+            import random
+            random.seed(seed)
+            seedTab=random.sample(range(0,2**32-1), nbSample)
         if nbSample==0:
             continue
         name=("%s")%(roundingMode)
@@ -84,7 +90,7 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None):
         refDir=None
         script_cmp=None
 
-        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, envvars , verbose=True)
+        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, envvars , verbose=True, seedTab=seedTab)
         task.run(earlyExit=False)
 
 
@@ -467,6 +473,7 @@ class config_stat:
         self._ref="nearest"
         self._noPlot=False
         self._nbBin=40
+        self._seed=None
 
         self.parseOpt(argv[1:])
 
@@ -485,7 +492,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","seed=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
         except getopt.GetoptError:
             self.help()
             print("argv:", argv)
@@ -507,6 +514,9 @@ class config_stat:
                 continue
             if opt in ("-s","--samples"):
                 self._nbSample=int(arg)
+                continue
+            if opt in ("--seed"):
+                self._seed=int(arg)
                 continue
             if opt in ("--num-threads"):
                 self._num_threads=int(arg)
@@ -710,12 +720,15 @@ class config_stat:
     def ref(self):
         return self._ref
 
+    def seed(self):
+        return self._seed
+
 if __name__=="__main__":
     conf=config_stat(sys.argv)
     nbSamples=conf.getSampleConfig()
 
     if conf.runScript()!=None:
-        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.ref(),conf.num_threads())
+        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.ref(),conf.num_threads(), conf.seed())
     if conf.run_only():
         sys.exit(0)
 

@@ -1232,6 +1232,7 @@ static void vr_post_clo_init(void)
 
    vr_env_clo("VERROU_TRACE","--trace");
    vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
+   vr_env_clo("VERROU_SEED","--vr-seed");
 
    if (vr.genExclude) {
      vr.genExcludeUntil = vr.exclude;

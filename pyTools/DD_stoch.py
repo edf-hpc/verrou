@@ -71,7 +71,7 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True):
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None):
         self.dirname=dirname
         self.refDir=refDir
         self.runCmd=runCmd
@@ -88,6 +88,7 @@ class verrouTask:
         self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
         self.preRunLambda=None
         self.postRunLambda=None
+        self.seedTab=seedTab
 
     def setPostRun(self, postLambda):
         self.postRunLambda=postLambda
@@ -110,6 +111,8 @@ class verrouTask:
     def runOneSample(self,i):
         rundir= self.nameDir(i)
         env={key:self.runEnv[key] for key in self.runEnv}
+        if self.seedTab!=None:
+            env["VERROU_SEED"]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
