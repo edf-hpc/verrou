@@ -119,10 +119,11 @@ def generatePairOfAvailableComputation():
 
 def verrouCerrFilter(res):
     pidStr=(res[0].split())[0]
+    pidStrBis=pidStr.replace("==","--")
     # pidStr="==2958=="
     newRes=[]
     for line in res:
-        newLine=line.replace(pidStr, "")
+        newLine=line.replace(pidStr, "").replace(pidStrBis, "")
         if newLine.startswith(" Backend verrou simulating ") and newLine.endswith(" rounding mode"):
             continue
         if newLine.startswith(" First seed : "):
@@ -182,7 +183,7 @@ def checkVerrouInvariant(allResult):
             for i in range(len(ref)):
                 if cerr[i]!=ref[i]:
                     print("cerr:", cerr[i])
-                    print("ref:", ref[i])
+                    print("ref: ", ref[i],"\n")
             print("KO : incoherent number of operation ("+rounding+")")
             ko+=1
         else:
