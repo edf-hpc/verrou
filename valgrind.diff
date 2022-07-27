@@ -165,16 +165,3 @@ index 3c893c680..d36eadec3 100644
  <title>See Also</title>
  
 
-diff --git a/docs/xml/vg-entities.xml b/docs/xml/vg-entities.xml
-index 7d04ee795..a105f0b50 100644
---- a/docs/xml/vg-entities.xml
-+++ b/docs/xml/vg-entities.xml
-@@ -6,7 +6,7 @@
- 
- <!-- valgrind release + version stuff -->
- <!ENTITY rel-type    "Release">
--<!ENTITY rel-version "3.19.0">
-+<!ENTITY rel-version "3.19.0+verrou-dev">
- <!ENTITY rel-date    "11 Apr 2022">
- 
- <!-- where the docs are installed -->
