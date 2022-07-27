@@ -148,7 +148,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
 
 
-def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref):
+def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtractError):
 
     listOfStat=copy.deepcopy(listOfConfigStat)
     if listOfConfigStat[ref]==0:
@@ -159,22 +159,32 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref):
             return float(subprocess.getoutput(extract_run +" "+ repName))
         except ValueError as err:
             print("Value Error while extracting value from :"+ extract_run +" "+ repName)
-            sys.exit(42)
+            if continueOnExtractError:
+                return "fail"
+            else:
+                sys.exit(42)
 
 
     res=extractLoopOverComputation(rep,listOfStat, getValueData)
     res["ref"]=res[ref]
+    if "fail" in res["ref"]:
+        print("Even with --continue-on-extract-error the reference should not contain error")
+        sys.exit()
+
     if listOfConfigStat[ref]==0:
         res.pop(ref)
     return res
 
-def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None):
+def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None, continueOnExtractError=False):
     def getValueData(repName):
         try:
             return float(subprocess.getoutput(extract_run +" "+ repName))
         except ValueError as err:
             print("Value Error while extracting value from :"+ extract_run +" "+ repName)
-            sys.exit(42)
+            if continueOnExtractError:
+                return "fail"
+            else:
+                sys.exit(42)
 
     if listOfName==None:
         listOfSplitName=[pattern.split("/") for pattern in listOfPattern ]
@@ -306,13 +316,13 @@ def runParaview(rep):
 
 
 def listOfHistogram(listOfBrutData, nb_bin):
-    maxValue=max([max([a for a in data if a!=float("inf")]) for data in listOfBrutData])
-    minValue=min([min([a for a in data if a!=float("-inf")]) for data in listOfBrutData])
+    maxValue=max([max([a for a in data if a!=float("inf") if a!="fail"]) for data in listOfBrutData])
+    minValue=min([min([a for a in data if a!=float("-inf")if a!="fail"]) for data in listOfBrutData])
 
-    numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")) } for data in listOfBrutData]
-    listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN")] for data in listOfBrutData  ]
+    numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")),"fail":data.count("fail") } for data in listOfBrutData]
+    listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN") and x!="fail"] for data in listOfBrutData  ]
 
-    bins=  (numpy.histogram(listOfBrutData[0], bins=nb_bin, range=[minValue, maxValue]))[1]
+    bins=  (numpy.histogram(listOfFilteredBrutData[0], bins=nb_bin, range=[minValue, maxValue]))[1]
     return bins,listOfFilteredBrutData,numOfSpecialFloat
 
 def plot_hist(data, png=False, relative=False, nb_bin=40):
@@ -369,13 +379,14 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     plthandle=[]
     for i in range(len(name)):
         special=numOfSpecialFloat[i]["-inf"] + numOfSpecialFloat[i]["inf"]+numOfSpecialFloat[i]["NaN"]
+        fail=numOfSpecialFloat[i]["fail"]
         namei=name[i]
-        if special!=0:
-            namei+=":"
-            for k in numOfSpecialFloat[i].keys():
-                if numOfSpecialFloat[i][k]!=0:
-                    namei+= k+"("+str(numOfSpecialFloat[i][k])+"):"
-            namei=namei[0:-1]
+        if special!=0 and fail!=0:
+            namei+=" (#Nan/Inf:%i #fail:%i)"%(special, fail)
+        if special==0 and fail!=0:
+            namei+=" (#fail:%i)"%(fail)
+        if special!=0 and fail==0:
+            namei+=" (#Nan/Inf:%i)"%(special)
 
         if plt.rcParams['text.usetex']:
             namei=namei.replace("_","\_")
@@ -417,6 +428,18 @@ def maxDiff(tab,ref):
     res=max([abs(x-ref) for x in tab ])
     return res
 
+
+def computeRelative(estim, refValue):
+    if abs(refValue)>=1.e-308:
+        estimRel= estim / abs(refValue)
+        if estimRel>0:
+            estimRelBit= -math.log2(estimRel)
+        else:
+            estimRelBit=float("Inf")
+        return (estimRel, estimRelBit)
+    else:
+        return (float("NaN"), float("NaN"))
+
 def print_stat(data, ref):
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
@@ -437,20 +460,42 @@ def print_stat(data, ref):
     print("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
     maxEstim=0
+    nbTotalError=0
+    nbTotalSample=0
     for rounding in listOfTab:
-        estim=    maxDiff(data[rounding],refValue)
-        estimRel= estim / refValue
-        estimRelBit= -math.log2(estimRel)
-        maxEstim=max(estim,maxEstim)
-        print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+        if not "fail" in data[rounding]:
+            nbTotalSample+=len(data[rounding])
+            estim=    maxDiff(data[rounding],refValue)
+            maxEstim=max(estim,maxEstim)
+            estimRel, estimRelBit=computeRelative(estim, refValue)
+            print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+        else:
+            nbError=data[rounding].count("fail")
+            nbTotalError+=nbError
+            nbTotalSample+=len(data[rounding])
+            if nbError==len(data):
+                print("%s (100\% fail) :"%(rounding))
+            else:
+                estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
+                maxEstim=max(estim,maxEstim)
+                estimRel, estimRelBit=computeRelative(estim, refValue)
+                print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+
     for rounding in listOfScalar:
-        estim=    maxDiff(data[rounding],refValue)
-        maxEstim=max(estim,maxEstim)
 
-    estimRel= maxEstim / refValue
-    estimRelBit= -math.log2(estimRel)
-    print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
-
+        nbError=data[rounding].count("fail")
+        nbTotalError+=nbError
+        nbTotalSample+=len(data[rounding])
+        if nbError==0:
+            estim=    maxDiff(data[rounding],refValue)
+            maxEstim=max(estim,maxEstim)
+        else:
+            print("Warning %s failing")
+    estimRel, estimRelBit=computeRelative(maxEstim, refValue)
+    if nbTotalError==0:
+        print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
+    else:
+        print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
 
 
 class config_stat:
@@ -474,7 +519,7 @@ class config_stat:
         self._noPlot=False
         self._nbBin=40
         self._seed=None
-
+        self._continueOnExtractError=False
         self.parseOpt(argv[1:])
 
         if len(self._pattern)!=0 and (self.isMontcarlo==True or self._nbSample!=None or self._time==True):
@@ -492,7 +537,7 @@ class config_stat:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","seed=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern="])
+            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","seed=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern=", "continue-on-extract-error"])
         except getopt.GetoptError:
             self.help()
             print("argv:", argv)
@@ -544,6 +589,9 @@ class config_stat:
                 continue
             if opt in ["--no-plot"]:
                 self._noPlot=True
+                continue
+            if opt in ["--continue-on-extract-error"]:
+                self._continueOnExtractError=True
                 continue
             if opt in ("--mca",):
                 if arg=="":
@@ -628,6 +676,7 @@ class config_stat:
         print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
         print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
+        print( "\t --continue-on-extract-error")
 
     def checkScriptPath(self,fpath):
         if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
@@ -654,6 +703,9 @@ class config_stat:
 
     def extractVarScript(self):
         return self._extractVarScript
+
+    def continueOnExtractError(self):
+        return self._continueOnExtractError
 
     def isHist(self):
         return self._hist
@@ -734,12 +786,12 @@ if __name__=="__main__":
 
     if conf.isHist():
         if not conf.useSpecificPattern():
-            dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref())
+            dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref(), conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
             print_stat(dataExtracted, conf.ref())
         else:
-            dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref())
+            dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref(), continueOnExtractError=conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
             print_stat(dataExtracted, conf.ref())
