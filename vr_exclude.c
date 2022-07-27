@@ -105,8 +105,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   VG_(umsg)("Loading exclusions list from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
-    VG_(umsg)("ERROR (open)\n");
-    return list;
+    VG_(tool_panic)("ERROR (open)\n");
   }
 
   SizeT nLine = LINE_SIZEMAX;
@@ -124,7 +123,8 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 	 ++c) {}
     if (*c == 0 || c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse) :%s \n",line);
-      return list;
+      VG_(tool_panic)("invalid exclude list file");
+      continue;
     }
     *c = 0;
 
@@ -252,7 +252,7 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   VG_(umsg)("Loading list of included sources from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
-    VG_(umsg)("ERROR (open)\n");
+    VG_(tool_panic)("ERROR (open)\n");
     return list;
   }
 
@@ -272,7 +272,8 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 ++c) {}
     if (*c == 0 || c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse1) : %s\n",line);
-      return list;
+      VG_(tool_panic)("invalid load source list file");
+      continue;
     }
     *c = 0;
 
@@ -287,7 +288,8 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 ++c) {}
     if (c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse2) : %s\n",line);
-      return list;
+      VG_(tool_panic)("invalid load source list file");
+      continue;
     }
     if (*c==0) {
       c = line + LINE_SIZEMAX;
