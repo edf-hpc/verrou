@@ -2,7 +2,7 @@ language: cpp
 dist: xenial
 sudo: required
 env:
-  - VALGRIND_VERSION=VALGRIND_3_17_0
+  - VALGRIND_VERSION=VALGRIND_3_19_0
   - VALGRIND_VERSION=master
 matrix:
   allow_failures:

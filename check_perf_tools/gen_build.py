@@ -8,11 +8,11 @@ import subprocess
 
 detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 verrouConfigList={
-    "master":     { "valgrind":"valgrind-3.17.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
-    "dietzfelbinger": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger", "special_rounding_tab":detRounding},
-    "multiply_shift": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift", "special_rounding_tab":detRounding},
-    "double_tabulation": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation", "special_rounding_tab":detRounding},
-    "mersenne_twister": { "valgrind":"valgrind-3.17.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister", "special_rounding_tab":detRounding},
+    "master":     { "valgrind":"valgrind-3.19.0", "branch_verrou":"master"      ,"flags":"--enable-verrou-fma", "special_rounding_tab":[]},
+    "dietzfelbinger": { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger", "special_rounding_tab":detRounding},
+    "multiply_shift": { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift", "special_rounding_tab":detRounding},
+    "double_tabulation": { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation", "special_rounding_tab":detRounding},
+    "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/merge_det" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister", "special_rounding_tab":detRounding},
 }
 
 valgrindConfigList={
