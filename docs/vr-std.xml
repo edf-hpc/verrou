@@ -171,10 +171,10 @@
         This is a variant of the <command>average</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
         </listitem>
-	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.
+	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
         </listitem>
 
-	  <listitem><para><command>average_comdet:</command> variant of <command>average_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.
+	  <listitem><para><command>average_comdet:</command> variant of <command>average_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
         </listitem>
 
 

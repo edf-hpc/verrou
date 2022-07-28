@@ -37,13 +37,13 @@
       </para>
 
       <programlisting>
-float det (float x) {
-  return 2*x;
+double det (double x) {
+  return 0.1*x;
 }
 
 int main () {
-  float x1 = det (42);
-  float x2 = det (42);
+  double x1 = det (42);
+  double x2 = det (42);
   assert (x1 == x2);
 } </programlisting>
 
@@ -83,16 +83,16 @@ int main () {
           <programlisting>
 #include &lt;valgrind/verrou.h&gt;
 
-float det (float x) {
+double det (double x) {
   VERROU_START_DETERMINISTIC(0);
-  float result = 2*x;
+  double result = 0.1*x;
   VERROU_STOP_DETERMINISTIC(0);
   return result;
 }
 
 int main () {
-  float x1 = det (42);
-  float x2 = det (42);
+  double x1 = det (42);
+  double x2 = det (42);
   assert (x1 == x2);
 } </programlisting>
           whose execution yields the following output:
@@ -128,13 +128,13 @@ void verrou_stopDeterministic() {
   VERROU_STOP_DETERMINISTIC(0);
 }
 
-float det1 () {
+double det1 () {
   verrou_startDeterministic();
   /* ... */
   verrou_stopDeterministic();
 }
 
-float det2 () {
+double det2 () {
   verrou_startDeterministic();
   /* ... */
   verrou_stopDeterministic();
