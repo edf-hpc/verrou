@@ -206,6 +206,8 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
 if __name__=="__main__":
     slowDown=True
 
+    runCmd("make -C ../unitTest/testPerf/")
+
     for name in buildConfigList:
         runPerfConfig(name)
     if slowDown:
