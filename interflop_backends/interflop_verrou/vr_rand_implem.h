@@ -46,19 +46,15 @@ inline uint64_t vr_rand_getSeed (const Vr_Rand * r);
 
 
 inline static uint64_t vr_rand_next (Vr_Rand * r){
+#ifndef USE_XOSHIRO
   return tinymt64_generate_uint64(&(r->gen_) );
+#else
+  return xoshiro256plus_next(r->rng256_);
+#endif
 }
 
-inline uint32_t vr_loop(){
+inline static uint32_t vr_loop(){
   return 63;
-}
-
-inline int32_t vr_rand_max () {
-  int32_t max=2147483647;  //2**31-1
-  return max;
-}
-
-inline void private_gen_init(Vr_Rand * r){
 }
 
 
@@ -67,9 +63,12 @@ inline void private_gen_init(Vr_Rand * r){
 inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   r->count_   = 0;
   r->seed_    = c;
-  private_gen_init(r);
-  tinymt64_init(&(r->gen_), r->seed_);
 
+  tinymt64_init(&(r->gen_), r->seed_);
+#ifdef USE_XOSHIRO
+  init_xoshiro128_state(r->rng128_, r->seed_);
+  init_xoshiro256_state(r->rng256_, r->seed_);
+#endif
   r->current_ = vr_rand_next (r);
   vr_tabulation_hash::genTable((r->gen_));
   //  vr_twisted_tabulation_hash::genTable((r->gen_));
@@ -128,11 +127,19 @@ constexpr double maxAvgInv(1/4294967296.);
 
 inline double vr_rand_ratio(Vr_Rand *r){
 #if VERROU_NUM_AVG==1
+#ifndef USE_XOSHIRO
   const double res=tinymt64_generate_double(&(r->gen_) );
+#else
+  const double res=xoshiro_uint64_to_double(xoshiro128plus_next(r->rng128_));
+#endif
   return res;
 #else
   if(r->count_==loopAvg){
+#ifndef USE_XOSHIRO
     const uint64_t localGen=tinymt64_generate_uint64(&(r->gen_) );
+#else
+    const uint64_t localGen=xoshiro256plus_next(r->rng256_);
+#endif
     const uint64_t local= localGen & maskAvg;
     const double res = local *maxAvgInv;
     r->count_=1;

@@ -35,8 +35,12 @@
 //#include "pub_tool_basics.h"
 #include <cstdint>
 
+//#define USE_XOSHIRO
 
 #include "../backend_mcaquad/common/tinymt64.h"
+#ifdef USE_XOSHIRO
+#include "prng/xoshiro.cxx"
+#endif
 
 
 typedef struct Vr_Rand_ Vr_Rand;
@@ -44,7 +48,11 @@ struct Vr_Rand_ {
   uint64_t current_;
   uint32_t count_;
   tinymt64_t gen_;
-  uint64_t seed_;
+#ifdef USE_XOSHIRO
+  xoshiro128_state_t rng128_;
+  xoshiro256_state_t rng256_;
+#endif
+uint64_t seed_;
 };
 
 //extern Vr_Rand vr_rand;
