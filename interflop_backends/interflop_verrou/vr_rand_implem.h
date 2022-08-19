@@ -130,7 +130,8 @@ inline double vr_rand_ratio(Vr_Rand *r){
 #ifndef USE_XOSHIRO
   const double res=tinymt64_generate_double(&(r->gen_) );
 #else
-  const double res=xoshiro_uint64_to_double(xoshiro128plus_next(r->rng128_));
+  const double res=xoshiro_uint32_to_float(xoshiro128plus_next(r->rng128_));
+  //  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128_));
 #endif
   return res;
 #else

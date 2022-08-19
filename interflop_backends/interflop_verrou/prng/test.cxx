@@ -1,5 +1,6 @@
 
 #include<iostream>
+#include<cstdint>
 
 #include "xoshiro.cxx"
 int main(int argc, char** argv){
@@ -89,9 +90,19 @@ int main(int argc, char** argv){
 
   std::cout << std::endl <<"conv"<<std::endl;
 
-  for(int i=0; i<5; i++){
-    std::cout << xoshiro_uint64_to_double( xoroshiro128plus_next(state128))<<std::endl;
-    std::cout << xoshiro_uint32_to_float( xoshiro128plus_next(state128))<<std::endl;
+  int count=1000;
+  double sumDouble=0.;
+  float sumFloat=0.;
+
+  for(int i=0; i<count; i++){
+    double resDouble= xoshiro_uint64_to_double( xoshiro128plus_next(state128));
+    float  resFloat = xoshiro_uint32_to_float(  xoshiro128plus_next(state128));
+    std::cout << "double: "<< resDouble<<std::endl;
+    std::cout << "float: " << resFloat <<std::endl;
+    sumDouble+=resDouble;
+    sumFloat +=resFloat;
   };
 
+  std::cout << "avgDouble:" << sumDouble / count<<std::endl;
+  std::cout << "avgFloat:" << sumFloat / count<<std::endl;
 }
