@@ -268,6 +268,16 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
       *ret = 0;
       return False;
     }
+    break;
+  case VR_USERREQ__SET_SEED:
+    vr.firstSeed=args[1];
+    VG_(umsg)("New seed : %llu\n", vr.firstSeed);
+    verrou_set_seed (vr.firstSeed);
+#ifdef USE_VERROU_QUAD
+    mcaquad_set_seed(vr.firstSeed);
+#endif
+    *ret = 0; /* meaningless */
+    break;
   }
-  return True;
+    return True;
 }

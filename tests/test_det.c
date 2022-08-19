@@ -1,7 +1,9 @@
-#include "../verrou.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
+#include <../verrou.h>
 
 int N = 100000;
 float epsilon = 1.e-6;
@@ -30,16 +32,24 @@ float compute_comdet (void) {
 
 
 int main (int argc, char **argv) {
-  float diff_det    = compute_det();
-  float diff_comdet = compute_comdet();
 
-  if(diff_det==0.0){
+  bool isDet=true;
+  bool isComDet=true;
+  for(int i=0; i<50; i++){
+    VERROU_SET_SEED(i);
+    float diff_det    = compute_det();
+    float diff_comdet = compute_comdet();
+    isDet=isDet &&(diff_det==0.);
+    isComDet=isComDet &&(diff_comdet==0.);
+  }
+
+  if(isDet){
     printf ("DET\n");
   }else{
     printf ("NO DET\n");
   }
 
-  if(diff_comdet==0.0){
+  if(isComDet){
     printf ("COMDET\n");
   }else{
     printf ("NO COMDET\n");
