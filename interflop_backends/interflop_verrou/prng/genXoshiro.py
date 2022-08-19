@@ -34,6 +34,12 @@ def addParamState(extractedFun, paramState, paramStateName="s"):
     print("error : impossible to add param")
     sys.exit(42)
 
+def addHeader(extractedFun):
+    return [extractedFun[0].replace("{",";")] +extractedFun
+
+def addInline(extractedFun):
+    return ["inline "+extractedFun[0]] +extractedFun[1:]
+
 def writeFun(handler,extractedFun):
     if handler==None:
         for line in extractedFun:
@@ -52,6 +58,7 @@ def genNextAndRotl(impl, size):
     fun_next=addParamState(fun_next , "xoshiro"+str(size)+"_state_t")
     fun_next=replaceFunName(fun_next, "next", impl+"_next")
     fun_next=replaceFunName(fun_next, "rotl", impl+"_rotl")
+    fun_next=addInline(fun_next);
 
     fun_rotl=extractFun(pathName, 'rotl')
     fun_rotl=replaceFunName(fun_rotl, "rotl", impl+"_rotl")
@@ -89,11 +96,11 @@ if __name__=="__main__":
     fun_next=extractFun(pathName, "next");
     fun_next=addParamState(fun_next , "uint64_t ", "x" );
     fun_next=replaceFunName(fun_next, "next", implMix+"_next")
-
+    fun_next=addInline(fun_next);
     res+=fun_next
 
     init_code="""
-void init_xoshiro256_state(xoshiro256_state_t& state, uint64_t seed){
+inline void init_xoshiro256_state(xoshiro256_state_t& state, uint64_t seed){
   uint64_t splitMixState=seed;
   state[0]= splitmix64_next(splitMixState);
   state[1]= splitmix64_next(splitMixState);
@@ -101,7 +108,7 @@ void init_xoshiro256_state(xoshiro256_state_t& state, uint64_t seed){
   state[3]= splitmix64_next(splitMixState);
 }
 
-void init_xoshiro128_state(xoshiro128_state_t& state,uint64_t seed){
+inline void init_xoshiro128_state(xoshiro128_state_t& state,uint64_t seed){
   uint64_t splitMixState=seed;
   state[0]= splitmix64_next(splitMixState);
   state[1]= splitmix64_next(splitMixState);
