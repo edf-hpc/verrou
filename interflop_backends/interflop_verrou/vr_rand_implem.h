@@ -124,14 +124,17 @@ constexpr double maxAvgInv(1/4294967296.);
 #endif
 
 
+template<class REALTYPE>
+inline REALTYPE vr_rand_ratio(Vr_Rand *r);
 
-inline double vr_rand_ratio(Vr_Rand *r){
+template<>
+inline double vr_rand_ratio<double>(Vr_Rand *r){
 #if VERROU_NUM_AVG==1
 #ifndef USE_XOSHIRO
   const double res=tinymt64_generate_double(&(r->gen_) );
 #else
-  const double res=xoshiro_uint32_to_float(xoshiro128plus_next(r->rng128_));
-  //  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128_));
+  //const double res=xoshiro_uint32_to_float(xoshiro128plus_next(r->rng128_));
+  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128_));
 #endif
   return res;
 #else
@@ -153,6 +156,38 @@ inline double vr_rand_ratio(Vr_Rand *r){
   return res;
 #endif
 }
+
+
+template<>
+inline float vr_rand_ratio<float>(Vr_Rand *r){
+#if VERROU_NUM_AVG==1
+#ifndef USE_XOSHIRO
+  const double res=tinymt64_generate_double(&(r->gen_) );
+#else
+  const float res=xoshiro_uint32_to_float(xoshiro128plus_next(r->rng128_));
+  //  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128_));
+#endif
+  return res;
+#else
+  if(r->count_==loopAvg){
+#ifndef USE_XOSHIRO
+    const uint64_t localGen=tinymt64_generate_uint64(&(r->gen_) );
+#else
+    const uint64_t localGen=xoshiro256plus_next(r->rng256_);
+#endif
+    const uint32_t local= localGen & maskAvg;
+    const float res = local *maxAvgInv;
+    r->count_=1;
+    r->current_= localGen;
+    return res;
+  }
+  const uint32_t local= (r->current_ >> (shiftAvgTab[r->count_])) & maskAvg;
+  const float res = local *maxAvgInv;
+  (r->count_)++;
+  return res;
+#endif
+}
+
 
 
 /*
