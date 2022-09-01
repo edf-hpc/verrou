@@ -148,11 +148,11 @@ typedef struct {
 
   ULong firstSeed;
 
-  Bool genExclude;
+  Bool genExcludeBool;
   HChar * excludeFile;
   //  HChar * genAbove;
   Vr_Exclude * exclude;
-  Vr_Exclude * genExcludeUntil;
+  Vr_Exclude * gen_exclude;
 
   Bool genIncludeSource;
   HChar* includeSourceFile;
@@ -255,8 +255,7 @@ void vr_handle_FLT_MAX (void);
 // ** vr_exclude.c
 
 void        vr_freeExcludeList (Vr_Exclude* list);
-void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
-                                const HChar* filename);
+void        vr_dumpExcludeList (Vr_Exclude* list, const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
 Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
 void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);

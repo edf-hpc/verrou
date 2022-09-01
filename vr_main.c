@@ -1137,7 +1137,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
   }
 
-  if(vr.genExclude && doIRSBFContainFloat){
+  if(vr.genExcludeBool && doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
   }
   return sbOut;
@@ -1165,9 +1165,8 @@ static void vr_fini(Int exitcode)
   interflop_check_float_max_finalize(backend_check_float_max_context);
 
 
-  if (vr.genExclude) {
-    vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
-		       vr.excludeFile);
+  if (vr.genExcludeBool) {
+    vr_dumpExcludeList(vr.gen_exclude, vr.excludeFile);
   }
 
   if (vr.genIncludeSource) {
@@ -1187,6 +1186,8 @@ static void vr_fini(Int exitcode)
      vr_dumpIncludeSourceList(vr.denormSource, NULL, vr.denormDumpFile );
   }
   vr_freeExcludeList (vr.exclude);
+  vr_freeExcludeList (vr.gen_exclude);
+
   vr_freeIncludeSourceList (vr.includeSource);
   vr_freeIncludeSourceList( vr.excludeSourceDyn);
   vr_freeIncludeTraceList  (vr.includeTrace );
@@ -1233,10 +1234,6 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_TRACE","--trace");
    vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
    vr_env_clo("VERROU_SEED","--vr-seed");
-
-   if (vr.genExclude) {
-     vr.genExcludeUntil = vr.exclude;
-   }
 
    //   if (vr.genAbove == NULL) {
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");

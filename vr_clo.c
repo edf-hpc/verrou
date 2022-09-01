@@ -54,8 +54,9 @@ void vr_clo_defaults (void) {
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
 
-  vr.genExclude = False;
+  vr.genExcludeBool = False;
   vr.exclude = NULL;
+  vr.gen_exclude = NULL;
   //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
@@ -259,7 +260,7 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--gen-exclude", str)) {
     //vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
     vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
-    vr.genExclude = True;
+    vr.genExcludeBool = True;
   }
   /* else if (VG_STR_CLOM (cloPD, arg, "--gen-above", str)) { */
   /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */

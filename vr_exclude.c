@@ -79,7 +79,7 @@ void vr_freeExcludeList (Vr_Exclude* list) {
 }
 
 void
-vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end, const HChar* fname) {
+vr_dumpExcludeList (Vr_Exclude* list, const HChar* fname) {
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
 			VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -90,7 +90,7 @@ vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end, const HChar* fname) {
   }
 
   Vr_Exclude * exclude;
-  for (exclude = list ; exclude != end ; exclude = exclude->next) {
+  for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
     VG_(write)(fd, exclude->fnname, VG_(strlen)(exclude->fnname));
     VG_(write)(fd, "\t", 1);
     VG_(write)(fd, exclude->objname, VG_(strlen)(exclude->objname));
@@ -170,9 +170,9 @@ void
 vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
 
   // Never exclude functions / objects unless they are explicitly listed
-  Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
+  Vr_Exclude *exclude = vr_findExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr);
   if(exclude==NULL){
-    vr.exclude = vr_addExclude (vr.exclude, *fnnamePtr, *objnamePtr, False);
+    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr, True);
   }
 }
 
