@@ -26,6 +26,7 @@
 
 import sys
 import os
+import subprocess
 from valgrind import dd_config
 from valgrind import DD_stoch
 from valgrind import DD_exec_stat
@@ -64,9 +65,15 @@ class DDline(DD_stoch.DDStoch):
 
     def coerce(self, delta_config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
-                                      [(col[0], int(col[1]), col[2]) for col in
+                                      [(col[0], int(col[1]), self.demangle(col[2])) for col in
                                        [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
 
+    def demangle(self, mangledName):
+        try:
+            line=subprocess.check_output(["c++filt",mangledName]).decode("utf8").strip()
+        except:
+            line=mangledName
+        return line
 
 
 if __name__ == "__main__":
