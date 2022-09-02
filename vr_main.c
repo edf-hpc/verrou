@@ -1068,7 +1068,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
   const HChar * filename=NULL;
   const HChar ** filenamePtr=&filenamenoname;
-  UInt  linenum;
+  UInt  linenum=0;
   UInt*  linenumPtr=&linenum;
 
   /*Data for trace/coverage generation*/
@@ -1146,7 +1146,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 			   doLineContainFloat, doLineContainFloatCmp);
   }
 
-  if(vr.genExcludeBool && doIRSBFContainFloat){
+  if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
   }
   return sbOut;
