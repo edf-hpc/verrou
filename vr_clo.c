@@ -63,7 +63,6 @@ void vr_clo_defaults (void) {
   vr.includeSource = NULL;
   vr.sourceActivated= False;
   vr.excludeSourceRead = NULL;
-  vr.excludeSourceDyn = NULL;
   vr.sourceExcludeActivated = False;
   vr.genTrace=False;
   vr.includeTrace = NULL;
@@ -291,7 +290,6 @@ Bool vr_process_clo (const HChar *arg) {
 
   else if (VG_STR_CLOM (cloPD, arg, "--warn-unknown-source", str)) {
     vr.excludeSourceRead = vr_loadIncludeSourceList(vr.excludeSourceRead, str);
-    vr.excludeSourceDyn=vr.excludeSourceRead;
     vr.sourceExcludeActivated = True;
   }
 

@@ -159,11 +159,10 @@ typedef struct {
 
   Bool sourceActivated;
   Vr_IncludeSource *includeSource;
-  Vr_IncludeSource *genIncludeSourceUntil;
+  Vr_IncludeSource *gen_includeSource;
 
   Bool sourceExcludeActivated;
   Vr_IncludeSource *excludeSourceRead;
-  Vr_IncludeSource *excludeSourceDyn;
 
   UInt mca_precision_double;
   UInt mca_precision_float;
@@ -261,8 +260,7 @@ Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
 void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
-void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,
-                               const HChar* fname);
+void vr_dumpIncludeSourceList (Vr_IncludeSource* list, const HChar* fname);
 Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
 Bool vr_includeSource (Vr_IncludeSource** list,
                        const HChar* fnname, const HChar* filename, UInt linenum);

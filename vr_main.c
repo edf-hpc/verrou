@@ -992,6 +992,20 @@ static HChar const * fnnoname=UNAMED_FUNCTION_VERROU;
 static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
+inline
+void vr_treat_line_from_imark(Bool excludeIrsb, Bool includeSource, Bool doLineContainFloat,   HChar const **  fnnamePtr,   const HChar ** filenamePtr, const UInt *linenumPtr){
+  if( !excludeIrsb && doLineContainFloat){
+    if(vr.genIncludeSource){
+      vr_includeSource_generate (&vr.gen_includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
+    }
+
+    if(!includeSource&&  vr.sourceActivated && !vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
+      VG_(umsg)("Warning new source line with fp operation discovered :\n");
+      VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
+      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);
+    }
+  }
+}
 
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
@@ -1073,11 +1087,12 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat){
-	  vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-      }
+      vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
+			       fnnamePtr,filenamePtr,linenumPtr);
       if(genIRSBTrace){
-	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+	vr_traceBB_trace_imark(traceBB,
+			       *fnnamePtr, *filenamePtr,*linenumPtr,
+			       doLineContainFloat, doLineContainFloatCmp);
       }
 
       doLineContainFloat=False;
@@ -1116,13 +1131,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
 
-	if((!includeSource) && vr.sourceActivated){
-	  if(doInstrContainFloat && !vr_includeSource(&vr.excludeSourceDyn, *fnnamePtr, *filenamePtr, *linenumPtr)){
-	    VG_(umsg)("Warning new source line with fp operation discovered :\n");
-	    VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
-	    vr.excludeSourceDyn = vr_addIncludeSource (vr.excludeSourceDyn,*fnnamePtr,*filenamePtr,*linenumPtr);
-	  }
-	}
       }
       break;
     default:
@@ -1130,11 +1138,12 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat &&filename !=NULL){
-    vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-  }
+  vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
+			   fnnamePtr,filenamePtr,linenumPtr);
   if(genIRSBTrace){
-    vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+    vr_traceBB_trace_imark(traceBB,
+			   *fnnamePtr, *filenamePtr,*linenumPtr,
+			   doLineContainFloat, doLineContainFloatCmp);
   }
 
   if(vr.genExcludeBool && doIRSBFContainFloat){
@@ -1170,8 +1179,7 @@ static void vr_fini(Int exitcode)
   }
 
   if (vr.genIncludeSource) {
-    vr_dumpIncludeSourceList (vr.includeSource, vr.genIncludeSourceUntil,
-			      vr.includeSourceFile);
+    vr_dumpIncludeSourceList (vr.gen_includeSource, vr.includeSourceFile);
   }
 
   if(vr.genTrace){
@@ -1179,17 +1187,17 @@ static void vr_fini(Int exitcode)
     vr_traceBB_finalize();
   }
   if (vr.dumpCancellation){
-     vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );
+     vr_dumpIncludeSourceList(vr.cancellationSource, vr.cancellationDumpFile );
   }
 
   if (vr.dumpDenorm){
-     vr_dumpIncludeSourceList(vr.denormSource, NULL, vr.denormDumpFile );
+     vr_dumpIncludeSourceList(vr.denormSource, vr.denormDumpFile );
   }
   vr_freeExcludeList (vr.exclude);
   vr_freeExcludeList (vr.gen_exclude);
 
   vr_freeIncludeSourceList (vr.includeSource);
-  vr_freeIncludeSourceList( vr.excludeSourceDyn);
+  vr_freeIncludeSourceList( vr.excludeSourceRead);
   vr_freeIncludeTraceList  (vr.includeTrace );
   VG_(free)(vr.excludeFile);
   //  VG_(free)(vr.genAbove);

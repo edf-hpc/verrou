@@ -220,7 +220,7 @@ void vr_freeIncludeSourceList (Vr_IncludeSource* list) {
   }
 }
 
-void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
+void vr_dumpIncludeSourceList (Vr_IncludeSource * list,
 			       const HChar * fname) {
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
@@ -233,7 +233,7 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
 
   HChar linenum_[256];
   Vr_IncludeSource * cell;
-  for (cell = list ; cell != end ; cell = cell->next) {
+  for (cell = list ; cell != NULL ; cell = cell->next) {
     VG_(write)(fd, cell->filename, VG_(strlen)(cell->filename));
     VG_(write)(fd, "\t", 1);
     VG_(snprintf)(linenum_, 255, "%u", cell->linenum);
