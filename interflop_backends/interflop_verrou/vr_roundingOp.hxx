@@ -98,10 +98,11 @@ public:
   static inline RealType apply(const PackArgs& p ){
     const RealType res=OP::nearestOp(p);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
 
@@ -138,10 +139,11 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-    
+#endif
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
     if(signError==0.){
@@ -171,10 +173,11 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-    
+#endif
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
     if(signError==0.){
@@ -207,10 +210,11 @@ public:
     const RealType res=OP::nearestOp(p) ;
 
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -259,10 +263,11 @@ public:
     const RealType res=OP::nearestOp(p) ;
 
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -308,10 +313,11 @@ public:
     const RealType res=OP::nearestOp(p) ;
 
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -360,7 +366,7 @@ public:
     INC_OP;
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
-
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if( (res!=std::numeric_limits<RealType>::infinity()) && (res!=-std::numeric_limits<RealType>::infinity())  ){
 	return res;
@@ -376,6 +382,7 @@ public:
 	  }
       }
     }
+#endif
 #ifdef PROFILING_EXACT
     if(signError==0.){
       INC_EXACTOP;
@@ -400,7 +407,7 @@ public:
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
     INC_OP;
-
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if(res!=-std::numeric_limits<RealType>::infinity()){
 	return res;
@@ -412,7 +419,7 @@ public:
 	}
       }
     }
-
+#endif
     const RealType signError=OP::sameSignOfError(p,res);
 #ifdef PROFILING_EXACT
     if(signError==0.){
@@ -444,6 +451,7 @@ public:
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if(res!=std::numeric_limits<RealType>::infinity()){
 	return res;
@@ -455,7 +463,7 @@ public:
 	}
       }
     }
-
+#endif
 
     const RealType signError=OP::sameSignOfError(p,res);
 #ifdef PROFILING_EXACT
@@ -487,10 +495,11 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -533,6 +542,7 @@ public:
 #ifdef DEBUG_PRINT_OP
     print_debug(p,res);
 #endif
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
 	vr_nanHandler();
@@ -541,6 +551,7 @@ public:
 	vr_infHandler();
       }
     }
+#endif
   }
 
 #ifdef DEBUG_PRINT_OP

@@ -191,9 +191,10 @@ int main(int argc, char *argv[]) {
       test_iterations = atoi(argv[2]);
     }
 
-    struct interflop_backend_interface_t ifverrou=interflop_verrou_init(&context);
-    //    interflop_verrou_configure(VR_AVERAGE, context);
-    interflop_verrou_configure(VR_NEAREST, context);
+    //struct interflop_backend_interface_t ifverrou=interflop_verrou_init(&context);
+    interflop_verrou_init(&context);
+    interflop_verrou_configure(VR_AVERAGE, context);
+    //    interflop_verrou_configure(VR_NEAREST, context);
     uint64_t seed(42);
     verrou_set_seed (seed);
     

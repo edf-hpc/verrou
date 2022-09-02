@@ -1,7 +1,7 @@
 SRC=stencil_interflop_verrou.cpp
 
 SRC_VERROU=../../interflop_verrou.cxx ../../../backend_mcaquad/common/tinymt64.c 
-FLAGS_VERROU=-DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash
+FLAGS_VERROU=-DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash -DVERROU_IGNORE_NANINF_CHECK
 
 BIN=stencil_interflop_verrou
 FLAGS=-Wall -g $(FLAGS_VERROU)
