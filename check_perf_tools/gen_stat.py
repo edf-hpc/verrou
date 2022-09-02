@@ -11,6 +11,7 @@ detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
 buildConfList=[ "dietzfelbinger","multiply_shift","double_tabulation","mersenne_twister"]
 
+buildConfListXoshiro=[ "xoshiro","xoshiro-2","xoshiro-8"]
 
 pathNumBin="../unitTest/checkStatRounding"
 runNum="run.sh"
@@ -49,7 +50,7 @@ def parsePlotStat(lineTab):
 
 def extractStat():
     res={}
-    for name in buildConfList:
+    for name in buildConfList+buildConfListXoshiro:
         resName={}
         repNum="buildRep-%s/num"%(name)
         roundingTab=roundingListNum + detRounding
@@ -100,6 +101,13 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
     roundingTab=[("all", "all", "dietzfelbinger"),"SEPARATOR"]
     for rd in ["random","average"]:
         roundingTab+=[(rd, rd,"dietzfelbinger")]
+        if rd=="average":
+            for gen in buildConfListXoshiro:
+                roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+        if rd=="random":
+            gen="xoshiro"
+            roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+
         for gen in buildConfList:
             for detType in detTab:
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]

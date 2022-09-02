@@ -13,6 +13,10 @@ verrouConfigList={
     "multiply_shift":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift"},
     "double_tabulation":{ "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation"},
     "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister",},
+    "xoshiro":          { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma   --enable-verrou-xoshiro=yes"},
+    "xoshiro-2":        { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=2 --enable-verrou-xoshiro=yes"},
+    "xoshiro-8":        { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=8 --enable-verrou-xoshiro=yes"},
+    "xoshiro-mt":       { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma --enable-verrou-xoshiro=no"},
 }
 
 valgrindConfigList={

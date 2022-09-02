@@ -9,20 +9,22 @@ from tabular import *
 detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 
 buildConfigList=["master","dietzfelbinger", "multiply_shift", "double_tabulation", "mersenne_twister"]
+buildConfListXoshiro=[ "xoshiro","xoshiro-2","xoshiro-8", "xoshiro-mt"]
 
-nbRunTuple=(2,5)
+nbRunTuple=(5,5)
 roundingListPerf=["random", "average", "nearest"]
 verrouOptionsList=[("","")]
 
 
 pathPerfBin="../unitTest/testPerf"
 postFixTab=["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FLOAT"]
+#postFixTab=["O3-DOUBLE"]
 perfBinNameList=["stencil-"+i for i in  postFixTab]
 #perfBinNameList=["stencil-"+i for i in ["O3-DOUBLE"] ]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
 def special_rounding(name):
-    if name=="master":
+    if name in ["master"]+buildConfListXoshiro:
         return []
     else:
         return detRounding
@@ -33,6 +35,7 @@ def runCmd(cmd):
 
 def runPerfConfig(name):
     repMeasure="buildRep-%s/measure"%(name)
+    print("working in %s"%(repMeasure))
     if not os.path.exists(repMeasure):
         os.mkdir(repMeasure)
     for binName in perfBinNameList:
@@ -165,16 +168,28 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
 
 #    codeTabName=[x.replace("FLOAT","float").replace("DOUBLE","double")for x in postFixTab]
     tab.begin()
-
-    tab.lineMultiple([(1,"type"), (2,"double"),(2,"float") ])
+    if len(postFixTab)==4:
+        tab.lineMultiple([(1,"type"), (2,"double"),(2,"float") ])
+    if len(postFixTab)==1:
+        tab.lineMultiple([(1,"type"), (1,"double")])
     tab.endLine()
-    tab.line(["compilation option", "O0", "O3","O0", "O3"])
+    if len(postFixTab)==4:
+        tab.line(["compilation option", "O0", "O3","O0", "O3"])
+    if len(postFixTab)==1:
+        tab.line(["compilation option", "O3"])
     tab.endLine()
     tab.lineSep()
 
     roundingTab=[("nearest", "nearest", "dietzfelbinger"),"SEPARATOR"]
     for rd in ["random","average"]:
         roundingTab+=[(rd, rd,"dietzfelbinger")]
+        if rd=="average":
+            for gen in buildConfListXoshiro:
+                roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+        if rd=="random":
+            gen="xoshiro"
+            roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+
         for gen in buildList:#on supprime master
             for detType in detTab:
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
@@ -208,13 +223,13 @@ if __name__=="__main__":
 
     runCmd("make -C ../unitTest/testPerf/")
 
-    for name in buildConfigList:
+    for name in buildConfigList+buildConfListXoshiro:
         runPerfConfig(name)
     if slowDown:
         runPerfRef()
 
     resAll={}
-    for name in buildConfigList:
+    for name in buildConfigList+buildConfListXoshiro:
         if slowDown:
             resAll[name]=extractPerf(name)
 
