@@ -109,7 +109,7 @@ def postRunTrace(runDir):
 
     cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
     os.system(cmd+ "  >> "+ "%s/covBBLog"%(runDir))
-    rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="cover", clean=True,ignoreEmpty=True)
+    rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="cover", clean=True, ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):
@@ -175,10 +175,13 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 os.mkdir(ddminNewInstr)
 
             for rounding in roundNonDetTab:
+                newNbRun=nbRun
                 if rounding=="":
                     ddminNewRep=os.path.join(ddminNewInstr,"default")
                     if ddmin.endswith("ref"):
+                        ddminNewRep=os.path.join(ddminNewInstr,"nearest")
                         runEnv["VERROU_ROUNDING_MODE"]="nearest"
+                        newNbRun=1
                 else:
                     ddminNewRep=os.path.join(ddminNewInstr,rounding)
                     runEnv["VERROU_ROUNDING_MODE"]=rounding
@@ -187,7 +190,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                     os.mkdir(ddminNewRep)
 
                 print("ddminNew : ",ddminNewRep)
-                runOneConfig(config, refDir, ddminNewRep, runEnv, nbRun, traceFile)
+                runOneConfig(config, refDir, ddminNewRep, runEnv, newNbRun, traceFile)
 
             if len(roundDetTab)!=0:
                 ddminNewRep=os.path.join(ddminNewInstr,"det")
