@@ -115,10 +115,10 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0){
-	  return nextAfter<RealType>(res);
+	if(signError>0 && res>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return nextPrev<RealType>(res);
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -154,10 +154,10 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0){
-	  return nextAfter<RealType>(res);
+	if(signError>0 && res>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return nextPrev<RealType>(res);
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -188,10 +188,10 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0){
-	  return nextAfter<RealType>(res);
+	if(signError>0 && res>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return nextPrev<RealType>(res);
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -236,7 +236,8 @@ public:
       }
 
     }
-    if(error<0){
+    //    if(error<0)
+    {
       const RealType prevRes(nextPrev<RealType>(res));
       const RealType u(res -prevRes);
       const int s(-1);
@@ -248,7 +249,7 @@ public:
 	return prevRes;
       }
     }
-    return res; //Should not occur
+    //return res; //Should not occur
   } ;
 };
 
