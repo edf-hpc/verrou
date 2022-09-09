@@ -115,7 +115,7 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0 && res>0){
+	if((signError*res)>0){
 	  return nextAwayFromZero<RealType>(res);
 	}else{
 	  return nextTowardZero<RealType>(res);
@@ -154,7 +154,7 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0 && res>0){
+	if((signError*res)>0){
 	  return nextAwayFromZero<RealType>(res);
 	}else{
 	  return nextTowardZero<RealType>(res);
@@ -188,7 +188,7 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0 && res>0){
+	if((signError*res)>0){
 	  return nextAwayFromZero<RealType>(res);
 	}else{
 	  return nextTowardZero<RealType>(res);
