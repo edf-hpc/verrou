@@ -102,7 +102,7 @@ AC_CACHE_CHECK([verrou-det-hash], vg_cv_verrou_det_hash,
 [
 AC_ARG_WITH(
 	[verrou-det-hash],
-	[  --with-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister],
+	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister],
 	[vg_cv_verrou_det_hash=$withval],
 	[vg_cv_verrou_det_hash=double_tabulation]
 )])
