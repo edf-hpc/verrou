@@ -9,7 +9,7 @@ public:
   static inline bool hashBool(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
-    const uint64_t m=vr_multiply_shift_hash::multiply(pack);
+    const uint64_t m=vr_multiply_shift_hash::multiply(pack,hashOp);
     return (m +seedTab[7])>>63;
   }
 
@@ -17,7 +17,7 @@ public:
   static inline double hashRatio(const Vr_Rand * r,
 		       const vr_packArg<REALTYPE,NB>& pack,
 		       uint32_t hashOp){
-    const uint64_t m=vr_multiply_shift_hash::multiply(pack);
+    const uint64_t m=vr_multiply_shift_hash::multiply(pack, hashOp);
     const uint32_t v=(m+seedTab[7])>>32;
     constexpr double  invMax= (1./4294967296.);//2**32 = 4294967296
     return ((double)v * invMax );
