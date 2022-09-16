@@ -6,22 +6,22 @@ import sys
 import subprocess
 
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet"]
+
 verrouConfigList={
+    "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
     "master":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
-    "dietzfelbinger":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger"},
-    "multiply_shift":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift"},
-    "double_tabulation":{ "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation"},
-    "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister",},
-    "xoshiro":          { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma   --enable-verrou-xoshiro=yes"},
-    "xoshiro-2":        { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=2 --enable-verrou-xoshiro=yes"},
-    "xoshiro-8":        { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma VERROU_NUM_AVG=8 --enable-verrou-xoshiro=yes"},
-    "xoshiro-mt":       { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/xoshiro" ,"flags":"--enable-verrou-fma --enable-verrou-xoshiro=no"},
+    "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+    "dietzfelbinger":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no"},
+    "multiply_shift":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no"},
+    "multiply_shift_fix":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/multiply-shift-fix" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no"},
+    "double_tabulation":{ "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no"},
+    "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no"},
 }
 
 valgrindConfigList={
     "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
-    "valgrind-3.19.0": {"file": "valgrind-3.19.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2"}
+    "valgrind-3.19.0": {"file": "valgrind-3.19.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2"},
+    "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"}
 }
 
 
@@ -37,18 +37,34 @@ def buildConfig(name):
         return
     verrouConfigParam=verrouConfigList[name]
 
-    valgrindArchive=valgrindConfigList[verrouConfigParam["valgrind"]]["file"]
+    valgrindKey=None
+    if "valgrind" in verrouConfigParam:
+        valgrindKey=verrouConfigParam["valgrind"]
+    if "tag" in verrouConfigParam:
+        valgrindKey=verrouConfigParam["tag"]
+    if valgrindKey==None:
+        print("Error valgrind key needed")
+        sys.exit(42)
+
+    valgrindArchive=valgrindConfigList[valgrindKey]["file"]
     if not os.path.exists(valgrindArchive):
-        valgrindUrl=valgrindConfigList[verrouConfigParam["valgrind"]]["url"]
+        valgrindUrl=valgrindConfigList[valgrindKey]["url"]
         runCmd("wget --output-document=%s %s"%(valgrindArchive,valgrindUrl))
 
     if not os.path.exists(buildRep):
-        runCmd("./buildConfig.sh %s %s %s \"%s\""%(
-            buildRep,
-            valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
-            verrouConfigParam["branch_verrou"],
-            verrouConfigParam["flags"])
-        )
+        if "valgrind" in verrouConfigParam:
+            runCmd("./buildConfig.sh %s %s %s \"%s\""%(
+                buildRep,
+                valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
+                verrouConfigParam["branch_verrou"],
+                verrouConfigParam["flags"])
+            )
+        if "tag" in verrouConfigParam:
+            runCmd("./buildTag.sh %s %s \"%s\""%(
+                buildRep,
+                valgrindConfigList[verrouConfigParam["tag"]]["file"],
+                verrouConfigParam["flags"])
+            )
 
 
 if __name__=="__main__":

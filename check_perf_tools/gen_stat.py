@@ -9,9 +9,10 @@ from tabular import *
 
 detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "dietzfelbinger","multiply_shift","double_tabulation","mersenne_twister"]
-
-buildConfListXoshiro=[ "xoshiro","xoshiro-2","xoshiro-8"]
+buildConfList=[ "master","dietzfelbinger","multiply_shift","multiply_shift_fix","double_tabulation","mersenne_twister"]
+#buildConfList=[ "master","multiply_shift","multiply_shift_fix"]
+#buildConfList=["double_tabulation"]#,"mersenne_twister"]
+buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
 pathNumBin="../unitTest/checkStatRounding"
 runNum="run.sh"
@@ -72,7 +73,13 @@ def extractStat():
 def checkCoherence(stat):
     for code in ["Seqdouble", "Seqfloat", "Recdouble", "Recfloat"]:
         for rounding in ["random","average","all"]:
-            resTab =[stat[conf][code][rounding]["bit"] for conf in buildConfList]
+            try:
+                resTab =[stat[conf][code][rounding]["bit"] for conf in buildConfList]
+            except:
+                print("debug error stat")
+                for conf in buildConfList:
+                    print("stat["+conf+"]",stat[conf])
+
             if len(set(resTab))>1:
                 bitTab=[float(x) for x in set(resTab)]
                 maxError=max([abs(x-bitTab[0])/ bitTab[0] for x in bitTab ])
@@ -87,6 +94,7 @@ def checkCoherence(stat):
     return True
 
 def feedTab(stat, detTab=["_det","_comdet"], ref=None):
+    refName="master"
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
     tab.begin()
@@ -96,17 +104,18 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
     tab.endLine()
     tab.lineSep()
 
-    tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat["dietzfelbinger"][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
+    tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
     tab.endLine()
-    roundingTab=[("all", "all", "dietzfelbinger"),"SEPARATOR"]
+    roundingTab=[("all", "all", "master"),"SEPARATOR"]
     for rd in ["random","average"]:
-        roundingTab+=[(rd, rd,"dietzfelbinger")]
+        roundingTab+=[(rd, rd,refName)]
         if rd=="average":
             for gen in buildConfListXoshiro:
                 roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
         if rd=="random":
-            gen="xoshiro"
-            roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+            for gen in buildConfListXoshiro:
+                roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+
 
         for gen in buildConfList:
             for detType in detTab:
@@ -146,7 +155,7 @@ def plotNumConfig():
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 pngStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --num-threads=5 --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
                 runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
