@@ -226,8 +226,7 @@ inline bool vr_rand_bool_comdet (const Vr_Rand * r, const typename OP::PackArgs&
 
 #ifdef VERROU_DET_HASH
   typedef VERROU_DET_HASH hash;
-  sort_pack<typename OP::PackArgs::RealType,OP::PackArgs::nb> st(p);
-  return hash::hashBool(r, st.getPack(), OP::getHash());
+  return hash::hashBool(r, OP::comdetPack(p), OP::getComdetHash());
 #else
   #error "VERROU_DET_HASH has to be defined"
 #endif
@@ -242,8 +241,8 @@ vr_rand_ratio_comdet (const Vr_Rand * r, const typename OP::PackArgs& p) {
 #ifdef VERROU_DET_HASH
   typedef VERROU_DET_HASH hash;
   //  const typename OP::PackArgs;
-  sort_pack<typename OP::PackArgs::RealType,OP::PackArgs::nb> st(p);
-  return hash::hashRatio(r, st.getPack(), OP::getHash());
+  //  sort_pack<typename OP::PackArgs::RealType,OP::PackArgs::nb> st(p);
+  return hash::hashRatio(r, OP::comdetPack(p), OP::getComdetHash());
 #else
   #error "VERROU_DET_HASH has to be defined"
 #endif
