@@ -447,14 +447,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Prec prec,
 				   Vr_Vec vec,
 				   Bool countOnly) {
-  //instrumentation to count operation
-
-  if(vr.verbose){
-    IROp irop;
-    if (vr_getOp (expr, &irop))
-      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
-  }
-
+  // un-instrumented cases :
   if(!(vr_isInstrumented(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
@@ -464,6 +457,13 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return True;
+  }
+
+  // instrumented case :
+  if(vr.verbose){
+    IROp irop;
+    if (vr_getOp (expr, &irop))
+      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
   vr_countOp (sb,  op, prec,vec, True);
