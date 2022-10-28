@@ -63,6 +63,7 @@ public:
   uint64_t getHash()const{
     return hash_;
   }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -363,6 +364,10 @@ public:
 
   static const char* OpName(){return "libmath ?";}
   static inline uint64_t getHash(){return LIBMQ::getHash();}
+  static inline uint64_t getComdetHash(){return LIBMQ::getHash();}
+  static inline PackArgs comdetPack(const PackArgs& p){
+    return p;
+  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -399,6 +404,10 @@ public:
 
   static const char* OpName(){return "libmath ?";}
   static inline uint64_t getHash(){return LIBMQ::getHash();}
+  static inline uint64_t getComdetHash(){return LIBMQ::getHash();}
+  static inline PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1,p.arg2),std::max(p.arg1,p.arg2));
+  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);

@@ -1,7 +1,7 @@
 
 set terminal pdf
 
-set output "stagnationErrorLog.pdf"
+
 set logscale x
 set logscale y
 set yrange [1e-7:1]
@@ -20,10 +20,23 @@ stagnationNearest=`cat NEAREST.STAGNATION.out`
 
 
 
-set arrow from stagnationAverageDet, graph 0 to stagnationAverageDet, graph 1 nohead  linecolor 0x008B8B dashtype 5 lw 2
-set arrow from stagnationRandomDet, graph 0 to stagnationRandomDet, graph 1 nohead  linecolor "orange-red" dashtype 2 lw 2
+
 set arrow from stagnationNearest, graph 0 to stagnationNearest, graph 1 nohead  linecolor "dark-green" dashtype 4 lw 2
 
+
+set output "stagnationErrorLog-0.pdf"
+plot "NEAREST.out"     using 1:4 title 'nearest' lc "dark-green" pt 3
+
+set output "stagnationErrorLog-1.pdf"
+plot "NEAREST.out"     using 1:4 title 'nearest' lc "dark-green" pt 3	,\
+     "RANDOM.out"     using 1:4 title 'random' lc "dark-red" pt 1 ,\
+     "AVERAGE.out"     using 1:4 title 'average' lc "blue" pt 1
+
+
+set arrow from stagnationAverageDet, graph 0 to stagnationAverageDet, graph 1 nohead  linecolor 0x008B8B dashtype 5 lw 2
+set arrow from stagnationRandomDet, graph 0 to stagnationRandomDet, graph 1 nohead  linecolor "orange-red" dashtype 2 lw 2
+
+set output "stagnationErrorLog.pdf"
 plot "NEAREST.out"     using 1:4 title 'nearest' lc "dark-green" pt 3	,\
      "RANDOM.out"     using 1:4 title 'random' lc "dark-red" pt 1 ,\
      "AVERAGE.out"     using 1:4 title 'average' lc "blue" pt 1,\

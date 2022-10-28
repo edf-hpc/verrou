@@ -6,27 +6,32 @@ import sys
 import subprocess
 from tabular import *
 
+
+roundingListPerf=["random", "average", "nearest"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet"]
 
-buildConfigList=["master","dietzfelbinger", "multiply_shift", "double_tabulation", "mersenne_twister"]
-buildConfListXoshiro=[ "xoshiro","xoshiro-2","xoshiro-8", "xoshiro-mt"]
+buildConfigList=["stable","master", "master_fast"]
+buildSpecialConfigList=["dietzfelbinger", "multiply_shift", "multiply_shift_fix","double_tabulation", "mersenne_twister"]
 
-nbRunTuple=(5,5)
-roundingListPerf=["random", "average", "nearest"]
+nbRunTuple=(5,5) #inner outer
+
 verrouOptionsList=[("","")]
+
+postFixTab=["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FLOAT"]
+#postFixTab=["O3-DOUBLE"]
 
 
 pathPerfBin="../unitTest/testPerf"
-postFixTab=["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FLOAT"]
-#postFixTab=["O3-DOUBLE"]
 perfBinNameList=["stencil-"+i for i in  postFixTab]
 #perfBinNameList=["stencil-"+i for i in ["O3-DOUBLE"] ]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
-def special_rounding(name):
-    if name in ["master"]+buildConfListXoshiro:
-        return []
-    else:
+def get_rounding_tab(name):
+    if name in ["master","master_fast"]:
+        return roundingListPerf+detRounding
+    if name in buildConfigList:
+        return roundingListPerf
+    if name in buildSpecialConfigList:
         return detRounding
 
 
@@ -40,7 +45,7 @@ def runPerfConfig(name):
         os.mkdir(repMeasure)
     for binName in perfBinNameList:
         for (optName, opt) in verrouOptionsList:
-            roundingTab=roundingListPerf + special_rounding(name)
+            roundingTab=get_rounding_tab(name)
             for rounding in roundingTab:
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin+"/"+binName,perfCmdParam)
                 toPrint=True
@@ -102,7 +107,7 @@ def extractPerf(name):
         res[binName]={}
         for (optName, opt) in verrouOptionsList:
             res[binName][optName]={}
-            for rounding in roundingListPerf+special_rounding(name):
+            for rounding in get_rounding_tab(name):
                 resPerf=None
                 for i in range(nbRunTuple[1]):
                     outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
@@ -133,13 +138,13 @@ def extractPerfRef():
 def nonPerfRegressionAnalyze(data, refName, refOption=""):
     newVersionTab=[x for x in data.keys() if not x==refName]
     dataRef=data[refName]
-    print("refernce verrou version : %s"%(refName))
+    print("reference verrou version : %s"%(refName))
     for newVersion in newVersionTab:
         print("verrou version : %s"%(newVersion))
         for (optionStr, optionVal) in verrouOptionsList:
             print("\truntime verrou option : ", optionStr)
             dataNew=data[newVersion]
-            roundingTab=roundingListPerf +list(set(special_rounding(refName)).intersection(set(special_rounding(newVersion))))
+            roundingTab=get_rounding_tab(newVersion)#  roundingListPerf +list(set(special_rounding(refName)).intersection(set(special_rounding(newVersion))))
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
@@ -155,7 +160,7 @@ def slowDownAnalyze(data):
         for (optionStr, optionVal) in verrouOptionsList:
             print("\t runtime verrou option : ", optionStr)
             dataNew=data[version]
-            roundingTab=roundingListPerf + special_rounding(version)
+            roundingTab= get_rounding_tab(name) #roundingListPerf + special_rounding(version)
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
@@ -180,15 +185,9 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
     tab.endLine()
     tab.lineSep()
 
-    roundingTab=[("nearest", "nearest", "dietzfelbinger"),"SEPARATOR"]
+    roundingTab=[("nearest", "nearest", "master"),"SEPARATOR"]
     for rd in ["random","average"]:
-        roundingTab+=[(rd, rd,"dietzfelbinger")]
-        if rd=="average":
-            for gen in buildConfListXoshiro:
-                roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
-        if rd=="random":
-            gen="xoshiro"
-            roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
+        roundingTab+=[(rd, rd,"master")]
 
         for gen in buildList:#on supprime master
             for detType in detTab:
@@ -223,21 +222,23 @@ if __name__=="__main__":
 
     runCmd("make -C ../unitTest/testPerf/")
 
-    for name in buildConfigList+buildConfListXoshiro:
+    for name in buildConfigList+buildSpecialConfigList:
         runPerfConfig(name)
     if slowDown:
         runPerfRef()
 
     resAll={}
-    for name in buildConfigList+buildConfListXoshiro:
+    for name in buildConfigList+buildSpecialConfigList:
         if slowDown:
             resAll[name]=extractPerf(name)
 
-    nonPerfRegressionAnalyze(resAll,"master")
+    nonPerfRegressionAnalyze(resAll,"master_fast")
     print("")
     if slowDown:
 
-        tab=tabularLatex("lcccc", output="slowDown.tex")
-#        tab=tabular()
-        feedPerfTab(resAll,buildConfigList[1:], detTab=["_det","_comdet"])
+        tab=tabularLatex("lcccc", output="slowDown_det.tex")
+        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det"])
+        sys.exit()
+        tab=tabular()
+        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det","_comdet"])
 
