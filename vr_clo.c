@@ -124,7 +124,7 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_det",
                          vr.roundingMode, VR_RANDOM_DET)) {}
-    else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_comdet",
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_comdet",
                          vr.roundingMode, VR_RANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
@@ -132,6 +132,12 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_AVERAGE_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_comdet",
                          vr.roundingMode, VR_AVERAGE_COMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom",
+                         vr.roundingMode, VR_PRANDOM)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_det",
+                         vr.roundingMode, VR_PRANDOM_DET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_comdet",
+                         vr.roundingMode, VR_PRANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearest",
                          vr.roundingMode, VR_NEAREST)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=upward",

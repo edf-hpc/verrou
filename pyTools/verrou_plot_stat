@@ -39,7 +39,7 @@ maxNbPROC=None
 from valgrind import DD_stoch
 
 roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
-roundingNonDetTab=["random", "average", "random_det","average_det", "random_comdet","average_comdet"]
+roundingNonDetTab=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]]
 
 
 
@@ -671,7 +671,7 @@ class config_stat:
 
         print( "\t --rounding-list= : rounding modes (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
         print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
-        print( "\t --ref= reference rounding mode for error estimator (in list [nearest,upward,downward,toward_zero,farthest, [random|average][|_det|_comdet]]) [default nearest]" )
+        print( "\t --ref= reference rounding mode for error estimator (in list [nearest,upward,downward,toward_zero,farthest, [random|average|prandom][|_det|_comdet]]) [default nearest]" )
         print( "\t -p --png= : png file to export plot")
         print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
         print( "\t --mca=rr-53-24 : add mca ins the study")
@@ -728,6 +728,9 @@ class config_stat:
                    "average":self._nbSample,
                    "average_det":self._nbSample,
                    "average_comdet":self._nbSample,
+                   "prandom":self._nbSample,
+                   "prandom_det":self._nbSample,
+                   "prandom_comdet":self._nbSample,
                    "nearest":nbDet,
                    "upward":nbDet,
                    "downward":nbDet,

@@ -125,6 +125,46 @@ public:
   } ;
 };
 
+template<class OP, class RAND>
+class RoundingPRandom{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p ){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+#endif
+    OP::check(p,res);
+    const RealType signError=OP::sameSignOfError(p,res);
+
+    if(signError==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      const bool doNoChange = RAND::randBool(&vr_rand,p);
+      if(signError>0){
+	if(doNoChange){
+	  return res;
+	}else{
+	  return nextAfter<RealType>(res);
+	}
+      }else{
+	if(doNoChange){
+	  return nextPrev<RealType>(res);
+	}else{
+	  return res;
+	}
+      }
+    }
+  } ;
+};
+
+
 
 
 template<class OP, class RAND>
@@ -415,6 +455,12 @@ public:
       return RoundingAverage<OP,vr_rand_det<OP> >::apply (p);
     case VR_AVERAGE_COMDET:
       return RoundingAverage<OP, vr_rand_comdet<OP> >::apply (p);
+    case VR_PRANDOM:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_prng> >::apply (p);
+    case VR_PRANDOM_DET:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_det > >::apply (p);
+    case VR_PRANDOM_COMDET:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_comdet > >::apply (p);
     case VR_FARTHEST:
       return RoundingFarthest<OP>::apply (p);
     case VR_FLOAT:

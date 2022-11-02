@@ -73,6 +73,9 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   vr_tabulation_hash::genTable((r->gen_));
   //  vr_twisted_tabulation_hash::genTable((r->gen_));
   vr_multiply_shift_hash::genTable((r->gen_));
+
+  const double p=tinymt64_generate_double(&(r->gen_) );
+  r->p=p;
 }
 
 
@@ -203,11 +206,11 @@ public:
   }
 };
 
+
 /*
  * produces a pseudo random number in a deterministic way
  * the same seed and inputs will always produce the same output
  */
-
 template<class OP>
 class vr_rand_det {
 public:
@@ -235,7 +238,11 @@ public:
 
 
 
-
+/*
+ * produces a pseudo random number in a deterministic way
+ * the same seed and inputs will always produce the same output
+ * if the opertor is commutative the order is not taken into account
+ */
 template<class OP>
 class vr_rand_comdet {
 public:
@@ -260,5 +267,14 @@ public:
 #else
   #error "VERROU_DET_HASH has to be defined"
 #endif
+  }
+};
+
+template<class OP, template<class> class RAND>
+class vr_rand_p {
+public:
+  static inline bool
+  randBool (Vr_Rand * r, const typename OP::PackArgs& args) {
+    return RAND<OP>::randRatio(r,args) < (r->p);
   }
 };

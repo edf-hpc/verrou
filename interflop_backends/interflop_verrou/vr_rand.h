@@ -53,6 +53,7 @@ struct Vr_Rand_ {
   xoshiro256_state_t rng256_;
 #endif
 uint64_t seed_;
+  double p;
 };
 
 //extern Vr_Rand vr_rand;
