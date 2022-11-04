@@ -892,6 +892,105 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
+
+     if(vr.roundingMode==VR_NEAREST){
+#define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM){
+#define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE){
+#define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM_DET){
+#define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE_DET){
+#define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM_COMDET){
+#define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE_COMDET){
+#define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM){
+#define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM_DET){
+#define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM_COMDET){
+#define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_UPWARD){
+#define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#define bcNameWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_DOWNWARD){
+#define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#define bcNameWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_ZERO){
+#define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#define bcNameWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_FARTHEST){
+#define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"

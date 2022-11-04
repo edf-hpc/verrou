@@ -177,65 +177,9 @@ void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
-#define IFV_INLINE inline
-
-IFV_INLINE void IFV_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <double>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<SubOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<SubOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(mul_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(mul_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(div_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(div_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<CastOp<double,float>  > Op;
-  Op::apply(Op::PackArgs(a),res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b,c), res,context);
-}
-
-IFV_INLINE void IFV_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
-  Op::apply(Op::PackArgs(a,b,c), res, context);
-}
 
 
-
+#include "interflop_verrou_flop_impl.hxx"
 
 
 struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){

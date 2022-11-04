@@ -113,6 +113,8 @@ extern "C" {
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 
+#include "interflop_verrou_rounding.h"
+
 
 #ifdef __cplusplus
 }

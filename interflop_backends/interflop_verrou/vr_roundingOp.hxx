@@ -398,7 +398,7 @@ public:
 #include "vr_op.hxx"
 
 template<class OP>
-class OpWithSelectedRoundingMode{
+class OpWithDynSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
