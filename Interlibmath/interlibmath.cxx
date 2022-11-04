@@ -467,7 +467,7 @@ public:
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
+      typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
       double res;							\
       VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
@@ -483,7 +483,7 @@ public:
     }else{								\
       incCounter1<float, enum##FCT,0>();				\
       VERROU_STOP_INSTRUMENTATION;                                      \
-typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
+typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
       VERROU_START_INSTRUMENTATION;                                     \
@@ -509,7 +509,7 @@ typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       return function2NameTab[enum##FCT].apply(a,b);			\
       }else{								\
       incCounter2<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
+      typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
       VERROU_STOP_INSTRUMENTATION;                                      \
       double res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
@@ -524,7 +524,7 @@ typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       return function2NameTab[enum##FCT].apply(a,b);			\
     }else{								\
       incCounter2<float, enum##FCT,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
+      typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
       float res;							\
       VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
