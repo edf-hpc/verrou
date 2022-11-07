@@ -71,9 +71,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEAREST) (double a, double b, double* res
   typedef RoundingNearest<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -92,9 +89,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEAREST) (float a, float b, float* res,voi
   typedef RoundingNearest<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -113,9 +107,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEAREST) (double a, double b, double* res
   typedef RoundingNearest<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -134,9 +125,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEAREST) (float a, float b, float* res,voi
   typedef RoundingNearest<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -155,9 +143,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEAREST) (double a, double b, double* res
   typedef RoundingNearest<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -176,9 +161,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEAREST) (float a, float b, float* res,voi
   typedef RoundingNearest<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -197,9 +179,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEAREST) (double a, double b, double* res
   typedef RoundingNearest<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -218,9 +197,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEAREST) (float a, float b, float* res,voi
   typedef RoundingNearest<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -239,9 +215,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEAREST) (double a, double b, double c, 
   typedef RoundingNearest<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -260,9 +233,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEAREST) (float a, float b, float c, floa
   typedef RoundingNearest<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -281,9 +251,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEAREST) (double a, float* res,
   typedef RoundingNearest<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -302,9 +269,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_UPWARD) (double a, double b, double* res,
   typedef RoundingUpward<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -323,9 +287,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_UPWARD) (float a, float b, float* res,void
   typedef RoundingUpward<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -344,9 +305,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_UPWARD) (double a, double b, double* res,
   typedef RoundingUpward<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -365,9 +323,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_UPWARD) (float a, float b, float* res,void
   typedef RoundingUpward<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -386,9 +341,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_UPWARD) (double a, double b, double* res,
   typedef RoundingUpward<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -407,9 +359,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_UPWARD) (float a, float b, float* res,void
   typedef RoundingUpward<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -428,9 +377,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_UPWARD) (double a, double b, double* res,
   typedef RoundingUpward<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -449,9 +395,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_UPWARD) (float a, float b, float* res,void
   typedef RoundingUpward<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -470,9 +413,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_UPWARD) (double a, double b, double c, d
   typedef RoundingUpward<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -491,9 +431,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_UPWARD) (float a, float b, float c, float
   typedef RoundingUpward<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -512,9 +449,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_UPWARD) (double a, float* res, 
   typedef RoundingUpward<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -533,9 +467,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_DOWNWARD) (double a, double b, double* re
   typedef RoundingDownward<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -554,9 +485,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_DOWNWARD) (float a, float b, float* res,vo
   typedef RoundingDownward<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -575,9 +503,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_DOWNWARD) (double a, double b, double* re
   typedef RoundingDownward<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -596,9 +521,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_DOWNWARD) (float a, float b, float* res,vo
   typedef RoundingDownward<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -617,9 +539,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_DOWNWARD) (double a, double b, double* re
   typedef RoundingDownward<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -638,9 +557,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_DOWNWARD) (float a, float b, float* res,vo
   typedef RoundingDownward<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -659,9 +575,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_DOWNWARD) (double a, double b, double* re
   typedef RoundingDownward<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -680,9 +593,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_DOWNWARD) (float a, float b, float* res,vo
   typedef RoundingDownward<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -701,9 +611,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_DOWNWARD) (double a, double b, double c,
   typedef RoundingDownward<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -722,9 +629,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_DOWNWARD) (float a, float b, float c, flo
   typedef RoundingDownward<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -743,9 +647,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_DOWNWARD) (double a, float* res
   typedef RoundingDownward<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -764,9 +665,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_FARTHEST) (double a, double b, double* re
   typedef RoundingFarthest<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -785,9 +683,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_FARTHEST) (float a, float b, float* res,vo
   typedef RoundingFarthest<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -806,9 +701,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_FARTHEST) (double a, double b, double* re
   typedef RoundingFarthest<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -827,9 +719,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_FARTHEST) (float a, float b, float* res,vo
   typedef RoundingFarthest<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -848,9 +737,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_FARTHEST) (double a, double b, double* re
   typedef RoundingFarthest<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -869,9 +755,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_FARTHEST) (float a, float b, float* res,vo
   typedef RoundingFarthest<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -890,9 +773,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_FARTHEST) (double a, double b, double* re
   typedef RoundingFarthest<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -911,9 +791,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_FARTHEST) (float a, float b, float* res,vo
   typedef RoundingFarthest<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -932,9 +809,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_FARTHEST) (double a, double b, double c,
   typedef RoundingFarthest<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -953,9 +827,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_FARTHEST) (float a, float b, float c, flo
   typedef RoundingFarthest<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -974,9 +845,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FARTHEST) (double a, float* res
   typedef RoundingFarthest<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -995,9 +863,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_ZERO) (double a, double b, double* res,vo
   typedef RoundingZero<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1016,9 +881,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_ZERO) (float a, float b, float* res,void* 
   typedef RoundingZero<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1037,9 +899,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_ZERO) (double a, double b, double* res,vo
   typedef RoundingZero<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1058,9 +917,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_ZERO) (float a, float b, float* res,void* 
   typedef RoundingZero<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1079,9 +935,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_ZERO) (double a, double b, double* res,vo
   typedef RoundingZero<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1100,9 +953,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_ZERO) (float a, float b, float* res,void* 
   typedef RoundingZero<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1121,9 +971,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_ZERO) (double a, double b, double* res,vo
   typedef RoundingZero<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1142,9 +989,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_ZERO) (float a, float b, float* res,void* 
   typedef RoundingZero<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1163,9 +1007,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_ZERO) (double a, double b, double c, dou
   typedef RoundingZero<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1184,9 +1025,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_ZERO) (float a, float b, float c, float* 
   typedef RoundingZero<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1205,9 +1043,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_ZERO) (double a, float* res, vo
   typedef RoundingZero<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1226,9 +1061,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM) (double a, double b, double* res,
   typedef RoundingRandom<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1247,9 +1079,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM) (float a, float b, float* res,void
   typedef RoundingRandom<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1268,9 +1097,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM) (double a, double b, double* res,
   typedef RoundingRandom<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1289,9 +1115,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM) (float a, float b, float* res,void
   typedef RoundingRandom<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1310,9 +1133,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM) (double a, double b, double* res,
   typedef RoundingRandom<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1331,9 +1151,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM) (float a, float b, float* res,void
   typedef RoundingRandom<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1352,9 +1169,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM) (double a, double b, double* res,
   typedef RoundingRandom<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1373,9 +1187,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM) (float a, float b, float* res,void
   typedef RoundingRandom<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1394,9 +1205,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM) (double a, double b, double c, d
   typedef RoundingRandom<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1415,9 +1223,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM) (float a, float b, float c, float
   typedef RoundingRandom<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1436,9 +1241,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM) (double a, float* res, 
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1457,9 +1259,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_DET) (double a, double b, double* 
   typedef RoundingRandom<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1478,9 +1277,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_DET) (float a, float b, float* res,
   typedef RoundingRandom<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1499,9 +1295,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_DET) (double a, double b, double* 
   typedef RoundingRandom<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1520,9 +1313,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_DET) (float a, float b, float* res,
   typedef RoundingRandom<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1541,9 +1331,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_DET) (double a, double b, double* 
   typedef RoundingRandom<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1562,9 +1349,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_DET) (float a, float b, float* res,
   typedef RoundingRandom<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1583,9 +1367,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_DET) (double a, double b, double* 
   typedef RoundingRandom<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1604,9 +1385,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_DET) (float a, float b, float* res,
   typedef RoundingRandom<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1625,9 +1403,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_DET) (double a, double b, double 
   typedef RoundingRandom<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1646,9 +1421,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_DET) (float a, float b, float c, f
   typedef RoundingRandom<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1667,9 +1439,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_DET) (double a, float* r
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1688,9 +1457,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_COMDET) (double a, double b, doubl
   typedef RoundingRandom<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1709,9 +1475,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_COMDET) (float a, float b, float* r
   typedef RoundingRandom<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1730,9 +1493,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_COMDET) (double a, double b, doubl
   typedef RoundingRandom<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1751,9 +1511,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_COMDET) (float a, float b, float* r
   typedef RoundingRandom<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1772,9 +1529,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_COMDET) (double a, double b, doubl
   typedef RoundingRandom<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1793,9 +1547,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_COMDET) (float a, float b, float* r
   typedef RoundingRandom<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1814,9 +1565,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_COMDET) (double a, double b, doubl
   typedef RoundingRandom<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1835,9 +1583,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_COMDET) (float a, float b, float* r
   typedef RoundingRandom<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1856,9 +1601,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_COMDET) (double a, double b, doub
   typedef RoundingRandom<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1877,9 +1619,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_COMDET) (float a, float b, float c
   typedef RoundingRandom<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1898,9 +1637,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_COMDET) (double a, float
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1919,9 +1655,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_AVERAGE) (double a, double b, double* res
   typedef RoundingAverage<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1940,9 +1673,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_AVERAGE) (float a, float b, float* res,voi
   typedef RoundingAverage<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1961,9 +1691,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_AVERAGE) (double a, double b, double* res
   typedef RoundingAverage<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -1982,9 +1709,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_AVERAGE) (float a, float b, float* res,voi
   typedef RoundingAverage<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2003,9 +1727,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_AVERAGE) (double a, double b, double* res
   typedef RoundingAverage<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2024,9 +1745,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_AVERAGE) (float a, float b, float* res,voi
   typedef RoundingAverage<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2045,9 +1763,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_AVERAGE) (double a, double b, double* res
   typedef RoundingAverage<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2066,9 +1781,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_AVERAGE) (float a, float b, float* res,voi
   typedef RoundingAverage<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2087,9 +1799,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_AVERAGE) (double a, double b, double c, 
   typedef RoundingAverage<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2108,9 +1817,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_AVERAGE) (float a, float b, float c, floa
   typedef RoundingAverage<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2129,9 +1835,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AVERAGE) (double a, float* res,
   typedef RoundingAverage<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2150,9 +1853,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_AVERAGE_DET) (double a, double b, double*
   typedef RoundingAverage<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2171,9 +1871,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_AVERAGE_DET) (float a, float b, float* res
   typedef RoundingAverage<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2192,9 +1889,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_AVERAGE_DET) (double a, double b, double*
   typedef RoundingAverage<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2213,9 +1907,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_AVERAGE_DET) (float a, float b, float* res
   typedef RoundingAverage<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2234,9 +1925,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_AVERAGE_DET) (double a, double b, double*
   typedef RoundingAverage<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2255,9 +1943,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_AVERAGE_DET) (float a, float b, float* res
   typedef RoundingAverage<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2276,9 +1961,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_AVERAGE_DET) (double a, double b, double*
   typedef RoundingAverage<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2297,9 +1979,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_AVERAGE_DET) (float a, float b, float* res
   typedef RoundingAverage<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2318,9 +1997,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_AVERAGE_DET) (double a, double b, double
   typedef RoundingAverage<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2339,9 +2015,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_AVERAGE_DET) (float a, float b, float c, 
   typedef RoundingAverage<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2360,9 +2033,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AVERAGE_DET) (double a, float* 
   typedef RoundingAverage<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2381,9 +2051,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_AVERAGE_COMDET) (double a, double b, doub
   typedef RoundingAverage<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2402,9 +2069,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_AVERAGE_COMDET) (float a, float b, float* 
   typedef RoundingAverage<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2423,9 +2087,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_AVERAGE_COMDET) (double a, double b, doub
   typedef RoundingAverage<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2444,9 +2105,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_AVERAGE_COMDET) (float a, float b, float* 
   typedef RoundingAverage<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2465,9 +2123,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_AVERAGE_COMDET) (double a, double b, doub
   typedef RoundingAverage<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2486,9 +2141,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_AVERAGE_COMDET) (float a, float b, float* 
   typedef RoundingAverage<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2507,9 +2159,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_AVERAGE_COMDET) (double a, double b, doub
   typedef RoundingAverage<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2528,9 +2177,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_AVERAGE_COMDET) (float a, float b, float* 
   typedef RoundingAverage<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2549,9 +2195,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_AVERAGE_COMDET) (double a, double b, dou
   typedef RoundingAverage<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2570,9 +2213,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_AVERAGE_COMDET) (float a, float b, float 
   typedef RoundingAverage<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2591,9 +2231,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AVERAGE_COMDET) (double a, floa
   typedef RoundingAverage<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2612,9 +2249,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM) (double a, double b, double* res
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2633,9 +2267,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM) (float a, float b, float* res,voi
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2654,9 +2285,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM) (double a, double b, double* res
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2675,9 +2303,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM) (float a, float b, float* res,voi
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2696,9 +2321,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM) (double a, double b, double* res
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2717,9 +2339,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM) (float a, float b, float* res,voi
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2738,9 +2357,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM) (double a, double b, double* res
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2759,9 +2375,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM) (float a, float b, float* res,voi
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2780,9 +2393,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM) (double a, double b, double c, 
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2801,9 +2411,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM) (float a, float b, float c, floa
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2822,9 +2429,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM) (double a, float* res,
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2843,9 +2447,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_DET) (double a, double b, double*
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2864,9 +2465,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_DET) (float a, float b, float* res
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2885,9 +2483,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_DET) (double a, double b, double*
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2906,9 +2501,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_DET) (float a, float b, float* res
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2927,9 +2519,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_DET) (double a, double b, double*
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2948,9 +2537,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_DET) (float a, float b, float* res
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2969,9 +2555,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_DET) (double a, double b, double*
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -2990,9 +2573,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_DET) (float a, float b, float* res
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3011,9 +2591,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_DET) (double a, double b, double
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3032,9 +2609,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_DET) (float a, float b, float c, 
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3053,9 +2627,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_DET) (double a, float* 
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3074,9 +2645,6 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_COMDET) (double a, double b, doub
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3095,9 +2663,6 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_COMDET) (float a, float b, float* 
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3116,9 +2681,6 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_COMDET) (double a, double b, doub
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3137,9 +2699,6 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_COMDET) (float a, float b, float* 
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3158,9 +2717,6 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_COMDET) (double a, double b, doub
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3179,9 +2735,6 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_COMDET) (float a, float b, float* 
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3200,9 +2753,6 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_COMDET) (double a, double b, doub
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3221,9 +2771,6 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_COMDET) (float a, float b, float* 
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3242,9 +2789,6 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_COMDET) (double a, double b, dou
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3263,9 +2807,6 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_COMDET) (float a, float b, float 
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
@@ -3284,9 +2825,6 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_COMDET) (double a, floa
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){

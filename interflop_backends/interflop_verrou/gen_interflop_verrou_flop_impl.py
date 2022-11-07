@@ -29,9 +29,6 @@ IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float) (double a, float* res, void* c
 """
 
 post_treatmement_code="""
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
