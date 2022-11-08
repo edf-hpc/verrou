@@ -115,10 +115,10 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0){
-	  return nextAfter<RealType>(res);
+	if((signError*res)>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return nextPrev<RealType>(res);
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -146,18 +146,14 @@ public:
       INC_EXACTOP;
       return res;
     }else{
-      const bool doNoChange = RAND::randBool(&vr_rand,p);
-      if(signError>0){
-	if(doNoChange){
-	  return res;
-	}else{
-	  return nextAfter<RealType>(res);
-	}
+      const bool doNoChange = RAND::randBool(&vr_rand, p);
+      if(doNoChange){
+	return res;
       }else{
-	if(doNoChange){
-	  return nextPrev<RealType>(res);
+	if((signError*res)>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return res;
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -193,9 +189,8 @@ public:
     if(error>0){
       const RealType nextRes(nextAfter<RealType>(res));
       const RealType u(nextRes -res);
-      const int s(1);
       const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * u)
-				>  (s * error));
+				>   error);
       if(doNotChange){
 	return res;
       }else{
@@ -203,19 +198,19 @@ public:
       }
 
     }
-    if(error<0){
+    //    if(error<0)
+    {
       const RealType prevRes(nextPrev<RealType>(res));
-      const RealType u(res -prevRes);
-      const int s(-1);
-      const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * u)
-				> (s * error));
+      const RealType mu(prevRes -res);
+      const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * mu)
+				< error);
       if(doNotChange){
 	return res;
       }else{
 	return prevRes;
       }
     }
-    return res; //Should not occur
+    //return res; //Should not occur
   } ;
 };
 
