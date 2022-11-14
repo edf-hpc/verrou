@@ -25,7 +25,7 @@ VALGRIND_PATH=${CURRENT_REP}/${BUILD_REP}/${VALGRIND_NAME}
 echo "VALGRIND_PATH:" ${VALGRIND_PATH}
 mkdir ${VALGRIND_PATH}/verrou
 cd ..
-git archive origin/${BRANCH_VERROU} | tar -x -C ${VALGRIND_PATH}/verrou ||exit 42
+git archive ${BRANCH_VERROU} | tar -x -C ${VALGRIND_PATH}/verrou ||exit 42
 
 cd ${VALGRIND_PATH} || exit 42
 patch -p1 <verrou/valgrind.diff

@@ -5,7 +5,7 @@ import re
 import sys
 import subprocess
 
-
+gitRepositoty="origin/"
 
 verrouConfigList={
     "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
@@ -17,6 +17,18 @@ verrouConfigList={
     "double_tabulation":{ "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no"},
     "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no"},
 }
+
+verrouConfigList={
+    "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
+    "master":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
+    "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+    "code_gen":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma"},
+    "code_gen_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+    "code_gen_merge":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma"},
+    "code_gen_fast_merge":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+    "test_perf":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"gitRepositoty":"", "flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+}
+
 
 valgrindConfigList={
     "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
@@ -53,10 +65,15 @@ def buildConfig(name):
 
     if not os.path.exists(buildRep):
         if "valgrind" in verrouConfigParam:
+            branch=verrouConfigParam["branch_verrou"]
+            if "gitRepositoty" in verrouConfigParam:
+                branch=verrouConfigParam["gitRepositoty"]+branch
+            else:
+                branch=gitRepositoty+branch
             runCmd("./buildConfig.sh %s %s %s \"%s\""%(
                 buildRep,
                 valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
-                verrouConfigParam["branch_verrou"],
+                branch,
                 verrouConfigParam["flags"])
             )
         if "tag" in verrouConfigParam:
