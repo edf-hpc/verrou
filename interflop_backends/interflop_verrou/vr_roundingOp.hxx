@@ -146,11 +146,23 @@ public:
       INC_EXACTOP;
       return res;
     }else{
-      const bool doNoChange = RAND::randBool(&vr_rand, p);
-      if(doNoChange){
+      if( signError > 0){
+	const bool doNoChange = RAND::randBool(&vr_rand, p);
+	if(doNoChange){
+	  return res;
+	}else{
+	  if(res >0){
+	    return nextAwayFromZero<RealType>(res);
+	  }else{
+	    return nextTowardZero<RealType>(res);
+	  }
+	}
+      }
+      const bool doChange = !RAND::randBool(&vr_rand, p);
+      if(doChange){
 	return res;
       }else{
-	if((signError*res)>0){
+	if(res <0){
 	  return nextAwayFromZero<RealType>(res);
 	}else{
 	  return nextTowardZero<RealType>(res);
