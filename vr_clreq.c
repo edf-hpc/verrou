@@ -278,6 +278,26 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
 #endif
     *ret = 0; /* meaningless */
     break;
+
+  case VR_USERREQ__PRANDOM_UPDATE:
+    verrou_updatep_prandom();
+    if(vr.verbose){
+      if(   (vr.roundingMode==VR_PRANDOM)||(vr.roundingMode==VR_PRANDOM_DET) ||(vr.roundingMode==VR_PRANDOM_COMDET)){
+	VG_(umsg)("\tPRANDOM_UPDATE: pvalue=%f\n", verrou_prandom_pvalue());
+      }
+    }
+    break;
+  case VR_USERREQ__PRANDOM_UPDATE_VALUE:
+    {
+      double value=VG_(strtod)((char*)args[1],NULL);
+      verrou_updatep_prandom_double(value);
+    }
+    if(vr.verbose){
+      if(   (vr.roundingMode==VR_PRANDOM)||(vr.roundingMode==VR_PRANDOM_DET) ||(vr.roundingMode==VR_PRANDOM_COMDET)){
+	VG_(umsg)("\tPRANDOM_UPDATE_VALUE: pvalue=%f\n", verrou_prandom_pvalue());
+      }
+    }
+    break;
   }
-    return True;
+  return True;
 }
