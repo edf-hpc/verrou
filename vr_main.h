@@ -109,6 +109,11 @@ typedef enum {
   VR_PREC
 } Vr_Prec;
 
+typedef enum {
+  VR_PRANDOM_UPDATE_NONE,
+  VR_PRANDOM_UPDATE_FUNC,
+} Vr_Prandom_update;
+
 
 typedef struct Vr_Exclude_ Vr_Exclude;
 struct Vr_Exclude_ {
@@ -137,6 +142,8 @@ struct Vr_IncludeSource_ {
 typedef struct {
   vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
+  Vr_Prandom_update prandomUpdate;
+  double prandomFixedInitialValue;
   Bool count;
   Bool instr_op[VR_OP];
   Bool instr_vec[VR_VEC];

@@ -160,6 +160,12 @@ static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT incre
   counter[VR_INSTR_OFF] += increment;
 }
 
+
+static VG_REGPARM(0) void vr_updatep_prandom (void) {
+  verrou_updatep_prandom();
+}
+
+
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr) {
   if(!vr.count){
     return;
@@ -1214,6 +1220,21 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
 
+      if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+	 const HChar *localFnname;
+	 if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
+	   IRDirty*   di;
+	   di = unsafeIRDirty_0_N(0,
+				  "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				  mkIRExprVec_0() );
+	   addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	   if(vr.verbose){
+	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
+	   }
+	 }
+
+      }
+
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }
       break;
@@ -1323,6 +1344,8 @@ static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
    vr_env_clo("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo("VERROU_PRANDOM_UPDATE", "--prandom-update");
+   vr_env_clo("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
    vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
    vr_env_clo("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
@@ -1355,6 +1378,13 @@ static void vr_post_clo_init(void)
    }
    VG_(umsg)("First seed : %llu\n", vr.firstSeed);
 
+
+   if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+     if( (vr.roundingMode==VR_PRANDOM_DET ||  vr.roundingMode==VR_PRANDOM_COMDET)){
+       VG_(tool_panic)("prandom dynamic update and PRANDOM_[COM]DET are incompatible");
+     }
+   }
+
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
    verrou_set_panic_handler(&VG_(tool_panic));
@@ -1372,6 +1402,10 @@ static void vr_post_clo_init(void)
 
    interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
    verrou_set_seed (vr.firstSeed);
+
+   if(vr.prandomFixedInitialValue!=-1.){
+     verrou_updatep_prandom_double(vr.prandomFixedInitialValue);
+   }
 
 
    /*configuration of MCA backend*/
@@ -1481,6 +1515,9 @@ static void vr_post_clo_init(void)
 
    if(vr.backend==vr_verrou){
       VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
+      if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
+	VG_(umsg)("\t PRANDOM: pvalue=%f\n", verrou_prandom_pvalue());
+      }
    }
    if(vr.backend==vr_mcaquad){
 #ifdef USE_VERROU_QUAD

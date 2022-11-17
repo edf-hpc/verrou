@@ -49,6 +49,8 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
 void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
+  vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
+  vr.prandomFixedInitialValue=-1.;
   vr.count = True;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
@@ -154,6 +156,18 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_NATIVE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
                          vr.roundingMode, VR_FTZ)) {}
+
+  else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=func",
+                         vr.prandomUpdate, VR_PRANDOM_UPDATE_FUNC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=none",
+                         vr.prandomUpdate, VR_PRANDOM_UPDATE_NONE)) {}
+
+  else if (VG_STR_CLOM (cloPD, arg, "--prandom-pvalue", str)) {
+    vr.prandomFixedInitialValue=VG_(strtod)(str, NULL);
+    if(vr.prandomFixedInitialValue<0 ||  vr.prandomFixedInitialValue>1){
+      VG_(tool_panic) ( "\tpvalue has to be between 0 and 1\n");
+    }
+  }
 
   //Option mcaquad
   else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-double",

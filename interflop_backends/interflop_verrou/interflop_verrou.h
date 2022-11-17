@@ -81,6 +81,9 @@ extern "C" {
 
   void verrou_set_seed (unsigned int seed);
   void verrou_set_random_seed (void);
+  void verrou_updatep_prandom (void);
+  void verrou_updatep_prandom_double (double);
+  double verrou_prandom_pvalue (void);
 
   void verrou_init_profiling_exact(void);
   void verrou_get_profiling_exact(unsigned int* num, unsigned int* numExact);

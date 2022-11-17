@@ -177,6 +177,18 @@ void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
+void verrou_updatep_prandom (void) {
+  const double p=tinymt64_generate_double(&(vr_rand.gen_) );
+  vr_rand.p=p;
+}
+
+void verrou_updatep_prandom_double (double p) {
+  vr_rand.p=p;
+}
+
+double verrou_prandom_pvalue (void) {
+  return vr_rand.p;
+}
 
 
 #include "interflop_verrou_flop_impl.hxx"
