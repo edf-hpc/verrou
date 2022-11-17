@@ -10,7 +10,7 @@ def extract(fileName,typeFloat, algo):
     if not typeFloat in ["double","float"]:
         print("invalid ALGO_TYPE")
         sys.exit(42)
-    if not algo in ["Seq","Rec"]:
+    if not algo in ["Seq","Rec","SeqRatio","RecRatio"]:
         print("invalid ALGO")
         sys.exit(42)
         

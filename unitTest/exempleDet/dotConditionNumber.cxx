@@ -3,17 +3,19 @@
 #include <vector>
 #include <assert.h>
 #include <stdlib.h>
+#include <iomanip>
+#include <iostream>
 
 template<class REALTYPE>
 class identityFunctor{
 public:
-  static REALTYPE apply (const REALTYPE& x){return x;};
+  static inline REALTYPE apply (const REALTYPE& x){return x;};
 };
 
 template<class REALTYPE>
 class absFunctor{
 public:
-  static REALTYPE apply(const REALTYPE& x){return std::abs(x);};
+  static inline REALTYPE apply(const REALTYPE& x){return std::abs(x);};
 };
 
 
@@ -49,7 +51,9 @@ REALTYPE dotConditionNumber(std::vector<REALTYPE>& a, const std::vector<REALTYPE
 
 template<class REALTYPE>
 REALTYPE dotConditionNumberRewrite(std::vector<REALTYPE>& a, const std::vector<REALTYPE>&b){ 
-  REALTYPE res=2.* (dot<REALTYPE,absFunctor>(a,b)/ std::abs(dot<REALTYPE>(a,b)));
+  REALTYPE dotAbs=dot<REALTYPE,absFunctor>(a,b);
+  REALTYPE absDot=std::abs(dot<REALTYPE>(a,b));
+  REALTYPE res=2.* (dotAbs/ absDot );
 #ifdef USE_ASSERT
   assert(res>=2.);
 #endif
@@ -71,10 +75,10 @@ int main(int argc, char** argv){
 
   std::vector<float> a;//={1.,1.1,0.1};
   std::vector<float> b;//={1.,0.1,1.1};
-  feedRandomNumber(a,1000,42);
-  feedRandomNumber(b,1000,4242);
+  feedRandomNumber(a,100000,42);
+  feedRandomNumber(b,100000,4242);
   
-  
+  std::cout << std::setprecision(18);
 #ifndef REWRITE
   std::cout << "cond:" <<  dotConditionNumber(a,b)<<std::endl;
 #else

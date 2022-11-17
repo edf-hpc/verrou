@@ -73,7 +73,7 @@ class testInc0d1{
   REALTYPE computeRecurssiveTree(int threadOf=1024, int base=4){
     return init+computeTreeHelper(0, size, threadOf, base);
   }
-  REALTYPE computeTreeHelper(int begin, int end, int threadOf, int base){
+  inline REALTYPE computeTreeHelper(int begin, int end, int threadOf, int base){
     if(begin==end){
       return 0;
     }
@@ -105,12 +105,16 @@ class testInc0d1{
 
   void run(){
     REALTYPE resSeq=computeSeq();
+    REALTYPE resSeq2=computeSeq();
     REALTYPE resRec=computeRecurssiveTree();
-    
+    REALTYPE resRec2=computeRecurssiveTree();
+
     std::cout.precision(16);
     std::cout <<"<"<< typeName<REALTYPE>()<<">"
 	      <<"\tresSeq: " << resSeq
 	      <<"\tresRec: " << resRec
+	      <<"\tresSeqRatio: " << resSeq / resSeq2
+	      <<"\tresRecRatio: " << resRec / resRec2
 	      <<std::endl;
   }
  private:

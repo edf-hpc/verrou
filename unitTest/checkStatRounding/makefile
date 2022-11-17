@@ -7,7 +7,7 @@ export BASH_ENV=$(INSTALLPATH)/env.sh
 export SHELL=bash
 
 #FLAGS += -I$(INSTALLPATH)/include/valgrind
-FLAGS += -Wall -Wno-unused
+FLAGS += -Wall -Wno-unused -O2 -g
 
 FMA_FLAG=
 HAS_FMA = $(shell grep VERROU_COMPILED_WITH_FMA= $(INSTALLPATH)/env.sh)
@@ -20,7 +20,7 @@ endif
 
 include ../flag.mk
 
-FLAGS = $(FLAGS) $(DEBUGFLAGS)
+FLAGS1 = $(FLAGS) $(DEBUGFLAGS)
 
 
 .PHONY: run cleanStat
