@@ -154,27 +154,49 @@
         <listitem><para><command>random:</command> Randomly pick one among upward and downward
         rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
         </listitem>
-        <listitem><para><command>random_det:</command> Randomly choose between upward and downward
+	<listitem><para><command>prandom:</command> Randomly pick one among upward and downward
+            rounding, with probabilities p and 1-p. By default p is selected randomly between 0 and
+	    1 with uniform distribution, once by tool initialization. p can be setup with
+	    option <option><xref linkend="vr-manual.feat.updatepvalue"/> </option>.
+	      p can be dynamically modified with client requests <option><xref linkend="vr-manual.feat.clrupdatepvalue"/></option>
+		/
+		<option><xref linkend="vr-manual.feat.clrupdatep"/></option>
+		  or
+		  option <option><xref linkend="vr-manual.feat.updatepfunc"/></option>.
+		    This rounding mode is designed to get wider distribution.</para>
+        </listitem>
+        <listitem><para><command>average:</command> Randomly choose between upward and downward
+            rounding mode, in such a way that the expectation of the random result equals the exact
+            operation result (without rounding). This is called "uniform_absolute output randomization"
+            or "SR-nearness" in the MCA literature.</para></listitem>
+	<listitem><para><command>random_det:</command> Randomly choose between upward and downward
         rounding mode, with equal probabilities but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>random</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
         </listitem>
-
-        <listitem><para><command>average:</command> Randomly choose between upward and downward
-            rounding mode, in such a way that the expectation of the random result equals the exact
-            operation result (without rounding). This is called "uniform_absolute output randomization"
-            in the MCA literature.</para></listitem>
+	<listitem><para><command>prandom_det:</command> Randomly choose between downward and upward 
+        rounding mode, with probabilities p and 1-p but insuring that, for a given seed, the same computation
+        (same inputs and operation) will always be rounded in the same way.
+        This is a variant of the <command>prandom</command> rounding mode that improves determinism and
+        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.
+	If the p is modified dynamically, determinism is no longer assured.
+	</para>
+        </listitem>
 	<listitem><para><command>average_det:</command> Randomly choose between upward and downward
         rounding mode, with the same probabilitie law as <command>average</command> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>average</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
         </listitem>
-	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
         </listitem>
-
-	  <listitem><para><command>average_comdet:</command> variant of <command>average_det</command> ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+	<listitem><para><command>prandom_comdet:</command> variant of <command>prandom_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+        </listitem>
+	<listitem><para><command>average_comdet:</command> variant of <command>average_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
         </listitem>
 
 

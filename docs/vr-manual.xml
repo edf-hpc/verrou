@@ -256,7 +256,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random|average|upward|downward|toward_zero|farthest|float|ftz> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|comdet]|average[|_det|comdet]|prandom[|_det|comdet]|upward|downward|toward_zero|farthest|float|ftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -266,8 +266,16 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>Random rounding modes:</command> <computeroutput>random</computeroutput>,
-                  <computeroutput>average</computeroutput>.
+                    <command>Random rounding modes:</command>
+		    <computeroutput>random</computeroutput>,
+                    <computeroutput>average</computeroutput>,
+		    <computeroutput>prandom</computeroutput>,
+		    <computeroutput>random_det</computeroutput>,
+                    <computeroutput>average_det</computeroutput>,
+		    <computeroutput>prandom_det</computeroutput>,
+		    <computeroutput>random_comdet</computeroutput>,
+                    <computeroutput>average_comdet</computeroutput>,
+		    <computeroutput>prandom_comdet</computeroutput>.
                 </para></listitem>
                 <listitem><para>
                   <command>IEEE-754 rounding modes:</command>
@@ -277,7 +285,8 @@ det2
                   <computeroutput>toward_zero</computeroutput>.
                 </para></listitem>
                 <listitem><para>
-                    <command>Other:</command> <computeroutput>farthest</computeroutput>,
+                    <command>Other:</command>
+		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
 		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
@@ -339,7 +348,7 @@ det2
               pseudo-Random Number Generator used for the
 		<command>random</command> or
 		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
-		The same option can also be used to set the seed of the hash function  used for the random_[com]det and average_[com]det
+		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and average_[com]det
 		rounding mode.
 		This helps reproducing the behaviour of a program under Verrou.
               </para>
@@ -348,6 +357,33 @@ det2
               at each execution.</para>
 	      <para>This option can be activated with the env variable <command>VERROU_SEED</command>.</para>
             </listitem>
+          </varlistentry>
+
+
+	  <varlistentry id="vr-manual.feat.updatepfunc" xreflabel="--prandom-update">
+            <term><option><![CDATA[--prandom-update=func [default=none]]]></option></term>
+            <listitem>
+              <para>If present, this option the p-value of the prandom[|det|comdet] rounding mode is
+		updated (with an uniform random selection between 0 and 1) at the begining of each function call.
+		Be careful the option is highly sensitive
+		to the program compilation option. If each the update is inserted between each floating point
+		operations the  <link linkend="vr-manual.feat.rounding-mode">prandom and random modes</link> are equivalent.
+		</para>
+		<para>This option can be activated with the env variable <command>VERROU_PRANDOM_UPDATE</command>.</para>
+              </listitem>
+          </varlistentry>
+
+	    <varlistentry id="vr-manual.feat.updatepvalue" xreflabel="--prandom-pvalue">
+            <term><option><![CDATA[--prandom-pvalue=P ]]></option></term>
+            <listitem>
+              <para>If present, this option the p-value of the prandom[|det|comdet] rounding mode is
+		set to P instead of the random number between 0 and 1.
+		If P is equal to 0., prandom and upward are equivalent.
+		If P is equal to 1., prandom and downward are equivalent.
+		If P is equal to .5, prandom and random are equivalent.
+	      </para>
+		<para>This option can be activated with the env variable <command>VERROU_PRANDOM_PVALUE</command>.</para>
+              </listitem>
           </varlistentry>
 
           <varlistentry id="vr-opt.instr" xreflabel="--vr-instr-">
@@ -661,6 +697,19 @@ det2
                       xreflabel="VERROU_DUMP_COVER">
           <term><computeroutput>VERROU_DUMP_COVER</computeroutput></term>
           <listitem><para> If <computeroutput>--trace</computeroutput> option is activated, the client request generates a partial cover and return the index of the cover.</para></listitem>
+        </varlistentry>
+
+
+	<varlistentry id="vr-manual.feat.clrupdatep"
+                      xreflabel="VERROU_PRANDOM_UPDATE">
+          <term><computeroutput>VERROU_PRANDOM_UPDATE</computeroutput></term>
+          <listitem><para> The p-value of prandom[|det|comdet] rounding mode is set to a new random value between 0 and 1.</para></listitem>
+        </varlistentry>
+
+	<varlistentry id="vr-manual.feat.clrupdatepvalue"
+                      xreflabel="VERROU_PRANDOM_UPDATE_VALUE">
+          <term><computeroutput>VERROU_PRANDOM_UPDATE_VALUE(floatStr)</computeroutput></term>
+          <listitem><para>  The p-value of prandom[|det|comdet] rounding mode is set to <computeroutput>floatStr</computeroutput></para></listitem>
         </varlistentry>
 
       </variablelist>
