@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <iostream>
+#include <valgrind/verrou.h>
 
 template<class REALTYPE>
 class identityFunctor{
@@ -52,6 +53,8 @@ REALTYPE dotConditionNumber(std::vector<REALTYPE>& a, const std::vector<REALTYPE
 template<class REALTYPE>
 REALTYPE dotConditionNumberRewrite(std::vector<REALTYPE>& a, const std::vector<REALTYPE>&b){ 
   REALTYPE dotAbs=dot<REALTYPE,absFunctor>(a,b);
+  //  VERROU_PRANDOM_UPDATE;
+  //  VERROU_PRANDOM_UPDATE_VALUE("0.1");
   REALTYPE absDot=std::abs(dot<REALTYPE>(a,b));
   REALTYPE res=2.* (dotAbs/ absDot );
 #ifdef USE_ASSERT
