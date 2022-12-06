@@ -1369,6 +1369,11 @@ static void vr_post_clo_init(void)
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
 
+   if(vr.sourceExcludeActivated){
+     if(!vr_includeSourceMutuallyExclusive(vr.includeSource, vr.excludeSourceRead)){
+       VG_(tool_panic)("--source and --warn-unknown-source are incompatible");
+     }
+   }
    //Random Seed initialisation
    if(vr.firstSeed==(ULong )(-1)){
       struct vki_timeval now;
