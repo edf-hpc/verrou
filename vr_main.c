@@ -1104,10 +1104,10 @@ void vr_treat_line_from_imark(Bool excludeIrsb, Bool includeSource, Bool doLineC
       vr_includeSource_generate (&vr.gen_includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
     }
 
-    if(!includeSource&&  vr.sourceActivated && !vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
+    if(!includeSource&&  vr.sourceActivated && vr.sourceExcludeActivated&&!vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
       VG_(umsg)("Warning new source line with fp operation discovered :\n");
       VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
-      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);
+      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);//to print only once
     }
   }
 }
