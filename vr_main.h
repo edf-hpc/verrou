@@ -276,7 +276,7 @@ void vr_includeSource_generate (Vr_IncludeSource** list,
 
 Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
 					const HChar * filename, UInt linenum);
-
+Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude, Vr_IncludeSource* listExclude);
 // ** vr_include_trace.c
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
 Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);
