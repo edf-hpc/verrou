@@ -86,11 +86,11 @@ class openGz:
 
 class bbInfoReader:
     """ Class to read trace_bb_info_log-PID(.gz) file and to provide a string describing
-    a basic bloc defined by an index (called addr) from the MARK (debug symbol)
+    a basic bloc defined by an index from the MARK (debug symbol)
 
     After init the usual call are :
-      .compressMarksWithoutSym(addr)
-      .getStrToPrint(addr)
+      .compressMarksWithoutSym(index)
+      .getStrToPrint(index)
 
     """
     def __init__(self,fileName):
@@ -111,19 +111,19 @@ class bbInfoReader:
             if m==None :
                 print("error read fileName line:",[line])
                 sys.exit()
-            addr, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
+            index, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
             containFloat=(containFloat=="1")
             containFloatCmp=(containFloatCmp=="1")
-            if addr in self.data:
-                if not (sym,sourceFile,lineNum,containFloat, containFloatCmp) in self.data[addr]:
-                    self.data[addr]+=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
-                if self.dataMax[addr]+1!= counter:
+            if index in self.data:
+                if not (sym,sourceFile,lineNum,containFloat, containFloatCmp) in self.data[index]:
+                    self.data[index]+=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
+                if self.dataMax[index]+1!= counter:
                     self.dataCorrupted[addr]=True
-                self.dataMax[addr]=counter
+                self.dataMax[index]=counter
             else:
-                self.data[addr]=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
-                self.dataMax[addr]=counter
-                self.dataCorrupted[addr]=False
+                self.data[index]=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
+                self.dataMax[index]=counter
+                self.dataCorrupted[index]=False
             counter+=1
             line=fileHandler.readline()
 
@@ -138,21 +138,24 @@ class bbInfoReader:
             res+=" "+symName +"["+self.compressFileNames(select)+"] |"
         return res[0:-1]
 
-    def containFloatMod(self,addr):
-        select=[ x[3] for x in self.data[addr]]
+    def containFloatMod(self,index):
+        select=[ x[3] for x in self.data[index]]
         return (True in select)
 
-    def containFloatCmp(self,addr):
-        select=[ x[4] for x in self.data[addr]]
+    def containFloatCmp(self,index):
+        select=[ x[4] for x in self.data[index]]
         return (True in select)
 
-    def compressMarksWithoutSym(self, addr):
-        select=[(x[1],x[2]) for x in self.data[addr]  ]
+    def compressMarksWithoutSym(self, index):
+        if index=='4294967295':
+            return "OrgBB"
+
+        select=[(x[1],x[2]) for x in self.data[index]  ]
         res=self.compressFileNames(select)
         res+=" "
-        if self.containFloatMod(addr):
+        if self.containFloatMod(index):
             res+="F"
-        if self.containFloatCmp(addr):
+        if self.containFloatCmp(index):
             res+="?"
         return res
 
@@ -185,25 +188,20 @@ class bbInfoReader:
             intTab=intTab[nbSuccessor+1:]
         return res[0:-1]
 
-    def getStrToPrint(self, addr):
-        return self.compressMarks(self.data[addr])
+    def getStrToPrint(self, index):
+        return self.compressMarks(self.data[index])
 
-    def isCorrupted(self,addr):
-        return self.dataCorrupted[addr]
+    def isCorrupted(self, index):
+        return self.dataCorrupted[index]
 
     def print(self):
-        for addr in self.data:
-            print(self.compressMarks(self.data[addr]))
+        for index in self.data:
+            print(self.compressMarks(self.data[index]))
 
-    def addrToIgnore(self, addr, ignoreList):
-        listOfFile=[fileName for sym,fileName,num, containFloatMod, containFloatCmp in self.data[addr]]
-        for fileName in listOfFile:
-            if fileName in ignoreList:
-                return True
-        return False
-
-    def getListOfSym(self,addr):
-        return list(set([sym for sym,fileName,num, containFloatMod, containFloatCmp in self.data[addr]]))
+    def getListOfSym(self,index):
+        if index=='4294967295':
+            return "OrgSym"
+        return list(set([sym for sym,fileName,num, containFloatMod, containFloatCmp in self.data[index]]))
 
 
 
@@ -213,10 +211,12 @@ class covReader:
         self.rep=rep
         self.bbInfo=bbInfoReader(self.rep+"/trace_bb_info.log-"+str(pid))
         covFile=openGz(self.rep+"/trace_bb_cov.log-"+str(pid))
+        linkFile=openGz(self.rep+"/trace_bb_link.log-"+str(pid))
 
         self.cov=self.readCov(covFile)
+        self.link=self.readCov(linkFile, link=True)
 
-    def readCov(self, cov):
+    def readCov(self, cov, link=False):
         res=[]
         currentNumber=-1
         dictRes={}
@@ -233,7 +233,11 @@ class covReader:
                 dictRes={}
                 continue
             (index,sep, num)=(line).strip().partition(":")
-            dictRes[index]=int(num)
+            if link:
+                splitIndex=index.split(",")
+                dictRes[(splitIndex[0],splitIndex[1]) ]=int(num)
+            else:
+                dictRes[index]=int(num)
 
         return res
 
@@ -243,10 +247,23 @@ class covReader:
             resTab=[(index,num,self.bbInfo.getListOfSym(index),self.bbInfo.compressMarksWithoutSym(index)) for index,num in self.cov[num].items() ]
             resTab.sort( key= itemgetter(2,3,0)) # 2 sym  3 compress string 0 index
 
+
             handler=openGz(self.rep+"/%scover%05d-%d"%(filenamePrefix ,num,self.pid),"w")
             for (index,count,sym, strBB) in resTab:
                 handler.write("%d\t: %s\n"%(count,strBB))
 
+    def writePartialCoverLink(self,filenamePrefix=""):
+
+        for num in range(len(self.link)):
+            resTab=[(str(index),num, str(self.bbInfo.getListOfSym(index[0])), str(self.bbInfo.getListOfSym(index[1])),self.bbInfo.compressMarksWithoutSym(index[0]),self.bbInfo.compressMarksWithoutSym(index[1])) for index,num in self.link[num].items() ]
+            print(resTab[0])
+            print(resTab[1])
+            resTab.sort( key= itemgetter(2,3,4,5,0)) # 2,3 sym 4,5 compress string 
+
+            handler=openGz(self.rep+"/%sLinkcover%05d-%d"%(filenamePrefix ,num,self.pid),"w")
+            for (index,count,sym1,sym2, strBB1, strBB2) in resTab:
+
+                handler.write("%d\t: %s\t%s\n"%(count,strBB1, strBB2))
 
 class covMerge:
     """Class CovMerge allows to merge covers with counter of (success/failure) x (equal cover, diff cover).
@@ -473,6 +490,7 @@ class cmpToolsCov:
             pid,rep=self.tabPidRep[i]
             cov=covReader(pid,rep)
             cov.writePartialCover(filenamePrefix)
+            cov.writePartialCoverLink(filenamePrefix)
 
     # def writeStatus(self):
     #     for i in range(len(self.tabPidRep)):
@@ -611,7 +629,7 @@ class config_option:
         self.parseOpt(argv[1:])
 
     def usage(self):
-        print ("Usage: %s [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* "%(argv[0]) )
+        print ("Usage: %s [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* "%(sys.argv[0]) )
         sys.exit(42)
 
     def parseOpt(self,argv):

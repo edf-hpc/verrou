@@ -24,7 +24,7 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-
+#define COVER_GRAPH
 
 struct traceBB_T {
   IRSB* irsb;
@@ -35,12 +35,26 @@ struct traceBB_T {
 
 typedef struct traceBB_T traceBB_t;
 
+
+struct traceBBLink_T {
+  UInt indexOld;
+  UInt index;
+  UInt counter;
+  struct traceBBLink_T*  next;
+};
+
+typedef struct traceBBLink_T traceBBLink_t;
+
+
 VgFile * vr_out_bb_info = NULL;
-//VgFile * vr_out_bb_info_backtrace= NULL;
-//VgFile * vr_out_bb_trace= NULL;
 VgFile * vr_out_bb_cov= NULL;
+VgFile * vr_out_bb_link= NULL;
 
 traceBB_t* traceList=NULL ;
+traceBBLink_t* traceLinkList=NULL ;
+
+
+UInt indexOld=-1;
 
 /* Trace */
 //static void vr_trace_dyn_IRSB(HWord index, HWord counterPtr){
@@ -50,6 +64,36 @@ traceBB_t* traceList=NULL ;
 static void vr_count_dyn_IRSB(HWord index, HWord counterPtr){
   //  VG_(fprintf)(vr_out_bb_trace,"%u\n",(UInt)index);
   *((UInt*)counterPtr) +=1;
+}
+
+static void vr_link_dyn_IRSB(HWord index, HWord counterPtr);
+static traceBBLink_t* vr_searchTraceLinkList(UInt indexOld);
+traceBBLink_t* getNewTraceLinkBB(UInt indexOrg, UInt indexDest);
+
+static void vr_link_dyn_IRSB(HWord index, HWord counterPtr){
+  *((UInt*)counterPtr) +=1;
+
+  traceBBLink_t* linkCell =vr_searchTraceLinkList(index);
+
+  if( linkCell==NULL){
+    traceLinkList=getNewTraceLinkBB(indexOld,index);
+    linkCell=traceLinkList;
+  }
+
+  linkCell->counter += 1 ;
+  indexOld=index;
+}
+
+
+static traceBBLink_t* vr_searchTraceLinkList(UInt index){
+  traceBBLink_t* current=traceLinkList;
+  while (current != NULL) {
+    if( (current->indexOld)==indexOld && (current->index)==index){
+      return current;
+    }
+    current = current->next;
+  }
+  return NULL;
 }
 
 //static void vr_countAndTrace_dyn_IRSB(HWord index, HWord counterPtr){
@@ -74,11 +118,18 @@ static void vr_traceIRSB (IRSB* out, UInt  index, UInt* counterPtr){//, typeInst
   /*       		   argv); */
   /*   break; */
   /* case instrCount: */
-    di = unsafeIRDirty_0_N(2,
+#ifndef COVER_GRAPH
+  di = unsafeIRDirty_0_N(2,
 			   "vr_count_dyn_IRSB",
 			   VG_(fnptr_to_fnentry)( &vr_count_dyn_IRSB ),
 			   argv);
-  /*   break; */
+#else
+  di = unsafeIRDirty_0_N(2,
+			   "vr_link_dyn_IRSB",
+			   VG_(fnptr_to_fnentry)( &vr_link_dyn_IRSB ),
+			   argv);
+#endif
+    /*   break; */
   /* case instrCountAndTrace: */
   /*   di = unsafeIRDirty_0_N(2, */
   /*       		   "vr_countAndTrace_dyn_IRSB", */
@@ -106,6 +157,18 @@ traceBB_t* getNewTraceBB(IRSB* irsb_in){
   return res;
 }
 
+
+traceBBLink_t* getNewTraceLinkBB(UInt indexOrg, UInt indexDest){
+  traceBBLink_t * res = VG_(malloc)("vr.getNewTraceLinkBB", sizeof(traceBBLink_t));
+  res->next=traceLinkList;
+  res->counter=0;
+  res->indexOld=indexOrg;
+  res->index=indexDest;
+  traceLinkList=res;
+  return res;
+}
+
+
 void freeTraceBBList(void);
 void freeTraceBBList(void){
     while (traceList != NULL) {
@@ -130,9 +193,13 @@ void vr_traceBB_initialize(char* path);
 void vr_traceBB_initialize(char* path){
   const HChar * strInfo="./trace_bb_info.log-%p";
   const HChar * strCov="./trace_bb_cov.log-%p";
-
   HChar absfileInfo[512];
   HChar absfileCov[512];
+
+#ifdef COVER_GRAPH
+  const HChar * strLink="./trace_bb_link.log-%p";
+  HChar absfileLink[512];
+#endif
 
   if (path!=NULL) {
     if(VG_(strlen)(path) >400){
@@ -150,9 +217,15 @@ void vr_traceBB_initialize(char* path){
     }
     VG_(sprintf)(absfileInfo, "%s/%s", path, strInfo);
     VG_(sprintf)(absfileCov,  "%s/%s", path, strCov);
+#ifdef COVER_GRAPH
+    VG_(sprintf)(absfileLink,  "%s/%s", path, strLink);
+#endif
   } else {
     VG_(sprintf)(absfileInfo, "./%s", strInfo);
     VG_(sprintf)(absfileCov,  "./%s", strCov);
+#ifdef COVER_GRAPH
+    VG_(sprintf)(absfileLink,  "./%s", strLink);
+#endif
   }
 
   const HChar * strExpInfo= VG_(expand_file_name)("vr.traceBB.strInfo",  absfileInfo);
@@ -170,6 +243,16 @@ void vr_traceBB_initialize(char* path){
     VG_(umsg)("Error with %s or %s",strExpInfo,strExpCov);
     VG_(tool_panic)("trace file initialization failed");
   }
+#ifdef COVER_GRAPH
+  const HChar * strExpLink=  VG_(expand_file_name)("vr.traceBB.strLink",   absfileLink);
+  vr_out_bb_link = VG_(fopen)(strExpLink,
+			       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_EXCL, // VKI_O_TRUNC,
+			       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
+  if(vr_out_bb_link==NULL){
+    VG_(umsg)("Error with %s",strExpLink);
+    VG_(tool_panic)("trace file initialization failed");
+  }
+#endif
 };
 
 void vr_traceBB_finalize(void);
@@ -189,6 +272,11 @@ void vr_traceBB_finalize(void){
     VG_(fclose)(vr_out_bb_cov);
   }
 
+#ifdef COVER_GRAPH
+  if(vr_out_bb_link !=NULL){
+    VG_(fclose)(vr_out_bb_link);
+  }
+#endif
 }
 
 
@@ -198,6 +286,13 @@ void vr_traceBB_resetCov(void){
     current->counter=0;
     current = current->next;
   }
+#ifdef COVER_GRAPH
+  traceBBLink_t* currentLink=traceLinkList;
+  while (currentLink != NULL) {
+    currentLink->counter=0;
+    currentLink = currentLink->next;
+  }
+#endif
 }
 
 
@@ -208,7 +303,7 @@ UInt vr_traceBB_dumpCov(void){
      numPartialCov+=1;
      return numPartialCov-1;
   }
-  
+
   VG_(fprintf)(vr_out_bb_cov, "cover-%u\n", numPartialCov);
   traceBB_t* current=traceList;
   while (current != NULL) {
@@ -217,6 +312,16 @@ UInt vr_traceBB_dumpCov(void){
     }
     current = current->next;
   }
+#ifdef COVER_GRAPH
+  VG_(fprintf)(vr_out_bb_link, "cover-%u\n", numPartialCov);
+  traceBBLink_t* currentLink=traceLinkList;
+  while (currentLink != NULL) {
+    if(currentLink->counter!=0){
+      VG_(fprintf)(vr_out_bb_link,"%u,%u:%u\n",(currentLink->indexOld), (currentLink->index),(currentLink->counter));
+    }
+    currentLink = currentLink->next;
+  }
+#endif
   numPartialCov+=1;
   vr_traceBB_resetCov();
   return numPartialCov-1;
