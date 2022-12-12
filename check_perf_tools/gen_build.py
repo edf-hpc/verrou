@@ -13,21 +13,20 @@ verrouConfigList={
     "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
     "dietzfelbinger":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no"},
     "multiply_shift":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no"},
-    "multiply_shift_fix":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/multiply-shift-fix" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no"},
     "double_tabulation":{ "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no"},
     "mersenne_twister": { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no"},
 }
 
-verrouConfigList={
-    "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
-    "master":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
-    "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-    "code_gen":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma"},
-    "code_gen_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-    "code_gen_merge":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma"},
-    "code_gen_fast_merge":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-    "test_perf":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"gitRepositoty":"", "flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-}
+# verrouConfigList={
+#     "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
+#     "master":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
+#     "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+#     "code_gen":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma"},
+#     "code_gen_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+#     "code_gen_merge":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma"},
+#     "code_gen_fast_merge":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+#     "test_perf":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"gitRepositoty":"", "flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
+# }
 
 
 valgrindConfigList={
