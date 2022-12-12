@@ -19,13 +19,15 @@
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random|average|upward|downward|toward_zero|farthest|float|ftz>\n\
+      --rounding-mode=<random[|_det|comdet]|average[|_det|comdet]|prandom[|_det|comdet]|upward|downward|toward_zero|farthest|float|ftz>\n\
       [default=nearest]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
           rounds to the nearest floating-point. Supported rounding modes are:\n\
 \n\
-          •   Random rounding modes: random, average.\n\
+          •   Random rounding modes: random, average, prandom, random_det,\n\
+              average_det, prandom_det, random_comdet, average_comdet,\n\
+              prandom_comdet.\n\
 \n\
           •   IEEE-754 rounding modes: nearest (default), upward, downward,\n\
               toward_zero.\n\
@@ -67,12 +69,37 @@
       --vr-seed=RNG_SEED [default=automatically generated]\n\
           If present, this option allows setting the seed of the\n\
           pseudo-Random Number Generator used for the random or average\n\
-          rounding modes. This helps reproducing the behaviour of a program\n\
-          under Verrou.\n\
+          rounding modes. The same option can also be used to set the seed of\n\
+          the hash function used for the [p]random_[com]det and\n\
+          average_[com]det rounding mode. This helps reproducing the\n\
+          behaviour of a program under Verrou.\n\
 \n\
           If this option is omitted, the pRNG is seeded with a value based on\n\
           the current time and process id, so that it should change at each\n\
           execution.\n\
+\n\
+          This option can be activated with the env variable VERROU_SEED.\n\
+\n\
+      --prandom-update=func [default=none]\n\
+          If present, this option the p-value of the prandom[|det|comdet]\n\
+          rounding mode is updated (with an uniform random selection between\n\
+          0 and 1) at the begining of each function call. Be careful the\n\
+          option is highly sensitive to the program compilation option. If\n\
+          each the update is inserted between each floating point operations\n\
+          the prandom and random modes are equivalent.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_PRANDOM_UPDATE.\n\
+\n\
+      --prandom-pvalue=P\n\
+          If present, this option the p-value of the prandom[|det|comdet]\n\
+          rounding mode is set to P instead of the random number between 0\n\
+          and 1. If P is equal to 0., prandom and upward are equivalent. If P\n\
+          is equal to 1., prandom and downward are equivalent. If P is equal\n\
+          to .5, prandom and random are equivalent.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_PRANDOM_PVALUE.\n\
 \n\
       --vr-instr=<add|sub|mul|div|mAdd|mSub|conv> [default=all]\n\
           Toggle instrumentation of floating-point additions, subtractions,\n\
@@ -137,7 +164,7 @@
           This option can be activated with the env variable VERROU_SOURCE.\n\
 \n\
       --warn-unknown-source=FILE\n\
-          This option require the use of --source option. When used, verrou\n\
+          This option requires the use of --source option. When used, verrou\n\
           generates warning for each line of code (which execute floating\n\
           point operation) neither present in the FILE defined by --source\n\
           option nor in the FILE provided by --warn-unknown-source option.\n\
