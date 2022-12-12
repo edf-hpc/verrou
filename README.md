@@ -54,7 +54,7 @@ or if you have proxy problem with git:// protocol:
 Add verrou's sources to it:
 
     cd valgrind-3.19.0+verrou-dev
-    git clone --branch=master --single-branch https://github.com/edf-hpc/verrou.git verrou
+    git clone https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
 
@@ -87,6 +87,17 @@ Systems that don't support FMA instructions can drop the `--enable-verrou-fma`
 configure switch, but be aware that this causes some tests to fail:
 
     ./configure --enable-only64bit --prefix=PREFIX
+
+<p>&nbsp;</p>
+
+For advanced user can use the following configure flags :
+    --enable-verrou-check-naninf=yes|no (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
+
+    --with-det-hash=hash_name with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is double_tabulation. mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are no able to reproduce the reference results.
+
+  --enable-verrou-xoshiro=[no|yes] (default yes). If set to yes the tiny mersenne twister prng is replaced for (random and average)is replaced by the xo[ro]shiro prng.
+
+  --enable-verrou-quad=[yes|no] (default yes). If set to no the backend mcaquad is disable. This option is only useful to reduce the dependencies.
 
 <p>&nbsp;</p>
 
