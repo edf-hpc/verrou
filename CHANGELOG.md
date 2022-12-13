@@ -2,7 +2,7 @@
 
 ## [UNRELEASED]
 
-This version is based on Valgrind-3.19.0.
+This version is based on Valgrind-3.20.0.
 
 ### Added
 
