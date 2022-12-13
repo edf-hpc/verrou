@@ -20,7 +20,7 @@ RUN apt-get update \
     &&  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git build-essential automake python3 libc6-dbg \
     && rm -fr /var/lib/apt/lists/*
 
-RUN mkdir /build
+RUN mkdir -p /build
 WORKDIR /build
 
 RUN git clone --branch=${VALGRIND_BRANCH} --single-branch --depth=1 git://sourceware.org/git/valgrind.git valgrind-${VALGRIND_VERSION}+verrou-dev
