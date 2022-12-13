@@ -4,7 +4,7 @@ ARG IMAGE_BASE=ubuntu:20.04
 ARG VALGRIND_VERSION=3.19.0
 ARG VALGRIND_BRANCH=VALGRIND_3_19_0
 ARG VERROU_BRANCH=master
-
+ARG NUM_THREADS=6
 
 #Build Stage
 FROM ${IMAGE_BASE} AS build
@@ -12,6 +12,7 @@ FROM ${IMAGE_BASE} AS build
 ARG VALGRIND_VERSION
 ARG VALGRIND_BRANCH
 ARG VERROU_BRANCH
+ARG NUM_THREADS
 
 RUN apt-get update \
     &&  DEBIAN_FRONTEND=noninteractive apt-get install -y --reinstall ca-certificates \
@@ -31,7 +32,7 @@ RUN git clone --branch=${VERROU_BRANCH} --single-branch --depth=1 https://github
 
 RUN  ./autogen.sh \
     && ./configure --enable-only64bit --enable-verrou-fma --prefix=/opt/valgrind-${VALGRIND_VERSION}+verrou-dev \
-    && make \
+    && make -j ${NUM_THREADS}\
     && make install
 
 
