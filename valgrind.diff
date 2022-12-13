@@ -48,11 +48,11 @@ index b86e80220..f67bafdf1 100755
 +++ b/configure.ac
 @@ -17,7 +17,7 @@
  m4_define([v_major_ver], [3])
- m4_define([v_minor_ver], [19])
+ m4_define([v_minor_ver], [20])
  m4_define([v_micro_ver], [0])
 -m4_define([v_suffix_ver], [])
 +m4_define([v_suffix_ver], [+Verrou-Dev])
- m4_define([v_rel_date], ["11 Apr 2022"])
+ m4_define([v_rel_date], ["24 Oct 2022"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
 @@ -4898,6 +4898,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
