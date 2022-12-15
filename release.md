@@ -54,7 +54,7 @@ git add vr_clo.txt
     git push origin release
     ```
 
-2. Wait for Travis tests to run
+2. Wait for github action tests to run (and verifiy the version number)
 
 3. Tag and delete the `release` branch
 
@@ -126,7 +126,7 @@ git add vr_clo.txt
     ```
     cd ${VALGRIND}+verrou-${VERSION}
     ./autogen.sh
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=$PWD/install
+    ./configure --enable-only64bit --prefix=$PWD/install
     make -j4 install
     source install/env.sh && valgrind --version
     make -C tests check && make -C verrou check && perl tests/vg_regtest verrou
