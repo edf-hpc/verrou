@@ -1104,10 +1104,10 @@ void vr_treat_line_from_imark(Bool excludeIrsb, Bool includeSource, Bool doLineC
       vr_includeSource_generate (&vr.gen_includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
     }
 
-    if(!includeSource&&  vr.sourceActivated && !vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
+    if(!includeSource&&  vr.sourceActivated && vr.sourceExcludeActivated&&!vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
       VG_(umsg)("Warning new source line with fp operation discovered :\n");
       VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
-      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);
+      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);//to print only once
     }
   }
 }
@@ -1373,6 +1373,11 @@ static void vr_post_clo_init(void)
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
 
+   if(vr.sourceExcludeActivated){
+     if(!vr_includeSourceMutuallyExclusive(vr.includeSource, vr.excludeSourceRead)){
+       VG_(tool_panic)("--source and --warn-unknown-source are incompatible");
+     }
+   }
    //Random Seed initialisation
    if(vr.firstSeed==(ULong )(-1)){
       struct vki_timeval now;

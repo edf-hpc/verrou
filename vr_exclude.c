@@ -330,3 +330,18 @@ vr_includeSource (Vr_IncludeSource** list,
 		  const HChar* fnname, const HChar* filename, UInt linenum) {
   return vr_findIncludeSource(*list, fnname, filename, linenum) != NULL;
 }
+
+
+
+Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude,
+					Vr_IncludeSource* listExclude){
+  Bool res=True;
+  Vr_IncludeSource * cell;
+  for (cell = listInclude ; cell != NULL ; cell = cell->next) {
+    if(vr_findIncludeSource(listExclude, cell->fnname, cell->filename, cell->linenum)!=NULL){
+      VG_(umsg)("Error : a line is included and excluded : %s : %s : %u\n",cell->fnname, cell->filename, cell->linenum);
+      res=False;
+    }
+  }
+  return res;
+}
