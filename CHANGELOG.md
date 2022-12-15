@@ -28,6 +28,7 @@ This version is based on Valgrind-3.20.0.
 	- The option --vr-instr (and VERROU_INSTR env variable) accepts multiple args (separated by ,)
 	- Add flags in BB coverage for BB with modified fp operation (F) and one for cmpFloat (?)
 	- Bug fix : --gen-exclude take into account --exclude
+	- The configure flag --enable-verrou-fma set by default
 ---
 
 ## v2.3.1 - 2021-05-31

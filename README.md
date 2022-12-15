@@ -74,19 +74,17 @@ are put in parentheses as examples):
 Configure valgrind:
 
     ./autogen.sh
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX
+    ./configure --enable-only64bit --prefix=PREFIX
 
-As stated above, it is recommended to use the `--enable-verrou-fma` flag if your
-system supports FMA (Fused Multiply-Add) instructions. Depending on your system,
-it may be required to set `CFLAGS` in order to enable the use of FMA in your
+Depending on your system, it may be required to set `CFLAGS` in order to enable the use of FMA in your
 compiler:
 
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX CFLAGS="-mfma"
+    ./configure --enable-only64bit --prefix=PREFIX CFLAGS="-mfma"
 
-Systems that don't support FMA instructions can drop the `--enable-verrou-fma`
-configure switch, but be aware that this causes some tests to fail:
+Systems that don't support FMA instructions the `--enable-verrou-fma=no`
+configure switch need to be used, but be aware that this causes some tests to fail:
 
-    ./configure --enable-only64bit --prefix=PREFIX
+    ./configure --enable-only64bit --enable-verrou-fma=no --prefix=PREFIX
 
 <p>&nbsp;</p>
 
