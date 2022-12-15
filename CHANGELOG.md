@@ -1,8 +1,7 @@
 # Change Log
-
 ## [UNRELEASED]
 
-This version is based on Valgrind-3.19.0.
+This version is based on Valgrind-3.20.0.
 
 ### Added
 
@@ -10,6 +9,36 @@ This version is based on Valgrind-3.19.0.
 ### Changed
 
 
+
+## v2.4.0 - 2022-12-15
+
+This version is based on Valgrind-3.20.0.
+
+### Added
+	- Add new rounding mode [random,average]_[det|comdet]
+	- Add --enable-verrou-check-naninf in configure
+	- Add post_verrou_dd for verrou_dd_line post-treatment
+	- Add option --warn-unknown-source (used by default in verrou_dd_line)
+	- Add --vr-instr-[flt|dbl|llo|vec[2,4,8]] options
+        - Add option --check-max-float
+	- Add a valgrind error for +/-inf detection
+	- Add a Dockerfile
+	- Add option --rddmin-heuristics-line-conv to verrou_dd_*
+	- [EXPERIMENTAL] Add new rounding mode prandom
+
+### Changed
+	- Use by default xo(ro)shiro prng
+	- Test switch between rounding mode is done during instrumentation (instead of each fp operation)
+	- Demangle C++ name in verrou_dd_[sym,line] stdout
+	- Bug fix: Do not generate VR_ERROR_UNCOUNTED error if the op is not perturbated
+	- Filter the low number of samples for srddmin : never below the number of threads and never below a param which depends of an estimated failure probability.
+	- plotStat become verrou_plot_stat and can use multiple threads
+	- Cast and FMA are now considered as unknown vectorized type.
+	- Migration from travis to github action
+	- The option --vr-instr (and VERROU_INSTR env variable) accepts multiple args (separated by ,)
+	- Add flags in BB coverage for BB with modified fp operation (F) and one for cmpFloat (?)
+	- Bug fix : --gen-exclude take into account --exclude
+	- The configure flag --enable-verrou-fma set by default
 ---
 
 ## v2.3.1 - 2021-05-31

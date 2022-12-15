@@ -260,7 +260,7 @@ class postConfig:
             self.rounding+=["upward","downward", "farthest", "toward_zero", "nearest"]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
-            self.rounding+=["random","average", "prandom","random_det", "average_det","prandom_det", "random_comdet", "average_comdet","prandom_comdet"]
+            self.rounding+=["random","average", "prandom"]
 
     def check_instr_tab(self):
         for instrConfig in self.instr:

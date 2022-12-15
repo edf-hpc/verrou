@@ -36,6 +36,10 @@
         calls will return the same result.
       </para>
 
+      <note>
+	Before to use this option, you should think about to use the <computeroutput>_det</computeroutput> and <computeroutput>_comdet</computeroutput> rounding modes (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
+      </note>
+
       <programlisting>
 double det (double x) {
   return 0.1*x;
@@ -495,7 +499,7 @@ det2
 
 	  <varlistentry id="vr-opt.warn-unknown-source" xreflabel="--warn-unknown-source">
             <term><option><![CDATA[--warn-unknown-source=FILE]]></option></term>
-            <listitem><para> This option require the use of <command>--source</command> option. When used, verrou generates warning for each line of code (which execute floating point operation) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
+            <listitem><para> This option requires the use of <command>--source</command> option. When used, verrou generates warning for each line of code (which execute floating point operation) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
 	      </para>
 	      <para>This option can be activated with the env variable <command>VERROU_WARN_UNKNOWN_SOURCE</command>.</para>
 	    </listitem>
@@ -703,13 +707,13 @@ det2
 	<varlistentry id="vr-manual.feat.clrupdatep"
                       xreflabel="VERROU_PRANDOM_UPDATE">
           <term><computeroutput>VERROU_PRANDOM_UPDATE</computeroutput></term>
-          <listitem><para> The p-value of prandom[|det|comdet] rounding mode is set to a new random value between 0 and 1.</para></listitem>
+          <listitem><para> The p-value of prandom[|_det|_comdet] rounding mode is set to a new random value between 0 and 1.</para></listitem>
         </varlistentry>
 
 	<varlistentry id="vr-manual.feat.clrupdatepvalue"
                       xreflabel="VERROU_PRANDOM_UPDATE_VALUE">
           <term><computeroutput>VERROU_PRANDOM_UPDATE_VALUE(floatStr)</computeroutput></term>
-          <listitem><para>  The p-value of prandom[|det|comdet] rounding mode is set to <computeroutput>floatStr</computeroutput></para></listitem>
+          <listitem><para>  The p-value of prandom[|_det|_comdet] rounding mode is set to <computeroutput>floatStr</computeroutput>.</para></listitem>
         </varlistentry>
 
       </variablelist>

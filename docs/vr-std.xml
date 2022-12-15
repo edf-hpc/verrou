@@ -101,9 +101,6 @@
       the fraction of instrumented instructions.
     </para>
 
-    <note><para> Instructions coming from <xref linkend="vr-manual.feat.exclude"/> appear neither in
-    the "Total" nor the "Instrumented" count: they are simply not seen by Verrou.  </para></note>
-
     <para>
       Floating-point instructions counters can be displayed at any point during the program
       execution using the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
@@ -129,7 +126,7 @@
         <listitem><simpara><command>downward,</command></simpara></listitem>
         <listitem><simpara><command>toward zero,</command></simpara></listitem>
       </itemizedlist>
-      as well as two other (non-IEEE-754) deterministic mode:
+      as well as three other (non-IEEE-754) deterministic modes:
       <itemizedlist>
         <listitem><para><command>farthest</command>: in this mode, all non-exact results are rounded
         in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
@@ -156,14 +153,14 @@
         </listitem>
 	<listitem><para><command>prandom:</command> Randomly pick one among upward and downward
             rounding, with probabilities p and 1-p. By default p is selected randomly between 0 and
-	    1 with uniform distribution, once by tool initialization. p can be setup with
+	    1 with uniform distribution, once by verrou tool initialization. p can be setup with
 	    option <option><xref linkend="vr-manual.feat.updatepvalue"/> </option>.
 	      p can be dynamically modified with client requests <option><xref linkend="vr-manual.feat.clrupdatepvalue"/></option>
 		/
 		<option><xref linkend="vr-manual.feat.clrupdatep"/></option>
 		  or
 		  option <option><xref linkend="vr-manual.feat.updatepfunc"/></option>.
-		    This rounding mode is designed to get wider distribution.</para>
+		    This rounding mode is designed to try to get wider distribution (useful for debug).</para>
         </listitem>
         <listitem><para><command>average:</command> Randomly choose between upward and downward
             rounding mode, in such a way that the expectation of the random result equals the exact
@@ -205,7 +202,7 @@
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-	  command-line option. For the modes <command>average_[com]det</command> and <command>random_c[com]det</command>, the pRNG is used to the parameters of hash functions.
+	  command-line option. For the modes <command>average_[com]det</command> and <command>random_c[com]det</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>
