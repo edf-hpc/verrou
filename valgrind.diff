@@ -51,7 +51,7 @@ index b86e80220..f67bafdf1 100755
  m4_define([v_minor_ver], [20])
  m4_define([v_micro_ver], [0])
 -m4_define([v_suffix_ver], [])
-+m4_define([v_suffix_ver], [+verrou-dev])
++m4_define([v_suffix_ver], [+verrou-2.4.0])
  m4_define([v_rel_date], ["24 Oct 2022"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
