@@ -9,7 +9,7 @@ CFLAGS=-g -Wall -march=native
 	g++ -o $@ -c $< $(CFLAGS)
 
 
-test_main: test_main.o interflop_verrou.o #vr_rand.o
+test_main: test_main.o interflop_verrou.o ../backend_mcaquad/common/tinymt64.o
 	g++ -o $@ $^ $(CFLAGS)	
 
 clean:

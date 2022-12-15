@@ -26,6 +26,7 @@
 
 import sys
 import os
+import subprocess
 from valgrind import dd_config
 from valgrind import DD_stoch
 from valgrind import DD_exec_stat
@@ -50,8 +51,17 @@ class DDsym(DD_stoch.DDStoch):
         return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
 
     def coerce(self, delta_config):
-        return "\n  " + "\n  ".join(delta_config)
+        def transform(line):
+            spline=line.split("\t")
+            return self.demangle(spline[0]) + "\t" + spline[1]
+        return "\n  " + "\n  ".join([transform(line) for line in delta_config])
 
+    def demangle(self, mangledName):
+        try:
+            line=subprocess.check_output(["c++filt",mangledName]).decode("utf8").strip()
+        except:
+            line=mangledName
+        return line
 
 
 

@@ -58,7 +58,6 @@
 #include "interflop_backends/statically_integrated_backends.h"
 
 
-
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
 typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation, vr_check_float_max} vr_backendpost_name_t;
@@ -110,6 +109,11 @@ typedef enum {
   VR_PREC
 } Vr_Prec;
 
+typedef enum {
+  VR_PRANDOM_UPDATE_NONE,
+  VR_PRANDOM_UPDATE_FUNC,
+} Vr_Prandom_update;
+
 
 typedef struct Vr_Exclude_ Vr_Exclude;
 struct Vr_Exclude_ {
@@ -138,6 +142,8 @@ struct Vr_IncludeSource_ {
 typedef struct {
   vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
+  Vr_Prandom_update prandomUpdate;
+  double prandomFixedInitialValue;
   Bool count;
   Bool instr_op[VR_OP];
   Bool instr_vec[VR_VEC];
@@ -147,24 +153,23 @@ typedef struct {
   Bool verbose;
   Bool unsafe_llo_optim;
 
-  UInt firstSeed;
+  ULong firstSeed;
 
-  Bool genExclude;
+  Bool genExcludeBool;
   HChar * excludeFile;
   //  HChar * genAbove;
   Vr_Exclude * exclude;
-  Vr_Exclude * genExcludeUntil;
+  Vr_Exclude * gen_exclude;
 
   Bool genIncludeSource;
   HChar* includeSourceFile;
 
   Bool sourceActivated;
   Vr_IncludeSource *includeSource;
-  Vr_IncludeSource *genIncludeSourceUntil;
+  Vr_IncludeSource *gen_includeSource;
 
   Bool sourceExcludeActivated;
   Vr_IncludeSource *excludeSourceRead;
-  Vr_IncludeSource *excludeSourceDyn;
 
   UInt mca_precision_double;
   UInt mca_precision_float;
@@ -262,15 +267,13 @@ void vr_handle_FLT_MAX (void);
 // ** vr_exclude.c
 
 void        vr_freeExcludeList (Vr_Exclude* list);
-void        vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end,
-                                const HChar* filename);
+void        vr_dumpExcludeList (Vr_Exclude* list, const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
 Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
 void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);
 
 void vr_freeIncludeSourceList (Vr_IncludeSource* list);
-void vr_dumpIncludeSourceList (Vr_IncludeSource* list, Vr_IncludeSource* end,
-                               const HChar* fname);
+void vr_dumpIncludeSourceList (Vr_IncludeSource* list, const HChar* fname);
 Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
 Bool vr_includeSource (Vr_IncludeSource** list,
                        const HChar* fnname, const HChar* filename, UInt linenum);
@@ -279,7 +282,7 @@ void vr_includeSource_generate (Vr_IncludeSource** list,
 
 Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
 					const HChar * filename, UInt linenum);
-
+Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude, Vr_IncludeSource* listExclude);
 // ** vr_include_trace.c
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
 Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);

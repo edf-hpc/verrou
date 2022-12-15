@@ -34,6 +34,7 @@ VERROU_SOURCES_COMMON = \
 	vr_clo.c	\
 	vr_include_trace.c \
 	vr_expect_clr.c\
+	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
@@ -63,7 +64,6 @@ endif
 if USE_QUAD
 VERROU_SOURCES_COMMON+= \
 	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
-	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/backend_mcaquad/common/fmaqApprox.c
 VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
 VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
@@ -74,6 +74,24 @@ VERROU_FLAG_CXX +=  -DPROFILING_EXACT
 VERROU_FLAG_C   +=  -DPROFILING_EXACT
 endif
 
+if USE_XOSHIRO
+VERROU_FLAG_CXX +=  -DUSE_XOSHIRO
+VERROU_FLAG_C   +=  -DUSE_XOSHIRO
+endif
+if USE_VERROU_NANINF
+
+else
+VERROU_FLAG_CXX +=  -DVERROU_IGNORE_NANINF_CHECK
+VERROU_FLAG_C   +=  -DVERROU_IGNORE_NANINF_CHECK
+endif
+
+
+VERROU_FLAG_C +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
+VERROU_FLAG_CXX +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
+
+
+VERROU_FLAG_C +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash
+VERROU_FLAG_CXX +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash
 
 VERROU_FLAG_C   += -DINTERFLOP_STATIC_INTERFACE_ENABLED
 VERROU_FLAG_CXX += -DINTERFLOP_STATIC_INTERFACE_ENABLED

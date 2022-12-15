@@ -1,9 +1,13 @@
-.PHONY: checkRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
+.PHONY: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
 
 
-all: checkRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro
+all: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro
 checkRounding:
 	make -C ./checkRounding
+
+checkStatRounding:
+	make -C ./checkStatRounding
+
 
 checkUCB-vecto:
 	make -C ./checkUCB-vecto

@@ -51,7 +51,14 @@ extern "C" {
     VR_DOWNWARD,
     VR_ZERO,
     VR_RANDOM, // Must be immediately after standard rounding modes
+    VR_RANDOM_DET,
+    VR_RANDOM_COMDET,
     VR_AVERAGE,
+    VR_AVERAGE_DET,
+    VR_AVERAGE_COMDET,
+    VR_PRANDOM,
+    VR_PRANDOM_DET,
+    VR_PRANDOM_COMDET,
     VR_FARTHEST,
     VR_FLOAT,
     VR_NATIVE,
@@ -74,6 +81,9 @@ extern "C" {
 
   void verrou_set_seed (unsigned int seed);
   void verrou_set_random_seed (void);
+  void verrou_updatep_prandom (void);
+  void verrou_updatep_prandom_double (double);
+  double verrou_prandom_pvalue (void);
 
   void verrou_init_profiling_exact(void);
   void verrou_get_profiling_exact(unsigned int* num, unsigned int* numExact);
@@ -105,6 +115,8 @@ extern "C" {
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+#include "interflop_verrou_rounding.h"
 
 
 #ifdef __cplusplus

@@ -160,6 +160,12 @@ static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT incre
   counter[VR_INSTR_OFF] += increment;
 }
 
+
+static VG_REGPARM(0) void vr_updatep_prandom (void) {
+  verrou_updatep_prandom();
+}
+
+
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr) {
   if(!vr.count){
     return;
@@ -447,14 +453,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Prec prec,
 				   Vr_Vec vec,
 				   Bool countOnly) {
-  //instrumentation to count operation
-
-  if(vr.verbose){
-    IROp irop;
-    if (vr_getOp (expr, &irop))
-      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
-  }
-
+  // un-instrumented cases :
   if(!(vr_isInstrumented(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
@@ -464,6 +463,13 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return True;
+  }
+
+  // instrumented case :
+  if(vr.verbose){
+    IROp irop;
+    if (vr_getOp (expr, &irop))
+      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
   vr_countOp (sb,  op, prec,vec, True);
@@ -892,6 +898,105 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
+
+     if(vr.roundingMode==VR_NEAREST){
+#define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM){
+#define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE){
+#define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM_DET){
+#define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE_DET){
+#define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_RANDOM_COMDET){
+#define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE_COMDET){
+#define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM){
+#define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM_DET){
+#define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_PRANDOM_COMDET){
+#define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_UPWARD){
+#define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#define bcNameWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_DOWNWARD){
+#define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#define bcNameWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_ZERO){
+#define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#define bcNameWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_FARTHEST){
+#define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
@@ -992,6 +1097,20 @@ static HChar const * fnnoname=UNAMED_FUNCTION_VERROU;
 static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
+inline
+void vr_treat_line_from_imark(Bool excludeIrsb, Bool includeSource, Bool doLineContainFloat,   HChar const **  fnnamePtr,   const HChar ** filenamePtr, const UInt *linenumPtr){
+  if( !excludeIrsb && doLineContainFloat){
+    if(vr.genIncludeSource){
+      vr_includeSource_generate (&vr.gen_includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
+    }
+
+    if(!includeSource&&  vr.sourceActivated && !vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
+      VG_(umsg)("Warning new source line with fp operation discovered :\n");
+      VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
+      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);
+    }
+  }
+}
 
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
@@ -1054,7 +1173,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
   const HChar * filename=NULL;
   const HChar ** filenamePtr=&filenamenoname;
-  UInt  linenum;
+  UInt  linenum=0;
   UInt*  linenumPtr=&linenum;
 
   /*Data for trace/coverage generation*/
@@ -1073,11 +1192,12 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat){
-	  vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-      }
+      vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
+			       fnnamePtr,filenamePtr,linenumPtr);
       if(genIRSBTrace){
-	vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+	vr_traceBB_trace_imark(traceBB,
+			       *fnnamePtr, *filenamePtr,*linenumPtr,
+			       doLineContainFloat, doLineContainFloatCmp);
       }
 
       doLineContainFloat=False;
@@ -1100,6 +1220,21 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
 
+      if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+	 const HChar *localFnname;
+	 if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
+	   IRDirty*   di;
+	   di = unsafeIRDirty_0_N(0,
+				  "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				  mkIRExprVec_0() );
+	   addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	   if(vr.verbose){
+	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
+	   }
+	 }
+
+      }
+
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }
       break;
@@ -1116,13 +1251,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
 
-	if((!includeSource) && vr.sourceActivated){
-	  if(doInstrContainFloat && !vr_includeSource(&vr.excludeSourceDyn, *fnnamePtr, *filenamePtr, *linenumPtr)){
-	    VG_(umsg)("Warning new source line with fp operation discovered :\n");
-	    VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
-	    vr.excludeSourceDyn = vr_addIncludeSource (vr.excludeSourceDyn,*fnnamePtr,*filenamePtr,*linenumPtr);
-	  }
-	}
       }
       break;
     default:
@@ -1130,14 +1258,15 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  if(vr.genIncludeSource && !excludeIrsb && doLineContainFloat &&filename !=NULL){
-    vr_includeSource_generate (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
-  }
+  vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
+			   fnnamePtr,filenamePtr,linenumPtr);
   if(genIRSBTrace){
-    vr_traceBB_trace_imark(traceBB,*fnnamePtr, *filenamePtr,*linenumPtr, doLineContainFloat, doLineContainFloatCmp);
+    vr_traceBB_trace_imark(traceBB,
+			   *fnnamePtr, *filenamePtr,*linenumPtr,
+			   doLineContainFloat, doLineContainFloatCmp);
   }
 
-  if(vr.genExclude && doIRSBFContainFloat){
+  if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
   }
   return sbOut;
@@ -1169,14 +1298,12 @@ static void vr_fini(Int exitcode)
   interflop_check_float_max_finalize(backend_check_float_max_context);
 
 
-  if (vr.genExclude) {
-    vr_dumpExcludeList(vr.exclude, vr.genExcludeUntil,
-		       vr.excludeFile);
+  if (vr.genExcludeBool) {
+    vr_dumpExcludeList(vr.gen_exclude, vr.excludeFile);
   }
 
   if (vr.genIncludeSource) {
-    vr_dumpIncludeSourceList (vr.includeSource, vr.genIncludeSourceUntil,
-			      vr.includeSourceFile);
+    vr_dumpIncludeSourceList (vr.gen_includeSource, vr.includeSourceFile);
   }
 
   if(vr.genTrace){
@@ -1184,15 +1311,17 @@ static void vr_fini(Int exitcode)
     vr_traceBB_finalize();
   }
   if (vr.dumpCancellation){
-     vr_dumpIncludeSourceList(vr.cancellationSource, NULL, vr.cancellationDumpFile );
+     vr_dumpIncludeSourceList(vr.cancellationSource, vr.cancellationDumpFile );
   }
 
   if (vr.dumpDenorm){
-     vr_dumpIncludeSourceList(vr.denormSource, NULL, vr.denormDumpFile );
+     vr_dumpIncludeSourceList(vr.denormSource, vr.denormDumpFile );
   }
   vr_freeExcludeList (vr.exclude);
+  vr_freeExcludeList (vr.gen_exclude);
+
   vr_freeIncludeSourceList (vr.includeSource);
-  vr_freeIncludeSourceList( vr.excludeSourceDyn);
+  vr_freeIncludeSourceList( vr.excludeSourceRead);
   vr_freeIncludeTraceList  (vr.includeTrace );
   VG_(free)(vr.excludeFile);
   //  VG_(free)(vr.genAbove);
@@ -1219,6 +1348,8 @@ static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
    vr_env_clo("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo("VERROU_PRANDOM_UPDATE", "--prandom-update");
+   vr_env_clo("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
    vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
    vr_env_clo("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
@@ -1236,23 +1367,27 @@ static void vr_post_clo_init(void)
 
    vr_env_clo("VERROU_TRACE","--trace");
    vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
-
-   if (vr.genExclude) {
-     vr.genExcludeUntil = vr.exclude;
-   }
+   vr_env_clo("VERROU_SEED","--vr-seed");
 
    //   if (vr.genAbove == NULL) {
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
 
    //Random Seed initialisation
-   if(vr.firstSeed==(unsigned int )(-1)){
+   if(vr.firstSeed==(ULong )(-1)){
       struct vki_timeval now;
       VG_(gettimeofday)(&now, NULL);
-      unsigned int pid = VG_(getpid)();
+      ULong pid = VG_(getpid)();
       vr.firstSeed = now.tv_usec + pid;
    }
-   VG_(umsg)("First seed : %u\n", vr.firstSeed);
+   VG_(umsg)("First seed : %llu\n", vr.firstSeed);
+
+
+   if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+     if( (vr.roundingMode==VR_PRANDOM_DET ||  vr.roundingMode==VR_PRANDOM_COMDET)){
+       VG_(tool_panic)("prandom dynamic update and PRANDOM_[COM]DET are incompatible");
+     }
+   }
 
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
@@ -1271,6 +1406,10 @@ static void vr_post_clo_init(void)
 
    interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
    verrou_set_seed (vr.firstSeed);
+
+   if(vr.prandomFixedInitialValue!=-1.){
+     verrou_updatep_prandom_double(vr.prandomFixedInitialValue);
+   }
 
 
    /*configuration of MCA backend*/
@@ -1380,6 +1519,9 @@ static void vr_post_clo_init(void)
 
    if(vr.backend==vr_verrou){
       VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
+      if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
+	VG_(umsg)("\t PRANDOM: pvalue=%f\n", verrou_prandom_pvalue());
+      }
    }
    if(vr.backend==vr_mcaquad){
 #ifdef USE_VERROU_QUAD

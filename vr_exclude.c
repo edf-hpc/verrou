@@ -79,7 +79,7 @@ void vr_freeExcludeList (Vr_Exclude* list) {
 }
 
 void
-vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end, const HChar* fname) {
+vr_dumpExcludeList (Vr_Exclude* list, const HChar* fname) {
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
 			VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
@@ -90,7 +90,7 @@ vr_dumpExcludeList (Vr_Exclude* list, Vr_Exclude* end, const HChar* fname) {
   }
 
   Vr_Exclude * exclude;
-  for (exclude = list ; exclude != end ; exclude = exclude->next) {
+  for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
     VG_(write)(fd, exclude->fnname, VG_(strlen)(exclude->fnname));
     VG_(write)(fd, "\t", 1);
     VG_(write)(fd, exclude->objname, VG_(strlen)(exclude->objname));
@@ -105,24 +105,26 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   VG_(umsg)("Loading exclusions list from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
-    VG_(umsg)("ERROR (open)\n");
-    return list;
+    VG_(tool_panic)("ERROR (open)\n");
   }
 
   SizeT nLine = LINE_SIZEMAX;
   HChar *line = VG_(malloc)("vr.loadExcludes.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
-  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
+  while (! VG_(get_line (fd, &line, &nLine, &lineno))) {
+    if( *line== '#'){ //Workaround : VG_(get_line) can return a comment line for the last line without \n
+       continue;
+    }
     HChar * c;
-
     // Skip non-blank characters
     for (c = line;
 	 c<line+LINE_SIZEMAX && *c != 0 && *c != '\t' && *c != ' ';
 	 ++c) {}
     if (*c == 0 || c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse) :%s \n",line);
-      return list;
+      VG_(tool_panic)("invalid exclude list file");
+      continue;
     }
     *c = 0;
 
@@ -168,9 +170,9 @@ void
 vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
 
   // Never exclude functions / objects unless they are explicitly listed
-  Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
+  Vr_Exclude *exclude = vr_findExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr);
   if(exclude==NULL){
-    vr.exclude = vr_addExclude (vr.exclude, *fnnamePtr, *objnamePtr, False);
+    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr, True);
   }
 }
 
@@ -218,7 +220,7 @@ void vr_freeIncludeSourceList (Vr_IncludeSource* list) {
   }
 }
 
-void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
+void vr_dumpIncludeSourceList (Vr_IncludeSource * list,
 			       const HChar * fname) {
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
@@ -231,7 +233,7 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list, Vr_IncludeSource* end,
 
   HChar linenum_[256];
   Vr_IncludeSource * cell;
-  for (cell = list ; cell != end ; cell = cell->next) {
+  for (cell = list ; cell != NULL ; cell = cell->next) {
     VG_(write)(fd, cell->filename, VG_(strlen)(cell->filename));
     VG_(write)(fd, "\t", 1);
     VG_(snprintf)(linenum_, 255, "%u", cell->linenum);
@@ -250,7 +252,7 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   VG_(umsg)("Loading list of included sources from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
-    VG_(umsg)("ERROR (open)\n");
+    VG_(tool_panic)("ERROR (open)\n");
     return list;
   }
 
@@ -258,9 +260,11 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
   HChar *line = VG_(malloc)("vr.loadIncludeSources.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
-  while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
+  while (! VG_(get_line (fd, &line, &nLine, &lineno))) {
+    if( *line== '#'){//Workaround : VG_(get_line) can return a comment line for the last line without \n
+       continue;
+    }
     HChar * c;
-
     HChar* filename = line;
     // Skip non-blank characters
     for (c = line;
@@ -268,7 +272,8 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 ++c) {}
     if (*c == 0 || c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse1) : %s\n",line);
-      return list;
+      VG_(tool_panic)("invalid load source list file");
+      continue;
     }
     *c = 0;
 
@@ -283,7 +288,8 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 ++c) {}
     if (c>line+LINE_SIZEMAX-1) {
       VG_(umsg)("ERROR (parse2) : %s\n",line);
-      return list;
+      VG_(tool_panic)("invalid load source list file");
+      continue;
     }
     if (*c==0) {
       c = line + LINE_SIZEMAX;

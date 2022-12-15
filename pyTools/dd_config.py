@@ -122,7 +122,10 @@ class ddConfig:
             return os.path.abspath(fpath)
         else:
             print("Invalid Cmd:"+str(sys.argv))
-            print(fpath + " should be executable")
+            if os.path.isfile(fpath) and not os.access(fpath, os.X_OK):
+                print(fpath + " should be executable")
+            if not os.path.isfile(fpath):
+                print(fpath + " is not a file")
             self.usageCmd()
             self.failure()
 

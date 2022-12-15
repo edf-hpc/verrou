@@ -111,8 +111,22 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "TOWARD_ZERO";
   case VR_RANDOM:
     return "RANDOM";
+  case VR_RANDOM_DET:
+    return "RANDOM_DET";
+  case VR_RANDOM_COMDET:
+    return "RANDOM_COMDET";
   case VR_AVERAGE:
     return "AVERAGE";
+  case VR_AVERAGE_DET:
+    return "AVERAGE_DET";
+  case VR_AVERAGE_COMDET:
+    return "AVERAGE_COMDET";
+  case VR_PRANDOM:
+    return "PRANDOM";
+  case VR_PRANDOM_DET:
+    return "PRANDOM_DET";
+  case VR_PRANDOM_COMDET:
+    return "PRANDOM_COMDET";
   case VR_FARTHEST:
     return "FARTHEST";
   case VR_FLOAT:
@@ -155,7 +169,7 @@ void verrou_end_instr(){
 }
 
 void verrou_set_seed (unsigned int seed) {
-  vr_seed = vr_rand_int (&vr_rand);
+  vr_seed = vr_rand_next(&vr_rand);
   vr_rand_setSeed (&vr_rand, seed);
 }
 
@@ -163,63 +177,21 @@ void verrou_set_random_seed () {
   vr_rand_setSeed(&vr_rand, vr_seed);
 }
 
-void IFV_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <double>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
+void verrou_updatep_prandom (void) {
+  const double p=tinymt64_generate_double(&(vr_rand.gen_) );
+  vr_rand.p=p;
 }
 
-void IFV_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<AddOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
+void verrou_updatep_prandom_double (double p) {
+  vr_rand.p=p;
 }
 
-void IFV_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<SubOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<SubOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(mul_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(mul_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<MulOp <float> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(div_double) (double a, double b, double* res,void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(div_float) (float a, float b, float* res,void* context) {
-  typedef OpWithSelectedRoundingMode<DivOp <float>  > Op;
-  Op::apply(Op::PackArgs(a,b),res,context);
-}
-
-void IFV_FCTNAME(cast_double_to_float) (double a, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<CastOp<double,float>  > Op;
-  Op::apply(Op::PackArgs(a),res,context);
-}
-
-void IFV_FCTNAME(madd_double) (double a, double b, double c, double* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <double> > Op;
-  Op::apply(Op::PackArgs(a,b,c), res,context);
-}
-
-void IFV_FCTNAME(madd_float) (float a, float b, float c, float* res, void* context){
-  typedef OpWithSelectedRoundingMode<MAddOp <float> > Op;
-  Op::apply(Op::PackArgs(a,b,c), res, context);
+double verrou_prandom_pvalue (void) {
+  return vr_rand.p;
 }
 
 
-
+#include "interflop_verrou_flop_impl.hxx"
 
 
 struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
@@ -272,7 +244,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, average, average_det,  average_comdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -292,8 +264,22 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_ZERO;
     } else if (strcasecmp("random", arg) == 0) {
       conf->mode=VR_RANDOM;
+    } else if (strcasecmp("random_det", arg) == 0) {
+      conf->mode=VR_RANDOM_DET;
+    } else if (strcasecmp("random_comdet", arg) == 0) {
+      conf->mode=VR_RANDOM_COMDET;
     } else if (strcasecmp("average", arg) == 0) {
       conf->mode=VR_AVERAGE;
+    } else if (strcasecmp("average_det", arg) == 0) {
+      conf->mode=VR_AVERAGE_DET;
+    } else if (strcasecmp("average_comdet", arg) == 0) {
+      conf->mode=VR_AVERAGE_COMDET;
+    } else if (strcasecmp("prandom", arg) == 0) {
+      conf->mode=VR_PRANDOM;
+    } else if (strcasecmp("prandom_det", arg) == 0) {
+      conf->mode=VR_PRANDOM_DET;
+    } else if (strcasecmp("prandom_comdet", arg) == 0) {
+      conf->mode=VR_PRANDOM_COMDET;
     } else if (strcasecmp("farthest", arg) == 0) {
       conf->mode=VR_FARTHEST;
     } else if (strcasecmp("float", arg) == 0) {
@@ -304,7 +290,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_FTZ;
     } else {
       std::cerr << key_rounding_mode_str <<" invalid value provided, must be one of: "
-		<<" nearest, upward, downward, toward_zero, random, average, farthest,float,native,ftz."
+		<<" nearest, upward, downward, toward_zero, random, random_det, random_comdet,average, average_det, average_comdet,farthest,float,native,ftz."
 		<<std::endl;
       exit(42);
     }

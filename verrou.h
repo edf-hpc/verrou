@@ -55,6 +55,9 @@ enum {
   VR_USERREQ__COUNT_FP_INSTRUMENTED,
   VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,
   VR_USERREQ__PRINT_PROFILING_EXACT,
+  VR_USERREQ__SET_SEED,
+  VR_USERREQ__PRANDOM_UPDATE,
+  VR_USERREQ__PRANDOM_UPDATE_VALUE,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -72,6 +75,9 @@ enum {
 #define VERROU_STOP_DETERMINISTIC(LEVEL)                             \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_DETERMINISTIC,    \
                                   LEVEL, 0, 0, 0, 0)
+#define VERROU_SET_SEED(SEED)                             \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__SET_SEED,    \
+                                  SEED, 0, 0, 0, 0)
 
 #define VERROU_DISPLAY_COUNTERS                                      \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__DISPLAY_COUNTERS,      \
@@ -95,5 +101,12 @@ enum {
 					    VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,\
 					    0, 0, 0, 0, 0)
 
+
+#define VERROU_PRANDOM_UPDATE \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRANDOM_UPDATE,    \
+                                  0, 0, 0, 0, 0)
+#define VERROU_PRANDOM_UPDATE_VALUE(P)\
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRANDOM_UPDATE_VALUE,    \
+				  P, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

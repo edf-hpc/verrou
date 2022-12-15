@@ -89,19 +89,20 @@ public:
 
 
 
-template<class OP>
+template<class OP, class RAND>
 class RoundingRandom{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p ){
-    RealType res=OP::nearestOp(p);
+    const RealType res=OP::nearestOp(p);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
 
@@ -110,14 +111,61 @@ public:
       INC_EXACTOP;
       return res;
     }else{
-      const bool doNoChange = vr_rand_bool(&vr_rand);
+      const bool doNoChange = RAND::randBool(&vr_rand,p);
       if(doNoChange){
 	return res;
       }else{
-	if(signError>0){
-	  return nextAfter<RealType>(res);
+	if((signError*res)>0){
+	  return nextAwayFromZero<RealType>(res);
 	}else{
-	  return nextPrev<RealType>(res);
+	  return nextTowardZero<RealType>(res);
+	}
+      }
+    }
+  } ;
+};
+
+template<class OP, class RAND>
+class RoundingPRandom{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p ){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+#endif
+    OP::check(p,res);
+    const RealType signError=OP::sameSignOfError(p,res);
+
+    if(signError==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      if( signError > 0){
+	const bool doNoChange = RAND::randBool(&vr_rand, p);
+	if(doNoChange){
+	  return res;
+	}else{
+	  if(res >0){
+	    return nextAwayFromZero<RealType>(res);
+	  }else{
+	    return nextTowardZero<RealType>(res);
+	  }
+	}
+      }
+      const bool doChange = !RAND::randBool(&vr_rand, p);
+      if(doChange){
+	return res;
+      }else{
+	if(res <0){
+	  return nextAwayFromZero<RealType>(res);
+	}else{
+	  return nextTowardZero<RealType>(res);
 	}
       }
     }
@@ -126,7 +174,8 @@ public:
 
 
 
-template<class OP>
+
+template<class OP, class RAND>
 class RoundingAverage{
 public:
   typedef typename OP::RealType RealType;
@@ -136,10 +185,11 @@ public:
     const RealType res=OP::nearestOp(p) ;
 
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -151,9 +201,8 @@ public:
     if(error>0){
       const RealType nextRes(nextAfter<RealType>(res));
       const RealType u(nextRes -res);
-      const int s(1);
-      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-				> (vr_rand_max() * s * error));
+      const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * u)
+				>   error);
       if(doNotChange){
 	return res;
       }else{
@@ -161,19 +210,19 @@ public:
       }
 
     }
-    if(error<0){
+    //    if(error<0)
+    {
       const RealType prevRes(nextPrev<RealType>(res));
-      const RealType u(res -prevRes);
-      const int s(-1);
-      const bool doNotChange = ((vr_rand_int(&vr_rand) * u)
-				> (vr_rand_max() * s * error));
+      const RealType mu(prevRes -res);
+      const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * mu)
+				< error);
       if(doNotChange){
 	return res;
       }else{
 	return prevRes;
       }
     }
-    return res; //Should not occur
+    //return res; //Should not occur
   } ;
 };
 
@@ -186,11 +235,11 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p){
-    RealType res=OP::nearestOp(p) ;
+    const RealType res=OP::nearestOp(p) ;
     INC_OP;
     OP::check(p,res);
     const RealType signError=OP::sameSignOfError(p,res);
-
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if( (res!=std::numeric_limits<RealType>::infinity()) && (res!=-std::numeric_limits<RealType>::infinity())  ){
 	return res;
@@ -206,6 +255,7 @@ public:
 	  }
       }
     }
+#endif
 #ifdef PROFILING_EXACT
     if(signError==0.){
       INC_EXACTOP;
@@ -230,7 +280,7 @@ public:
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
     INC_OP;
-
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if(res!=-std::numeric_limits<RealType>::infinity()){
 	return res;
@@ -242,7 +292,7 @@ public:
 	}
       }
     }
-
+#endif
     const RealType signError=OP::sameSignOfError(p,res);
 #ifdef PROFILING_EXACT
     if(signError==0.){
@@ -274,6 +324,7 @@ public:
     const RealType res=OP::nearestOp(p) ;
     OP::check(p,res);
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if(res!=std::numeric_limits<RealType>::infinity()){
 	return res;
@@ -285,7 +336,7 @@ public:
 	}
       }
     }
-
+#endif
 
     const RealType signError=OP::sameSignOfError(p,res);
 #ifdef PROFILING_EXACT
@@ -317,10 +368,11 @@ public:
   static inline RealType apply(const PackArgs& p){
     const RealType res=OP::nearestOp(p) ;
     INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf<RealType> (res)){
       return res;
     }
-
+#endif
     OP::check(p,res);
     const RealType error=OP::error(p,res);
     if(error==0.){
@@ -328,16 +380,16 @@ public:
       return res;
     }
     if(error>0){
-      RealType newRes=nextAfter<RealType>(res);
-      RealType ulp(newRes-res);
+      const RealType newRes=nextAfter<RealType>(res);
+      const RealType ulp(newRes-res);
       if(2*error < ulp ){
 	return newRes;
       }else{
 	return res;
       }
     }else{//error<0
-      RealType newRes=nextPrev<RealType>(res);
-      RealType ulp(res-newRes);
+      const RealType newRes=nextPrev<RealType>(res);
+      const RealType ulp(res-newRes);
       if(-2*error < ulp ){
 	return newRes;
       }else{
@@ -353,7 +405,7 @@ public:
 #include "vr_op.hxx"
 
 template<class OP>
-class OpWithSelectedRoundingMode{
+class OpWithDynSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
@@ -363,6 +415,7 @@ public:
 #ifdef DEBUG_PRINT_OP
     print_debug(p,res);
 #endif
+#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
 	vr_nanHandler();
@@ -371,6 +424,7 @@ public:
 	vr_infHandler();
       }
     }
+#endif
   }
 
 #ifdef DEBUG_PRINT_OP
@@ -397,9 +451,23 @@ public:
     case VR_ZERO:
       return RoundingZero<OP>::apply (p);
     case VR_RANDOM:
-      return RoundingRandom<OP>::apply (p);
+      return RoundingRandom<OP, vr_rand_prng<OP> >::apply (p);
+    case VR_RANDOM_DET:
+      return RoundingRandom<OP, vr_rand_det<OP> >::apply (p);
+    case VR_RANDOM_COMDET:
+      return RoundingRandom<OP, vr_rand_comdet<OP> >::apply (p);
     case VR_AVERAGE:
-      return RoundingAverage<OP>::apply (p);
+      return RoundingAverage<OP, vr_rand_prng<OP> >::apply (p);
+    case VR_AVERAGE_DET:
+      return RoundingAverage<OP,vr_rand_det<OP> >::apply (p);
+    case VR_AVERAGE_COMDET:
+      return RoundingAverage<OP, vr_rand_comdet<OP> >::apply (p);
+    case VR_PRANDOM:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_prng> >::apply (p);
+    case VR_PRANDOM_DET:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_det > >::apply (p);
+    case VR_PRANDOM_COMDET:
+      return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_comdet > >::apply (p);
     case VR_FARTHEST:
       return RoundingFarthest<OP>::apply (p);
     case VR_FLOAT:

@@ -71,7 +71,7 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True):
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None):
         self.dirname=dirname
         self.refDir=refDir
         self.runCmd=runCmd
@@ -88,6 +88,7 @@ class verrouTask:
         self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
         self.preRunLambda=None
         self.postRunLambda=None
+        self.seedTab=seedTab
 
     def setPostRun(self, postLambda):
         self.postRunLambda=postLambda
@@ -110,6 +111,8 @@ class verrouTask:
     def runOneSample(self,i):
         rundir= self.nameDir(i)
         env={key:self.runEnv[key] for key in self.runEnv}
+        if self.seedTab!=None:
+            env["VERROU_SEED"]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
@@ -118,8 +121,6 @@ class verrouTask:
 
 
     def cmpOneSample(self,i, assertRun=True):
-        if self.refDir==None: #if there are no reference provided cmp is ignored
-            return self.PASS
 
         rundir= self.nameDir(i)
         if assertRun:
@@ -127,6 +128,9 @@ class verrouTask:
                 getResult(self.subProcessRun[i])
                 if self.postRunLambda!=None:
                     self.postRunLambda(rundir)
+
+        if self.refDir==None: #if there are no reference provided cmp is ignored
+            return self.PASS
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
@@ -274,7 +278,8 @@ class verrouTask:
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
             futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
             concurrent.futures.wait(futures)
-        if self.FAIL in [futur.result() for futur in futures]:
+        results=[futur.result() for futur in futures]
+        if self.FAIL in results:
             indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
             failIndices=[workToDo[indice] for indice in indices ]
             print("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))

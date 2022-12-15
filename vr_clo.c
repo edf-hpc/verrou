@@ -49,20 +49,22 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
 void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
+  vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
+  vr.prandomFixedInitialValue=-1.;
   vr.count = True;
   vr.instrument = VR_INSTR_ON;
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
 
-  vr.genExclude = False;
+  vr.genExcludeBool = False;
   vr.exclude = NULL;
+  vr.gen_exclude = NULL;
   //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
   vr.sourceActivated= False;
   vr.excludeSourceRead = NULL;
-  vr.excludeSourceDyn = NULL;
   vr.sourceExcludeActivated = False;
   vr.genTrace=False;
   vr.includeTrace = NULL;
@@ -82,7 +84,7 @@ void vr_clo_defaults (void) {
   vr.instr_prec[VR_PREC_DBL]=True;
   vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
-  vr.firstSeed=(unsigned int)(-1);
+  vr.firstSeed=(ULong)(-1);
   vr.mca_precision_double=53;
   vr.mca_precision_float=24;
   vr.mca_mode=MCAMODE_MCA;
@@ -127,8 +129,22 @@ Bool vr_process_clo (const HChar *arg) {
   //Option --rounding-mode=
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random",
                          vr.roundingMode, VR_RANDOM)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_det",
+                         vr.roundingMode, VR_RANDOM_DET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_comdet",
+                         vr.roundingMode, VR_RANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
+                         vr.roundingMode, VR_AVERAGE_DET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_comdet",
+                         vr.roundingMode, VR_AVERAGE_COMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom",
+                         vr.roundingMode, VR_PRANDOM)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_det",
+                         vr.roundingMode, VR_PRANDOM_DET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_comdet",
+                         vr.roundingMode, VR_PRANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearest",
                          vr.roundingMode, VR_NEAREST)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=upward",
@@ -145,6 +161,18 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_NATIVE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
                          vr.roundingMode, VR_FTZ)) {}
+
+  else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=func",
+                         vr.prandomUpdate, VR_PRANDOM_UPDATE_FUNC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=none",
+                         vr.prandomUpdate, VR_PRANDOM_UPDATE_NONE)) {}
+
+  else if (VG_STR_CLOM (cloPD, arg, "--prandom-pvalue", str)) {
+    vr.prandomFixedInitialValue=VG_(strtod)(str, NULL);
+    if(vr.prandomFixedInitialValue<0 ||  vr.prandomFixedInitialValue>1){
+      VG_(tool_panic) ( "\tpvalue has to be between 0 and 1\n");
+    }
+  }
 
   //Option mcaquad
   else if (VG_INT_CLOM  (cloPD, arg, "--mca-precision-double",
@@ -256,7 +284,7 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--gen-exclude", str)) {
     //vr.excludeFile = VG_(strdup)("vr.process_clo.gen-exclude", str);
     vr.excludeFile = VG_(expand_file_name)("vr.process_clo.gen-exclude", str);
-    vr.genExclude = True;
+    vr.genExcludeBool = True;
   }
   /* else if (VG_STR_CLOM (cloPD, arg, "--gen-above", str)) { */
   /*   vr.genAbove = VG_(strdup)("vr.process_clo.gen-above", str); */
@@ -287,7 +315,6 @@ Bool vr_process_clo (const HChar *arg) {
 
   else if (VG_STR_CLOM (cloPD, arg, "--warn-unknown-source", str)) {
     vr.excludeSourceRead = vr_loadIncludeSourceList(vr.excludeSourceRead, str);
-    vr.excludeSourceDyn=vr.excludeSourceRead;
     vr.sourceExcludeActivated = True;
   }
 
@@ -306,7 +333,7 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--vr-seed", str)) {
     //vr_rand_setSeed (&vr_rand, VG_(strtoull10)(str, NULL));
     vr.firstSeed=VG_(strtoull10)(str, NULL);
-    if(vr.firstSeed==(unsigned int)(-1)){
+    if(vr.firstSeed==(ULong)(-1)){
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }

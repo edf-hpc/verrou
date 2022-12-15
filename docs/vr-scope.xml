@@ -30,7 +30,7 @@
       A first way to restrict the scope of instrumentation is based on either the function (or
       rather symbol) name, the object (library) name, or both.
     </para>
-    
+
     <section>
       <title>Exclusion files</title>
       <para>
@@ -51,14 +51,14 @@
           considered as a comment and disregarded.</simpara></listitem>
         </itemizedlist>
       </para>
-      
+
       <para>
         When verrou finds a block of instructions (an IRSB, Intermediate Representation SuperBlock
         in valgrind terminology) whose address matches the
         <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
         specification, the whole chunk is left uninstrumented.
       </para>
-    
+
       <warning>
         <para>
           The library name listed in the second column of an exclusion file must be identified by a
@@ -76,11 +76,11 @@
         libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fdbe0e38000)
         libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fdbe0a96000)
         /lib64/ld-linux-x86-64.so.2 (0x000055ba64113000)
-        
+
 <prompt>$</prompt> readlink -f <replaceable>/lib/x86_64-linux-gnu/libm.so.6</replaceable>
 /lib/x86_64-linux-gnu/libm-2.23.so </screen>
       </para>
-    
+
       <para>
         Here are a few examples of exclusion rules for mathematics functions:
         <itemizedlist>
@@ -88,7 +88,7 @@
             <para>
               exclude the whole <computeroutput>libm</computeroutput>:
               <screen>
-#FNNAME   OBJNAME  
+#FNNAME   OBJNAME
 *         /lib/x86_64-linux-gnu/libm-2.23.so</screen>
             </para>
           </listitem>
@@ -112,7 +112,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
         </itemizedlist>
       </para>
     </section>
-    
+
     <section>
       <title>Automatic generation of exclusion lists</title>
       <para>
@@ -124,30 +124,97 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
       </para>
 
       <para>For example:<screen>
-<prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.ex --gen-above=Py_Main python
-==26049== Verrou, Check floating-point rounding errors
-==26049== Copyright (C) 2014-2016, F. Fevotte &amp; B. Lathuiliere.
-==26049== Using Valgrind-3.12.0+verrou-dev and LibVEX; rerun with -h for copyright info 
-==26049== Command: python
-==26049== 
-==26049== Simulating NEAREST rounding mode
-Python 2.7.12+ (default, Sep  1 2016, 20:27:38) 
-[GCC 6.2.0 20160822] on linux2
+<prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.tex python3
+==10469== Verrou, Check floating-point rounding errors
+==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2021, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
+==10469==
+==10469== Using Valgrind-3.19.0.+Verrou-Dev and LibVEX; rerun with -h for copyright info
+==10469== Command: python3
+==10469==
+==10469== First seed : 147635
+==10469== Backend verrou : 1.x-dev
+==10469== Backend mcaquad : 1.x-dev
+==10469== Backend checkcancellation : 1.x-dev
+==10469== Backend check_float_max : 1.x-dev
+==10469== Backend checkdenorm : 1.x-dev
+==10469== Instrumented operations :
+==10469== 	add : yes
+==10469== 	sub : yes
+==10469== 	mul : yes
+==10469== 	div : yes
+==10469== 	mAdd : yes
+==10469== 	mSub : yes
+==10469== 	cmp : no
+==10469== 	conv : yes
+==10469== 	max : no
+==10469== 	min : no
+==10469== Instrumented vectorized operations :
+==10469== 	scal : no
+==10469== 	llo  : yes
+==10469== 	vec2  : yes
+==10469== 	vec4  : yes
+==10469== 	vec8  : yes
+==10469== 	unk  : yes
+==10469== Instrumented type :
+==10469== 	flt : yes
+==10469== 	dbl : yes
+==10469== Backend verrou simulating NEAREST rounding mode
+Python 3.7.3 (default, Oct 31 2022, 14:04:00)
+[GCC 8.3.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 <prompt>>>></prompt> import math
 <prompt>>>></prompt> math.cos(42.)
 -0.39998531498835127
-<prompt>>>></prompt> exit() 
-==26049== 
-==26049== Dumping exclusions list to `all.ex'... OK.
-==26049== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
-
-<prompt>$</prompt> grep libm all.ex | tee libm.ex
-do_sin.isra.2   /lib/x86_64-linux-gnu/libm-2.23.so
-__cos_avx       /lib/x86_64-linux-gnu/libm-2.23.so
-modf            /lib/x86_64-linux-gnu/libm-2.23.so</screen>
+<prompt>>>></prompt> exit()
+==10469==
+==10469==  ---------------------------------------------------------------------
+==10469==  Operation                            Instruction count
+==10469==   `- Precision
+==10469==       `- Vectorization          Total             Instrumented
+==10469==  ---------------------------------------------------------------------
+==10469==  add                      519                      519          (100%)
+==10469==   `- dbl                      519                      519      (100%)
+==10469==       `- llo                      519                      519  (100%)
+==10469==  ---------------------------------------------------------------------
+==10469==  sub                        8                        8          (100%)
+==10469==   `- dbl                        8                        8      (100%)
+==10469==       `- llo                        8                        8  (100%)
+==10469==  ---------------------------------------------------------------------
+==10469==  mul                      520                      520          (100%)
+==10469==   `- dbl                      520                      520      (100%)
+==10469==       `- llo                      520                      520  (100%)
+==10469==  ---------------------------------------------------------------------
+==10469==  div                        2                        2          (100%)
+==10469==   `- dbl                        2                        2      (100%)
+==10469==       `- llo                        2                        2  (100%)
+==10469==  ---------------------------------------------------------------------
+==10469==  mAdd                      15                       15          (100%)
+==10469==   `- dbl                       15                       15      (100%)
+==10469==  ---------------------------------------------------------------------
+==10469==  cmp                      204                        0          (  0%)
+==10469==   `- dbl                      204                        0      (  0%)
+==10469==       `- scal                     204                        0  (  0%)
+==10469==  ---------------------------------------------------------------------
+==10469==  conv                      33                        0          (  0%)
+==10469==   `- dbl=>int                  32                        0      (  0%)
+==10469==       `- scal                      32                        0  (  0%)
+==10469==   `- dbl=>sht                   1                        0      (  0%)
+==10469==       `- scal                       1                        0  (  0%)
+==10469==  ---------------------------------------------------------------------
+==10469==  min                        1                        0          (  0%)
+==10469==   `- dbl                        1                        0      (  0%)
+==10469==       `- llo                        1                        0  (  0%)
+==10469==  ---------------------------------------------------------------------
+==10469== Dumping exclusions list to `/home/E52654/srcVerrou/valgrind-3.19.0-verrou/all.tex'... OK.
+==10469== For lists of detected and suppressed errors, rerun with: -s
+==10469== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+</screen>
+<screen>
+  <prompt>$</prompt> cat all.tex |grep libm |tee libm.ex
+__cos_fma	/usr/lib/x86_64-linux-gnu/libm-2.28.so
+</screen>
       </para>
-      
+
       <note>
         <title>Note on C++ and symbol name mangling</title>
         <para> The exclusion lists (generation and exclusion) use the mangled form.
@@ -194,9 +261,10 @@ s_sin.c         12       cos</screen>
       <para>
         When verrou finds an instruction coming from a listed source code line, it instruments
         it. Only the source file name and line number are considered during this selection. If the
-        <option><xref linkend="vr-opt.source"/></option> option is not specified, or the list of
-        instrumented source code lines is empty, all instructions are instrumented.
-      </para> 
+        <option><xref linkend="vr-opt.source"/></option> option is not specified all instructions
+	are instrumented. If the file is empty, nothing is instrumented (contrary to the first verrou
+	versions).
+      </para>
       <para>
         The <option><xref linkend="vr-opt.gen-source"/></option> command-line switch can help
         generate the list of all source code lines encountered during program execution, for later
@@ -211,7 +279,6 @@ s_sin.c         12       cos</screen>
       </note>
     </section>
   </section>
-    
 
 
   <section id="vr-manual.feat.instr" xreflabel="Instrumented sections">
@@ -241,7 +308,7 @@ int main () {
 
   fprintf (stdout, "result = %f", result);
 } </programlisting>
-    
+
     This program should be run in Verrou using the following command:
     <screen>valgrind --tool=verrou --instr-atstart=no <replaceable>program</replaceable></screen>
     </para>
@@ -251,11 +318,6 @@ int main () {
       linkend="vr.monitor_instrumentation"/></computeroutput> monitor command.
     </para>
 
-    <note>
-      <para> This method differs from <xref linkend="vr-manual.feat.exclude"/> in that
-      floating-point instructions within unistrumented sections still appear in the <link
-      linkend="vr-manual.feat.count">count of floating-point instructions</link>.</para>
-    </note>
   </section>
 </section>
 

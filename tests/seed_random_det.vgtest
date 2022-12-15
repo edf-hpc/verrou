@@ -1,0 +1,4 @@
+prog: sum
+args: 0
+vgopts: --instr-atstart=no --rounding-mode=random_det --vr-seed=422
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright

@@ -33,37 +33,32 @@
 
 #pragma once
 
+#include "vr_isNan.hxx"
+
+enum opHash : uint32_t{
+  addHash=0,
+  subHash=1,
+  mulHash=2,
+  divHash=3,
+  maddHash=4,
+  castHash=5,
+  nbOpHash=6
+};
+
+enum typeHash : uint32_t{
+  floatHash=0,
+  doubleHash=1,
+  otherHash=2,
+  nbTypeHash=3
+};
 
 
-template<class> struct realTypeHelper;
-
+template<class>
+inline uint64_t getTypeHash(){return typeHash::otherHash;}
 template<>
-struct realTypeHelper<float>{
-  typedef float SimdBasicType;
-  static const int SimdLength=1;
-};
-
-
-
+inline uint64_t getTypeHash<float>(){return typeHash::floatHash;}
 template<>
-struct realTypeHelper<double>{
-  typedef double SimdBasicType;
-  static const int SimdLength=1;
-};
-
-template<>
-struct realTypeHelper<long double>{
-  typedef long double SimdBasicType;
-  static const int SimdLength=1;
-};
-
-
-template<class REALTYPESIMD>
-struct realTypeHelper<const REALTYPESIMD>{
-  typedef typename realTypeHelper<REALTYPESIMD>::SimdBasicType SimdBasicType;
-  static const int SimdLength=realTypeHelper<REALTYPESIMD>::SimdLength;
-};
-
+inline uint64_t getTypeHash<double>(){return typeHash::doubleHash;}
 
 
 
@@ -71,20 +66,39 @@ template<class REALTYPE, int NB>
 struct vr_packArg;
 
 
+/*
+ * takes a real number and returns a uint64_t by reinterpreting its bits, NOT casting it
+ * used by the getHash function in the vr_packArg classes
+ */
+template<class REALTYPE>
+inline uint64_t realToUint64_reinterpret_cast(const REALTYPE x)
+{
+    // insures we have a 64 bits representation
+    double x_double = static_cast<double>(x);
+    // transmute it to a uint64 by reinterpreting its bits
+    // WARNING: this is considered undefined behaviour by the standard
+    return *reinterpret_cast<uint64_t*>(&x_double);
+}
+
+
+inline uint32_t realToUint32_reinterpret_cast(const float x)
+{
+    // insures we have a 64 bits representation
+    float x_float = static_cast<float>(x);
+    // transmute it to a uint64 by reinterpreting its bits
+    // WARNING: this is considered undefined behaviour by the standard
+    return *reinterpret_cast<uint32_t*>(&x_float);
+}
+
 template<class REALTYPE>
 struct vr_packArg<REALTYPE,1>{
   static const int nb= 1;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,1> SubPack;
-  
+
   inline vr_packArg(const RealType& v1):arg1(v1)
   {
   };
 
-  inline const SubPack& getSubPack(int I)const{
-    return SubPack(arg1[I]);
-  }
 
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
@@ -93,28 +107,19 @@ struct vr_packArg<REALTYPE,1>{
   inline bool isOneArgNanInf()const{
     return isNanInf<RealType>(arg1);
   }
-  
+
   const RealType& arg1;
-
-
 };
-
 
 template<class REALTYPE>
 struct vr_packArg<REALTYPE,2>{
   static const int nb= 2;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,2> SubPack;
-  
+
   vr_packArg(const RealType& v1,const RealType& v2):arg1(v1),arg2(v2)
   {
   };
 
-  inline const SubPack getSubPack(int I)const{
-    return SubPack(arg1[I],arg2[I]);
-  }
-  
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
@@ -124,7 +129,6 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  
   const RealType& arg1;
   const RealType& arg2;
 };
@@ -134,16 +138,10 @@ template<class REALTYPE>
 struct vr_packArg<REALTYPE,3>{
   static const int nb= 3;
   typedef REALTYPE RealType;
-  typedef typename realTypeHelper<REALTYPE>::SimdBasicType SimdBasicType;
-  typedef vr_packArg<SimdBasicType,3> SubPack;
-  
+
   vr_packArg(const RealType& v1,const RealType& v2,const RealType& v3):arg1(v1),arg2(v2),arg3(v3){
   };
 
-  inline const SubPack& getSubPack(int I)const{
-    return SubPack(arg1[I],arg2[I],arg3[I]);
-  }
-  
   inline void serialyzeDouble(double* res)const{
     res[0]=(double)arg1;
     res[1]=(double)arg2;
@@ -154,11 +152,14 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
-  
   const RealType& arg1;
   const RealType& arg2;
   const RealType& arg3;
 };
+
+
+#include <algorithm>
+
 
 
 template<class REALTYPE, int NB>
@@ -172,6 +173,7 @@ struct vr_roundFloat<REALTYPE, 1>{
   vr_packArg<REALTYPE,1> getPack()const{
     return vr_packArg<REALTYPE,1>(arg1);
   }
+
   const REALTYPE arg1;
 };
 
@@ -211,9 +213,9 @@ class AddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
-#ifdef DEBUG_PRINT_OP
+
   static const char* OpName(){return "add";}
-#endif
+  static inline uint64_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -231,6 +233,12 @@ public:
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
     return AddOp<RealType>::error(p,c);
   }
+
+
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
+  }
+  static inline uint64_t getComdetHash(){return AddOp::getHash();}
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
@@ -255,13 +263,10 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
+
   static const char* OpName(){return "sub";}
-#endif
+  static inline uint64_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
-
-
-  
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
@@ -282,6 +287,11 @@ public:
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
     return SubOp<RealType>::error(p,c);
   }
+
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1, -p.arg2),std::max(p.arg1, -p.arg2));
+  }
+  static inline uint64_t getComdetHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline void check(const PackArgs& p,const RealType & c){
   }
@@ -316,9 +326,9 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "mul";}
-#endif
+  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
 
 
   static inline RealType nearestOp (const PackArgs& p) {
@@ -373,6 +383,10 @@ public:
       }
     }
   };
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
@@ -396,9 +410,10 @@ public:
   typedef float RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "mul";}
-#endif
+  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
+
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -449,6 +464,11 @@ public:
     return 0.;
   };
 
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
+
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -474,9 +494,9 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "div";}
-#endif
+  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
 
   static RealType inline nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -510,6 +530,10 @@ public:
 #endif
   };
 
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return p;
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
 
   static inline void check(const PackArgs& p,const RealType & c){
   };
@@ -526,9 +550,10 @@ public:
   typedef float RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
+
   static const char* OpName(){return "div";}
-#endif
+  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
 
   static RealType inline nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -567,6 +592,11 @@ public:
 #endif
   };
 
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return p;
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
+
 
   static inline void check(const PackArgs& p,const RealType & c){
   };
@@ -585,11 +615,9 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "madd";}
-#endif
+  static inline uint64_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
-  
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
     const RealType & a(p.arg1);
@@ -621,6 +649,11 @@ public:
     return error(p,c) ;
   };
 
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2), p.arg3);
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
+
 
   static inline void check(const PackArgs& p, const RealType& d){
   };
@@ -640,14 +673,10 @@ public:
   typedef REALOUTPUT RealTypeOut;
   typedef RealTypeOut RealType;
   typedef vr_packArg<RealTypeIn,1> PackArgs;
-  
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "cast";}
-#endif
+  static inline uint64_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
-
-  
   static inline RealTypeOut nearestOp (const PackArgs& p) {
     const RealTypeIn & in(p.arg1);
     return (RealTypeOut)in;
@@ -662,6 +691,11 @@ public:
   static inline RealTypeOut sameSignOfError (const PackArgs& p,const RealTypeOut& c) {
     return error(p,c) ;
   };
+
+  static inline const PackArgs comdetPack(const PackArgs& p){
+    return p;
+  }
+  static inline uint64_t getComdetHash(){return getHash();};
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();

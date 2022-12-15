@@ -37,7 +37,8 @@ unsigned int my_pid;
 
 class myLibMathFunction1{
 public:
-  myLibMathFunction1(std::string name):name_(name){
+  myLibMathFunction1(std::string name, uint64_t enumName):name_(name),
+							  hash_(enumName+nbOpHash){
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
@@ -59,6 +60,10 @@ public:
     return name_;
   }
 
+  uint64_t getHash()const{
+    return hash_;
+  }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -72,11 +77,14 @@ private:
   double (*real_name_double)(double) ;
   long double (*real_name_long_double)(long double) ;
   std::string name_;
+  uint64_t hash_;
 };
 
 class myLibMathFunction2{
 public:
-  myLibMathFunction2(std::string name):name_(name){
+  myLibMathFunction2(std::string name, uint64_t enumName):name_(name),
+							  hash_(enumName+ nbOpHash)
+  {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
@@ -97,6 +105,9 @@ public:
   const std::string& name()const{
     return name_;
   }
+  uint64_t getHash()const{
+    return hash_;
+  }
 
 private:
   void load_real_sym(void**fctPtr, std::string name ){
@@ -111,12 +122,13 @@ private:
   double (*real_name_double)(double,double) ;
   long double (*real_name_long_double)(long double, long double) ;
   std::string name_;
+  uint64_t hash_;
 };
 
 
 
 //shell LIST1="acos acosh asin asinh atan atanh cbrt erf exp exp2 expm1 log log10 log1p log2 tgamma lgamma sin sinh cos cosh sqrt tan tanh j0 j1 y0 y1"
-enum Function1Name {
+enum Function1Name: uint64_t {
   //shell comand to generate:  for i in $LIST1 ; do  echo "enum$i,"; done;
   enumacos,
   enumacosh,
@@ -150,37 +162,37 @@ enum Function1Name {
   enum_libm_function1_name_size};
 
 myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={
-  //shell command to generate  for i in $LIST1 ; do  echo "myLibMathFunction1(\"$i\"),"; done;
-  myLibMathFunction1("acos"),
-  myLibMathFunction1("acosh"),
-  myLibMathFunction1("asin"),
-  myLibMathFunction1("asinh"),
-  myLibMathFunction1("atan"),
-  myLibMathFunction1("atanh"),
-  myLibMathFunction1("cbrt"),
-  myLibMathFunction1("erf"),
-  myLibMathFunction1("exp"),
-  myLibMathFunction1("exp2"),
-  myLibMathFunction1("expm1"),
-  myLibMathFunction1("log"),
-  myLibMathFunction1("log10"),
-  myLibMathFunction1("log1p"),
-  myLibMathFunction1("log2"),
-  myLibMathFunction1("tgamma"),
-  myLibMathFunction1("lgamma"),
-  myLibMathFunction1("sin"),
-  myLibMathFunction1("sinh"),
-  myLibMathFunction1("cos"),
-  myLibMathFunction1("cosh"),
-  myLibMathFunction1("sqrt"),
-  myLibMathFunction1("tan"),
-  myLibMathFunction1("tanh"),
-  myLibMathFunction1("j0"),
-  myLibMathFunction1("j1"),
-  myLibMathFunction1("y0"),
-  myLibMathFunction1("y1"),
+  //shell command to generate  for i in $LIST1 ; do  echo "myLibMathFunction1(\"$i\", enum$i),"; done;
+  myLibMathFunction1("acos", enumacos),
+  myLibMathFunction1("acosh", enumacosh),
+  myLibMathFunction1("asin", enumasin),
+  myLibMathFunction1("asinh", enumasinh),
+  myLibMathFunction1("atan", enumatan),
+  myLibMathFunction1("atanh", enumatanh),
+  myLibMathFunction1("cbrt", enumcbrt),
+  myLibMathFunction1("erf", enumerf),
+  myLibMathFunction1("exp", enumexp),
+  myLibMathFunction1("exp2", enumexp2),
+  myLibMathFunction1("expm1", enumexpm1),
+  myLibMathFunction1("log", enumlog),
+  myLibMathFunction1("log10", enumlog10),
+  myLibMathFunction1("log1p", enumlog1p),
+  myLibMathFunction1("log2", enumlog2),
+  myLibMathFunction1("tgamma", enumtgamma),
+  myLibMathFunction1("lgamma", enumlgamma),
+  myLibMathFunction1("sin", enumsin),
+  myLibMathFunction1("sinh", enumsinh),
+  myLibMathFunction1("cos", enumcos),
+  myLibMathFunction1("cosh", enumcosh),
+  myLibMathFunction1("sqrt", enumsqrt),
+  myLibMathFunction1("tan", enumtan),
+  myLibMathFunction1("tanh", enumtanh),
+  myLibMathFunction1("j0", enumj0),
+  myLibMathFunction1("j1", enumj1),
+  myLibMathFunction1("y0", enumy0),
+  myLibMathFunction1("y1", enumy1),
 };
-enum Function2Name {
+enum Function2Name : uint64_t{
   enumatan2,
   enumfmod,
   enumhypot,
@@ -190,12 +202,12 @@ enum Function2Name {
   enum_libm_function2_name_size};
 
 myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
-  myLibMathFunction2("atan2"),
-  myLibMathFunction2("fmod"),
-  myLibMathFunction2("hypot"),
-  myLibMathFunction2("pow"),
-  myLibMathFunction2("fdim"),
-  myLibMathFunction2("remainder"),
+  myLibMathFunction2("atan2",enumatan2),
+  myLibMathFunction2("fmod", enumfmod),
+  myLibMathFunction2("hypot", enumhypot),
+  myLibMathFunction2("pow", enumpow),
+  myLibMathFunction2("fdim",enumfdim),
+  myLibMathFunction2("remainder", enumremainder),
 };
 
 
@@ -204,13 +216,13 @@ unsigned int libMathCounter1[enum_libm_function1_name_size][3][2];
 unsigned int libMathCounter2[enum_libm_function2_name_size][3][2];
 
 void initLibMathCounter(){
-  for(int i=0; i< enum_libm_function1_name_size;i++){
+  for(int i=0; i< (int)enum_libm_function1_name_size;i++){
     for(int j=0; j< 3; j++){
       libMathCounter1[i][j][0]=0;
       libMathCounter1[i][j][1]=0;
     }
   }
-  for(int i=0; i< enum_libm_function2_name_size;i++){
+  for(int i=0; i< (int)enum_libm_function2_name_size;i++){
     for(int j=0; j< 3; j++){
       libMathCounter2[i][j][0]=0;
       libMathCounter2[i][j][1]=0;
@@ -268,8 +280,22 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "TOWARD_ZERO";
   case VR_RANDOM:
     return "RANDOM";
+  case VR_RANDOM_DET:
+    return "RANDOM_DET";
+  case VR_RANDOM_COMDET:
+    return "RANDOM_COMDET";
   case VR_AVERAGE:
     return "AVERAGE";
+  case VR_AVERAGE_DET:
+    return "AVERAGE_DET";
+  case VR_AVERAGE_COMDET:
+    return "AVERAGE_COMDET";
+  case VR_PRANDOM:
+    return "PRANDOM";
+  case VR_PRANDOM_DET:
+    return "PRANDOM_DET";
+  case VR_PRANDOM_COMDET:
+    return "PRANDOM_COMDET";
   case VR_FARTHEST:
     return "FARTHEST";
   case VR_FLOAT:
@@ -342,9 +368,12 @@ public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "libmath ?";}
-#endif
+  static inline uint64_t getHash(){return LIBMQ::getHash();}
+  static inline uint64_t getComdetHash(){return LIBMQ::getHash();}
+  static inline PackArgs comdetPack(const PackArgs& p){
+    return p;
+  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -379,9 +408,12 @@ public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-#ifdef DEBUG_PRINT_OP
   static const char* OpName(){return "libmath ?";}
-#endif
+  static inline uint64_t getHash(){return LIBMQ::getHash();}
+  static inline uint64_t getComdetHash(){return LIBMQ::getHash();}
+  static inline PackArgs comdetPack(const PackArgs& p){
+    return PackArgs(std::min(p.arg1,p.arg2),std::max(p.arg1,p.arg2));
+  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -426,7 +458,8 @@ public:
 #define DEFINE_INTERP_LIBM1_C_IMPL(FCT)					\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a){return FCT##q(a);}		\
-  };									\
+    static __uint64_t getHash(){return enum##FCT; }                     \
+};									\
   extern "C"{								\
   double FCT (double a){						\
     if(ROUNDINGMODE==VR_NATIVE){					\
@@ -434,7 +467,7 @@ public:
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
+      typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
       double res;							\
       VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
@@ -448,9 +481,9 @@ public:
       incCounter1<float, enum##FCT ,1>();				\
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
-      incCounter1<float, enum##FCT,0>();			       	\
+      incCounter1<float, enum##FCT,0>();				\
       VERROU_STOP_INSTRUMENTATION;                                      \
-typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
+typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
       VERROU_START_INSTRUMENTATION;                                     \
@@ -464,42 +497,43 @@ typedef OpWithSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
   }									\
 };
 
-#define DEFINE_INTERP_LIBM2_C_IMPL(FCT)					\
+#define DEFINE_INTERP_LIBM2_C_IMPL(FCT)				\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a,__float128 b){return FCT##q(a,b);} \
-  };									\
+    static __uint64_t getHash(){return enum##FCT; }			\
+};									\
   extern "C"{								\
     double FCT (double a, double b){					\
       if(ROUNDINGMODE==VR_NATIVE){					\
       incCounter2<double, enum##FCT ,1>();				\
-      return function2NameTab[enum##FCT].apply(a,b);       		\
-   }else{							        \
+      return function2NameTab[enum##FCT].apply(a,b);			\
+      }else{								\
       incCounter2<double, enum##FCT ,0>();				\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
+      typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
       VERROU_STOP_INSTRUMENTATION;                                      \
       double res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
       VERROU_START_INSTRUMENTATION;                                     \
-    return res;								\
+      return res;							\
     }									\
   }									\
 									\
-    float FCT##f (float a, float b){						\
+    float FCT##f (float a, float b){					\
     if(ROUNDINGMODE==VR_NATIVE){					\
       incCounter2<float, enum##FCT ,1>();				\
       return function2NameTab[enum##FCT].apply(a,b);			\
     }else{								\
-      incCounter2<float, enum##FCT,0>();					\
-      typedef OpWithSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
+      incCounter2<float, enum##FCT,0>();				\
+      typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
       float res;							\
       VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
       VERROU_START_INSTRUMENTATION;                                     \
-      return res;								\
+      return res;							\
     }									\
   }									\
 									\
-    long double FCT##l (long double a, long double b){				\
+    long double FCT##l (long double a, long double b){			\
     incCounter2<long double, enum##FCT,1>();				\
     return function2NameTab[enum##FCT].apply(a,b);			\
     }									\
@@ -552,7 +586,7 @@ void __attribute__((constructor)) init_interlibmath(){
   struct timeval now;
   gettimeofday(&now, NULL);
   my_pid = getpid();
-  unsigned int vr_seed=  now.tv_usec + my_pid;
+  uint64_t vr_seed=  now.tv_usec + my_pid;
   vr_rand_setSeed(&vr_rand, vr_seed);
 
   ROUNDINGMODE=VR_NATIVE; //Default value
@@ -567,8 +601,20 @@ void __attribute__((constructor)) init_interlibmath(){
     if(envString==std::string("random")){
       ROUNDINGMODE=VR_RANDOM;
     }
+    if(envString==std::string("random_det")){
+      ROUNDINGMODE=VR_RANDOM_DET;
+    }
+    if(envString==std::string("random_comdet")){
+      ROUNDINGMODE=VR_RANDOM_COMDET;
+    }
     if(envString==std::string("average")){
       ROUNDINGMODE=VR_AVERAGE;
+    }
+    if(envString==std::string("average_det")){
+      ROUNDINGMODE=VR_AVERAGE_DET;
+    }
+    if(envString==std::string("average_comdet")){
+      ROUNDINGMODE=VR_AVERAGE_COMDET;
     }
     if(envString==std::string("nearest")){
       ROUNDINGMODE=VR_NEAREST;
@@ -592,8 +638,8 @@ void __attribute__((constructor)) init_interlibmath(){
       ROUNDINGMODE=VR_NATIVE;
     }
     if(envString==std::string("ftz")){
-        std::cerr<< "Rounding VR_FTZ not yet implemented in interlibmath"<<std::endl;
-	exit(1);
+      std::cerr<< "Rounding VR_FTZ not yet implemented in interlibmath"<<std::endl;
+      exit(1);
     }
   }
 

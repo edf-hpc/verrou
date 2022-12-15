@@ -1,7 +1,7 @@
 # Notes about the release process
 
 ```
-VERSION=2.3.0
+VERSION=2.4.0
 ```
 
 ## Update the valgrind patch
@@ -54,7 +54,7 @@ git add vr_clo.txt
     git push origin release
     ```
 
-2. Wait for Travis tests to run
+2. Wait for github action tests to run (and verifiy the version number)
 
 3. Tag and delete the `release` branch
 
@@ -80,7 +80,7 @@ git add vr_clo.txt
 
     > ## [UNRELEASED]
     > 
-    > This version is based on Valgrind-3.17.0.
+    > This version is based on Valgrind-3.20.0.
     > 
     > ### Added
     > 
@@ -108,7 +108,7 @@ git add vr_clo.txt
 - Build a tgz archive for the full valgrind+verrou release
     
     ```
-    VALGRIND=valgrind-3.15.0
+    VALGRIND=valgrind-3.20.0
     cd /tmp
     wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
     tar xvpf ${VALGRIND}.tar.bz2
@@ -126,7 +126,7 @@ git add vr_clo.txt
     ```
     cd ${VALGRIND}+verrou-${VERSION}
     ./autogen.sh
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=$PWD/install
+    ./configure --enable-only64bit --prefix=$PWD/install
     make -j4 install
     source install/env.sh && valgrind --version
     make -C tests check && make -C verrou check && perl tests/vg_regtest verrou

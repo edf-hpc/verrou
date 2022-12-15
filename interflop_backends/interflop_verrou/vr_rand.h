@@ -35,27 +35,25 @@
 //#include "pub_tool_basics.h"
 #include <cstdint>
 
-#define VERROU_LOWGEN
+//#define USE_XOSHIRO
 
-#ifndef VERROU_LOWGEN
 #include "../backend_mcaquad/common/tinymt64.h"
+#ifdef USE_XOSHIRO
+#include "prng/xoshiro.cxx"
 #endif
-
 
 
 typedef struct Vr_Rand_ Vr_Rand;
 struct Vr_Rand_ {
-#ifdef VERROU_LOWGEN
   uint64_t current_;
-  uint64_t next_;
-  uint64_t seed_;
-  int32_t count_;
-#else
-  uint64_t current_;
+  uint32_t count_;
   tinymt64_t gen_;
-  uint64_t seed_;
-  int32_t count_;
+#ifdef USE_XOSHIRO
+  xoshiro128_state_t rng128_;
+  xoshiro256_state_t rng256_;
 #endif
+uint64_t seed_;
+  double p;
 };
 
 //extern Vr_Rand vr_rand;
@@ -63,14 +61,6 @@ struct Vr_Rand_ {
 Vr_Rand vr_rand;
 
 #include "vr_rand_implem.h"
-
-
-
-/* void vr_rand_setSeed (Vr_Rand * r, unsigned int c); */
-/* unsigned int vr_rand_getSeed (Vr_Rand * r); */
-/* bool vr_rand_bool (Vr_Rand * r); */
-/* int vr_rand_int (Vr_Rand * r); */
-/* int vr_rand_max (void); */
 
 
 

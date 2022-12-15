@@ -168,7 +168,8 @@ class bbInfoReader:
 
     def compressLine(self, lineTab):
         res=""
-        intTab=[int(x) for x in lineTab]
+        intTab=list(set([int(x) for x in lineTab]))
+        intTab.sort()
         while len(intTab)!=0:
             begin=intTab[0]
             nbSuccessor=0

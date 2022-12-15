@@ -101,9 +101,6 @@
       the fraction of instrumented instructions.
     </para>
 
-    <note><para> Instructions coming from <xref linkend="vr-manual.feat.exclude"/> appear neither in
-    the "Total" nor the "Instrumented" count: they are simply not seen by Verrou.  </para></note>
-
     <para>
       Floating-point instructions counters can be displayed at any point during the program
       execution using the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
@@ -129,7 +126,7 @@
         <listitem><simpara><command>downward,</command></simpara></listitem>
         <listitem><simpara><command>toward zero,</command></simpara></listitem>
       </itemizedlist>
-      as well as two other (non-IEEE-754) deterministic mode:
+      as well as three other (non-IEEE-754) deterministic modes:
       <itemizedlist>
         <listitem><para><command>farthest</command>: in this mode, all non-exact results are rounded
         in the opposite way to IEEE-754 nearest rounding mode. This helps producing results that are
@@ -149,21 +146,65 @@
     <para>
       Finally, the main use for Verrou is to randomly switch rounding mode at each floating-point
       operation, in order to implement the "random rounding" variant of Monte Carlo Arithmetic
-      (MCA). Two strategies can be used to choose the rounding mode for a given operation:
+      (MCA). Three strategies can be used to choose the rounding mode for a given operation:
       <itemizedlist>
         <listitem><para><command>random:</command> Randomly pick one among upward and downward
         rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
         </listitem>
+	<listitem><para><command>prandom:</command> Randomly pick one among upward and downward
+            rounding, with probabilities p and 1-p. By default p is selected randomly between 0 and
+	    1 with uniform distribution, once by verrou tool initialization. p can be setup with
+	    option <option><xref linkend="vr-manual.feat.updatepvalue"/> </option>.
+	      p can be dynamically modified with client requests <option><xref linkend="vr-manual.feat.clrupdatepvalue"/></option>
+		/
+		<option><xref linkend="vr-manual.feat.clrupdatep"/></option>
+		  or
+		  option <option><xref linkend="vr-manual.feat.updatepfunc"/></option>.
+		    This rounding mode is designed to try to get wider distribution (useful for debug).</para>
+        </listitem>
         <listitem><para><command>average:</command> Randomly choose between upward and downward
-        rounding mode, in such a way that the expectation of the random result equals the exact
-        operation result (without rounding). This is called "uniform_absolute output randomization"
-        in the MCA literature.</para></listitem>
+            rounding mode, in such a way that the expectation of the random result equals the exact
+            operation result (without rounding). This is called "uniform_absolute output randomization"
+            or "SR-nearness" in the MCA literature.</para></listitem>
+	<listitem><para><command>random_det:</command> Randomly choose between upward and downward
+        rounding mode, with equal probabilities but insuring that, for a given seed, the same computation
+        (same inputs and operation) will always be rounded in the same way.
+        This is a variant of the <command>random</command> rounding mode that improves determinism and
+        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
+        </listitem>
+	<listitem><para><command>prandom_det:</command> Randomly choose between downward and upward 
+        rounding mode, with probabilities p and 1-p but insuring that, for a given seed, the same computation
+        (same inputs and operation) will always be rounded in the same way.
+        This is a variant of the <command>prandom</command> rounding mode that improves determinism and
+        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.
+	If the p is modified dynamically, determinism is no longer assured.
+	</para>
+        </listitem>
+	<listitem><para><command>average_det:</command> Randomly choose between upward and downward
+        rounding mode, with the same probabilitie law as <command>average</command> but insuring that, for a given seed, the same computation
+        (same inputs and operation) will always be rounded in the same way.
+        This is a variant of the <command>average</command> rounding mode that improves determinism and
+        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
+        </listitem>
+	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+        </listitem>
+	<listitem><para><command>prandom_comdet:</command> variant of <command>prandom_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+        </listitem>
+	<listitem><para><command>average_comdet:</command> variant of <command>average_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+        </listitem>
+
+
       </itemizedlist>
-      A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in these
-      modes. The pRNG is normally seeded with a value that changes at each execution in order to
+      A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in the
+      modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-      command-line option.
+	  command-line option. For the modes <command>average_[com]det</command> and <command>random_c[com]det</command>, the pRNG seed is used as a parameter of hash functions.
+
+
     </para>
   </section>
 </section>
