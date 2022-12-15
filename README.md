@@ -41,20 +41,20 @@ and build" section below.
 In order to build the *development* version of Verrou, it is necesary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=VALGRIND_3_19_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.19.0+verrou-dev
+    git clone --branch=VALGRIND_3_20_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.20.0+verrou-dev
 
 or if you have proxy problem with git:// protocol:
 
     export https_proxy=ADDRESS_OF_PROXY
-    wget https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2
-    tar xvfj valgrind-3.19.0.tar.bz2
-    mv valgrind-3.19.0 valgrind-3.19.0+verrou-dev
+    wget https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2
+    tar xvfj valgrind-3.20.0.tar.bz2
+    mv valgrind-3.20.0 valgrind-3.20.0+verrou-dev
 
 
 Add verrou's sources to it:
 
-    cd valgrind-3.19.0+verrou-dev
-    git clone --branch=master --single-branch https://github.com/edf-hpc/verrou.git verrou
+    cd valgrind-3.20.0+verrou-dev
+    git clone https://github.com/edf-hpc/verrou.git verrou
 
     patch -p1 <verrou/valgrind.diff
 
@@ -74,19 +74,26 @@ are put in parentheses as examples):
 Configure valgrind:
 
     ./autogen.sh
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX
+    ./configure --enable-only64bit --prefix=PREFIX
 
-As stated above, it is recommended to use the `--enable-verrou-fma` flag if your
-system supports FMA (Fused Multiply-Add) instructions. Depending on your system,
-it may be required to set `CFLAGS` in order to enable the use of FMA in your
+Depending on your system, it may be required to set `CFLAGS` in order to enable the use of FMA in your
 compiler:
 
-    ./configure --enable-only64bit --enable-verrou-fma --prefix=PREFIX CFLAGS="-mfma"
+    ./configure --enable-only64bit --prefix=PREFIX CFLAGS="-mfma"
 
-Systems that don't support FMA instructions can drop the `--enable-verrou-fma`
-configure switch, but be aware that this causes some tests to fail:
+Systems that don't support FMA instructions the `--enable-verrou-fma=no`
+configure switch need to be used, but be aware that this causes some tests to fail:
 
-    ./configure --enable-only64bit --prefix=PREFIX
+    ./configure --enable-only64bit --enable-verrou-fma=no --prefix=PREFIX
+
+<p>&nbsp;</p>
+
+Advanced users can use the following configure flags :
+
+- `--enable-verrou-check-naninf=yes|no` (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
+- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is double_tabulation. mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are no able to reproduce the reference results.
+- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced for (random and average)is replaced by the xo[ro]shiro prng.
+- `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disable. This option is only useful to reduce the dependencies.
 
 <p>&nbsp;</p>
 

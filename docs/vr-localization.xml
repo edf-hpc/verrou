@@ -19,7 +19,7 @@
       most important errors in final results. The idea is the following:
       <itemizedlist>
         <listitem><simpara>First, a complete list of all symbols (which contain perturbated
-	floating point instruction) is generated. It is expected that
+	floating point instructions) is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
         results.</simpara></listitem>
@@ -151,7 +151,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
 	<varlistentry>
           <term>
-             <computeroutput>--resWithAllSamples </computeroutput> or <computeroutput>VERROU_DD_RES_WITH_ALL_SAMPLES</computeroutput>
+             <computeroutput>--res-with-all-samples </computeroutput> or <computeroutput>VERROU_DD_RES_WITH_ALL_SAMPLES</computeroutput>
           </term>
           <listitem>
             <para> Disable the early exit for result directories. It is useful to compute estimator for all
@@ -171,7 +171,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    </para>
 	    <para>
 	      <computeroutput>rddmin</computeroutput>: return recursively the min-set of unstable
-	      symbols. <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> is ignored.
+	      symbols.
 	    </para>
 	    <para>
 	      <computeroutput>ddmax</computeroutput>: return the max-set of stable symbols (or lines).
@@ -281,7 +281,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      Option to choose the granularity of the splitFunction of the dichotomy algorithm (used by drddmin).
 	    </para>
 	    <para>
-	    The default value is set to 2.
+	    The default value is set to 2. Higher value may help parallelism.
 	    </para>
           </listitem>
         </varlistentry>
@@ -580,8 +580,9 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           <term>
              <computeroutput>--rounding=</computeroutput> or <computeroutput>--rounding-mode=</computeroutput> or <computeroutput>VERROU_POST_ROUNDING</computeroutput>.
 	     The option can be called several times to generate a list of rounding mode (
-	     <computeroutput>random</computeroutput>,
-	     <computeroutput>average</computeroutput>,
+	     <computeroutput>random[_det|_comdet]</computeroutput>,
+	     <computeroutput>prandom[_det|_comdet]</computeroutput>,
+	     <computeroutput>average[_det|_comdet]</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -600,8 +601,8 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    </para>
 	    <para>
 	      <computeroutput>no_det</computeroutput> corresponds to the list :
-	      [<computeroutput>average </computeroutput>,
-	      <computeroutput>random</computeroutput>]
+	      [<computeroutput>average</computeroutput>,
+	      <computeroutput>random</computeroutput>, <computeroutput>prandom</computeroutput>]
 	    </para>
           </listitem>
         </varlistentry>
@@ -692,7 +693,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
       <para>
 	The scripts <command> run_script </command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by exemple with
-	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>
+	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>).
 
 	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print
 	the extracted value on the first line of the standard output.
@@ -748,6 +749,37 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	      To use this option <command> run_script </command> has to be thread safe.
 	    </para>
           </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--rounding-list=</computeroutput>
+          </term>
+          <listitem>
+            <para> A coma separated list of rounding mode. The list can contain
+	     <computeroutput>random[_det|_comdet]</computeroutput>,
+	     <computeroutput>prandom[_det|_comdet]</computeroutput>,
+	     <computeroutput>average[_det|_comdet]</computeroutput>,
+	     <computeroutput>upward</computeroutput>,
+	     <computeroutput>downward</computeroutput>,
+	     <computeroutput>farthest</computeroutput>,
+	     <computeroutput>toward_zero</computeroutput>
+	    </para>
+          </listitem>
+	  <listitem>
+            <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
+	    </para>
+	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,farthest</computeroutput>.
+	    </para>
+          </listitem>
+	  <listitem>
+	    <para> The list can also contain <computeroutput>prandom_fun</computeroutput>. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the <xref linkend="vr-manual.feat.updatepfunc"/> set to <computeroutput>func</computeroutput>.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>.
+	    </para>
+	  </listitem>
 	</varlistentry>
 
 	<varlistentry>
@@ -828,7 +860,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <computeroutput>--continue-on-extract-value-error</computeroutput>
           </term>
           <listitem>
-            <para> This option is used to be able to plot and compute estimator even if few samples produce an execution error. If erros occur the plot and the stat indicate the failure rate. This option is not activated by default, as usually error come from error in the extract script.
+            <para> This option is used to be able to plot and compute estimator even if few samples produce an execution error. If errors occur the plot and the stat indicate the failure rate. This option is not activated by default, as usually errors come from error in the extract script.
 	    </para>
           </listitem>
 	</varlistentry>

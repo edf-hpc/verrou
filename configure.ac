@@ -5,7 +5,7 @@ AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
   [AC_ARG_ENABLE(verrou-fma,
     [  --enable-verrou-fma          enables verrou to use fma],
     [vg_cv_verrou_fma=$enableval],
-    [vg_cv_verrou_fma=no])])
+    [vg_cv_verrou_fma=yes])])
 
 if test "$vg_cv_verrou_fma" = yes; then
   # Check for fmaintrin.h

@@ -7,11 +7,11 @@ import subprocess
 from tabular import *
 
 
-roundingListPerf=["random", "average", "nearest"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet"]
+roundingListPerf=["random", "average","nearest"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet","prandom"]
 
 buildConfigList=["stable","master", "master_fast"]
-buildSpecialConfigList=["dietzfelbinger", "multiply_shift", "multiply_shift_fix","double_tabulation", "mersenne_twister"]
+buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "mersenne_twister"]
 
 nbRunTuple=(5,5) #inner outer
 
