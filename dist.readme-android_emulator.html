@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>10. README.android_emulator</title>
+<title>10.Â README.android_emulator</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-android.html" title="9. README.android">
-<link rel="next" href="dist.readme-mips.html" title="11. README.mips">
+<link rel="prev" href="dist.readme-android.html" title="9.Â README.android">
+<link rel="next" href="dist.readme-mips.html" title="11.Â README.mips">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,99 +19,99 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-android_emulator"></a>10. README.android_emulator</h1></div></div></div>
+<a name="dist.readme-android_emulator"></a>10.Â README.android_emulator</h1></div></div></div>
 <div class="literallayout"><p><br>
-      <br>
-How to install and run an android emulator.<br>
+Â Â Â Â Â Â <br>
+HowÂ toÂ installÂ andÂ runÂ anÂ androidÂ emulator.<br>
 <br>
-mkdir android # or any other place you prefer<br>
-cd android<br>
+mkdirÂ androidÂ #Â orÂ anyÂ otherÂ placeÂ youÂ prefer<br>
+cdÂ android<br>
 <br>
-# download java JDK<br>
-# http://www.oracle.com/technetwork/java/javase/downloads/index.html<br>
-# download android SDK<br>
-# http://developer.android.com/sdk/index.html<br>
-# download android NDK<br>
-# http://developer.android.com/sdk/ndk/index.html<br>
+#Â downloadÂ javaÂ JDK<br>
+#Â http://www.oracle.com/technetwork/java/javase/downloads/index.html<br>
+#Â downloadÂ androidÂ SDK<br>
+#Â http://developer.android.com/sdk/index.html<br>
+#Â downloadÂ androidÂ NDK<br>
+#Â http://developer.android.com/sdk/ndk/index.html<br>
 <br>
-# versions I used:<br>
-#  jdk-7u4-linux-i586.tar.gz<br>
-#  android-ndk-r8-linux-x86.tar.bz2<br>
-#  android-sdk_r18-linux.tgz<br>
+#Â versionsÂ IÂ used:<br>
+#Â Â jdk-7u4-linux-i586.tar.gz<br>
+#Â Â android-ndk-r8-linux-x86.tar.bz2<br>
+#Â Â android-sdk_r18-linux.tgz<br>
 <br>
-# install jdk<br>
-tar xzf jdk-7u4-linux-i586.tar.gz<br>
+#Â installÂ jdk<br>
+tarÂ xzfÂ jdk-7u4-linux-i586.tar.gz<br>
 <br>
-# install sdk<br>
-tar xzf android-sdk_r18-linux.tgz<br>
+#Â installÂ sdk<br>
+tarÂ xzfÂ android-sdk_r18-linux.tgz<br>
 <br>
-# install ndk<br>
-tar xjf android-ndk-r8-linux-x86.tar.bz2<br>
-<br>
-<br>
-# setup PATH to use the installed software:<br>
-export SDKROOT=$HOME/android/android-sdk-linux<br>
-export PATH=$PATH:$SDKROOT/tools:$SDKROOT/platform-tools<br>
-export NDKROOT=$HOME/android/android-ndk-r8<br>
-<br>
-# install android platforms you want by starting:<br>
-android <br>
-# (from $SDKROOT/tools)<br>
-<br>
-# select the platforms you need<br>
-# I selected and installed:<br>
-#   Android 4.0.3 (API 15)<br>
-# Upgraded then to the newer version available:<br>
-#     Android sdk 20<br>
-#     Android platform tools 12<br>
-<br>
-# then define a virtual device:<br>
-Tools -&gt; Manage AVDs...<br>
-# I define an AVD Name with 64 Mb SD Card, (4.0.3, api 15)<br>
-# rest is default<br>
+#Â installÂ ndk<br>
+tarÂ xjfÂ android-ndk-r8-linux-x86.tar.bz2<br>
 <br>
 <br>
-# compile and make install Valgrind, following README.android<br>
+#Â setupÂ PATHÂ toÂ useÂ theÂ installedÂ software:<br>
+exportÂ SDKROOT=$HOME/android/android-sdk-linux<br>
+exportÂ PATH=$PATH:$SDKROOT/tools:$SDKROOT/platform-tools<br>
+exportÂ NDKROOT=$HOME/android/android-ndk-r8<br>
+<br>
+#Â installÂ androidÂ platformsÂ youÂ wantÂ byÂ starting:<br>
+androidÂ <br>
+#Â (fromÂ $SDKROOT/tools)<br>
+<br>
+#Â selectÂ theÂ platformsÂ youÂ need<br>
+#Â IÂ selectedÂ andÂ installed:<br>
+#Â Â Â AndroidÂ 4.0.3Â (APIÂ 15)<br>
+#Â UpgradedÂ thenÂ toÂ theÂ newerÂ versionÂ available:<br>
+#Â Â Â Â Â AndroidÂ sdkÂ 20<br>
+#Â Â Â Â Â AndroidÂ platformÂ toolsÂ 12<br>
+<br>
+#Â thenÂ defineÂ aÂ virtualÂ device:<br>
+ToolsÂ -&gt;Â ManageÂ AVDs...<br>
+#Â IÂ defineÂ anÂ AVDÂ NameÂ withÂ 64Â MbÂ SDÂ Card,Â (4.0.3,Â apiÂ 15)<br>
+#Â restÂ isÂ default<br>
 <br>
 <br>
-# Start your android emulator (it takes some time).<br>
-# You can use adb shell to get a shell on the device<br>
-# and see it is working. Note that I usually get<br>
-# one or two time out from adb shell before it works<br>
-adb shell<br>
-<br>
-# Once the emulator is ready, push your Valgrind to the emulator:<br>
-adb push Inst /<br>
+#Â compileÂ andÂ makeÂ installÂ Valgrind,Â followingÂ README.android<br>
 <br>
 <br>
-# IMPORTANT: when running Valgrind, you may need give it the flag<br>
+#Â StartÂ yourÂ androidÂ emulatorÂ (itÂ takesÂ someÂ time).<br>
+#Â YouÂ canÂ useÂ adbÂ shellÂ toÂ getÂ aÂ shellÂ onÂ theÂ device<br>
+#Â andÂ seeÂ itÂ isÂ working.Â NoteÂ thatÂ IÂ usuallyÂ get<br>
+#Â oneÂ orÂ twoÂ timeÂ outÂ fromÂ adbÂ shellÂ beforeÂ itÂ works<br>
+adbÂ shell<br>
+<br>
+#Â OnceÂ theÂ emulatorÂ isÂ ready,Â pushÂ yourÂ ValgrindÂ toÂ theÂ emulator:<br>
+adbÂ pushÂ InstÂ /<br>
+<br>
+<br>
+#Â IMPORTANT:Â whenÂ runningÂ Valgrind,Â youÂ mayÂ needÂ giveÂ itÂ theÂ flag<br>
 #<br>
-#    --kernel-variant=android-no-hw-tls<br>
+#Â Â Â Â --kernel-variant=android-no-hw-tls<br>
 #<br>
-# since otherwise it may crash at startup.<br>
-# See README.android for details.<br>
+#Â sinceÂ otherwiseÂ itÂ mayÂ crashÂ atÂ startup.<br>
+#Â SeeÂ README.androidÂ forÂ details.<br>
 <br>
 <br>
-# if you need to debug:<br>
-# You have on the android side a gdbserver<br>
-# on the device side:<br>
-gdbserver :1234 your_exe<br>
+#Â ifÂ youÂ needÂ toÂ debug:<br>
+#Â YouÂ haveÂ onÂ theÂ androidÂ sideÂ aÂ gdbserver<br>
+#Â onÂ theÂ deviceÂ side:<br>
+gdbserverÂ :1234Â your_exe<br>
 <br>
-# on the host side:<br>
-adb forward tcp:1234 tcp:1234<br>
-$HOME/android/android-ndk-r8/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gdb your_exe<br>
-target remote :1234<br>
+#Â onÂ theÂ hostÂ side:<br>
+adbÂ forwardÂ tcp:1234Â tcp:1234<br>
+$HOME/android/android-ndk-r8/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gdbÂ your_exe<br>
+targetÂ remoteÂ :1234<br>
 <br>
 <br>
-    </p></div>
+Â Â Â Â </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-android.html">&lt;&lt; 9. README.android</a> </td>
+<a accesskey="p" href="dist.readme-android.html">&lt;&lt;Â 9.Â README.android</a>Â </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-mips.html">11. README.mips &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="dist.readme-mips.html">11.Â README.mipsÂ &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

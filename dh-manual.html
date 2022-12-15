@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>10. DHAT: a dynamic heap analysis tool</title>
+<title>10.Â DHAT: a dynamic heap analysis tool</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="ms-manual.html" title="9. Massif: a heap profiler">
-<link rel="next" href="lk-manual.html" title="11. Lackey: an example tool">
+<link rel="prev" href="ms-manual.html" title="9.Â Massif: a heap profiler">
+<link rel="next" href="lk-manual.html" title="11.Â Lackey: an example tool">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,7 +19,7 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dh-manual"></a>10. DHAT: a dynamic heap analysis tool</h1></div></div></div>
+<a name="dh-manual"></a>10.Â DHAT: a dynamic heap analysis tool</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl class="toc">
@@ -46,7 +46,7 @@
 <code class="option">--tool=dhat</code> on the Valgrind command line.</p>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.overview"></a>10.1. Overview</h2></div></div></div>
+<a name="dh-manual.overview"></a>10.1.Â Overview</h2></div></div></div>
 <p>DHAT is primarily a tool for examining how programs use their heap
 allocations.</p>
 <p>It tracks the allocated blocks, and inspects every memory access
@@ -80,7 +80,7 @@ described below.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.profile"></a>10.2. Using DHAT</h2></div></div></div>
+<a name="dh-manual.profile"></a>10.2.Â Using DHAT</h2></div></div></div>
 <p>First off, as for normal Valgrind use, you probably want to compile with
 debugging info (the <code class="option">-g</code> option). But by contrast with normal
 Valgrind use, you probably do want to turn optimisation on, since you should
@@ -93,7 +93,7 @@ program; some trial and error might be needed to find a good value.</p>
 detailed presentation of that information.</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-manual.running-DHAT"></a>10.2.1. Running DHAT</h3></div></div></div>
+<a name="dh-manual.running-DHAT"></a>10.2.1.Â Running DHAT</h3></div></div></div>
 <p>To run DHAT on a program <code class="filename">prog</code>, run:</p>
 <pre class="screen">
 valgrind --tool=dhat prog
@@ -122,7 +122,7 @@ can be seen with DHAT's viewer.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-manual.outputfile"></a>10.2.2. Output File</h3></div></div></div>
+<a name="dh-manual.outputfile"></a>10.2.2.Â Output File</h3></div></div></div>
 <p>As well as printing summary information, DHAT also writes more detailed
 profiling information to a file. By default this file is named
 <code class="filename">dhat.out.&lt;pid&gt;</code> (where
@@ -142,7 +142,7 @@ built with full debugging information.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.viewer"></a>10.3. DHAT's Viewer</h2></div></div></div>
+<a name="dh-manual.viewer"></a>10.3.Â DHAT's Viewer</h2></div></div></div>
 <p>DHAT's viewer can be run in a web browser by loading the file
 <code class="computeroutput">dh_view.html</code>. Use the "Load" button to choose
 a DHAT output file to view.</p>
@@ -151,7 +151,7 @@ smaller <code class="option">--num-callers</code> value to reduce the stack dept
 because this can significantly reduce the size of DHAT's output files.</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-output-header"></a>10.3.1. The Output Header</h3></div></div></div>
+<a name="dh-output-header"></a>10.3.1.Â The Output Header</h3></div></div></div>
 <p>The first part of the output shows the mode, program command and process
 ID. For example:</p>
 <pre class="programlisting">
@@ -173,12 +173,12 @@ Times {
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-ap-tree"></a>10.3.2. The PP Tree</h3></div></div></div>
+<a name="dh-ap-tree"></a>10.3.2.Â The PP Tree</h3></div></div></div>
 <p>The third part of the output is the largest and most interesting part,
 showing the program point (PP) tree.</p>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="dh-structure"></a>10.3.2.1. Structure</h4></div></div></div>
+<a name="dh-structure"></a>10.3.2.1.Â Structure</h4></div></div></div>
 <p>The following image shows a screenshot of part of a PP
 tree. The font is very small because this screenshot is intended to
 demonstrate the high-level structure of the tree rather than the
@@ -195,9 +195,9 @@ interested in.</p>
 information they represent is also present within the text. (This means that
 colour-blind users are not denied any information.)</p>
 <p>Each leaf node is coloured green. Each non-leaf node is coloured blue
-and has a down arrow (<code class="computeroutput">▼</code>) next to it when
+and has a down arrow (<code class="computeroutput">â¼</code>) next to it when
 its sub-tree is expanded. Each non-leaf node is coloured yellow and has a
-left arrow (<code class="computeroutput">▶</code>) next to it when its sub-tree
+left arrow (<code class="computeroutput">â¶</code>) next to it when its sub-tree
 is collapsed.</p>
 <p>The shade of green, blue or yellow used for a node indicate its
 significance. Darker shades represent greater significance (in terms of bytes
@@ -208,7 +208,7 @@ email, bug report, etc.</p>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="dh-root-node"></a>10.3.2.2. The Root Node</h4></div></div></div>
+<a name="dh-root-node"></a>10.3.2.2.Â The Root Node</h4></div></div></div>
 <p>The root node looks like this:</p>
 <pre class="programlisting">
 PP 1/1 (25 children) {
@@ -229,7 +229,7 @@ next example will explain these in more detail.</p>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="dh-interior-nodes"></a>10.3.2.3. Interior Nodes</h4></div></div></div>
+<a name="dh-interior-nodes"></a>10.3.2.3.Â Interior Nodes</h4></div></div></div>
 <p>PP nodes further down the tree show information about a subset of
 allocations. For example:</p>
 <pre class="programlisting">
@@ -299,7 +299,7 @@ vectors and hash tables, and isn't always fixable. </p>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="dh-leaf-nodes"></a>10.3.2.4. Leaf Nodes</h4></div></div></div>
+<a name="dh-leaf-nodes"></a>10.3.2.4.Â Leaf Nodes</h4></div></div></div>
 <p>This is a leaf node:</p>
 <pre class="programlisting">
 PP 1.1.1.1/2 {
@@ -343,7 +343,7 @@ This also means that each node makes complete sense on its own.</p>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="dh-access-counts"></a>10.3.2.5. Access Counts</h4></div></div></div>
+<a name="dh-access-counts"></a>10.3.2.5.Â Access Counts</h4></div></div></div>
 <p>If all blocks covered by a PP node have the same size, an additional
 <code class="computeroutput">Accesses</code> field will be present. It indicates
 how the reads and writes within these blocks were distributed. For
@@ -355,18 +355,18 @@ At t-end:  0 bytes (0%) in 0 blocks (0%), avg size 0 bytes
 Reads:     9,109,682 bytes (0.17%, 453.41/Minstr), 1.09/byte
 Writes:    7,340,088 bytes (0.36%, 365.34/Minstr), 0.88/byte
 Accesses: {
-  [  0]  65547 7 8 4 65529 〃 〃 〃 16 〃 〃 〃 12 〃 〃 〃 〃 〃 〃 〃 〃 〃 〃 〃 65542 〃 〃 〃 - - - - 
+  [  0]  65547 7 8 4 65529 ã ã ã 16 ã ã ã 12 ã ã ã ã ã ã ã ã ã ã ã 65542 ã ã ã - - - - 
 }
 </pre>
 <p>Every block covered by this PP was 32 bytes. Within all of those blocks,
 byte 0 was accessed (read or written) 65,547 times, byte 1 was accessed 7
 times, byte 2 was accessed 8 times, and so on.</p>
-<p>The ditto symbol (<code class="computeroutput">〃</code>) means "same access
+<p>The ditto symbol (<code class="computeroutput">ã</code>) means "same access
 count as the previous byte".</p>
 <p>A dash (<code class="computeroutput">-</code>) means "zero". (It is used
 instead of <code class="computeroutput">0</code> because it makes unaccessed
 regions more easily identifiable.)</p>
-<p>The infinity symbol (<code class="computeroutput">∞</code>, not present in
+<p>The infinity symbol (<code class="computeroutput">â</code>, not present in
 this example) means "exceeded the maximum tracked count".</p>
 <p>Block layout can often be inferred from counts. For example, these blocks
 probably have four separate byte-sized fields, followed by a four-byte field,
@@ -376,7 +376,7 @@ layout inefficiencies.</p>
 </div>
 <div class="sect3">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="aggregate-nodes"></a>10.3.2.6. Aggregate Nodes</h4></div></div></div>
+<a name="aggregate-nodes"></a>10.3.2.6.Â Aggregate Nodes</h4></div></div></div>
 <p>The PP tree is very large and many nodes represent tiny numbers of blocks
 and bytes. Therefore, DHAT's viewer aggregates insignificant nodes like
 this:</p>
@@ -395,7 +395,7 @@ case).</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-output-footer"></a>10.3.3. The Output Footer</h3></div></div></div>
+<a name="dh-output-footer"></a>10.3.3.Â The Output Footer</h3></div></div></div>
 <p>Below the PP tree is a line like this:</p>
 <pre class="programlisting">
 PP significance threshold: total &gt;= 59,434.17 blocks (1%)
@@ -409,7 +409,7 @@ terms, abbreviations and symbols used in the output.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="dh-sort-metrics"></a>10.3.4. Sort Metrics</h3></div></div></div>
+<a name="dh-sort-metrics"></a>10.3.4.Â Sort Metrics</h3></div></div></div>
 <p>The order in which sub-trees are sorted can be changed via the "Sort
 metric" drop-down menu at the top of DHAT's viewer. Different sort metrics can
 be useful for finding different things. Some sort metrics also incorporate some
@@ -508,7 +508,7 @@ optimization.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.realloc"></a>10.4. Treatment of realloc</h2></div></div></div>
+<a name="dh-manual.realloc"></a>10.4.Â Treatment of realloc</h2></div></div></div>
 <p><code class="computeroutput">realloc</code> is a tricky function and there
 are several different ways that DHAT could handle it.</p>
 <p>Imagine a <code class="computeroutput">malloc(100)</code> call followed by
@@ -547,7 +547,7 @@ whenever the reallocations were triggered.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.copy-profiling"></a>10.5. Copy profiling</h2></div></div></div>
+<a name="dh-manual.copy-profiling"></a>10.5.Â Copy profiling</h2></div></div></div>
 <p>If DHAT is invoked with <code class="option">--mode=copy</code>, instead of
 profiling heap operations (allocations and deallocations), it profiles copy
 operations, such as <code class="computeroutput">memcpy</code>,
@@ -576,7 +576,7 @@ regions with lifetimes.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.ad-hoc-profiling"></a>10.6. Ad hoc profiling</h2></div></div></div>
+<a name="dh-manual.ad-hoc-profiling"></a>10.6.Â Ad hoc profiling</h2></div></div></div>
 <p>If DHAT is invoked with <code class="option">--mode=ad-hoc</code>, instead of
 profiling heap operations (allocations and deallocations), it profiles calls to
 the <code class="computeroutput">DHAT_AD_HOC_EVENT</code> client request, which is
@@ -606,7 +606,7 @@ of the vector.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="dh-manual.options"></a>10.7. DHAT Command-line Options</h2></div></div></div>
+<a name="dh-manual.options"></a>10.7.Â DHAT Command-line Options</h2></div></div></div>
 <p>DHAT-specific command-line options are:</p>
 <div class="variablelist">
 <a name="dh.opts.list"></a><dl class="variablelist">
@@ -644,9 +644,9 @@ reduce the number, which may make DHAT run slightly faster.
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="ms-manual.html">&lt;&lt; 9. Massif: a heap profiler</a> </td>
+<a accesskey="p" href="ms-manual.html">&lt;&lt;Â 9.Â Massif: a heap profiler</a>Â </td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="lk-manual.html">11. Lackey: an example tool &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="lk-manual.html">11.Â Lackey: an example toolÂ &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
