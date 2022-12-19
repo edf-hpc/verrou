@@ -85,7 +85,7 @@ class gen_config:
             self.usageCmd()
             self.failure()
 
-    def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue, addAttributTab, parse):        
+    def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue, addAttributTab, parse):
         value=False
 
         if conv_type=="int":
@@ -115,7 +115,7 @@ class gen_config:
                     print("Error : "+ argv_name+" :  " + strOption+" should be a directory")
                 self.failure()
         else:
-            if value in acceptedValue:
+            if value in acceptedValue or None in acceptedValue:
                 exec(cmd)
                 return
             elif conv_type=="string/int":
@@ -148,7 +148,14 @@ class gen_config:
 
             expectedValueStr=""
             if expectedValue!=None:
-                expectedValueStr="in "+str(expectedValue)
+                if str(type(expectedValue))=="<class 'list'>":
+                    v=copy.deepcopy(expectedValue)
+                    if None in v:
+                        v.remove(None)
+                        v+=["..."]
+                    expectedValueStr="in "+str(v)
+                else:
+                    expectedValueStr="in "+str(expectedValue)
 
             typeStr=""
             if attributType== "int":

@@ -5,6 +5,7 @@ import re
 import copy
 
 from . import gen_config
+from . import rounding_tool
 
 class postConfig(gen_config.gen_config):
 
@@ -22,7 +23,7 @@ class postConfig(gen_config.gen_config):
         self.registryTab+=[("rep",     "string", "POST_REP",          ["--rep="], "dd.line", "rep_exists", False)]
         self.registryTab+=[("sub_rep", "string", "POST_CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)]
         self.registryTab+=[("instr"  , "string", "POST_INSTR",        ["--instr="],   [] ,   None, True)]
-        self.registryTab+=[("rounding","string", "POST_ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det","random","average","nearest","upward","downward", "farthest", "toward_zero","random_det","average_det", "random_comdet","average_comdet","prandom","prandom_det","prandom_comdet"], True)]
+        self.registryTab+=[("rounding","string", "POST_ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
         self.registryTab+=[("trace_bin",    "bool",   "POST_TRACE_BIN",     ["--trace-bin"],     False, None, False)]
         self.registryTab+=[("trace_pattern","string", "POST_TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
         self.registryTab+=[("trace_file", "string",   "POST_TRACE_FILE",    ["--trace-file="],    None, None, False)]
@@ -78,11 +79,10 @@ class postConfig(gen_config.gen_config):
     def getNonDetTab(self):
         if self.rounding==[]:
             return [""]
-        return list(filter(lambda x : x in ["random", "random_det", "average","average_det","random_comdet","average_comdet", "prandom", "prandom_det", "prandom_comdet"], self.rounding ))
+        return rounding_tool.filterNonDetTab(self.rounding)
 
     def getDetTab(self):
-        return list(filter(lambda x: x in ["upward","downward", "farthest", "toward_zero", "nearest"], self.rounding ))
-
+        return rounding_tool.filterDetRoundingTab(self.rounding)
 
     def get_trace_bin(self):
         return self.trace_bin
@@ -108,7 +108,7 @@ class postConfig(gen_config.gen_config):
             self.trace_file=os.path.abspath(self.trace_file)
         if "all_det" in self.rounding:
             self.rounding.remove("all_det")
-            self.rounding+=["upward","downward", "farthest", "toward_zero", "nearest"]
+            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
             self.rounding+=["random","average", "prandom"]
