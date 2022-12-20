@@ -6,11 +6,11 @@ import copy
 
 class gen_config:
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"], lengthValidTab=[2]):
         self.config_keys=config_keys
         self.registerOptions()
         self.readDefaultValueFromRegister()
-        self.parseArgv(argv)
+        self.parseArgv(argv, lengthValidTab)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
@@ -28,9 +28,9 @@ class gen_config:
             strOption+="\t%s : %s\n"%(attribut,eval("str(self."+attribut+")"))
         return strOption
 
-    def parseArgv(self,argv):
-        shortOptionsForGetOpt="h"
-        longOptionsForGetOpt=["help"] + [y[2:]  for x in self.registryTab for y in x[3] ]
+    def parseArgv(self,argv, lengthValidTab):
+        shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x[3] if y.startswith("-") and y[1]!="-"])
+        longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x[3] if y.startswith("--")]
         try:
             opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
         except getopt.GetoptError:
@@ -44,12 +44,13 @@ class gen_config:
             for registry in self.registryTab:
                 for registryName in registry[3]:
                     fromRegistryName=registryName.replace("=","")
+                    fromRegistryName=fromRegistryName.replace(":","")
                     if opt==fromRegistryName:
                         self.readOneOption(arg,registry[0], registry[1], registry[2],registryName,registry[5], registry[6], parse="parse")
                         break
-        if len(args)==2:
-            self.runScript=self.checkScriptPath(args[0])
-            self.cmpScript=self.checkScriptPath(args[1])
+
+        if len(args) in lengthValidTab:
+            self.exec_arg=[self.checkScriptPath(arg) for arg in args]
         else:
             self.usageCmd()
             self.failure()

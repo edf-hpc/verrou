@@ -41,6 +41,8 @@ class ddConfig(gen_config.gen_config):
     def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
         super().__init__(argv, environ, config_keys)
         self.normalizeOptions()
+        self.runScript=self.exec_arg[0]
+        self.cmpScript=self.exec_arg[1]
 
     def registerOptions(self):
         self.registryTab =[("nbRUN",                 "int",        "DD_NRUNS",                   ["--nruns="],                  5,          None, False)]

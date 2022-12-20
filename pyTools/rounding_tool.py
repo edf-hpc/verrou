@@ -17,7 +17,19 @@ def filterDetRoundingTab(roundingTab):
     return list(filter(lambda x: x in roundingDetTab, roundingTab ))
 
 def isValidRounding(rounding):
-    return roundingToEnvVar(rounding)!=None
+    return roundingToEnvVar(rounding,failure=False)!=None
+
+def isStrFloat(strFloat):
+    try:
+        value=float(strFloat)
+    except:
+        return False
+    return True
+
+def isValidRef(strRounding):
+    if isValidRounding(strRounding):
+        return True
+    return isStrFloat(strRounding)
 
 
 def roundingToEnvVar(rounding, res={}, failure=True):

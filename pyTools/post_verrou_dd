@@ -234,7 +234,7 @@ def sortSubRep(subRepTab):
 
 
 if __name__=="__main__":
-    config=post_config.postConfig(sys.argv,os.environ, ["VERROU"])
+    config=post_config.postConfig(sys.argv,os.environ)
 
     repSubRep=config.get_rep_sub_rep()
     print("selected sub_rep to postreat:")

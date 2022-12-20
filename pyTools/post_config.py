@@ -9,7 +9,7 @@ from . import rounding_tool
 
 class postConfig(gen_config.gen_config):
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["POST"]):
         super().__init__(argv,environ, config_keys)
 
         self.normalize()
@@ -17,23 +17,66 @@ class postConfig(gen_config.gen_config):
         self.check_trace_file()
 
     def registerOptions(self):
-        self.registryTab =[("nbRUN",      "int", "POST_NRUNS",        ["--nruns="],           5, None, False)]
-        self.registryTab+=[("maxNbPROC",  "int", "POST_NUM_THREADS",  ["--num-threads="],  None, None, False)]
-        self.registryTab+=[("ddQuiet",   "bool", "POST_QUIET",        ["--quiet"],        False, None, False)]
-        self.registryTab+=[("rep",     "string", "POST_REP",          ["--rep="], "dd.line", "rep_exists", False)]
-        self.registryTab+=[("sub_rep", "string", "POST_CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)]
-        self.registryTab+=[("instr"  , "string", "POST_INSTR",        ["--instr="],   [] ,   None, True)]
-        self.registryTab+=[("rounding","string", "POST_ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
-        self.registryTab+=[("trace_bin",    "bool",   "POST_TRACE_BIN",     ["--trace-bin"],     False, None, False)]
-        self.registryTab+=[("trace_pattern","string", "POST_TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
-        self.registryTab+=[("trace_file", "string",   "POST_TRACE_FILE",    ["--trace-file="],    None, None, False)]
+        self.registryTab =[("nbRUN",      "int", "NRUNS",        ["--nruns="],           5, None, False)]
+        self.registryTab+=[("maxNbPROC",  "int", "NUM_THREADS",  ["--num-threads="],  None, None, False)]
+        self.registryTab+=[("ddQuiet",   "bool", "QUIET",        ["--quiet"],        False, None, False)]
+        self.registryTab+=[("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists", False)]
+        self.registryTab+=[("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)]
+        self.registryTab+=[("instr"  , "string", "INSTR",        ["--instr="],   [] ,   None, True)]
+        self.registryTab+=[("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
+        self.registryTab+=[("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False, None, False)]
+        self.registryTab+=[("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
+        self.registryTab+=[("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None, None, False)]
 
 
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
         print(self.get_EnvDoc(self.config_keys[-1]))
 
+    def normalize(self):
+        self.rep=os.path.abspath(self.rep)
+        if self.trace_file!=None:
+            self.trace_file=os.path.abspath(self.trace_file)
+        if "all_det" in self.rounding:
+            self.rounding.remove("all_det")
+            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
+        if "no_det" in self.rounding:
+            self.rounding.remove("no_det")
+            self.rounding+=["random","average", "prandom"]
 
+        self.runScript=self.exec_arg[0]
+        self.cmpScript=self.exec_arg[1]
+
+    def check_instr_tab(self):
+        for instrConfig in self.instr:
+            for instr in instrConfig.split(","):
+                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "conv"]
+                if instr not in validInstrTab:
+                    print("%s is not a valid instr configuration."%(instr))
+                    print("%s should be a coma separated list of element of %s"%(instrConfig, str(validInstrTab)))
+                    self.usageCmd()
+                    self.failure()
+
+    def check_trace_file(self):
+        if self.trace_file !=None and (self.trace_pattern!=[] or self.trace_bin):
+            print("--trace_file is incompatible with trace_pattern and trace_bin option")
+            self.failure()
+
+        """Basic check : not valid file could sucessed"""
+        if self.trace_file!=None:
+            numLine=0
+            for line in (open(self.trace_file)).readlines():
+                numLine+=1
+                spline=line.strip()
+                if spline.startswith("#") or spline=="":
+                    continue
+                if not (" " in spline) and not("\t" in spline):
+                    print("%s is not a valid trace file"%(self.trace_file))
+                    print("%s line %i is not valid"%(spline, numLine))
+                    self.usageCmd()
+                    self.failure()
+
+#accessors
     def get_maxNbPROC(self):
         return self.maxNbPROC
 
@@ -102,45 +145,6 @@ class postConfig(gen_config.gen_config):
             return True
         return False
 
-    def normalize(self):
-        self.rep=os.path.abspath(self.rep)
-        if self.trace_file!=None:
-            self.trace_file=os.path.abspath(self.trace_file)
-        if "all_det" in self.rounding:
-            self.rounding.remove("all_det")
-            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
-        if "no_det" in self.rounding:
-            self.rounding.remove("no_det")
-            self.rounding+=["random","average", "prandom"]
-
-    def check_instr_tab(self):
-        for instrConfig in self.instr:
-            for instr in instrConfig.split(","):
-                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "conv"]
-                if instr not in validInstrTab:
-                    print("%s is not a valid instr configuration."%(instr))
-                    print("%s should be a coma separated list of element of %s"%(instrConfig, str(validInstrTab)))
-                    self.usageCmd()
-                    self.failure()
-
-    def check_trace_file(self):
-        if self.trace_file !=None and (self.trace_pattern!=[] or self.trace_bin):
-            print("--trace_file is incompatible with trace_pattern and trace_bin option")
-            self.failure()
-
-        """Basic check : not valid file could sucessed"""
-        if self.trace_file!=None:
-            numLine=0
-            for line in (open(self.trace_file)).readlines():
-                numLine+=1
-                spline=line.strip()
-                if spline.startswith("#") or spline=="":
-                    continue
-                if not (" " in spline) and not("\t" in spline):
-                    print("%s is not a valid trace file"%(self.trace_file))
-                    print("%s line %i is not valid"%(spline, numLine))
-                    self.usageCmd()
-                    self.failure()
 
 
     def findDDmin(self, rep):
