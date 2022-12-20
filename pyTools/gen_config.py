@@ -8,12 +8,15 @@ class gen_config:
 
     def __init__(self, argv, environ,config_keys=["INTERFLOP"], lengthValidTab=[2]):
         self.config_keys=config_keys
+        self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
         self.parseArgv(argv, lengthValidTab)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
+    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam, additive=False ):
+        self.registryTab+=[(attribut,optionType, ENV, tabOption, default, checkParam,additive)]
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:

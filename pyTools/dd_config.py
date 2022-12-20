@@ -45,19 +45,19 @@ class ddConfig(gen_config.gen_config):
         self.cmpScript=self.exec_arg[1]
 
     def registerOptions(self):
-        self.registryTab =[("nbRUN",                 "int",        "DD_NRUNS",                   ["--nruns="],                  5,          None, False)]
-        self.registryTab+=[("maxNbPROC",             "int",        "DD_NUM_THREADS",             ["--num-threads="],            None,       None, False )]
-        self.registryTab+=[("ddAlgo",                "string",     "DD_ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"], False)]
-        self.registryTab+=[("rddminVariant",         "string",     "DD_RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "", "strict"],False)]
-        self.registryTab+=[("param_rddmin_tab",      "string",     "DD_RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"], False)]
-        self.registryTab+=[("param_dicho_tab",       "int/string", "DD_DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"], False)]
-        self.registryTab+=[("splitGranularity",      "int",        "DD_DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None, False)]
-        self.registryTab+=[("ddQuiet",               "bool",       "DD_QUIET",                   ["--quiet"],                    False,     None, False)]
-        self.registryTab+=[("cache",                 "string",     "DD_CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"], False)]
-        self.registryTab+=[("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"], False)]
-        self.registryTab+=[("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ["--rddmin-heuristics-rep="],   [] ,       "rep_exists", True)]
-        self.registryTab+=[("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None, False)]
-        self.registryTab+=[("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None, False)]
+        self.addRegistry("nbRUN",                 "int",        "DD_NRUNS",                   ["--nruns="],                  5,          None)
+        self.addRegistry("maxNbPROC",             "int",        "DD_NUM_THREADS",             ["--num-threads="],            None,       None)
+        self.addRegistry("ddAlgo",                "string",     "DD_ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
+        self.addRegistry("rddminVariant",         "string",     "DD_RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "", "strict"])
+        self.addRegistry("param_rddmin_tab",      "string",     "DD_RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
+        self.addRegistry("param_dicho_tab",       "int/string", "DD_DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
+        self.addRegistry("splitGranularity",      "int",        "DD_DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
+        self.addRegistry("ddQuiet",               "bool",       "DD_QUIET",                   ["--quiet"],                    False,     None)
+        self.addRegistry("cache",                 "string",     "DD_CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
+        self.addRegistry("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
+        self.addRegistry("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ["--rddmin-heuristics-rep="],   [] ,       "rep_exists", True)
+        self.addRegistry("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None)
+        self.addRegistry("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
 
 
     def normalizeOptions(self):

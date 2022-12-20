@@ -489,25 +489,23 @@ class config_stat(gen_config.gen_config):
 
 
     def registerOptions(self):
-        self.registryTab =[("_isMontecarlo", "bool","MONTECARLO",["--montecarlo","-m"], False, None, False)]
-        self.registryTab+=[("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, None, False)]
-        self.registryTab+=[("_rep",      "string", "REP",       ["--rep="], "verrou.stat", None, False)]
-#        self.registryTab+=[("_roundingTab","string", "ROUNDING", ["--rounding=", "--rounding-mode="] ,[] ,
-#                            ["det","mca-rr-53-24",None]+rounding_tool.allRoundingTab, True)]
-        self.registryTab+=[("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [],
-                            [None, "rounding mode list (coma separated). (det is an alias)"]+rounding_tool.allRoundingTab + ["det","mca-rr-53-24"],
-                            True)]
-        self.registryTab+=[("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, None, False)]
-        self.registryTab+=[("_runOnly",  "bool",   "RUN_ONLY", ["--run-only"], False, None, False)]
-        self.registryTab+=[("_noPlot",   "bool",   "NO_PLOT",  ["--no-plot"],  False, None, False)]
-        self.registryTab+=[("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False, None, False)]
-        self.registryTab+=[("_nbBin",    "int",    "NBIN",     ["--nb-bin="],            40,      None, False)]
-        self.registryTab+=[("_seed",     "int",    "SEED",     ["--seed="],             None,     None, False)]
-        self.registryTab+=[("_png",       "string", "PNG",      ["--png=","-p:"],        False,    None, False)]
-        self.registryTab+=[("_ref",      "string", "REF",      ["--ref="],              "nearest",None, False)]
-        self.registryTab+=[("_relative", "string", "RELATIVE", ["--relative="],         False,    None, False)]
-        self.registryTab+=[("_time",     "bool",   "TIME",     ["--time","-t"],         False,    None, False)]
-        self.registryTab+=[("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [],       None, True)]
+        self.addRegistry("_isMontecarlo", "bool","MONTECARLO",["--montecarlo","-m"], False, None)
+        self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, None)
+        self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", None)
+        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [],
+                         [None, "rounding mode list (coma separated). (det is an alias)"]+rounding_tool.allRoundingTab + ["det","mca-rr-53-24"],
+                         True)
+        self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, None)
+        self.addRegistry("_runOnly",  "bool",   "RUN_ONLY", ["--run-only"], False, None)
+        self.addRegistry("_noPlot",   "bool",   "NO_PLOT",  ["--no-plot"],  False, None)
+        self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False, None)
+        self.addRegistry("_nbBin",    "int",    "NBIN",     ["--nb-bin="],            40,      None)
+        self.addRegistry("_seed",     "int",    "SEED",     ["--seed="],             None,     None)
+        self.addRegistry("_png",       "string", "PNG",      ["--png=","-p:"],        False,    None)
+        self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest",None)
+        self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False,    None)
+        self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False,    None)
+        self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [],       None, True)
 
 
     def normalize(self):

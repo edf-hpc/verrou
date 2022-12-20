@@ -17,16 +17,16 @@ class postConfig(gen_config.gen_config):
         self.check_trace_file()
 
     def registerOptions(self):
-        self.registryTab =[("nbRUN",      "int", "NRUNS",        ["--nruns="],           5, None, False)]
-        self.registryTab+=[("maxNbPROC",  "int", "NUM_THREADS",  ["--num-threads="],  None, None, False)]
-        self.registryTab+=[("ddQuiet",   "bool", "QUIET",        ["--quiet"],        False, None, False)]
-        self.registryTab+=[("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists", False)]
-        self.registryTab+=[("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)]
-        self.registryTab+=[("instr"  , "string", "INSTR",        ["--instr="],   [] ,   None, True)]
-        self.registryTab+=[("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
-        self.registryTab+=[("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False, None, False)]
-        self.registryTab+=[("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
-        self.registryTab+=[("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None, None, False)]
+        self.addRegistry("nbRUN",      "int", "NRUNS",        ["--nruns="],           5, None)
+        self.addRegistry("maxNbPROC",  "int", "NUM_THREADS",  ["--num-threads="],  None, None)
+        self.addRegistry("ddQuiet",   "bool", "QUIET",        ["--quiet"],        False, None)
+        self.addRegistry("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists")
+        self.addRegistry("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)
+        self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] ,   None, True)
+        self.addRegistry("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
+        self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False, None)
+        self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
+        self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None, None)
 
 
     def usageCmd(self):
