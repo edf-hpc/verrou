@@ -15,25 +15,29 @@ class gen_config:
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
-    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam, additive=False ):
-        self.registryTab+=[(attribut,optionType, ENV, tabOption, default, checkParam,additive)]
+    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam, additive=False, docStr=None ):
+        registry={"attribut":attribut, "type": optionType, "ENV":ENV, "tabOption":tabOption,
+                  "default":default, "checkParam":checkParam,
+                  "additive":additive,
+                  "docStr":docStr}
+        self.registryTab+=[registry]
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
-            attribut=registry[0]
-            default=registry[4]
+            attribut=registry["attribut"]
+            default=registry["default"]
             exec("self."+attribut+"= copy.deepcopy(default)")
 
     def optionToStr(self):
         strOption=""
         for registry in self.registryTab:
-            attribut=registry[0]
+            attribut=registry["attribut"]
             strOption+="\t%s : %s\n"%(attribut,eval("str(self."+attribut+")"))
         return strOption
 
     def parseArgv(self,argv, lengthValidTab):
-        shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x[3] if y.startswith("-") and y[1]!="-"])
-        longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x[3] if y.startswith("--")]
+        shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x["tabOption"] if y.startswith("-") and y[1]!="-"])
+        longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x["tabOption"] if y.startswith("--")]
         try:
             opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
         except getopt.GetoptError:
@@ -45,11 +49,11 @@ class gen_config:
                 self.usageCmd()
                 self.failure()
             for registry in self.registryTab:
-                for registryName in registry[3]:
+                for registryName in registry["tabOption"]:
                     fromRegistryName=registryName.replace("=","")
                     fromRegistryName=fromRegistryName.replace(":","")
                     if opt==fromRegistryName:
-                        self.readOneOption(arg,registry[0], registry[1], registry[2],registryName,registry[5], registry[6], parse="parse")
+                        self.readOneOption(arg,registry["attribut"], registry["type"], registry["ENV"],registryName,registry["checkParam"], registry["additive"], parse="parse")
                         break
 
         if len(args) in lengthValidTab:
@@ -64,8 +68,8 @@ class gen_config:
 
         for registry in self.registryTab:
             try:
-                strValue=self.environ[self.PREFIX+"_"+registry[2]]
-                param=[registry[0], registry[1], registry[2], registry[3][0],registry[5], registry[6]]
+                strValue=self.environ[self.PREFIX+"_"+registry["ENV"]]
+                param=[registry["attribut"], registry["type"], registry["ENV"], registry["tabOption"][0],registry["checkParam"], registry["additive"]]
                 self.readOneOption(strValue,*param, parse="environ")
             except KeyError:
                 pass
@@ -143,13 +147,16 @@ class gen_config:
     def get_EnvDoc(self,PREFIX="INTERFLOP"):
         doc="""List of env variables and options :\n"""
         for registry in self.registryTab:
-            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
-            if len(option)==1:
-                optionStr=str(option[0])
-            else:
-                optionStr=" or ".join(option)
-            optionNameStr="%s or %s"%(PREFIX+"_"+envVar, optionStr)
+#            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
 
+            optionTab=registry["tabOption"]
+            if len(optionTab)==1:
+                optionStr=str(optionTab[0])
+            else:
+                optionStr=" or ".join(optionTab)
+            optionNameStr="%s or %s"%(PREFIX+"_"+registry["ENV"], optionStr)
+
+            expectedValue=registry["checkParam"]
             expectedValueStr=""
             if expectedValue!=None:
                 if str(type(expectedValue))=="<class 'list'>":
@@ -161,6 +168,7 @@ class gen_config:
                 else:
                     expectedValueStr="in "+str(expectedValue)
 
+            attributType=registry["type"]
             typeStr=""
             if attributType== "int":
                 typeStr="int"
@@ -169,6 +177,7 @@ class gen_config:
             if attributType=="bool":
                 typeStr="set or not"
 
+            default=registry["default"]
             defaultStr='(default "%s")'%(default)
             if default==None:
                 defaultStr='(default none)'

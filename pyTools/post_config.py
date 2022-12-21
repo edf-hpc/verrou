@@ -23,9 +23,9 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists")
         self.addRegistry("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)
         self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] ,   None, True)
-        self.addRegistry("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)]
+        self.addRegistry("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)
         self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False, None)
-        self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)]
+        self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None, None)
 
 
