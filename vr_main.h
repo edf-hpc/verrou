@@ -139,6 +139,28 @@ struct Vr_IncludeSource_ {
   Vr_IncludeSource* next;
 };
 
+
+typedef struct Vr_entry_func_ Vr_entry_func;
+struct Vr_entry_func_ {
+  HChar*      fnname;
+  HChar*      sym_name;
+  UInt        index;
+  Vr_entry_func* next;
+};
+
+#define VERROU_TRACE_BUFFER_SIZE 4096
+typedef struct Vr_entry_func_trace_ Vr_entry_func_trace;
+struct Vr_entry_func_trace_ {
+  Vr_entry_func* list;
+  UInt currentIndex;
+  VgFile * out_trace_info;
+  VgFile * out_trace;
+
+  UInt* traceBuffer;
+  UInt bufferIndex;
+};
+
+
 typedef struct {
   vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
@@ -197,6 +219,8 @@ typedef struct {
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
   HChar* outputTraceRep;
+
+  Vr_entry_func_trace func_trace;
 } Vr_State;
 
 extern Vr_State vr;

@@ -59,13 +59,16 @@ def mapRename(rep, pid, count, listOfFile,verbose):
 
 
 def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verbose=False):
+    assert(what in ["all","cover","link&cover"])
     pidList=getSortedPidList(rep)
     count=0
     convList=[]
     for pidTuple in pidList:
         pid=pidTuple[0]
         coverOldFileList=[x for x in os.listdir(rep) if x.startswith("cover") and x.endswith("-"+str(pid)) and not x.endswith("-seqCount"+str(pid)) ]
-        otherOldFileList=[x for x in os.listdir(rep) if (x.startswith("trace_bb_cov.log-") or x.startswith("trace_bb_info.log-")  )and x.endswith("-"+str(pid)) ]
+        coverLinkOldFileList=[x for x in os.listdir(rep) if x.startswith("Linkcover") and x.endswith("-"+str(pid)) and not x.endswith("-seqCount"+str(pid)) ]
+
+        otherOldFileList=[x for x in os.listdir(rep) if (x.startswith("trace_bb_cov.log-") or x.startswith("trace_bb_info.log-")  or (x.startswith("trace_bb_link.log-")) )and x.endswith("-"+str(pid)) ]
 
         if ignoreEmpty:
             fileName="trace_bb_info.log-"+str(pid)
@@ -77,12 +80,21 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
 
         if what=="all":
             mapRename(rep,pid,count, coverOldFileList, verbose)
+            mapRename(rep,pid,count, coverLinkOldFileList, verbose)
             mapRename(rep,pid,count, otherOldFileList, verbose)
 
         if what=="cover":
             mapRename(rep,pid,count, coverOldFileList, verbose)
             if clean:
+                mapClean(rep,coverLinkOldFileList,verbose)
                 mapClean(rep,otherOldFileList,verbose)
+
+        if what=="link&cover":
+            mapRename(rep,pid,count, coverOldFileList, verbose)
+            mapRename(rep,pid,count, coverLinkOldFileList, verbose)
+            if clean:
+                mapClean(rep,otherOldFileList,verbose)
+
         count+=1
 
 
@@ -109,7 +121,7 @@ def postRunTrace(runDir):
 
     cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
     os.system(cmd+ "  >> "+ "%s/covBBLog"%(runDir))
-    rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="cover", clean=True, ignoreEmpty=True)
+    rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="link&cover", clean=False, ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):

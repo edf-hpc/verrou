@@ -50,6 +50,7 @@ VgFile * vr_out_bb_info = NULL;
 VgFile * vr_out_bb_cov= NULL;
 VgFile * vr_out_bb_link= NULL;
 
+
 traceBB_t* traceList=NULL ;
 traceBBLink_t* traceLinkList=NULL ;
 
@@ -250,7 +251,7 @@ void vr_traceBB_initialize(char* path){
 			       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
   if(vr_out_bb_link==NULL){
     VG_(umsg)("Error with %s",strExpLink);
-    VG_(tool_panic)("trace file initialization failed");
+    VG_(tool_panic)("traceBB file initialization failed");
   }
 #endif
 };

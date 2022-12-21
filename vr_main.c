@@ -325,7 +325,7 @@ void vr_ppOpCount (void) {
 }
 
 #include "vr_traceBB_impl.h"
-
+#include "vr_entry_list.h"
 
 // * Floating point operations overload
 
@@ -1220,19 +1220,32 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
 
-      if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
-	 const HChar *localFnname;
-	 if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
-	   IRDirty*   di;
-	   di = unsafeIRDirty_0_N(0,
-				  "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
-				  mkIRExprVec_0() );
-	   addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-	   if(vr.verbose){
-	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
-	   }
-	 }
+      if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC || genIRSBTrace){
+	const HChar *localFnname;
+	if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
 
+	  if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+	    IRDirty*   di;
+	    di = unsafeIRDirty_0_N(0,
+				   "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				   mkIRExprVec_0() );
+	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	    if(vr.verbose){
+	      VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
+	    }
+	  }
+	  if(genIRSBTrace){
+	    /*Recuperer index*/
+	    Vr_entry_func* entry=vr_entry_func_trace_get_index(&vr.func_trace,localFnname, fnname);
+	    IRDirty*   di;
+	    di = unsafeIRDirty_0_N(0,
+				   "vr_trace_entry_func_dyn", VG_(fnptr_to_fnentry)( &vr_trace_entry_func_dyn ),
+				   mkIRExprVec_2 (
+						  mkIRExpr_HWord ((HWord)(entry->index)),
+						  mkIRExpr_HWord ((HWord)entry)));
+	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	  }
+	}
       }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
@@ -1305,6 +1318,7 @@ static void vr_fini(Int exitcode)
   if(vr.genTrace){
     vr_traceBB_dumpCov();
     vr_traceBB_finalize();
+    vr_entry_free(&vr.func_trace);
   }
   if (vr.dumpCancellation){
      vr_dumpIncludeSourceList(vr.cancellationSource, vr.cancellationDumpFile );
@@ -1476,8 +1490,10 @@ static void vr_post_clo_init(void)
   }
 
   if(vr.genTrace){
+    VG_(umsg)("debug init genTrace\n");
      vr_traceBB_initialize(vr.outputTraceRep);
-   }
+     vr_entry_func_trace_init(&vr.func_trace, vr.outputTraceRep);
+  }
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;
