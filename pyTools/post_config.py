@@ -17,28 +17,37 @@ class postConfig(gen_config.gen_config):
         self.check_trace_file()
 
     def registerOptions(self):
-        self.addRegistry("nbRUN",      "int", "NRUNS",        ["--nruns="],           5, None)
-        self.addRegistry("maxNbPROC",  "int", "NUM_THREADS",  ["--num-threads="],  None, None)
-        self.addRegistry("ddQuiet",   "bool", "QUIET",        ["--quiet"],        False, None)
+        self.addRegistry("nbRUN",      "int", "NRUNS",        ["--nruns="],           5)
+        self.addRegistry("maxNbPROC",  "int", "NUM_THREADS",  ["--num-threads="],  None)
+        self.addRegistry("ddQuiet",   "bool", "QUIET",        ["--quiet"],        False)
         self.addRegistry("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists")
-        self.addRegistry("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", True)
-        self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] ,   None, True)
-        self.addRegistry("rounding","string", "ROUNDING",     ["--rounding=", "--rounding-mode="] ,[] , ["all_det","no_det", None]+rounding_tool.allRoundingTab, True)
-        self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False, None)
-        self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [],  None, True)
-        self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None, None)
+        self.addRegistry("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", additive=True)
+        self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] , additive=True)
+        self.addRegistry("rounding", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default rounding in run.sh]")
+        self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False)
+        self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [], additive=True)
+        self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)
 
 
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
         print(self.get_EnvDoc(self.config_keys[-1]))
 
+        print("Valid rounding modes are:")
+        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t det is an alias to "+",".join([x for x in rounding_tool.roundingDetTab if x!="float"]))
+        print("\t no_det is an alias to "+",".join(["random","average", "prandom"]))
+
+
     def normalize(self):
         self.rep=os.path.abspath(self.rep)
         if self.trace_file!=None:
             self.trace_file=os.path.abspath(self.trace_file)
-        if "all_det" in self.rounding:
-            self.rounding.remove("all_det")
+        if "det" in self.rounding:
+            self.rounding.remove("det")
             self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")

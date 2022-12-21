@@ -489,23 +489,24 @@ class config_stat(gen_config.gen_config):
 
 
     def registerOptions(self):
-        self.addRegistry("_isMontecarlo", "bool","MONTECARLO",["--montecarlo","-m"], False, None)
-        self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, None)
-        self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", None)
-        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [],
-                         [None, "rounding mode list (coma separated). (det is an alias)"]+rounding_tool.allRoundingTab + ["det","mca-rr-53-24"],
-                         True)
-        self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, None)
-        self.addRegistry("_runOnly",  "bool",   "RUN_ONLY", ["--run-only"], False, None)
-        self.addRegistry("_noPlot",   "bool",   "NO_PLOT",  ["--no-plot"],  False, None)
-        self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False, None)
-        self.addRegistry("_nbBin",    "int",    "NBIN",     ["--nb-bin="],            40,      None)
-        self.addRegistry("_seed",     "int",    "SEED",     ["--seed="],             None,     None)
-        self.addRegistry("_png",       "string", "PNG",      ["--png=","-p:"],        False,    None)
-        self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest",None)
-        self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False,    None)
-        self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False,    None)
-        self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [],       None, True)
+        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default random,average,det]")
+        self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
+        self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
+        self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, docStr="number of parallel run")
+
+        self.addRegistry("_isMontecarlo", "bool","MONTECARLO",["--montecarlo","-m"], False, docStr="use stochastic analysis for deterministic rounding mode")
+        self.addRegistry("_runOnly",  "bool",   "RUN_ONLY", ["--run-only"], False, docStr="only execute run (neither plot histogramm nor print stat)")
+        self.addRegistry("_noPlot",   "bool",   "NO_PLOT",  ["--no-plot"],  False, docStr="do not plot hist (ie. print stat only)")
+
+        self.addRegistry("_nbBin",    "int",    "NBIN",     ["--nb-bin="],            40,  docStr="number of bins for histogram [default 40] ")
+        self.addRegistry("_seed",     "int",    "SEED",     ["--seed="],             None)
+        self.addRegistry("_png",      "string", "PNG",      ["--png=","-p:"],        False, docStr="png file to export plot")
+        self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest", docStr="reference for error estimator : rounding mode or value [default nearest]")
+        self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False, docStr="if used configure plot with relative abscissa (same parameter as --ref)")
+        self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
+        self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
+        self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False)
 
 
     def normalize(self):
@@ -586,24 +587,12 @@ class config_stat(gen_config.gen_config):
     def usageCmd(self):
         name=sys.argv[0]
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
-        print( "\t -r --rep=:  working directory [default verrou.stat]")
-        print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
-        print( "\t --num-threads= : number of parallel run")
-        print( "\t --run-only : only run  neither plot histogramm nor print stat ")
-        print( "\t --no-plot : do not plot hist (ie. print stat only)")
-        print( "\t --nb-bin= : number of bins for histogram [default 40] ")
-
-        print( "\t --rounding-list= : rounding modes (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
-        print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
-        print( "\t --ref= reference rounding mode for error estimator (in list [nearest,upward,downward,toward_zero,farthest, [random|average|prandom][|_det|_comdet]]) [default nearest]" )
-        print( "\t -p --png= : png file to export plot")
-        print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
-        print( "\t --mca=rr-53-24 : add mca ins the study")
-        print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
-        print( "\t --continue-on-extract-error")
-
-        print("\n Generated documentation:")
         print(self.get_EnvDoc(self.config_keys[-1]))
+        print("Valid rounding modes are:")
+        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTab))
 
 
     def nbBin(self):

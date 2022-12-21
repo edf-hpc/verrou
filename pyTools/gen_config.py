@@ -15,7 +15,7 @@ class gen_config:
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
-    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam, additive=False, docStr=None ):
+    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam=None, additive=False, docStr=None ):
         registry={"attribut":attribut, "type": optionType, "ENV":ENV, "tabOption":tabOption,
                   "default":default, "checkParam":checkParam,
                   "additive":additive,
@@ -185,7 +185,9 @@ class gen_config:
                 defaultStr='(default not)'
             if default==True:
                 defaultStr='(default set)'
-
-            doc+="\t%s : %s %s %s \n"%(optionNameStr,expectedValueStr,typeStr, defaultStr)
+            if registry["docStr"]==None:
+                doc+="\t%s : %s %s %s \n"%(optionNameStr,expectedValueStr,typeStr, defaultStr)
+            else:
+                doc+="\t%s : %s\n"%(optionNameStr,registry["docStr"])
         return doc
 
