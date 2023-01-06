@@ -270,6 +270,77 @@ public:
   }
 };
 
+
+
+
+class randScomBool{
+public:
+  typedef bool TypeOut;
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hashDet;
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+  const Vr_Rand*& r_;
+  randScomBool(const Vr_Rand*& r):r_(r){
+  }
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return hashDet::hashBool(r_, p, opHash);
+  }
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return !hashDet::hashBool(r_, p,opHash);
+  }
+};
+
+
+class randScomRatio{
+public:
+  typedef double TypeOut;
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hashDet;
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+  const Vr_Rand*& r_;
+  randScomRatio(const Vr_Rand*& r):r_(r){
+  }
+
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return hashDet::hashRatio(r_, p, opHash);
+  }
+
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return 1.- hashDet::hashRatio(r_, p, opHash);
+  }
+};
+
+
+template<class OP>
+class vr_rand_scomdet {
+public:
+
+  static inline bool
+  randBool(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashScom(randScomBool(r),p);
+  }
+
+
+  static inline
+  double
+  randRatio(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashScom(randScomRatio(r),p);
+  }
+};
+
+
 template<class OP, template<class> class RAND>
 class vr_rand_p {
 public:

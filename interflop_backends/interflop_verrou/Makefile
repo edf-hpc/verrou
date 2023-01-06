@@ -2,7 +2,7 @@ SRC_BACKEND=interflop_verrou.cxx
 
 SRC=test_main.cxx
 
-CFLAGS=-g -Wall -march=native
+CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash
 
 
 %.o: %.cxx

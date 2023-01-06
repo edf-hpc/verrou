@@ -948,6 +948,20 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #undef bcName
 #undef bcNameWithCC
      }
+     if(vr.roundingMode==VR_RANDOM_SCOMDET){
+#define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_AVERAGE_SCOMDET){
+#define bcName(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
+#define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
      if(vr.roundingMode==VR_PRANDOM){
 #define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
