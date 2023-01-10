@@ -1,3 +1,3 @@
 #!/bin/sh
 
-valgrind --tool=verrou ./checkRounding valgrind > $1/out.std
+valgrind --tool=verrou ./checkRoundingNative valgrind > $1/out.std

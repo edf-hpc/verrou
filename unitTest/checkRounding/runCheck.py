@@ -226,7 +226,7 @@ def checkRoundingInvariant(allResult):
         fenvRes=(allResult["fenv", rounding])[0]
         valRes=(allResult["valgrind", rounding])[0]
         if fenvRes!=valRes:
-            print("KO : incoherent comparison between fenv and valgrind ("+rounding+")")            
+            print("KO : incoherent comparison between fenv and valgrind ("+rounding+")")
             ko+=diffRes(fenvRes, valRes)
         else:
             ok+=1
@@ -240,6 +240,7 @@ def checkRoundingInvariant(allResult):
 #     nameValue=[x[0] for x in args]
 
 #     for i in range(len(tabValue)-1):
+
 
 class assertRounding:
     def __init__(self, testName):
@@ -611,6 +612,36 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
     return errorCounter(ok, ko, warn)
 
 
+def assertCmpTest(testName1, rounding1, testName2, rounding2, opposite=False):
+    diff1=getDiff(allResult[("valgrind", rounding1)], testName1)
+    diff2=getDiff(allResult[("valgrind", rounding2)], testName2)
+    if diff1==diff2 and opposite==False:
+        print("OK "+testName1+"("+rounding1+") / " +testName2 +"("+rounding2+")")
+        return True
+    if diff1==-diff2 and opposite:
+        print("OK - "+testName1+"("+rounding1+") / " +testName2 +"("+rounding2+")")
+        return True
+    print("KO  %s(%s) / %s(%s)  %f %f"%(testName1,rounding1, testName2,rounding2, diff1,diff2))
+    return False
+
+
+def checkScomdet(allResult, testPairList, typeTab=["<double>", "<float>"]):
+    ok=0
+    ko=0
+    roundingList=["random_scomdet", "average_scomdet"]
+    for (code1,code2, oppositeSign) in testPairList:
+        for RealType in typeTab:
+            testName1=code1+RealType
+            testName2=code2+RealType
+
+            for rounding in roundingList:
+                if assertCmpTest(testName1, rounding, testName2, rounding, oppositeSign):
+                    ok+=1
+                else:
+                    ko+=1
+
+    return errorCounter(ok,ko,0)
+
 
 if __name__=='__main__':
     cmdHandler=cmdPrepare(os.path.join(os.curdir,sys.argv[1]))
@@ -627,9 +658,7 @@ if __name__=='__main__':
     typeTab=["<double>", "<float>"]#,"<long double>"]
 
     eCount=errorCounter()
-
     eCount+=checkVerrouInvariant(allResult)
-
 
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testInc0d1", "testIncSquare0d1", "testIncDiv10"], typeTab=typeTab)
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testInc0d1m", "testIncSquare0d1m", "testIncDiv10m"], typeTab=typeTab)
@@ -645,5 +674,7 @@ if __name__=='__main__':
     eCount+=checkTestNegativeBetweenTwoValues(allResult, testList=["testCastm"], typeTab=["<float>"])
 
     eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam", "testMixSseLlo"])
+
+    eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True)])
     eCount.printSummary()
     sys.exit(eCount.ko)
