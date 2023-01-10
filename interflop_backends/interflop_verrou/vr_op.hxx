@@ -699,7 +699,7 @@ public:
       const vr_packArg<RealType,2> pnew(p.arg1, p.arg2);
       return MulOp<RealType>::hashScom(r,pnew);
     }
-    if(p.arg1==1.){
+    /*  if(p.arg1==1.){
       const vr_packArg<RealType,2> pnew(p.arg2, p.arg3);
       return AddOp<RealType>::hashScom(r,pnew);
     }
@@ -716,7 +716,7 @@ public:
       const RealType p1(-p.arg1);
       const vr_packArg<RealType,2> pnew(p1, p.arg3);
       return AddOp<RealType>::hashScom(r,pnew);
-    }
+      }*/
 
     const uint32_t hashOp(MAddOp::getHash());
     const RealType pmin(std::min<RealType>(std::abs(p.arg1), std::abs(p.arg2)));
