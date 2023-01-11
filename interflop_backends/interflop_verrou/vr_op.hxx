@@ -466,7 +466,11 @@ public:
   };
 
   static inline RealType sameSignOfError(const PackArgs& p,const RealType& c) {
+#ifdef VERROU_FAST_FLOAT_MUL
+    return MulOp<RealType>::error(p,c);
+#else
     return sameSignOfErrorForMul<RealType>::apply(p,c);
+#endif
   }
 
   static inline const PackArgs comdetPack(const PackArgs& p){
@@ -601,7 +605,11 @@ public:
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_FAST_FLOAT_DIV
     return sameSignOfErrorForDiv<RealType>::apply(p,c);
+#else
+    return DivOp<RealType>::error(p,c);
+#endif
   };
 
   static inline const PackArgs comdetPack(const PackArgs& p){
