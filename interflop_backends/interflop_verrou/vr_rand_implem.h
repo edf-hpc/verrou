@@ -238,38 +238,6 @@ public:
 
 
 
-/*
- * produces a pseudo random number in a deterministic way
- * the same seed and inputs will always produce the same output
- * if the opertor is commutative the order is not taken into account
- */
-template<class OP>
-class vr_rand_comdet {
-public:
-  static inline bool
-  randBool(const Vr_Rand * r, const typename OP::PackArgs& p) {
-
-#ifdef VERROU_DET_HASH
-    typedef VERROU_DET_HASH hash;
-    return hash::hashBool(r, OP::comdetPack(p), OP::getComdetHash());
-#else
-#error "VERROU_DET_HASH has to be defined"
-#endif
-  }
-
-
-  static inline
-  const typename OP::RealType
-  randRatio(const Vr_Rand * r, const typename OP::PackArgs& p) {
-#ifdef VERROU_DET_HASH
-  typedef VERROU_DET_HASH hash;
-  return hash::hashRatio(r, OP::comdetPack(p), OP::getComdetHash());
-#else
-  #error "VERROU_DET_HASH has to be defined"
-#endif
-  }
-};
-
 
 
 
@@ -323,6 +291,30 @@ public:
 };
 
 
+/*
+ * produces a pseudo random number in a deterministic way
+ * the same seed and inputs will always produce the same output
+ * if the opertor is commutative the order is not taken into account
+ */
+template<class OP>
+class vr_rand_comdet {
+public:
+
+  static inline bool
+  randBool(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashCom(randScomBool(r),p);
+  }
+
+
+  static inline
+  double
+  randRatio(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashCom(randScomRatio(r),p);
+  }
+};
+
+
+
 template<class OP>
 class vr_rand_scomdet {
 public:
@@ -339,6 +331,7 @@ public:
     return OP::hashScom(randScomRatio(r),p);
   }
 };
+
 
 
 template<class OP, template<class> class RAND>

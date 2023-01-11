@@ -250,12 +250,6 @@ public:
     return AddOp<RealType>::error(p,c);
   }
 
-
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
-  }
-  static inline uint32_t getComdetHash(){return AddOp::getHash();}
-
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -269,12 +263,24 @@ public:
     y=AddOp<REAL>::error(p,x);
   }
 
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const PackArgs pnew(pmin,pmax);
+    const uint32_t hashOp(AddOp<RealType>::getHash());
+    return r.hash(pnew, hashOp);
+  }
+
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     if( p.isSameSign()){//same sign
       const uint32_t hashOp(AddOp<RealType>::getHash());
       if( p.arg1 >0){
-	const PackArgs pnew(std::min<RealType>(p.arg1, p.arg2),std::max<RealType>(p.arg1,p.arg2));
+	const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+	const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+	const PackArgs pnew(pmin,pmax);
 	return r.hash(pnew, hashOp);
       }else{
 	const RealType pmin(std::min<RealType>(-p.arg1, -p.arg2));
@@ -333,17 +339,20 @@ public:
     return SubOp<RealType>::error(p,c);
   }
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, -p.arg2),std::max(p.arg1, -p.arg2));
-  }
-  static inline uint32_t getComdetHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline void check(const PackArgs& p,const RealType & c){
   }
 
   template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SubOp<RealType>::getHash());
+    return r.hash(p, hashOp);
+  }
+
+  template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
-    return AddOp<RealType>::hashScom(r, PackArgs(p.arg1,-p.arg2));
+    const RealType p2(-p.arg2);
+    return AddOp<RealType>::hashScom(r, PackArgs(p.arg1,p2));
   }
 
 };
@@ -473,11 +482,6 @@ public:
 #endif
   }
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
-  }
-  static inline uint32_t getComdetHash(){return getHash();};
-
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -489,6 +493,15 @@ public:
     const PackArgs p(a,b);
     x=MulOp<REAL>::nearestOp(p);
     y=MulOp<REAL>::error(p,x);
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const PackArgs pnew(pmin,pmax);
+    const uint32_t hashOp(MulOp<RealType>::getHash());
+    return r.hash(pnew, hashOp);
   }
 
 
@@ -612,17 +625,19 @@ public:
 #endif
   };
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
-  static inline uint32_t getComdetHash(){return getHash();};
-
   static inline void check(const PackArgs& p,const RealType & c){
   };
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return (isNanInf<RealType>(p.arg1))||(p.arg2==RealType(0.));
   }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(DivOp<RealType>::getHash());
+    return r.hash(p, hashOp);
+  }
+
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
@@ -687,12 +702,6 @@ public:
     return error(p,c) ;
   };
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2), p.arg3);
-  }
-  static inline uint32_t getComdetHash(){return getHash();};
-
-
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
@@ -700,6 +709,14 @@ public:
     return p.isOneArgNanInf();
   }
 
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const vr_packArg<RealType,3> pnew(pmin, pmax, p.arg3);
+    const uint32_t hashOp(MAddOp::getHash());
+    return r.hash(pnew,hashOp);
+  }
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
@@ -781,11 +798,6 @@ public:
     return error(p,c) ;
   };
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
-  static inline uint32_t getComdetHash(){return getHash();};
-
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -793,14 +805,21 @@ public:
   static inline void check(const PackArgs& p, const RealTypeOut& d){
   };
 
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(CastOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     const uint32_t hashOp(CastOp::getHash());
     if( p.arg1 >0){
-      return r.hash(PackArgs(p.arg1), hashOp);
+      return r.hash(p, hashOp);
     }else{
-      return r.hashBar(PackArgs(-p.arg1), hashOp);
+      const RealType p1(-p.arg1);
+      return r.hashBar(PackArgs(p1), hashOp);
     }
   }
 
