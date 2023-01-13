@@ -6,34 +6,26 @@ import sys
 import subprocess
 
 gitRepositoty="origin/"
+gitRepositoty=""
+
+branch="bl/scomdet"
 
 verrouConfigList={
-    "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
-    "master":           { "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
-    "master_fast":      { "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-    "dietzfelbinger":   { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no"},
-    "multiply_shift":   { "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no"},
-    "double_tabulation":{ "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no"},
-    "mersenne_twister": { "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no"},
+    "stable":           { "tag":"v2.4.0" ,"flags":"--enable-verrou-fma"},
+    "current":           { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":""},
+    "current_fast":      { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --enable-verrou-fast-float=yes"},
+    "dietzfelbinger":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
+    "multiply_shift":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
+    "double_tabulation":{ "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
+    "mersenne_twister": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
 }
-
-# verrouConfigList={
-#     "stable":           { "tag":"v2.3.1" ,"flags":"--enable-verrou-fma"},
-#     "master":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma"},
-#     "master_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"master" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-#     "code_gen":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma"},
-#     "code_gen_fast":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"bl/perf_codegen" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-#     "code_gen_merge":           { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma"},
-#     "code_gen_fast_merge":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-#     "test_perf":      { "valgrind":"valgrind-3.19.0", "branch_verrou":"perf_codegen_merge" ,"gitRepositoty":"", "flags":"--enable-verrou-fma --enable-verrou-check-naninf=no"},
-# }
-
 
 valgrindConfigList={
     "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
     "valgrind-3.19.0": {"file": "valgrind-3.19.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2"},
     "valgrind-3.20.0": {"file": "valgrind-3.20.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2"},
-    "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"}
+    "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"},
+    "v2.4.0":          {"file": "v2.4.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.4.0/valgrind-3.20.0_verrou-2.4.0.tar.gz"},
 }
 
 
