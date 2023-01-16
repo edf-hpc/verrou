@@ -43,6 +43,7 @@ inline uint64_t vr_rand_getSeed (const Vr_Rand * r);
 #include "dietzfelbingerHash.hxx"
 #include "multiplyShiftHash.hxx"
 #include "mersenneHash.hxx"
+#include "xxHash.hxx"
 
 
 inline static uint64_t vr_rand_next (Vr_Rand * r){

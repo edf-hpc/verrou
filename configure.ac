@@ -113,7 +113,7 @@ AC_CACHE_CHECK([verrou-det-hash], vg_cv_verrou_det_hash,
 [
 AC_ARG_WITH(
 	[verrou-det-hash],
-	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister],
+	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister],
 	[vg_cv_verrou_det_hash=$withval],
 	[vg_cv_verrou_det_hash=double_tabulation]
 )])
@@ -123,6 +123,7 @@ AS_CASE([$vg_cv_verrou_det_hash],
 	[dietzfelbinger],[echo "dietzfelbinger hash selected"],
 	[multiply_shift],[echo "multiply_shift hash selected"],
 	[double_tabulation],[echo "double_tabulation hash selected"],
+	[xxhash],[echo "xxHash hash selected"],
 	[mersenne_twister],[echo "mersenne_twister hash selected"],
 	[*],[AC_MSG_ERROR(["invalid --with-verrou-det-hash : ", $vg_cv_verrou_det_hash])])
 

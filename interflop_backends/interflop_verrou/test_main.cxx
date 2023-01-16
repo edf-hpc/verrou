@@ -29,7 +29,8 @@ void print_debug(int nbArg, const char * op,const  double* a, const double* res)
 
 int main(int argc, char** argv){
   void* context;
-  struct interflop_backend_interface_t ifverrou=interflop_init(argc,argv, &context);
+  //  struct interflop_backend_interface_t ifverrou=interflop_init(argc,argv, &context);
+  interflop_init(argc,argv, &context);
 
   std::cout << std::setprecision(16);
 
