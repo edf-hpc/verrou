@@ -621,7 +621,7 @@ def assertCmpTest(testName1, rounding1, testName2, rounding2, opposite=False):
     if diff1==-diff2 and opposite:
         print("OK - "+testName1+"("+rounding1+") / " +testName2 +"("+rounding2+")")
         return True
-    print("KO  %s(%s) / %s(%s)  %f %f"%(testName1,rounding1, testName2,rounding2, diff1,diff2))
+    print("KO  %s(%s) / %s(%s)  %.17f %.17f"%(testName1,rounding1, testName2,rounding2, diff1,diff2))
     return False
 
 

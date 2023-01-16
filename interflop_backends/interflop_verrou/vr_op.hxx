@@ -439,14 +439,18 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-    double res= ErrorForMul<double>::apply((double)p.arg1,(double)p.arg2 ,(double)c);
+    const double p1d=(double)p.arg1;
+    const double p2d=(double)p.arg2;
+    const double cd=(double)c;
+
+    const double res(ErrorForMul<double>::apply(p1d,p2d,cd));
     if(res<0){
-      return -1;
+      return -1.f;
     }
     if(res>0){
-      return 1;
+      return 1.f;
     }
-    return 0.;
+    return 0.f;
   };
 };
 
@@ -567,11 +571,38 @@ public:
   typedef float RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+
   static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_FAST_FLOAT_DIV
+    return apply_float(p,c);
+#else
+    return apply_double(p,c);
+#endif
+  }
+
+  static inline RealType apply_double (const PackArgs& p,const RealType& c) {
     const double x((double)p.arg1);
     const double y((double) p.arg2);
 #ifdef    USE_VERROU_FMA
     const double r=-vr_fma((double)c,y,-x);
+
+    if(r>0){return p.arg2;}
+    if(r<0){return -p.arg2;}
+    //if(r==0){
+    return 0.;
+    //}
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    return ( x-u-uu)*y ;
+#endif
+  };
+
+  static inline RealType apply_float (const PackArgs& p,const RealType& c) {
+    const RealType x(p.arg1);
+    const RealType y(p.arg2);
+#ifdef    USE_VERROU_FMA
+    const RealType r=-vr_fma(c,y,-x);
 
     if(r>0){return p.arg2;}
     if(r<0){return -p.arg2;}
@@ -618,11 +649,7 @@ public:
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-#ifdef VERROU_FAST_FLOAT_DIV
     return sameSignOfErrorForDiv<RealType>::apply(p,c);
-#else
-    return DivOp<RealType>::error(p,c);
-#endif
   };
 
   static inline void check(const PackArgs& p,const RealType & c){
