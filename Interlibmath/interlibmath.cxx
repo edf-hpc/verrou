@@ -374,10 +374,6 @@ public:
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
-  static inline uint32_t getComdetHash(){return LIBMQ::getHash();}
-  static inline PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -401,6 +397,12 @@ public:
   }
 
   template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(getHash());
+    return r.hash(p, hashOp);
+  };
+
+  template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     const uint32_t hashOp(getHash());
     return r.hash(p, hashOp);
@@ -419,10 +421,6 @@ public:
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
-  static inline uint32_t getComdetHash(){return LIBMQ::getHash();}
-  static inline PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1,p.arg2),std::max(p.arg1,p.arg2));
-  }
 
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
@@ -451,6 +449,15 @@ public:
 
 
   static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
+    const vr_packArg<RealType,2> pcom(pmin,pmax);
+    const uint32_t hashOp(getHash());
+    return r.hash(pcom,hashOp);
   };
 
   template<class RANDSCOM>
