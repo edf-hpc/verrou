@@ -1,6 +1,12 @@
 #pragma once
 
+
+#define USE_XXH3
+#ifndef USE_XXH3
 #include "xxhashct/xxh64.hpp"
+#else
+#include "xxh3.h"
+#endif
 
 #ifndef USE_XOSHIRO
 #include "prng/xoshiro.cxx"
@@ -58,7 +64,12 @@ public:
 			      uint32_t hashOp){
     const uint64_t seed=vr_rand_getSeed(r);
     const buffer_hash<REALTYPE,NB> buffer(pack,hashOp);
-    uint64_t hashValue = xxh64::hash((char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
+#ifndef USE_XXH3
+    uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
+#else
+    uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
+#endif
+
     return (hashValue>>63);
   };
 
@@ -68,8 +79,13 @@ public:
 				 uint32_t hashOp){
     const uint64_t seed=vr_rand_getSeed(r);
     const buffer_hash<REALTYPE,NB> buffer(pack,hashOp);
-    const uint64_t hashValue = xxh64::hash((char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
-    return xoshiro_uint64_to_double(hashValue);
+
+#ifndef USE_XXH3
+    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
+#else
+    const uint64_t hashValue = XXH3_64bits_withSeed( (const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed);
+#endif
+	return xoshiro_uint64_to_double(hashValue);
   };
 
 };
