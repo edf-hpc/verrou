@@ -9,7 +9,7 @@ from tabular import *
 
 detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation","mersenne_twister"]
+buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
 buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
@@ -117,6 +117,8 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
 
         for gen in buildConfList:
+            if gen=="current":
+                continue
             for detType in detTab:
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
         roundingTab+=["SEPARATOR"]

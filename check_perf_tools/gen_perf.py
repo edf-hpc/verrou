@@ -11,7 +11,7 @@ roundingListPerf=["random", "average","nearest"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet"]
 
 buildConfigList=["stable","current", "current_fast"]
-buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "mersenne_twister"]
+buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 
 nbRunTuple=(5,5) #inner outer
 
@@ -247,6 +247,9 @@ if __name__=="__main__":
 
         tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
         feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
+
+        tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
+        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"])
 
         sys.exit()
         tab=tabular()

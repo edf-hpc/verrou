@@ -18,6 +18,7 @@ verrouConfigList={
     "multiply_shift":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
     "double_tabulation":{ "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
     "mersenne_twister": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
+    "xxhash": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
 }
 
 valgrindConfigList={
