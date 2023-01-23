@@ -115,7 +115,7 @@ AC_ARG_WITH(
 	[verrou-det-hash],
 	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister],
 	[vg_cv_verrou_det_hash=$withval],
-	[vg_cv_verrou_det_hash=double_tabulation]
+	[vg_cv_verrou_det_hash=xxhash]
 )])
 
 AS_CASE([$vg_cv_verrou_det_hash],
