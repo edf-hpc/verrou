@@ -23,24 +23,45 @@ float compute_comdet (void) {
   float sum0=0.;
   float sum1=0.;
   int i;
+  float factor1=0.1;
+  float factor2=0.2;
+  
   for (i = 0 ; i < N ; ++i) {
-    sum0 += epsilon * (0.1* epsilon);
-    sum1 += (0.1*epsilon) * (epsilon);
+    sum0 = sum0+factor1*factor2;
+    sum1 = factor2*factor1 + sum1;
   }
   return sum0-sum1;
 };
+
+float compute_scomdet (void) {
+  float sum0=0.;
+  float sum1=0.;
+  int i;
+
+  float factor1=0.1;
+  float factor2=0.2;
+  for (i = 0 ; i < N ; ++i) {
+    sum0 += factor1 *factor2;
+    sum1 += ((-factor1) * factor2);
+  }
+  return sum0+sum1;
+};
+
 
 
 int main (int argc, char **argv) {
 
   bool isDet=true;
   bool isComDet=true;
+  bool isSComDet=true;
   for(int i=0; i<50; i++){
     VERROU_SET_SEED(i);
     float diff_det    = compute_det();
     float diff_comdet = compute_comdet();
+    float diff_scomdet = compute_scomdet();
     isDet=isDet &&(diff_det==0.);
     isComDet=isComDet &&(diff_comdet==0.);
+    isSComDet=isSComDet &&(diff_scomdet==0.);
   }
 
   if(isDet){
@@ -55,5 +76,12 @@ int main (int argc, char **argv) {
     printf ("NO COMDET\n");
   }
 
+  if(isSComDet){
+    printf ("SCOMDET\n");
+  }else{
+    printf ("NO SCOMDET\n");
+  }
+
+  
   return 0;
 }

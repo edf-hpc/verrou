@@ -7,6 +7,7 @@ import glob
 import functools
 from valgrind import DD_stoch
 from valgrind import post_config
+from valgrind import rounding_tool
 
 
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
@@ -192,11 +193,12 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                     ddminNewRep=os.path.join(ddminNewInstr,"default")
                     if ddmin.endswith("ref"):
                         ddminNewRep=os.path.join(ddminNewInstr,"nearest")
-                        runEnv["VERROU_ROUNDING_MODE"]="nearest"
+                        runEnv=rounding_tool.roundingToEnvVar("nearest",runEnv)
                         newNbRun=1
                 else:
                     ddminNewRep=os.path.join(ddminNewInstr,rounding)
-                    runEnv["VERROU_ROUNDING_MODE"]=rounding
+                    runEnv=rounding_tool.roundingToEnvVar(rounding,runEnv)
+
 
                 if not os.path.exists(ddminNewRep):
                     os.mkdir(ddminNewRep)
@@ -211,8 +213,8 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 
                 for det in roundDetTab:
                     runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
-                            "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude"),
-                            "VERROU_ROUNDING_MODE":det}
+                            "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}
+                    runEnv=rounding_tool.roundingToEnvVar(det,runEnv)
                     if instr!="":
                         runEnv["VERROU_INSTR"]=instr
 
@@ -244,7 +246,7 @@ def sortSubRep(subRepTab):
 
 
 if __name__=="__main__":
-    config=post_config.postConfig(sys.argv,os.environ, ["VERROU"])
+    config=post_config.postConfig(sys.argv,os.environ)
 
     repSubRep=config.get_rep_sub_rep()
     print("selected sub_rep to postreat:")

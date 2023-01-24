@@ -8,7 +8,7 @@ public:
 			      uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<2); //<<2 to avoid conflict with |1
+    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -23,7 +23,7 @@ public:
 			      uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<2); //<<2 to avoid conflict with |1
+    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -41,7 +41,7 @@ public:
 			  uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<2);
+    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -58,7 +58,7 @@ public:
 			  uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);;
-    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<2);
+    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)

@@ -115,12 +115,16 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "RANDOM_DET";
   case VR_RANDOM_COMDET:
     return "RANDOM_COMDET";
+  case VR_RANDOM_SCOMDET:
+    return "RANDOM_SCOMDET";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
     return "AVERAGE_DET";
   case VR_AVERAGE_COMDET:
     return "AVERAGE_COMDET";
+  case VR_AVERAGE_SCOMDET:
+    return "AVERAGE_SCOMDET";
   case VR_PRANDOM:
     return "PRANDOM";
   case VR_PRANDOM_DET:
@@ -244,7 +248,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, average, average_det,  average_comdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -268,12 +272,16 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_RANDOM_DET;
     } else if (strcasecmp("random_comdet", arg) == 0) {
       conf->mode=VR_RANDOM_COMDET;
+    } else if (strcasecmp("random_scomdet", arg) == 0) {
+      conf->mode=VR_RANDOM_SCOMDET;
     } else if (strcasecmp("average", arg) == 0) {
       conf->mode=VR_AVERAGE;
     } else if (strcasecmp("average_det", arg) == 0) {
       conf->mode=VR_AVERAGE_DET;
     } else if (strcasecmp("average_comdet", arg) == 0) {
       conf->mode=VR_AVERAGE_COMDET;
+    } else if (strcasecmp("average_scomdet", arg) == 0) {
+      conf->mode=VR_AVERAGE_SCOMDET;
     } else if (strcasecmp("prandom", arg) == 0) {
       conf->mode=VR_PRANDOM;
     } else if (strcasecmp("prandom_det", arg) == 0) {

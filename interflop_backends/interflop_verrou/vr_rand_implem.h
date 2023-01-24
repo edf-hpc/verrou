@@ -43,6 +43,7 @@ inline uint64_t vr_rand_getSeed (const Vr_Rand * r);
 #include "dietzfelbingerHash.hxx"
 #include "multiplyShiftHash.hxx"
 #include "mersenneHash.hxx"
+#include "xxHash.hxx"
 
 
 inline static uint64_t vr_rand_next (Vr_Rand * r){
@@ -238,6 +239,59 @@ public:
 
 
 
+
+
+
+class randScomBool{
+public:
+  typedef bool TypeOut;
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hashDet;
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+  const Vr_Rand*& r_;
+  randScomBool(const Vr_Rand*& r):r_(r){
+  }
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return hashDet::hashBool(r_, p, opHash);
+  }
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return !hashDet::hashBool(r_, p,opHash);
+  }
+};
+
+
+class randScomRatio{
+public:
+  typedef double TypeOut;
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hashDet;
+#else
+  #error "VERROU_DET_HASH has to be defined"
+#endif
+  const Vr_Rand*& r_;
+  randScomRatio(const Vr_Rand*& r):r_(r){
+  }
+
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return hashDet::hashRatio(r_, p, opHash);
+  }
+
+
+  template<class REALTYPE, int NB>
+  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+    return 1.- hashDet::hashRatio(r_, p, opHash);
+  }
+};
+
+
 /*
  * produces a pseudo random number in a deterministic way
  * the same seed and inputs will always produce the same output
@@ -246,29 +300,40 @@ public:
 template<class OP>
 class vr_rand_comdet {
 public:
+
   static inline bool
   randBool(const Vr_Rand * r, const typename OP::PackArgs& p) {
-
-#ifdef VERROU_DET_HASH
-    typedef VERROU_DET_HASH hash;
-    return hash::hashBool(r, OP::comdetPack(p), OP::getComdetHash());
-#else
-#error "VERROU_DET_HASH has to be defined"
-#endif
+    return OP::hashCom(randScomBool(r),p);
   }
 
 
   static inline
-  const typename OP::RealType
+  double
   randRatio(const Vr_Rand * r, const typename OP::PackArgs& p) {
-#ifdef VERROU_DET_HASH
-  typedef VERROU_DET_HASH hash;
-  return hash::hashRatio(r, OP::comdetPack(p), OP::getComdetHash());
-#else
-  #error "VERROU_DET_HASH has to be defined"
-#endif
+    return OP::hashCom(randScomRatio(r),p);
   }
 };
+
+
+
+template<class OP>
+class vr_rand_scomdet {
+public:
+
+  static inline bool
+  randBool(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashScom(randScomBool(r),p);
+  }
+
+
+  static inline
+  double
+  randRatio(const Vr_Rand * r, const typename OP::PackArgs& p) {
+    return OP::hashScom(randScomRatio(r),p);
+  }
+};
+
+
 
 template<class OP, template<class> class RAND>
 class vr_rand_p {

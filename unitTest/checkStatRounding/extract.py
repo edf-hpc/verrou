@@ -33,5 +33,13 @@ if __name__=="__main__":
         algo=os.environ["ALGO"]
     else:
         algo=defaultAlgo
+    if len(sys.argv)==2:
+        print(extract(sys.argv[1]+"/res.out", algo_type, algo))
+    else:
+        v1=float(extract(sys.argv[1]+"/res.out", algo_type, algo))
+        v2=float(extract(sys.argv[2]+"/res.out", algo_type, algo))
 
-    print(extract(sys.argv[1]+"/res.out", algo_type, algo))
+        if abs(v2 - v1)/abs(v1) < 1e-17:
+            sys.exit(0)
+        else:
+            sys.exit(42)

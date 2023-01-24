@@ -7,10 +7,9 @@ import subprocess
 import math
 from tabular import *
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "master","dietzfelbinger","multiply_shift","multiply_shift_fix","double_tabulation","mersenne_twister"]
-#buildConfList=[ "master","multiply_shift","multiply_shift_fix"]
+buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
 buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
@@ -94,7 +93,7 @@ def checkCoherence(stat):
     return True
 
 def feedTab(stat, detTab=["_det","_comdet"], ref=None):
-    refName="master"
+    refName="current"
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
     tab.begin()
@@ -106,7 +105,7 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
     tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
     tab.endLine()
-    roundingTab=[("all", "all", "master"),"SEPARATOR"]
+    roundingTab=[("all", "all", "current"),"SEPARATOR"]
     for rd in ["random","average"]:
         roundingTab+=[(rd, rd,refName)]
         if rd=="average":
@@ -118,6 +117,8 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
 
         for gen in buildConfList:
+            if gen=="current":
+                continue
             for detType in detTab:
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
         roundingTab+=["SEPARATOR"]
@@ -179,6 +180,9 @@ if __name__=="__main__":
 
     tab=tabularLatex("lcccc", output="tabComDet.tex")
     feedTab(statRes,detTab=["_comdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabScomDet.tex")
+    feedTab(statRes,detTab=["_scomdet"], ref=2**20*0.1)
 
 
     cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
