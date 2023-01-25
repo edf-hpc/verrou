@@ -580,9 +580,9 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           <term>
              <computeroutput>--rounding=</computeroutput> or <computeroutput>--rounding-mode=</computeroutput> or <computeroutput>VERROU_POST_ROUNDING</computeroutput>.
 	     The option can be called several times to generate a list of rounding mode (
-	     <computeroutput>random[_det|_comdet]</computeroutput>,
-	     <computeroutput>prandom[_det|_comdet]</computeroutput>,
-	     <computeroutput>average[_det|_comdet]</computeroutput>,
+	     <computeroutput>random[_[[s]com]det]</computeroutput>,
+	     <computeroutput>prandom[_[com]det]</computeroutput>,
+	     <computeroutput>average[_[[s]com]det]</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -683,9 +683,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<itemizedlist>
 
-          <listitem><simpara> The abs estimator is $max_i(|X_i-X_ref|$ .</simpara></listitem>
-	  <listitem><simpara> The rel estimator is max_i(|X_i-X_ref|)/|X_ref| </simpara></listitem>
-          <listitem><simpara> The binary rel estimator is -log2(max_i(|X_i-X_ref|)/|X_ref|)</simpara></listitem>
+          <listitem><simpara> The abs estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)</mathphrase> .</simpara></listitem>
+	  <listitem><simpara> The rel estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|</mathphrase> </simpara></listitem>
+          <listitem><simpara> The binary rel estimator is <mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|)</mathphrase></simpara></listitem>
           <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all determinist computed rounding mode</simpara></listitem>
 
 	</itemizedlist>
@@ -757,9 +757,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           </term>
           <listitem>
             <para> A coma separated list of rounding mode. The list can contain
-	     <computeroutput>random[_det|_comdet]</computeroutput>,
-	     <computeroutput>prandom[_det|_comdet]</computeroutput>,
-	     <computeroutput>average[_det|_comdet]</computeroutput>,
+	     <computeroutput>random[_[[s]com]det]</computeroutput>,
+	     <computeroutput>prandom[_[com]det]</computeroutput>,
+	     <computeroutput>average[_[[s]com]det]</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
