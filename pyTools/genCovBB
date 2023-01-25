@@ -110,6 +110,7 @@ class bbInfoReader:
             m=(regularExp.match(line.strip()))
             if m==None :
                 print("error read fileName line:",[line])
+                print("error while reading :", fileName)
                 sys.exit()
             index, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
             containFloat=(containFloat=="1")

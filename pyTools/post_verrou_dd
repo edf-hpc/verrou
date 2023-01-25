@@ -121,6 +121,8 @@ def postRunTrace(runDir):
         sys.exit(42)
 
     cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
+    with open(os.path.join(runDir, "covBBLog"),"a") as f:
+        f.write("cmd: "+cmd+"\n")
     os.system(cmd+ "  >> "+ "%s/covBBLog"%(runDir))
     rename_pid_for_one_rep(os.path.join(runDir,"cover"),what="link&cover", clean=False, ignoreEmpty=True)
 
