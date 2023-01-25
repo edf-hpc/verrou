@@ -1651,6 +1651,204 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_COMDET) (double a, float
 }
 
 
+IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_SCOMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingPRandom<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_SCOMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingPRandom<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_SCOMDET) (double a, float* res, void* context){
+  typedef RoundingPRandom<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ 
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
 IFV_INLINE void IFV_FCTNAME(add_double_AVERAGE) (double a, double b, double* res,void* context) {
   typedef RoundingAverage<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
@@ -2229,6 +2427,204 @@ IFV_INLINE void IFV_FCTNAME(madd_float_AVERAGE_COMDET) (float a, float b, float 
 
 IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AVERAGE_COMDET) (double a, float* res, void* context){
   typedef RoundingAverage<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ 
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_double_AVERAGE_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSAverage<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_AVERAGE_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSAverage<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_AVERAGE_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSAverage<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_AVERAGE_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSAverage<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_AVERAGE_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSAverage<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_AVERAGE_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSAverage<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_AVERAGE_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSAverage<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_AVERAGE_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSAverage<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_AVERAGE_SCOMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingSAverage<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_AVERAGE_SCOMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingSAverage<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AVERAGE_SCOMDET) (double a, float* res, void* context){
+  typedef RoundingSAverage<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
 #ifndef VERROU_IGNORE_NANINF_CHECK

@@ -53,9 +53,11 @@ extern "C" {
     VR_RANDOM, // Must be immediately after standard rounding modes
     VR_RANDOM_DET,
     VR_RANDOM_COMDET,
+    VR_RANDOM_SCOMDET,
     VR_AVERAGE,
     VR_AVERAGE_DET,
     VR_AVERAGE_COMDET,
+    VR_AVERAGE_SCOMDET,
     VR_PRANDOM,
     VR_PRANDOM_DET,
     VR_PRANDOM_COMDET,

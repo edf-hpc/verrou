@@ -213,10 +213,10 @@ class testIncSquare0d1: public test<REALTYPE>{
 template<class REALTYPE>
 class testIncSquare0d1m: public test<REALTYPE>{
  public:
-  testIncSquare0d1m():test<REALTYPE>(-10001),
+  testIncSquare0d1m():test<REALTYPE>(-10000),
 	  size(1000000),
 	  step(-0.1),
-	  init(-1.)
+	  init(0.)
     {
 
     }
@@ -229,7 +229,7 @@ class testIncSquare0d1m: public test<REALTYPE>{
   REALTYPE compute(){    
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
-      acc+=(-1.0*step)*step;
+      acc+=(-(REALTYPE)1.0*step)*step;
     }  
     return acc;
   }
@@ -716,7 +716,7 @@ int main(int argc, char** argv){
     usage(argv); 
     return EXIT_FAILURE;
   }
-  
+
   {
     typedef double RealType;
     testInc0d1 <RealType> t1; t1.run();
@@ -761,7 +761,6 @@ int main(int argc, char** argv){
     test4<RealType> t4; t4.run();
     //test5<RealType> t5; t5.run();
     }*/
-
 
   return EXIT_SUCCESS;
 }

@@ -60,11 +60,11 @@ typedef double RealType;
 extern void loop_stencil_serial(int t0, int t1, int x0, int x1,
                                 int y0, int y1, int z0, int z1,
                                 int Nx, int Ny, int Nz,
-                                const RealType coef[5], 
+                                const RealType coef[5],
                                 const RealType vsq[],
                                 RealType Aeven[], RealType Aodd[]);
 
-
+#ifndef STENCIL_WITH_FMA
 static void
 stencil_step(int x0, int x1,
              int y0, int y1,
@@ -91,30 +91,98 @@ stencil_step(int x0, int x1,
                                        A_cur(0, +3, 0) + A_cur(0, -3, 0) +
                                        A_cur(0, 0, +3) + A_cur(0, 0, -3));
 
-                A_next(0, 0, 0) = 2 * A_cur(0, 0, 0) - A_next(0, 0, 0) + 
+                A_next(0, 0, 0) = 2 * A_cur(0, 0, 0) - A_next(0, 0, 0) +
                     vsq[index] * div;
             }
         }
     }
 }
+#endif
+
+#ifdef STENCIL_WITH_FMA
+#include  <immintrin.h>
+#include  <fmaintrin.h>
+
+  inline double myFma(const double& a, const double& b, const double& c){
+    double d;
+    __m128d ai, bi,ci,di;
+    ai = _mm_load_sd(&a);
+    bi = _mm_load_sd(&b);
+    ci = _mm_load_sd(&c);
+    di=_mm_fmadd_sd(ai,bi,ci);
+    d=_mm_cvtsd_f64(di);
+    return d;
+  }
 
 
-void loop_stencil_serial(int t0, int t1, 
+  inline float myFma(const float& a, const float& b, const float& c){
+    float d;
+    __m128 ai, bi,ci,di;
+    ai = _mm_load_ss(&a);
+    bi = _mm_load_ss(&b);
+    ci = _mm_load_ss(&c);
+    di=_mm_fmadd_ss(ai,bi,ci);
+    d=_mm_cvtss_f32(di);
+    return d;
+  }
+
+
+
+static void
+stencil_step(int x0, int x1,
+             int y0, int y1,
+             int z0, int z1,
+             int Nx, int Ny, int Nz,
+             const RealType coef[4], const RealType vsq[],
+             const RealType Ain[], RealType Aout[]) {
+    int Nxy = Nx * Ny;
+
+    for (int z = z0; z < z1; ++z) {
+        for (int y = y0; y < y1; ++y) {
+            for (int x = x0; x < x1; ++x) {
+                int index = (z * Nxy) + (y * Nx) + x;
+#define A_cur(x, y, z) Ain[index + (x) + ((y) * Nx) + ((z) * Nxy)]
+#define A_next(x, y, z) Aout[index + (x) + ((y) * Nx) + ((z) * Nxy)]
+                RealType div = coef[0] * A_cur(0, 0, 0);
+		const RealType v1=A_cur(+1, 0, 0) + A_cur(-1, 0, 0) +
+		  A_cur(0, +1, 0) + A_cur(0, -1, 0) +
+		  A_cur(0, 0, +1) + A_cur(0, 0, -1);
+
+		const RealType v2=(A_cur(+2, 0, 0) + A_cur(-2, 0, 0) +
+				   A_cur(0, +2, 0) + A_cur(0, -2, 0) +
+				   A_cur(0, 0, +2) + A_cur(0, 0, -2));
+		const RealType v3=(A_cur(+3, 0, 0) + A_cur(-3, 0, 0) +
+				   A_cur(0, +3, 0) + A_cur(0, -3, 0) +
+				   A_cur(0, 0, +3) + A_cur(0, 0, -3));
+		div=std::fma(coef[1],v1,div);
+		div=std::fma(coef[2],v2,div);
+		div=std::fma(coef[3],v3,div);
+
+		A_next(0, 0, 0) = 2 * A_cur(0, 0, 0) - A_next(0, 0, 0) +
+		  vsq[index] * div;
+	    }
+        }
+    }
+}
+#endif
+
+
+void loop_stencil_serial(int t0, int t1,
                          int x0, int x1,
                          int y0, int y1,
                          int z0, int z1,
                          int Nx, int Ny, int Nz,
-                         const RealType coef[4], 
+                         const RealType coef[4],
                          const RealType vsq[],
                          RealType Aeven[], RealType Aodd[])
 {
     for (int t = t0; t < t1; ++t) {
-        if ((t & 1) == 0)
-            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, 
-                         Aeven, Aodd);
-        else
-            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, 
-                         Aodd, Aeven);
+      if ((t & 1) == 0){
+	stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, Aeven, Aodd);
+      }
+      else{
+	stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, Aodd, Aeven);
+      }
     }
 }
 
