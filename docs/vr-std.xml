@@ -187,13 +187,35 @@
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
         </listitem>
 	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command>
-	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
         </listitem>
 	<listitem><para><command>prandom_comdet:</command> variant of <command>prandom_det</command>
-	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
         </listitem>
 	<listitem><para><command>average_comdet:</command> variant of <command>average_det</command>
-	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way.</para>
+	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
+        </listitem>
+
+	<listitem><para><command>random_scomdet:</command> variant of <command>random_det</command>
+	    ensuring that <command>x op y</command> and  <command>y op x</command> will be rounded in the same way for commutative op (+,x, fma) and the following constraints :
+	    <itemizedlist>
+	      <listitem> (-x)+(-y) == -(x+y) </listitem>
+	      <listitem> x+(-y) == -((-x)+y) </listitem>
+	      <listitem> x-y == x+(-y) </listitem>
+	      <listitem> (-x)*(-y) == (x*y) </listitem>
+	      <listitem> (-x)*y == -(x*y) </listitem>
+	      <listitem> (-x)/(-y) == (x/y) </listitem>
+	      <listitem> (-x)/y == -(x/y) </listitem>
+	      <listitem> x/(-y) == -(x/y) </listitem>
+	      <listitem> fma(x,y,z) == fma(-x,-y,z)</listitem>
+	      <listitem> fma(-x,y,-z) == -fma(x,y,z)</listitem>
+	      <listitem> fma(x,-y,-z) == -fma(x,y,z)</listitem>
+	      <listitem> cast(-x) == -cast(x)</listitem>
+	    </itemizedlist>
+	  </para>
+        </listitem>
+
+	<listitem><para><command>average_scomdet:</command> variant of <command>average_det</command> which respects the same constraints as <command>random_scomdet</command></para> 
         </listitem>
 
 
@@ -202,7 +224,7 @@
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-	  command-line option. For the modes <command>average_[com]det</command> and <command>random_c[com]det</command>, the pRNG seed is used as a parameter of hash functions.
+	  command-line option. For the modes <command>average_[[s]com]det</command> and <command>random_[[s]com]det</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>
