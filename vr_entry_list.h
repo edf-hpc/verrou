@@ -154,14 +154,14 @@ static void vr_dumpBufferCompress(void){
 	break;
       case 2:
 	if(count==1){
-	  VG_(fprintf)(vr.func_trace.out_trace, "%u,%u\n", tab[itab],tab[itab+1]);
+	  VG_(fprintf)(vr.func_trace.out_trace, "%u\n%u\n", tab[itab],tab[itab+1]);
 	}else{
 	  VG_(fprintf)(vr.func_trace.out_trace, "%u,%ux%u\n", tab[itab],  tab[itab+1],count);
 	}
 	break;
       case 3:
 	if(count==1){
-	  VG_(fprintf)(vr.func_trace.out_trace, "%u,%u,%u\n", tab[itab],tab[itab+1],tab[itab+2]);
+	  VG_(fprintf)(vr.func_trace.out_trace, "%u\n%u\n%u\n", tab[itab],tab[itab+1],tab[itab+2]);
 	}else{
 	  VG_(fprintf)(vr.func_trace.out_trace, "%u,%u,%ux%u\n", tab[itab],  tab[itab+1], tab[itab+2],count);
 	}
