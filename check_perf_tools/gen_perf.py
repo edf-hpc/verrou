@@ -8,7 +8,7 @@ from tabular import *
 
 
 roundingListPerf=["random", "average","nearest"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic"]
 
 buildConfigList=["stable","current", "current_fast"]
 buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]

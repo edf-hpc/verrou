@@ -234,6 +234,16 @@ public:
 #error "VERROU_DET_HASH has to be defined"
 #endif
   }
+
+  static inline const typename OP::RealType
+  randRatioFromResult(const Vr_Rand * r, const vr_packArg<typename OP::RealType,1>& p) {
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hash;
+    return hash::hashRatio(r, p, OP::getHash());
+#else
+#error "VERROU_DET_HASH has to be defined"
+#endif
+  }
 };
 
 

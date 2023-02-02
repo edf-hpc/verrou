@@ -172,7 +172,7 @@
         This is a variant of the <command>random</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
         </listitem>
-	<listitem><para><command>prandom_det:</command> Randomly choose between downward and upward 
+	<listitem><para><command>prandom_det:</command> Randomly choose between downward and upward
         rounding mode, with probabilities p and 1-p but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>prandom</command> rounding mode that improves determinism and
@@ -218,13 +218,18 @@
 	<listitem><para><command>average_scomdet:</command> variant of <command>average_det</command> which respects the same constraints as <command>random_scomdet</command></para> 
         </listitem>
 
+	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
+            rounding mode, with a fixed limit. This limit is randomly selected for each kind of operation (+,-,x, /,fma ...), for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symetric.
+	  </para>
+        </listitem>
+
 
       </itemizedlist>
       A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in the
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-	  command-line option. For the modes <command>average_[[s]com]det</command> and <command>random_[[s]com]det</command>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <command>average_[[s]com]det</command> and <command>random_[[s]com]det</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>

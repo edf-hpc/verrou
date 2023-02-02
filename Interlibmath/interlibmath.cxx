@@ -286,6 +286,8 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "RANDOM_COMDET";
   case VR_RANDOM_SCOMDET:
     return "RANDOM_SCOMDET";
+  case VR_SR_MONOTONIC:
+    return "SR_MONOTONIC";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
@@ -633,6 +635,9 @@ void __attribute__((constructor)) init_interlibmath(){
       std::cerr<< "Rounding RANDOM_SCOMDET not yet implemented in interlibmath"<<std::endl;
       exit(1);
       ROUNDINGMODE=VR_RANDOM_SCOMDET;
+    }
+    if(envString==std::string("sr_monotonic")){
+      ROUNDINGMODE=VR_SR_MONOTONIC;
     }
     if(envString==std::string("average")){
       ROUNDINGMODE=VR_AVERAGE;

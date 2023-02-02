@@ -115,6 +115,7 @@ if __name__=="__main__":
 
     roundingTab=["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO"]+[rnd + det for rnd in ["RANDOM", "AVERAGE", "PRANDOM"] for det in ["","_DET","_COMDET" ]]
     roundingTab+=[rnd + det for rnd in ["RANDOM", "AVERAGE"] for det in ["_SCOMDET" ]]
+    roundingTab+=["SR_MONOTONIC"]
 
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]

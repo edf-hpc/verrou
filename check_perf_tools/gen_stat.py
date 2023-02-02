@@ -7,7 +7,7 @@ import subprocess
 import math
 from tabular import *
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
 buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]

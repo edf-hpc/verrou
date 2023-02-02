@@ -3234,3 +3234,201 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_COMDET) (double a, floa
 ;
 }
 
+
+IFV_INLINE void IFV_FCTNAME(add_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_SR_MONOTONIC) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingSRMonotonic<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_SR_MONOTONIC) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingSRMonotonic<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_MONOTONIC) (double a, float* res, void* context){
+  typedef RoundingSRMonotonic<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ 
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+

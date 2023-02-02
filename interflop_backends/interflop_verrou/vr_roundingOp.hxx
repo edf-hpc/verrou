@@ -125,6 +125,10 @@ public:
   } ;
 };
 
+
+
+
+
 template<class OP, class RAND>
 class RoundingPRandom{
 public:
@@ -170,6 +174,75 @@ public:
       }
     }
   } ;
+};
+
+
+
+template<class OP, class RAND>
+class RoundingSRMonotonic{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p ){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+#endif
+    OP::check(p,res);
+    const RealType error=OP::error(p,res);
+
+    if(error==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      bool down;
+      RealType resm,resp;
+      if( error > 0){
+	RealType limit;
+
+	resm=res;
+	if(res >0){
+	  resp=nextAwayFromZero<RealType>(res);
+	  const RealType resHash(resm);
+	  const vr_packArg<RealType,1> resPack(resHash);
+	  limit=RAND::randRatioFromResult(&vr_rand, resPack);
+	}else{
+	  resp=nextTowardZero<RealType>(res);
+	  const RealType resHash(-resp);
+	  const vr_packArg<RealType,1> resPack(resHash);
+	  limit=1.-RAND::randRatioFromResult(&vr_rand, resPack);
+	}
+	const RealType u(resp-resm);
+	down =( error < (limit * u));
+      }else{
+	RealType limit;
+	resp=res;
+	if(res >0){
+	  resm=nextTowardZero<RealType>(res);
+	  const RealType resHash(resm);
+	  const vr_packArg<RealType,1> resPack(resHash);
+	  limit=RAND::randRatioFromResult(&vr_rand, resPack);
+	}else{
+	  resm=nextAwayFromZero<RealType>(res);
+	  const RealType resHash(-resp);
+	  const vr_packArg<RealType,1> resPack(resHash);
+	  limit=1.-RAND::randRatioFromResult(&vr_rand, resPack);
+	}
+	const RealType u(resp-resm);
+	const RealType errorTh(u+error);
+	down =( errorTh < (limit * u));
+      }
+      if(down){
+	return resm;
+      }else{
+	return resp;
+      }
+    }
+  };
 };
 
 
@@ -508,6 +581,8 @@ public:
       return RoundingRandom<OP, vr_rand_comdet<OP> >::apply (p);
     case VR_RANDOM_SCOMDET:
       return RoundingPRandom<OP, vr_rand_scomdet<OP> >::apply (p);
+    case VR_SR_MONOTONIC:
+      return RoundingSRMonotonic<OP, vr_rand_det<OP> >::apply (p);
     case VR_AVERAGE:
       return RoundingAverage<OP, vr_rand_prng<OP> >::apply (p);
     case VR_AVERAGE_DET:
