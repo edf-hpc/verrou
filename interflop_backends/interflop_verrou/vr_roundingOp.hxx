@@ -202,33 +202,37 @@ public:
       bool down;
       RealType resm,resp;
       if( error > 0){
-	RealType limit;
-
 	resm=res;
 	if(res >0){
 	  resp=nextAwayFromZero<RealType>(res);
-	  limit=RAND::randRatioFromResult(&vr_rand, &resm);
-	}else{
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
+	  const RealType u(resp-resm);
+	  down =( error < (limit * u));
+	}else{//res <0 : res==0 => error=>0
 	  resp=nextTowardZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType u(resp-resm);
+	  down =( error <= (limit * u));
 	}
-	const RealType u(resp-resm);
-	down =( error < (limit * u));
+
       }else{
-	RealType limit;
 	resp=res;
 	if(res >0){
 	  resm=nextTowardZero<RealType>(res);
-	  limit=RAND::randRatioFromResult(&vr_rand, &resm);
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
+	  const RealType u(resp-resm);
+	  const RealType errorTh(u+error);
+	  down =( errorTh < (limit * u));
 	}else{
 	  resm=nextAwayFromZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType u(resp-resm);
+	  const RealType errorTh(u+error);
+	  down =( errorTh <= (limit * u));
 	}
-	const RealType u(resp-resm);
-	const RealType errorTh(u+error);
-	down =( errorTh < (limit * u));
+
       }
       if(down){
 	return resm;
