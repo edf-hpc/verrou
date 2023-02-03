@@ -13,6 +13,7 @@ detRounding=["random_det","average_det", "random_comdet","average_comdet","rando
 buildConfigList=["stable","current", "current_fast"]
 buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 
+
 nbRunTuple=(5,5) #inner outer
 
 verrouOptionsList=[("","")]
@@ -168,7 +169,7 @@ def slowDownAnalyze(data):
                     refTime=refData[binName]["min"]
                     print("\t\t\t%s  slowDown: x%.1f "%(binName, minTimeNew/refTime))
 
-def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
+def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr=""):
 
 
 #    codeTabName=[x.replace("FLOAT","float").replace("DOUBLE","double")for x in postFixTab]
@@ -194,6 +195,11 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
         roundingTab+=["SEPARATOR"]
     roundingTab=roundingTab[0:-1]
+    if extraRounding != []:
+        roundingTab+=["SEPARATOR"]
+        for rd in extraRounding:
+            for gen in buildList:#on supprime master
+                roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
     refData=extractPerfRef()
 
@@ -245,11 +251,11 @@ if __name__=="__main__":
         tab=tabularLatex("lcccc", output="slowDown_scomdet.tex")
         feedPerfTab(resAll,buildSpecialConfigList, detTab=["_scomdet"])
 
-        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
-        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
+#        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
+#        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
-        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"])
+        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic"])
 
         sys.exit()
         tab=tabular()
