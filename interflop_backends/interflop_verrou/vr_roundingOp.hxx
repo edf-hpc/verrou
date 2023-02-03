@@ -207,14 +207,11 @@ public:
 	resm=res;
 	if(res >0){
 	  resp=nextAwayFromZero<RealType>(res);
-	  const RealType resHash(resm);
-	  const vr_packArg<RealType,1> resPack(resHash);
-	  limit=RAND::randRatioFromResult(&vr_rand, resPack);
+	  limit=RAND::randRatioFromResult(&vr_rand, &resm);
 	}else{
 	  resp=nextTowardZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  const vr_packArg<RealType,1> resPack(resHash);
-	  limit=1.-RAND::randRatioFromResult(&vr_rand, resPack);
+	  limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
 	}
 	const RealType u(resp-resm);
 	down =( error < (limit * u));
@@ -223,14 +220,11 @@ public:
 	resp=res;
 	if(res >0){
 	  resm=nextTowardZero<RealType>(res);
-	  const RealType resHash(resm);
-	  const vr_packArg<RealType,1> resPack(resHash);
-	  limit=RAND::randRatioFromResult(&vr_rand, resPack);
+	  limit=RAND::randRatioFromResult(&vr_rand, &resm);
 	}else{
 	  resm=nextAwayFromZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  const vr_packArg<RealType,1> resPack(resHash);
-	  limit=1.-RAND::randRatioFromResult(&vr_rand, resPack);
+	  limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
 	}
 	const RealType u(resp-resm);
 	const RealType errorTh(u+error);

@@ -25,6 +25,28 @@ public:
     return tinymt64_generate_doubleOO(&localGen);
   };
 
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const double* res){
+    uint64_t seed=vr_rand_getSeed(r);
+    tinymt64_t localGen;
+
+    const uint64_t arg1=*reinterpret_cast<const uint64_t*>(res);
+    const uint64_t keys[2]={seed,arg1};
+    tinymt64_init_by_array(&localGen, keys, 2);
+    return tinymt64_generate_doubleOO(&localGen);
+  };
+
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const float* res){
+    uint64_t seed=vr_rand_getSeed(r);
+    tinymt64_t localGen;
+
+    const uint32_t arg1=*reinterpret_cast<const uint32_t*>(res);
+    const uint64_t keys[2]={seed,arg1};
+    tinymt64_init_by_array(&localGen, keys, 2);
+    return tinymt64_generate_doubleOO(&localGen);
+  };
+
 private:
   template<class REALTYPE>
   static inline void setGen(tinymt64_t& gen,

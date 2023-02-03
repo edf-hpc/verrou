@@ -236,10 +236,10 @@ public:
   }
 
   static inline const typename OP::RealType
-  randRatioFromResult(const Vr_Rand * r, const vr_packArg<typename OP::RealType,1>& p) {
+  randRatioFromResult(const Vr_Rand * r, const typename OP::RealType* res) {
 #ifdef VERROU_DET_HASH
     typedef VERROU_DET_HASH hash;
-    return hash::hashRatio(r, p, OP::getHash());
+    return hash::hashRatioFromResult(r, res);
 #else
 #error "VERROU_DET_HASH has to be defined"
 #endif

@@ -23,6 +23,30 @@ public:
     return ((double)v * invMax );
   }
 
+  template<class REALTYPE>
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const REALTYPE* res){
+    const uint64_t m=vr_multiply_shift_hash::multiply(res);
+    const uint32_t v=(m+seedTab[2])>>32;
+    constexpr double  invMax= (1./4294967296.);//2**32 = 4294967296
+    return ((double)v * invMax );
+  }
+
+
+
+  static inline uint64_t multiply(const float* res){
+    const uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
+    return (a1*seedTab[0]);
+  }
+
+  static inline uint64_t multiply(const double* res){
+    const uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
+    const uint32_t a1_1=a1;
+    const uint32_t a1_2=a1>>32;
+    return (a1_1+seedTab[0]) * (a1_2+seedTab[1]);
+  }
+
+
   static inline uint64_t multiply(const vr_packArg<float,1>& pack, uint32_t hashOp){
     const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
     return (a1+seedTab[0])*(hashOp+seedTab[6]);

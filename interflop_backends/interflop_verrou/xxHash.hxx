@@ -139,4 +139,17 @@ public:
     return xoshiro_uint64_to_double(hashValue);
   };
 
+
+  template<class REALTYPE>
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const REALTYPE* res){
+    const uint64_t seed=vr_rand_getSeed(r);
+#ifndef USE_XXH3
+    const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(REALTYPE), seed);
+#else
+    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
+#endif
+    return xoshiro_uint64_to_double(hashValue);
+  };
+
 };
