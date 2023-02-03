@@ -9,6 +9,12 @@ SRC=stagnation.cxx
 CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_mersenne_twister_hash
 #CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash
 
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash
+
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_multiply_shift_hash
+
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_dietzfelbinger_hash
+
 
 
 pdf: stagnationErrorLog.pdf stagnationLog.pdf stagnationErrorLog_st.pdf stagnationLog_st.pdf
@@ -43,4 +49,4 @@ AVERAGE_DET.out:stagnation
 stagnation:makefile
 
 clean:
-	rm -f *.o stagnation *.out stagnation*.pdf
+	rm -f $(DEP_OBJ) stagnation *.out stagnation*.pdf
