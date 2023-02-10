@@ -28,7 +28,7 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
-Backend verrou simulating AVERAGE_DET rounding mode
+Backend verrou simulating SR_MONOTONIC rounding mode
 New seed : 0
 New seed : 1
 New seed : 2
