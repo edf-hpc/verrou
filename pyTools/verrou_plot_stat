@@ -33,6 +33,7 @@ import getopt
 import functools
 import glob
 import math
+from fractions import Fraction
 
 maxNbPROC=None
 
@@ -418,7 +419,21 @@ def computeRelative(estim, refValue):
     else:
         return (float("NaN"), float("NaN"))
 
-def print_stat(data, ref):
+def estimMca(tab):
+    tabFrac=[Fraction(x) for x in tab]
+    mean=sum(tabFrac) / Fraction(len(tabFrac))
+    sigma=math.sqrt( Fraction(1)/ Fraction(len(tabFrac)-1) * sum( (x -mean)**2 for x in tabFrac ) )
+    ratio=sigma/mean
+    bit=None
+    try:
+        bit=-math.log2(ratio)
+    except:
+        print("tab:", tab, file=sys.stderr)
+        print("mean:", float(mean), file=sys.stderr)
+        bit=float("Inf")
+    return (ratio, bit)
+
+def print_stat(data, ref,  mca_estimator=False):
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
 
@@ -435,11 +450,16 @@ def print_stat(data, ref):
         refValue=data["ref"][0]
     else:
         refValue=numpy.mean(data["ref"])
+
     print("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
+    if mca_estimator:
+        print("[mca] estimator\trel\trel(in bit)")
+
     maxEstim=0
     nbTotalError=0
     nbTotalSample=0
+    tabValue=[]
     for rounding in listOfTab:
         if not "fail" in data[rounding]:
             nbTotalSample+=len(data[rounding])
@@ -447,6 +467,11 @@ def print_stat(data, ref):
             maxEstim=max(estim,maxEstim)
             estimRel, estimRelBit=computeRelative(estim, refValue)
             print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+            if mca_estimator:
+                estimRel, estimRelBit=estimMca(data[rounding])
+                print("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
+                tabValue+=data[rounding]
+
         else:
             nbError=data[rounding].count("fail")
             nbTotalError+=nbError
@@ -458,6 +483,10 @@ def print_stat(data, ref):
                 maxEstim=max(estim,maxEstim)
                 estimRel, estimRelBit=computeRelative(estim, refValue)
                 print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+                if mca_estimator:
+                    estimRel, estimRelBit=estimMca([x for x in data[rounding] if x!="fail"])
+                    tabValue+=[x for x in data[rounding] if x!="fail"]
+                    print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
 
     for rounding in listOfScalar:
 
@@ -465,16 +494,26 @@ def print_stat(data, ref):
         nbTotalError+=nbError
         nbTotalSample+=len(data[rounding])
         if nbError==0:
+            if mca_estimator:
+                tabValue+=data[rounding]
+
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
         else:
             print("Warning %s failing")
+
     estimRel, estimRelBit=computeRelative(maxEstim, refValue)
     if nbTotalError==0:
         print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
     else:
         print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
 
+    if mca_estimator:
+        estimRel, estimRelBit=estimMca(tabValue)
+        if nbTotalError==0:
+            print("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
+        else:
+            print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
 
 
 
@@ -507,7 +546,7 @@ class config_stat(gen_config.gen_config):
         self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
         self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
         self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False)
-
+        self.addRegistry("_mca_estimator", "bool", "MCA_ESTIMATOR",      ["--mca-estimator"],   False, docStr="mca estimator in addition to bernouilli estimator")
 
     def normalize(self):
         if len(self._pattern)!=0:
@@ -661,6 +700,9 @@ class config_stat(gen_config.gen_config):
     def seed(self):
         return self._seed
 
+    def mca_estimator(self):
+        return self._mca_estimator
+
 if __name__=="__main__":
     conf=config_stat(sys.argv,os.environ)
     nbSamples=conf.getSampleConfig()
@@ -675,12 +717,12 @@ if __name__=="__main__":
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref(), conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png(), relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref())
+            print_stat(dataExtracted, conf.ref(), conf.mca_estimator())
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref(), continueOnExtractError=conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref())
+            print_stat(dataExtracted, conf.ref(), conf.mca_estimator() )
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)

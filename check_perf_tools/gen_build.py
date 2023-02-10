@@ -8,7 +8,7 @@ import subprocess
 gitRepositoty="origin/"
 gitRepositoty=""
 
-branch="bl/scomdet"
+branch="bl/test_monotonic"
 
 verrouConfigList={
     "stable":           { "tag":"v2.4.0" ,"flags":"--enable-verrou-fma"},

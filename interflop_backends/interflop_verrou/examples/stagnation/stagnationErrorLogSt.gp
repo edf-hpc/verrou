@@ -13,7 +13,7 @@ set format y "10^{%L}"
 set key top left
 #set key at 14000000, 0.0000004
 set grid
-set size square
+#set size square
 file_exists(file) = system("[ -f '".file."' ] && echo '1' || echo '0'") + 0
 
 if (file_exists("NEAREST.STAGNATION_st.out")) {
