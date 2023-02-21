@@ -124,5 +124,6 @@ int  main(int argc, char** argv){
       std::ofstream outStaStream(name+std::string(".STAGNATION_st.out"));
       outStaStream <<stagnation_st <<std::endl;
     }
+    interflop_verrou_finalize(&context);
   }
 }
