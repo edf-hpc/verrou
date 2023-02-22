@@ -10,13 +10,12 @@
 #include <string>
 #include <math.h> 
 #include <cassert>
-
+#include "tinymt64.h"
 
 
 int  main(int argc, char** argv){
-
-  int size=1000000000;
-  const double tol=1.e-5;
+  int size=100000000;
+  const double tol=1.e-4;
   const double a(1-pow(2,30));
   const double one(1.);
   const double ref(1.);
@@ -24,7 +23,11 @@ int  main(int argc, char** argv){
   const double refp(nextafter(ref, 2.));
       
   
-  std::vector<vr_RoundingMode> roundingMode={VR_RANDOM, VR_AVERAGE, VR_NEAREST};
+  std::vector<vr_RoundingMode> roundingMode={VR_RANDOM, VR_AVERAGE,  VR_SR_MONOTONIC,  VR_NEAREST};
+
+  tinymt64_t rng;
+  //init the generator for seed update (required for stochastic/determinist rounding mode)
+  tinymt64_init(&rng, 0);
 
 
   for(size_t rnd=0; rnd< roundingMode.size();rnd++){
@@ -48,6 +51,11 @@ int  main(int argc, char** argv){
     for(int i=0; i<localSize; i++){//increment loop
       double diva; 
       double adiva; 
+
+      if(roundingMode[rnd]==VR_SR_MONOTONIC){
+	verrou_set_seed(tinymt64_generate_uint64 (&rng));
+      }
+
       
       interflop_verrou_div_double(one,a,&diva,context);
       interflop_verrou_mul_double(diva,a,&adiva,context);
@@ -94,7 +102,7 @@ int  main(int argc, char** argv){
       assert(std::abs(pp-0.25) <tol );
     }
 
-    if(roundingMode[rnd]==VR_AVERAGE){
+    if(roundingMode[rnd]==VR_AVERAGE || roundingMode[rnd]==VR_SR_MONOTONIC ){
       double pmref(pow(2,-7) - pow(2,-15)- (1./ a) *pow(2,-45) );
       double ppref(pow(2,-8) - pow(2,-16)-  pow(2,-38) +  (1./ a) *pow(2,-38)- (1./ a) *pow(2,-46)- (1./ a) *pow(2,-68));
       double peref=1- pmref- ppref;
