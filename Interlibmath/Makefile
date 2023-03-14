@@ -1,12 +1,12 @@
 
 
 SRC=interlibmath.cxx ../interflop_backends/backend_mcaquad/common/tinymt64.c
-FLAGS= -std=c++11 -DLIBMATHINTERP -I../backend_verrou -Wall -O0 -DVERROU_NUM_AVG=2 -DVERROU_DET_HASH=vr_double_tabulation_hash
+FLAGS= -std=c++11 -DLIBMATHINTERP -I../backend_verrou -Wall -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash
 #FLAGS+=-DCLIENTREQUEST #not required if the user include libgcc_s.so 
 
 CXX=g++
 
-interlibmath.so: $(SRC)
+interlibmath.so: $(SRC) stacktrace.cxx
 	$(CXX) $(FLAGS) $(SRC) -lquadmath -lm -ldl -shared -fPIC   -o interlibmath.so
 
 
