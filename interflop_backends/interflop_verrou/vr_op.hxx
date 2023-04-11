@@ -871,7 +871,7 @@ public:
 #else
     RealType u,uu;
     MulOp<RealType>::twoProd(x,x,u,uu);
-    return ( (a-u)-uu)) ;
+    return ((a-u)-uu);
 #endif
   };
 };
@@ -901,7 +901,7 @@ public:
 #else
     double u,uu;
     MulOp<double>::twoProd(x,x,u,uu);
-    const double res ( (a-u)-uu)) ;
+    const double res ((a-u)-uu) ;
 #endif
   if(res==0.) return 0.;
   if(res<0) return -1.;
@@ -916,7 +916,7 @@ public:
 #else
     RealType u,uu;
     MulOp<RealType>::twoProd(x,x,u,uu);
-    return ( (a-u)-uu)) ;
+    return ((a-u)-uu) ;
 #endif
   };
 };
