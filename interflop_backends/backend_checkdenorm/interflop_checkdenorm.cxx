@@ -61,7 +61,7 @@ void checkdenorm_set_panic_handler(void (*panicHandler)(const char*)){
 
 template<class REAL>
 void flushToZeroAndCheck(REAL* res){
-  if( std::abs(*res) <  std::numeric_limits<REAL>::min()  && *res !=0.){
+  if( ( ((*res >= 0) ? (*res): -(*res)))   <  std::numeric_limits<REAL>::min()  && *res !=0.){
     if(ifcd_denormHandler!=0){
       (*ifcd_denormHandler)();
     }

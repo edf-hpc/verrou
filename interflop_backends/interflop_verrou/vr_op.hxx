@@ -35,7 +35,7 @@
 
 #include "vr_isNan.hxx"
 #include "vr_sqrt.hxx"
-//#include <iostream>
+
 
 enum opHash : uint32_t{
   addHash=0,
@@ -773,8 +773,12 @@ public:
       }*/
 
     const uint32_t hashOp(MAddOp::getHash());
-    const RealType pmin(std::min<RealType>(std::abs(p.arg1), std::abs(p.arg2)));
-    const RealType pmax(std::max<RealType>(std::abs(p.arg1), std::abs(p.arg2)));
+    const RealType p1(p.arg1);
+    const RealType p2(p.arg2);
+    const RealType absP1( p1>=0. ? p1 : -p1 );
+    const RealType absP2( p2>=0. ? p2 : -p2 );
+    const RealType pmin(std::min<RealType>(absP1, absP2));
+    const RealType pmax(std::max<RealType>(absP1, absP2));
 
     if( p.isEvenNumPositive()){//r2
       if( p.arg3 >0){
