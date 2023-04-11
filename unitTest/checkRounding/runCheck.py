@@ -612,6 +612,32 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
 
     return errorCounter(ok, ko, warn)
 
+def checkExactDetAndOptimistAverage(allResult,testList,typeTab=["<double>", "<float>"]):
+    ok=0
+    warn=0
+    ko=0
+    for test in testList:
+        for RealType in typeTab:
+            testName=test+RealType
+
+            testCheck=assertRounding(testName)
+            testCheck.assertNative()
+            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+
+            for rnd in ["downward","farthest", "nearest", "toward_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+                testCheck.assertEqual(rnd,"upward")
+
+            for rnd in ["random", "prandom_half"]:
+                testCheck.assertLess("downward",rnd)
+                testCheck.assertLess("average",rnd)
+            testCheck.assertLess("downward","average")
+
+            ok+=testCheck.ok
+            ko+=testCheck.ko
+            warn+=testCheck.warn
+
+    return errorCounter(ok, ko, warn)
+
 
 def assertCmpTest(testName1, rounding1, testName2, rounding2, opposite=False):
     diff1=getDiff(allResult[("valgrind", rounding1)], testName1)
@@ -674,8 +700,11 @@ if __name__=='__main__':
     eCount+=checkTestPositiveBetweenTwoValues(allResult, testList=["testCast"], typeTab=["<float>"])
     eCount+=checkTestNegativeBetweenTwoValues(allResult, testList=["testCastm"], typeTab=["<float>"])
 
+    eCount+=checkExactDetAndOptimistAverage(allResult, testList=["testDiffSqrt"],typeTab=["<double>", "<float>"])
+
     eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam", "testMixSseLlo"])
 
     eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True)])
+
     eCount.printSummary()
     sys.exit(eCount.ko)
