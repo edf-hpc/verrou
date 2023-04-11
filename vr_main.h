@@ -78,6 +78,7 @@ typedef enum {
   VR_OP_DIV,    // Division
   VR_OP_MADD,   // FMA ADD
   VR_OP_MSUB,   // FMA SUB
+  VR_OP_SQRT,   // Sqrt
   VR_OP_CMP,    // Comparison
   VR_OP_CONV,    // Conversion
   VR_OP_MAX,    // Maximum

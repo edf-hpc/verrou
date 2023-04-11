@@ -40,6 +40,43 @@ fi
 AC_SUBST(vg_cv_verrou_fma)
 
 
+#--enable-verrou-sqrt
+AC_CACHE_CHECK([verrou ], vg_cv_verrou_sqrt,
+  [AC_ARG_ENABLE(verrou-sqrt,
+    [  --enable-verrou-sqrt          enables verrou to use sqrt],
+    [vg_cv_verrou_sqrt=$enableval],
+    [vg_cv_verrou_sqrt=yes])])
+
+if test "$vg_cv_verrou_sqrt" = yes; then
+  # Check for sqrt intrinsics
+  AC_LANG_PUSH(C++)
+  AC_MSG_CHECKING([for immintrin.h ])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include  <immintrin.h>
+      #include <stdlib.h>
+]], [[
+       double a,d;
+      __m128d ai, di;
+      ai = _mm_load_sd(&a);
+      di=_mm_sqrt_sd(ai,ai);
+      d=_mm_cvtsd_f64(di);
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+      AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with sqrt intrinsics is required for --enable-verrou-sqrt ])
+  ])
+  AC_LANG_POP(C++)
+else
+  AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
+fi
+
+AC_SUBST(vg_cv_verrou_sqrt)
+
+
 #--enable-verrou-quad
 AC_CACHE_CHECK([verrou quad], vg_cv_verrou_quad,
   [AC_ARG_ENABLE(verrou-quad,

@@ -195,10 +195,10 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   //Options to choose op to instrument
-  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv", setResult)){
-    UInt instrTab[]={0,0,0,0,0,0,0};
+  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv,sqrt", setResult)){
+    UInt instrTab[]={0,0,0,0,0,0,0,0};
     UInt currentFlags=setResult;
-    for(UInt i=0; i<7;i++){
+    for(UInt i=0; i<8;i++){
       instrTab[i]=currentFlags%2;
       currentFlags=currentFlags/2;
     }
@@ -209,6 +209,7 @@ Bool vr_process_clo (const HChar *arg) {
     if(instrTab[4]!=0) vr.instr_op[VR_OP_MADD]=True;
     if(instrTab[5]!=0) vr.instr_op[VR_OP_MSUB]=True;
     if(instrTab[6]!=0) vr.instr_op[VR_OP_CONV]=True;
+    if(instrTab[7]!=0) vr.instr_op[VR_OP_SQRT]=True;
   }
 
   //Option to enable check-cancellation backend

@@ -2,13 +2,18 @@
 
 import sys
 
-
+listOfUnaryOp=["sqrt"]
 listOfBinaryOp=["add","sub","mul","div"]
 listOfTernaryOp=["madd"]
 
 listOfType=["double","float"]
 
-
+protoTypeUnary="""
+IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/) (/TYPE/ a, /TYPE/* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode</OPCLASS/ </TYPE/> > Op;
+  Op::apply(Op::PackArgs(a),res,context);
+}
+"""
 protoTypeBinary="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/) (/TYPE/ a, /TYPE/ b, /TYPE/* res,void* context) {
   typedef OpWithDynSelectedRoundingMode</OPCLASS/ </TYPE/> > Op;
@@ -41,6 +46,13 @@ post_treatmement_code="""
 #endif
 """
 
+protoTypeUnaryStatic="""
+IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/* res,void* context) {
+  typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
+  *res=Op::apply(Op::PackArgs(a));
+  /POST_TREATMEMENT_CODE/;
+}
+"""
 protoTypeBinaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/ b, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
@@ -73,6 +85,9 @@ header_interflop="""
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -89,6 +104,8 @@ def getOpClass(op):
         return "MulOp"
     if op=="div":
         return "DivOp"
+    if op=="sqrt":
+        return "SqrtOp"
     if op=="madd":
         return "MAddOp"
     if op=="cast":
@@ -167,6 +184,14 @@ def specializePatternStatic(template, op, typeFp, roundingName,roundingClass, ra
 
 
 def genFlopImpl(handler, roundingmode="dyn"):
+    for op in listOfUnaryOp:
+        for fpType in listOfType:
+            if roundingmode=="dyn":
+                handler.write(specializePatternDyn(protoTypeUnary, op, fpType)+"\n")
+            else:
+                handler.write(specializePatternStatic(protoTypeUnaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
+
+
     for op in listOfBinaryOp:
         for fpType in listOfType:
             if roundingmode=="dyn":

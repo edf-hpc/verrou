@@ -37,6 +37,9 @@
 
 template <typename REAL>
 void ifmax_checkMax (const REAL & a, const REAL & b, const REAL & r);
+template <typename REAL>
+void ifmax_checkMax (const REAL & a, const REAL & r);
+
 
 
 // * Global variables & parameters
@@ -96,9 +99,9 @@ void ifmax_checkmax (const char* op, const REAL & a, const REAL & b,  const REAL
 }
 
 
-template <typename REAL>
+template <typename REAL1, typename REAL2>
 inline
-void ifmax_checkmax (const char* op, const REAL & a, const float & r) {
+void ifmax_checkmax (const char* op, const REAL1 & a, const REAL2 & r) {
 
   if (ifmax_is_flt_max(a) || ifmax_is_flt_max(r)) {
     if(ifmax_debug_print_op!=NULL){
@@ -109,6 +112,8 @@ void ifmax_checkmax (const char* op, const REAL & a, const float & r) {
     ifmax_maxHandler();
   }
 }
+
+
 
 
 
@@ -172,6 +177,14 @@ void IFMAX_FCTNAME(madd_float) (float a, float b, float c, float* res, void* con
   ifmax_checkmax("madd_float",a,b,c,*res);
 }
 
+void IFMAX_FCTNAME(sqrt_double) (double a, double* res, void* context){
+  ifmax_checkmax("sqrt_double",a,*res);
+}
+
+void IFMAX_FCTNAME(sqrt_float) (float a, float* res, void* context){
+  ifmax_checkmax("sqrt_float",a,*res);
+}
+
 
 
 
@@ -182,11 +195,13 @@ struct interflop_backend_interface_t IFMAX_FCTNAME(init)(void ** context){
   config.sub_float = & IFMAX_FCTNAME(sub_float);
   config.mul_float = & IFMAX_FCTNAME(mul_float);;
   config.div_float = & IFMAX_FCTNAME(div_float);;
+  config.sqrt_float = & IFMAX_FCTNAME(sqrt_float);;
 
   config.add_double = & IFMAX_FCTNAME(add_double);
   config.sub_double = & IFMAX_FCTNAME(sub_double);
   config.mul_double = & IFMAX_FCTNAME(mul_double);;
   config.div_double = & IFMAX_FCTNAME(div_double);;
+  config.sqrt_double = & IFMAX_FCTNAME(sqrt_double);;
 
 
   config.cast_double_to_float=& IFMAX_FCTNAME(cast_double_to_float);

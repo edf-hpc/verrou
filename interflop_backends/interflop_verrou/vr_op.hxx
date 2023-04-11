@@ -34,6 +34,7 @@
 #pragma once
 
 #include "vr_isNan.hxx"
+#include "vr_sqrt.hxx"
 //#include <iostream>
 
 enum opHash : uint32_t{
@@ -43,7 +44,8 @@ enum opHash : uint32_t{
   divHash=3,
   maddHash=4,
   castHash=5,
-  nbOpHash=6
+  sqrtHash=6,
+  nbOpHash=7
 };
 
 enum typeHash : uint32_t{
@@ -851,3 +853,118 @@ public:
   }
 
 };
+
+
+
+
+template<class REALTYPE>
+class sameSignOfErrorForSqrt{
+public:
+  typedef REALTYPE RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+    const RealType a(p.arg1) ;
+    const RealType x(c);
+#ifdef    USE_VERROU_FMA
+    return vr_fma(-x,x,a) ;
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(x,x,u,uu);
+    return ( (a-u)-uu)) ;
+#endif
+  };
+};
+
+
+
+template<>
+class sameSignOfErrorForSqrt<float>{
+public:
+  typedef float RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_FAST_FLOAT_SQRT
+    return apply_float(p,c);
+#else
+    return apply_double(p,c);
+#endif
+  }
+
+  static inline RealType apply_double (const PackArgs& p,const RealType& c) {
+    const double a(p.arg1) ;
+    const double x(c);
+#ifdef    USE_VERROU_FMA
+    const double res=vr_fma(-x,x,a) ;
+#else
+    double u,uu;
+    MulOp<double>::twoProd(x,x,u,uu);
+    const double res ( (a-u)-uu)) ;
+#endif
+  if(res==0.) return 0.;
+  if(res<0) return -1.;
+  return 1.;
+  };
+
+  static inline RealType apply_float (const PackArgs& p,const RealType& c) {
+    const float a(p.arg1) ;
+    const float x(c);
+#ifdef    USE_VERROU_FMA
+    return vr_fma(-x,x, a) ;
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(x,x,u,uu);
+    return ( (a-u)-uu)) ;
+#endif
+  };
+};
+
+
+
+
+template<typename REAL>
+class SqrtOp{
+public:
+  typedef REAL RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+
+  static const char* OpName(){return "sqrt";}
+  static inline uint32_t getHash(){return opHash::sqrtHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    return vr_sqrt<RealType>(p.arg1);
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+    const RealType & a(p.arg1);
+    return vr_fma(-z,z,a) / (2.*z);
+  };
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& z) {
+    return sameSignOfErrorForSqrt<RealType>::apply(p,z);
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
+  static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SqrtOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SqrtOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
+};
+

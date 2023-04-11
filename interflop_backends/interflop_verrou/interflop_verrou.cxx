@@ -207,11 +207,13 @@ struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   config.sub_float = & IFV_FCTNAME(sub_float);
   config.mul_float = & IFV_FCTNAME(mul_float);
   config.div_float = & IFV_FCTNAME(div_float);
+  config.sqrt_float = & IFV_FCTNAME(sqrt_float);
 
   config.add_double = & IFV_FCTNAME(add_double);
   config.sub_double = & IFV_FCTNAME(sub_double);
   config.mul_double = & IFV_FCTNAME(mul_double);
   config.div_double = & IFV_FCTNAME(div_double);
+  config.sqrt_double = & IFV_FCTNAME(sqrt_double);
 
   config.cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 
