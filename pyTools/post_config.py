@@ -46,6 +46,12 @@ class postConfig(gen_config.gen_config):
         self.rep=os.path.abspath(self.rep)
         if self.trace_file!=None:
             self.trace_file=os.path.abspath(self.trace_file)
+        for r in self.rounding:
+            if "," in r:
+                splitR=r.split(",")
+                self.rounding.remove(r)
+                self.rounding+=splitR
+
         if "det" in self.rounding:
             self.rounding.remove("det")
             self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
@@ -157,5 +163,5 @@ class postConfig(gen_config.gen_config):
 
 
     def findDDmin(self, rep):
-        ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="ref"]
+        ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="FullPerturbation" or x=="NoPerturbation"]
         return ddminList
