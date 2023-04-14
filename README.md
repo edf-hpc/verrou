@@ -81,7 +81,7 @@ compiler:
 
     ./configure --enable-only64bit --prefix=PREFIX CFLAGS="-mfma"
 
-Systems that don't support FMA instructions the `--enable-verrou-fma=no`
+On systems that don't support FMA instructions the `--enable-verrou-fma=no`
 configure switch need to be used, but be aware that this causes some tests to fail:
 
     ./configure --enable-only64bit --enable-verrou-fma=no --prefix=PREFIX
@@ -91,9 +91,9 @@ configure switch need to be used, but be aware that this causes some tests to fa
 Advanced users can use the following configure flags :
 
 - `--enable-verrou-check-naninf=yes|no` (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
-- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are no able to reproduce the reference results.
-- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced for (random and average)is replaced by the xo[ro]shiro prng.
-- `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disable. This option is only useful to reduce the dependencies.
+- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are not able to reproduce the reference results.
+- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and average) by the xo[ro]shiro prng.
+- `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disabled. This option is only useful to reduce the dependencies.
 
 <p>&nbsp;</p>
 
