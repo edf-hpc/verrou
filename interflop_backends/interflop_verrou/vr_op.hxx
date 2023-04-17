@@ -35,7 +35,7 @@
 
 #include "vr_isNan.hxx"
 #include "vr_sqrt.hxx"
-
+#include "cmath"
 
 enum opHash : uint32_t{
   addHash=0,
@@ -409,7 +409,6 @@ public:
   }
 };
 
-
 template<class REALTYPE>
 class sameSignOfErrorForMul{
 public:
@@ -417,18 +416,24 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-    if(c!=0){
-      return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
-    }else{
-      if(p.arg1==0 ||p.arg2==0){
-	return 0;
-      }
-      if(p.arg1>0){
-	return p.arg2;
-      }else{
-	return -p.arg2;
-      }
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    REALTYPE arg1=p.arg1;
+    REALTYPE arg2=p.arg2;
+    REALTYPE cshift=c;
+    REALTYPE shift(std::pow<REALTYPE>(2.,500));
+    if(arg1 <1.){
+      arg1 *= shift;
+      cshift*=shift;
     }
+    if(arg2 <1.){
+      arg2 *= shift;
+      cshift*=shift;
+    }
+    REALTYPE res(ErrorForMul<RealType>::apply(arg1,arg2,cshift));
+    return res;
+#else
+    return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
+#endif
   };
 };
 
@@ -441,6 +446,7 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_DENORM_HACKS_FLOAT
     const double p1d=(double)p.arg1;
     const double p2d=(double)p.arg2;
     const double cd=(double)c;
@@ -453,6 +459,9 @@ public:
       return 1.f;
     }
     return 0.f;
+#else
+    return ErrorForMul<double>::apply(p.arg1,p.arg2,c);
+#endif
   };
 };
 
@@ -481,11 +490,7 @@ public:
   };
 
   static inline RealType sameSignOfError(const PackArgs& p,const RealType& c) {
-#ifdef VERROU_FAST_FLOAT_MUL
-    return MulOp<RealType>::error(p,c);
-#else
     return sameSignOfErrorForMul<RealType>::apply(p,c);
-#endif
   }
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
@@ -575,7 +580,7 @@ public:
 
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-#ifdef VERROU_FAST_FLOAT_DIV
+#ifndef VERROU_DENORM_HACKS_FLOAT
     return apply_float(p,c);
 #else
     return apply_double(p,c);
@@ -890,7 +895,7 @@ public:
 
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-#ifdef VERROU_FAST_FLOAT_SQRT
+#ifndef VERROU_DENORM_HACKS_FLOAT
     return apply_float(p,c);
 #else
     return apply_double(p,c);
@@ -943,7 +948,13 @@ public:
 
   static inline RealType error (const PackArgs& p, const RealType& z) {
     const RealType & a(p.arg1);
+#ifdef    USE_VERROU_FMA
     return vr_fma(-z,z,a) / (2.*z);
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(z,z,u,uu);
+    return ((a-u)-uu)  / (2.*z);
+#endif
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& z) {
