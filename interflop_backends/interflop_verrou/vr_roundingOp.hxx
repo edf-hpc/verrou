@@ -115,11 +115,27 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if((signError*res)>0){
-	  return nextAwayFromZero<RealType>(res);
-	}else{
-	  return nextTowardZero<RealType>(res);
+	if(res>0){
+	  if(signError>0){
+	    return nextAwayFromZero<RealType>(res);
+	  }else{
+	    return nextTowardZero<RealType>(res);
+	  }
 	}
+	if(res<0){
+	  if(signError<0){
+	    return nextAwayFromZero<RealType>(res);
+	  }else{
+	    return nextTowardZero<RealType>(res);
+	  }
+	}
+	//if(res==0){
+	  if((signError)>0){
+	    return std::numeric_limits<RealType>::denorm_min();
+	  }else{
+	    return -std::numeric_limits<RealType>::denorm_min();
+	  }
+	  //	}
       }
     }
   } ;
@@ -157,9 +173,11 @@ public:
 	}else{
 	  if(res >0){
 	    return nextAwayFromZero<RealType>(res);
-	  }else{
+	  }
+	  if(res < 0){
 	    return nextTowardZero<RealType>(res);
 	  }
+	  return std::numeric_limits<RealType>::denorm_min();;
 	}
       }
       const bool doChange = !RAND::randBool(&vr_rand, p);
@@ -168,9 +186,11 @@ public:
       }else{
 	if(res <0){
 	  return nextAwayFromZero<RealType>(res);
-	}else{
+	}
+	if(res>0){
 	  return nextTowardZero<RealType>(res);
 	}
+	return -std::numeric_limits<RealType>::denorm_min();
       }
     }
   } ;

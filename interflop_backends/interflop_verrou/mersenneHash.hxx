@@ -3,6 +3,7 @@
 class vr_mersenne_twister_hash{
 public:
   typedef vr_mersenne_twister_hash mersenneHash;
+  static inline void genTable(tinymt64_t& gen){};
 
   template<class REALTYPE, int NB>
   static inline bool hashBool(const Vr_Rand * r,
