@@ -25,14 +25,26 @@
 #define VERROU_STOP_INSTRUMENTATION
 #endif
 
+unsigned int my_pid;
+
+#include "stacktrace.cxx"
+
+void printNan(){
+  std::cerr << "\n=="<<my_pid<<"== NaN Detected:"<< std::endl;
+  std::cerr << Backtrace(3);
+}
+void printInf(){
+  std::cerr << "\n=="<<my_pid<<"== +/- Inf Detected:"<< std::endl;
+  std::cerr << Backtrace(3);
+}
+
+
 
 vr_RoundingMode ROUNDINGMODE;
 void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
-void (*vr_nanHandler)()=NULL;
-void (*vr_infHandler)()=NULL;
-
-unsigned int my_pid;
+void (*vr_nanHandler)()=printNan;
+void (*vr_infHandler)()=printInf;
 
 
 class myLibMathFunction1{
@@ -332,16 +344,6 @@ void printCounter(){
     }
 
     for(int i=0; i< paramSize;i++){
-      std::cerr << "=="<<my_pid<<"== ";
-      std::cerr<<  "---------------------------------------------------"<<std::endl;
-      std::cerr << "=="<<my_pid<<"== ";
-      if(nbParam==1){
-	std::cerr<< function1NameTab[i].name();
-      }
-      if(nbParam==2){
-	std::cerr<< function2NameTab[i].name();
-      }
-
       int total=0;
       int totalInst=0;
       for(int j=0;j<3;j++){
@@ -349,8 +351,20 @@ void printCounter(){
 	totalInst+=getCounter(nbParam,i,j,0);
       }
 
-      std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
       if(total!=0){
+	std::cerr << "=="<<my_pid<<"== ";
+	std::cerr<<  "---------------------------------------------------"<<std::endl;
+	std::cerr << "=="<<my_pid<<"== ";
+
+	if(nbParam==1){
+	  std::cerr<< function1NameTab[i].name();
+	}
+	if(nbParam==2){
+	  std::cerr<< function2NameTab[i].name();
+	}
+
+	std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
+
 	std::cerr << "=="<<my_pid<<"== ";
 	std::cerr<< " `-" " flt ";
 	std::cerr<< "\t" <<  getCounter(nbParam,i,0,0)+getCounter(nbParam,i,0,1)  << "\t" << getCounter(nbParam,i,0,0)<<std::endl;

@@ -371,9 +371,10 @@ class DDStoch(DD.DD):
         rddmin_heuristic_rep=[]
         if "cache" in self.config_.get_rddminHeuristicsCache():
             if self.config_.get_cache()=="rename":
-                cacheRep=self.oldCacheName
-                if os.path.isdir(cacheRep):
-                    rddmin_heuristic_rep+=[cacheRep]
+                if self.oldCacheName!=None:
+                    cacheRep=self.oldCacheName
+                    if os.path.isdir(cacheRep):
+                        rddmin_heuristic_rep+=[cacheRep]
             else:
                 cacheRep=self.prefix_
                 if os.path.isdir(cacheRep):
@@ -393,6 +394,8 @@ class DDStoch(DD.DD):
         if self.config_.get_rddminHeuristicsLineConv():
             for rep in rddmin_heuristic_rep:
                 deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
+                if deltaOld==None:
+                    continue
                 cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
                 repTab=glob.glob(os.path.join(rep, "ddmin*"))
 
@@ -458,6 +461,8 @@ class DDStoch(DD.DD):
                 timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
                 self.oldCacheName=self.prefix_+"-"+timeStr
                 os.rename(self.prefix_,self.oldCacheName )
+            else:
+                self.oldCacheName=None
             os.mkdir(self.prefix_)
 
 

@@ -136,8 +136,7 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
 
 
 def runSubRepForOneInstr( config, rep, refDir,ddMinList):
-    roundNonDetTab=config.getNonDetTab()
-    roundDetTab=config.getDetTab()
+
     instrList=config.get_instr()
 
     refNewDir=refDir
@@ -150,7 +149,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                                           config.get_trace_pattern())
         refNewDir+="-trace"
 
-    nbRun=config.get_nbRUN()
+
 
 
     for ddmin in ddMinList:
@@ -175,6 +174,13 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             if not os.path.exists(ddminNewInstr):
                 os.mkdir(ddminNewInstr)
 
+            roundNonDetTab=config.getNonDetTab()
+            roundDetTab=config.getDetTab()
+            nbRun=config.get_nbRUN()
+            if ddmin.endswith("NoPerturbation"):
+                roundNonDetTab=[""]
+                nbRun=1
+                roundDetTab=[]
             for rounding in roundNonDetTab:
                 newNbRun=nbRun
                 if rounding=="":
@@ -191,7 +197,6 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 if not os.path.exists(ddminNewRep):
                     os.mkdir(ddminNewRep)
 
-                print("ddminNew : ",ddminNewRep)
                 runOneConfig(config, refDir, ddminNewRep, runEnv, newNbRun, traceFile)
 
             if len(roundDetTab)!=0:
@@ -200,8 +205,6 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                     os.mkdir(ddminNewRep)
 
                 for det in roundDetTab:
-                    runEnv={"VERROU_SOURCE": os.path.join(ddmin,"dd.line.include"),
-                            "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(ddmin,"dd.line.exclude")}
                     runEnv=rounding_tool.roundingToEnvVar(det,runEnv)
                     if instr!="":
                         runEnv["VERROU_INSTR"]=instr
@@ -215,7 +218,7 @@ def sortSubRep(subRepTab):
     def normalized(x):
         return  x.split("/")[-1]
 
-    refTab=[x for x in subRepTab if normalized(x)=="ref"]
+    refTab=[x for x in subRepTab if normalized(x)in ["ref","NoPerturbation"] ]
     ddminTab=[x for x in subRepTab if normalized(x).startswith("ddmin")]
     otherTab=[x for x in subRepTab if (not x in refTab) and (not x in ddminTab)]
 
