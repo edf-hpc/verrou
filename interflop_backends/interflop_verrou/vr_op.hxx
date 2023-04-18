@@ -580,10 +580,10 @@ public:
 
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-#ifndef VERROU_DENORM_HACKS_FLOAT
-    return apply_float(p,c);
-#else
+#ifdef VERROU_DENORM_HACKS_FLOAT
     return apply_double(p,c);
+#else
+    return apply_float(p,c);
 #endif
   }
 
