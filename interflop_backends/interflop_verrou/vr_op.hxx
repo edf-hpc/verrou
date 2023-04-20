@@ -232,6 +232,8 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+  static const bool sign_denorm_hack_needed=false;
+
   static const char* OpName(){return "add";}
   static inline uint32_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
@@ -315,7 +317,7 @@ class SubOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
-
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "sub";}
   static inline uint32_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
@@ -471,6 +473,7 @@ class MulOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "mul";}
   static inline uint32_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
@@ -578,7 +581,6 @@ public:
   typedef float RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-
   static inline RealType apply (const PackArgs& p,const RealType& c) {
 #ifdef VERROU_DENORM_HACKS_FLOAT
     return apply_double(p,c);
@@ -631,6 +633,7 @@ class DivOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "div";}
   static inline uint32_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
@@ -701,6 +704,7 @@ class MAddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "madd";}
   static inline uint32_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
@@ -817,6 +821,7 @@ public:
   typedef REALOUTPUT RealTypeOut;
   typedef RealTypeOut RealType;
   typedef vr_packArg<RealTypeIn,1> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "cast";}
   static inline uint32_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
@@ -892,7 +897,7 @@ class sameSignOfErrorForSqrt<float>{
 public:
   typedef float RealType;
   typedef vr_packArg<RealType,1> PackArgs;
-
+  static const bool sign_denorm_hack_needed=true;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
 #ifndef VERROU_DENORM_HACKS_FLOAT
@@ -938,6 +943,7 @@ class SqrtOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,1> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "sqrt";}
   static inline uint32_t getHash(){return opHash::sqrtHash * typeHash::nbTypeHash + getTypeHash<RealType>();}

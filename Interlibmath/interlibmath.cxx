@@ -387,6 +387,7 @@ class libMathFunction1{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
@@ -434,6 +435,7 @@ class libMathFunction2{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
