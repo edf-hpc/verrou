@@ -1249,6 +1249,240 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_ZERO) (double a, float* res, vo
 }
 
 
+IFV_INLINE void IFV_FCTNAME(sqrt_double_AWAY_ZERO) (double a, double* res,void* context) {
+  typedef RoundingAwayZero<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_AWAY_ZERO) (float a, float* res,void* context) {
+  typedef RoundingAwayZero<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_AWAY_ZERO) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingAwayZero<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_AWAY_ZERO) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingAwayZero<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AWAY_ZERO) (double a, float* res, void* context){
+  typedef RoundingAwayZero<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ 
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
 IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM) (double a, double* res,void* context) {
   typedef RoundingRandom<SqrtOp <double> ,vr_rand_prng<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));

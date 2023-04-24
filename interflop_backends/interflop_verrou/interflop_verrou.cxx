@@ -109,6 +109,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "DOWNWARD";
   case VR_ZERO:
     return "TOWARD_ZERO";
+  case VR_AWAY_ZERO:
+    return "AWAY_ZERO";
   case VR_RANDOM:
     return "RANDOM";
   case VR_RANDOM_DET:
@@ -270,6 +272,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_DOWNWARD;
     } else if (strcasecmp("toward_zero", arg) == 0) {
       conf->mode=VR_ZERO;
+    } else if (strcasecmp("away_zero", arg) == 0) {
+      conf->mode=VR_AWAY_ZERO;
     } else if (strcasecmp("random", arg) == 0) {
       conf->mode=VR_RANDOM;
     } else if (strcasecmp("random_det", arg) == 0) {

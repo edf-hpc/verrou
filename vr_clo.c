@@ -154,6 +154,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_DOWNWARD)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=toward_zero",
                          vr.roundingMode, VR_ZERO)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=away_zero",
+                         vr.roundingMode, VR_AWAY_ZERO)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=farthest",
                          vr.roundingMode, VR_FARTHEST)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=float",

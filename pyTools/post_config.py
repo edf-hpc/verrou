@@ -38,7 +38,7 @@ class postConfig(gen_config.gen_config):
         print("\t",  ",".join(rounding_tool.roundingDetTab  ))
         print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
-        print("\t det is an alias to "+",".join([x for x in rounding_tool.roundingDetTab if x!="float"]))
+        print("\t det is an alias to "+",".join([x for x in rounding_tool.roundingDetTab if x not in ["float","ftz"]]))
         print("\t no_det is an alias to "+",".join(["random","average", "prandom"]))
 
 

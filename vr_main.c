@@ -1242,6 +1242,13 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #undef bcName
 #undef bcNameWithCC
      }
+     if(vr.roundingMode==VR_AWAY_ZERO){
+#define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
      if(vr.roundingMode==VR_FARTHEST){
 #define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
