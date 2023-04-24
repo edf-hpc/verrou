@@ -592,11 +592,12 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           <listitem>
 
 	    <para>
-	      <computeroutput>all_det</computeroutput> corresponds to the list :
+	      <computeroutput>det</computeroutput> corresponds to the list :
 	      [<computeroutput>upward </computeroutput>,
 	      <computeroutput>downward</computeroutput>,
 	      <computeroutput>farthest</computeroutput>,
 	      <computeroutput>toward_zero</computeroutput>,
+	      <computeroutput>away_zero</computeroutput>,
 	      <computeroutput>nearest</computeroutput>]
 	    </para>
 	    <para>
@@ -763,13 +764,14 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
-	     <computeroutput>toward_zero</computeroutput>
+	     <computeroutput>toward_zero</computeroutput>,
+	     <computeroutput>away_zero</computeroutput>
 	    </para>
           </listitem>
 	  <listitem>
             <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
 	    </para>
-	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,farthest</computeroutput>.
+	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,away_zero,farthest</computeroutput>.
 	    </para>
           </listitem>
 	  <listitem>

@@ -260,7 +260,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|farthest|float|ftz> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|away_zero|farthest|float|ftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -270,7 +270,7 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                    <command>Random rounding modes:</command>
+                    <command>Stochastic rounding modes:</command>
 		    <computeroutput>random</computeroutput>,
                     <computeroutput>average</computeroutput>,
 		    <computeroutput>prandom</computeroutput>,
@@ -293,6 +293,7 @@ det2
                 </para></listitem>
                 <listitem><para>
                     <command>Other:</command>
+		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
 		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
