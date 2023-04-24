@@ -36,6 +36,7 @@
 #include <cmath>
 
 #include "../interflop_verrou/vr_fma.hxx"
+#include "../interflop_verrou/vr_sqrt.hxx"
 
 checkdenorm_conf_t checkdenorm_conf;
 
@@ -60,7 +61,7 @@ void checkdenorm_set_panic_handler(void (*panicHandler)(const char*)){
 
 template<class REAL>
 void flushToZeroAndCheck(REAL* res){
-  if( std::abs(*res) <  std::numeric_limits<REAL>::min()  && *res !=0.){
+  if( ( ((*res >= 0) ? (*res): -(*res)))   <  std::numeric_limits<REAL>::min()  && *res !=0.){
     if(ifcd_denormHandler!=0){
       (*ifcd_denormHandler)();
     }
@@ -157,6 +158,34 @@ void IFCD_FCTNAME(madd_double) (double a, double b, double c, double* res,void* 
 #endif
   flushToZeroAndCheck(res);
 }
+
+void IFCD_FCTNAME(sqrt_float) (float a, float* res,void* context) {
+#ifdef IFCD_DOOP
+#ifdef USE_VERROU_SQRT
+  *res=vr_sqrt(a);
+#else
+  ifcd_panicHandler("sqrt not implemented");
+#endif
+#endif
+  flushToZeroAndCheck(res);
+}
+
+
+void IFCD_FCTNAME(sqrt_double) (double a, double* res,void* context) {
+#ifdef IFCD_DOOP
+#ifdef USE_VERROU_SQRT
+  *res=vr_sqrt(a);
+#else
+  ifcd_panicHandler("sqrt not implemented");
+#endif
+#endif
+  flushToZeroAndCheck(res);
+}
+
+
+
+
+
 
 
 void IFCD_FCTNAME(cast_double_to_float) (double a, float* res,void* context) {

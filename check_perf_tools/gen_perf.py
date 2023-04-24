@@ -8,16 +8,17 @@ from tabular import *
 
 
 roundingListPerf=["random", "average","nearest"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet","prandom"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic"]
 
-buildConfigList=["stable","master", "master_fast"]
-buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "mersenne_twister"]
+buildConfigList=["stable","current", "current_fast"]
+buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
+
 
 nbRunTuple=(5,5) #inner outer
 
 verrouOptionsList=[("","")]
 
-postFixTab=["O0-DOUBLE", "O3-DOUBLE", "O0-FLOAT", "O3-FLOAT"]
+postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
 #postFixTab=["O3-DOUBLE"]
 
 
@@ -27,7 +28,7 @@ perfBinNameList=["stencil-"+i for i in  postFixTab]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
 def get_rounding_tab(name):
-    if name in ["master","master_fast"]:
+    if name in ["current","current_fast"]:
         return roundingListPerf+detRounding
     if name in buildConfigList:
         return roundingListPerf
@@ -168,7 +169,7 @@ def slowDownAnalyze(data):
                     refTime=refData[binName]["min"]
                     print("\t\t\t%s  slowDown: x%.1f "%(binName, minTimeNew/refTime))
 
-def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
+def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr=""):
 
 
 #    codeTabName=[x.replace("FLOAT","float").replace("DOUBLE","double")for x in postFixTab]
@@ -185,15 +186,20 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], optionStr=""):
     tab.endLine()
     tab.lineSep()
 
-    roundingTab=[("nearest", "nearest", "master"),"SEPARATOR"]
+    roundingTab=[("nearest", "nearest", "current"),"SEPARATOR"]
     for rd in ["random","average"]:
-        roundingTab+=[(rd, rd,"master")]
+        roundingTab+=[(rd, rd,"current")]
 
         for gen in buildList:#on supprime master
             for detType in detTab:
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
         roundingTab+=["SEPARATOR"]
     roundingTab=roundingTab[0:-1]
+    if extraRounding != []:
+        roundingTab+=["SEPARATOR"]
+        for rd in extraRounding:
+            for gen in buildList:#on supprime master
+                roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
     refData=extractPerfRef()
 
@@ -232,12 +238,25 @@ if __name__=="__main__":
         if slowDown:
             resAll[name]=extractPerf(name)
 
-    nonPerfRegressionAnalyze(resAll,"master_fast")
+    nonPerfRegressionAnalyze(resAll,"current_fast")
     print("")
     if slowDown:
 
         tab=tabularLatex("lcccc", output="slowDown_det.tex")
         feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det"])
+
+        tab=tabularLatex("lcccc", output="slowDown_comdet.tex")
+        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_comdet"])
+
+        tab=tabularLatex("lcccc", output="slowDown_scomdet.tex")
+        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_scomdet"])
+
+#        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
+#        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
+
+        tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
+        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic"])
+
         sys.exit()
         tab=tabular()
         feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det","_comdet"])

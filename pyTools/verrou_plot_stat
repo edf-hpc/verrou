@@ -33,67 +33,26 @@ import getopt
 import functools
 import glob
 import math
+from fractions import Fraction
 
 maxNbPROC=None
 
 from valgrind import DD_stoch
+from valgrind import rounding_tool
+from valgrind import gen_config
 
-roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
-roundingNonDetTab=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]]
+roundingDetTab=rounding_tool.roundingDetTab
+roundingNonDetTab=rounding_tool.roundingNonDetTab
 
-
-
-def roundingToEnvVar(rounding):
-    for prand in ["prandom_det", "prandom_comdet", "prandom"]:
-        if rounding.startswith(prand):
-            if rounding in ["prandom_det", "prandom_comdet", "prandom"]:
-                return  {"VERROU_ROUNDING_MODE":rounding,"VERROU_PRANDOM_UPDATE":"none"}
-            rest=rounding.replace(prand,"")
-            if rest.startswith("_"):
-                rest=rest[1:]
-                if rest=="func":
-                    return {"VERROU_ROUNDING_MODE":prand, "VERROU_PRANDOM_UPDATE":"func"}
-                try:
-                    value=float(rest)
-                    return {"VERROU_ROUNDING_MODE":prand, "VERROU_PRANDOM_PVALUE":rest}
-                except:
-                    print("No valid prandom rounding specification : ", rounding )
-                    sys.exit(42)
-
-            else:
-                print("No valid prandom rounding : ",rounding)
-                sys.exit(42)
-
-    if rounding.startswith("mca"):
-        mcaConfig=rounding.split("-")[1:]
-        mode=mcaConfig[0]
-        doublePrec=mcaConfig[1]
-        floatPrec=mcaConfig[2]
-        envvars={"VERROU_BACKEND":"mcaquad",
-                 "VERROU_MCA_MODE":mode,
-                 "VERROU_MCA_PRECISION_DOUBLE": doublePrec,
-                 "VERROU_MCA_PRECISION_FLOAT": floatPrec}
-        return envvars
-    if rounding in roundingDetTab + roundingNonDetTab:
-        return {"VERROU_ROUNDING_MODE":rounding }
-
-    print("No valid rounding : ",rounding)
-    sys.exit(42)
-
-def listOfValidKey(listOfStat):
-    listOfMcaKey=[ x  for x in listOfStat.keys()  if x.startswith("mca")  ]
-    listOfPrandomKey=[ x  for x in listOfStat.keys()  if x.startswith("prandom_")  ]
-    res=roundingNonDetTab+ roundingDetTab+ listOfMcaKey+listOfPrandomKey
-    return res
 
 def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None):
     if not os.path.exists(rep):
         os.mkdir(rep)
     listOfStat=copy.deepcopy(listOfConfigStat)
-    if listOfConfigStat[ref]==0:
+    if not ref in listOfConfigStat and rounding_tool.isValidRounding(ref):
         listOfStat[ref]=1
 
-    for roundingMode in listOfValidKey(listOfStat):
+    for roundingMode in listOfStat:
         nbSample=listOfStat[roundingMode]
 
         seedTab=None
@@ -104,18 +63,12 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed
         if nbSample==0:
             continue
         name=("%s")%(roundingMode)
-        envvars=roundingToEnvVar(roundingMode)
+        envvars=rounding_tool.roundingToEnvVar(roundingMode)
         if roundingMode in roundingDetTab:
             detName=os.path.join(rep,"det")
             if not os.path.exists(detName):
                 os.mkdir(detName)
             name=("det/%s")%(roundingMode)
-        if roundingMode.startswith("mca-"):
-            name=roundingMode.replace("mca-","mca/")
-            name=name.replace("-","_")
-            mcaName=os.path.join(rep,"mca")
-            if not os.path.exists(mcaName):
-                os.mkdir(mcaName)
 
         repName=os.path.join(rep,name)
         if not os.path.exists(repName):
@@ -141,13 +94,10 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
     resDict={}
 
-    for roundingMode in listOfValidKey(listOfStat):
+    for roundingMode in listOfStat:
         name=("%s")%(roundingMode)
         if roundingMode in roundingDetTab:
             name=("det/%s")%(roundingMode)
-        if roundingMode.startswith("mca-"):
-            name=roundingMode.replace("mca-","mca/")
-            name=name.replace("-","_")
 
         resTab=[]
         nbSample=listOfStat[roundingMode]
@@ -181,7 +131,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtractError):
 
     listOfStat=copy.deepcopy(listOfConfigStat)
-    if listOfConfigStat[ref]==0:
+    if ref not in listOfConfigStat and rounding_tool.isValidRounding(ref):
         listOfStat[ref]=1
 
     def getValueData(repName):
@@ -196,12 +146,15 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 
 
     res=extractLoopOverComputation(rep,listOfStat, getValueData)
-    res["ref"]=res[ref]
+    if rounding_tool.isValidRounding(ref):
+        res["ref"]=res[ref]
+    else:
+        res["ref"]=[float(ref)]
     if "fail" in res["ref"]:
         print("Even with --continue-on-extract-error the reference should not contain error")
         sys.exit()
 
-    if listOfConfigStat[ref]==0:
+    if ref not in listOfConfigStat and ref in res:
         res.pop(ref)
     return res
 
@@ -366,9 +319,6 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     #selection of plot
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]    # rounding mode plotted with histogram
-    #mcaMode=[ x  for x in data.keys()  if x.startswith("mca")  ]
-    #verrouMode=["nearest","upward","downward", "toward_zero","farthest","random","average","float"]
-#    for roundingMode in verrouMode+mcaMode:
     for roundingMode in sorted([x for x in data.keys() if x!="ref"]):
         if data[roundingMode]==None:
             continue
@@ -469,7 +419,21 @@ def computeRelative(estim, refValue):
     else:
         return (float("NaN"), float("NaN"))
 
-def print_stat(data, ref):
+def estimMca(tab):
+    tabFrac=[Fraction(x) for x in tab]
+    mean=sum(tabFrac) / Fraction(len(tabFrac))
+    sigma=math.sqrt( Fraction(1)/ Fraction(len(tabFrac)-1) * sum( (x -mean)**2 for x in tabFrac ) )
+    ratio=sigma/mean
+    bit=None
+    try:
+        bit=-math.log2(ratio)
+    except:
+        print("tab:", tab, file=sys.stderr)
+        print("mean:", float(mean), file=sys.stderr)
+        bit=float("Inf")
+    return (ratio, bit)
+
+def print_stat(data, ref,  mca_estimator=False):
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
 
@@ -486,11 +450,16 @@ def print_stat(data, ref):
         refValue=data["ref"][0]
     else:
         refValue=numpy.mean(data["ref"])
+
     print("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
+    if mca_estimator:
+        print("[mca] estimator\trel\trel(in bit)")
+
     maxEstim=0
     nbTotalError=0
     nbTotalSample=0
+    tabValue=[]
     for rounding in listOfTab:
         if not "fail" in data[rounding]:
             nbTotalSample+=len(data[rounding])
@@ -498,6 +467,11 @@ def print_stat(data, ref):
             maxEstim=max(estim,maxEstim)
             estimRel, estimRelBit=computeRelative(estim, refValue)
             print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+            if mca_estimator:
+                estimRel, estimRelBit=estimMca(data[rounding])
+                print("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
+                tabValue+=data[rounding]
+
         else:
             nbError=data[rounding].count("fail")
             nbTotalError+=nbError
@@ -509,6 +483,10 @@ def print_stat(data, ref):
                 maxEstim=max(estim,maxEstim)
                 estimRel, estimRelBit=computeRelative(estim, refValue)
                 print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+                if mca_estimator:
+                    estimRel, estimRelBit=estimMca([x for x in data[rounding] if x!="fail"])
+                    tabValue+=[x for x in data[rounding] if x!="fail"]
+                    print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
 
     for rounding in listOfScalar:
 
@@ -516,211 +494,145 @@ def print_stat(data, ref):
         nbTotalError+=nbError
         nbTotalSample+=len(data[rounding])
         if nbError==0:
+            if mca_estimator:
+                tabValue+=data[rounding]
+
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
         else:
             print("Warning %s failing")
+
     estimRel, estimRelBit=computeRelative(maxEstim, refValue)
     if nbTotalError==0:
         print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
     else:
         print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
 
+    if mca_estimator:
+        estimRel, estimRelBit=estimMca(tabValue)
+        if nbTotalError==0:
+            print("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
+        else:
+            print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
 
-class config_stat:
-    def __init__(self, argv):
-        self.isMontcarlo=False
-        self._nbSample=None
-        self._rep=None
-        self._defaultRep="verrou.stat"
-        self.listMCA=[]
-        self.defaultRoundingTab=["random","average","det"]
-        self.roundingTab=[]
 
-        self.png=False
+
+class config_stat(gen_config.gen_config):
+
+    def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
-        self._time=False
-        self._num_threads=None
-        self._relative=False
-        self._pattern=[]
-        self._runOnly=False
-        self._ref="nearest"
-        self._noPlot=False
-        self._nbBin=40
-        self._seed=None
-        self._continueOnExtractError=False
-        self.parseOpt(argv[1:])
-
-        if len(self._pattern)!=0 and (self.isMontcarlo==True or self._nbSample!=None or self._time==True):
-            print("--specific-pattern is incompatible with montecarlo, samples and time options")
-            self.failure()
-
-        if self._nbSample==None:
-            self._nbSample=100
-        if self._rep==None:
-            if len(self._pattern)!=0:
-                self._rep="."
-            else:
-                self._rep=self._defaultRep
+        self.defaultRoundingTab=["random","average","det"]
+        super().__init__(argv,environ, config_keys,[2,3])
+        self.normalize()
+        self.check()
 
 
-    def parseOpt(self,argv):
-        try:
-            opts,args=getopt.getopt(argv, "thms:r:p:",["time","help","montecarlo","run-only", "no-plot", "samples=","seed=","rep=", "nb-bin=","ref=","png=", "mca=","rounding-list=", "num-threads=", "relative=", "specific-pattern=", "continue-on-extract-error"])
-        except getopt.GetoptError:
-            self.help()
-            print("argv:", argv)
-            self.failure()
+    def registerOptions(self):
+        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default random,average,det]")
+        self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
+        self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
+        self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, docStr="number of parallel run")
 
-        for opt, arg in opts:
-            if opt in ("-h","--help"):
-                self.help()
-                sys.exit()
-            if opt in ("-t","--time"):
-                self._time=True
-                self._hist=False
-                continue
-            if opt in ("-m","--montecarlo"):
-                self.isMontcarlo=True
-                continue
-            if opt in ("--run-only"):
-                self._runOnly=True
-                continue
-            if opt in ("-s","--samples"):
-                self._nbSample=int(arg)
-                continue
-            if opt in ("--seed"):
-                self._seed=int(arg)
-                continue
-            if opt in ("--num-threads"):
-                self._num_threads=int(arg)
-                continue
-            if opt in ("-r","--rep"):
-                self._rep=arg
-                continue
-            if opt in ("--relative"):
-                self._relative=arg
-                continue
-            if opt in ("-p","--png"):
-                self.png=arg
-                continue
-            if opt in ["--specific-pattern"]:
-                self._pattern+=[arg]
-                continue
-            if opt in ["--rounding-list"]:
-                splitArgs=arg.split(",")
-                for toCheck in splitArgs:
-                    if toCheck!="det":
-                        check=roundingToEnvVar(toCheck)
-                self.roundingTab+=splitArgs
-                continue
-            if opt in ["--ref"]:
-                self._ref=arg
-                continue
-            if opt in ["--nb-bin"]:
-                self._nbBin=int(arg)
-                continue
-            if opt in ["--no-plot"]:
-                self._noPlot=True
-                continue
-            if opt in ["--continue-on-extract-error"]:
-                self._continueOnExtractError=True
-                continue
-            if opt in ("--mca",):
-                if arg=="":
-                    self.listMCA+=["rr-53-24"]
-                else:
-                    argSplit=arg.split("-")
-                    if len(argSplit)!=3:
-                        print("invalid mca format : invalid number of \"-\"")
-                        self.help()
-                        self.failure()
-                    else:
-                        if not (argSplit[0] in ["rr","pb","mca"]):
-                            print("invalid mca format : first element shoukld be in [\"rr\",\"pb\",\"mca\"]")
-                            self.help()
-                            self.failure()
-                        try:
-                            a=int(argSplit[1])
-                            b=int(argSplit[2])
-                        except:
-                            print("invalid mca format : two last parameter should be integer")
-                            self.help()
-                            self.failure()
-                    self.listMCA+=["mca-"+arg]
-                continue
-            print("unknown option :", opt)
+        self.addRegistry("_isMontecarlo", "bool","MONTECARLO",["--montecarlo","-m"], False, docStr="use stochastic analysis for deterministic rounding mode")
+        self.addRegistry("_runOnly",  "bool",   "RUN_ONLY", ["--run-only"], False, docStr="only execute run (neither plot histogramm nor print stat)")
+        self.addRegistry("_noPlot",   "bool",   "NO_PLOT",  ["--no-plot"],  False, docStr="do not plot hist (ie. print stat only)")
 
-        if self.roundingTab==[]:
-            self.roundingTab=self.defaultRoundingTab
-        if "det" in self.roundingTab:
-            self.roundingTab.remove("det")
-            self.roundingTab+=[x for x in roundingDetTab if x!="float"]
+        self.addRegistry("_nbBin",    "int",    "NBIN",     ["--nb-bin="],            40,  docStr="number of bins for histogram [default 40] ")
+        self.addRegistry("_seed",     "int",    "SEED",     ["--seed="],             None)
+        self.addRegistry("_png",      "string", "PNG",      ["--png=","-p:"],        False, docStr="png file to export plot")
+        self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest", docStr="reference for error estimator : rounding mode or value [default nearest]")
+        self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False, docStr="if used configure plot with relative abscissa (same parameter as --ref)")
+        self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
+        self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
+        self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False)
+        self.addRegistry("_mca_estimator", "bool", "MCA_ESTIMATOR",      ["--mca-estimator"],   False, docStr="mca estimator in addition to bernouilli estimator")
 
-#        print("rounding list :", self.roundingTab)
+    def normalize(self):
+        if len(self._pattern)!=0:
+            self._rep="."
+        if self._time:
+            self._hist=False
+
+        self._roundingTab=[]
+        for arg in self._roundingList:
+            splitArgs=arg.split(",")
+            for toCheck in splitArgs:
+                if toCheck not in ["det"]:
+                    check=rounding_tool.roundingToEnvVar(toCheck)
+                self._roundingTab+=[toCheck]
+
+        if self._roundingTab==[]:
+            self._roundingTab=self.defaultRoundingTab
+
+        if "det" in self._roundingTab:
+            self._roundingTab.remove("det")
+            self._roundingTab+=[x for x in roundingDetTab if x!="float"]
+
+        self._roundingTab=list(dict.fromkeys(self._roundingTab)) #uniq
 
         if self.run_only():
-            if len(args)==1:
-                self._runScript=self.checkScriptPath(args[0])
-            if len(args)>1:
+            if len(self.exec_arg)==1:
+                self._runScript=self.exec_arg[0]
+            if len(self.exec_arg)>1:
                 self.help()
                 self.failure()
             return
 
         if self._hist and len(self._pattern)==0:
-            if len(args)>2:
+            if len(self.exec_arg)>2:
                 self.help()
                 self.failure()
-            if len(args)==2:
-                self._runScript=self.checkScriptPath(args[0])
-                self._extractScript=self.checkScriptPath(args[1])
-            if len(args)==1:
+            if len(self.exec_arg)==2:
+                self._runScript=self.exec_arg[0]
+                self._extractScript=self.exec_arg[1]
+            if len(self.exec_arg)==1:
                 self._runScript=None
-                self._extractScript=self.checkScriptPath(args[0])
+                self._extractScript=self.exec_arg[0]
 
         if len(self._pattern)!=0:
-            if len(args)>1:
+            if len(self.exec_arg)>1:
                 self.help()
                 self.failure()
-            self._extractScript=self.checkScriptPath(args[0])
+            self._extractScript=self.exec_arg[0]
             self._runScript=None
         if self._time:
-            if len(args)>3:
+            if len(self.exec_arg)>3:
                 self.help()
                 self.failure()
-            self._runScript=self.checkScriptPath(args[0])
-            self._extractTimeScript=self.checkScriptPath(args[1])
-            self._extractVarScript=self.checkScriptPath(args[2])
+            self._runScript=self.exec_arg[0]
+            self._extractTimeScript=self.exec_arg[1]
+            self._extractVarScript=self.exec_arg[2]
 
-    def help(self):
+
+    def check(self):
+        if len(self._pattern)!=0 and (self._isMontecarlo==True or self._nbSample!=None or self._time==True):
+            print("--specific-pattern is incompatible with montecarlo, samples and time options")
+            self.failure()
+        if self._relative!=False:
+            if not rounding_tool.isValidRef(self._relative):
+                print(self._relative +" is not a valid for the option relative")
+                self.failure()
+        if not self.useSpecificPattern():
+            if not rounding_tool.isValidRef(self._ref):
+                print(self._ref +" is not a valid for the option reference")
+                self.failure()
+        else:
+            if not isStrFloat(self._ref):
+                print("With --specific-pattern option --ref shold be a float")
+                self.failure()
+
+
+    def usageCmd(self):
         name=sys.argv[0]
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
-        print( "\t -r --rep=:  working directory [default verrou.stat]")
-        print( "\t -s --samples= : number of samples [default 100] -1 means use what available without use run.sh")
-        print( "\t --num-threads= : number of parallel run")
-        print( "\t --run-only : only run  neither plot histogramm nor print stat ")
-        print( "\t --no-plot : do not plot hist (ie. print stat only)")
-        print( "\t --nb-bin= : number of bins for histogram [default 40] ")
+        print(self.get_EnvDoc(self.config_keys[-1]))
+        print("Valid rounding modes are:")
+        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTab))
 
-        print( "\t --rounding-list= : rounding modes (separated by coma) det aliases the list [nearest,upward,downward,toward_zero,farthest]. [default det, random, average]")
-        print( "\t --relative= : float or value in [nearest,upward,downward,toward_zero,farthest]")
-        print( "\t --ref= reference rounding mode for error estimator (in list [nearest,upward,downward,toward_zero,farthest, [random|average|prandom][|_det|_comdet]]) [default nearest]" )
-        print( "\t -p --png= : png file to export plot")
-        print( "\t -m --montecarlo : stochastic analysis of deterministic rounding mode")
-        print( "\t --mca=rr-53-24 : add mca ins the study")
-        print( "\t --specific-pattern= : pattern of rep (useful to plot histogramm without run.sh)")
-        print( "\t --continue-on-extract-error")
-
-    def checkScriptPath(self,fpath):
-        if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
-            return os.path.abspath(fpath)
-        else:
-            print("Invalid Cmd:"+str(sys.argv))
-            print(fpath + " should be executable")
-            self.help()
-            self.failure()
-    def failure(self):
-        sys.exit(42)
 
     def nbBin(self):
         return self._nbBin
@@ -751,43 +663,14 @@ class config_stat:
 
     def getSampleConfig(self):
         nbDet=1
-        if self._nbSample==-1:
-            nbDet=-1
-        if self.isMontcarlo:
+        if self._isMontecarlo:
             nbDet=self._nbSample
-        nbSamples={"random":self._nbSample,
-                   "random_det":self._nbSample,
-                   "random_comdet":self._nbSample,
-                   "average":self._nbSample,
-                   "average_det":self._nbSample,
-                   "average_comdet":self._nbSample,
-                   "prandom":self._nbSample,
-                   "prandom_det":self._nbSample,
-                   "prandom_comdet":self._nbSample,
-                   "nearest":nbDet,
-                   "upward":nbDet,
-                   "downward":nbDet,
-                   "toward_zero":nbDet,
-                   "farthest":nbDet,
-                   "float":0 }
-        for key in self.roundingTab:
-            if key in self.listMCA:
-                continue
-            if key.startswith("prandom_"):
+        nbSamples={}
+        for key in self._roundingTab:
+            if key in roundingDetTab:
+                nbSamples[key]=nbDet
+            else:
                 nbSamples[key]=self._nbSample
-
-            if not key in nbSamples.keys():
-                print("invalid rounding mode :",key)
-                self.help()
-                self.failure()
-
-        for key in nbSamples:
-            if key not in self.roundingTab:
-                nbSamples[key]=0
-
-
-        for mcaMode in self.listMCA:
-               nbSamples[mcaMode]=self._nbSample
         return nbSamples
 
     def num_threads(self):
@@ -811,11 +694,17 @@ class config_stat:
     def ref(self):
         return self._ref
 
+    def png(self):
+        return self._png
+
     def seed(self):
         return self._seed
 
+    def mca_estimator(self):
+        return self._mca_estimator
+
 if __name__=="__main__":
-    conf=config_stat(sys.argv)
+    conf=config_stat(sys.argv,os.environ)
     nbSamples=conf.getSampleConfig()
 
     if conf.runScript()!=None:
@@ -827,13 +716,13 @@ if __name__=="__main__":
         if not conf.useSpecificPattern():
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref(), conf.continueOnExtractError())
             if not conf.no_plot():
-                plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref())
+                plot_hist(dataExtracted, png=conf.png(), relative=conf.relative(), nb_bin=conf.nbBin())
+            print_stat(dataExtracted, conf.ref(), conf.mca_estimator())
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref(), continueOnExtractError=conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref())
+            print_stat(dataExtracted, conf.ref(), conf.mca_estimator() )
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)

@@ -310,6 +310,9 @@ public:
 
 class vr_double_tabulation_hash{
 public:
+  static inline void genTable(tinymt64_t& gen){
+    vr_tabulation_hash::genTable(gen);
+  }
 
   template<class REALTYPE, int NB>
   static inline  bool hashBool(__attribute__((unused)) const Vr_Rand * r,
@@ -331,4 +334,32 @@ public:
     constexpr double invMax=(1./ 4294967296.); //2**32 = 4294967296
     return ((double)res *invMax );
   }
+
+
+
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const double* res){
+    uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+    uint32_t resHash2=0;
+    vr_tabulation_hash::hash_aux(resHash, 1, resHash2);
+
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash2 *invMax );
+  }
+
+    static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const float* res){
+    uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+    uint32_t resHash2=0;
+    vr_tabulation_hash::hash_aux(resHash2, 1, resHash);
+
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash2 *invMax );
+  }
+
+
 };

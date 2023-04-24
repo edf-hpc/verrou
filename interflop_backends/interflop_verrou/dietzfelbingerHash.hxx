@@ -2,13 +2,15 @@
 
 class vr_dietzfelbinger_hash{
 public:
+  static inline void genTable(tinymt64_t& gen){};
+
   template<int NB>
   static inline bool hashBool(const Vr_Rand * r,
 			      const vr_packArg<double,NB>& pack,
 			      uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<2); //<<2 to avoid conflict with |1
+    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -23,7 +25,7 @@ public:
 			      uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<2); //<<2 to avoid conflict with |1
+    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
@@ -32,7 +34,6 @@ public:
     return res;
   }
 
-  
 
 
   template<int NB>
@@ -41,36 +42,69 @@ public:
 			  uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
-    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<2);
+    const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
     const uint64_t oddSeed = seed | 1; // insures seed is odd
     const uint32_t res = (oddSeed * argsHash) >> 32;
-    constexpr double invMAx=(1/ 4294967296.);
+    constexpr double invMax=(1/ 4294967296.);
 
-    return ((double)res * invMAx ); //2**32 = 4294967296
+    return ((double)res * invMax ); //2**32 = 4294967296
   }
-  
+
   template<int NB>
   static inline double hashRatio(const Vr_Rand * r,
 			  const vr_packArg<float,NB>& pack,
 			  uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);;
-    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<2);
+    const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
     // returns a one bit hash as a PRNG
     // uses Dietzfelbinger's multiply shift hash function
     // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
     const uint32_t oddSeed = seed | 1; // insures seed is odd
     const uint32_t res = (oddSeed * argsHash);
-    constexpr double invMAx=(1/ 4294967296.);
+    constexpr double invMax=(1/ 4294967296.);
 
-    return ((double)res * invMAx ); //2**32 = 4294967296
+    return ((double)res * invMax ); //2**32 = 4294967296
   }
 
 
-  
+
+
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const float* res){
+    const uint32_t seed = vr_rand_getSeed(r);
+
+    uint32_t argsHash= *reinterpret_cast<const uint32_t*>(res);
+
+    // returns a one bit hash as a PRNG
+    // uses Dietzfelbinger's multiply shift hash function
+    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
+    const uint32_t oddSeed = seed | 1; // insures seed is odd
+    const uint32_t resHash = (oddSeed * argsHash);
+    constexpr double invMax=(1/ 4294967296.);
+
+    return ((double)resHash * invMax ); //2**32 = 4294967296
+  }
+
+  static inline double hashRatioFromResult(const Vr_Rand * r,
+					   const double* res){
+    const uint32_t seed = vr_rand_getSeed(r);
+    uint64_t argsHash= *reinterpret_cast<const uint64_t*>(res);
+
+    // returns a one bit hash as a PRNG
+    // uses Dietzfelbinger's multiply shift hash function
+    // see `High Speed Hashing for Integers and Strings` (https://arxiv.org/abs/1504.06804)
+    const uint32_t oddSeed = seed | 1; // insures seed is odd
+    const uint32_t resHash = (oddSeed * argsHash);
+    constexpr double invMax=(1/ 4294967296.);
+
+    return ((double)resHash * invMax ); //2**32 = 4294967296
+  }
+
+
   static inline uint64_t xorHash(const vr_packArg<double,1>& pack){
       return realToUint64_reinterpret_cast<double>(pack.arg1);
   };

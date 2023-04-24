@@ -133,12 +133,18 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_comdet",
                          vr.roundingMode, VR_RANDOM_COMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_scomdet",
+                         vr.roundingMode, VR_RANDOM_SCOMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_monotonic",
+                         vr.roundingMode, VR_SR_MONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
                          vr.roundingMode, VR_AVERAGE_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_comdet",
                          vr.roundingMode, VR_AVERAGE_COMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_scomdet",
+                         vr.roundingMode, VR_AVERAGE_SCOMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom",
                          vr.roundingMode, VR_PRANDOM)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_det",
@@ -194,10 +200,10 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   //Options to choose op to instrument
-  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv", setResult)){
-    UInt instrTab[]={0,0,0,0,0,0,0};
+  else if (VG_USET_CLOM(cloPD, arg, "--vr-instr", "add,sub,mul,div,mAdd,mSub,conv,sqrt", setResult)){
+    UInt instrTab[]={0,0,0,0,0,0,0,0};
     UInt currentFlags=setResult;
-    for(UInt i=0; i<7;i++){
+    for(UInt i=0; i<8;i++){
       instrTab[i]=currentFlags%2;
       currentFlags=currentFlags/2;
     }
@@ -208,6 +214,7 @@ Bool vr_process_clo (const HChar *arg) {
     if(instrTab[4]!=0) vr.instr_op[VR_OP_MADD]=True;
     if(instrTab[5]!=0) vr.instr_op[VR_OP_MSUB]=True;
     if(instrTab[6]!=0) vr.instr_op[VR_OP_CONV]=True;
+    if(instrTab[7]!=0) vr.instr_op[VR_OP_SQRT]=True;
   }
 
   //Option to enable check-cancellation backend

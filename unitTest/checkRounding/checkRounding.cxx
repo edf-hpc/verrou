@@ -213,10 +213,10 @@ class testIncSquare0d1: public test<REALTYPE>{
 template<class REALTYPE>
 class testIncSquare0d1m: public test<REALTYPE>{
  public:
-  testIncSquare0d1m():test<REALTYPE>(-10001),
+  testIncSquare0d1m():test<REALTYPE>(-10000),
 	  size(1000000),
 	  step(-0.1),
-	  init(-1.)
+	  init(0.)
     {
 
     }
@@ -229,7 +229,7 @@ class testIncSquare0d1m: public test<REALTYPE>{
   REALTYPE compute(){    
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
-      acc+=(-1.0*step)*step;
+      acc+=(-(REALTYPE)1.0*step)*step;
     }  
     return acc;
   }
@@ -669,15 +669,73 @@ public:
 
 
 
+
+
+#ifdef TEST_SSE
+  inline double mySqrt(const double& a){
+    double d;
+    __m128d ai,di;
+    ai = _mm_load_sd(&a);
+    di=_mm_sqrt_sd(ai,ai);
+    d=_mm_cvtsd_f64(di);
+    return d;
+  }
+
+
+  inline float mySqrt(const float& a){
+    float d;
+    __m128 ai, bi,ci,di;
+    ai = _mm_load_ss(&a);
+    di=_mm_sqrt_ss(ai);
+    d=_mm_cvtss_f32(di);
+
+    return d;
+  }
+#else
+template<class REALTYPE>
+inline REALTYPE mySqrt(REALTYPE a){
+  return std::sqrt(a);
+  }
+#endif
+
+template<class REALTYPE>
+class testDiffSqrt:public test<REALTYPE>{
+ public:
+  testDiffSqrt():test<REALTYPE>(0.),
+    size(10000),
+    value(0.1),
+    init(0.){}
+
+  std::string name(){
+    return std::string("testDiffSqrt");
+  }
+
+
+  REALTYPE compute(){
+    volatile REALTYPE acc=init;
+    //    volatile REALTYPE acc2=-init;
+    for(int i=0; i<size; i++){
+      acc+= std::abs(mySqrt(value)- mySqrt(value)) ;
+    }
+    return acc;
+  }
+
+ private:
+  const int size;
+  volatile  REALTYPE value;
+  const REALTYPE init;
+
+};
+
+
+
 int main(int argc, char** argv){
   std::string roundingModeStr;
   std::string env;
 
-  
-
   if(argc==3){
     env=argv[1];
-    roundingModeStr=argv[2];    
+    roundingModeStr=argv[2];
   }else{
     if(argc==2){
       env=argv[1];
@@ -691,7 +749,6 @@ int main(int argc, char** argv){
 
   //  std::cout << "env: "<<env<<std::endl;
   //  std::cout << "roundingMode: "<<roundingModeStr<<std::endl;
-  
   //Parse ENV
 
   if(env==std::string("fenv")){
@@ -704,19 +761,19 @@ int main(int argc, char** argv){
       return EXIT_FAILURE;
     }
   }
-  
-  
+
+
   //Parse ROUNDING_MODE
   if(roundingModeStr==std::string("upward")) roundingMode=FE_UPWARD;
   if(roundingModeStr==std::string("downward")) roundingMode=FE_DOWNWARD;
   if(roundingModeStr==std::string("nearest")) roundingMode=FE_TONEAREST;
   if(roundingModeStr==std::string("toward_zero")) roundingMode=FE_TOWARDZERO;
-  
+
   if(roundingMode==-2){
-    usage(argv); 
+    usage(argv);
     return EXIT_FAILURE;
   }
-  
+
   {
     typedef double RealType;
     testInc0d1 <RealType> t1; t1.run();
@@ -733,8 +790,9 @@ int main(int argc, char** argv){
     testMixSseLlom<RealType> t6m; t6m.run();
     testCast<RealType,double> t7; t7.run();
     testCastm<RealType,double> t7m; t7m.run();
+    testDiffSqrt<RealType> t8; t8.run();
   }
-  
+
   {
     typedef float RealType;
     testInc0d1 <RealType> t1; t1.run();
@@ -742,7 +800,7 @@ int main(int argc, char** argv){
     testIncSquare0d1<RealType> t2; t2.run();
     testIncSquare0d1m<RealType> t2m; t2m.run();
     testIncDiv10<RealType> t3; t3.run();
-    testIncDiv10m<RealType> t3m; t3m.run();  
+    testIncDiv10m<RealType> t3m; t3m.run();
     testInvariantProdDiv<RealType> t4; t4.run();
     testInvariantProdDivm<RealType> t4m; t4m.run();
     testFma<RealType> t5; t5.run();
@@ -751,6 +809,7 @@ int main(int argc, char** argv){
     testMixSseLlom<RealType> t6m; t6m.run();
     testCast<RealType,double> t7; t7.run();
     testCastm<RealType,double> t7m; t7m.run();
+    testDiffSqrt<RealType> t8; t8.run();
   }
 
   /*    {
@@ -762,9 +821,5 @@ int main(int argc, char** argv){
     //test5<RealType> t5; t5.run();
     }*/
 
-
   return EXIT_SUCCESS;
 }
-
-
-

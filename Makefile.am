@@ -14,7 +14,7 @@ PYTHON_REP=pyTools
 
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro ${PYTHON_REP}/post_verrou_dd
 
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py
 
 install-exec-local:
 	mkdir -p ${pkgpythondir}
@@ -60,6 +60,11 @@ if HAVE_FMA_INTRIN
 VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
 VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
 endif
+if HAVE_SQRT_INTRIN
+VERROU_FLAG_CXX += -DUSE_VERROU_SQRT
+VERROU_FLAG_C   += -DUSE_VERROU_SQRT
+endif
+
 
 if USE_QUAD
 VERROU_SOURCES_COMMON+= \
@@ -83,6 +88,17 @@ if USE_VERROU_NANINF
 else
 VERROU_FLAG_CXX +=  -DVERROU_IGNORE_NANINF_CHECK
 VERROU_FLAG_C   +=  -DVERROU_IGNORE_NANINF_CHECK
+endif
+
+
+if USE_VERROU_DENORM_HACK_FLOAT
+VERROU_FLAG_CXX +=  -DVERROU_DENORM_HACKS_FLOAT
+VERROU_FLAG_C   +=  -DVERROU_DENORM_HACKS_FLOAT
+endif
+
+if USE_VERROU_DENORM_HACK_DOUBLE
+VERROU_FLAG_CXX +=  -DVERROU_DENORM_HACKS_DOUBLE
+VERROU_FLAG_C   +=  -DVERROU_DENORM_HACKS_DOUBLE
 endif
 
 

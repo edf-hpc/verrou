@@ -63,6 +63,9 @@ extern "C" {
   void IFMAX_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFMAX_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFMAX_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFMAX_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFMAX_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFMAX_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);

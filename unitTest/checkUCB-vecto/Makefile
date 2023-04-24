@@ -1,5 +1,5 @@
 export INSTALLPATH = $(shell bash ../installpath)
-export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou --check-nan=no
+export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou --check-nan=no --check-inf=no
 
 include ../flag.mk
 

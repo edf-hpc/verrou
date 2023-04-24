@@ -53,9 +53,12 @@ extern "C" {
     VR_RANDOM, // Must be immediately after standard rounding modes
     VR_RANDOM_DET,
     VR_RANDOM_COMDET,
+    VR_RANDOM_SCOMDET,
+    VR_SR_MONOTONIC,
     VR_AVERAGE,
     VR_AVERAGE_DET,
     VR_AVERAGE_COMDET,
+    VR_AVERAGE_SCOMDET,
     VR_PRANDOM,
     VR_PRANDOM_DET,
     VR_PRANDOM_COMDET,
@@ -110,6 +113,9 @@ extern "C" {
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 

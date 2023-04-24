@@ -10,6 +10,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -25,6 +28,9 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -42,6 +48,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -57,6 +66,9 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -74,6 +86,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -89,6 +104,9 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -106,6 +124,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -121,6 +142,28 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
+  void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#undef IFV_FCTNAME
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_RANDOM_SCOMDET
+
+  void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -138,6 +181,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -153,6 +199,9 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -170,6 +219,28 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
+  void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#undef IFV_FCTNAME
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_SCOMDET
+
+  void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -185,6 +256,9 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
@@ -202,6 +276,9 @@
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
 
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
@@ -217,6 +294,28 @@
   void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
   void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
+
+  void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#undef IFV_FCTNAME
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_SR_MONOTONIC
+
+  void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+
+  void IFV_FCTNAME(sqrt_double) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float)  (float a,  float*  res, void* context);
 
   void IFV_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
 

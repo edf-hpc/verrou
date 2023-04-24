@@ -81,7 +81,7 @@ compiler:
 
     ./configure --enable-only64bit --prefix=PREFIX CFLAGS="-mfma"
 
-Systems that don't support FMA instructions the `--enable-verrou-fma=no`
+On systems that don't support FMA instructions the `--enable-verrou-fma=no`
 configure switch need to be used, but be aware that this causes some tests to fail:
 
     ./configure --enable-only64bit --enable-verrou-fma=no --prefix=PREFIX
@@ -91,9 +91,10 @@ configure switch need to be used, but be aware that this causes some tests to fa
 Advanced users can use the following configure flags :
 
 - `--enable-verrou-check-naninf=yes|no` (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
-- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is double_tabulation. mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are no able to reproduce the reference results.
-- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced for (random and average)is replaced by the xo[ro]shiro prng.
-- `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disable. This option is only useful to reduce the dependencies.
+- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are not able to reproduce the reference results.
+- `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necesarry exact. With the average* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
+- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and average) by the xo[ro]shiro prng.
+- `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disabled. This option is only useful to reduce the dependencies.
 
 <p>&nbsp;</p>
 

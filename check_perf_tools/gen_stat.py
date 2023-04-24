@@ -7,10 +7,9 @@ import subprocess
 import math
 from tabular import *
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "master","dietzfelbinger","multiply_shift","multiply_shift_fix","double_tabulation","mersenne_twister"]
-#buildConfList=[ "master","multiply_shift","multiply_shift_fix"]
+buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
 buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
@@ -31,15 +30,32 @@ def parsePlotStat(lineTab):
     toParse=False
     res={}
     for line in lineTab:
+        if line.startswith("[mca] estimator"):
+            continue
+        if line.startswith("[mca] all:"):
+            toParse=True
+
         if toParse:
-            spline=line.strip().split("\t")
-            rounding=spline[0][0:-1]
-            absEst=spline[1]
-            relEst=spline[2]
-            bit=spline[3].replace("bit","")
-            res[rounding]={"absEst":absEst, "relEst": relEst , "bit":bit }
-            if rounding=="all":
-                toParse=False
+            if not line.startswith("[mca]"):
+                spline=line.strip().split("\t")
+                rounding=spline[0][0:-1]
+                absEst=spline[1]
+                relEst=spline[2]
+                bit=spline[3].replace("bit","")
+                res[rounding]={"absEst":absEst, "relEst": relEst , "bit":bit }
+                if rounding=="all":
+                    toParse=False
+            else:
+                line=line.replace("[mca] ","")
+                spline=line.strip().split("\t")
+                rounding=spline[0][0:-1]
+                relEst=spline[1]
+                bit=spline[2].replace("bit","")
+                res[rounding]["mca"]=relEst
+                res[rounding]["mca_bit"]=bit
+                if rounding=="all":
+                    toParse=False
+
         if line.startswith("refValue[nearest]"):
             res["nearest"]=(line.split(":")[1]).strip()
 
@@ -62,7 +78,7 @@ def extractStat():
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 concatStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot --mca-estimator %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             lineTab=runCmdToLines(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
             resName[concatStr]=parsePlotStat(lineTab)
@@ -93,8 +109,8 @@ def checkCoherence(stat):
             return False
     return True
 
-def feedTab(stat, detTab=["_det","_comdet"], ref=None):
-    refName="master"
+def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
+    refName="current"
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
     tab.begin()
@@ -106,9 +122,10 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
     tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
     tab.endLine()
-    roundingTab=[("all", "all", "master"),"SEPARATOR"]
-    for rd in ["random","average"]:
-        roundingTab+=[(rd, rd,refName)]
+    roundingTab=[("all", "all", "current"),"SEPARATOR"]
+    for rd in rndList:
+        if rd!= "sr_monotonic":
+            roundingTab+=[(rd, rd,refName)]
         if rd=="average":
             for gen in buildConfListXoshiro:
                 roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
@@ -118,18 +135,23 @@ def feedTab(stat, detTab=["_det","_comdet"], ref=None):
 
 
         for gen in buildConfList:
-            for detType in detTab:
-                roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
-        roundingTab+=["SEPARATOR"]
-    roundingTab=roundingTab[0:-1]
+            if gen=="current":
+                continue
+            if rd in ["random","average"]:
+                for detType in detTab:
+                    roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
+            else:
+                roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
-    for confLine in roundingTab:
+        roundingTab+=["SEPARATOR"]
+
+    for confLine in roundingTab[0:-1]:
         if confLine=="SEPARATOR":
             tab.lineSep()
             continue
 
         head= [confLine[0]]
-        content=[stat[confLine[2]][code][confLine[1]]['bit']  for code in codeTab ]
+        content=[stat[confLine[2]][code][confLine[1]][precisionVar]  for code in codeTab ]
         tab.line(head+content)
         tab.endLine()
 
@@ -165,7 +187,7 @@ def plotNumConfig():
 
 if __name__=="__main__":
 
-    plotNumConfig()
+#    plotNumConfig()
 
     statRes=extractStat()
     if checkCoherence(statRes):
@@ -174,11 +196,20 @@ if __name__=="__main__":
         print("checkCoherence FAILURE")
 
     tab=tabularLatex("lcccc", output="tabDet.tex")
-    feedTab(statRes,detTab=["_det"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","average"],detTab=["_det"], ref=2**20*0.1)
 
 
     tab=tabularLatex("lcccc", output="tabComDet.tex")
-    feedTab(statRes,detTab=["_comdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","average"],detTab=["_comdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabScomDet.tex")
+    feedTab(statRes,rndList=["random","average"],detTab=["_scomdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabMono.tex")
+    feedTab(statRes,rndList=["average","sr_monotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabMCA.tex")
+    feedTab(statRes,rndList=["random","average","sr_monotonic"],detTab=["_det","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit", buildConfList=[ "current","double_tabulation", "xxhash","mersenne_twister"])
 
 
     cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"

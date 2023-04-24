@@ -87,6 +87,128 @@ public:
 };
 
 
+template<class REALTYPE>
+struct nextTool{
+  typedef REALTYPE RealType;
+
+  static inline RealType next_safe(RealType res, RealType signError){
+    //assert(signError!=0)
+    if(res>0){
+      if(signError>0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    if(res<0){
+      if(signError<0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    //if(res==0){
+    if((signError)>0){
+      return std::numeric_limits<RealType>::denorm_min();
+    }else{
+      return -std::numeric_limits<RealType>::denorm_min();
+    }
+  }
+
+  static inline RealType next_unsafe(RealType res, RealType signError){
+    //assert(res!=0 && signError!=0)
+    if(res>0){
+      if(signError>0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    if(signError<0){
+      return nextAwayFromZero<RealType>(res);
+    }else{
+      return nextTowardZero<RealType>(res);
+    }
+  }
+
+
+  static inline RealType nextAfter_safe(RealType res){
+    if(res >0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    if(res < 0){
+      return nextTowardZero<RealType>(res);
+    }
+    return std::numeric_limits<RealType>::denorm_min();
+  }
+
+  static inline RealType nextPrev_safe(RealType res){
+    if(res <0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    if(res > 0){
+      return nextTowardZero<RealType>(res);
+    }
+    return -std::numeric_limits<RealType>::denorm_min();
+  }
+
+  static inline RealType nextAfter_unsafe(RealType res){
+    if(res >0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    return nextTowardZero<RealType>(res);
+  }
+
+  static inline RealType nextPrev_unsafe(RealType res){
+    if(res <0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    return nextTowardZero<RealType>(res);
+  }
+};
+
+template<class REALTYPE, bool SIGN_DENORM_HACK_NEEDED>
+struct nextForRandom;
+
+
+template<class REALTYPE>
+struct nextForRandom<REALTYPE,false>{
+  typedef REALTYPE RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+    return nextTool<RealType>::next_unsafe(res,sign);
+  }
+};
+
+
+template<>
+struct nextForRandom<double,true>{
+  typedef double RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::next_safe(res,sign);
+#else
+    return nextTool<RealType>::next_unsafe(res,sign);
+#endif
+  }
+};
+
+
+template<>
+struct nextForRandom<float,true>{
+  typedef float RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::next_safe(res,sign);
+#else
+    return nextTool<RealType>::next_unsafe(res,sign);
+#endif
+  }
+};
+
+
 
 
 template<class OP, class RAND>
@@ -115,15 +237,76 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if((signError*res)>0){
-	  return nextAwayFromZero<RealType>(res);
-	}else{
-	  return nextTowardZero<RealType>(res);
-	}
+	return nextForRandom<RealType, OP::sign_denorm_hack_needed >::next(res,signError);
       }
     }
   } ;
 };
+
+
+
+
+template<class REALTYPE, bool SIGN_DENORM_HACK_NEEDED>
+struct nextForPRandom;
+
+
+template<class REALTYPE>
+struct nextForPRandom<REALTYPE,false>{
+  typedef REALTYPE RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+    return nextTool<RealType>::nextAfter_unsafe(res);
+  }
+  static inline RealType nextPrev(const RealType& res){
+    return nextTool<RealType>::nextPrev_unsafe(res);
+  }
+};
+
+
+template<>
+struct nextForPRandom<double,true>{
+  typedef double RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::nextAfter_safe(res);
+#else
+    return nextTool<RealType>::nextAfter_unsafe(res);
+#endif
+  }
+
+    static inline RealType nextPrev(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::nextPrev_safe(res);
+#else
+    return nextTool<RealType>::nextPrev_unsafe(res);
+#endif
+  }
+};
+
+template<>
+struct nextForPRandom<float,true>{
+  typedef float RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::nextAfter_safe(res);
+#else
+    return nextTool<RealType>::nextAfter_unsafe(res);
+#endif
+  }
+
+    static inline RealType nextPrev(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::nextPrev_safe(res);
+#else
+    return nextTool<RealType>::nextPrev_unsafe(res);
+#endif
+  }
+};
+
+
+
 
 template<class OP, class RAND>
 class RoundingPRandom{
@@ -151,25 +334,84 @@ public:
 	if(doNoChange){
 	  return res;
 	}else{
-	  if(res >0){
-	    return nextAwayFromZero<RealType>(res);
-	  }else{
-	    return nextTowardZero<RealType>(res);
-	  }
+	  return nextForPRandom<RealType,OP::sign_denorm_hack_needed>::nextAfter(res);
 	}
       }
-      const bool doChange = !RAND::randBool(&vr_rand, p);
-      if(doChange){
+      const bool doNoChange = !RAND::randBool(&vr_rand, p);
+      if(doNoChange){
 	return res;
       }else{
-	if(res <0){
-	  return nextAwayFromZero<RealType>(res);
-	}else{
-	  return nextTowardZero<RealType>(res);
-	}
+	return nextForPRandom<RealType,OP::sign_denorm_hack_needed>::nextPrev(res);
       }
     }
   } ;
+};
+
+
+
+template<class OP, class RAND>
+class RoundingSRMonotonic{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p ){
+    const RealType res=OP::nearestOp(p);
+    INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+#endif
+    OP::check(p,res);
+    const RealType error=OP::error(p,res);
+
+    if(error==0.){
+      INC_EXACTOP;
+      return res;
+    }else{
+      bool down;
+      RealType resm,resp;
+      if( error > 0){
+	resm=res;
+	if(res >0){
+	  resp=nextAwayFromZero<RealType>(res);
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
+	  const RealType u(resp-resm);
+	  down =( error < (limit * u));
+	}else{//res <0 : res==0 => error=>0
+	  resp=nextTowardZero<RealType>(res);
+	  const RealType resHash(-resp);
+	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType u(resp-resm);
+	  down =( error <= (limit * u));
+	}
+
+      }else{
+	resp=res;
+	if(res >0){
+	  resm=nextTowardZero<RealType>(res);
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
+	  const RealType u(resp-resm);
+	  const RealType errorTh(u+error);
+	  down =( errorTh < (limit * u));
+	}else{
+	  resm=nextAwayFromZero<RealType>(res);
+	  const RealType resHash(-resp);
+	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType u(resp-resm);
+	  const RealType errorTh(u+error);
+	  down =( errorTh <= (limit * u));
+	}
+
+      }
+      if(down){
+	return resm;
+      }else{
+	return resp;
+      }
+    }
+  };
 };
 
 
@@ -226,6 +468,56 @@ public:
   } ;
 };
 
+template<class OP, class RAND>
+class RoundingSAverage{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p) ;
+
+    INC_OP;
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf<RealType> (res)){
+      return res;
+    }
+#endif
+    OP::check(p,res);
+    const RealType error=OP::error(p,res);
+    if(error==0.){
+      INC_EXACTOP;
+      return res;
+    }
+
+
+    if(error>0){
+      const RealType nextRes(nextAfter<RealType>(res));
+      const RealType u(nextRes -res);
+      const bool doNotChange = (((1.-RAND::randRatio(&vr_rand, p)) * u)
+				>   error);
+      if(doNotChange){
+	return res;
+      }else{
+	return nextRes;
+      }
+
+    }
+    //    if(error<0)
+    {
+      const RealType prevRes(nextPrev<RealType>(res));
+      const RealType mu(prevRes -res);
+      const bool doNotChange = ((RAND::randRatio(&vr_rand, p) * mu)
+				< error);
+      if(doNotChange){
+	return res;
+      }else{
+	return prevRes;
+      }
+    }
+    //return res; //Should not occur
+  } ;
+};
 
 
 template<class OP>
@@ -456,12 +748,18 @@ public:
       return RoundingRandom<OP, vr_rand_det<OP> >::apply (p);
     case VR_RANDOM_COMDET:
       return RoundingRandom<OP, vr_rand_comdet<OP> >::apply (p);
+    case VR_RANDOM_SCOMDET:
+      return RoundingPRandom<OP, vr_rand_scomdet<OP> >::apply (p);
+    case VR_SR_MONOTONIC:
+      return RoundingSRMonotonic<OP, vr_rand_det<OP> >::apply (p);
     case VR_AVERAGE:
       return RoundingAverage<OP, vr_rand_prng<OP> >::apply (p);
     case VR_AVERAGE_DET:
       return RoundingAverage<OP,vr_rand_det<OP> >::apply (p);
     case VR_AVERAGE_COMDET:
       return RoundingAverage<OP, vr_rand_comdet<OP> >::apply (p);
+    case VR_AVERAGE_SCOMDET:
+      return RoundingSAverage<OP, vr_rand_scomdet<OP> >::apply (p);
     case VR_PRANDOM:
       return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_prng> >::apply (p);
     case VR_PRANDOM_DET:

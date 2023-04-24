@@ -240,4 +240,5 @@ int main(int argc, char *argv[]) {
       }
     }
     std::cout << std::setprecision(16)<< "norm: " << sqrt(norm)<<std::endl;
+    interflop_verrou_finalize(&context);
 }

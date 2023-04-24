@@ -34,6 +34,8 @@
 #pragma once
 
 #include "vr_isNan.hxx"
+#include "vr_sqrt.hxx"
+#include "cmath"
 
 enum opHash : uint32_t{
   addHash=0,
@@ -42,7 +44,8 @@ enum opHash : uint32_t{
   divHash=3,
   maddHash=4,
   castHash=5,
-  nbOpHash=6
+  sqrtHash=6,
+  nbOpHash=7
 };
 
 enum typeHash : uint32_t{
@@ -54,11 +57,11 @@ enum typeHash : uint32_t{
 
 
 template<class>
-inline uint64_t getTypeHash(){return typeHash::otherHash;}
+inline uint32_t getTypeHash(){return typeHash::otherHash;}
 template<>
-inline uint64_t getTypeHash<float>(){return typeHash::floatHash;}
+inline uint32_t getTypeHash<float>(){return typeHash::floatHash;}
 template<>
-inline uint64_t getTypeHash<double>(){return typeHash::doubleHash;}
+inline uint32_t getTypeHash<double>(){return typeHash::doubleHash;}
 
 
 
@@ -129,6 +132,11 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
+  inline bool isSameSign()const{
+    //return (arg1*arg2) >0; //should be faster but may fail with denorm
+    return (arg1 >0  &&  arg2 >0) || (arg1 <0  &&  arg2 <0);
+  }
+
   const RealType& arg1;
   const RealType& arg2;
 };
@@ -152,15 +160,25 @@ struct vr_packArg<REALTYPE,3>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
   }
 
+  inline bool isEvenNumPositive()const{
+    int count=0;
+    if(arg1 > 0) count++;
+    if(arg2 > 0) count++;
+    if(arg3 > 0) count++;
+
+    if(count==0 || count==2){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   const RealType& arg1;
   const RealType& arg2;
   const RealType& arg3;
 };
 
-
 #include <algorithm>
-
-
 
 template<class REALTYPE, int NB>
 class vr_roundFloat;
@@ -170,7 +188,7 @@ template<class REALTYPE>
 struct vr_roundFloat<REALTYPE, 1>{
   vr_roundFloat(const vr_packArg<REALTYPE,1>& p): arg1(REALTYPE(float(p.arg1))){
   }
-  vr_packArg<REALTYPE,1> getPack()const{
+  inline vr_packArg<REALTYPE,1> getPack()const{
     return vr_packArg<REALTYPE,1>(arg1);
   }
 
@@ -183,7 +201,7 @@ struct vr_roundFloat<REALTYPE, 2>{
   vr_roundFloat(const vr_packArg<REALTYPE,2>& p): arg1(REALTYPE(float(p.arg1 ))),
 						  arg2(REALTYPE(float(p.arg2 ))){
   }
-  vr_packArg<REALTYPE,2> getPack()const{
+  inline vr_packArg<REALTYPE,2> getPack()const{
     return vr_packArg<REALTYPE,2>(arg1,arg2);
   }
   const REALTYPE arg1;
@@ -196,7 +214,7 @@ struct vr_roundFloat<REALTYPE, 3>{
 						  arg2(REALTYPE(float(p.arg2 ))),
 						  arg3(REALTYPE(float(p.arg3 ))){
   }
-  vr_packArg<REALTYPE,3> getPack()const{
+  inline vr_packArg<REALTYPE,3> getPack()const{
     return vr_packArg<REALTYPE,3>(arg1,arg2,arg3);
   }
   const REALTYPE arg1;
@@ -206,7 +224,7 @@ struct vr_roundFloat<REALTYPE, 3>{
 
 
 
-
+template<typename REAL> class SubOp;
 
 template<typename REAL>
 class AddOp{
@@ -214,8 +232,10 @@ public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+  static const bool sign_denorm_hack_needed=false;
+
   static const char* OpName(){return "add";}
-  static inline uint64_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -234,12 +254,6 @@ public:
     return AddOp<RealType>::error(p,c);
   }
 
-
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
-  }
-  static inline uint64_t getComdetHash(){return AddOp::getHash();}
-
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -247,12 +261,53 @@ public:
   static inline void check(const PackArgs& p,const RealType & c){
   }
 
-  static inline void twoSum(const RealType& a,const RealType& b, RealType& x,RealType& y ){
+  static inline void twoSum(const RealType& a,const RealType& b, RealType& x, RealType& y){
     const PackArgs p(a,b);
     x=AddOp<REAL>::nearestOp(p);
     y=AddOp<REAL>::error(p,x);
   }
 
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const PackArgs pnew(pmin,pmax);
+    const uint32_t hashOp(AddOp<RealType>::getHash());
+    return r.hash(pnew, hashOp);
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    if( p.isSameSign()){//same sign
+      const uint32_t hashOp(AddOp<RealType>::getHash());
+      if( p.arg1 >0){
+	const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+	const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hash(pnew, hashOp);
+      }else{
+	const RealType pmin(std::min<RealType>(-p.arg1, -p.arg2));
+	const RealType pmax(std::max<RealType>(-p.arg1, -p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hashBar(pnew,hashOp);
+
+      }
+    }else{//sign diff
+      const uint32_t hashOp(SubOp<RealType>::getHash());
+      if( p.arg1 >0){
+	const RealType pmin(std::min<RealType>(p.arg1, -p.arg2));
+	const RealType pmax(std::max<RealType>(p.arg1, -p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hash(pnew, hashOp);
+      }else{
+	const RealType pmin(std::min<RealType>(-p.arg1, p.arg2));
+	const RealType pmax(std::max<RealType>(-p.arg1, p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hashBar(pnew, hashOp);
+      }
+    }
+  }
 
 };
 
@@ -262,10 +317,10 @@ class SubOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
-
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "sub";}
-  static inline uint64_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -288,12 +343,20 @@ public:
     return SubOp<RealType>::error(p,c);
   }
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, -p.arg2),std::max(p.arg1, -p.arg2));
-  }
-  static inline uint64_t getComdetHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline void check(const PackArgs& p,const RealType & c){
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SubOp<RealType>::getHash());
+    return r.hash(p, hashOp);
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
+    const RealType p2(-p.arg2);
+    return AddOp<RealType>::hashScom(r, PackArgs(p.arg1,p2));
   }
 
 };
@@ -319,15 +382,101 @@ float splitFactor<float>(){
 
 
 
+template<class REALTYPE>
+class ErrorForMul{
+public:
+  typedef REALTYPE RealType;
+  static inline RealType apply(const RealType& a, const RealType& b, const RealType& x){
+    /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
+#ifdef    USE_VERROU_FMA
+    RealType c;
+    c=vr_fma(a,b,-x);
+    return c;
+#else
+    RealType a1,a2;
+    RealType b1,b2;
+    ErrorForMul<RealType>::split(a,a1,a2);
+    ErrorForMul<RealType>::split(b,b1,b2);
+
+    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
+#endif
+  }
+
+  static inline void split(RealType a, RealType& x, RealType& y){
+    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
+    const RealType factor(splitFactor<RealType>());
+    const RealType c=factor*a;
+    x=(c-(c-a));
+    y=(a-x);
+  }
+};
+
+template<class REALTYPE>
+class sameSignOfErrorForMul{
+public:
+  typedef REALTYPE RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    REALTYPE arg1=p.arg1;
+    REALTYPE arg2=p.arg2;
+    REALTYPE cshift=c;
+    REALTYPE shift(std::pow<REALTYPE>(2.,500));
+    if(arg1 <1.){
+      arg1 *= shift;
+      cshift*=shift;
+    }
+    if(arg2 <1.){
+      arg2 *= shift;
+      cshift*=shift;
+    }
+    REALTYPE res(ErrorForMul<RealType>::apply(arg1,arg2,cshift));
+    return res;
+#else
+    return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
+#endif
+  };
+};
+
+
+
+template<>
+class sameSignOfErrorForMul<float>{
+public:
+  typedef float RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    const double p1d=(double)p.arg1;
+    const double p2d=(double)p.arg2;
+    const double cd=(double)c;
+
+    const double res(ErrorForMul<double>::apply(p1d,p2d,cd));
+    if(res<0){
+      return -1.f;
+    }
+    if(res>0){
+      return 1.f;
+    }
+    return 0.f;
+#else
+    return ErrorForMul<double>::apply(p.arg1,p.arg2,c);
+#endif
+  };
+};
+
 
 template<typename REAL>
 class MulOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "mul";}
-  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
 
 
@@ -338,55 +487,14 @@ public:
   };
 
   static inline RealType error (const PackArgs& p, const RealType& x) {
-    /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
     const RealType & a(p.arg1);
     const RealType & b(p.arg2);
-    //    return __builtin_fma(a,b,-x);
-    //    VG_(umsg)("vr_fma \n");
-#ifdef    USE_VERROU_FMA
-    RealType c;
-    c=vr_fma(a,b,-x);
-    return c;
-#else
-    RealType a1,a2;
-    RealType b1,b2;
-    MulOp<RealType>::split(a,a1,a2);
-    MulOp<RealType>::split(b,b1,b2);
-
-    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
-#endif
+    return ErrorForMul<RealType>::apply(a,b,x);
   };
 
-
-
-
-  static inline void split(RealType a, RealType& x, RealType& y){
-    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
-    const RealType factor(splitFactor<RealType>());
-    const RealType c=factor*a;
-    x=(c-(c-a));
-    y=(a-x);
+  static inline RealType sameSignOfError(const PackArgs& p,const RealType& c) {
+    return sameSignOfErrorForMul<RealType>::apply(p,c);
   }
-
-
-  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    if(c!=0){
-      return MulOp<RealType>::error(p,c);
-    }else{
-      if(p.arg1==0 ||p.arg2==0){
-	return 0;
-      }
-      if(p.arg1>0){
-	return p.arg2;
-      }else{
-	return -p.arg2;
-      }
-    }
-  };
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
@@ -395,129 +503,63 @@ public:
   static inline void check(const PackArgs& p,const RealType & c){
   };
 
-  static inline void twoProd(const RealType& a,const RealType& b, RealType& x,RealType& y ){
+  static inline void twoProd(const RealType& a,const RealType& b, RealType& x,RealType& y){
     const PackArgs p(a,b);
     x=MulOp<REAL>::nearestOp(p);
     y=MulOp<REAL>::error(p,x);
   }
 
-};
-
-
-template<>
-class MulOp<float>{
-public:
-  typedef float RealType;
-  typedef vr_packArg<RealType,2> PackArgs;
-
-  static const char* OpName(){return "mul";}
-  static inline uint64_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
-
-
-
-  static inline RealType nearestOp (const PackArgs& p) {
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-    return a*b;
-  };
-
-  static inline RealType error (const PackArgs& p, const RealType& x) {
-    /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
-    const RealType a(p.arg1);
-    const RealType b(p.arg2);
-    //    return __builtin_fma(a,b,-x);
-    //    VG_(umsg)("vr_fma \n");
-#ifdef    USE_VERROU_FMA
-    RealType c;
-    c=vr_fma(a,b,-x);
-    return c;
-#else
-    RealType a1,a2;
-    RealType b1,b2;
-    MulOp<RealType>::split(a,a1,a2);
-    MulOp<RealType>::split(b,b1,b2);
-
-    return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
-#endif
-  };
-
-
-
-
-  static inline void split(RealType a, RealType& x, RealType& y){
-    //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
-    const RealType factor(splitFactor<RealType>());
-    const RealType c=factor*a;
-    x=(c-(c-a));
-    y=(a-x);
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const PackArgs pnew(pmin,pmax);
+    const uint32_t hashOp(MulOp<RealType>::getHash());
+    return r.hash(pnew, hashOp);
   }
 
 
-  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    double res=MulOp<double>::error(vr_packArg<double,2>((double)p.arg1,(double)p.arg2) ,(double)c);
-    if(res<0){
-      return -1;
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
+    const uint32_t hashOp(MulOp<RealType>::getHash());
+    if( p.isSameSign()){//same sign
+      if( p.arg1 >0){
+	const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+	const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hash(pnew,hashOp);
+      }else{
+	const RealType pmin(std::min<RealType>(-p.arg1, -p.arg2));
+	const RealType pmax(std::max<RealType>(-p.arg1, -p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hash(pnew,hashOp);
+      }
+    }else{//sign diff
+      if( p.arg1 >0){
+	const RealType pmin(std::min<RealType>(p.arg1, -p.arg2));
+	const RealType pmax(std::max<RealType>(p.arg1, -p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hashBar(pnew,hashOp);
+      }else{
+	const RealType pmin(std::min<RealType>(-p.arg1, p.arg2));
+	const RealType pmax(std::max<RealType>(-p.arg1, p.arg2));
+	const PackArgs pnew(pmin,pmax);
+	return r.hashBar(pnew,hashOp);
+      }
     }
-    if(res>0){
-      return 1;
-    }
-    return 0.;
-  };
-
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2));
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
-
-  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
-    return p.isOneArgNanInf();
-  }
-
-  static inline void check(const PackArgs& p,const RealType & c){
-  };
-
-  static inline void twoProd(const RealType& a,const RealType& b, RealType& x,RealType& y ){
-    const PackArgs p(a,b);
-    x=MulOp<float>::nearestOp(p);
-    y=MulOp<float>::error(p,x);
   }
 
 };
 
 
 
-
-
-template<typename REAL>
-class DivOp{
+template<class REALTYPE>
+class sameSignOfErrorForDiv{
 public:
-  typedef REAL RealType;
+  typedef REALTYPE RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
-  static const char* OpName(){return "div";}
-  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
-
-
-  static RealType inline nearestOp (const PackArgs& p) {
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-    return a/b;
-  };
-
-  static inline RealType error (const PackArgs& p, const RealType& c) {
-    const RealType & x(p.arg1);
-    const RealType & y(p.arg2);
-#ifdef    USE_VERROU_FMA
-    const RealType r=-vr_fma(c,y,-x);
-    return r/y;
-#else
-    RealType u,uu;
-    MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)/y ;
-#endif
-  };
-
-  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
     const RealType & x(p.arg1);
     const RealType & y(p.arg2);
 #ifdef    USE_VERROU_FMA
@@ -529,30 +571,72 @@ public:
     return ( x-u-uu)*y ;
 #endif
   };
-
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
-
-  static inline void check(const PackArgs& p,const RealType & c){
-  };
-
-  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
-    return (isNanInf<RealType>(p.arg1))||(p.arg2==RealType(0.));
-  }
 };
 
 
+
 template<>
-class DivOp<float>{
+class sameSignOfErrorForDiv<float>{
 public:
   typedef float RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return apply_double(p,c);
+#else
+    return apply_float(p,c);
+#endif
+  }
+
+  static inline RealType apply_double (const PackArgs& p,const RealType& c) {
+    const double x((double)p.arg1);
+    const double y((double) p.arg2);
+#ifdef    USE_VERROU_FMA
+    const double r=-vr_fma((double)c,y,-x);
+
+    if(r>0){return p.arg2;}
+    if(r<0){return -p.arg2;}
+    //if(r==0){
+    return 0.;
+    //}
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    return ( x-u-uu)*y ;
+#endif
+  };
+
+  static inline RealType apply_float (const PackArgs& p,const RealType& c) {
+    const RealType x(p.arg1);
+    const RealType y(p.arg2);
+#ifdef    USE_VERROU_FMA
+    const RealType r=-vr_fma(c,y,-x);
+
+    if(r>0){return p.arg2;}
+    if(r<0){return -p.arg2;}
+    //if(r==0){
+    return 0.;
+    //}
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    return ( x-u-uu)*y ;
+#endif
+  };
+};
+
+
+
+template<typename REAL>
+class DivOp{
+public:
+  typedef REAL RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "div";}
-  static inline uint64_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
 
   static RealType inline nearestOp (const PackArgs& p) {
@@ -575,28 +659,8 @@ public:
   };
 
   static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    const double x((double)p.arg1);
-    const double y((double) p.arg2);
-#ifdef    USE_VERROU_FMA
-    const double r=-vr_fma((double)c,y,-x);
-
-    if(r>0){return p.arg2;}
-    if(r<0){return -p.arg2;}
-    //if(r==0){
-      return 0.;
-      //}
-#else
-    RealType u,uu;
-    MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)*y ;
-#endif
+    return sameSignOfErrorForDiv<RealType>::apply(p,c);
   };
-
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
-
 
   static inline void check(const PackArgs& p,const RealType & c){
   };
@@ -605,7 +669,33 @@ public:
     return (isNanInf<RealType>(p.arg1))||(p.arg2==RealType(0.));
   }
 
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(DivOp<RealType>::getHash());
+    return r.hash(p, hashOp);
+  }
+
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
+    const uint32_t hashOp(DivOp::getHash());
+    if( p.isSameSign()){//same sign
+      if( p.arg1 >0){
+	return r.hash(PackArgs(p.arg1, p.arg2), hashOp);
+      }else{
+	return r.hash(PackArgs(-p.arg1, -p.arg2), hashOp);
+      }
+    }else{//sign diff
+      if( p.arg1 >0){
+	return r.hashBar(PackArgs(p.arg1, -p.arg2), hashOp);
+      }else{
+	return r.hashBar(PackArgs(-p.arg1, p.arg2), hashOp);
+      }
+    }
+  }
+
 };
+
 
 
 
@@ -614,9 +704,10 @@ class MAddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "madd";}
-  static inline uint64_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
@@ -649,17 +740,74 @@ public:
     return error(p,c) ;
   };
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return PackArgs(std::min(p.arg1, p.arg2),std::max(p.arg1,p.arg2), p.arg3);
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
-
-
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
+    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
+    const vr_packArg<RealType,3> pnew(pmin, pmax, p.arg3);
+    const uint32_t hashOp(MAddOp::getHash());
+    return r.hash(pnew,hashOp);
+  }
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    if(p.arg3==0.){
+      const vr_packArg<RealType,2> pnew(p.arg1, p.arg2);
+      return MulOp<RealType>::hashScom(r,pnew);
+    }
+    /*  if(p.arg1==1.){
+      const vr_packArg<RealType,2> pnew(p.arg2, p.arg3);
+      return AddOp<RealType>::hashScom(r,pnew);
+    }
+    if(p.arg2==1.){
+      const vr_packArg<RealType,2> pnew(p.arg1, p.arg3);
+      return AddOp<RealType>::hashScom(r,pnew);
+    }
+    if(p.arg1==-1.){
+      const RealType p2(-p.arg2);
+      const vr_packArg<RealType,2> pnew(p2, p.arg3);
+      return AddOp<RealType>::hashScom(r,pnew);
+    }
+    if(p.arg2==-1.){
+      const RealType p1(-p.arg1);
+      const vr_packArg<RealType,2> pnew(p1, p.arg3);
+      return AddOp<RealType>::hashScom(r,pnew);
+      }*/
+
+    const uint32_t hashOp(MAddOp::getHash());
+    const RealType p1(p.arg1);
+    const RealType p2(p.arg2);
+    const RealType absP1( p1>=0. ? p1 : -p1 );
+    const RealType absP2( p2>=0. ? p2 : -p2 );
+    const RealType pmin(std::min<RealType>(absP1, absP2));
+    const RealType pmax(std::max<RealType>(absP1, absP2));
+
+    if( p.isEvenNumPositive()){//r2
+      if( p.arg3 >0){
+	const RealType p3(-p.arg3);
+	const vr_packArg<RealType,3> pnew(pmin,pmax,p3);
+	return r.hash(pnew,hashOp);
+      }else{
+	const vr_packArg<RealType,3> pnew(pmin,pmax,p.arg3);
+	return r.hashBar(pnew,hashOp);
+      }
+    }else{//r1
+      if( p.arg3 >0){
+	const vr_packArg<RealType,3> pnew(pmin,pmax,p.arg3);
+	return r.hash( pnew,hashOp);
+      }else{
+	const RealType p3(-p.arg3);
+	const vr_packArg<RealType,3> pnew(pmin,pmax,p3);
+	return r.hashBar(pnew, hashOp);
+      }
+    }
   }
 
 };
@@ -673,9 +821,10 @@ public:
   typedef REALOUTPUT RealTypeOut;
   typedef RealTypeOut RealType;
   typedef vr_packArg<RealTypeIn,1> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "cast";}
-  static inline uint64_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
 
   static inline RealTypeOut nearestOp (const PackArgs& p) {
     const RealTypeIn & in(p.arg1);
@@ -692,11 +841,6 @@ public:
     return error(p,c) ;
   };
 
-  static inline const PackArgs comdetPack(const PackArgs& p){
-    return p;
-  }
-  static inline uint64_t getComdetHash(){return getHash();};
-
   static inline bool isInfNotSpecificToNearest(const PackArgs&p){
     return p.isOneArgNanInf();
   }
@@ -704,4 +848,144 @@ public:
   static inline void check(const PackArgs& p, const RealTypeOut& d){
   };
 
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(CastOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(CastOp::getHash());
+    if( p.arg1 >0){
+      return r.hash(p, hashOp);
+    }else{
+      const RealType p1(-p.arg1);
+      return r.hashBar(PackArgs(p1), hashOp);
+    }
+  }
+
 };
+
+
+
+
+template<class REALTYPE>
+class sameSignOfErrorForSqrt{
+public:
+  typedef REALTYPE RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+    const RealType a(p.arg1) ;
+    const RealType x(c);
+#ifdef    USE_VERROU_FMA
+    return vr_fma(-x,x,a) ;
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(x,x,u,uu);
+    return ((a-u)-uu);
+#endif
+  };
+};
+
+
+
+template<>
+class sameSignOfErrorForSqrt<float>{
+public:
+  typedef float RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
+
+  static inline RealType apply (const PackArgs& p,const RealType& c) {
+#ifndef VERROU_DENORM_HACKS_FLOAT
+    return apply_float(p,c);
+#else
+    return apply_double(p,c);
+#endif
+  }
+
+  static inline RealType apply_double (const PackArgs& p,const RealType& c) {
+    const double a(p.arg1) ;
+    const double x(c);
+#ifdef    USE_VERROU_FMA
+    const double res=vr_fma(-x,x,a) ;
+#else
+    double u,uu;
+    MulOp<double>::twoProd(x,x,u,uu);
+    const double res ((a-u)-uu) ;
+#endif
+  if(res==0.) return 0.;
+  if(res<0) return -1.;
+  return 1.;
+  };
+
+  static inline RealType apply_float (const PackArgs& p,const RealType& c) {
+    const float a(p.arg1) ;
+    const float x(c);
+#ifdef    USE_VERROU_FMA
+    return vr_fma(-x,x, a) ;
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(x,x,u,uu);
+    return ((a-u)-uu) ;
+#endif
+  };
+};
+
+
+
+
+template<typename REAL>
+class SqrtOp{
+public:
+  typedef REAL RealType;
+  typedef vr_packArg<RealType,1> PackArgs;
+  static const bool sign_denorm_hack_needed=true;
+
+  static const char* OpName(){return "sqrt";}
+  static inline uint32_t getHash(){return opHash::sqrtHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    return vr_sqrt<RealType>(p.arg1);
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+    const RealType & a(p.arg1);
+#ifdef    USE_VERROU_FMA
+    return vr_fma(-z,z,a) / (2.*z);
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(z,z,u,uu);
+    return ((a-u)-uu)  / (2.*z);
+#endif
+  };
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& z) {
+    return sameSignOfErrorForSqrt<RealType>::apply(p,z);
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
+  static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SqrtOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(SqrtOp::getHash());
+    return r.hash(p, hashOp);
+  }
+
+};
+

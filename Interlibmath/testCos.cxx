@@ -34,4 +34,8 @@ int main(int argc, char** argv){
 
   std::cout << "atan2: "<<atan2(a,a+0.1)<<std::endl;
   std::cout << "hypotf: "<<hypotf(a,a+0.1)<<std::endl;
+
+  double nan(sqrt(-a));
+  std::cout << "sqrt(<0): "<<nan<<std::endl;
+
 };
