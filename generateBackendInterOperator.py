@@ -115,12 +115,21 @@ if __name__=="__main__":
 
     roundingTab=["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO"]+[rnd + det for rnd in ["RANDOM", "AVERAGE", "PRANDOM"] for det in ["","_DET","_COMDET" ]]
     roundingTab+=[rnd + det for rnd in ["RANDOM", "AVERAGE"] for det in ["_SCOMDET" ]]
+    roundingTab+=["SR_MONOTONIC"]
 
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
     generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
+
+    template1Args="vr_interp_operator_template_1args.h"
+    listOfOp1Args=["sqrt"]
+    fileOut.write("#ifdef USE_VERROU_SQRT\n")
+    generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
+    fileOut.write("#endif\n")
 
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]

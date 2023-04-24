@@ -87,6 +87,8 @@ static const HChar* vr_ppOp (Vr_Op op) {
     return "mAdd";
   case VR_OP_MSUB:
     return "mSub";
+  case VR_OP_SQRT:
+    return "sqrt";
   case VR_OP_CMP:
     return "cmp";
   case VR_OP_CONV:
@@ -514,6 +516,69 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 
+static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+					 const HChar* functionName, void* function,
+					 Vr_Op op,
+					 Vr_Prec prec,
+					 Vr_Vec vec,
+					 Bool countOnly) {
+  // un-instrumented cases :
+  if(!(vr_isInstrumented(op,prec,vec))) {
+     vr_countOp (sb,  op, prec,vec, False);
+     addStmtToIRSB (sb, stmt);
+    return False;
+  }
+  if(countOnly){
+    vr_countOp (sb,  op, prec,vec, False);
+    addStmtToIRSB (sb, stmt);
+    return True;
+  }
+
+  // instrumented case :
+  if(vr.verbose){
+    IROp irop;
+    if (vr_getOp (expr, &irop))
+      vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
+  }
+
+  vr_countOp (sb,  op, prec,vec, True);
+
+  //conversion before call
+  IRExpr * arg1;
+
+  arg1 = expr->Iex.Binop.arg2;
+  //shift arg is not a bug :  IRRoundingMode(I32) x F64  -> F64 */
+
+  IRType ity=Ity_I64; //type of call result
+  if (prec==VR_PREC_FLT) {
+    arg1=vr_F32toI64(sb,arg1);
+    ity=Ity_I32;
+  }
+  if (prec==VR_PREC_DBL) {
+    arg1=vr_F64toI64(sb,arg1);
+  }
+
+  //call
+  IRTemp res= newIRTemp (sb->tyenv, ity);
+  addStmtToIRSB (sb,
+		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
+						 functionName, VG_(fnptr_to_fnentry)(function),
+						 mkIRExprVec_1 (arg1))));
+
+  //conversion after call
+  if(prec==VR_PREC_FLT){
+      IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
+      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+  }
+  if(prec==VR_PREC_DBL){
+      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+  }
+  return True;
+}
+
+
 
 static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					    const HChar* functionName, void* function,
@@ -573,6 +638,73 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   return True;
 }
 
+
+
+static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+						  const HChar* functionName, void* function,
+						  Vr_Op op,
+						  Vr_Prec prec,
+						  Vr_Vec vec,
+						  Bool countOnly){
+  //instrumentation to count operation
+  if(!(vr_isInstrumented(op,prec,vec))) {
+    vr_countOp (sb,  op, prec,vec,False);
+    addStmtToIRSB (sb, stmt);
+    return False;
+  }
+  if(countOnly){
+    vr_countOp (sb,  op, prec,vec,False);
+    addStmtToIRSB (sb, stmt);
+    return True;
+  }
+
+  vr_countOp (sb,  op, prec,vec, True);
+  //conversion before call
+  IRExpr * arg1LL=NULL;
+  IRExpr * arg1;
+  IRType ity=Ity_I64;//type of call result
+
+  arg1 = expr->Iex.Unop.arg;
+
+  if (prec==VR_PREC_FLT) {
+    arg1LL = vr_getLLFloat (sb, arg1);
+    arg1LL = vr_I32toI64 (sb, arg1LL);
+    ity=Ity_I32;
+  }
+  if (prec==VR_PREC_DBL) {
+    arg1LL = vr_getLLDouble (sb, arg1);
+  }
+
+  //call
+  IRTemp res=newIRTemp (sb->tyenv, ity);
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_1 (arg1LL))));
+
+  //update after call
+  if (prec==VR_PREC_FLT){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
+  }
+  if (prec==VR_PREC_DBL){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
+  }
+  return True;
+}
+
+static Bool vr_replaceBinFpOpLLO_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+						  const HChar* functionName, void* function,
+						  Vr_Op op,
+						  Vr_Prec prec,
+						  Vr_Vec vec,
+						  Bool countOnly){
+  return vr_replaceBinFpOpLLO_unary_slow_safe (sb, stmt, expr,
+					       functionName, function,
+					       op, prec, vec,
+					       countOnly);
+}
 
 static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					      const HChar* functionName, void* function,
@@ -700,6 +832,54 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   return True;
 }
 
+static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+					const HChar* functionName, void* function,
+					Vr_Op op,
+					Vr_Prec prec,
+					Vr_Vec vec,
+					Bool countOnly) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
+    vr_countOp (sb,  op, prec,vec, False);
+    addStmtToIRSB (sb, stmt);
+    return False;
+  }
+  if(countOnly){
+    vr_countOp (sb,  op, prec,vec, False);
+    addStmtToIRSB (sb, stmt);
+    return True;
+  }
+
+  vr_countOp (sb,  op, prec,vec, True);
+
+  if(!(
+	 (vec==VR_VEC_FULL2 && prec==VR_PREC_DBL)
+     ||
+         (vec==VR_VEC_FULL4 && prec==VR_PREC_FLT)
+       )){
+    VG_(tool_panic) ( "vr_replaceBinFullSSE requires SSE instructions...  \n");
+  }
+
+  //conversion before call
+  IRExpr * arg1 = expr->Iex.Binop.arg2;
+
+
+  IRExpr *arg1Lo=vr_getLLDouble (sb, arg1);
+  IRExpr *arg1Hi=vr_getHLDouble (sb, arg1);
+
+  IRTemp res= newIRTemp (sb->tyenv, Ity_V128);
+
+
+
+  //call
+  addStmtToIRSB (sb,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 3,
+                                                 "", VG_(fnptr_to_fnentry)(function),
+                                                 mkIRExprVec_3 (IRExpr_VECRET(),
+								arg1Hi,arg1Lo))));
+  //conversion after call
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
+  return True;
+}
 
 
 
@@ -788,6 +968,54 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 
+static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+					const HChar* functionName, void* function,
+					Vr_Op op,
+					Vr_Prec prec,
+					Vr_Vec vec,
+					Bool countOnly) {
+  if(!(vr_isInstrumented(op,prec,vec))) {
+    vr_countOp (sb,  op, prec,vec,False);
+    addStmtToIRSB (sb, stmt);
+    return False;
+  }
+  if(countOnly){
+    vr_countOp (sb,  op, prec,vec,False);
+    addStmtToIRSB (sb, stmt);
+    return True;
+  }
+
+  vr_countOp (sb,  op, prec,vec,True);
+
+
+  if(!(
+	 (vec==VR_VEC_FULL4 && prec==VR_PREC_DBL)
+     ||
+         (vec==VR_VEC_FULL8 && prec==VR_PREC_FLT)
+       )){
+    VG_(tool_panic) ( "vr_replaceBinFullAVX_unary requires AVX instructions...  \n");
+  }
+
+  //conversion before call
+  IRExpr * arg1 = expr->Iex.Binop.arg1;
+
+  IRExpr* arg1Tab[4];
+  vr_getTabArgAVX (sb, arg1, arg1Tab);
+
+  IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
+
+  addStmtToIRSB (sb,
+		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 3,
+						 functionName, VG_(fnptr_to_fnentry)(function),
+						 mkIRExprVec_5 (IRExpr_VECRET(),
+								arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
+						 )));
+
+  //conversion after call
+  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
+  return True;
+}
+
 
 
 static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
@@ -837,7 +1065,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   if(prec==VR_PREC_FLT){
     IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-    				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
+				     IRExpr_Unop (Iop_ReinterpI32asF32, conv )));
   }
   if(prec==VR_PREC_DBL){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
@@ -898,6 +1126,9 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
+#ifndef USE_VERROU_SQRT
+#define IGNORESQRT
+#endif
 
      if(vr.roundingMode==VR_NEAREST){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -951,6 +1182,13 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
      if(vr.roundingMode==VR_RANDOM_SCOMDET){
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
+     if(vr.roundingMode==VR_SR_MONOTONIC){
+#define bcName(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
+#define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
@@ -1050,18 +1288,22 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 
 #ifdef USE_VERROU_QUAD
    if(vr.backend==vr_mcaquad && !checkCancellation){
+#define IGNORESQRT
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef IGNORESQRT
    }
    if(vr.backend==vr_mcaquad && checkCancellation){
+#define IGNORESQRT
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef IGNORESQRT
    }
 #else
   if(vr.backend==vr_mcaquad){

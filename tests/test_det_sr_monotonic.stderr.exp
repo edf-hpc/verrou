@@ -1,0 +1,101 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : 42
+Backend verrou : test-version
+Backend mcaquad : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend verrou simulating SR_MONOTONIC rounding mode
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 16
+New seed : 17
+New seed : 18
+New seed : 19
+New seed : 20
+New seed : 21
+New seed : 22
+New seed : 23
+New seed : 24
+New seed : 25
+New seed : 26
+New seed : 27
+New seed : 28
+New seed : 29
+New seed : 30
+New seed : 31
+New seed : 32
+New seed : 33
+New seed : 34
+New seed : 35
+New seed : 36
+New seed : 37
+New seed : 38
+New seed : 39
+New seed : 40
+New seed : 41
+New seed : 42
+New seed : 43
+New seed : 44
+New seed : 45
+New seed : 46
+New seed : 47
+New seed : 48
+New seed : 49
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                 30000150                 30000150          (100%)
+  `- flt                 30000150                 30000150      (100%)
+      `- llo                 30000150                 30000150  (100%)
+ ---------------------------------------------------------------------
+ sub                      150                      150          (100%)
+  `- flt                      150                      150      (100%)
+      `- llo                      150                      150  (100%)
+ ---------------------------------------------------------------------
+ mul                 30000000                 30000000          (100%)
+  `- flt                 30000000                 30000000      (100%)
+      `- llo                 30000000                 30000000  (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

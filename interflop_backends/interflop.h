@@ -64,6 +64,7 @@ struct interflop_backend_interface_t {
   void (*sub_float)(float a, float b, float *c, void *context);
   void (*mul_float)(float a, float b, float *c, void *context);
   void (*div_float)(float a, float b, float *c, void *context);
+  void (*sqrt_float)(float a, float *c, void *context);
   void (*cmp_float)(enum FCMP_PREDICATE p, float a, float b, int *c,
                               void *context);
 
@@ -71,6 +72,7 @@ struct interflop_backend_interface_t {
   void (*sub_double)(double a, double b, double *c, void *context);
   void (*mul_double)(double a, double b, double *c, void *context);
   void (*div_double)(double a, double b, double *c, void *context);
+  void (*sqrt_double)(double a, double *c, void *context);
   void (*cmp_double)(enum FCMP_PREDICATE p, double a, double b,
                                int *c, void *context);
 
@@ -103,7 +105,8 @@ struct interflop_backend_interface_t {
       NULL,					\
       NULL,					\
       NULL,					\
-      }
+      NULL,                                     \
+}
 
 /* interflop_init: called at initialization before using a backend.
  * It returns an interflop_backend_interface_t structure with callbacks

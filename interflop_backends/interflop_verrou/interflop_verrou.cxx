@@ -117,6 +117,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "RANDOM_COMDET";
   case VR_RANDOM_SCOMDET:
     return "RANDOM_SCOMDET";
+  case VR_SR_MONOTONIC:
+    return "SR_MONOTONIC";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
@@ -205,11 +207,13 @@ struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   config.sub_float = & IFV_FCTNAME(sub_float);
   config.mul_float = & IFV_FCTNAME(mul_float);
   config.div_float = & IFV_FCTNAME(div_float);
+  config.sqrt_float = & IFV_FCTNAME(sqrt_float);
 
   config.add_double = & IFV_FCTNAME(add_double);
   config.sub_double = & IFV_FCTNAME(sub_double);
   config.mul_double = & IFV_FCTNAME(mul_double);
   config.div_double = & IFV_FCTNAME(div_double);
+  config.sqrt_double = & IFV_FCTNAME(sqrt_double);
 
   config.cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 
@@ -248,7 +252,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, sr_monotonic,average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -274,6 +278,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_RANDOM_COMDET;
     } else if (strcasecmp("random_scomdet", arg) == 0) {
       conf->mode=VR_RANDOM_SCOMDET;
+    } else if (strcasecmp("sr_monotonic", arg) == 0) {
+      conf->mode=VR_SR_MONOTONIC;
     } else if (strcasecmp("average", arg) == 0) {
       conf->mode=VR_AVERAGE;
     } else if (strcasecmp("average_det", arg) == 0) {

@@ -25,7 +25,7 @@ int  main(int argc, char** argv){
   float init_st=10000000;
   tinymt64_t rng;
 
-  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_RANDOM, VR_RANDOM_DET,VR_AVERAGE, VR_AVERAGE_DET};
+  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_RANDOM, VR_RANDOM_DET,VR_AVERAGE, VR_AVERAGE_DET, VR_SR_MONOTONIC};
 
 
   for(size_t i=0; i< roundingMode.size();i++){
@@ -95,7 +95,7 @@ int  main(int argc, char** argv){
       if(acc_new==acc && stagnation!=-1){
 	nb_stagnation+=1;
       }
-      if(stagnation!=-1 && acc_new!=acc){
+      if(acc_new!=acc){
 	stagnation=-1;
 	nb_stagnation=0;
       }
@@ -103,9 +103,9 @@ int  main(int argc, char** argv){
 	stagnation_st=i;
       }
       if(acc_new_st==acc_st && stagnation_st!=-1){
-	nb_stagnation+=1;
+	nb_stagnation_st+=1;
       }
-      if(stagnation_st!=-1 && acc_new_st!=acc_st){
+      if(acc_new_st!=acc_st){
 	stagnation_st=-1;
 	nb_stagnation_st=0;
       }
@@ -115,14 +115,15 @@ int  main(int argc, char** argv){
       acc_st=acc_new_st;
     }
 
-    if(nb_stagnation>10){//need to be manually checked
+    if(nb_stagnation>100){//need to be manually checked
       std::ofstream outStaStream(name+std::string(".STAGNATION.out"));
       outStaStream <<stagnation <<std::endl;
     }
 
-    if(nb_stagnation_st>10){//need to be manually checked
+    if(nb_stagnation_st>100){//need to be manually checked
       std::ofstream outStaStream(name+std::string(".STAGNATION_st.out"));
       outStaStream <<stagnation_st <<std::endl;
     }
+    interflop_verrou_finalize(&context);
   }
 }

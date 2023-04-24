@@ -3,7 +3,7 @@ BIN=./testAster
 FLAGS=-g -O0
 
 export INSTALLPATH = $(shell bash ../installpath)
-export VALGRIND=$(INSTALLPATH)/bin/valgrind --demangle=no --tool=verrou 
+export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou
 
 
 REFERENCE=no
@@ -17,13 +17,13 @@ endif
 INTERLIBMREP=../../Interlibmath/
 NUMSAMPLEIN=459 #probablility 0.99 and confidence level 1-alpha=0.99
 
-
-.PHONY: dat
-all: check
-
 data=resNative.dat resRandomverrou.dat resRandominterlibm.dat resRandomverrou+interlibm.dat reference.dat
 
+.PHONY: $(data) $(INTERLIBMREP)/interlibmath.so
+all: check
+
 $(INTERLIBMREP)/interlibmath.so:
+	make -C $(INTERLIBMREP) clean
 	make -C $(INTERLIBMREP)
 
 $(BIN): $(SRC)

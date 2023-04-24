@@ -71,10 +71,13 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   init_xoshiro256_state(r->rng256_, r->seed_);
 #endif
   r->current_ = vr_rand_next (r);
-  vr_tabulation_hash::genTable((r->gen_));
-  //  vr_twisted_tabulation_hash::genTable((r->gen_));
-  vr_multiply_shift_hash::genTable((r->gen_));
 
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hash;
+    hash::genTable((r->gen_));
+#else
+#error "VERROU_DET_HASH has to be defined"
+#endif
   const double p=tinymt64_generate_double(&(r->gen_) );
   r->p=p;
 }
@@ -230,6 +233,16 @@ public:
 #ifdef VERROU_DET_HASH
     typedef VERROU_DET_HASH hash;
     return hash::hashRatio(r, p, OP::getHash());
+#else
+#error "VERROU_DET_HASH has to be defined"
+#endif
+  }
+
+  static inline const typename OP::RealType
+  randRatioFromResult(const Vr_Rand * r, const typename OP::RealType* res) {
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hash;
+    return hash::hashRatioFromResult(r, res);
 #else
 #error "VERROU_DET_HASH has to be defined"
 #endif

@@ -8,17 +8,17 @@ import subprocess
 gitRepositoty="origin/"
 gitRepositoty=""
 
-branch="bl/scomdet"
+branch="bl/sqrt"
 
 verrouConfigList={
     "stable":           { "tag":"v2.4.0" ,"flags":"--enable-verrou-fma"},
     "current":           { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":""},
-    "current_fast":      { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --enable-verrou-fast-float=yes"},
-    "dietzfelbinger":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
-    "multiply_shift":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
-    "double_tabulation":{ "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
-    "mersenne_twister": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
-    "xxhash": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --enable-verrou-fast-float=yes"},
+    "current_fast":      { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
+    "dietzfelbinger":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "multiply_shift":   { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "double_tabulation":{ "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "mersenne_twister": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "xxhash": { "valgrind":"valgrind-3.20.0", "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
 }
 
 valgrindConfigList={

@@ -2,8 +2,8 @@
 
 import sys
 
-roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float"]
-roundingNonDetTab=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]
+roundingDetTab=["nearest","upward","downward", "toward_zero","farthest","float","ftz"]
+roundingNonDetTab=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic"]
 
 allRoundingTab=roundingDetTab+roundingNonDetTab
 

@@ -25,14 +25,26 @@
 #define VERROU_STOP_INSTRUMENTATION
 #endif
 
+unsigned int my_pid;
+
+#include "stacktrace.cxx"
+
+void printNan(){
+  std::cerr << "\n=="<<my_pid<<"== NaN Detected:"<< std::endl;
+  std::cerr << Backtrace(3);
+}
+void printInf(){
+  std::cerr << "\n=="<<my_pid<<"== +/- Inf Detected:"<< std::endl;
+  std::cerr << Backtrace(3);
+}
+
+
 
 vr_RoundingMode ROUNDINGMODE;
 void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
-void (*vr_nanHandler)()=NULL;
-void (*vr_infHandler)()=NULL;
-
-unsigned int my_pid;
+void (*vr_nanHandler)()=printNan;
+void (*vr_infHandler)()=printInf;
 
 
 class myLibMathFunction1{
@@ -286,6 +298,8 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "RANDOM_COMDET";
   case VR_RANDOM_SCOMDET:
     return "RANDOM_SCOMDET";
+  case VR_SR_MONOTONIC:
+    return "SR_MONOTONIC";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
@@ -330,16 +344,6 @@ void printCounter(){
     }
 
     for(int i=0; i< paramSize;i++){
-      std::cerr << "=="<<my_pid<<"== ";
-      std::cerr<<  "---------------------------------------------------"<<std::endl;
-      std::cerr << "=="<<my_pid<<"== ";
-      if(nbParam==1){
-	std::cerr<< function1NameTab[i].name();
-      }
-      if(nbParam==2){
-	std::cerr<< function2NameTab[i].name();
-      }
-
       int total=0;
       int totalInst=0;
       for(int j=0;j<3;j++){
@@ -347,8 +351,20 @@ void printCounter(){
 	totalInst+=getCounter(nbParam,i,j,0);
       }
 
-      std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
       if(total!=0){
+	std::cerr << "=="<<my_pid<<"== ";
+	std::cerr<<  "---------------------------------------------------"<<std::endl;
+	std::cerr << "=="<<my_pid<<"== ";
+
+	if(nbParam==1){
+	  std::cerr<< function1NameTab[i].name();
+	}
+	if(nbParam==2){
+	  std::cerr<< function2NameTab[i].name();
+	}
+
+	std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
+
 	std::cerr << "=="<<my_pid<<"== ";
 	std::cerr<< " `-" " flt ";
 	std::cerr<< "\t" <<  getCounter(nbParam,i,0,0)+getCounter(nbParam,i,0,1)  << "\t" << getCounter(nbParam,i,0,0)<<std::endl;
@@ -371,6 +387,7 @@ class libMathFunction1{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
@@ -418,6 +435,7 @@ class libMathFunction2{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath ?";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
@@ -633,6 +651,9 @@ void __attribute__((constructor)) init_interlibmath(){
       std::cerr<< "Rounding RANDOM_SCOMDET not yet implemented in interlibmath"<<std::endl;
       exit(1);
       ROUNDINGMODE=VR_RANDOM_SCOMDET;
+    }
+    if(envString==std::string("sr_monotonic")){
+      ROUNDINGMODE=VR_SR_MONOTONIC;
     }
     if(envString==std::string("average")){
       ROUNDINGMODE=VR_AVERAGE;
