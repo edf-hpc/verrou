@@ -97,6 +97,8 @@ class vr_xxhash_hash{
 public:
   typedef vr_xxhash_hash xxHash;
 
+  static inline void genTable(tinymt64_t& gen){};
+
   template<class REALTYPE, int NB>
   static inline bool hashBool(const Vr_Rand * r,
 			      const vr_packArg<REALTYPE,NB>& pack,

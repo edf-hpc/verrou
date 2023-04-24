@@ -1,0 +1,405 @@
+/* Copyright (C) 1988-1994 Sun Microsystems, Inc. 2550 Garcia Avenue */
+/* Mountain View, California  94043 All rights reserved. */
+/*  */
+/* Any person is hereby authorized to download, copy, use, create bug fixes,  */
+/* and distribute, subject to the following conditions: */
+/*  */
+/* 	1.  the software may not be redistributed for a fee except as */
+/* 	    reasonable to cover media costs; */
+/* 	2.  any copy of the software must include this notice, as well as  */
+/* 	    any other embedded copyright notices; and  */
+/* 	3.  any distribution of this software or derivative works thereof  */
+/* 	    must comply with all applicable U.S. export control laws. */
+/*  */
+/* THE SOFTWARE IS MADE AVAILABLE "AS IS" AND WITHOUT EXPRESS OR IMPLIED */
+/* WARRANTY OF ANY KIND, INCLUDING BUT NOT LIMITED TO THE IMPLIED */
+/* WARRANTIES OF DESIGN, MERCHANTIBILITY, FITNESS FOR A PARTICULAR */
+/* PURPOSE, NON-INFRINGEMENT, PERFORMANCE OR CONFORMANCE TO */
+/* SPECIFICATIONS.   */
+/*  */
+/* BY DOWNLOADING AND/OR USING THIS SOFTWARE, THE USER WAIVES ALL CLAIMS */
+/* AGAINST SUN MICROSYSTEMS, INC. AND ITS AFFILIATED COMPANIES IN ANY */
+/* JURISDICTION, INCLUDING BUT NOT LIMITED TO CLAIMS FOR DAMAGES OR */
+/* EQUITABLE RELIEF BASED ON LOSS OF DATA, AND SPECIFICALLY WAIVES EVEN */
+/* UNKNOWN OR UNANTICIPATED CLAIMS OR LOSSES, PRESENT AND FUTURE. */
+/*  */
+/* IN NO EVENT WILL SUN MICROSYSTEMS, INC. OR ANY OF ITS AFFILIATED */
+/* COMPANIES BE LIABLE FOR ANY LOST REVENUE OR PROFITS OR OTHER SPECIAL, */
+/* INDIRECT AND CONSEQUENTIAL DAMAGES, EVEN IF IT HAS BEEN ADVISED OF THE */
+/* POSSIBILITY OF SUCH DAMAGES. */
+/*  */
+/* This file is provided with no support and without any obligation on the */
+/* part of Sun Microsystems, Inc. ("Sun") or any of its affiliated */
+/* companies to assist in its use, correction, modification or */
+/* enhancement.  Nevertheless, and without creating any obligation on its */
+/* part, Sun welcomes your comments concerning the software and requests */
+/* that they be sent to fdlibm-comments@sunpro.sun.com. */
+
+	/* sqrtd(+-0) is +-0 */
+sqrtd n eq - 0 0 0 0
+sqrtd n eq - 80000000 0 80000000 0
+sqrtd z eq - 0 0 0 0
+sqrtd z eq - 80000000 0 80000000 0
+sqrtd p eq - 0 0 0 0
+sqrtd p eq - 80000000 0 80000000 0
+sqrtd m eq - 0 0 0 0
+sqrtd m eq - 80000000 0 80000000 0
+	/* sqrtd(+max) is finite */
+sqrtd n eq x 7fefffff ffffffff 5fefffff ffffffff
+sqrtd z eq x 7fefffff ffffffff 5fefffff ffffffff
+sqrtd p eq x 7fefffff ffffffff 5ff00000 0
+sqrtd m eq x 7fefffff ffffffff 5fefffff ffffffff
+	/* sqrtd(4457404589857209) = 66763797  */
+sqrtd n eq - 432fabf8 c265b372 418fd5e0 a8000000
+sqrtd z eq - 432fabf8 c265b372 418fd5e0 a8000000
+sqrtd p eq - 432fabf8 c265b372 418fd5e0 a8000000
+sqrtd m eq - 432fabf8 c265b372 418fd5e0 a8000000
+	/* sqrtd(3911242719325041) = 62539929  */
+sqrtd n eq - 432bca82 51d4d6e2 418dd244 c8000000
+sqrtd z eq - 432bca82 51d4d6e2 418dd244 c8000000
+sqrtd p eq - 432bca82 51d4d6e2 418dd244 c8000000
+sqrtd m eq - 432bca82 51d4d6e2 418dd244 c8000000
+	/* sqrtd(4)=2 */
+sqrtd n eq - 40100000 0 40000000 0
+sqrtd z eq - 40100000 0 40000000 0
+sqrtd p eq - 40100000 0 40000000 0
+sqrtd m eq - 40100000 0 40000000 0
+	/* sqrtd(x) for x=1,1+ulp,1-ulp */
+sqrtd n eq x 3ff00000 1 3ff00000 0
+sqrtd n eq - 3ff00000 0 3ff00000 0
+sqrtd n eq x 3fefffff ffffffff 3fefffff ffffffff
+sqrtd z eq x 3ff00000 1 3ff00000 0
+sqrtd z eq - 3ff00000 0 3ff00000 0
+sqrtd z eq x 3fefffff ffffffff 3fefffff ffffffff
+sqrtd p eq x 3ff00000 1 3ff00000 1
+sqrtd p eq - 3ff00000 0 3ff00000 0
+sqrtd p eq x 3fefffff ffffffff 3ff00000 0
+sqrtd m eq x 3ff00000 1 3ff00000 0
+sqrtd m eq - 3ff00000 0 3ff00000 0
+sqrtd m eq x 3fefffff ffffffff 3fefffff ffffffff
+	/* sqrtd(+min) is non-zero */
+sqrtd n eq - 00100000 0 20000000 0
+sqrtd z eq - 00100000 0 20000000 0
+sqrtd p eq - 00100000 0 20000000 0
+sqrtd m eq - 00100000 0 20000000 0
+sqrtd n eq - 0 1 1e600000 0
+sqrtd z eq - 0 1 1e600000 0
+sqrtd p eq - 0 1 1e600000 0
+sqrtd m eq - 0 1 1e600000 0
+	/* random arguments between 0 8 */
+sqrtd n eq x 400766bd b2b5006d 3ffb5d6f ec392e7d
+sqrtd n eq x 401b6546 fb825911 4004efb3 30ef0b43
+sqrtd n eq x 401e1653 09de7505 4005f0d3 24d38bd0
+sqrtd n eq x 3ff541dc fba96889 3ff27137 0ec508d0
+sqrtd n eq x 400754c3 e27084dd 3ffb52eb 45df30b2
+sqrtd n eq x 400ebe1e 1b093c41 3fff5d72 2e54e976
+sqrtd n eq x 401940d8 d18455f5 400419df 976f692d
+sqrtd n eq x 401dae71 4a51b239 4005cad1 a5584b9a
+sqrtd n eq x 400a9f2d 1079de4d 3ffd2ff1 3bff7b67
+sqrtd n eq x 3fc57dd3 3103b871 3fda397d 7b1e31f2
+	/* sqrtd(inf) is inf */
+sqrtd n eq - 7ff00000 0 7ff00000 0
+sqrtd z eq - 7ff00000 0 7ff00000 0
+sqrtd p eq - 7ff00000 0 7ff00000 0
+sqrtd m eq - 7ff00000 0 7ff00000 0
+	/* sqrtd(nan) is nan */
+sqrtd n uo v 7ff00000 00000001 0 0
+sqrtd n uo - 7ff80000 00000000 0 0
+	/* sqrtd(-ve) is nan */
+sqrtd n uo v 80000000 1 0 0
+sqrtd n uo v bff00000 0 0 0
+sqrtd n uo v fff00000 0 0 0
+sqrtd m eq - 00000000 00000004 1e700000 00000000
+sqrtd m eq - 00040000 00000000 1ff00000 00000000
+sqrtd m eq - 00300000 00000000 20100000 00000000
+sqrtd m eq - 36b00000 00000000 3b500000 00000000
+sqrtd m eq - 36d00000 00000000 3b600000 00000000
+sqrtd m eq - 37f00000 00000000 3bf00000 00000000
+sqrtd m eq - 38100000 00000000 3c000000 00000000
+sqrtd m eq - 38300000 00000000 3c100000 00000000
+sqrtd m eq - 3f020000 00000000 3f780000 00000000
+sqrtd m eq - 3f700000 00000000 3fb00000 00000000
+sqrtd m eq - 3fa20000 00000000 3fc80000 00000000
+sqrtd m eq - 3fb00000 00000000 3fd00000 00000000
+sqrtd m eq - 40220000 00000000 40080000 00000000
+sqrtd m eq - 40700000 00000000 40300000 00000000
+sqrtd m eq - 40a20000 00000000 40480000 00000000
+sqrtd m eq - 40d9f240 00000000 40646000 00000000
+sqrtd m eq - 40db3c40 00000000 4064e000 00000000
+sqrtd m eq - 40dd3a40 00000000 4065a000 00000000
+sqrtd m eq - 40df4a40 00000000 40666000 00000000
+sqrtd m eq - 40dffe40 00000000 4066a000 00000000
+sqrtd m eq - 41420000 00000000 40980000 00000000
+sqrtd m eq - 47b00000 00000000 43d00000 00000000
+sqrtd m eq - 47d00000 00000000 43e00000 00000000
+sqrtd m eq - 7fb00000 00000000 5fd00000 00000000
+sqrtd m eq - 7fd00000 00000000 5fe00000 00000000
+sqrtd m eq x 000fffff ffffffff 1fffffff fffffffe
+sqrtd m eq x 00100000 00000002 20000000 00000000
+sqrtd m eq x 3fefffff fffffff7 3fefffff fffffffb
+sqrtd m eq x 3fefffff fffffff8 3fefffff fffffffb
+sqrtd m eq x 3fefffff fffffff9 3fefffff fffffffc
+sqrtd m eq x 3fefffff fffffffa 3fefffff fffffffc
+sqrtd m eq x 3fefffff fffffffb 3fefffff fffffffd
+sqrtd m eq x 3fefffff fffffffc 3fefffff fffffffd
+sqrtd m eq x 3fefffff fffffffd 3fefffff fffffffe
+sqrtd m eq x 3fefffff fffffffe 3fefffff fffffffe
+sqrtd m eq x 3ff00000 00000002 3ff00000 00000000
+sqrtd m eq x 3ff00000 00000003 3ff00000 00000001
+sqrtd m eq x 3ff00000 00000004 3ff00000 00000001
+sqrtd m eq x 3ff00000 00000005 3ff00000 00000002
+sqrtd m eq x 3ff00000 00000006 3ff00000 00000002
+sqrtd m eq x 3ff00000 00000007 3ff00000 00000003
+sqrtd m eq x 7fcfffff fffffffe 5fdfffff fffffffe
+sqrtd m eq x 7fd00000 00000002 5fe00000 00000000
+sqrtd m uo - 7fffe000 00000000 7fffe000 00000000
+sqrtd m uo - ffffe000 00000000 ffffe000 00000000
+sqrtd m uo v 7ff02000 00000000 7fffe000 00000000
+sqrtd m uo v 80000000 00000001 7fffe000 00000000
+sqrtd m uo v 80000000 00000002 7fffe000 00000000
+sqrtd m uo v 80000000 00000005 7fffe000 00000000
+sqrtd m uo v 80000000 00000007 7fffe000 00000000
+sqrtd m uo v 80000000 00000009 7fffe000 00000000
+sqrtd m uo v 800fffff fffffff7 7fffe000 00000000
+sqrtd m uo v 800fffff fffffff9 7fffe000 00000000
+sqrtd m uo v 800fffff fffffffc 7fffe000 00000000
+sqrtd m uo v 800fffff fffffffd 7fffe000 00000000
+sqrtd m uo v 800fffff fffffffe 7fffe000 00000000
+sqrtd m uo v 800fffff ffffffff 7fffe000 00000000
+sqrtd m uo v 801fffff fffffffd 7fffe000 00000000
+sqrtd m uo v 80200000 00000000 7fffe000 00000000
+sqrtd m uo v 80200000 00000001 7fffe000 00000000
+sqrtd m uo v bcb00000 00000000 7fffe000 00000000
+sqrtd m uo v bcc00000 00000000 7fffe000 00000000
+sqrtd m uo v bcc80000 00000000 7fffe000 00000000
+sqrtd m uo v bff00000 00000000 7fffe000 00000000
+sqrtd m uo v c0000000 00000002 7fffe000 00000000
+sqrtd m uo v c0080000 00000004 7fffe000 00000000
+sqrtd m uo v c00fffff fffffffb 7fffe000 00000000
+sqrtd m uo v ffcfffff fffffffc 7fffe000 00000000
+sqrtd m uo v ffd00000 00000002 7fffe000 00000000
+sqrtd m uo v ffdfffff ffffffff 7fffe000 00000000
+sqrtd m uo v ffe00000 00000002 7fffe000 00000000
+sqrtd m uo v fff00000 00000000 7fffe000 00000000
+sqrtd m uo v fff02000 00000000 ffffe000 00000000
+sqrtd n eq - 00000000 00000004 1e700000 00000000
+sqrtd n eq - 00040000 00000000 1ff00000 00000000
+sqrtd n eq - 00300000 00000000 20100000 00000000
+sqrtd n eq - 36b00000 00000000 3b500000 00000000
+sqrtd n eq - 36d00000 00000000 3b600000 00000000
+sqrtd n eq - 37f00000 00000000 3bf00000 00000000
+sqrtd n eq - 38100000 00000000 3c000000 00000000
+sqrtd n eq - 38300000 00000000 3c100000 00000000
+sqrtd n eq - 3f020000 00000000 3f780000 00000000
+sqrtd n eq - 3f700000 00000000 3fb00000 00000000
+sqrtd n eq - 3fa20000 00000000 3fc80000 00000000
+sqrtd n eq - 3fb00000 00000000 3fd00000 00000000
+sqrtd n eq - 40220000 00000000 40080000 00000000
+sqrtd n eq - 40700000 00000000 40300000 00000000
+sqrtd n eq - 40a20000 00000000 40480000 00000000
+sqrtd n eq - 40d9f240 00000000 40646000 00000000
+sqrtd n eq - 40db3c40 00000000 4064e000 00000000
+sqrtd n eq - 40dd3a40 00000000 4065a000 00000000
+sqrtd n eq - 40df4a40 00000000 40666000 00000000
+sqrtd n eq - 40dffe40 00000000 4066a000 00000000
+sqrtd n eq - 41420000 00000000 40980000 00000000
+sqrtd n eq - 47b00000 00000000 43d00000 00000000
+sqrtd n eq - 47d00000 00000000 43e00000 00000000
+sqrtd n eq - 7fb00000 00000000 5fd00000 00000000
+sqrtd n eq - 7fd00000 00000000 5fe00000 00000000
+sqrtd n eq x 000fffff ffffffff 1fffffff ffffffff
+sqrtd n eq x 00100000 00000002 20000000 00000001
+sqrtd n eq x 3fefffff fffffff7 3fefffff fffffffb
+sqrtd n eq x 3fefffff fffffff8 3fefffff fffffffc
+sqrtd n eq x 3fefffff fffffff9 3fefffff fffffffc
+sqrtd n eq x 3fefffff fffffffa 3fefffff fffffffd
+sqrtd n eq x 3fefffff fffffffb 3fefffff fffffffd
+sqrtd n eq x 3fefffff fffffffc 3fefffff fffffffe
+sqrtd n eq x 3fefffff fffffffd 3fefffff fffffffe
+sqrtd n eq x 3fefffff fffffffe 3fefffff ffffffff
+sqrtd n eq x 3ff00000 00000002 3ff00000 00000001
+sqrtd n eq x 3ff00000 00000003 3ff00000 00000001
+sqrtd n eq x 3ff00000 00000004 3ff00000 00000002
+sqrtd n eq x 3ff00000 00000005 3ff00000 00000002
+sqrtd n eq x 3ff00000 00000006 3ff00000 00000003
+sqrtd n eq x 3ff00000 00000007 3ff00000 00000003
+sqrtd n eq x 7fcfffff fffffffe 5fdfffff ffffffff
+sqrtd n eq x 7fd00000 00000002 5fe00000 00000001
+sqrtd n uo - 7ff80000 00000000 00000000 00000000
+sqrtd n uo - 7fffe000 00000000 7fffe000 00000000
+sqrtd n uo - ffffe000 00000000 ffffe000 00000000
+sqrtd n uo v 7ff00000 00000001 00000000 00000000
+sqrtd n uo v 7ff02000 00000000 7fffe000 00000000
+sqrtd n uo v 80000000 00000001 00000000 00000000
+sqrtd n uo v 80000000 00000002 7fffe000 00000000
+sqrtd n uo v 80000000 00000005 7fffe000 00000000
+sqrtd n uo v 80000000 00000007 7fffe000 00000000
+sqrtd n uo v 80000000 00000009 7fffe000 00000000
+sqrtd n uo v 800fffff fffffff7 7fffe000 00000000
+sqrtd n uo v 800fffff fffffff9 7fffe000 00000000
+sqrtd n uo v 800fffff fffffffc 7fffe000 00000000
+sqrtd n uo v 800fffff fffffffd 7fffe000 00000000
+sqrtd n uo v 800fffff fffffffe 7fffe000 00000000
+sqrtd n uo v 800fffff ffffffff 7fffe000 00000000
+sqrtd n uo v 801fffff fffffffd 7fffe000 00000000
+sqrtd n uo v 80200000 00000000 7fffe000 00000000
+sqrtd n uo v 80200000 00000001 7fffe000 00000000
+sqrtd n uo v bcb00000 00000000 7fffe000 00000000
+sqrtd n uo v bcc00000 00000000 7fffe000 00000000
+sqrtd n uo v bcc80000 00000000 7fffe000 00000000
+sqrtd n uo v bff00000 00000000 00000000 00000000
+sqrtd n uo v c0000000 00000002 7fffe000 00000000
+sqrtd n uo v c0080000 00000004 7fffe000 00000000
+sqrtd n uo v c00fffff fffffffb 7fffe000 00000000
+sqrtd n uo v ffcfffff fffffffc 7fffe000 00000000
+sqrtd n uo v ffd00000 00000002 7fffe000 00000000
+sqrtd n uo v ffdfffff ffffffff 7fffe000 00000000
+sqrtd n uo v ffe00000 00000002 7fffe000 00000000
+sqrtd n uo v fff00000 00000000 00000000 00000000
+sqrtd n uo v fff02000 00000000 ffffe000 00000000
+sqrtd p eq - 00000000 00000004 1e700000 00000000
+sqrtd p eq - 00040000 00000000 1ff00000 00000000
+sqrtd p eq - 00300000 00000000 20100000 00000000
+sqrtd p eq - 36b00000 00000000 3b500000 00000000
+sqrtd p eq - 36d00000 00000000 3b600000 00000000
+sqrtd p eq - 37f00000 00000000 3bf00000 00000000
+sqrtd p eq - 38100000 00000000 3c000000 00000000
+sqrtd p eq - 38300000 00000000 3c100000 00000000
+sqrtd p eq - 3f020000 00000000 3f780000 00000000
+sqrtd p eq - 3f700000 00000000 3fb00000 00000000
+sqrtd p eq - 3fa20000 00000000 3fc80000 00000000
+sqrtd p eq - 3fb00000 00000000 3fd00000 00000000
+sqrtd p eq - 40220000 00000000 40080000 00000000
+sqrtd p eq - 40700000 00000000 40300000 00000000
+sqrtd p eq - 40a20000 00000000 40480000 00000000
+sqrtd p eq - 40d9f240 00000000 40646000 00000000
+sqrtd p eq - 40db3c40 00000000 4064e000 00000000
+sqrtd p eq - 40dd3a40 00000000 4065a000 00000000
+sqrtd p eq - 40df4a40 00000000 40666000 00000000
+sqrtd p eq - 40dffe40 00000000 4066a000 00000000
+sqrtd p eq - 41420000 00000000 40980000 00000000
+sqrtd p eq - 47b00000 00000000 43d00000 00000000
+sqrtd p eq - 47d00000 00000000 43e00000 00000000
+sqrtd p eq - 7fb00000 00000000 5fd00000 00000000
+sqrtd p eq - 7fd00000 00000000 5fe00000 00000000
+sqrtd p eq x 000fffff ffffffff 1fffffff ffffffff
+sqrtd p eq x 00100000 00000002 20000000 00000001
+sqrtd p eq x 3fefffff fffffff7 3fefffff fffffffc
+sqrtd p eq x 3fefffff fffffff8 3fefffff fffffffc
+sqrtd p eq x 3fefffff fffffff9 3fefffff fffffffd
+sqrtd p eq x 3fefffff fffffffa 3fefffff fffffffd
+sqrtd p eq x 3fefffff fffffffb 3fefffff fffffffe
+sqrtd p eq x 3fefffff fffffffc 3fefffff fffffffe
+sqrtd p eq x 3fefffff fffffffd 3fefffff ffffffff
+sqrtd p eq x 3fefffff fffffffe 3fefffff ffffffff
+sqrtd p eq x 3ff00000 00000002 3ff00000 00000001
+sqrtd p eq x 3ff00000 00000003 3ff00000 00000002
+sqrtd p eq x 3ff00000 00000004 3ff00000 00000002
+sqrtd p eq x 3ff00000 00000005 3ff00000 00000003
+sqrtd p eq x 3ff00000 00000006 3ff00000 00000003
+sqrtd p eq x 3ff00000 00000007 3ff00000 00000004
+sqrtd p eq x 7fcfffff fffffffe 5fdfffff ffffffff
+sqrtd p eq x 7fd00000 00000002 5fe00000 00000001
+sqrtd p uo - 7fffe000 00000000 7fffe000 00000000
+sqrtd p uo - ffffe000 00000000 ffffe000 00000000
+sqrtd p uo v 7ff02000 00000000 7fffe000 00000000
+sqrtd p uo v 80000000 00000001 7fffe000 00000000
+sqrtd p uo v 80000000 00000002 7fffe000 00000000
+sqrtd p uo v 80000000 00000005 7fffe000 00000000
+sqrtd p uo v 80000000 00000007 7fffe000 00000000
+sqrtd p uo v 80000000 00000009 7fffe000 00000000
+sqrtd p uo v 800fffff fffffff7 7fffe000 00000000
+sqrtd p uo v 800fffff fffffff9 7fffe000 00000000
+sqrtd p uo v 800fffff fffffffc 7fffe000 00000000
+sqrtd p uo v 800fffff fffffffd 7fffe000 00000000
+sqrtd p uo v 800fffff fffffffe 7fffe000 00000000
+sqrtd p uo v 800fffff ffffffff 7fffe000 00000000
+sqrtd p uo v 801fffff fffffffd 7fffe000 00000000
+sqrtd p uo v 80200000 00000000 7fffe000 00000000
+sqrtd p uo v 80200000 00000001 7fffe000 00000000
+sqrtd p uo v bcb00000 00000000 7fffe000 00000000
+sqrtd p uo v bcc00000 00000000 7fffe000 00000000
+sqrtd p uo v bcc80000 00000000 7fffe000 00000000
+sqrtd p uo v bff00000 00000000 7fffe000 00000000
+sqrtd p uo v c0000000 00000002 7fffe000 00000000
+sqrtd p uo v c0080000 00000004 7fffe000 00000000
+sqrtd p uo v c00fffff fffffffb 7fffe000 00000000
+sqrtd p uo v ffcfffff fffffffc 7fffe000 00000000
+sqrtd p uo v ffd00000 00000002 7fffe000 00000000
+sqrtd p uo v ffdfffff ffffffff 7fffe000 00000000
+sqrtd p uo v ffe00000 00000002 7fffe000 00000000
+sqrtd p uo v fff00000 00000000 7fffe000 00000000
+sqrtd p uo v fff02000 00000000 ffffe000 00000000
+sqrtd z eq - 00000000 00000004 1e700000 00000000
+sqrtd z eq - 00040000 00000000 1ff00000 00000000
+sqrtd z eq - 00300000 00000000 20100000 00000000
+sqrtd z eq - 36b00000 00000000 3b500000 00000000
+sqrtd z eq - 36d00000 00000000 3b600000 00000000
+sqrtd z eq - 37f00000 00000000 3bf00000 00000000
+sqrtd z eq - 38100000 00000000 3c000000 00000000
+sqrtd z eq - 38300000 00000000 3c100000 00000000
+sqrtd z eq - 3f020000 00000000 3f780000 00000000
+sqrtd z eq - 3f700000 00000000 3fb00000 00000000
+sqrtd z eq - 3fa20000 00000000 3fc80000 00000000
+sqrtd z eq - 3fb00000 00000000 3fd00000 00000000
+sqrtd z eq - 40220000 00000000 40080000 00000000
+sqrtd z eq - 40700000 00000000 40300000 00000000
+sqrtd z eq - 40a20000 00000000 40480000 00000000
+sqrtd z eq - 40d9f240 00000000 40646000 00000000
+sqrtd z eq - 40db3c40 00000000 4064e000 00000000
+sqrtd z eq - 40dd3a40 00000000 4065a000 00000000
+sqrtd z eq - 40df4a40 00000000 40666000 00000000
+sqrtd z eq - 40dffe40 00000000 4066a000 00000000
+sqrtd z eq - 41420000 00000000 40980000 00000000
+sqrtd z eq - 47b00000 00000000 43d00000 00000000
+sqrtd z eq - 47d00000 00000000 43e00000 00000000
+sqrtd z eq - 7fb00000 00000000 5fd00000 00000000
+sqrtd z eq - 7fd00000 00000000 5fe00000 00000000
+sqrtd z eq x 000fffff ffffffff 1fffffff fffffffe
+sqrtd z eq x 00100000 00000002 20000000 00000000
+sqrtd z eq x 3fefffff fffffff7 3fefffff fffffffb
+sqrtd z eq x 3fefffff fffffff8 3fefffff fffffffb
+sqrtd z eq x 3fefffff fffffff9 3fefffff fffffffc
+sqrtd z eq x 3fefffff fffffffa 3fefffff fffffffc
+sqrtd z eq x 3fefffff fffffffb 3fefffff fffffffd
+sqrtd z eq x 3fefffff fffffffc 3fefffff fffffffd
+sqrtd z eq x 3fefffff fffffffd 3fefffff fffffffe
+sqrtd z eq x 3fefffff fffffffe 3fefffff fffffffe
+sqrtd z eq x 3ff00000 00000002 3ff00000 00000000
+sqrtd z eq x 3ff00000 00000003 3ff00000 00000001
+sqrtd z eq x 3ff00000 00000004 3ff00000 00000001
+sqrtd z eq x 3ff00000 00000005 3ff00000 00000002
+sqrtd z eq x 3ff00000 00000006 3ff00000 00000002
+sqrtd z eq x 3ff00000 00000007 3ff00000 00000003
+sqrtd z eq x 7fcfffff fffffffe 5fdfffff fffffffe
+sqrtd z eq x 7fd00000 00000002 5fe00000 00000000
+sqrtd z uo - 7fffe000 00000000 7fffe000 00000000
+sqrtd z uo - ffffe000 00000000 ffffe000 00000000
+sqrtd z uo v 7ff02000 00000000 7fffe000 00000000
+sqrtd z uo v 80000000 00000001 7fffe000 00000000
+sqrtd z uo v 80000000 00000002 7fffe000 00000000
+sqrtd z uo v 80000000 00000005 7fffe000 00000000
+sqrtd z uo v 80000000 00000007 7fffe000 00000000
+sqrtd z uo v 80000000 00000009 7fffe000 00000000
+sqrtd z uo v 800fffff fffffff7 7fffe000 00000000
+sqrtd z uo v 800fffff fffffff9 7fffe000 00000000
+sqrtd z uo v 800fffff fffffffc 7fffe000 00000000
+sqrtd z uo v 800fffff fffffffd 7fffe000 00000000
+sqrtd z uo v 800fffff fffffffe 7fffe000 00000000
+sqrtd z uo v 800fffff ffffffff 7fffe000 00000000
+sqrtd z uo v 801fffff fffffffd 7fffe000 00000000
+sqrtd z uo v 80200000 00000000 7fffe000 00000000
+sqrtd z uo v 80200000 00000001 7fffe000 00000000
+sqrtd z uo v bcb00000 00000000 7fffe000 00000000
+sqrtd z uo v bcc00000 00000000 7fffe000 00000000
+sqrtd z uo v bcc80000 00000000 7fffe000 00000000
+sqrtd z uo v bff00000 00000000 7fffe000 00000000
+sqrtd z uo v c0000000 00000002 7fffe000 00000000
+sqrtd z uo v c0080000 00000004 7fffe000 00000000
+sqrtd z uo v c00fffff fffffffb 7fffe000 00000000
+sqrtd z uo v ffcfffff fffffffc 7fffe000 00000000
+sqrtd z uo v ffd00000 00000002 7fffe000 00000000
+sqrtd z uo v ffdfffff ffffffff 7fffe000 00000000
+sqrtd z uo v ffe00000 00000002 7fffe000 00000000
+sqrtd z uo v fff00000 00000000 7fffe000 00000000
+sqrtd z uo v fff02000 00000000 ffffe000 00000000

@@ -3,14 +3,14 @@ import sys
 import math
 
 def readFile(fileName):
-    data=(open(fileName).readlines()) 
+    data=(open(fileName).readlines())
     keyData=data[0].split()
     brutData=[line.split() for line in data[1:]]
 
     res={}
     for index in range(len(keyData)):
         fileNameKey=fileName.replace("res","")
-        dataIndex=[line[index] for line in brutData]
+        dataIndex=[float(line[index]) for line in brutData]
         res[keyData[index]]=(min(dataIndex),max(dataIndex))
 
     return res
@@ -18,9 +18,9 @@ def readFile(fileName):
 def computeEvalError(dataNative, data):
     res={}
     for key in dataNative.keys():
-        resIEEE=float(dataNative[key][0])        
-        evalError=  - math.log2(max(abs(float(data[key][1]) - resIEEE),
-                                    abs(float(data[key][0]) - resIEEE)) / resIEEE)
+        resIEEE=float(dataNative[key][0])
+        evalError=  - math.log2(max(abs(data[key][1] - resIEEE),
+                                    abs(data[key][0] - resIEEE)) / resIEEE)
         res[key]=evalError
     return res
 
@@ -45,11 +45,10 @@ def loadRef(fileName, num=2):
 
 
 def main(reference=None):
-    
 
     output=open("tabAster.tex","w")
     outputReg=open("testReg","w")
-    
+
     keys=["Native", "Randominterlibm", "Randomverrou", "Randomverrou+interlibm"]
 
     data={}
@@ -65,7 +64,7 @@ def main(reference=None):
         evalError=computeEvalError(data["Native"], data[key])
         for keyCase in sorted(evalError.keys()):
             outputReg.write(keyCase +" "+str(evalError[keyCase])+"\n")
-        
+
     output.write(r"\begin{table}" +" \n")
     output.write(r"\begin{center}" +" \n")
     output.write(r"\begin{tabular}{l@{~}lccccc}\toprule" +" \n")
@@ -77,11 +76,9 @@ def main(reference=None):
                      reference[("Float","Before")],reference[("Float","After")],
                      reference[("Double","Before")], reference[("Double","After")])
                      + r"\\\midrule"+"\n")
-                
-        
-    
+
     for i in range(1,len(keys)):
-        key=keys[i]            
+        key=keys[i]
         evalError=computeEvalError(data["Native"], data[key])
         keyConvert={"Randominterlibm": r"\textit{(i)}&interlibm",
                     "Randomverrou":    r"\textit{(ii)}&verrou",
@@ -92,15 +89,13 @@ def main(reference=None):
             lineStr+=r"&%.2f &  %.2f  "%(evalError["BeforeCorrection_"+typeFP], evalError["AfterCorrection_"+typeFP]) 
         lineStr+=r"\\"+"\n"
         output.write(lineStr)
-    output.write(r"\bottomrule"+"\n")    
+    output.write(r"\bottomrule"+"\n")
     output.write(r"\end{tabular}"+"\n")
     output.write(r"\end{center}" +" \n")
     output.write(r"\caption{Number of significant bits for 4~implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
     output.write(r"\label{sdAster}"+"\n")
     output.write(r"\end{table}"+"\n")
 
-    
-    
 
 
 if __name__=="__main__":

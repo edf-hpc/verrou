@@ -54,10 +54,13 @@ class postConfig(gen_config.gen_config):
 
         if "det" in self.rounding:
             self.rounding.remove("det")
-            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" ]
+            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" and x!="ftz" ]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
             self.rounding+=["random","average", "prandom"]
+        #check valid rounding
+        for r in self.rounding:
+            runEnv=rounding_tool.roundingToEnvVar(r,{})
 
         self.runScript=self.exec_arg[0]
         self.cmpScript=self.exec_arg[1]

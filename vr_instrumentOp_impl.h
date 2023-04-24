@@ -302,6 +302,78 @@
       vr_countOp (sb, VR_OP_CMP, VR_PREC_FLT, VR_VEC_LLO,False);
       addStmtToIRSB (sb, stmt);
       break;
+    case Iop_SqrtF64:
+#ifndef IGNORESQRT
+      res.containFloatModOp=vr_replaceBinFpOpScal_unary (sb, stmt, expr, bcName(sqrt64F), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_SCAL,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt64F0x2:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFpOpLLO_unary (sb, stmt, expr, bcName(sqrt64F), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_LLO,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt64Fx2:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFullSSE_unary(sb, stmt, expr, bcName(sqrt64Fx2), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL2,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt64Fx4:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFullAVX_unary(sb, stmt, expr, bcName(sqrt64Fx4), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL4,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_SqrtF32:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFpOpScal_unary (sb, stmt, expr, bcName(sqrt32F), VR_OP_SQRT, VR_PREC_FLT, VR_VEC_SCAL, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_FLT, VR_VEC_SCAL,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt32F0x4:
+#ifndef IGNORESQRT
+      res.containFloatModOp=vr_replaceBinFpOpLLO_unary (sb, stmt, expr, bcName(sqrt32F), VR_OP_SQRT, VR_PREC_FLT, VR_VEC_LLO, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_FLT, VR_VEC_LLO,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt32Fx4:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFullSSE_unary (sb, stmt, expr, bcName(sqrt32Fx4), VR_OP_SQRT, VR_PREC_FLT, VR_VEC_FULL4, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_FLT, VR_VEC_FULL4,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
+    case Iop_Sqrt32Fx8:
+#ifndef IGNORESQRT
+      res.containFloatModOp= vr_replaceBinFullAVX_unary(sb, stmt, expr, bcName(sqrt32Fx8), VR_OP_SQRT, VR_PREC_FLT, VR_VEC_FULL8, countOnly);
+#else
+      res.containFloatModOp=False;
+      vr_countOp (sb, VR_OP_SQRT, VR_PREC_FLT, VR_VEC_FULL8,False);
+      addStmtToIRSB (sb, stmt);
+#endif
+      break;
 
     case Iop_ReinterpF64asI64:
     case Iop_ReinterpI64asF64:
@@ -317,6 +389,9 @@
       addStmtToIRSB (sb, stmt);
       break;
 
+    case Iop_SqrtF128:
+    case Iop_Sqrt16Fx8:
+
       //operation with 64bit register with 32bit rounding
     case Iop_AddF64r32:
     case Iop_SubF64r32:
@@ -331,11 +406,6 @@
     case Iop_MulF128:
     case Iop_DivF128:
 
-    case Iop_SqrtF128:
-    case Iop_SqrtF64:
-    case Iop_SqrtF32:
-    case Iop_Sqrt32Fx4:
-    case Iop_Sqrt64Fx2:
     case  Iop_AtanF64:       /* FPATAN,  arctan(arg1/arg2)       */
     case  Iop_Yl2xF64:       /* FYL2X,   arg1 * log2(arg2)       */
     case  Iop_Yl2xp1F64:     /* FYL2XP1, arg1 * log2(arg2+1.0)   */
@@ -363,15 +433,13 @@
     case Iop_RSqrtEst32Fx4:
     case Iop_RSqrtStep32Fx4:
     case Iop_RecipEst32F0x4:
-    case Iop_Sqrt32F0x4:
+
     case Iop_RSqrtEst32F0x4:
     case Iop_Scale2_32Fx4:
     case Iop_Log2_32Fx4:
     case Iop_Exp2_32Fx4:
       /*AVX*/
-    case Iop_Sqrt16Fx8:
-    case Iop_Sqrt32Fx8:
-    case Iop_Sqrt64Fx4:
+
     case Iop_RSqrtEst32Fx8:
     case Iop_RecipEst32Fx8:
 

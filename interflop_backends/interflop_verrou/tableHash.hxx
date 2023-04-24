@@ -310,6 +310,9 @@ public:
 
 class vr_double_tabulation_hash{
 public:
+  static inline void genTable(tinymt64_t& gen){
+    vr_tabulation_hash::genTable(gen);
+  }
 
   template<class REALTYPE, int NB>
   static inline  bool hashBool(__attribute__((unused)) const Vr_Rand * r,

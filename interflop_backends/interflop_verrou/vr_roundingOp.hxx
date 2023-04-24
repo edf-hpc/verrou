@@ -87,6 +87,128 @@ public:
 };
 
 
+template<class REALTYPE>
+struct nextTool{
+  typedef REALTYPE RealType;
+
+  static inline RealType next_safe(RealType res, RealType signError){
+    //assert(signError!=0)
+    if(res>0){
+      if(signError>0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    if(res<0){
+      if(signError<0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    //if(res==0){
+    if((signError)>0){
+      return std::numeric_limits<RealType>::denorm_min();
+    }else{
+      return -std::numeric_limits<RealType>::denorm_min();
+    }
+  }
+
+  static inline RealType next_unsafe(RealType res, RealType signError){
+    //assert(res!=0 && signError!=0)
+    if(res>0){
+      if(signError>0){
+	return nextAwayFromZero<RealType>(res);
+      }else{
+	return nextTowardZero<RealType>(res);
+      }
+    }
+    if(signError<0){
+      return nextAwayFromZero<RealType>(res);
+    }else{
+      return nextTowardZero<RealType>(res);
+    }
+  }
+
+
+  static inline RealType nextAfter_safe(RealType res){
+    if(res >0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    if(res < 0){
+      return nextTowardZero<RealType>(res);
+    }
+    return std::numeric_limits<RealType>::denorm_min();
+  }
+
+  static inline RealType nextPrev_safe(RealType res){
+    if(res <0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    if(res > 0){
+      return nextTowardZero<RealType>(res);
+    }
+    return -std::numeric_limits<RealType>::denorm_min();
+  }
+
+  static inline RealType nextAfter_unsafe(RealType res){
+    if(res >0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    return nextTowardZero<RealType>(res);
+  }
+
+  static inline RealType nextPrev_unsafe(RealType res){
+    if(res <0){
+      return nextAwayFromZero<RealType>(res);
+    }
+    return nextTowardZero<RealType>(res);
+  }
+};
+
+template<class REALTYPE, bool SIGN_DENORM_HACK_NEEDED>
+struct nextForRandom;
+
+
+template<class REALTYPE>
+struct nextForRandom<REALTYPE,false>{
+  typedef REALTYPE RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+    return nextTool<RealType>::next_unsafe(res,sign);
+  }
+};
+
+
+template<>
+struct nextForRandom<double,true>{
+  typedef double RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::next_safe(res,sign);
+#else
+    return nextTool<RealType>::next_unsafe(res,sign);
+#endif
+  }
+};
+
+
+template<>
+struct nextForRandom<float,true>{
+  typedef float RealType;
+
+  static inline RealType next(const RealType& res, const RealType& sign){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::next_safe(res,sign);
+#else
+    return nextTool<RealType>::next_unsafe(res,sign);
+#endif
+  }
+};
+
+
 
 
 template<class OP, class RAND>
@@ -115,16 +237,73 @@ public:
       if(doNoChange){
 	return res;
       }else{
-	if((signError*res)>0){
-	  return nextAwayFromZero<RealType>(res);
-	}else{
-	  return nextTowardZero<RealType>(res);
-	}
+	return nextForRandom<RealType, OP::sign_denorm_hack_needed >::next(res,signError);
       }
     }
   } ;
 };
 
+
+
+
+template<class REALTYPE, bool SIGN_DENORM_HACK_NEEDED>
+struct nextForPRandom;
+
+
+template<class REALTYPE>
+struct nextForPRandom<REALTYPE,false>{
+  typedef REALTYPE RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+    return nextTool<RealType>::nextAfter_unsafe(res);
+  }
+  static inline RealType nextPrev(const RealType& res){
+    return nextTool<RealType>::nextPrev_unsafe(res);
+  }
+};
+
+
+template<>
+struct nextForPRandom<double,true>{
+  typedef double RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::nextAfter_safe(res);
+#else
+    return nextTool<RealType>::nextAfter_unsafe(res);
+#endif
+  }
+
+    static inline RealType nextPrev(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::nextPrev_safe(res);
+#else
+    return nextTool<RealType>::nextPrev_unsafe(res);
+#endif
+  }
+};
+
+template<>
+struct nextForPRandom<float,true>{
+  typedef float RealType;
+
+  static inline RealType nextAfter(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::nextAfter_safe(res);
+#else
+    return nextTool<RealType>::nextAfter_unsafe(res);
+#endif
+  }
+
+    static inline RealType nextPrev(const RealType& res){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::nextPrev_safe(res);
+#else
+    return nextTool<RealType>::nextPrev_unsafe(res);
+#endif
+  }
+};
 
 
 
@@ -155,22 +334,14 @@ public:
 	if(doNoChange){
 	  return res;
 	}else{
-	  if(res >0){
-	    return nextAwayFromZero<RealType>(res);
-	  }else{
-	    return nextTowardZero<RealType>(res);
-	  }
+	  return nextForPRandom<RealType,OP::sign_denorm_hack_needed>::nextAfter(res);
 	}
       }
-      const bool doChange = !RAND::randBool(&vr_rand, p);
-      if(doChange){
+      const bool doNoChange = !RAND::randBool(&vr_rand, p);
+      if(doNoChange){
 	return res;
       }else{
-	if(res <0){
-	  return nextAwayFromZero<RealType>(res);
-	}else{
-	  return nextTowardZero<RealType>(res);
-	}
+	return nextForPRandom<RealType,OP::sign_denorm_hack_needed>::nextPrev(res);
       }
     }
   } ;

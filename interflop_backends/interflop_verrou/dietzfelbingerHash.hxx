@@ -2,6 +2,8 @@
 
 class vr_dietzfelbinger_hash{
 public:
+  static inline void genTable(tinymt64_t& gen){};
+
   template<int NB>
   static inline bool hashBool(const Vr_Rand * r,
 			      const vr_packArg<double,NB>& pack,

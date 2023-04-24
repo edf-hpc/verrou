@@ -1,17 +1,21 @@
 SRC=stencil_interflop_verrou.cpp
 
 SRC_VERROU=../../interflop_verrou.cxx ../../../backend_mcaquad/common/tinymt64.c 
-FLAGS_VERROU=-DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash -DVERROU_IGNORE_NANINF_CHECK
+FLAGS_VERROU=-DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DVERROU_IGNORE_NANINF_CHECK -DVERROU_USE_FMA
 
 BIN=stencil_interflop_verrou
+
 FLAGS=-Wall -g $(FLAGS_VERROU)
 
 BUILDDEP=Makefile
 #CPP=clang++
 CPP=g++
 
+BIN_LIST=$(BIN)-O3-FLOAT $(BIN)-O3-DOUBLE $(BIN)-O0-FLOAT $(BIN)-O0-DOUBLE
+all: $(BIN_LIST)
 
-all: $(BIN)-O3-FLOAT $(BIN)-O3-DOUBLE $(BIN)-O0-FLOAT $(BIN)-O0-DOUBLE
+#always recompile to avoid problem with missing deps
+.PHONY: $(BIN_LIST) 
 
 $(BIN)-O3-FLOAT: $(SRC) $(SRC_VERROU) $(BUILDDEP)
 	$(CPP) $(FLAGS) -O3 -DFLOAT $(SRC)  $(SRC_VERROU) -o $@
