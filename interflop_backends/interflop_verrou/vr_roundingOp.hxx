@@ -252,7 +252,7 @@ struct nextForPRandom;
 
 template<class REALTYPE>
 struct nextForPRandom<REALTYPE,false>{
-  typedef double RealType;
+  typedef REALTYPE RealType;
 
   static inline RealType nextAfter(const RealType& res){
     return nextTool<RealType>::nextAfter_unsafe(res);
