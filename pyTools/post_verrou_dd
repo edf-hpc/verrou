@@ -5,6 +5,7 @@ import re
 import fnmatch
 import glob
 import functools
+import copy
 from valgrind import DD_stoch
 from valgrind import post_config
 from valgrind import rounding_tool
@@ -181,17 +182,18 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 roundNonDetTab=[""]
                 nbRun=1
                 roundDetTab=[]
+            runEnvSav=copy.deepcopy(runEnv)
             for rounding in roundNonDetTab:
                 newNbRun=nbRun
                 if rounding=="":
                     ddminNewRep=os.path.join(ddminNewInstr,"default")
                     if ddmin.endswith("ref"):
                         ddminNewRep=os.path.join(ddminNewInstr,"nearest")
-                        runEnv=rounding_tool.roundingToEnvVar("nearest",runEnv)
+                        runEnv=rounding_tool.roundingToEnvVar("nearest",runEnvSav)
                         newNbRun=1
                 else:
                     ddminNewRep=os.path.join(ddminNewInstr,rounding)
-                    runEnv=rounding_tool.roundingToEnvVar(rounding,runEnv)
+                    runEnv=rounding_tool.roundingToEnvVar(rounding,runEnvSav)
 
 
                 if not os.path.exists(ddminNewRep):
@@ -205,7 +207,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                     os.mkdir(ddminNewRep)
 
                 for det in roundDetTab:
-                    runEnv=rounding_tool.roundingToEnvVar(det,runEnv)
+                    runEnv=rounding_tool.roundingToEnvVar(det,runEnvSav)
                     if instr!="":
                         runEnv["VERROU_INSTR"]=instr
 

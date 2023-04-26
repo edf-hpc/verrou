@@ -1484,18 +1484,19 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       }
 
       if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
-	 const HChar *localFnname;
-	 if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
-	   IRDirty*   di;
-	   di = unsafeIRDirty_0_N(0,
-				  "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
-				  mkIRExprVec_0() );
-	   addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-	   if(vr.verbose){
+	if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
+	  const HChar *localFnname;
+	  if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
+	    IRDirty*   di;
+	    di = unsafeIRDirty_0_N(0,
+				   "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				   mkIRExprVec_0() );
+	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	    if(vr.verbose){
 	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
-	   }
-	 }
-
+	    }
+	  }
+	}
       }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
