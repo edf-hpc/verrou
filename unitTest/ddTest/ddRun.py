@@ -7,12 +7,26 @@ import pickle
 import random
 
 proba=1.
+random_shuffle_seed=None
+random_seed=""
 try:
     proba = float(os.environ["DD_TEST_PROBA"])
 except:
     pass
 
-def simulateRandom(fail):
+try:
+    random_shuffle_seed = os.environ["DD_TEST_SHUFFLE_SEED"]
+except:
+    pass
+try:
+    random_seed = os.environ["DD_TEST_SEED"]
+except:
+    pass
+
+
+
+def simulateRandom(config):
+    random.seed(random_seed+config)
     if fail!=0:
         if( random.random()<proba):
             return fail
@@ -95,7 +109,7 @@ class ddConfig:
         #test single sym
         for sym in self.listOfIntSym():
             if sym not in listOfConfigSym and self.listOf1Failure[sym][1]!=0:
-                res=simulateRandom(1)
+                res=simulateRandom(config)
                 if res==1:
                     return 1
         #test couple sym
@@ -103,7 +117,7 @@ class ddConfig:
             if failure==0:
                 continue
             if not sym1 in listOfConfigSym and not sym2 in listOfConfigSym:
-                res=simulateRandom(1)
+                res=simulateRandom(config)
                 if res==1:
                     return 1
         return 0
@@ -124,7 +138,9 @@ class ddConfig:
                 for (lineFailure, failure) in self.listOf1Failure[sym][2]:
                     if lineFailure in selectedConfigLines and failure :
                         print("line return : ", lineFailure)
-                        return 1
+                        res=simulateRandom(configLine)
+                        if res==1:
+                            return 1
 
         #test couple sym
         for ((sym1,sym2), failure, tab) in self.listOf2Failures:
@@ -140,7 +156,9 @@ class ddConfig:
                 for (s1, l1, s2,l2) in tab:
                     if s1==sym1 and s2==sym2:
                         if l1 in selectedConfigLines1 and l2 in selectedConfigLines2:
-                            return 1
+                            res=simulateRandom(configLine)
+                            if res==1:
+                                return 1
         return 0
 
     def checkRddminSymResult(self,loadRes):
@@ -309,6 +327,7 @@ def generateFakeExclusion(ddCase):
     f=open(genExcludeFile, "w")
     dataToWrite=ddCase.listOfTxtSym()
     import random
+    random.seed(random_shuffle_seed)
     random.shuffle(dataToWrite)
     for (sym, name,) in dataToWrite:
         f.write(sym +"\t" + name+"\n")
@@ -364,6 +383,7 @@ if __name__=="__main__":
     )
 #    ddCase=ddConfig([(0, 0, []),
 #                     (1, 1, [(0, 0),(1,1)] )])
+    # os.system("sleep 1"); #to fake time
     if "ref" in sys.argv[1]:
         sys.exit(runRef(sys.argv[1], ddCase))
     else:

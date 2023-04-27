@@ -610,7 +610,7 @@ class DD:
         n = 2
         self.CC = c
         algo_name="dd_max"
-        
+
         testNoDelta=self.test([])
         if testNoDelta!=self.PASS:
             self.internalError("verrou_dd_max","ERROR: test([]) == FAILED")
@@ -778,6 +778,118 @@ class DD:
                     # No further minimizing
                     print (algo_name+": done")
                     return c
+
+                next_n = min(len(c), n * 2)
+                print (algo_name+": increase granularity to", next_n)
+                cbar_offset = (cbar_offset * next_n) // n
+
+            c = next_c
+            n = next_n
+            run = run + 1
+
+    def verrou_dd_min_par(self, c , nbRun):
+        """Stub to overload in subclasses"""
+        n = 2
+        algo_name="ddmin//"
+
+        testNoDelta=self._test([],nbRun)
+        if testNoDelta!=self.PASS:
+            self.internalError("verrou_dd_min_par","ERROR: test([]) == FAILED")
+
+        run = 1
+        cbar_offset = 0
+
+        failMemory=[]
+
+        # We replace the tail recursion from the paper by a loop
+        while 1:
+            tc = self._test(c ,nbRun)
+            if tc != self.FAIL and tc != self.UNRESOLVED:
+                self.internalError("verrou_dd_min","ERROR: test([all deltas]) == PASS")
+
+
+            if n > len(c):
+                # No further minimizing
+                print (algo_name+": done")
+                return (c,failMemory)
+
+            self.report_progress(c, algo_name)
+
+            cs = self.split(c, n)
+
+            print ()
+            print (algo_name+" (run #" + repr(run) + "): trying", "+".join([repr(len(cs[i])) for i in range(n)] ) )
+
+            c_failed    = False
+            cbar_failed = False
+
+            next_c = c[:]
+            next_n = n
+
+            # // resolution
+            tTab=self._testTab(cs, [nbRun]*len(cs))
+
+            for i in range(n):
+                if self.debug_dd:
+                    print (algo_name+": trying", self.pretty(cs[i]))
+
+                t = tTab[i]
+
+                if t == self.FAIL:
+                    # Found
+                    if self.debug_dd:
+                        print (algo_name+": found", len(cs[i]), "deltas:",)
+                        print (self.pretty(cs[i]))
+
+                    c_failed = True
+                    next_c = cs[i]
+                    next_n = 2
+                    cbar_offset = 0
+                    for j in range(i+1,n):
+                        t = tTab[j]
+                        if t == self.FAIL:
+                            failMemory+=[cs[j]]
+                    self.report_progress(next_c, algo_name)
+                    break
+
+            if not c_failed and n!=2:
+                # Check complements
+                cbars = n * [self.UNRESOLVED]
+
+                # print "cbar_offset =", cbar_offset
+
+                for j in range(n):
+                    i = (j + cbar_offset) % n
+                    cbars[i] = self.__listminus(c, cs[i])
+                tTab = self._testTab(cbars,[nbRun]*n)
+                for i in range(n):
+                    t=tTab[i]
+                    if t == self.FAIL:
+                        if self.debug_dd:
+                            print (algo_name+": reduced to", len(cbars[i]),)
+                            print ("deltas:", end="")
+                            print (self.pretty(cbars[i]))
+
+                        cbar_failed = True
+                        next_c = cbars[i]
+                        next_n = next_n - 1
+
+                        for j in range(i+1,n):
+                            t = tTab[j]
+                            if t == self.FAIL:
+                                failMemory+=[cbars[j]]
+
+                        self.report_progress(next_c, algo_name)
+
+                        # In next run, start removing the following subset
+                        cbar_offset = i
+                        break
+
+            if not c_failed and not cbar_failed:
+                if n >= len(c):
+                    # No further minimizing
+                    print (algo_name+": done")
+                    return (c,failMemory)
 
                 next_n = min(len(c), n * 2)
                 print (algo_name+": increase granularity to", next_n)

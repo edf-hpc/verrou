@@ -140,3 +140,6 @@ class ddConfig(gen_config.gen_config):
 
     def get_rddminHeuristicsLineConv(self):
         return self.rddminHeuristicsLineConv
+
+    def get_use_dd_min_par(self):
+        return False #not yet efficient

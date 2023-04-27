@@ -226,7 +226,7 @@ class verrouTask:
 
         if len(runToDo)!=0:
 
-            if self.maxNbPROC==None:
+            if self.maxNbPROC in [None,1]:
                 returnVal=self.runSeq(runToDo, earlyExit, self.verbose)
             else:
                 returnVal=self.runPar(runToDo)
@@ -884,7 +884,12 @@ class DDStoch(DD.DD):
         else:
             return res+self.SRDDMin(deltas, SrunTab)
 
-
+    def verrou_dd_min_seqpar(self, deltas, nbRun):
+        if self.config_.get_maxNbPROC() in [None,1] or not self.config_.get_use_dd_min_par():
+            return (self.verrou_dd_min(deltas,nbRun),[])
+        else:
+            ddmin,expFail=self.verrou_dd_min_par(deltas,nbRun)
+            return (ddmin,expFail)
 
     def SRDDMin(self, deltas,runTab):#runTab=rddMinTab):
         #name for progression
@@ -897,6 +902,9 @@ class DDStoch(DD.DD):
 
         ddminTab=[]
         nbMin=self._getSampleNumberToExpectFail(deltas)
+        nbProc=self.config_.get_maxNbPROC()
+        if nbProc!=None:
+            nbMin=max(nbMin,nbProc)
 
         filteredRunTab=[x for x in runTab if x>=nbMin]
         if len(filteredRunTab)==0:
@@ -908,11 +916,14 @@ class DDStoch(DD.DD):
             #rddmin loop
             while testResult==self.FAIL:
                 self.report_progress(deltas, algo_name)
-                conf = self.verrou_dd_min(deltas,run)
+                (conf,failList) = self.verrou_dd_min_seqpar(deltas,run)
                 if len(conf)!=1:
                     #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
-                        conf = self.verrou_dd_min(conf,runIncValue)
+                        conf,failIncList = self.verrou_dd_min_seqpar(conf,runIncValue)
+                        for failInc in failIncList:
+                            if failInc not in failList:
+                                failList+=failInc
                         if len(conf)==1:
                             break
 
@@ -920,8 +931,42 @@ class DDStoch(DD.DD):
                 self.configuration_found("ddmin%d"%(self.index), conf)
                 #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
                 self.index+=1
+
+                #could be nice to sort failList to begin by small failConf
+                failList.sort(key=lambda x: len(x))
                 #update search space
                 deltas=[delta for delta in deltas if delta not in conf]
+                while len(failList)!=0:
+                    #print("failList:", failList)
+                    failConf=failList[0]
+                    failList=failList[1:]
+                    if all(x in deltas for x in  failConf): #check inclusion
+                        #print("// optim : ", failConf)
+                        testResult=self._test(failConf,nbRun)
+                        if testResult!=self.FAIL:
+                            self.internalError("SRDDMIN inner", md5Name(failConf)+" should fail")
+                        conf,failIncList = self.verrou_dd_min_seqpar(failConf,run)
+                        #print("resConf:",conf)
+                        #print("failIncList:",failIncList)
+                        for failInc in failIncList:
+                            if failInc not in failList:
+                                failList+=failInc
+                        if len(conf)!=1:
+                            #may be not minimal due to number of run)
+                            for runIncValue in [x for x in runTab if x>run ]:
+                                conf,failIncList = self.verrou_dd_min_seqpar(conf,runIncValue)
+                                for failInc in failIncList:
+                                    if failInc not in failList:
+                                        failList+=failInc
+
+                                if len(conf)==1:
+                                    break
+                            failList.sort(key=lambda x: len(x))
+                            self.configuration_found("ddmin%d"%(self.index), conf)
+                            self.index+=1
+                        ddminTab += [conf]
+                        deltas=[delta for delta in deltas if delta not in conf]
+
                 #end test loop of rddmin
                 testResult=self._test(deltas,nbRun)
 
@@ -1053,7 +1098,7 @@ class DDStoch(DD.DD):
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
-            #the node is there to avoid inner/outer parallelism
+            #the none is there to avoid inner/outer parallelism
             taskTab[i]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[i], None , self.sampleRunEnv(dirname),verbose=False)
             workToDo=taskTab[i].sampleToCompute(nbRunTab[i], earlyExit=True)
             workToDoTab[i]=workToDo
