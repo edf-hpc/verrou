@@ -1,7 +1,7 @@
 # Notes about the release process
 
 ```
-VERSION=2.4.0
+VERSION=2.5.0
 ```
 
 ## Update the valgrind patch
@@ -80,7 +80,7 @@ git add vr_clo.txt
 
     > ## [UNRELEASED]
     > 
-    > This version is based on Valgrind-3.20.0.
+    > This version is based on Valgrind-3.21.0.
     > 
     > ### Added
     > 
@@ -108,7 +108,7 @@ git add vr_clo.txt
 - Build a tgz archive for the full valgrind+verrou release
     
     ```
-    VALGRIND=valgrind-3.20.0
+    VALGRIND=valgrind-3.21.0
     cd /tmp
     wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
     tar xvpf ${VALGRIND}.tar.bz2
