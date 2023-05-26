@@ -1,14 +1,22 @@
-# Change Log
-## [UNRELEASED]
+## v2.5.0 - 2023-05-26
 
-This version is based on Valgrind-3.20.0.
+This version is based on Valgrind-3.21.0.
 
 ### Added
-
+	- Add sr_monotonic rounding mode
+	- Add [random|average]_scomdet rounding mode
+	- Add prandom rounding mode with various update strategies
+	- Add away_zero rounding mode
+	- Add instrumentation of hardware sqrt
+	- Add --with-verrou-denorm-hack option in configure
+	- Add Nan and Inf detection in Interlibm
+	- Add xxhash (by default) for [random,average]_[det|comdet|scomdet] and sr_monotonic
 
 ### Changed
-
-
+	- Code factorization in python tools
+	- Performance optimization
+	- verrou_dd_* is now resilient to invalid heuristics
+---
 
 ## v2.4.0 - 2022-12-15
 
