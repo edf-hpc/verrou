@@ -13,13 +13,23 @@ detRounding=["random_det","average_det", "random_comdet","average_comdet","rando
 buildConfigList=["stable","current", "current_fast"]
 buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 
-
 nbRunTuple=(5,5) #inner outer
+ref_name="current_fast"
+slowDown=True
+
+
+# buildConfigList=["current", "current-upgrade"]
+# ref_name="current"
+# buildSpecialConfigList=[]
+# detRounding=[]
+# nbRunTuple=(5,20) #inner outer
+# slowDown=False
+
 
 verrouOptionsList=[("","")]
 
 postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
-#postFixTab=["O3-DOUBLE"]
+#postFixTab=["O3-DOUBLE-FMA"]
 
 
 pathPerfBin="../unitTest/testPerf"
@@ -28,7 +38,7 @@ perfBinNameList=["stencil-"+i for i in  postFixTab]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
 def get_rounding_tab(name):
-    if name in ["current","current_fast"]:
+    if name in ["current","current_fast", "current-upgrade"]:
         return roundingListPerf+detRounding
     if name in buildConfigList:
         return roundingListPerf
@@ -224,7 +234,7 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
 
 
 if __name__=="__main__":
-    slowDown=True
+
 
     runCmd("make -C ../unitTest/testPerf/")
 
@@ -235,10 +245,11 @@ if __name__=="__main__":
 
     resAll={}
     for name in buildConfigList+buildSpecialConfigList:
-        if slowDown:
-            resAll[name]=extractPerf(name)
+        resAll[name]=extractPerf(name)
 
-    nonPerfRegressionAnalyze(resAll,"current_fast")
+    print(resAll)
+    print("ref_name:",ref_name)
+    nonPerfRegressionAnalyze(resAll, ref_name)
     print("")
     if slowDown:
 
