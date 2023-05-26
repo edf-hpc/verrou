@@ -19,20 +19,22 @@
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|comdet]|average[|_det|comdet]|prandom[|_det|comdet]|upward|downward|toward_zero|farthest|float|ftz>\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|away_zero|farthest|float|ftz>\n\
       [default=nearest]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
           rounds to the nearest floating-point. Supported rounding modes are:\n\
 \n\
-          •   Random rounding modes: random, average, prandom, random_det,\n\
-              average_det, prandom_det, random_comdet, average_comdet,\n\
-              prandom_comdet.\n\
+          •   Stochastic rounding modes: random, average, prandom,\n\
+              random_det, average_det, prandom_det, random_comdet,\n\
+              average_comdet, prandom_comdet, random_scomdet,\n\
+              average_scomdet, sr_monotonic.\n\
 \n\
           •   IEEE-754 rounding modes: nearest (default), upward, downward,\n\
               toward_zero.\n\
 \n\
-          •   Other: farthest, float, ftz(imply checkdenorm backend).\n\
+          •   Other: away_zero, farthest, float, ftz(imply checkdenorm\n\
+              backend).\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_ROUNDING_MODE.\n\
@@ -50,7 +52,7 @@
           •   ieee : ieee (rounding to nearest)\n\
 \n\
           The mcaquad backend implementation come from Verificarlo : More\n\
-          information on Verificalo github[1]\n\
+          information on Verificalo github[2]\n\
 \n\
       --mca-precision-double= [default=53]\n\
           Configure the magnitude of inexact function used by mcaquad backend\n\
@@ -101,12 +103,13 @@
           This option can be activated with the env variable\n\
           VERROU_PRANDOM_PVALUE.\n\
 \n\
-      --vr-instr=<add|sub|mul|div|mAdd|mSub|conv> [default=all]\n\
+      --vr-instr=<add|sub|mul|div|mAdd|mSub|sqrt|conv> [default=all]\n\
           Toggle instrumentation of floating-point additions, subtractions,\n\
           multiplications, divisions, fused multiply additions, fused\n\
-          multiply subtractions, conversions (only double to float cast)\n\
-          respectively. This option can be set multiple times (or use \",\" to\n\
-          separate arguments) to instrument multiple types of operations.\n\
+          multiply subtractions, square root, conversions (only double to\n\
+          float cast) respectively. This option can be set multiple times (or\n\
+          use \",\" to separate arguments) to instrument multiple types of\n\
+          operations.\n\
 \n\
           If this option is not provided, all supported operations types are\n\
           instrumented.\n\
