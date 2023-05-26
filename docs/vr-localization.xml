@@ -374,7 +374,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Option to shift the line number of the line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
+	      Option to shift line numbers of line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
 	      for a new delta debug with the same test case and few code modifications.
 	    </para>
           </listitem>
@@ -571,6 +571,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    <computeroutput>div</computeroutput>,
 	    <computeroutput>madd</computeroutput>,
 	    <computeroutput>msub</computeroutput>,
+	    <computeroutput>sqrt</computeroutput>,
 	    <computeroutput>conv</computeroutput>.
 	    </para>
 	    </listitem>
@@ -586,7 +587,8 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
-	     <computeroutput>toward_zero</computeroutput>
+	     <computeroutput>toward_zero</computeroutput>,
+	     <computeroutput>away_zero</computeroutput>
 	     )
           </term>
           <listitem>

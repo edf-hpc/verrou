@@ -126,9 +126,9 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
       <para>For example:<screen>
 <prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.tex python3
 ==10469== Verrou, Check floating-point rounding errors
-==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2021, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
+==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2023, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
 ==10469==
-==10469== Using Valgrind-3.19.0.+Verrou-Dev and LibVEX; rerun with -h for copyright info
+==10469== Using Valgrind-3.21.0.verrou-dev and LibVEX; rerun with -h for copyright info
 ==10469== Command: python3
 ==10469==
 ==10469== First seed : 147635
@@ -144,6 +144,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
 ==10469== 	div : yes
 ==10469== 	mAdd : yes
 ==10469== 	mSub : yes
+==10469== 	sqrt : yes
 ==10469== 	cmp : no
 ==10469== 	conv : yes
 ==10469== 	max : no

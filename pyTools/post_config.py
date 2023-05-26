@@ -68,7 +68,7 @@ class postConfig(gen_config.gen_config):
     def check_instr_tab(self):
         for instrConfig in self.instr:
             for instr in instrConfig.split(","):
-                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "conv"]
+                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "sqrt","conv"]
                 if instr not in validInstrTab:
                     print("%s is not a valid instr configuration."%(instr))
                     print("%s should be a coma separated list of element of %s"%(instrConfig, str(validInstrTab)))
