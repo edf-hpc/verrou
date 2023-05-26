@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>5.Â Cachegrind: a cache and branch-prediction profiler</title>
+<title>5. Cachegrind: a high-precision tracing profiler</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="mc-manual.html" title="4.Â Memcheck: a memory error detector">
-<link rel="next" href="cl-manual.html" title="6.Â Callgrind: a call-graph generating cache and branch prediction profiler">
+<link rel="prev" href="mc-manual.html" title="4. Memcheck: a memory error detector">
+<link rel="next" href="cl-manual.html" title="6. Callgrind: a call-graph generating cache and branch prediction profiler">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,700 +19,777 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="cg-manual"></a>5.Â Cachegrind: a cache and branch-prediction profiler</h1></div></div></div>
+<a name="cg-manual"></a>5. Cachegrind: a high-precision tracing profiler</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl class="toc">
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.overview">5.1. Overview</a></span></dt>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.profile">5.2. Using Cachegrind, cg_annotate and cg_merge</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.profile">5.2. Using Cachegrind and cg_annotate</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="cg-manual.html#cg-manual.running-cachegrind">5.2.1. Running Cachegrind</a></span></dt>
 <dt><span class="sect2"><a href="cg-manual.html#cg-manual.outputfile">5.2.2. Output File</a></span></dt>
 <dt><span class="sect2"><a href="cg-manual.html#cg-manual.running-cg_annotate">5.2.3. Running cg_annotate</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.the-output-preamble">5.2.4. The Output Preamble</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.the-global">5.2.5. The Global and Function-level Counts</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.line-by-line">5.2.6. Line-by-line Counts</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.assembler">5.2.7. Annotating Assembly Code Programs</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.forkingprograms">5.2.8. Forking Programs</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.warnings">5.2.9. cg_annotate Warnings</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.things-to-watch-out-for">5.2.10. Unusual Annotation Cases</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.cg_merge">5.2.11. Merging Profiles with cg_merge</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.cg_diff">5.2.12. Differencing Profiles with cg_diff</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.the-metadata">5.2.4. The Metadata Section</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.the-global">5.2.5. Global, File, and Function-level Counts</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.line-by-line">5.2.6. Per-line Counts</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.forkingprograms">5.2.7. Forking Programs</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.warnings">5.2.8. cg_annotate Warnings</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.cg_merge">5.2.9. Merging Cachegrind Output Files</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.cg_diff">5.2.10. Differencing Cachegrind output files</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.cache-branch-sim">5.2.11. Cache and Branch Simulation</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.cgopts">5.3. Cachegrind Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.annopts">5.4. cg_annotate Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.mergeopts">5.5. cg_merge Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.diffopts">5.6. cg_diff Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.acting-on">5.7. Acting on Cachegrind's Information</a></span></dt>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.8. Simulation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.7. Simulation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.8.1. Cache Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.8.2. Branch Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.8.3. Accuracy</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.7.1. Cache Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.7.2. Branch Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.7.3. Accuracy</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.9. Implementation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.8. Implementation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.9.1. How Cachegrind Works</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.9.2. Cachegrind Output File Format</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.8.1. How Cachegrind Works</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.8.2. Cachegrind Output File Format</a></span></dt>
 </dl></dd>
 </dl>
 </div>
-<p>To use this tool, you must specify
-<code class="option">--tool=cachegrind</code> on the
-Valgrind command line.</p>
+<p>
+To use this tool, specify <code class="option">--tool=cachegrind</code> on the Valgrind
+command line.
+</p>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.overview"></a>5.1.Â Overview</h2></div></div></div>
-<p>Cachegrind simulates how your program interacts with a machine's cache
-hierarchy and (optionally) branch predictor.  It simulates a machine with
-independent first-level instruction and data caches (I1 and D1), backed by a
-unified second-level cache (L2).  This exactly matches the configuration of
-many modern machines.</p>
-<p>However, some modern machines have three or four levels of cache.  For these
-machines (in the cases where Cachegrind can auto-detect the cache
-configuration) Cachegrind simulates the first-level and last-level caches.
-The reason for this choice is that the last-level cache has the most influence on
-runtime, as it masks accesses to main memory.  Furthermore, the L1 caches
-often have low associativity, so simulating them can detect cases where the
-code interacts badly with this cache (eg. traversing a matrix column-wise
-with the row length being a power of 2).</p>
-<p>Therefore, Cachegrind always refers to the I1, D1 and LL (last-level)
-caches.</p>
+<a name="cg-manual.overview"></a>5.1. Overview</h2></div></div></div>
 <p>
-Cachegrind gathers the following statistics (abbreviations used for each statistic
-is given in parentheses):</p>
+Cachegrind is a high-precision tracing profiler. It runs slowly, but collects
+precise and reproducible profiling data. It can merge and diff data from
+different runs. To expand on these characteristics:
+</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>I cache reads (<code class="computeroutput">Ir</code>,
-    which equals the number of instructions executed),
-    I1 cache read misses (<code class="computeroutput">I1mr</code>) and
-    LL cache instruction read misses (<code class="computeroutput">ILmr</code>).
+<li class="listitem"><p>
+    <span class="emphasis"><em>Precise.</em></span> Cachegrind measures the exact number of
+    instructions executed by your program, not an approximation. Furthermore,
+    it presents the gathered data at the file, function, and line level. This
+    is different to many other profilers that measure approximate execution
+    time, using sampling, and only at the function level.
     </p></li>
-<li class="listitem"><p>D cache reads (<code class="computeroutput">Dr</code>, which
-    equals the number of memory reads),
-    D1 cache read misses (<code class="computeroutput">D1mr</code>), and
-    LL cache data read misses (<code class="computeroutput">DLmr</code>).
-    </p></li>
-<li class="listitem"><p>D cache writes (<code class="computeroutput">Dw</code>, which equals
-    the number of memory writes),
-    D1 cache write misses (<code class="computeroutput">D1mw</code>), and
-    LL cache data write misses (<code class="computeroutput">DLmw</code>).
-    </p></li>
-<li class="listitem"><p>Conditional branches executed (<code class="computeroutput">Bc</code>) and
-    conditional branches mispredicted (<code class="computeroutput">Bcm</code>).
-    </p></li>
-<li class="listitem"><p>Indirect branches executed (<code class="computeroutput">Bi</code>) and
-    indirect branches mispredicted (<code class="computeroutput">Bim</code>).
+<li class="listitem"><p>
+    <span class="emphasis"><em>Reproducible.</em></span> In general, execution time is a better
+    metric than instruction counts because it's what users perceive. However,
+    execution time often has high variability. When running the exact same
+    program on the exact same input multiple times, execution time might vary
+    by several percent. Furthermore, small changes in a program can change its
+    memory layout and have even larger effects on runtime. In contrast,
+    instruction counts are highly reproducible; for some programs they are
+    perfectly reproducible. This means the effects of small changes in a
+    program can be measured with high precision.
     </p></li>
 </ul></div>
-<p>Note that D1 total accesses is given by
-<code class="computeroutput">D1mr</code> +
-<code class="computeroutput">D1mw</code>, and that LL total
-accesses is given by <code class="computeroutput">ILmr</code> +
-<code class="computeroutput">DLmr</code> +
-<code class="computeroutput">DLmw</code>.
+<p>
+For these reasons, Cachegrind is an excellent complement to time-based profilers.
 </p>
-<p>These statistics are presented for the entire program and for each
-function in the program.  You can also annotate each line of source code in
-the program with the counts that were caused directly by it.</p>
-<p>On a modern machine, an L1 miss will typically cost
-around 10 cycles, an LL miss can cost as much as 200
-cycles, and a mispredicted branch costs in the region of 10
-to 30 cycles.  Detailed cache and branch profiling can be very useful
-for understanding how your program interacts with the machine and thus how
-to make it faster.</p>
-<p>Also, since one instruction cache read is performed per
-instruction executed, you can find out how many instructions are
-executed per line, which can be useful for traditional profiling.</p>
+<p>
+Cachegrind can annotate programs written in any language, so long as debug info
+is present to map machine code back to the original source code. Cachegrind has
+been used successfully on programs written in C, C++, Rust, and assembly.
+</p>
+<p>
+Cachegrind can also simulate how your program interacts with a machine's cache
+hierarchy and branch predictor. This simulation was the original motivation for
+the tool, hence its name. However, the simulations are basic and unlikely to
+reflect the behaviour of a modern machine. For this reason they are off by
+default. If you really want cache and branch information, a profiler like
+<code class="computeroutput">perf</code> that accesses hardware counters is a
+better choice.
+</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.profile"></a>5.2.Â Using Cachegrind, cg_annotate and cg_merge</h2></div></div></div>
-<p>First off, as for normal Valgrind use, you probably want to
-compile with debugging info (the
-<code class="option">-g</code> option).  But by contrast with
-normal Valgrind use, you probably do want to turn
-optimisation on, since you should profile your program as it will
-be normally run.</p>
-<p>Then, you need to run Cachegrind itself to gather the profiling
-information, and then run cg_annotate to get a detailed presentation of that
-information.  As an optional intermediate step, you can use cg_merge to sum
-together the outputs of multiple Cachegrind runs into a single file which
-you then use as the input for cg_annotate.  Alternatively, you can use
-cg_diff to difference the outputs of two Cachegrind runs into a single file
-which you then use as the input for cg_annotate.</p>
+<a name="cg-manual.profile"></a>5.2. Using Cachegrind and cg_annotate</h2></div></div></div>
+<p>
+First, as for normal Valgrind use, you should compile with debugging info (the
+<code class="option">-g</code> option in most compilers). But by contrast with normal
+Valgrind use, you probably do want to turn optimisation on, since you should
+profile your program as it will be normally run.
+</p>
+<p>
+Second, run Cachegrind itself to gather the profiling data.
+</p>
+<p>
+Third, run cg_annotate to get a detailed presentation of that data. cg_annotate
+can combine the results of multiple Cachegrind output files. It can also
+perform a diff between two Cachegrind output files.
+</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.running-cachegrind"></a>5.2.1.Â Running Cachegrind</h3></div></div></div>
-<p>To run Cachegrind on a program <code class="filename">prog</code>, run:</p>
+<a name="cg-manual.running-cachegrind"></a>5.2.1. Running Cachegrind</h3></div></div></div>
+<p>
+To run Cachegrind on a program <code class="filename">prog</code>, run:
+</p>
 <pre class="screen">
 valgrind --tool=cachegrind prog
 </pre>
-<p>The program will execute (slowly).  Upon completion,
-summary statistics that look like this will be printed:</p>
-<pre class="programlisting">
-==31751== I   refs:      27,742,716
-==31751== I1  misses:           276
-==31751== LLi misses:           275
-==31751== I1  miss rate:        0.0%
-==31751== LLi miss rate:        0.0%
-==31751== 
-==31751== D   refs:      15,430,290  (10,955,517 rd + 4,474,773 wr)
-==31751== D1  misses:        41,185  (    21,905 rd +    19,280 wr)
-==31751== LLd misses:        23,085  (     3,987 rd +    19,098 wr)
-==31751== D1  miss rate:        0.2% (       0.1%   +       0.4%)
-==31751== LLd miss rate:        0.1% (       0.0%   +       0.4%)
-==31751== 
-==31751== LL misses:         23,360  (     4,262 rd +    19,098 wr)
-==31751== LL miss rate:         0.0% (       0.0%   +       0.4%)</pre>
-<p>Cache accesses for instruction fetches are summarised
-first, giving the number of fetches made (this is the number of
-instructions executed, which can be useful to know in its own
-right), the number of I1 misses, and the number of LL instruction
-(<code class="computeroutput">LLi</code>) misses.</p>
-<p>Cache accesses for data follow. The information is similar
-to that of the instruction fetches, except that the values are
-also shown split between reads and writes (note each row's
-<code class="computeroutput">rd</code> and
-<code class="computeroutput">wr</code> values add up to the row's
-total).</p>
-<p>Combined instruction and data figures for the LL cache
-follow that.  Note that the LL miss rate is computed relative to the total
-number of memory accesses, not the number of L1 misses.  I.e.  it is
-<code class="computeroutput">(ILmr + DLmr + DLmw) / (Ir + Dr + Dw)</code>
-not
-<code class="computeroutput">(ILmr + DLmr + DLmw) / (I1mr + D1mr + D1mw)</code>
+<p>
 </p>
-<p>Branch prediction statistics are not collected by default.
-To do so, add the option <code class="option">--branch-sim=yes</code>.</p>
-</div>
-<div class="sect2">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.outputfile"></a>5.2.2.Â Output File</h3></div></div></div>
-<p>As well as printing summary information, Cachegrind also writes
-more detailed profiling information to a file.  By default this file is named
-<code class="filename">cachegrind.out.&lt;pid&gt;</code> (where
-<code class="filename">&lt;pid&gt;</code> is the program's process ID), but its name
-can be changed with the <code class="option">--cachegrind-out-file</code> option.  This
-file is human-readable, but is intended to be interpreted by the
-accompanying program cg_annotate, described in the next section.</p>
-<p>The default <code class="computeroutput">.&lt;pid&gt;</code> suffix
-on the output file name serves two purposes.  Firstly, it means you 
-don't have to rename old log files that you don't want to overwrite.  
-Secondly, and more importantly, it allows correct profiling with the
-<code class="option">--trace-children=yes</code> option of
-programs that spawn child processes.</p>
-<p>The output file can be big, many megabytes for large applications
-built with full debugging information.</p>
-</div>
-<div class="sect2">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.running-cg_annotate"></a>5.2.3.Â Running cg_annotate</h3></div></div></div>
-<p>Before using cg_annotate,
-it is worth widening your window to be at least 120-characters
-wide if possible, as the output lines can be quite long.</p>
-<p>To get a function-by-function summary, run:</p>
-<pre class="screen">cg_annotate &lt;filename&gt;</pre>
-<p>on a Cachegrind output file.</p>
-</div>
-<div class="sect2">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.the-output-preamble"></a>5.2.4.Â The Output Preamble</h3></div></div></div>
-<p>The first part of the output looks like this:</p>
+<p>
+The program will execute (slowly). Upon completion, summary statistics that
+look like this will be printed:
+</p>
 <pre class="programlisting">
---------------------------------------------------------------------------------
-I1 cache:              65536 B, 64 B, 2-way associative
-D1 cache:              65536 B, 64 B, 2-way associative
-LL cache:              262144 B, 64 B, 8-way associative
-Command:               concord vg_to_ucode.c
-Events recorded:       Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
-Events shown:          Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
-Event sort order:      Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
-Threshold:             99%
-Chosen for annotation:
-Auto-annotation:       off
+==17942== I refs:          8,195,070
 </pre>
-<p>This is a summary of the annotation options:</p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>I1 cache, D1 cache, LL cache: cache configuration.  So
-    you know the configuration with which these results were
-    obtained.</p></li>
-<li class="listitem"><p>Command: the command line invocation of the program
-      under examination.</p></li>
-<li class="listitem"><p>Events recorded: which events were recorded.</p></li>
-<li class="listitem"><p>Events shown: the events shown, which is a subset of the events
-   gathered.  This can be adjusted with the
-   <code class="option">--show</code> option.</p></li>
-<li class="listitem">
-<p>Event sort order: the sort order in which functions are
-    shown.  For example, in this case the functions are sorted
-    from highest <code class="computeroutput">Ir</code> counts to
-    lowest.  If two functions have identical
-    <code class="computeroutput">Ir</code> counts, they will then be
-    sorted by <code class="computeroutput">I1mr</code> counts, and
-    so on.  This order can be adjusted with the
-    <code class="option">--sort</code> option.</p>
-<p>Note that this dictates the order the functions appear.
-    It is <span class="emphasis"><em>not</em></span> the order in which the columns
-    appear; that is dictated by the "events shown" line (and can
-    be changed with the <code class="option">--show</code>
-    option).</p>
-</li>
-<li class="listitem"><p>Threshold: cg_annotate
-    by default omits functions that cause very low counts
-    to avoid drowning you in information.  In this case,
-    cg_annotate shows summaries the functions that account for
-    99% of the <code class="computeroutput">Ir</code> counts;
-    <code class="computeroutput">Ir</code> is chosen as the
-    threshold event since it is the primary sort event.  The
-    threshold can be adjusted with the
-    <code class="option">--threshold</code>
-    option.</p></li>
-<li class="listitem"><p>Chosen for annotation: names of files specified
-    manually for annotation; in this case none.</p></li>
-<li class="listitem"><p>Auto-annotation: whether auto-annotation was requested
-    via the <code class="option">--auto=yes</code>
-    option. In this case no.</p></li>
-</ul></div>
-</div>
-<div class="sect2">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.the-global"></a>5.2.5.Â The Global and Function-level Counts</h3></div></div></div>
-<p>Then follows summary statistics for the whole
-program:</p>
-<pre class="programlisting">
---------------------------------------------------------------------------------
-Ir         I1mr ILmr Dr         D1mr   DLmr  Dw        D1mw   DLmw
---------------------------------------------------------------------------------
-27,742,716  276  275 10,955,517 21,905 3,987 4,474,773 19,280 19,098  PROGRAM TOTALS</pre>
 <p>
-These are similar to the summary provided when Cachegrind finishes running.
+The <code class="computeroutput">I refs</code> number is short for "Instruction
+cache references", which is equivalent to "instructions executed". If you
+enable the cache and/or branch simulation, additional counts will be shown.
 </p>
-<p>Then comes function-by-function statistics:</p>
-<pre class="programlisting">
---------------------------------------------------------------------------------
-Ir        I1mr ILmr Dr        D1mr  DLmr  Dw        D1mw   DLmw    file:function
---------------------------------------------------------------------------------
-8,821,482    5    5 2,242,702 1,621    73 1,794,230      0      0  getc.c:_IO_getc
-5,222,023    4    4 2,276,334    16    12   875,959      1      1  concord.c:get_word
-2,649,248    2    2 1,344,810 7,326 1,385         .      .      .  vg_main.c:strcmp
-2,521,927    2    2   591,215     0     0   179,398      0      0  concord.c:hash
-2,242,740    2    2 1,046,612   568    22   448,548      0      0  ctype.c:tolower
-1,496,937    4    4   630,874 9,000 1,400   279,388      0      0  concord.c:insert
-  897,991   51   51   897,831    95    30        62      1      1  ???:???
-  598,068    1    1   299,034     0     0   149,517      0      0  ../sysdeps/generic/lockfile.c:__flockfile
-  598,068    0    0   299,034     0     0   149,517      0      0  ../sysdeps/generic/lockfile.c:__funlockfile
-  598,024    4    4   213,580    35    16   149,506      0      0  vg_clientmalloc.c:malloc
-  446,587    1    1   215,973 2,167   430   129,948 14,057 13,957  concord.c:add_existing
-  341,760    2    2   128,160     0     0   128,160      0      0  vg_clientmalloc.c:vg_trap_here_WRAPPER
-  320,782    4    4   150,711   276     0    56,027     53     53  concord.c:init_hash_table
-  298,998    1    1   106,785     0     0    64,071      1      1  concord.c:create
-  149,518    0    0   149,516     0     0         1      0      0  ???:tolower@@GLIBC_2.0
-  149,518    0    0   149,516     0     0         1      0      0  ???:fgetc@@GLIBC_2.0
-   95,983    4    4    38,031     0     0    34,409  3,152  3,150  concord.c:new_word_node
-   85,440    0    0    42,720     0     0    21,360      0      0  vg_clientmalloc.c:vg_bogus_epilogue</pre>
-<p>Each function
-is identified by a
-<code class="computeroutput">file_name:function_name</code> pair. If
-a column contains only a dot it means the function never performs
-that event (e.g. the third row shows that
-<code class="computeroutput">strcmp()</code> contains no
-instructions that write to memory). The name
-<code class="computeroutput">???</code> is used if the file name
-and/or function name could not be determined from debugging
-information. If most of the entries have the form
-<code class="computeroutput">???:???</code> the program probably
-wasn't compiled with <code class="option">-g</code>.</p>
-<p>It is worth noting that functions will come both from
-the profiled program (e.g. <code class="filename">concord.c</code>)
-and from libraries (e.g. <code class="filename">getc.c</code>)</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.line-by-line"></a>5.2.6.Â Line-by-line Counts</h3></div></div></div>
-<p>By default, all source code annotation is also shown. (Filenames to be
-annotated can also by specified manually as arguments to cg_annotate, but this
-is rarely needed.) For example, the output from running <code class="filename">cg_annotate
-&lt;filename&gt; </code> for our example produces the same output as above
-followed by an annotated version of <code class="filename">concord.c</code>, a section
-of which looks like:</p>
+<a name="cg-manual.outputfile"></a>5.2.2. Output File</h3></div></div></div>
+<p>
+Cachegrind also writes more detailed profiling data to a file. By default this
+Cachegrind output file is named <code class="filename">cachegrind.out.&lt;pid&gt;</code>
+(where <code class="filename">&lt;pid&gt;</code> is the program's process ID), but its
+name can be changed with the <code class="option">--cachegrind-out-file</code> option.
+This file is human-readable, but is intended to be interpreted by the
+accompanying program cg_annotate, described in the next section.
+</p>
+<p>
+The default <code class="computeroutput">.&lt;pid&gt;</code> suffix on the output
+file name serves two purposes. First, it means existing Cachegrind output files
+aren't immediately overwritten. Second, and more importantly, it allows correct
+profiling with the <code class="option">--trace-children=yes</code> option of programs
+that spawn child processes.
+</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="cg-manual.running-cg_annotate"></a>5.2.3. Running cg_annotate</h3></div></div></div>
+<p>
+Before using cg_annotate, it is worth widening your window to be at least 120
+characters wide if possible, because the output lines can be quite long.
+</p>
+<p>
+Then run:
+</p>
+<pre class="screen">cg_annotate &lt;filename&gt;</pre>
+<p>
+on a Cachegrind output file.
+</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="cg-manual.the-metadata"></a>5.2.4. The Metadata Section</h3></div></div></div>
+<p>
+The first part of the output looks like this:
+</p>
 <pre class="programlisting">
 --------------------------------------------------------------------------------
--- Auto-annotated source: concord.c
+-- Metadata
 --------------------------------------------------------------------------------
-Ir        I1mr ILmr Dr      D1mr  DLmr  Dw      D1mw   DLmw
+Invocation:       ../cg_annotate concord.cgout
+Command:          ./concord ../cg_main.c
+Events recorded:  Ir
+Events shown:     Ir
+Event sort order: Ir
+Threshold:        0.1%
+Annotation:       on
+</pre>
+<p>
+It summarizes how Cachegrind and the profiled program were run.
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+    Invocation: the command line used to produce this output.
+    </p></li>
+<li class="listitem"><p>
+    Command: the command line used to run the profiled program.
+    </p></li>
+<li class="listitem"><p>
+    Events recorded: which events were recorded. By default, this is
+    <code class="computeroutput">Ir</code>. More events will be recorded if cache
+    and/or branch simulation is enabled.
+    </p></li>
+<li class="listitem"><p>
+    Events shown: the events shown, which is a subset of the events gathered.
+    This can be adjusted with the <code class="option">--show</code> option.
+    </p></li>
+<li class="listitem"><p>
+    Event sort order: the sort order used for the subsequent sections. For
+    example, in this case those sections are sorted from highest
+    <code class="computeroutput">Ir</code> counts to lowest. If there are multiple
+    events, one will be the primary sort event, and then there can be a
+    secondary sort event, tertiary sort event, etc., though more than one is
+    rarely needed. This order can be adjusted with the <code class="option">--sort</code>
+    option. Note that this does <span class="emphasis"><em>not</em></span> specify the order in
+    which the columns appear. That is specified by the "events shown" line (and
+    can be changed with the <code class="option">--show</code> option).
+    </p></li>
+<li class="listitem"><p>
+    Threshold: cg_annotate by default omits files and functions with very low
+    counts to keep the output size reasonable. By default cg_annotate only
+    shows files and functions that account for at least 0.1% of the primary
+    sort event. The threshold can be adjusted with the
+    <code class="option">--threshold</code> option.
+    </p></li>
+<li class="listitem"><p>
+    Annotation: whether source file annotation is enabled. Controlled with the
+    <code class="option">--annotate</code> option.
+    </p></li>
+</ul></div>
+<p>
+If cache simulation is enabled, details of the cache parameters will be shown
+above the "Invocation" line.
+</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="cg-manual.the-global"></a>5.2.5. Global, File, and Function-level Counts</h3></div></div></div>
+<p>
+Next comes the summary for the whole program:
+</p>
+<pre class="programlisting">
+--------------------------------------------------------------------------------
+-- Summary
+--------------------------------------------------------------------------------
+Ir________________ 
 
-        .    .    .       .     .     .       .      .      .  void init_hash_table(char *file_name, Word_Node *table[])
-        3    1    1       .     .     .       1      0      0  {
-        .    .    .       .     .     .       .      .      .      FILE *file_ptr;
-        .    .    .       .     .     .       .      .      .      Word_Info *data;
-        1    0    0       .     .     .       1      1      1      int line = 1, i;
-        .    .    .       .     .     .       .      .      .
-        5    0    0       .     .     .       3      0      0      data = (Word_Info *) create(sizeof(Word_Info));
-        .    .    .       .     .     .       .      .      .
-    4,991    0    0   1,995     0     0     998      0      0      for (i = 0; i &lt; TABLE_SIZE; i++)
-    3,988    1    1   1,994     0     0     997     53     52          table[i] = NULL;
-        .    .    .       .     .     .       .      .      .
-        .    .    .       .     .     .       .      .      .      /* Open file, check it. */
-        6    0    0       1     0     0       4      0      0      file_ptr = fopen(file_name, "r");
-        2    0    0       1     0     0       .      .      .      if (!(file_ptr)) {
-        .    .    .       .     .     .       .      .      .          fprintf(stderr, "Couldn't open '%s'.\n", file_name);
-        1    1    1       .     .     .       .      .      .          exit(EXIT_FAILURE);
-        .    .    .       .     .     .       .      .      .      }
-        .    .    .       .     .     .       .      .      .
-  165,062    1    1  73,360     0     0  91,700      0      0      while ((line = get_word(data, line, file_ptr)) != EOF)
-  146,712    0    0  73,356     0     0  73,356      0      0          insert(data-&gt;;word, data-&gt;line, table);
-        .    .    .       .     .     .       .      .      .
-        4    0    0       1     0     0       2      0      0      free(data);
-        4    0    0       1     0     0       2      0      0      fclose(file_ptr);
-        3    0    0       2     0     0       .      .      .  }</pre>
-<p>(Although column widths are automatically minimised, a wide
-terminal is clearly useful.)</p>
-<p>Each source file is clearly marked
-(<code class="computeroutput">User-annotated source</code>) as
-having been chosen manually for annotation.  If the file was
-found in one of the directories specified with the
-<code class="option">-I</code>/<code class="option">--include</code> option, the directory
-and file are both given.</p>
-<p>Each line is annotated with its event counts.  Events not
-applicable for a line are represented by a dot.  This is useful
-for distinguishing between an event which cannot happen, and one
-which can but did not.</p>
-<p>Sometimes only a small section of a source file is
-executed.  To minimise uninteresting output, Cachegrind only shows
-annotated lines and lines within a small distance of annotated
-lines.  Gaps are marked with the line numbers so you know which
-part of a file the shown code comes from, eg:</p>
+8,195,070 (100.0%)  PROGRAM TOTALS
+</pre>
+<p>
+The <code class="computeroutput">Ir</code> column label is suffixed with
+underscores to show the bounds of the columns underneath.
+</p>
+<p>
+Then comes file:function counts. Here is the first part of that section:
+</p>
 <pre class="programlisting">
-(figures and code for line 704)
--- line 704 ----------------------------------------
--- line 878 ----------------------------------------
-(figures and code for line 878)</pre>
-<p>The amount of context to show around annotated lines is
-controlled by the <code class="option">--context</code>
-option.</p>
-<p>Automatic annotation is enabled by default.
-cg_annotate will automatically annotate every source file it can
-find that is mentioned in the function-by-function summary.
-Therefore, the files chosen for auto-annotation are affected by
-the <code class="option">--sort</code> and
-<code class="option">--threshold</code> options.  Each
-source file is clearly marked (<code class="computeroutput">Auto-annotated
-source</code>) as being chosen automatically.  Any
-files that could not be found are mentioned at the end of the
-output, eg:</p>
+--------------------------------------------------------------------------------
+-- File:function summary
+--------------------------------------------------------------------------------
+  Ir______________________  file:function
+
+&lt; 3,078,746 (37.6%, 37.6%)  /home/njn/grind/ws1/cachegrind/concord.c:
+  1,630,232 (19.9%)           get_word
+    630,918  (7.7%)           hash
+    461,095  (5.6%)           insert
+    130,560  (1.6%)           add_existing
+     91,014  (1.1%)           init_hash_table
+     88,056  (1.1%)           create
+     46,676  (0.6%)           new_word_node
+
+&lt; 1,746,038 (21.3%, 58.9%)  ./malloc/./malloc/malloc.c:
+  1,285,938 (15.7%)           _int_malloc
+    458,225  (5.6%)           malloc
+
+&lt; 1,107,550 (13.5%, 72.4%)  ./libio/./libio/getc.c:getc
+
+&lt;   551,071  (6.7%, 79.1%)  ./string/../sysdeps/x86_64/multiarch/strcmp-avx2.S:__strcmp_avx2
+
+&lt;   521,228  (6.4%, 85.5%)  ./ctype/../include/ctype.h:
+    260,616  (3.2%)           __ctype_tolower_loc
+    260,612  (3.2%)           __ctype_b_loc
+
+&lt;   468,163  (5.7%, 91.2%)  ???:
+    468,151  (5.7%)           ???
+
+&lt;   456,071  (5.6%, 96.8%)  /usr/include/ctype.h:get_word
+
+</pre>
+<p>
+Each entry covers one file, and one or more functions within that file. If
+there is only one significant function within a file, as in the first entry,
+the file and function are shown on the same line separate by a colon. If there
+are multiple significant functions within a file, as in the third entry, each
+function gets its own line.
+</p>
+<p>
+This example involves a small C program, and shows a combination of code from
+the program itself (including functions like <code class="function">get_word</code> and
+<code class="function">hash</code> in the file <code class="filename">concord.c</code>) as well
+as code from system libraries, such as functions like
+<code class="function">malloc</code> and <code class="function">getc</code>.
+</p>
+<p>
+Each entry is preceded with a <code class="computeroutput">&lt;</code>, which can
+be useful when navigating through the output in an editor, or grepping through
+results.
+</p>
+<p>
+The first percentage in each column indicates the proportion of the total event
+count is covered by this line. The second percentage, which only shows on the
+first line of each entry, shows the cumulative percentage of all the entries up
+to and including this one. The entries shown here account for 96.8% of the
+instructions executed by the program.
+</p>
+<p>
+The name <code class="computeroutput">???</code> is used if the file name and/or
+function name could not be determined from debugging information. If
+<code class="filename">???</code> filenames dominate, the program probably wasn't
+compiled with <code class="option">-g</code>. If <code class="function">???</code> function names
+dominate, the program may have had symbols stripped.
+</p>
+<p>
+After that comes function:file counts. Here is the first part of that section:
+</p>
 <pre class="programlisting">
-------------------------------------------------------------------
-The following files chosen for auto-annotation could not be found:
-------------------------------------------------------------------
-  getc.c
-  ctype.c
-  ../sysdeps/generic/lockfile.c</pre>
-<p>This is quite common for library files, since libraries are
-usually compiled with debugging information, but the source files
-are often not present on a system.  If a file is chosen for
-annotation both manually and automatically, it
-is marked as <code class="computeroutput">User-annotated
-source</code>. Use the
-<code class="option">-I</code>/<code class="option">--include</code> option to tell Valgrind where
-to look for source files if the filenames found from the debugging
-information aren't specific enough.</p>
-<p>Beware that cg_annotate can take some time to digest large
-<code class="filename">cachegrind.out.&lt;pid&gt;</code> files,
-e.g. 30 seconds or more.  Also beware that auto-annotation can
-produce a lot of output if your program is large!</p>
+--------------------------------------------------------------------------------
+-- Function:file summary
+--------------------------------------------------------------------------------
+  Ir______________________  function:file
+
+&gt; 2,086,303 (25.5%, 25.5%)  get_word:
+  1,630,232 (19.9%)           /home/njn/grind/ws1/cachegrind/concord.c
+    456,071  (5.6%)           /usr/include/ctype.h
+
+&gt; 1,285,938 (15.7%, 41.1%)  _int_malloc:./malloc/./malloc/malloc.c
+
+&gt; 1,107,550 (13.5%, 54.7%)  getc:./libio/./libio/getc.c
+
+&gt;   630,918  (7.7%, 62.4%)  hash:/home/njn/grind/ws1/cachegrind/concord.c
+
+&gt;   551,071  (6.7%, 69.1%)  __strcmp_avx2:./string/../sysdeps/x86_64/multiarch/strcmp-avx2.S
+
+&gt;   480,248  (5.9%, 74.9%)  malloc:
+    458,225  (5.6%)           ./malloc/./malloc/malloc.c
+     22,023  (0.3%)           ./malloc/./malloc/arena.c
+
+&gt;   468,151  (5.7%, 80.7%)  ???:???
+
+&gt;   461,095  (5.6%, 86.3%)  insert:/home/njn/grind/ws1/cachegrind/concord.c
+</pre>
+<p>
+This is similar to the previous section, but is grouped by functions first and
+files second. Also, the entry markers are <code class="computeroutput">&gt;</code>
+instead of <code class="computeroutput">&lt;</code>.
+</p>
+<p>
+You might wonder why this section is needed, and how it differs from the
+previous section. The answer is inlining. In this example there are two entries
+demonstrating a function whose code is effectively spread across more than one
+file: <code class="function">get_word</code> and <code class="function">malloc</code>. Here is an
+example from profiling the Rust compiler, a much larger program that uses
+inlining more:
+</p>
+<pre class="programlisting">
+&gt;  30,469,230 (1.3%, 11.1%)  &lt;rustc_middle::ty::context::CtxtInterners&gt;::intern_ty:
+   10,269,220 (0.5%)           /home/njn/.cargo/registry/src/github.com-1ecc6299db9ec823/hashbrown-0.12.3/src/raw/mod.rs
+    7,696,827 (0.3%)           /home/njn/dev/rust0/compiler/rustc_middle/src/ty/context.rs
+    3,858,099 (0.2%)           /home/njn/dev/rust0/library/core/src/cell.rs
+</pre>
+<p>
+In this case the compiled function <code class="function">intern_ty</code> includes code
+from three different source files, due to inlining. These should be examined
+together. Older versions of cg_annotate presented this entry as three separate
+file:function entries, which would typically be intermixed with all the other
+entries, making it hard to see that they are all really part of the same
+function.
+</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.assembler"></a>5.2.7.Â Annotating Assembly Code Programs</h3></div></div></div>
-<p>Valgrind can annotate assembly code programs too, or annotate
-the assembly code generated for your C program.  Sometimes this is
-useful for understanding what is really happening when an
-interesting line of C code is translated into multiple
-instructions.</p>
-<p>To do this, you just need to assemble your
-<code class="computeroutput">.s</code> files with assembly-level debug
-information.  You can use compile with the <code class="option">-S</code> to compile C/C++
-programs to assembly code, and then assemble the assembly code files with
-<code class="option">-g</code> to achieve this.  You can then profile and annotate the
-assembly code source files in the same way as C/C++ source files.</p>
+<a name="cg-manual.line-by-line"></a>5.2.6. Per-line Counts</h3></div></div></div>
+<p>
+By default, a source file is annotated if it contains at least one function
+that meets the significance threshold. This can be disabled with the
+<code class="option">--annotate</code> option.
+</p>
+<p>
+To continue the previous example, here is part of the annotation of the file
+<code class="filename">concord.c</code>:
+</p>
+<pre class="programlisting">
+--------------------------------------------------------------------------------
+-- Annotated source file: /home/njn/grind/ws1/cachegrind/docs/concord.c
+--------------------------------------------------------------------------------
+Ir____________
+
+      .         /* Function builds the hash table from the given file. */  
+      .         void init_hash_table(char *file_name, Word_Node *table[])  
+      8 (0.0%)  {                                                          
+      .             FILE *file_ptr;                                        
+      .             Word_Info *data;                                       
+      2 (0.0%)      int line = 1, i;                                       
+      .                                                                    
+      .             /* Structure used when reading in words and line numbers. */
+      3 (0.0%)      data = (Word_Info *) create(sizeof(Word_Info));        
+      .                                                                    
+      .             /* Initialise entire table to NULL. */                 
+  2,993 (0.0%)      for (i = 0; i &lt; TABLE_SIZE; i++)                       
+    997 (0.0%)          table[i] = NULL;                                   
+      .                                                                    
+      .             /* Open file, check it. */                             
+      4 (0.0%)      file_ptr = fopen(file_name, "r");                      
+      2 (0.0%)      if (!(file_ptr)) {                                     
+      .                 fprintf(stderr, "Couldn't open '%s'.\n", file_name);
+      .                 exit(EXIT_FAILURE);                                
+      .             }                                                      
+      .                                                                    
+      .             /*  'Get' the words and lines one at a time from the file, and insert them
+      .             ** into the table one at a time. */                    
+ 55,363 (0.7%)      while ((line = get_word(data, line, file_ptr)) != EOF) 
+ 31,632 (0.4%)          insert(data-&gt;word, data-&gt;line, table);             
+      .                                                                    
+      2 (0.0%)      free(data);                                            
+      2 (0.0%)      fclose(file_ptr);                                      
+      6 (0.0%)  }  
+</pre>
+<p>
+Each executed line is annotated with its event counts. Other lines are
+annotated with a dot. This may be because they contain no executable code, or
+they contain executable code but were never executed.
+</p>
+<p>
+You can easily tell if a function is inlined from this output. If it is not
+inlined, it will have event counts on the lines containing the opening and
+closing braces. If it is inlined, it will not have event counts on those lines.
+In the example above, <code class="function">init_hash_table</code> does have counts,
+so you can tell it is not inlined.
+</p>
+<p>
+Note again that inlining can lead to surprising results. If a function
+<code class="function">f</code> is always inlined, in the file:function and
+function:file sections counts will be attributed to the functions it is inlined
+into, rather than itself. However, if you look at the line-by-line annotations
+for <code class="function">f</code> you'll see the counts that belong to
+<code class="function">f</code>. So it's worth looking for large counts/percentages in the
+line-by-line annotations.
+</p>
+<p>
+Sometimes only a small section of a source file is executed. To minimise
+uninteresting output, Cachegrind only shows annotated lines and lines within a
+small distance of annotated lines. Gaps are marked with line numbers, for
+example:
+</p>
+<pre class="programlisting">
+(counts and code for line 704)
+-- line 375 ----------------------------------------
+-- line 514 ----------------------------------------
+(counts and code for line 878)
+</pre>
+<p>
+The number of lines of context shown around annotated lines is controlled by
+the <code class="option">--context</code> option.
+</p>
+<p>
+Any significant source files that could not be found are shown like this:
+</p>
+<pre class="programlisting">
+--------------------------------------------------------------------------------
+-- Annotated source file: ./malloc/./malloc/malloc.c                       
+--------------------------------------------------------------------------------
+Unannotated because one or more of these original files are unreadable:    
+- ./malloc/./malloc/malloc.c 
+</pre>
+<p>
+This is common for library files, because libraries are usually compiled with
+debugging information but the source files are rarely present on a system.
+</p>
+<p>
+Cachegrind relies heavily on accurate debug info. Sometimes compilers do not
+map a particular compiled instruction to line number 0, where the 0 represents
+"unknown" or "none". This is annoying but does happen in practice. cg_annotate
+prints these in the following way:
+</p>
+<pre class="programlisting">
+--------------------------------------------------------------------------------
+-- Annotated source file: /home/njn/dev/rust0/compiler/rustc_borrowck/src/lib.rs
+--------------------------------------------------------------------------------
+Ir______________
+
+1,046,746 (0.0%)  &lt;unknown (line 0)&gt;
+</pre>
+<p>
+Finally, when annotation is performed, the output ends with a summary of how
+many counts were annotated and unannotated, and why. For example:
+</p>
+<pre class="programlisting">
+--------------------------------------------------------------------------------
+-- Annotation summary
+--------------------------------------------------------------------------------
+Ir_______________ 
+
+3,534,817 (43.1%)    annotated: files known &amp; above threshold &amp; readable, line numbers known
+        0            annotated: files known &amp; above threshold &amp; readable, line numbers unknown
+        0          unannotated: files known &amp; above threshold &amp; two or more non-identical
+4,132,126 (50.4%)  unannotated: files known &amp; above threshold &amp; unreadable 
+   59,950  (0.7%)  unannotated: files known &amp; below threshold
+  468,163  (5.7%)  unannotated: files unknown
+</pre>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.forkingprograms"></a>5.2.8.Â Forking Programs</h3></div></div></div>
-<p>If your program forks, the child will inherit all the profiling data that
-has been gathered for the parent.</p>
-<p>If the output file format string (controlled by
-<code class="option">--cachegrind-out-file</code>) does not contain <code class="option">%p</code>,
-then the outputs from the parent and child will be intermingled in a single
-output file, which will almost certainly make it unreadable by
-cg_annotate.</p>
+<a name="cg-manual.forkingprograms"></a>5.2.7. Forking Programs</h3></div></div></div>
+<p>
+If your program forks, the child will inherit all the profiling data that
+has been gathered for the parent.
+</p>
+<p>
+If the output file name (controlled by <code class="option">--cachegrind-out-file</code>)
+does not contain <code class="option">%p</code>, then the outputs from the parent and
+child will be intermingled in a single output file, which will almost certainly
+make it unreadable by cg_annotate.
+</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.annopts.warnings"></a>5.2.9.Â cg_annotate Warnings</h3></div></div></div>
-<p>There are a couple of situations in which
-cg_annotate issues warnings.</p>
+<a name="cg-manual.annopts.warnings"></a>5.2.8. cg_annotate Warnings</h3></div></div></div>
+<p>
+There are two situations in which cg_annotate prints warnings.
+</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>If a source file is more recent than the
-    <code class="filename">cachegrind.out.&lt;pid&gt;</code> file.
-    This is because the information in
-    <code class="filename">cachegrind.out.&lt;pid&gt;</code> is only
-    recorded with line numbers, so if the line numbers change at
-    all in the source (e.g.  lines added, deleted, swapped), any
-    annotations will be incorrect.</p></li>
-<li class="listitem"><p>If information is recorded about line numbers past the
-    end of a file.  This can be caused by the above problem,
-    i.e. shortening the source file while using an old
-    <code class="filename">cachegrind.out.&lt;pid&gt;</code> file.  If
-    this happens, the figures for the bogus lines are printed
-    anyway (clearly marked as bogus) in case they are
-    important.</p></li>
+<li class="listitem"><p>
+    If a source file is more recent than the Cachegrind output file. This is
+    because the information in the Cachegrind output file is only recorded with
+    line numbers, so if the line numbers change at all in the source (e.g.
+    lines added, deleted, swapped), any annotations will be incorrect.
+    </p></li>
+<li class="listitem"><p>
+    If information is recorded about line numbers past the end of a file. This
+    can be caused by the above problem, e.g. shortening the source file while
+    using an old Cachegrind output file. If this happens, the figures for the
+    bogus lines are printed anyway (and clearly marked as bogus) in case they
+    are important.
+    </p></li>
 </ul></div>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.annopts.things-to-watch-out-for"></a>5.2.10.Â Unusual Annotation Cases</h3></div></div></div>
-<p>Some odd things that can occur during annotation:</p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-<p>If annotating at the assembler level, you might see
-    something like this:</p>
+<a name="cg-manual.cg_merge"></a>5.2.9. Merging Cachegrind Output Files</h3></div></div></div>
+<p>
+cg_annotate can merge data from multiple Cachegrind output files in a single
+run. (There is also a program called cg_merge that can merge multiple
+Cachegrind output files into a single Cachegrind output file, but it is now
+deprecated because cg_annotate's merging does a better job.)
+</p>
+<p>
+Use it as follows:
+</p>
 <pre class="programlisting">
-      1    0    0  .    .    .  .    .    .          leal -12(%ebp),%eax
-      1    0    0  .    .    .  1    0    0          movl %eax,84(%ebx)
-      2    0    0  0    0    0  1    0    0          movl $1,-20(%ebp)
-      .    .    .  .    .    .  .    .    .          .align 4,0x90
-      1    0    0  .    .    .  .    .    .          movl $.LnrB,%eax
-      1    0    0  .    .    .  1    0    0          movl %eax,-16(%ebp)</pre>
-<p>How can the third instruction be executed twice when
-    the others are executed only once?  As it turns out, it
-    isn't.  Here's a dump of the executable, using
-    <code class="computeroutput">objdump -d</code>:</p>
-<pre class="programlisting">
-      8048f25:       8d 45 f4                lea    0xfffffff4(%ebp),%eax
-      8048f28:       89 43 54                mov    %eax,0x54(%ebx)
-      8048f2b:       c7 45 ec 01 00 00 00    movl   $0x1,0xffffffec(%ebp)
-      8048f32:       89 f6                   mov    %esi,%esi
-      8048f34:       b8 08 8b 07 08          mov    $0x8078b08,%eax
-      8048f39:       89 45 f0                mov    %eax,0xfffffff0(%ebp)</pre>
-<p>Notice the extra <code class="computeroutput">mov
-    %esi,%esi</code> instruction.  Where did this come
-    from?  The GNU assembler inserted it to serve as the two
-    bytes of padding needed to align the <code class="computeroutput">movl
-    $.LnrB,%eax</code> instruction on a four-byte
-    boundary, but pretended it didn't exist when adding debug
-    information.  Thus when Valgrind reads the debug info it
-    thinks that the <code class="computeroutput">movl
-    $0x1,0xffffffec(%ebp)</code> instruction covers the
-    address range 0x8048f2b--0x804833 by itself, and attributes
-    the counts for the <code class="computeroutput">mov
-    %esi,%esi</code> to it.</p>
-</li>
-<li class="listitem"><p>Sometimes, the same filename might be represented with
-    a relative name and with an absolute name in different parts
-    of the debug info, eg:
-    <code class="filename">/home/user/proj/proj.h</code> and
-    <code class="filename">../proj.h</code>.  In this case, if you use
-    auto-annotation, the file will be annotated twice with the
-    counts split between the two.</p></li>
-<li class="listitem"><p>If you compile some files with
-    <code class="option">-g</code> and some without, some
-    events that take place in a file without debug info could be
-    attributed to the last line of a file with debug info
-    (whichever one gets placed before the non-debug-info file in
-    the executable).</p></li>
-</ul></div>
-<p>This list looks long, but these cases should be fairly
-rare.</p>
+cg_annotate file1 file2 file3 ...
+</pre>
+<p>
+cg_annotate computes the sum of these files (effectively
+<code class="filename">file1</code> + <code class="filename">file2</code> +
+<code class="filename">file3</code>), and then produces output as usual that shows the
+summed counts.
+</p>
+<p>
+The most common merging scenario is if you want to aggregate costs over
+multiple runs of the same program, possibly on different inputs.
+</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.cg_merge"></a>5.2.11.Â Merging Profiles with cg_merge</h3></div></div></div>
+<a name="cg-manual.cg_diff"></a>5.2.10. Differencing Cachegrind output files</h3></div></div></div>
 <p>
-cg_merge is a simple program which
-reads multiple profile files, as created by Cachegrind, merges them
-together, and writes the results into another file in the same format.
-You can then examine the merged results using
-<code class="computeroutput">cg_annotate &lt;filename&gt;</code>, as
-described above.  The merging functionality might be useful if you
-want to aggregate costs over multiple runs of the same program, or
-from a single parallel run with multiple instances of the same
-program.</p>
+cg_annotate can diff data from two Cachegrind output files in a single run.
+(There is also a program called cg_diff that can diff two Cachegrind output
+files into a single Cachegrind output file, but it is now deprecated because
+cg_annotate's differencing does a better job.)
+</p>
 <p>
-cg_merge is invoked as follows:
+Use it as follows:
 </p>
 <pre class="programlisting">
-cg_merge -o outputfile file1 file2 file3 ...</pre>
+cg_annotate --diff file1 file2
+</pre>
 <p>
-It reads and checks <code class="computeroutput">file1</code>, then read
-and checks <code class="computeroutput">file2</code> and merges it into
-the running totals, then the same with
-<code class="computeroutput">file3</code>, etc.  The final results are
-written to <code class="computeroutput">outputfile</code>, or to standard
-out if no output file is specified.</p>
-<p>
-Costs are summed on a per-function, per-line and per-instruction
-basis.  Because of this, the order in which the input files does not
-matter, although you should take care to only mention each file once,
-since any file mentioned twice will be added in twice.</p>
-<p>
-cg_merge does not attempt to check
-that the input files come from runs of the same executable.  It will
-happily merge together profile files from completely unrelated
-programs.  It does however check that the
-<code class="computeroutput">Events:</code> lines of all the inputs are
-identical, so as to ensure that the addition of costs makes sense.
-For example, it would be nonsensical for it to add a number indicating
-D1 read references to a number from a different file indicating LL
-write misses.</p>
-<p>
-A number of other syntax and sanity checks are done whilst reading the
-inputs.  cg_merge will stop and
-attempt to print a helpful error message if any of the input files
-fail these checks.</p>
-</div>
-<div class="sect2">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.cg_diff"></a>5.2.12.Â Differencing Profiles with cg_diff</h3></div></div></div>
-<p>
-cg_diff is a simple program which
-reads two profile files, as created by Cachegrind, finds the difference
-between them, and writes the results into another file in the same format.
-You can then examine the merged results using
-<code class="computeroutput">cg_annotate &lt;filename&gt;</code>, as
-described above.  This is very useful if you want to measure how a change to
-a program affected its performance.
+cg_annotate computes the difference between these two files (effectively
+<code class="filename">file2</code> - <code class="filename">file1</code>), and then
+produces output as usual that shows the count differences. Note that many of
+the counts may be negative; this indicates that the counts for the relevant
+file/function/line are smaller in the second version than those in the first
+version.
 </p>
 <p>
-cg_diff is invoked as follows:
+The simplest common scenario is comparing two Cachegrind output files that came
+from the same program, but on different inputs. cg_annotate will do a good job
+on this without assistance.
 </p>
-<pre class="programlisting">
-cg_diff file1 file2</pre>
 <p>
-It reads and checks <code class="computeroutput">file1</code>, then read
-and checks <code class="computeroutput">file2</code>, then computes the
-difference (effectively <code class="computeroutput">file1</code> -
-<code class="computeroutput">file2</code>).  The final results are written to
-standard output.</p>
+A more complex scenario is if you want to compare Cachegrind output files from
+two slightly different versions of a program that you have sitting
+side-by-side, running on the same input. For example, you might have
+<code class="filename">version1/prog.c</code> and <code class="filename">version2/prog.c</code>.
+A straight comparison of the two would not be useful. Because functions are
+always paired with filenames, a function <code class="function">f</code> would be listed
+as <code class="filename">version1/prog.c:f</code> for the first version but
+<code class="filename">version2/prog.c:f</code> for the second version.
+</p>
 <p>
-Costs are summed on a per-function basis.  Per-line costs are not summed,
-because doing so is too difficult.  For example, consider differencing two
-profiles, one from a single-file program A, and one from the same program A
-where a single blank line was inserted at the top of the file.  Every single
-per-line count has changed.  In comparison, the per-function counts have not
-changed.  The per-function count differences are still very useful for
-determining differences between programs.  Note that because the result is
-the difference of two profiles, many of the counts will be negative;  this
-indicates that the counts for the relevant function are fewer in the second
-version than those in the first version.</p>
-<p>
-cg_diff does not attempt to check
-that the input files come from runs of the same executable.  It will
-happily merge together profile files from completely unrelated
-programs.  It does however check that the
-<code class="computeroutput">Events:</code> lines of all the inputs are
-identical, so as to ensure that the addition of costs makes sense.
-For example, it would be nonsensical for it to add a number indicating
-D1 read references to a number from a different file indicating LL
-write misses.</p>
-<p>
-A number of other syntax and sanity checks are done whilst reading the
-inputs.  cg_diff will stop and
-attempt to print a helpful error message if any of the input files
-fail these checks.</p>
-<p>
-Sometimes you will want to compare Cachegrind profiles of two versions of a
-program that you have sitting side-by-side.  For example, you might have
-<code class="computeroutput">version1/prog.c</code> and
-<code class="computeroutput">version2/prog.c</code>, where the second is
-slightly different to the first.  A straight comparison of the two will not
-be useful -- because functions are qualified with filenames, a function
-<code class="function">f</code> will be listed as
-<code class="computeroutput">version1/prog.c:f</code> for the first version but
-<code class="computeroutput">version2/prog.c:f</code> for the second
-version.</p>
-<p>
-When this happens, you can use the <code class="option">--mod-filename</code> option.
-Its argument is a Perl search-and-replace expression that will be applied
-to all the filenames in both Cachegrind output files.  It can be used to
-remove minor differences in filenames.  For example, the option
-<code class="option">--mod-filename='s/version[0-9]/versionN/'</code> will suffice for
-this case.</p>
+In this case, use the <code class="option">--mod-filename</code> option. Its argument is a
+search-and-replace expression that will be applied to all the filenames in both
+Cachegrind output files.  It can be used to remove minor differences in
+filenames. For example, the option
+<code class="option">--mod-filename='s/version[0-9]/versionN/'</code> will suffice for the
+above example.
+</p>
 <p>
 Similarly, sometimes compilers auto-generate certain functions and give them
-randomized names.  For example, GCC sometimes auto-generates functions with
-names like <code class="function">T.1234</code>, and the suffixes vary from build to
-build.  You can use the <code class="option">--mod-funcname</code> option to remove
-small differences like these;  it works in the same way as
-<code class="option">--mod-filename</code>.</p>
+randomized names like <code class="function">T.1234</code> where the suffixes vary from
+build to build. You can use the <code class="option">--mod-funcname</code> option to
+remove small differences like these; it works in the same way as
+<code class="option">--mod-filename</code>.
+</p>
+<p>
+When <code class="option">--mod-filename</code> is used to compare two different versions
+of the same program, cg_annotate will not annotate any file that is different
+between the two versions, because the per-line counts are not reliable in such
+a case. For example, imagine if <code class="filename">version2/prog.c</code> is the
+same as <code class="filename">version1/prog.c</code> except with an extra blank line at
+the top of the file. Every single per-line count will have changed. In
+comparison, the per-file and per-function counts have not changed, and are
+still very useful for determining differences between programs. You might think
+that this means every interesting file will be left unannotated, but again
+inlining means that files that are identical in the two versions can have
+different counts on many lines.
+</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="cg-manual.cache-branch-sim"></a>5.2.11. Cache and Branch Simulation</h3></div></div></div>
+<p>
+Cachegrind can simulate how your program interacts with a machine's cache
+hierarchy and/or branch predictor.
+
+The cache simulation models a machine with independent first-level instruction
+and data caches (I1 and D1), backed by a unified second-level cache (L2). For
+these machines (in the cases where Cachegrind can auto-detect the cache
+configuration) Cachegrind simulates the first-level and last-level caches.
+Therefore, Cachegrind always refers to the I1, D1 and LL (last-level) caches.
+</p>
+<p>
+When simulating the cache, with <code class="option">--cache-sim=yes</code>, Cachegrind
+gathers the following statistics:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+    I cache reads (<code class="computeroutput">Ir</code>, which equals the number
+    of instructions executed), I1 cache read misses
+    (<code class="computeroutput">I1mr</code>) and LL cache instruction read
+    misses (<code class="computeroutput">ILmr</code>).
+    </p></li>
+<li class="listitem"><p>
+    D cache reads (<code class="computeroutput">Dr</code>, which equals the number
+    of memory reads), D1 cache read misses
+    (<code class="computeroutput">D1mr</code>), and LL cache data read misses
+    (<code class="computeroutput">DLmr</code>).
+    </p></li>
+<li class="listitem"><p>
+    D cache writes (<code class="computeroutput">Dw</code>, which equals the
+    number of memory writes), D1 cache write misses
+    (<code class="computeroutput">D1mw</code>), and LL cache data write misses
+    (<code class="computeroutput">DLmw</code>).
+    </p></li>
+</ul></div>
+<p>
+Note that D1 total accesses is given by <code class="computeroutput">D1mr</code> +
+<code class="computeroutput">D1mw</code>, and that LL total accesses is given by
+<code class="computeroutput">ILmr</code> + <code class="computeroutput">DLmr</code> +
+<code class="computeroutput">DLmw</code>.
+</p>
+<p>
+When simulating the branch predictor, with <code class="option">--branch-sim=yes</code>,
+Cachegrind gathers the following statistics:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+    Conditional branches executed (<code class="computeroutput">Bc</code>) and
+    conditional branches mispredicted (<code class="computeroutput">Bcm</code>).
+    </p></li>
+<li class="listitem"><p>
+    Indirect branches executed (<code class="computeroutput">Bi</code>) and
+    indirect branches mispredicted (<code class="computeroutput">Bim</code>).
+    </p></li>
+</ul></div>
+<p>
+When cache and/or branch simulation is enabled, cg_annotate will print multiple
+counts per line of output. For example:
+</p>
+<pre class="programlisting">
+  Ir______________________ Bc____________________ Bcm__________________ Bi____________________ Bim______________  function:file
+
+&gt;     8,547  (0.1%, 99.4%)     936  (0.1%, 99.1%)    177  (0.3%, 96.7%)      59  (0.0%, 99.9%) 38 (19.4%, 66.3%)  strcmp:
+      8,503  (0.1%)            928  (0.1%)           175  (0.3%)             59  (0.0%)        38 (19.4%)           ./string/../sysdeps/x86_64/multiarch/../multiarch/strcmp-sse2.S
+</pre>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.cgopts"></a>5.3.Â Cachegrind Command-line Options</h2></div></div></div>
-<p>Cachegrind-specific options are:</p>
+<a name="cg-manual.cgopts"></a>5.3. Cachegrind Command-line Options</h2></div></div></div>
+<p>
+Cachegrind-specific options are:
+</p>
 <div class="variablelist">
 <a name="cg.opts.list"></a><dl class="variablelist">
-<dt>
-<a name="cg.opt.I1"></a><span class="term">
-      <code class="option">--I1=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
-    </span>
-</dt>
-<dd><p>Specify the size, associativity and line size of the level 1
-      instruction cache.  </p></dd>
-<dt>
-<a name="cg.opt.D1"></a><span class="term">
-      <code class="option">--D1=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
-    </span>
-</dt>
-<dd><p>Specify the size, associativity and line size of the level 1
-      data cache.</p></dd>
-<dt>
-<a name="cg.opt.LL"></a><span class="term">
-      <code class="option">--LL=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
-    </span>
-</dt>
-<dd><p>Specify the size, associativity and line size of the last-level
-      cache.</p></dd>
-<dt>
-<a name="opt.cache-sim"></a><span class="term">
-      <code class="option">--cache-sim=no|yes [yes] </code>
-    </span>
-</dt>
-<dd><p>Enables or disables collection of cache access and miss
-            counts.</p></dd>
-<dt>
-<a name="opt.branch-sim"></a><span class="term">
-      <code class="option">--branch-sim=no|yes [no] </code>
-    </span>
-</dt>
-<dd><p>Enables or disables collection of branch instruction and
-            misprediction counts.  By default this is disabled as it
-            slows Cachegrind down by approximately 25%.  Note that you
-            cannot specify <code class="option">--cache-sim=no</code>
-            and <code class="option">--branch-sim=no</code>
-            together, as that would leave Cachegrind with no
-            information to collect.</p></dd>
 <dt>
 <a name="opt.cachegrind-out-file"></a><span class="term">
       <code class="option">--cachegrind-out-file=&lt;file&gt; </code>
     </span>
 </dt>
-<dd><p>Write the profile data to 
-            <code class="computeroutput">file</code> rather than to the default
-            output file,
-            <code class="filename">cachegrind.out.&lt;pid&gt;</code>.  The
-            <code class="option">%p</code> and <code class="option">%q</code> format specifiers
-            can be used to embed the process ID and/or the contents of an
-            environment variable in the name, as is the case for the core
-            option <code class="option"><a class="link" href="manual-core.html#opt.log-file">--log-file</a></code>.
+<dd><p>
+      Write the Cachegrind output file to <code class="filename">file</code> rather than
+      to the default output file,
+      <code class="filename">cachegrind.out.&lt;pid&gt;</code>. The <code class="option">%p</code>
+      and <code class="option">%q</code> format specifiers can be used to embed the
+      process ID and/or the contents of an environment variable in the name, as
+      is the case for the core option
+      <code class="option"><a class="link" href="manual-core.html#opt.log-file">--log-file</a></code>.
+      </p></dd>
+<dt>
+<a name="opt.cache-sim"></a><span class="term">
+      <code class="option">--cache-sim=no|yes [no] </code>
+    </span>
+</dt>
+<dd><p>
+      Enables or disables collection of cache access and miss counts.
+      </p></dd>
+<dt>
+<a name="opt.branch-sim"></a><span class="term">
+      <code class="option">--branch-sim=no|yes [no] </code>
+    </span>
+</dt>
+<dd><p>
+      Enables or disables collection of branch instruction and
+      misprediction counts.
+      </p></dd>
+<dt>
+<a name="cg.opt.I1"></a><span class="term">
+      <code class="option">--I1=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
+    </span>
+</dt>
+<dd><p>
+      Specify the size, associativity and line size of the level 1 instruction
+      cache. Only useful with <code class="option">--cache-sim=yes</code>.
+      </p></dd>
+<dt>
+<a name="cg.opt.D1"></a><span class="term">
+      <code class="option">--D1=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
+    </span>
+</dt>
+<dd><p>
+      Specify the size, associativity and line size of the level 1 data cache.
+      Only useful with <code class="option">--cache-sim=yes</code>.
+      </p></dd>
+<dt>
+<a name="cg.opt.LL"></a><span class="term">
+      <code class="option">--LL=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
+    </span>
+</dt>
+<dd><p>
+      Specify the size, associativity and line size of the last-level cache.
+      Only useful with <code class="option">--cache-sim=yes</code>.
       </p></dd>
 </dl>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.annopts"></a>5.4.Â cg_annotate Command-line Options</h2></div></div></div>
+<a name="cg-manual.annopts"></a>5.4. cg_annotate Command-line Options</h2></div></div></div>
 <div class="variablelist">
 <a name="cg_annotate.opts.list"></a><dl class="variablelist">
 <dt><span class="term">
@@ -724,84 +801,94 @@ small differences like these;  it works in the same way as
     </span></dt>
 <dd><p>Show the version number.</p></dd>
 <dt><span class="term">
-      <code class="option">--show=A,B,C [default: all, using order in
-      cachegrind.out.&lt;pid&gt;] </code>
+      <code class="option">--diff </code>
     </span></dt>
-<dd><p>Specifies which events to show (and the column
-      order). Default is to use all present in the
-      <code class="filename">cachegrind.out.&lt;pid&gt;</code> file (and
-      use the order in the file).  Useful if you want to concentrate on, for
-      example, I cache misses (<code class="option">--show=I1mr,ILmr</code>), or data
-      read misses (<code class="option">--show=D1mr,DLmr</code>), or LL data misses
-      (<code class="option">--show=DLmr,DLmw</code>).  Best used in conjunction with
-      <code class="option">--sort</code>.</p></dd>
+<dd><p>Diff two Cachegrind output files.</p></dd>
 <dt><span class="term">
-      <code class="option">--sort=A,B,C [default: order in
-      cachegrind.out.&lt;pid&gt;] </code>
+      <code class="option">--mod-filename &lt;regex&gt; [default: none]</code>
     </span></dt>
-<dd><p>Specifies the events upon which the sorting of the
-      function-by-function entries will be based.</p></dd>
+<dd><p>
+      Specifies an <code class="option">s/old/new/</code> search-and-replace expression
+      that is applied to all filenames. Useful when differencing, for removing
+      minor differences in paths between two different versions of a program
+      that are sitting in different directories. An <code class="option">i</code> suffix
+      makes the regex case-insensitive, and a <code class="option">g</code> suffix makes
+      it match multiple times.
+      </p></dd>
+<dt><span class="term">
+      <code class="option">--mod-funcname &lt;regex&gt; [default: none]</code>
+    </span></dt>
+<dd><p>
+      Like <code class="option">--mod-filename</code>, but for filenames. Useful for
+      removing minor differences in randomized names of auto-generated
+      functions generated by some compilers.
+      </p></dd>
+<dt><span class="term">
+      <code class="option">--show=A,B,C [default: all, using order in
+      the Cachegrind output file] </code>
+    </span></dt>
+<dd><p>
+      Specifies which events to show (and the column order). Default is to use
+      all present in the Cachegrind output file (and use the order in the
+      file). Best used in conjunction with <code class="option">--sort</code>.
+      </p></dd>
+<dt><span class="term">
+      <code class="option">--sort=A,B,C [default: order in the Cachegrind output file] </code>
+    </span></dt>
+<dd><p>
+      Specifies the events upon which the sorting of the file:function and
+      function:file entries will be based.
+      </p></dd>
 <dt><span class="term">
       <code class="option">--threshold=X [default: 0.1%] </code>
     </span></dt>
-<dd>
-<p>Sets the threshold for the function-by-function
-      summary.  A function is shown if it accounts for more than X%
-      of the counts for the primary sort event.  If auto-annotating, also
-      affects which files are annotated.</p>
-<p>Note: thresholds can be set for more than one of the
-      events by appending any events for the
-      <code class="option">--sort</code> option with a colon
-      and a number (no spaces, though).  E.g. if you want to see
-      each function that covers more than 1% of LL read misses or 1% of LL
-      write misses, use this option:</p>
-<p><code class="option">--sort=DLmr:1,DLmw:1</code></p>
-</dd>
-<dt><span class="term">
-      <code class="option">--show-percs=&lt;no|yes&gt; [default: yes] </code>
-    </span></dt>
-<dd><p>When enabled, a percentage is printed next to all event counts.
-      This helps gauge the relative importance of each function and line.
+<dd><p>
+      Sets the significance threshold for the file:function and function:files
+      sections. A file or function is shown if it accounts for more than X% of
+      the counts for the primary sort event.  If annotating source files, this
+      also affects which files are annotated.
       </p></dd>
 <dt><span class="term">
-      <code class="option">--auto=&lt;no|yes&gt; [default: yes] </code>
+      <code class="option">--show-percs, --no-show-percs, --show-percs=&lt;no|yes&gt; [default: yes] </code>
     </span></dt>
-<dd><p>When enabled, automatically annotates every file that
-      is mentioned in the function-by-function summary that can be
-      found.  Also gives a list of those that couldn't be found.</p></dd>
+<dd><p>
+      When enabled, a percentage is printed next to all event counts. This
+      helps gauge the relative importance of each function and line.
+      </p></dd>
+<dt><span class="term">
+      <code class="option">--annotate, --no-annotate, --auto=&lt;no|yes&gt; [default: yes] </code>
+    </span></dt>
+<dd><p>
+      Enables or disables source file annotation.
+      </p></dd>
 <dt><span class="term">
       <code class="option">--context=N [default: 8] </code>
     </span></dt>
-<dd><p>Print N lines of context before and after each
-      annotated line.  Avoids printing large sections of source
-      files that were not executed.  Use a large number
-      (e.g. 100000) to show all source lines.</p></dd>
-<dt><span class="term">
-      <code class="option">-I&lt;dir&gt; --include=&lt;dir&gt; [default: none] </code>
-    </span></dt>
-<dd><p>Adds a directory to the list in which to search for
-      files.  Multiple <code class="option">-I</code>/<code class="option">--include</code>
-      options can be given to add multiple directories.</p></dd>
+<dd><p>
+      The number of lines of context to show before and after each annotated
+      line. Use a large number (e.g. 100000) to show all source lines.
+      </p></dd>
 </dl>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.mergeopts"></a>5.5.Â cg_merge Command-line Options</h2></div></div></div>
+<a name="cg-manual.mergeopts"></a>5.5. cg_merge Command-line Options</h2></div></div></div>
 <div class="variablelist">
 <a name="cg_merge.opts.list"></a><dl class="variablelist">
 <dt><span class="term">
       <code class="option">-o outfile</code>
     </span></dt>
-<dd><p>Write the profile data to <code class="computeroutput">outfile</code>
-            rather than to standard output.
+<dd><p>
+      Write the output to to <code class="computeroutput">outfile</code>
+      instead of standard output.
       </p></dd>
 </dl>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.diffopts"></a>5.6.Â cg_diff Command-line Options</h2></div></div></div>
+<a name="cg-manual.diffopts"></a>5.6. cg_diff Command-line Options</h2></div></div></div>
 <div class="variablelist">
 <a name="cg_diff.opts.list"></a><dl class="variablelist">
 <dt><span class="term">
@@ -815,109 +902,32 @@ small differences like these;  it works in the same way as
 <dt><span class="term">
       <code class="option">--mod-filename=&lt;expr&gt; [default: none]</code>
     </span></dt>
-<dd><p>Specifies a Perl search-and-replace expression that is applied
-      to all filenames.  Useful for removing minor differences in paths
-      between two different versions of a program that are sitting in
-      different directories.</p></dd>
+<dd><p>
+      Specifies an <code class="option">s/old/new/</code> search-and-replace expression
+      that is applied to all filenames.
+      </p></dd>
 <dt><span class="term">
       <code class="option">--mod-funcname=&lt;expr&gt; [default: none]</code>
     </span></dt>
-<dd><p>Like <code class="option">--mod-filename</code>, but for filenames.
-      Useful for removing minor differences in randomized names of
-      auto-generated functions generated by some compilers.</p></dd>
+<dd><p>
+      Like <code class="option">--mod-filename</code>, but for filenames.
+      </p></dd>
 </dl>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.acting-on"></a>5.7.Â Acting on Cachegrind's Information</h2></div></div></div>
-<p>
-Cachegrind gives you lots of information, but acting on that information
-isn't always easy.  Here are some rules of thumb that we have found to be
-useful.</p>
-<p>
-First of all, the global hit/miss counts and miss rates are not that useful.
-If you have multiple programs or multiple runs of a program, comparing the
-numbers might identify if any are outliers and worthy of closer
-investigation.  Otherwise, they're not enough to act on.</p>
-<p>
-The function-by-function counts are more useful to look at, as they pinpoint
-which functions are causing large numbers of counts.  However, beware that
-inlining can make these counts misleading.  If a function
-<code class="function">f</code> is always inlined, counts will be attributed to the
-functions it is inlined into, rather than itself.  However, if you look at
-the line-by-line annotations for <code class="function">f</code> you'll see the
-counts that belong to <code class="function">f</code>.  (This is hard to avoid, it's
-how the debug info is structured.)  So it's worth looking for large numbers
-in the line-by-line annotations.</p>
-<p>
-The line-by-line source code annotations are much more useful.  In our
-experience, the best place to start is by looking at the
-<code class="computeroutput">Ir</code> numbers.  They simply measure how many
-instructions were executed for each line, and don't include any cache
-information, but they can still be very useful for identifying
-bottlenecks.</p>
-<p>
-After that, we have found that LL misses are typically a much bigger source
-of slow-downs than L1 misses.  So it's worth looking for any snippets of
-code with high <code class="computeroutput">DLmr</code> or
-<code class="computeroutput">DLmw</code> counts.  (You can use
-<code class="option">--show=DLmr
---sort=DLmr</code> with cg_annotate to focus just on
-<code class="literal">DLmr</code> counts, for example.) If you find any, it's still
-not always easy to work out how to improve things.  You need to have a
-reasonable understanding of how caches work, the principles of locality, and
-your program's data access patterns.  Improving things may require
-redesigning a data structure, for example.</p>
-<p>
-Looking at the <code class="computeroutput">Bcm</code> and
-<code class="computeroutput">Bim</code> misses can also be helpful.
-In particular, <code class="computeroutput">Bim</code> misses are often caused
-by <code class="literal">switch</code> statements, and in some cases these
-<code class="literal">switch</code> statements can be replaced with table-driven code.
-For example, you might replace code like this:</p>
-<pre class="programlisting">
-enum E { A, B, C };
-enum E e;
-int i;
-...
-switch (e)
-{
-    case A: i += 1; break;
-    case B: i += 2; break;
-    case C: i += 3; break;
-}
-</pre>
-<p>with code like this:</p>
-<pre class="programlisting">
-enum E { A, B, C };
-enum E e;
-int table[] = { 1, 2, 3 };
-int i;
-...
-i += table[e];
-</pre>
-<p>
-This is obviously a contrived example, but the basic principle applies in a
-wide variety of situations.</p>
-<p>
-In short, Cachegrind can tell you where some of the bottlenecks in your code
-are, but it can't tell you how to fix them.  You have to work that out for
-yourself.  But at least you have the information!
-</p>
-</div>
-<div class="sect1">
-<div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.sim-details"></a>5.8.Â Simulation Details</h2></div></div></div>
+<a name="cg-manual.sim-details"></a>5.7. Simulation Details</h2></div></div></div>
 <p>
 This section talks about details you don't need to know about in order to
 use Cachegrind, but may be of interest to some people.
 </p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cache-sim"></a>5.8.1.Â Cache Simulation Specifics</h3></div></div></div>
-<p>Specific characteristics of the cache simulation are as
-follows:</p>
+<a name="cache-sim"></a>5.7.1. Cache Simulation Specifics</h3></div></div></div>
+<p>
+The cache simulation approximates the hardware of an AMD Athlon CPU circa 2002.
+Its specific characteristics are as follows:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>Write-allocate: when a write miss occurs, the block
     written to is brought into the D1 cache.  Most modern caches
@@ -987,15 +997,15 @@ need to specify it with the
     occur.</p>
 </li>
 </ul></div>
-<p>If you are interested in simulating a cache with different
-properties, it is not particularly hard to write your own cache
-simulator, or to modify the existing ones in
-<code class="computeroutput">cg_sim.c</code>. We'd be
-interested to hear from anyone who does.</p>
+<p>
+If you are interested in simulating a cache with different properties, it is
+not particularly hard to write your own cache simulator, or to modify the
+existing ones in <code class="computeroutput">cg_sim.c</code>.
+</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="branch-sim"></a>5.8.2.Â Branch Simulation Specifics</h3></div></div></div>
+<a name="branch-sim"></a>5.7.2. Branch Simulation Specifics</h3></div></div></div>
 <p>Cachegrind simulates branch predictors intended to be
 typical of mainstream desktop/server processors of around 2004.</p>
 <p>Conditional branches are predicted using an array of 16384 2-bit
@@ -1029,15 +1039,28 @@ Architecture: A Quantitative Approach", 4th edition (2007), Section
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.annopts.accuracy"></a>5.8.3.Â Accuracy</h3></div></div></div>
-<p>Valgrind's cache profiling has a number of
-shortcomings:</p>
+<a name="cg-manual.annopts.accuracy"></a>5.7.3. Accuracy</h3></div></div></div>
+<p>
+Cachegrind's instruction counting has one shortcoming on x86/amd64:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+    When a <code class="function">REP</code>-prefixed instruction executes each
+    iteration is counted separately. In contrast, hardware counters count each
+    such instruction just once, no matter how many times it iterates. It is
+    arguable that Cachegrind's behaviour is more useful.
+    </p></li></ul></div>
+<p>
+Cachegrind's cache profiling has a number of shortcomings:
+</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem"><p>It doesn't account for kernel activity -- the effect of system
-    calls on the cache and branch predictor contents is ignored.</p></li>
-<li class="listitem"><p>It doesn't account for other process activity.
-    This is probably desirable when considering a single
-    program.</p></li>
+<li class="listitem"><p>
+    It doesn't account for kernel activity. The effect of system calls on the
+    cache and branch predictor contents is ignored.
+    </p></li>
+<li class="listitem"><p>
+    It doesn't account for other process activity. This is arguably desirable
+    when considering a single program.
+    </p></li>
 <li class="listitem"><p>It doesn't account for virtual-to-physical address
     mappings.  Hence the simulation is not a true
     representation of what's happening in the
@@ -1050,14 +1073,17 @@ shortcomings:</p>
     threads differently from how they would be when running natively.
     This could warp the results for threaded programs.</p></li>
 <li class="listitem">
-<p>The x86/amd64 instructions <code class="computeroutput">bts</code>,
+<p>
+    The x86/amd64 instructions <code class="computeroutput">bts</code>,
     <code class="computeroutput">btr</code> and
-    <code class="computeroutput">btc</code> will incorrectly be
-    counted as doing a data read if both the arguments are
-    registers, eg:</p>
+    <code class="computeroutput">btc</code> will incorrectly be counted as doing a
+    data read if both the arguments are registers, e.g.:
+    </p>
 <pre class="programlisting">
     btsl %eax, %edx</pre>
-<p>This should only happen rarely.</p>
+<p>
+    This should only happen rarely.
+    </p>
 </li>
 <li class="listitem"><p>x86/amd64 FPU instructions with data sizes of 28 and 108 bytes
     (e.g.  <code class="computeroutput">fsave</code>) are treated as
@@ -1070,24 +1096,24 @@ of any of the shared libraries it uses, or even the length of their
 file names, can perturb the results.  Variations will be small, but
 don't expect perfectly repeatable results if your program changes at
 all.</p>
-<p>More recent GNU/Linux distributions do address space
-randomisation, in which identical runs of the same program have their
-shared libraries loaded at different locations, as a security measure.
-This also perturbs the results.</p>
-<p>While these factors mean you shouldn't trust the results to
-be super-accurate, they should be close enough to be useful.</p>
+<p>
+Many Linux distributions perform address space layout randomisation (ASLR), in
+which identical runs of the same program have their shared libraries loaded at
+different locations, as a security measure. This also perturbs the
+results.
+</p>
 </div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.impl-details"></a>5.9.Â Implementation Details</h2></div></div></div>
+<a name="cg-manual.impl-details"></a>5.8. Implementation Details</h2></div></div></div>
 <p>
 This section talks about details you don't need to know about in order to
 use Cachegrind, but may be of interest to some people.
 </p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.impl-details.how-cg-works"></a>5.9.1.Â How Cachegrind Works</h3></div></div></div>
+<a name="cg-manual.impl-details.how-cg-works"></a>5.8.1. How Cachegrind Works</h3></div></div></div>
 <p>The best reference for understanding how Cachegrind works is chapter 3 of
 "Dynamic Binary Analysis and Instrumentation", by Nicholas Nethercote.  It
 is available on the <a class="ulink" href="http://www.valgrind.org/docs/pubs.html" target="_top">Valgrind publications
@@ -1095,7 +1121,7 @@ page</a>.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.impl-details.file-format"></a>5.9.2.Â Cachegrind Output File Format</h3></div></div></div>
+<a name="cg-manual.impl-details.file-format"></a>5.8.2. Cachegrind Output File Format</h3></div></div></div>
 <p>The file format is fairly straightforward, basically giving the
 cost centre for every line, grouped by files and
 functions.  It's also totally generic and self-describing, in the sense that
@@ -1113,9 +1139,9 @@ events_line  ::= "events:" ws? (event ws)+
 data_line    ::= file_line | fn_line | count_line
 file_line    ::= "fl=" filename
 fn_line      ::= "fn=" fn_name
-count_line   ::= line_num ws? (count ws)+
-summary_line ::= "summary:" ws? (count ws)+
-count        ::= num | "."</pre>
+count_line   ::= line_num (ws+ count)* ws*
+summary_line ::= "summary:" ws? count (ws+ count)+ ws*
+count        ::= num</pre>
 <p>Where:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p><code class="computeroutput">non_nl_string</code> is any
@@ -1135,17 +1161,16 @@ count        ::= num | "."</pre>
 of the summary.  This is a generic way of providing simulation
 specific information, e.g. for giving the cache configuration for
 cache simulation.</p>
-<p>More than one line of info can be presented for each file/fn/line number.
+<p>More than one line of info can be present for each file/fn/line number.
 In such cases, the counts for the named events will be accumulated.</p>
-<p>Counts can be "." to represent zero.  This makes the files easier for
-humans to read.</p>
 <p>The number of counts in each
 <code class="computeroutput">line</code> and the
 <code class="computeroutput">summary_line</code> should not exceed
 the number of events in the
 <code class="computeroutput">event_line</code>.  If the number in
 each <code class="computeroutput">line</code> is less, cg_annotate
-treats those missing as though they were a "." entry.  This saves space.
+treats those missing as though they were a "0" entry. This can reduce
+file size.
 </p>
 <p>A <code class="computeroutput">file_line</code> changes the
 current file name.  A <code class="computeroutput">fn_line</code>
@@ -1156,9 +1181,9 @@ pertain to the current filename/fn_name.  A "fn="
 <code class="computeroutput">fn_line</code> must appear before any
 <code class="computeroutput">count_line</code>s to give the context
 of the first <code class="computeroutput">count_line</code>s.</p>
-<p>Each <code class="computeroutput">file_line</code> will normally be
-immediately followed by a <code class="computeroutput">fn_line</code>.  But it
-doesn't have to be.</p>
+<p>Similarly, each <code class="computeroutput">file_line</code> must be
+immediately followed by a <code class="computeroutput">fn_line</code>.
+</p>
 <p>The summary line is redundant, because it just holds the total counts
 for each event.  But this serves as a useful sanity check of the data;  if
 the totals for each event don't match the summary line, something has gone
@@ -1170,9 +1195,9 @@ wrong.</p>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="mc-manual.html">&lt;&lt;Â 4.Â Memcheck: a memory error detector</a>Â </td>
+<a accesskey="p" href="mc-manual.html">&lt;&lt; 4. Memcheck: a memory error detector</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="cl-manual.html">6.Â Callgrind: a call-graph generating cache and branch prediction profilerÂ &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="cl-manual.html">6. Callgrind: a call-graph generating cache and branch prediction profiler &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

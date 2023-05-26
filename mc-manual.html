@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>4.Â Memcheck: a memory error detector</title>
+<title>4. Memcheck: a memory error detector</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
-<link rel="prev" href="manual-core-adv.html" title="3.Â Using and understanding the Valgrind core: Advanced Topics">
-<link rel="next" href="cg-manual.html" title="5.Â Cachegrind: a cache and branch-prediction profiler">
+<link rel="prev" href="manual-core-adv.html" title="3. Using and understanding the Valgrind core: Advanced Topics">
+<link rel="next" href="cg-manual.html" title="5. Cachegrind: a high-precision tracing profiler">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,7 +19,7 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="mc-manual"></a>4.Â Memcheck: a memory error detector</h1></div></div></div>
+<a name="mc-manual"></a>4. Memcheck: a memory error detector</h1></div></div></div>
 <div class="toc">
 <p><b>Table of Contents</b></p>
 <dl class="toc">
@@ -35,7 +35,8 @@
 function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.8. Memory leak detection</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.realocsizezero">4.2.8. Realloc size zero</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.9. Memory leak detection</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.options">4.3. Memcheck Command-Line Options</a></span></dt>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.suppfiles">4.4. Writing suppression files</a></span></dt>
@@ -65,7 +66,7 @@ on the Valgrind command line.  You don't have to, though, since Memcheck
 is the default tool.</p>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.overview"></a>4.1.Â Overview</h2></div></div></div>
+<a name="mc-manual.overview"></a>4.1. Overview</h2></div></div></div>
 <p>Memcheck is a memory error detector.  It can detect the following
 problems that are common in C and C++ programs.</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -86,25 +87,27 @@ problems that are common in C and C++ programs.</p>
 <li class="listitem"><p>Passing a fishy (presumably negative) value to the
     <code class="computeroutput">size</code> parameter of a memory
     allocation function.</p></li>
+<li class="listitem"><p>Using a <code class="computeroutput">size</code> value of 0
+    with realloc.</p></li>
 <li class="listitem"><p>Memory leaks.</p></li>
 </ul></div>
 <p>Problems like these can be difficult to find by other means,
 often remaining undetected for long periods, then causing occasional,
   difficult-to-diagnose crashes.</p>
-<p>Memcheck also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a> memory
+<p>Memcheck also provides <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> memory
   profiling using the command line
   option <code class="computeroutput">--xtree-memory</code> and the monitor command
    <code class="computeroutput">xtmemory</code>.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.errormsgs"></a>4.2.Â Explanation of error messages from Memcheck</h2></div></div></div>
+<a name="mc-manual.errormsgs"></a>4.2. Explanation of error messages from Memcheck</h2></div></div></div>
 <p>Memcheck issues a range of error messages.  This section presents a
 quick summary of what error messages mean.  The precise behaviour of the
-error-checking machinery is described in <a class="xref" href="mc-manual.html#mc-manual.machine" title="4.5.Â Details of Memcheck's checking machinery">Details of Memcheck's checking machinery</a>.</p>
+error-checking machinery is described in <a class="xref" href="mc-manual.html#mc-manual.machine" title="4.5. Details of Memcheck's checking machinery">Details of Memcheck's checking machinery</a>.</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.badrw"></a>4.2.1.Â Illegal read / Illegal write errors</h3></div></div></div>
+<a name="mc-manual.badrw"></a>4.2.1. Illegal read / Illegal write errors</h3></div></div></div>
 <p>For example:</p>
 <pre class="programlisting">
 Invalid read of size 4
@@ -144,7 +147,7 @@ non-fatal, and the program stays alive.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.uninitvals"></a>4.2.2.Â Use of uninitialised values</h3></div></div></div>
+<a name="mc-manual.uninitvals"></a>4.2.2. Use of uninitialised values</h3></div></div></div>
 <p>For example:</p>
 <pre class="programlisting">
 Conditional jump or move depends on uninitialised value(s)
@@ -190,7 +193,7 @@ the root causes of uninitialised value errors.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.bad-syscall-args"></a>4.2.3.Â Use of uninitialised or unaddressable values in system
+<a name="mc-manual.bad-syscall-args"></a>4.2.3. Use of uninitialised or unaddressable values in system
        calls</h3></div></div></div>
 <p>Memcheck checks all parameters to system calls:
 </p>
@@ -245,7 +248,7 @@ refers directly to <code class="computeroutput">exit</code>'s argument
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.badfrees"></a>4.2.4.Â Illegal frees</h3></div></div></div>
+<a name="mc-manual.badfrees"></a>4.2.4. Illegal frees</h3></div></div></div>
 <p>For example:</p>
 <pre class="programlisting">
 Invalid free()
@@ -269,7 +272,7 @@ heap block.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.rudefn"></a>4.2.5.Â When a heap block is freed with an inappropriate deallocation
+<a name="mc-manual.rudefn"></a>4.2.5. When a heap block is freed with an inappropriate deallocation
 function</h3></div></div></div>
 <p>In the following example, a block allocated with
 <code class="function">new[]</code> has wrongly been deallocated with
@@ -316,7 +319,7 @@ confused, possibly corrupting the heap.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.overlap"></a>4.2.6.Â Overlapping source and destination blocks</h3></div></div></div>
+<a name="mc-manual.overlap"></a>4.2.6. Overlapping source and destination blocks</h3></div></div></div>
 <p>The following C library functions copy some data from one
 memory block to another (or something similar):
 <code class="function">memcpy</code>,
@@ -353,7 +356,7 @@ implementation.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.fishyvalue"></a>4.2.7.Â Fishy argument values</h3></div></div></div>
+<a name="mc-manual.fishyvalue"></a>4.2.7. Fishy argument values</h3></div></div></div>
 <p>All memory allocation functions take an argument specifying the
 size of the memory block that should be allocated. Clearly, the requested
 size should be a non-negative value and is typically not excessively large. 
@@ -389,7 +392,25 @@ as "silly arguments" and no back-trace was included.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.leaks"></a>4.2.8.Â Memory leak detection</h3></div></div></div>
+<a name="mc-manual.realocsizezero"></a>4.2.8. Realloc size zero</h3></div></div></div>
+<p>The (ab)use or realloc to also do the job of <code class="function">free</code>
+has been poorly understood for a long time. In the C17 standard
+ISO/IEC 9899:2017] the behaviour of realloc when the size argument
+is zero is specified as implementation defined. Memcheck warns about
+the non-portable use or realloc.</p>
+<p>For example:</p>
+<pre class="programlisting">
+==77609== realloc() with size 0
+==77609==    at 0x48502B8: realloc (vg_replace_malloc.c:1450)
+==77609==    by 0x201989: main (realloczero.c:8)
+==77609==  Address 0x5464040 is 0 bytes inside a block of size 4 alloc'd
+==77609==    at 0x484CBB4: malloc (vg_replace_malloc.c:397)
+==77609==    by 0x201978: main (realloczero.c:7)
+</pre>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="mc-manual.leaks"></a>4.2.9. Memory leak detection</h3></div></div></div>
 <p>Memcheck keeps track of all heap blocks issued in response to
 calls to
 <code class="function">malloc</code>/<code class="function">new</code> et al.
@@ -622,7 +643,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.options"></a>4.3.Â Memcheck Command-Line Options</h2></div></div></div>
+<a name="mc-manual.options"></a>4.3. Memcheck Command-Line Options</h2></div></div></div>
 <div class="variablelist">
 <a name="mc.opts.list"></a><dl class="variablelist">
 <dt>
@@ -775,7 +796,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
         increase of the <code class="option">RB</code> event, <code class="option">dPBk</code> is the
         decrease of <code class="option">PBk</code> event. The values for the increase and
         decrease events will be zero for the first leak search done.</p>
-<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a> for a detailed explanation
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for a detailed explanation
         about execution trees.</p>
 </dd>
 <dt>
@@ -792,7 +813,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
         in exactly the same way as they are for <code class="option">--log-file</code>.
         See the description of <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>
         for details. </p>
-<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a>
+<p>See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>
       for a detailed explanation about execution trees formats. </p>
 </dd>
 <dt>
@@ -963,7 +984,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       </p>
 <p>If you want to use
         <code class="computeroutput">--xtree-memory=full</code> memory profiling
-        (see <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a>), then you cannot
+        (see <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>), then you cannot
         specify <code class="varname">--keep-stacktraces=free</code>
         or <code class="varname">--keep-stacktraces=none</code>.</p>
 </dd>
@@ -1132,9 +1153,9 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.suppfiles"></a>4.4.Â Writing suppression files</h2></div></div></div>
+<a name="mc-manual.suppfiles"></a>4.4. Writing suppression files</h2></div></div></div>
 <p>The basic suppression format is described in 
-<a class="xref" href="manual-core.html#manual-core.suppress" title="2.5.Â Suppressing errors">Suppressing errors</a>.</p>
+<a class="xref" href="manual-core.html#manual-core.suppress" title="2.5. Suppressing errors">Suppressing errors</a>.</p>
 <p>The suppression-type (second) line should have the form:</p>
 <pre class="programlisting">
 Memcheck:suppression_type</pre>
@@ -1228,12 +1249,12 @@ calling context that needs to be matched.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.machine"></a>4.5.Â Details of Memcheck's checking machinery</h2></div></div></div>
+<a name="mc-manual.machine"></a>4.5. Details of Memcheck's checking machinery</h2></div></div></div>
 <p>Read this section if you want to know, in detail, exactly
 what and how Memcheck is checking.</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.value"></a>4.5.1.Â Valid-value (V) bits</h3></div></div></div>
+<a name="mc-manual.value"></a>4.5.1. Valid-value (V) bits</h3></div></div></div>
 <p>It is simplest to think of Memcheck implementing a synthetic CPU
 which is identical to a real CPU, except for one crucial detail.  Every
 bit (literally) of data processed, stored and handled by the real CPU
@@ -1348,7 +1369,7 @@ to these shared memory mappings.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.vaddress"></a>4.5.2.Â Valid-address (A) bits</h3></div></div></div>
+<a name="mc-manual.vaddress"></a>4.5.2. Valid-address (A) bits</h3></div></div></div>
 <p>Notice that the previous subsection describes how the validity of
 values is established and maintained without having to say whether the
 program does or does not have the right to access any particular memory
@@ -1395,7 +1416,7 @@ themselves do not change the A bits, only consult them.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.together"></a>4.5.3.Â Putting it all together</h3></div></div></div>
+<a name="mc-manual.together"></a>4.5.3. Putting it all together</h3></div></div></div>
 <p>Memcheck's checking machinery can be summarised as
 follows:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
@@ -1476,9 +1497,20 @@ is:</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.monitor-commands"></a>4.6.Â Memcheck Monitor Commands</h2></div></div></div>
-<p>The Memcheck tool provides monitor commands handled by Valgrind's
-built-in gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5.Â Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
+<a name="mc-manual.monitor-commands"></a>4.6. Memcheck Monitor Commands</h2></div></div></div>
+<p>The Memcheck tool provides monitor commands handled by Valgrind's built-in
+  gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5. Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
+  Valgrind python code provides GDB front end commands giving an easier usage of
+  the memcheck monitor commands (see
+  <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-gdbmonitorfrontend" title="3.2.6. GDB front end commands for Valgrind gdbserver monitor commands">GDB front end commands for Valgrind gdbserver monitor commands</a>).  To launch a
+  memcheck monitor command via its GDB front end command, instead of prefixing
+  the command with "monitor", you must use the GDB <code class="varname">memcheck</code>
+  command (or the shorter aliases <code class="varname">mc</code>).  Using the memcheck
+  GDB front end command provide a more flexible usage, such as evaluation of
+  address and length arguments by GDB. In GDB, you can use <code class="varname">help
+  memcheck</code> to get help about the memcheck front end monitor commands
+  and you can use <code class="varname">apropos memcheck</code> to get all the commands
+  mentionning the word "memcheck" in their name or on-line help.
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
@@ -1519,6 +1551,22 @@ $4 = (char (*)[10]) 0x804a2f0
 Address 0x804A2F0 len 10 has 1 bytes unaddressable
 (gdb)
 </pre>
+<p>The GDB memcheck front end command <code class="varname">memcheck xb ADDR
+      [LEN]</code> accepts any address expression for its first ADDR
+      argument. The second optional argument is any integer expression. Note
+      that these 2 arguments must be separated by a space.
+      The following example shows how to get the definedness of
+      <code class="varname">string10</code> using the memcheck xb front end command.
+    </p>
+<pre class="programlisting">
+(gdb) mc xb &amp;string10 sizeof(string10)
+                  ff      00      ff      00      ff      __      ff      00
+0x804A2F0:      0x3f    0x6e    0x3f    0x65    0x3f    0x??     0x3f    0x65
+                  ff      00
+0x804A2F8:      0x3f    0x00
+Address 0x804A2F0 len 10 has 1 bytes unaddressable
+(gdb)
+</pre>
 <p> The command xb cannot be used with registers. To get
       the validity bits of a register, you must start Valgrind with the
       option <code class="option">--vgdb-shadow-registers=yes</code>. The validity
@@ -1547,15 +1595,19 @@ $10 = 0x0
     with their V bits values.
     </p>
 <p>
-    The following example shows the result of <code class="varname">get_vibts</code>
-    on the <code class="varname">string10</code> used in the  <code class="varname">xb</code>
-    command explanation.
+    The following example shows the result of <code class="varname">get_vbits</code> on
+    the <code class="varname">string10</code> used in the <code class="varname">xb</code> command
+    explanation. The GDB memcheck equivalent front end command <code class="varname">memcheck
+    get_vbits ADDR [LEN]</code>accepts any ADDR expression and any LEN
+    expression (separated by a space).
     </p>
 <pre class="programlisting">
 (gdb) monitor get_vbits 0x804a2f0 10
 ff00ff00 ff__ff00 ff00
 Address 0x804A2F0 len 10 has 1 bytes unaddressable
-(gdb) 
+(gdb) memcheck get_vbits &amp;string10 sizeof(string10)
+ff00ff00 ff__ff00 ff00
+Address 0x804A2F0 len 10 has 1 bytes unaddressable
 </pre>
 </li>
 <li class="listitem">
@@ -1574,14 +1626,25 @@ Address 0x804A2F0 len 10 has 1 bytes unaddressable
     that the first letter of <code class="varname">Definedifaddressable</code>
     is an uppercase D to avoid confusion with <code class="varname">defined</code>.
     </p>
+<p>The GDB equivalent memcheck front end commands <code class="varname">memcheck
+      make_memory [noaccess|undefined|defined|Definedifaddressable] ADDR
+      [LEN]</code> accept any address expression for their first ADDR
+      argument. The second optional argument is any integer expression. Note
+      that these 2 arguments must be separated by a space.
+    </p>
 <p>
     In the following example, the first byte of the
-    <code class="varname">string10</code> is marked as defined:
+    <code class="varname">string10</code> is marked as defined and then is marked
+    noaccess:
     </p>
 <pre class="programlisting">
 (gdb) monitor make_memory defined 0x8049e28  1
 (gdb) monitor get_vbits 0x8049e28 10
 0000ff00 ff00ff00 ff00
+(gdb) memcheck make_memory noaccess &amp;string10[0]
+(gdb) memcheck get_vbits &amp;string10 sizeof(string10)
+__00ff00 ff00ff00 ff00
+Address 0x8049E28 len 10 has 1 bytes unaddressable
 (gdb) 
 </pre>
 </li>
@@ -1601,12 +1664,18 @@ Address 0x8049E28 len 1 defined
 ==14698==  declared at prog.c:10, in frame #0 of thread 1
 (gdb) 
 </pre>
+<p>The GDB equivalent memcheck front end commands <code class="varname">memcheck
+      check_memory [addressable|defined] ADDR [LEN]</code> accept any address
+      expression for their first ADDR argument. The second optional argument is
+      any integer expression. Note that these 2 arguments must be separated by a
+      space.
+    </p>
 </li>
 <li class="listitem">
 <p><code class="varname">leak_check [full*|summary|xtleak]
                               [kinds &lt;set&gt;|reachable|possibleleak*|definiteleak]
                               [heuristics heur1,heur2,...]
-                              [increased*|changed|any]
+                              [new|increased*|changed|any]
                               [unlimited*|limited &lt;max_loss_records_output&gt;]
           </code>
     performs a leak check. The <code class="varname">*</code> in the arguments
@@ -1627,7 +1696,7 @@ Address 0x8049E28 len 1 defined
     </p>
 <p>The value <code class="varname">xtleak</code> also produces a full leak report,
       but output it as an xtree in a file xtleak.kcg.%p.%n (see <a class="xref" href="manual-core.html#opt.log-file">--log-file</a>).
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a>
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a>
       for a detailed explanation about execution trees formats.
       See <a class="xref" href="mc-manual.html#opt.xtree-leak">--xtree-leak</a> for the description of the events
       in a xtree leak file.
@@ -1652,18 +1721,22 @@ Address 0x8049E28 len 1 defined
     The default value for the <code class="varname">heuristics</code> argument is
     <code class="varname">heuristics none</code>.
     </p>
-<p>The <code class="varname">[increased*|changed|any]</code> argument controls what
-    kinds of changes are shown for a <code class="varname">full</code> leak search. The
-    value <code class="varname">increased</code> specifies that only block
+<p>The <code class="varname">[new|increased*|changed|any]</code> argument controls
+    what kinds of changes are shown for a <code class="varname">full</code> leak search.
+    The value <code class="varname">increased</code> specifies that only block
     allocation stacks with an increased number of leaked bytes or
     blocks since the previous leak check should be shown.  The
     value <code class="varname">changed</code> specifies that allocation stacks
     with any change since the previous leak check should be shown.
+    The value <code class="varname">new</code> specifies to show only the block
+    allocation stacks that are new since the previous leak search.
     The value <code class="varname">any</code> specifies that all leak entries
-    should be shown, regardless of any increase or decrease.  When
-    If <code class="varname">increased</code> or <code class="varname">changed</code> are
-    specified, the leak report entries will show the delta relative to
-    the previous leak report.
+    should be shown, regardless of any increase or decrease.
+    If <code class="varname">new</code> or <code class="varname">increased</code> or
+    <code class="varname">changed</code> are specified, the leak report entries will show
+    the delta relative to the previous leak report and the new loss records
+    will have a "new" marker (even when <code class="varname">increased</code> or
+    <code class="varname">changed</code> were specified).
     </p>
 <p>The following example shows usage of the 
     <code class="varname">leak_check</code> monitor command on
@@ -1675,7 +1748,7 @@ Address 0x8049E28 len 1 defined
     there was no increase since the previous leak search.</p>
 <pre class="programlisting">
 (gdb) monitor leak_check full possibleleak increased
-==19520== 16 (+16) bytes in 1 (+1) blocks are possibly lost in loss record 9 of 12
+==19520== 16 (+16) bytes in 1 (+1) blocks are possibly lost in new loss record 9 of 12
 ==19520==    at 0x40070B4: malloc (vg_replace_malloc.c:263)
 ==19520==    by 0x80484D5: mk (leak-cases.c:52)
 ==19520==    by 0x804855F: f (leak-cases.c:81)
@@ -1710,6 +1783,13 @@ Address 0x8049E28 len 1 defined
     using the GDB command <code class="computeroutput">monitor leak_check full
     reachable any</code> (or, using
     abbreviation: <code class="computeroutput">mo l f r a</code>).
+    </p>
+<p>The GDB equivalent memcheck front end command <code class="varname">memcheck
+        leak_check</code> auto-completes the user input by providing the full
+      list of keywords still relevant according to what is already typed. For
+      example, if the "summary" keyword has been provided, the following TABs to
+      auto-complete other items will not propose anymore "full" and "xtleak".
+      Note that KIND and HEUR values are not part of auto-completed elements.
     </p>
 </li>
 <li class="listitem">
@@ -1822,6 +1902,11 @@ Address 0x8049E28 len 1 defined
     Each location pointing at addr (or pointing inside addr if interior pointers
     are being searched for) will be described.
     </p>
+<p>The GDB equivalent memcheck front end command <code class="varname">memcheck
+      who_points_at ADDR [LEN]</code> accept any address expression for its
+      first ADDR argument. The second optional argument is any integer
+      expression. Note that these 2 arguments must be separated by a space.
+    </p>
 <p>In the below example, the pointers to the 'tree block A' (see example
     in command <code class="varname">block_list</code>) is shown before the tree was leaked.
     The descriptions are detailed as the option <code class="option">--read-var-info=yes</code> 
@@ -1874,13 +1959,13 @@ Address 0x8049E28 len 1 defined
 </li>
 <li class="listitem"><p><code class="varname">xtmemory [&lt;filename&gt; default xtmemory.kcg.%p.%n]</code>
       requests Memcheck tool to produce an xtree heap memory report.
-      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10.Â Execution Trees">Execution Trees</a> for
+      See <a class="xref" href="manual-core.html#manual-core.xtree" title="2.10. Execution Trees">Execution Trees</a> for
       a detailed explanation about execution trees. </p></li>
 </ul></div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.clientreqs"></a>4.7.Â Client Requests</h2></div></div></div>
+<a name="mc-manual.clientreqs"></a>4.7. Client Requests</h2></div></div></div>
 <p>The following client requests are defined in
 <code class="filename">memcheck.h</code>.
 See <code class="filename">memcheck.h</code> for exact details of their
@@ -1922,6 +2007,9 @@ arguments.</p>
     entries for which there was an increase or decrease in leaked
     bytes or leaked number of blocks since the previous leak search. It
     has no return value.</p></li>
+<li class="listitem"><p><code class="varname">VALGRIND_DO_NEW_LEAK_CHECK</code>: same as
+   <code class="varname"> VALGRIND_DO_LEAK_CHECK</code> but only shows the new
+    entries since the previous leak search.  It has no return value.</p></li>
 <li class="listitem"><p><code class="varname">VALGRIND_DO_QUICK_LEAK_CHECK</code>: like
     <code class="varname">VALGRIND_DO_LEAK_CHECK</code>, except it produces only a leak
     summary (like <code class="option">--leak-check=summary</code>).
@@ -1968,7 +2056,7 @@ arguments.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.mempools"></a>4.8.Â Memory Pools: describing and working with custom allocators</h2></div></div></div>
+<a name="mc-manual.mempools"></a>4.8. Memory Pools: describing and working with custom allocators</h2></div></div></div>
 <p>Some programs use custom memory allocators, often for performance
 reasons.  Left to itself, Memcheck is unable to understand the
 behaviour of custom allocation schemes as well as it understands the
@@ -2180,7 +2268,7 @@ inform Memcheck about changes to the state of a mempool:</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="mc-manual.mpiwrap"></a>4.9.Â Debugging MPI Parallel Programs with Valgrind</h2></div></div></div>
+<a name="mc-manual.mpiwrap"></a>4.9. Debugging MPI Parallel Programs with Valgrind</h2></div></div></div>
 <p>Memcheck supports debugging of distributed-memory applications
 which use the MPI message passing standard.  This support consists of a
 library of wrapper functions for the
@@ -2204,7 +2292,7 @@ See the top of <code class="computeroutput">mpi/libmpiwrap.c</code>
 for license details.</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.build"></a>4.9.1.Â Building and installing the wrappers</h3></div></div></div>
+<a name="mc-manual.mpiwrap.build"></a>4.9.1. Building and installing the wrappers</h3></div></div></div>
 <p> The wrapper library will be built automatically if possible.
 Valgrind's configure script will look for a suitable
 <code class="computeroutput">mpicc</code> to build it with.  This must be
@@ -2249,7 +2337,7 @@ changed if required.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.gettingstarted"></a>4.9.2.Â Getting started</h3></div></div></div>
+<a name="mc-manual.mpiwrap.gettingstarted"></a>4.9.2. Getting started</h3></div></div></div>
 <p>Compile your MPI application as usual, taking care to link it
 using the same <code class="computeroutput">mpicc</code> that your
 Valgrind build was configured with.</p>
@@ -2271,7 +2359,7 @@ native behaviour of your application in any way.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.controlling"></a>4.9.3.Â Controlling the wrapper library</h3></div></div></div>
+<a name="mc-manual.mpiwrap.controlling"></a>4.9.3. Controlling the wrapper library</h3></div></div></div>
 <p>Environment variable
 <code class="computeroutput">MPIWRAP_DEBUG</code> is consulted at
 startup.  The default behaviour is to print a starting banner</p>
@@ -2310,7 +2398,7 @@ extraneous printing from the wrappers.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.limitations.functions"></a>4.9.4.Â Functions</h3></div></div></div>
+<a name="mc-manual.mpiwrap.limitations.functions"></a>4.9.4. Functions</h3></div></div></div>
 <p>All MPI2 functions except
 <code class="computeroutput">MPI_Wtick</code>,
 <code class="computeroutput">MPI_Wtime</code> and
@@ -2370,7 +2458,7 @@ complex types.  The most common functions called are
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.limitations.types"></a>4.9.5.Â Types</h3></div></div></div>
+<a name="mc-manual.mpiwrap.limitations.types"></a>4.9.5. Types</h3></div></div></div>
 <p> MPI-1.1 structured types are supported, and walked exactly.
 The currently supported combiners are
 <code class="computeroutput">MPI_COMBINER_NAMED</code>,
@@ -2419,7 +2507,7 @@ large performance cost.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.writingwrappers"></a>4.9.6.Â Writing new wrappers</h3></div></div></div>
+<a name="mc-manual.mpiwrap.writingwrappers"></a>4.9.6. Writing new wrappers</h3></div></div></div>
 <p>
 For the most part the wrappers are straightforward.  The only
 significant complexity arises with nonblocking receives.</p>
@@ -2453,7 +2541,7 @@ bottom of the file (do not remove it, just comment it out).</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.mpiwrap.whattoexpect"></a>4.9.7.Â What to expect when using the wrappers</h3></div></div></div>
+<a name="mc-manual.mpiwrap.whattoexpect"></a>4.9.7. What to expect when using the wrappers</h3></div></div></div>
 <p>The wrappers should reduce Memcheck's false-error rate on MPI
 applications.  Because the wrapping is done at the MPI interface,
 there will still potentially be a large number of errors reported in
@@ -2488,9 +2576,9 @@ may see false positives reported in your reduction function.</p>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="manual-core-adv.html">&lt;&lt;Â 3.Â Using and understanding the Valgrind core: Advanced Topics</a>Â </td>
+<a accesskey="p" href="manual-core-adv.html">&lt;&lt; 3. Using and understanding the Valgrind core: Advanced Topics</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="manual.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="cg-manual.html">5.Â Cachegrind: a cache and branch-prediction profilerÂ &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="cg-manual.html">5. Cachegrind: a high-precision tracing profiler &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

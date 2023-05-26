@@ -1,12 +1,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>13.Â README.freebsd</title>
+<title>13. README.freebsd</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-solaris.html" title="12.Â README.solaris">
+<link rel="prev" href="dist.readme-solaris.html" title="12. README.solaris">
 <link rel="next" href="licenses.html" title="GNU Licenses">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -19,212 +19,214 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-freebsd"></a>13.Â README.freebsd</h1></div></div></div>
+<a name="dist.readme-freebsd"></a>13. README.freebsd</h1></div></div></div>
 <div class="literallayout"><p><br>
-Â Â Â Â Â Â InstallingÂ fromÂ portsÂ orÂ viaÂ pkg<br>
+      Installing from ports or via pkg<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 <br>
-IfÂ youÂ areÂ usingÂ FreeBSDÂ 11.3Â orÂ later,Â thenÂ youÂ shouldÂ beÂ ableÂ toÂ install<br>
-ValgrindÂ usingÂ either<br>
+If you are using FreeBSD 11.3 or later, then you should be able to install<br>
+Valgrind using either<br>
 <br>
-pkgÂ installÂ devel/valgrind<br>
+pkg install devel/valgrind<br>
 <br>
-orÂ alternativelyÂ fromÂ portsÂ (ifÂ installed)<br>
+or alternatively from ports (if installed)<br>
 <br>
-cdÂ /usr/ports/devel/valgrindÂ &amp;&amp;Â makeÂ installÂ clean<br>
+cd /usr/ports/devel/valgrind &amp;&amp; make install clean<br>
 <br>
 <br>
-BuildingÂ Valgrind<br>
+Building Valgrind<br>
 ~~~~~~~~~~~~~~~~~<br>
 <br>
-InstallÂ portsÂ forÂ autoconf,Â automake,Â libtoolÂ andÂ gmake.<br>
+Install ports for autoconf, automake, libtool and gmake.<br>
 <br>
-$Â shÂ autogen.sh<br>
-$Â ./configureÂ --prefix=/where/ever<br>
-$Â gmake<br>
-$Â gmakeÂ install<br>
+$ sh autogen.sh<br>
+$ ./configure --prefix=/where/ever<br>
+$ gmake<br>
+$ gmake install<br>
 <br>
-KnownÂ LimitationsÂ (JuneÂ 2022)<br>
+Known Limitations (June 2022)<br>
 <br>
-0.Â BeÂ awareÂ thatÂ ifÂ youÂ useÂ aÂ wrapperÂ scriptÂ andÂ runÂ ValgrindÂ onÂ theÂ wrapper<br>
-Â Â Â scriptÂ ValgrindÂ mayÂ hitÂ restrictionsÂ ifÂ theÂ wrapperÂ scriptÂ runsÂ any<br>
-Â Â Â CapsicumÂ enabledÂ applications.Â ExamplesÂ ofÂ CapsicumÂ enabledÂ applications<br>
-Â Â Â areÂ echo,Â basename,Â tee,Â uniqÂ andÂ wc.Â ItÂ isÂ recommendedÂ thatÂ youÂ either<br>
-Â Â Â avoidÂ theseÂ applicationsÂ orÂ thatÂ youÂ runÂ ValgrindÂ directlyÂ onÂ yourÂ test<br>
-Â Â Â application.<br>
-1.Â ThereÂ areÂ someÂ limitationsÂ whenÂ runningÂ ValgrindÂ onÂ codeÂ thatÂ wasÂ compiled<br>
-Â Â Â withÂ clang.Â Â TheseÂ issuesÂ areÂ notÂ presentÂ withÂ codeÂ compiledÂ withÂ GCC.<br>
-Â Â Â a)Â ThereÂ mayÂ beÂ missingÂ sourceÂ informationÂ concerningÂ variablesÂ due<br>
-Â Â Â Â Â Â toÂ DWARFÂ extensionsÂ isedÂ byÂ GCC.<br>
-Â Â Â b)Â CodeÂ thatÂ usesÂ OpenMPÂ willÂ generateÂ spuriousÂ errors.<br>
-2.Â vgdbÂ invoker,Â whichÂ usesÂ ptrace,Â mayÂ causeÂ systemÂ callsÂ toÂ be<br>
-Â Â Â interrupted.<br>
+0. Be aware that if you use a wrapper script and run Valgrind on the wrapper<br>
+   script Valgrind may hit restrictions if the wrapper script runs any<br>
+   Capsicum enabled applications. Examples of Capsicum enabled applications<br>
+   are echo, basename, tee, uniq and wc. It is recommended that you either<br>
+   avoid these applications or that you run Valgrind directly on your test<br>
+   application.<br>
+1. There are some limitations when running Valgrind on code that was compiled<br>
+   with clang.  These issues are not present with code compiled with GCC.<br>
+   a) There may be missing source information concerning variables due<br>
+      to DWARF extensions used by GCC.<br>
+   b) Code that uses OpenMP will generate spurious errors.<br>
+2. vgdb invoker, which uses ptrace, may cause system calls to be<br>
+   interrupted. As an example, if the debuggee seems to have be<br>
+   stuck and you press Ctrl-C in gdb the debuggee may execute<br>
+   one more statement before stopping and returning control to<br>
+   gdb.<br>
 <br>
-NotesÂ forÂ Developers<br>
+Notes for Developers<br>
 ~~~~~~~~~~~~~~~~~~~~<br>
 <br>
-SeeÂ README_DEVELOPERS,Â README_MISSING_SYSCALL_OR_IOCTLÂ andÂ docs/*<br>
-forÂ moreÂ generalÂ informationÂ forÂ developers.<br>
+See README_DEVELOPERS, README_MISSING_SYSCALL_OR_IOCTL and docs/*<br>
+for more general information for developers.<br>
 <br>
-0.Â AddingÂ syscalls.<br>
+0. Adding syscalls.<br>
 <br>
-WhenÂ addingÂ syscalls,Â youÂ needÂ toÂ lookÂ atÂ theÂ manpageÂ andÂ alsoÂ syscalls.master<br>
-(onlineÂ at<br>
+When adding syscalls, you need to look at the manpage and also syscalls.master<br>
+(online at<br>
 https://github.com/freebsd/freebsd/blob/master/sys/kern/syscalls.master<br>
-andÂ forÂ 32bit<br>
+and for 32bit<br>
 https://github.com/freebsd/freebsd/blob/master/sys/compat/freebsd32/syscalls.master<br>
 <br>
-andÂ ifÂ youÂ installedÂ theÂ srcÂ packageÂ thereÂ shouldÂ alsoÂ be<br>
+and if you installed the src package there should also be<br>
 <br>
 /usr/src/sys/kern/syscalls.master<br>
 and<br>
 /usr/src/sys/compat/freebsd32/syscalls.master)<br>
 <br>
-syscalls.masterÂ isÂ particularlyÂ usefulÂ forÂ seeingÂ quicklyÂ whetherÂ parameters<br>
-areÂ inputsÂ orÂ outputs.<br>
+syscalls.master is particularly useful for seeing quickly whether parameters<br>
+are inputs or outputs.<br>
 <br>
-TheÂ syscallÂ wrappersÂ canÂ varyÂ fromÂ trivialÂ toÂ difficult.Â Fortunately,Â manyÂ are<br>
-eitherÂ trivialÂ (noÂ arguments)Â orÂ easyÂ (ValgrindÂ justÂ needsÂ toÂ knowÂ whatÂ memory<br>
-isÂ beingÂ readÂ orÂ written).Â SomeÂ syscalls,Â suchÂ asÂ thoseÂ involvingÂ process<br>
-creationÂ andÂ termination,Â signalsÂ andÂ memoryÂ mappingÂ requireÂ deeperÂ interaction<br>
-withÂ Valgrind.<br>
+The syscall wrappers can vary from trivial to difficult. Fortunately, many are<br>
+either trivial (no arguments) or easy (Valgrind just needs to know what memory<br>
+is being read or written). Some syscalls, such as those involving process<br>
+creation and termination, signals and memory mapping require deeper interaction<br>
+with Valgrind.<br>
 <br>
-WhenÂ youÂ addÂ syscallsÂ youÂ willÂ needÂ toÂ modifyÂ severalÂ files<br>
-Â Â Â a)Â include/vki/vki-scnums-freebsd.h<br>
-Â Â Â Â Â Â ThisÂ fileÂ containsÂ oneÂ #defineÂ forÂ eachÂ syscall.Â TheÂ _NR_Â prefixÂ (Linux<br>
-Â Â Â Â Â Â style)Â isÂ usedÂ ratherÂ thanÂ SYS_Â forÂ compatibilityÂ withÂ theÂ restÂ ofÂ the<br>
-Â Â Â Â Â Â ValgrindÂ source.<br>
-Â Â Â b)Â coregrind/m_syswrap/priv_syswrap-freebsd.h<br>
-Â Â Â Â Â Â ThisÂ usesÂ theÂ DECL_TEMPLATEÂ macroÂ toÂ generateÂ declarationsÂ forÂ theÂ syscall<br>
-Â Â Â Â Â Â beforeÂ andÂ afterÂ wrappers.<br>
-Â Â Â c)Â coregrind/m_syswrap/syswrap-freebsd.c<br>
-Â Â Â Â Â Â ThisÂ isÂ whereÂ theÂ bulkÂ ofÂ theÂ codeÂ resides.Â TowardÂ theÂ endÂ ofÂ theÂ file<br>
-Â Â Â Â Â Â theÂ BSDX_/BSDXYÂ macrosÂ areÂ usedÂ toÂ generateÂ entriesÂ inÂ theÂ tableÂ of<br>
-Â Â Â Â Â Â syscalls.Â BSDX_Â isÂ usedÂ forÂ wrappersÂ thatÂ onlyÂ haveÂ aÂ 'before',Â BSDXY<br>
-Â Â Â Â Â Â ifÂ bothÂ wrappersÂ areÂ required.Â InÂ general,Â syscallsÂ thatÂ haveÂ noÂ arguments<br>
-Â Â Â Â Â Â orÂ onlyÂ inputÂ argumentsÂ justÂ needÂ aÂ BSDX_Â macroÂ (beforeÂ only).Â Syscalls<br>
-Â Â Â Â Â Â withÂ outputÂ argumentsÂ needÂ aÂ BSDXYÂ macroÂ (beforeÂ andÂ after).<br>
-Â Â Â d)Â IfÂ theÂ syscallÂ usesÂ 64bitÂ argumentsÂ (longÂ long)Â thenÂ insteadÂ ofÂ putting<br>
-Â Â Â Â Â Â theÂ wrapperÂ definitionsÂ inÂ syswrap-freebsd.cÂ thereÂ willÂ beÂ oneÂ definition<br>
-Â Â Â Â Â Â forÂ eachÂ platformÂ amd64Â andÂ x86Â inÂ syswrap-x86-freebsd.cÂ and<br>
-Â Â Â Â Â Â syswrap-amd64-freebsd.c.<br>
-Â Â Â Â Â Â EachÂ longÂ longÂ needsÂ toÂ beÂ splitÂ intoÂ twoÂ ARGsÂ inÂ theÂ x86Â version.<br>
+When you add syscalls you will need to modify several files<br>
+   a) include/vki/vki-scnums-freebsd.h<br>
+      This file contains one #define for each syscall. The _NR_ prefix (Linux<br>
+      style) is used rather than SYS_ for compatibility with the rest of the<br>
+      Valgrind source.<br>
+   b) coregrind/m_syswrap/priv_syswrap-freebsd.h<br>
+      This uses the DECL_TEMPLATE macro to generate declarations for the syscall<br>
+      before and after wrappers.<br>
+   c) coregrind/m_syswrap/syswrap-freebsd.c<br>
+      This is where the bulk of the code resides. Toward the end of the file<br>
+      the BSDX_/BSDXY macros are used to generate entries in the table of<br>
+      syscalls. BSDX_ is used for wrappers that only have a 'before', BSDXY<br>
+      if both wrappers are required. In general, syscalls that have no arguments<br>
+      or only input arguments just need a BSDX_ macro (before only). Syscalls<br>
+      with output arguments need a BSDXY macro (before and after).<br>
+   d) If the syscall uses 64bit arguments (long long) then instead of putting<br>
+      the wrapper definitions in syswrap-freebsd.c there will be one definition<br>
+      for each platform amd64 and x86 in syswrap-x86-freebsd.c and<br>
+      syswrap-amd64-freebsd.c.<br>
+      Each long long needs to be split into two ARGs in the x86 version.<br>
 <br>
-TheÂ PREÂ (before)Â wrapper<br>
+The PRE (before) wrapper<br>
 ------------------------<br>
 <br>
-EachÂ PREÂ wrapperÂ alwaysÂ containsÂ theÂ followingÂ twoÂ macroÂ calls<br>
+Each PRE wrapper always contains the following two macro calls<br>
 <br>
-PRINT.Â ThisÂ outputsÂ theÂ syscallÂ nameÂ andÂ argumentÂ valuesÂ whenÂ ValgrindÂ is<br>
-executedÂ with<br>
+PRINT. This outputs the syscall name and argument values when Valgrind is<br>
+executed with<br>
 --trace-syscalls=yes<br>
 <br>
-PRE_READ_REGX.Â ThisÂ macroÂ letsÂ ValgrindÂ knowÂ aboutÂ theÂ numberÂ andÂ typesÂ ofÂ the<br>
-syscallÂ argumentsÂ whichÂ allowsÂ ValgrindÂ toÂ checkÂ thatÂ theyÂ areÂ initialized.<br>
-XÂ isÂ theÂ numberÂ ofÂ arguments.Â ItÂ isÂ bestÂ thatÂ theÂ argumentÂ namesÂ match<br>
-theÂ manÂ page,Â butÂ theÂ mustÂ matchÂ theÂ typesÂ andÂ numberÂ ofÂ argumentsÂ in<br>
-syscalls.master.<br>
-OccasionallyÂ thereÂ areÂ differencesÂ betweenÂ theÂ two.<br>
+PRE_READ_REGX. This macro lets Valgrind know about the number and types of the<br>
+syscall arguments which allows Valgrind to check that they are initialized.<br>
+X is the number of arguments. It is best that the argument names match<br>
+the man page, but they must match the types and number of arguments in<br>
+syscalls.master. Occasionally there are differences between the two.<br>
 <br>
-IfÂ theÂ syscallÂ takesÂ pointersÂ toÂ memoryÂ thereÂ willÂ beÂ oneÂ ofÂ theÂ followingÂ for<br>
-eachÂ pointerÂ argument.<br>
+If the syscall takes pointers to memory there will be one of the following for<br>
+each pointer argument.<br>
 <br>
-PRE_MEM_RASCIIZÂ forÂ NULLÂ terminatedÂ asciiÂ strings.<br>
+PRE_MEM_RASCIIZ for NULL terminated ascii strings.<br>
 <br>
-PRE_MEM_READÂ forÂ pointersÂ toÂ structuresÂ orÂ arraysÂ thatÂ areÂ read.<br>
+PRE_MEM_READ for pointers to structures or arrays that are read.<br>
 <br>
-PRE_MEM_WRITEÂ forÂ pointersÂ toÂ structuresÂ orÂ arraysÂ thatÂ areÂ written.<br>
+PRE_MEM_WRITE for pointers to structures or arrays that are written.<br>
 <br>
-AsÂ aÂ rule,Â theÂ definitionsÂ ofÂ structuresÂ areÂ copiedÂ intoÂ vki-freebsd.h<br>
-withÂ theÂ vki-Â prefix.Â [vkiÂ -Â ValgrindÂ kernelÂ interface;Â thisÂ wasÂ done<br>
-historicallyÂ toÂ protectÂ againstÂ discrepanciesÂ betweenÂ userÂ include<br>
-structureÂ definitionsÂ andÂ kernelÂ definitionsÂ onÂ Linux].<br>
+As a rule, the definitions of structures are copied into vki-freebsd.h<br>
+with the vki- prefix. [vki - Valgrind kernel interface; this was done<br>
+historically to protect against discrepancies between user include<br>
+structure definitions and kernel definitions on Linux].<br>
 <br>
-TheÂ POSTÂ (after)Â wrapper<br>
+The POST (after) wrapper<br>
 ------------------------<br>
 <br>
-TheseÂ areÂ muchÂ easier.<br>
+These are much easier.<br>
 <br>
-TheyÂ justÂ containÂ aÂ POST_MEM_WRITEÂ macroÂ forÂ eachÂ outputÂ argument.<br>
+They just contain a POST_MEM_WRITE macro for each output argument.<br>
 <br>
-1.Â RunningÂ regressionÂ tests<br>
+1. Running regression tests<br>
 <br>
-InÂ orderÂ toÂ runÂ allÂ ofÂ theÂ regressionÂ testsÂ youÂ willÂ needÂ toÂ install<br>
-theÂ followingÂ packages<br>
+In order to run all of the regression tests you will need to install<br>
+the following packages<br>
 gdb<br>
 gsed<br>
 <br>
-InÂ additionÂ toÂ runningÂ "make"Â youÂ willÂ needÂ toÂ run<br>
-"makeÂ check"Â toÂ buildÂ theÂ regressionÂ testÂ exectutables<br>
-andÂ "makeÂ regtest".Â Â Again,Â moreÂ detailsÂ canÂ beÂ seenÂ in<br>
+In addition to running "make" you will need to run<br>
+"make check" to build the regression test exectutables<br>
+and "make regtest".  Again, more details can be seen in<br>
 README_DEVELOPERS.<br>
 <br>
-IfÂ youÂ wantÂ toÂ runÂ theÂ 'nightly'Â scriptÂ (seeÂ nightly/README.txt)<br>
-youÂ willÂ needÂ toÂ installÂ coreutilsÂ andÂ modifyÂ the<br>
-nightly/conf/freebsd.*Â files.Â TheÂ defaultÂ configuration<br>
-sendsÂ anÂ e-mailÂ toÂ theÂ valgrind-testresultsÂ mailingÂ list.<br>
+If you want to run the 'nightly' script (see nightly/README.txt)<br>
+you will need to install coreutils and modify the<br>
+nightly/conf/freebsd.* files. The default configuration<br>
+sends an e-mail to the valgrind-testresults mailing list.<br>
 <br>
 Feedback<br>
 ~~~~~~~~<br>
 <br>
-IfÂ youÂ findÂ anyÂ problemsÂ pleaseÂ createÂ aÂ bugzillaÂ reportÂ at<br>
-https://bugs.kde.orgÂ usingÂ theÂ ValgrindÂ product.<br>
+If you find any problems please create a bugzilla report at<br>
+https://bugs.kde.org using the Valgrind product.<br>
 <br>
-AlternativelyÂ youÂ canÂ useÂ theÂ FreeBSDÂ bugilla<br>
+Alternatively you can use the FreeBSD bugilla<br>
 https://bugs.freebsd.org<br>
 <br>
 Credits<br>
 ~~~~~~~<br>
 <br>
-ValgrindÂ wasÂ originallyÂ portedÂ toÂ FreeBSDÂ byÂ DougÂ Rabson<br>
-inÂ 2004.<br>
+Valgrind was originally ported to FreeBSD by Doug Rabson<br>
+in 2004.<br>
 <br>
-PaulÂ FloydÂ (that'sÂ me),Â startedÂ lookingÂ atÂ thisÂ projectÂ inÂ lateÂ 2018,<br>
-tookÂ aÂ longÂ pauseÂ andÂ thenÂ continuedÂ inÂ earnestÂ inÂ JanuaryÂ 2020.<br>
+Paul Floyd (that's me), started looking at this project in late 2018,<br>
+took a long pause and then continued in earnest in January 2020.<br>
 <br>
-AÂ bigÂ thanksÂ toÂ NickÂ BriggsÂ forÂ helpingÂ withÂ theÂ x86Â version.<br>
+A big thanks to Nick Briggs for helping with the x86 version.<br>
 <br>
-KyleÂ EvansÂ andÂ EdÂ MasteÂ forÂ contributingÂ patchesÂ andÂ helpingÂ withÂ the<br>
-integrationÂ withÂ FreeBSDÂ ports.<br>
+Kyle Evans and Ed Maste for contributing patches and helping with the<br>
+integration with FreeBSD ports.<br>
 <br>
-PriorÂ toÂ 2018Â manyÂ othersÂ haveÂ alsoÂ contributed.<br>
+Prior to 2018 many others have also contributed.<br>
 <br>
-DimitryÂ Andric<br>
-SimonÂ Barner<br>
-RomanÂ Bogorodskiy<br>
-RebeccaÂ Cran<br>
-BryanÂ Drewery<br>
-BrianÂ FundakowskiÂ Feldman<br>
-DenisÂ Generalov<br>
-MikolajÂ Golub<br>
-EugeneÂ Kilachkoff<br>
-XinÂ LI<br>
-PhilÂ Longstaff<br>
-PavÂ Lucistnik<br>
-ConradÂ Meyer<br>
-JulienÂ Nadeau<br>
-FrerichÂ Raabe<br>
-DougÂ Rabson<br>
-CraigÂ Rodrigues<br>
-TomÂ Russo<br>
-StephenÂ Sanders<br>
-StanislavÂ Sedov<br>
-AndreiÂ V.Â Shetuhin<br>
-NiklasÂ Sorensson<br>
-RyanÂ Stone<br>
-JerryÂ Toung<br>
+Dimitry Andric<br>
+Simon Barner<br>
+Roman Bogorodskiy<br>
+Rebecca Cran<br>
+Bryan Drewery<br>
+Brian Fundakowski Feldman<br>
+Denis Generalov<br>
+Mikolaj Golub<br>
+Eugene Kilachkoff<br>
+Xin LI<br>
+Phil Longstaff<br>
+Pav Lucistnik<br>
+Conrad Meyer<br>
+Julien Nadeau<br>
+Frerich Raabe<br>
+Doug Rabson<br>
+Craig Rodrigues<br>
+Tom Russo<br>
+Stephen Sanders<br>
+Stanislav Sedov<br>
+Andrei V. Shetuhin<br>
+Niklas Sorensson<br>
+Ryan Stone<br>
+Jerry Toung<br>
 Yuri<br>
 <br>
 <br>
-Â Â Â Â </p></div>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-solaris.html">&lt;&lt;Â 12.Â README.solaris</a>Â </td>
+<a accesskey="p" href="dist.readme-solaris.html">&lt;&lt; 12. README.solaris</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="licenses.html">GNU LicensesÂ &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="licenses.html">GNU Licenses &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

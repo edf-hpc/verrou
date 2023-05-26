@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>11.Â README.mips</title>
+<title>11. README.mips</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-android_emulator.html" title="10.Â README.android_emulator">
-<link rel="next" href="dist.readme-solaris.html" title="12.Â README.solaris">
+<link rel="prev" href="dist.readme-android_emulator.html" title="10. README.android_emulator">
+<link rel="next" href="dist.readme-solaris.html" title="12. README.solaris">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,79 +19,79 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-mips"></a>11.Â README.mips</h1></div></div></div>
+<a name="dist.readme-mips"></a>11. README.mips</h1></div></div></div>
 <div class="literallayout"><p><br>
-Â Â Â Â Â Â <br>
-SupportedÂ platforms<br>
+      <br>
+Supported platforms<br>
 -------------------<br>
--Â MIPS32Â andÂ MIPS64Â platformsÂ areÂ currentlyÂ supported.<br>
--Â BothÂ little-endianÂ andÂ big-endianÂ coresÂ areÂ supported.<br>
--Â MIPSÂ DSPÂ ASEÂ onÂ MIPS32Â platformsÂ isÂ supported.<br>
+- MIPS32 and MIPS64 platforms are currently supported.<br>
+- Both little-endian and big-endian cores are supported.<br>
+- MIPS DSP ASE on MIPS32 platforms is supported.<br>
 <br>
 <br>
-BuildingÂ VÂ forÂ MIPS<br>
+Building V for MIPS<br>
 -------------------<br>
--Â NativeÂ buildÂ isÂ availableÂ forÂ allÂ supportedÂ platforms.Â TheÂ buildÂ system<br>
-expectsÂ thatÂ nativeÂ GCCÂ isÂ configuredÂ correctlyÂ andÂ optimizedÂ forÂ theÂ platform.<br>
-Yet,Â thisÂ mayÂ notÂ beÂ theÂ caseÂ withÂ someÂ DebianÂ distributionsÂ whichÂ configure<br>
-GCCÂ toÂ compileÂ toÂ "mips1"Â byÂ default.Â DependingÂ onÂ aÂ targetÂ platform,Â using<br>
-CFLAGS="-mips32r2",Â CFLAGS="-mips32"Â orÂ CFLAGS="-mips64"Â or<br>
-CFLAGS="-mips64Â -mabi=64"Â willÂ doÂ theÂ trickÂ andÂ compileÂ ValgrindÂ correctly.<br>
+- Native build is available for all supported platforms. The build system<br>
+expects that native GCC is configured correctly and optimized for the platform.<br>
+Yet, this may not be the case with some Debian distributions which configure<br>
+GCC to compile to "mips1" by default. Depending on a target platform, using<br>
+CFLAGS="-mips32r2", CFLAGS="-mips32" or CFLAGS="-mips64" or<br>
+CFLAGS="-mips64 -mabi=64" will do the trick and compile Valgrind correctly.<br>
 <br>
--Â UseÂ ofÂ cross-toolchainÂ isÂ supportedÂ asÂ well.<br>
--Â ExampleÂ ofÂ configureÂ lineÂ andÂ additionalÂ configureÂ options:<br>
+- Use of cross-toolchain is supported as well.<br>
+- Example of configure line and additional configure options:<br>
 <br>
-Â Â Â $Â ./configureÂ --host=mipsel-linux-gnuÂ --prefix=&lt;path_to_install_directory&gt;<br>
+   $ ./configure --host=mipsel-linux-gnu --prefix=&lt;path_to_install_directory&gt;<br>
 <br>
-Â *Â --host=mips-linux-gnuÂ isÂ necessaryÂ onlyÂ ifÂ ValgrindÂ isÂ builtÂ onÂ platform<br>
-Â Â Â otherÂ thenÂ MIPS,Â toolsÂ forÂ buildingÂ MIPSÂ applicationÂ haveÂ toÂ beÂ inÂ PATH.<br>
+ * --host=mips-linux-gnu is necessary only if Valgrind is built on platform<br>
+   other then MIPS, tools for building MIPS application have to be in PATH.<br>
 <br>
-Â *Â --host=mips-linux-gnuÂ isÂ necessaryÂ ifÂ youÂ compileÂ itÂ withÂ crossÂ toolchain<br>
-Â Â Â compilerÂ forÂ bigÂ endianÂ platform.<br>
+ * --host=mips-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for big endian platform.<br>
 <br>
-Â *Â --host=mipsel-linux-muslÂ isÂ necessaryÂ ifÂ youÂ compileÂ itÂ withÂ crossÂ toolchain<br>
-Â Â Â compilerÂ forÂ littleÂ endianÂ platform.<br>
+ * --host=mipsel-linux-musl is necessary if you compile it with cross toolchain<br>
+   compiler for little endian platform.<br>
 <br>
-Â *Â --host=nanomipseb-linux-gnuÂ isÂ necessaryÂ ifÂ youÂ compileÂ itÂ withÂ crossÂ toolchain<br>
-Â Â Â compilerÂ forÂ nanoMIPSÂ bigÂ endianÂ platform.<br>
+ * --host=nanomipseb-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for nanoMIPS big endian platform.<br>
 <br>
-Â *Â --host=nanomips-linux-gnuÂ isÂ necessaryÂ ifÂ youÂ compileÂ itÂ withÂ crossÂ toolchain<br>
-Â Â Â compilerÂ forÂ nanoMIPSÂ littleÂ endianÂ platform.<br>
+ * --host=nanomips-linux-gnu is necessary if you compile it with cross toolchain<br>
+   compiler for nanoMIPS little endian platform.<br>
 <br>
-Â *Â --build=mips-linuxÂ isÂ neededÂ ifÂ youÂ wantÂ toÂ buildÂ itÂ forÂ MIPS32Â onÂ 64-bit<br>
-Â Â Â MIPSÂ system.<br>
+ * --build=mips-linux is needed if you want to build it for MIPS32 on 64-bit<br>
+   MIPS system.<br>
 <br>
-Â *Â IfÂ youÂ areÂ compilingÂ ValgrindÂ forÂ mips32Â withÂ gccÂ versionÂ olderÂ then<br>
-Â Â Â gccÂ (GCC)Â 4.5.1,Â youÂ mustÂ specifyÂ CFLAGS="-mips32r2Â -mplt",Â e.g.<br>
+ * If you are compiling Valgrind for mips32 with gcc version older then<br>
+   gcc (GCC) 4.5.1, you must specify CFLAGS="-mips32r2 -mplt", e.g.<br>
 <br>
-Â Â Â ./configureÂ --prefix=&lt;path_to_install_directory&gt;<br>
-Â Â Â CFLAGS="-mips32r2Â -mplt"<br>
+   ./configure --prefix=&lt;path_to_install_directory&gt;<br>
+   CFLAGS="-mips32r2 -mplt"<br>
 <br>
 <br>
 Limitations<br>
 -----------<br>
--Â SomeÂ gdbÂ testsÂ willÂ failÂ whenÂ gdbÂ (GDB)Â olderÂ thanÂ 7.5Â isÂ usedÂ andÂ gdbÂ is<br>
-Â Â notÂ compiledÂ withÂ '--with-expat=yes'.<br>
--Â YouÂ canÂ notÂ compileÂ testsÂ forÂ DSPÂ ASEÂ ifÂ youÂ areÂ usingÂ gccÂ (GCC)Â older<br>
-Â Â thenÂ 4.6.1Â dueÂ toÂ aÂ bugÂ inÂ theÂ toolchain.<br>
--Â OlderÂ GCCÂ mayÂ haveÂ issuesÂ withÂ someÂ inlineÂ assemblyÂ blocks.Â GetÂ aÂ toolchain<br>
-Â Â basedÂ onÂ newerÂ GCCÂ versions,Â ifÂ possible.<br>
--Â SystemsÂ withÂ aÂ mips64Â cpuÂ havingÂ onlyÂ o32Â librariesÂ willÂ misconfigureÂ inÂ case<br>
-Â Â noÂ appropriateÂ architectureÂ flagÂ isÂ specifiedÂ duringÂ configureÂ time.<br>
-Â Â BeÂ sureÂ toÂ setÂ eitherÂ mips32Â orÂ mips32r2Â asÂ theÂ targetÂ architectureÂ inÂ that<br>
-Â Â case.<br>
--Â SomeÂ testsÂ canÂ notÂ beÂ compiledÂ forÂ nanoMIPSÂ dueÂ toÂ limitationsÂ in<br>
-Â Â preliminaryÂ GCCÂ forÂ nanoMIPS.Â YouÂ canÂ useÂ '-i'Â switchÂ forÂ buildingÂ tests.<br>
+- Some gdb tests will fail when gdb (GDB) older than 7.5 is used and gdb is<br>
+  not compiled with '--with-expat=yes'.<br>
+- You can not compile tests for DSP ASE if you are using gcc (GCC) older<br>
+  then 4.6.1 due to a bug in the toolchain.<br>
+- Older GCC may have issues with some inline assembly blocks. Get a toolchain<br>
+  based on newer GCC versions, if possible.<br>
+- Systems with a mips64 cpu having only o32 libraries will misconfigure in case<br>
+  no appropriate architecture flag is specified during configure time.<br>
+  Be sure to set either mips32 or mips32r2 as the target architecture in that<br>
+  case.<br>
+- Some tests can not be compiled for nanoMIPS due to limitations in<br>
+  preliminary GCC for nanoMIPS. You can use '-i' switch for building tests.<br>
 <br>
-Â Â Â Â </p></div>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-android_emulator.html">&lt;&lt;Â 10.Â README.android_emulator</a>Â </td>
+<a accesskey="p" href="dist.readme-android_emulator.html">&lt;&lt; 10. README.android_emulator</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="dist.readme-solaris.html">12.Â README.solarisÂ &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-solaris.html">12. README.solaris &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>

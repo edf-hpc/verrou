@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>8.Â README.S390</title>
+<title>8. README.S390</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-packagers.html" title="7.Â README_PACKAGERS">
-<link rel="next" href="dist.readme-android.html" title="9.Â README.android">
+<link rel="prev" href="dist.readme-packagers.html" title="7. README_PACKAGERS">
+<link rel="next" href="dist.readme-android.html" title="9. README.android">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
@@ -19,72 +19,72 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-s390"></a>8.Â README.S390</h1></div></div></div>
+<a name="dist.readme-s390"></a>8. README.S390</h1></div></div></div>
 <div class="literallayout"><p><br>
-Â Â Â Â Â Â <br>
+      <br>
 Requirements<br>
 ------------<br>
--Â YouÂ needÂ GCCÂ 3.4Â orÂ laterÂ toÂ compileÂ theÂ s390Â port.<br>
--Â ToÂ runÂ valgrindÂ aÂ z10Â machineÂ orÂ anyÂ laterÂ modelÂ isÂ recommended.<br>
-Â Â OlderÂ machineÂ modelsÂ downÂ toÂ andÂ includingÂ z990Â mayÂ workÂ butÂ have<br>
-Â Â notÂ beenÂ testedÂ extensively.<br>
+- You need GCC 3.4 or later to compile the s390 port.<br>
+- To run valgrind a z10 machine or any later model is recommended.<br>
+  Older machine models down to and including z990 may work but have<br>
+  not been tested extensively.<br>
 <br>
 <br>
 Limitations<br>
 -----------<br>
--Â 31-bitÂ clientÂ programsÂ areÂ notÂ supported.<br>
--Â HexadecimalÂ floatingÂ pointÂ isÂ notÂ supported.<br>
--Â TransactionalÂ memoryÂ isÂ notÂ supported.Â TheÂ transactional-execution<br>
-Â Â facilityÂ isÂ maskedÂ offÂ fromÂ HWCAP.<br>
--Â FPÂ signallingÂ isÂ notÂ accurate.Â E.g.,Â theÂ "compareÂ andÂ signal"<br>
-Â Â instructionsÂ behaveÂ likeÂ theirÂ non-signallingÂ counterparts.<br>
--Â memcheck,Â cachegrind,Â drd,Â helgrind,Â massif,Â lackey,Â andÂ noneÂ are<br>
-Â Â supported.Â <br>
--Â OnÂ machineÂ modelsÂ predatingÂ z10,Â cachegrindÂ willÂ assumeÂ aÂ z10Â cache<br>
-Â Â architecture.Â Otherwise,Â cachegrindÂ willÂ queryÂ theÂ hostsÂ cacheÂ system<br>
-Â Â andÂ useÂ thoseÂ parameters.<br>
--Â callgrindÂ andÂ allÂ experimentalÂ toolsÂ areÂ currentlyÂ notÂ supported.<br>
--Â SomeÂ gccÂ versionsÂ useÂ mvcÂ toÂ copyÂ 4/8Â byteÂ values.Â ThisÂ willÂ affect<br>
-Â Â certainÂ debugÂ messages.Â ForÂ example,Â memcheckÂ willÂ complainÂ about<br>
-Â Â 4Â one-byteÂ reads/writesÂ insteadÂ ofÂ justÂ aÂ singleÂ read/write.<br>
+- 31-bit client programs are not supported.<br>
+- Hexadecimal floating point is not supported.<br>
+- Transactional memory is not supported. The transactional-execution<br>
+  facility is masked off from HWCAP.<br>
+- FP signalling is not accurate. E.g., the "compare and signal"<br>
+  instructions behave like their non-signalling counterparts.<br>
+- memcheck, cachegrind, drd, helgrind, massif, lackey, and none are<br>
+  supported. <br>
+- On machine models predating z10, cachegrind will assume a z10 cache<br>
+  architecture. Otherwise, cachegrind will query the hosts cache system<br>
+  and use those parameters.<br>
+- callgrind and all experimental tools are currently not supported.<br>
+- Some gcc versions use mvc to copy 4/8 byte values. This will affect<br>
+  certain debug messages. For example, memcheck will complain about<br>
+  4 one-byte reads/writes instead of just a single read/write.<br>
 <br>
 <br>
-HardwareÂ facilities<br>
+Hardware facilities<br>
 -------------------<br>
-ValgrindÂ doesÂ notÂ requireÂ thatÂ theÂ hostÂ machineÂ hasÂ theÂ sameÂ hardware<br>
-facilitiesÂ asÂ theÂ machineÂ forÂ whichÂ theÂ clientÂ programÂ wasÂ compiled.<br>
-ThisÂ isÂ convenient.Â IfÂ possible,Â theÂ JITÂ compilerÂ willÂ translateÂ the<br>
-clientÂ instructionsÂ accordingÂ toÂ theÂ facilitiesÂ availableÂ onÂ theÂ host.<br>
-ThisÂ means,Â though,Â thatÂ probingÂ forÂ hardwareÂ facilitiesÂ byÂ issuing<br>
-instructionsÂ fromÂ thatÂ facilityÂ andÂ observingÂ whetherÂ SIGILLÂ isÂ thrown<br>
-mayÂ notÂ work.Â AsÂ aÂ consequence,Â programsÂ thatÂ attemptÂ toÂ doÂ soÂ may<br>
-behaveÂ differently.Â ItÂ isÂ believedÂ thatÂ thisÂ isÂ aÂ rareÂ useÂ case.<br>
+Valgrind does not require that the host machine has the same hardware<br>
+facilities as the machine for which the client program was compiled.<br>
+This is convenient. If possible, the JIT compiler will translate the<br>
+client instructions according to the facilities available on the host.<br>
+This means, though, that probing for hardware facilities by issuing<br>
+instructions from that facility and observing whether SIGILL is thrown<br>
+may not work. As a consequence, programs that attempt to do so may<br>
+behave differently. It is believed that this is a rare use case.<br>
 <br>
 <br>
 Recommendations<br>
 ---------------<br>
-ApplicationsÂ shouldÂ beÂ compiledÂ withÂ -fno-builtinÂ toÂ avoid<br>
-falseÂ positivesÂ dueÂ toÂ builtinÂ stringÂ operationsÂ whenÂ runningÂ memcheck.<br>
+Applications should be compiled with -fno-builtin to avoid<br>
+false positives due to builtin string operations when running memcheck.<br>
 <br>
 <br>
-ReadingÂ Material<br>
+Reading Material<br>
 ----------------<br>
-(1)Â ELFÂ ABIÂ s390xÂ Supplement<br>
-Â Â Â Â https://github.com/IBM/s390x-abi/releases<br>
-(2)Â z/ArchitectureÂ PrinciplesÂ ofÂ Operation<br>
-Â Â Â Â http://publibfp.dhe.ibm.com/epubs/pdf/a227832c.pdf<br>
-(3)Â z/ArchitectureÂ ReferenceÂ Summary<br>
-Â Â Â Â https://www.ibm.com/support/pages/system/files/2020-07/SA22-7871-10.pdf<br>
+(1) ELF ABI s390x Supplement<br>
+    https://github.com/IBM/s390x-abi/releases<br>
+(2) z/Architecture Principles of Operation<br>
+    http://publibfp.dhe.ibm.com/epubs/pdf/a227832c.pdf<br>
+(3) z/Architecture Reference Summary<br>
+    https://www.ibm.com/support/pages/system/files/2020-07/SA22-7871-10.pdf<br>
 <br>
-Â Â Â Â </p></div>
+    </p></div>
 </div>
 <div>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-packagers.html">&lt;&lt;Â 7.Â README_PACKAGERS</a>Â </td>
+<a accesskey="p" href="dist.readme-packagers.html">&lt;&lt; 7. README_PACKAGERS</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
-<td rowspan="2" width="40%" align="right">Â <a accesskey="n" href="dist.readme-android.html">9.Â README.androidÂ &gt;&gt;</a>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-android.html">9. README.android &gt;&gt;</a>
 </td>
 </tr>
 <tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
