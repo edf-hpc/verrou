@@ -132,6 +132,29 @@ struct nextTool{
   }
 
 
+  static inline RealType nextAway_safe(RealType res, RealType signError){
+    if( (signError>0 && res >0)||(signError<0 && res<0) ){
+      return  nextAwayFromZero<RealType>(res);
+    }
+    if(res==0.){
+      if(signError>0){
+	return std::numeric_limits<RealType>::denorm_min();
+      }
+      if(signError<0){
+	return -std::numeric_limits<RealType>::denorm_min();
+      }
+    }
+    return res;
+  }
+
+  static inline RealType nextAway_unsafe(RealType res, RealType signError){
+    if( (signError>0 && res >0)||(signError<0 && res<0) ){
+      return  nextAwayFromZero<RealType>(res);
+    }
+    return res;
+  }
+
+
   static inline RealType nextAfter_safe(RealType res){
     if(res >0){
       return nextAwayFromZero<RealType>(res);
@@ -530,7 +553,7 @@ public:
     const RealType res=OP::nearestOp(p) ;
     INC_OP;
     OP::check(p,res);
-    const RealType signError=OP::sameSignOfError(p,res);
+
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if(isNanInf<RealType>(res)){
       if( (res!=std::numeric_limits<RealType>::infinity()) && (res!=-std::numeric_limits<RealType>::infinity())  ){
@@ -548,6 +571,7 @@ public:
       }
     }
 #endif
+    const RealType signError=OP::sameSignOfError(p,res);
 #ifdef PROFILING_EXACT
     if(signError==0.){
       INC_EXACTOP;
@@ -560,6 +584,77 @@ public:
     return res;
   } ;
 };
+
+
+
+
+template<class REALTYPE, bool SIGN_DENORM_HACK_NEEDED>
+struct nextForAway;
+
+
+template<class REALTYPE>
+struct nextForAway<REALTYPE,false>{
+  typedef REALTYPE RealType;
+
+  static inline RealType nextAway(const RealType& res, const RealType& signError){
+    return nextTool<RealType>::nextAway_unsafe(res,signError);
+  }
+};
+
+
+template<>
+struct nextForAway<double,true>{
+  typedef double RealType;
+
+  static inline RealType nextAway(const RealType& res, const RealType& signError){
+#ifdef VERROU_DENORM_HACKS_DOUBLE
+    return nextTool<RealType>::nextAway_safe(res,signError);
+#else
+    return nextTool<RealType>::nextAway_unsafe(res,signError);
+#endif
+  }
+};
+
+
+template<>
+struct nextForAway<float,true>{
+  typedef float RealType;
+
+  static inline RealType nextAway(const RealType& res, const RealType& signError){
+#ifdef VERROU_DENORM_HACKS_FLOAT
+    return nextTool<RealType>::nextAway_safe(res,signError);
+#else
+    return nextTool<RealType>::nextAway_unsafe(res,signError);
+#endif
+  }
+};
+
+template<class OP>
+class RoundingAwayZero{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline RealType apply(const PackArgs& p){
+    const RealType res=OP::nearestOp(p) ;
+    INC_OP;
+    OP::check(p,res);
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if(isNanInf<RealType>(res)){
+      return res;
+    }
+#endif
+    const RealType signError=OP::sameSignOfError(p,res);
+#ifdef PROFILING_EXACT
+    if(signError==0.){
+      INC_EXACTOP;
+    }
+#endif
+    return nextForAway<RealType, OP::sign_denorm_hack_needed >::nextAway(res,signError);
+  } ;
+};
+
+
 
 
 template<class OP>
@@ -742,6 +837,8 @@ public:
       return RoundingDownward<OP>::apply (p);
     case VR_ZERO:
       return RoundingZero<OP>::apply (p);
+    case VR_AWAY_ZERO:
+      return RoundingAwayZero<OP>::apply (p);
     case VR_RANDOM:
       return RoundingRandom<OP, vr_rand_prng<OP> >::apply (p);
     case VR_RANDOM_DET:

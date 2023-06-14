@@ -32,7 +32,7 @@ import re
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
 valgrindRounding=stdRounding + ["random", "random_det", "random_comdet", "random_scomdet", "sr_monotonic",
                                 "average", "average_det", "average_comdet","average_scomdet",
-                                "float", "farthest", "memcheck" ,"ftz", "prandom", "prandom_0.5", "prandom_det", "prandom_comdet" ]
+                                "float", "farthest", "memcheck" ,"ftz", "away_zero", "prandom", "prandom_0.5", "prandom_det", "prandom_comdet" ]
 
 
 def printRes(res):
@@ -253,6 +253,7 @@ class assertRounding:
 
         self.diff_nearest      =getDiff(allResult[("valgrind", "nearest")], testName)
         self.diff_toward_zero  =getDiff(allResult[("valgrind", "toward_zero")], testName)
+        self.diff_away_zero    =getDiff(allResult[("valgrind", "away_zero")], testName)
         self.diff_downward     =getDiff(allResult[("valgrind", "downward")], testName)
         self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
         self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
@@ -375,6 +376,7 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "downward")
+            testCheck.assertEqual("away_zero", "upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("downward", "farthest")
             testCheck.assertLeq("farthest", "upward")
@@ -471,6 +473,7 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
+        testCheck.assertEqual("away_zero", "upward")
         testCheck.assertLeq("downward", "nearest")
         testCheck.assertLeq("nearest", "upward")
         testCheck.assertLeq("downward", "farthest")
@@ -505,6 +508,7 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual("toward_zero", "upward")
+            testCheck.assertEqual("away_zero", "downward")
 
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("nearest", "upward")
@@ -539,6 +543,7 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "downward")
+        testCheck.assertEqual("away_zero", "upward")
         testCheck.assertDiff("nearest", "farthest")
         testCheck.assertLess("downward", "upward")
 
@@ -569,6 +574,7 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
         testCheck.assertEqual("toward_zero", "upward")
+        testCheck.assertEqual("away_zero", "downward")
         testCheck.assertLess("downward", "upward")
         testCheck.assertDiff("nearest", "farthest")
         for rnd in [ "prandom_half", "farthest", "nearest","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet", "_scomdet"] ]:
@@ -603,7 +609,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
 
-            for rnd in ["downward", "prandom_half", "farthest", "nearest", "toward_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+            for rnd in ["downward", "prandom_half", "farthest", "nearest", "toward_zero", "away_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
                 testCheck.assertEqual(rnd,"upward")
 
             ok+=testCheck.ok
@@ -624,7 +630,7 @@ def checkExactDetAndOptimistAverage(allResult,testList,typeTab=["<double>", "<fl
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
 
-            for rnd in ["downward","farthest", "nearest", "toward_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+            for rnd in ["downward","farthest", "nearest", "toward_zero", "away_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
                 testCheck.assertEqual(rnd,"upward")
 
             for rnd in ["random", "prandom_half"]:

@@ -120,6 +120,8 @@ def getRoundingClass(rounding):
         return "RoundingDownward"
     if rounding=="ZERO":
         return "RoundingZero"
+    if rounding=="AWAY_ZERO":
+        return "RoundingAwayZero"
     if rounding=="FARTHEST":
         return "RoundingFarthest"
     if rounding in ["RANDOM"+det for det in ["","_DET","_COMDET"] ]:
@@ -138,7 +140,7 @@ def getRoundingClass(rounding):
     return None
 
 def getRandClass(rounding):
-    if rounding in ["NEAREST","UPWARD","DOWNWARD","ZERO", "FARTHEST"]:
+    if rounding in ["NEAREST","UPWARD","DOWNWARD","ZERO", "AWAY_ZERO", "FARTHEST"]:
         return None
     if rounding in ["RANDOM","AVERAGE"]:
         return "vr_rand_prng</OPCLASS/ </TYPE/> >"
@@ -213,7 +215,7 @@ def genFlopImpl(handler, roundingmode="dyn"):
 
 
 if __name__=="__main__":
-    roundingTab =["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO"]
+    roundingTab =["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO", "AWAY_ZERO"]
     roundingTab+=[rnd + det for rnd in ["RANDOM", "AVERAGE"] for det in ["","_DET","_COMDET","_SCOMDET" ]]
     roundingTab+=[rnd + det for rnd in ["PRANDOM"] for det in ["","_DET","_COMDET" ]]
     roundingTab+=["SR_MONOTONIC"]

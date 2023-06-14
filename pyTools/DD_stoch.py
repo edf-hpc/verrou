@@ -154,22 +154,26 @@ class verrouTask:
         cmpDone=[]
         runDone=[]
         workToCmpOnly=[]
+        failureIndex=[]
         for runDir in listOfDirString:
 
             returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
+            ddRunIndex=int(runDir.replace("dd.run",""))
             if os.path.exists(returnValuePath):
                 statusCmp=int((open(returnValuePath).readline()))
                 if statusCmp!=0:
                     if earlyExit:
                         return None
-                cmpDone+=[int(runDir.replace("dd.run",""))]
+                    else:
+                        failureIndex+=[ddRunIndex]
+                cmpDone+=[ddRunIndex]
             else:
                 runPath=os.path.join(self.dirname, runDir, "dd.run.out")
                 if os.path.exists(runPath):
-                    runDone+=[int(runDir.replace("dd.run",""))]
+                    runDone+=[ddRunIndex]
 
         workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
-        return (runDone, workToRun, cmpDone)
+        return (runDone, workToRun, cmpDone, failureIndex)
 
     def getEstimatedFailProbability(self):
         """Return an estimated probablity of fail for the configuration"""
@@ -198,10 +202,15 @@ class verrouTask:
         cmpOnlyToDo=workToDo[0]
         runToDo=workToDo[1]
         cmpDone=workToDo[2]
+        failureIndex=workToDo[3]
 
         if len(cmpOnlyToDo)==0 and len(runToDo)==0:
-            print(" --(cache) -> PASS("+str(self.nbRun)+")")
-            return self.PASS
+            if(len(failureIndex)==0):
+                print(" --(cache) -> PASS("+str(self.nbRun)+")")
+                return self.PASS
+            else:
+                print(" --(cache) -> FAIL(%s)"%((str(failureIndex)[1:-1]).replace(" ","")))
+                return self.FAIL
 
         if len(cmpOnlyToDo)!=0:
             print(" --( cmp ) -> ",end="",flush=True)
@@ -852,7 +861,7 @@ class DDStoch(DD.DD):
 
         #apply dichotomy
         candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
-        print("Dichotomy split done")
+        print("Dichotomy split done: " + str([len(candidat) for candidat in candidats if len(candidat)!=1] ))
 
         res=[]
         for candidat in candidats:

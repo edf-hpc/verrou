@@ -50,6 +50,7 @@ extern "C" {
     VR_UPWARD,
     VR_DOWNWARD,
     VR_ZERO,
+    VR_AWAY_ZERO,
     VR_RANDOM, // Must be immediately after standard rounding modes
     VR_RANDOM_DET,
     VR_RANDOM_COMDET,

@@ -374,7 +374,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Option to shift the line number of the line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
+	      Option to shift line numbers of line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
 	      for a new delta debug with the same test case and few code modifications.
 	    </para>
           </listitem>
@@ -571,6 +571,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    <computeroutput>div</computeroutput>,
 	    <computeroutput>madd</computeroutput>,
 	    <computeroutput>msub</computeroutput>,
+	    <computeroutput>sqrt</computeroutput>,
 	    <computeroutput>conv</computeroutput>.
 	    </para>
 	    </listitem>
@@ -586,17 +587,19 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
-	     <computeroutput>toward_zero</computeroutput>
+	     <computeroutput>toward_zero</computeroutput>,
+	     <computeroutput>away_zero</computeroutput>
 	     )
           </term>
           <listitem>
 
 	    <para>
-	      <computeroutput>all_det</computeroutput> corresponds to the list :
+	      <computeroutput>det</computeroutput> corresponds to the list :
 	      [<computeroutput>upward </computeroutput>,
 	      <computeroutput>downward</computeroutput>,
 	      <computeroutput>farthest</computeroutput>,
 	      <computeroutput>toward_zero</computeroutput>,
+	      <computeroutput>away_zero</computeroutput>,
 	      <computeroutput>nearest</computeroutput>]
 	    </para>
 	    <para>
@@ -763,13 +766,14 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
-	     <computeroutput>toward_zero</computeroutput>
+	     <computeroutput>toward_zero</computeroutput>,
+	     <computeroutput>away_zero</computeroutput>
 	    </para>
           </listitem>
 	  <listitem>
             <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
 	    </para>
-	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,farthest</computeroutput>.
+	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,away_zero,farthest</computeroutput>.
 	    </para>
           </listitem>
 	  <listitem>

@@ -1242,6 +1242,13 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #undef bcName
 #undef bcNameWithCC
      }
+     if(vr.roundingMode==VR_AWAY_ZERO){
+#define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+     }
      if(vr.roundingMode==VR_FARTHEST){
 #define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
@@ -1477,18 +1484,19 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       }
 
       if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
-	 const HChar *localFnname;
-	 if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
-	   IRDirty*   di;
-	   di = unsafeIRDirty_0_N(0,
-				  "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
-				  mkIRExprVec_0() );
-	   addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-	   if(vr.verbose){
+	if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
+	  const HChar *localFnname;
+	  if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
+	    IRDirty*   di;
+	    di = unsafeIRDirty_0_N(0,
+				   "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				   mkIRExprVec_0() );
+	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	    if(vr.verbose){
 	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
-	   }
-	 }
-
+	    }
+	  }
+	}
       }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
@@ -1824,7 +1832,7 @@ static void vr_pre_clo_init(void)
    VG_(details_version)         (NULL);
    VG_(details_description)     ("Check floating-point rounding errors");
    VG_(details_copyright_author)(
-      "Copyright (C) 2014-2019, EDF (F. Fevotte & B. Lathuiliere). 2019-2021, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)\n ");
+      "Copyright (C) 2014-2019, EDF (F. Fevotte & B. Lathuiliere). 2019-2023, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)\n ");
    VG_(details_bug_reports_to)  (VG_BUGS_TO);
 
    VG_(details_avg_translation_sizeB) ( 275 );

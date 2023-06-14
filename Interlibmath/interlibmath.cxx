@@ -290,6 +290,8 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "DOWNWARD";
   case VR_ZERO:
     return "TOWARD_ZERO";
+  case VR_AWAY_ZERO:
+    return "AWAY_ZERO";
   case VR_RANDOM:
     return "RANDOM";
   case VR_RANDOM_DET:
@@ -680,6 +682,9 @@ void __attribute__((constructor)) init_interlibmath(){
     }
     if(envString==std::string("toward_zero")){
       ROUNDINGMODE=VR_ZERO;
+    }
+    if(envString==std::string("away_zero")){
+      ROUNDINGMODE=VR_AWAY_ZERO;
     }
     if(envString==std::string("farthest")){
       ROUNDINGMODE=VR_FARTHEST;

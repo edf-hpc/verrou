@@ -93,6 +93,16 @@ static VG_REGPARM(3) Int vr_verrou_ZEROcast64FTo32F (Long a) {
 // generation of operation cast backend verrou
 
 
+static VG_REGPARM(3) Int vr_verrou_AWAY_ZEROcast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_verrou_cast_double_to_float_AWAY_ZERO(*arg1, &res,backend_verrou_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation cast backend verrou
+
+
 static VG_REGPARM(3) Int vr_verrou_RANDOMcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
@@ -410,12 +420,13 @@ static VG_REGPARM(3) void vr_verrou_NEARESTsqrt64Fx2(/*OUT*/V128* output, ULong 
   interflop_verrou_sqrt_double_NEAREST(arg1[1], res+1, backend_verrou_context);
 }
 
-static VG_REGPARM(1) void vr_verrou_NEARESTsqrt64Fx4 (/*OUT*/V256* output,
+static VG_REGPARM(3) void vr_verrou_NEARESTsqrt64Fx4 (/*OUT*/V256* output,
                                            ULong a0, ULong a1, ULong a2,ULong a3) {
+
   double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-    interflop_verrou_sqrt_double_NEAREST(arg1[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_NEAREST(arg1[i], res+i, backend_verrou_context);
   }
 }
 
@@ -437,7 +448,7 @@ static VG_REGPARM(3) void vr_verrou_NEARESTsqrt32Fx8 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(1) void vr_verrou_NEARESTsqrt32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo) {
+static VG_REGPARM(3) void vr_verrou_NEARESTsqrt32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo) {
   V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
 
   float* res=(float*) output;
@@ -677,6 +688,64 @@ static VG_REGPARM(3) void vr_verrou_ZEROsqrt32Fx4 (/*OUT*/V128* output, ULong aH
 
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_ZERO(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation sqrt backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROsqrt64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double res;
+  interflop_verrou_sqrt_double_AWAY_ZERO(*arg1, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_sqrt_double_AWAY_ZERO(arg1[0], res, backend_verrou_context);
+  interflop_verrou_sqrt_double_AWAY_ZERO(arg1[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt64Fx4 (/*OUT*/V256* output,
+                                           ULong a0, ULong a1, ULong a2,ULong a3) {
+
+  double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_sqrt_double_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROsqrt32F (Long a) {
+  float *arg1 = (float*)(&a);
+  float res;
+  interflop_verrou_sqrt_float_AWAY_ZERO(*arg1, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt32Fx8 (/*OUT*/V256* output,
+					   ULong a0, ULong a1, ULong a2,ULong a3) {
+  V256 reg1;   reg1.w64[0]=a0;   reg1.w64[1]=a1;   reg1.w64[2]=a2;   reg1.w64[3]=a3;
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  for(int i=0; i<8; i++){
+     interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
   }
 }
 
@@ -2753,6 +2822,70 @@ static VG_REGPARM(3) void vr_verrou_ZEROadd32Fx4 (/*OUT*/V128* output, ULong aHi
 // generation of operation add backend verrou
 
 
+static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_add_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_add_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_add_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_add_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_add_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation add backend verrou
+
+
 static VG_REGPARM(2) Long vr_verrou_RANDOMadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -3834,6 +3967,70 @@ static VG_REGPARM(3) void vr_verrou_ZEROsub32Fx4 (/*OUT*/V128* output, ULong aHi
 
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation sub backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_sub_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_sub_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_sub_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_sub_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_sub_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
 }
 
@@ -4929,6 +5126,70 @@ static VG_REGPARM(3) void vr_verrou_ZEROmul32Fx4 (/*OUT*/V128* output, ULong aHi
 // generation of operation mul backend verrou
 
 
+static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROmul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_mul_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_mul_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_mul_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROmul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation mul backend verrou
+
+
 static VG_REGPARM(2) Long vr_verrou_RANDOMmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -6010,6 +6271,70 @@ static VG_REGPARM(3) void vr_verrou_ZEROdiv32Fx4 (/*OUT*/V128* output, ULong aHi
 
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation div backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROdiv64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_div_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_div_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_div_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_div_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROdiv32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_div_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
 }
 
@@ -7815,6 +8140,37 @@ static VG_REGPARM(3) Int vr_verrou_ZEROmadd32F (Long a, Long b, Long c) {
 }
 // generation of operation madd backend verrou
 //FMA Operator
+static VG_REGPARM(3) Long vr_verrou_AWAY_ZEROmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verrou_AWAY_ZEROmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend verrou
+//FMA Operator
 static VG_REGPARM(3) Long vr_verrou_RANDOMmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
@@ -8333,6 +8689,37 @@ static VG_REGPARM(3) Int vr_verrou_ZEROmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend verrou
+//FMA Operator
+static VG_REGPARM(3) Long vr_verrou_AWAY_ZEROmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verrou_AWAY_ZEROmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
