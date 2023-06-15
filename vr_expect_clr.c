@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- This file contains code allowing to exclude some symbols     ---*/
@@ -33,14 +32,16 @@
 
 #include "vr_main.h"
 #include "pub_tool_seqmatch.h"
+#include "coregrind/pub_core_libcfile.h"
 
 #define LINE_SIZEMAX 40000
-
+#define FILTER_SIZEMAX 512
 
 //void vr_expect_apply_clrs(void);
 //void vr_expect_apply_clr(HChar* cmd);
 
 HChar vr_defaultKeyStr[]="default: ";
+HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
 HChar vr_expectKeyStr[]= "expect: ";
 HChar vr_applyKeyStr[]=  "apply: ";
 
@@ -52,6 +53,12 @@ HChar* vr_writeLineBuff =NULL;
 HChar* vr_writeLineBuffCurrent =NULL;
 
 SizeT vr_last_expect_lineNo=0;
+
+Bool vr_filter=False;
+HChar vr_filter_cmd[FILTER_SIZEMAX];
+HChar* vr_filtered_buff;
+
+HChar tmpFileNameFilter[256]="/tmp/shouldNotBeUsed";
 
 /*to avoid side effect we duplicate the code of get_char and get_line*/
 
@@ -79,6 +86,30 @@ has specificities for suppression file
 */
 
 static Int my_get_char ( Int fd, HChar* out_buf )
+{
+   Int r;
+   static HChar buf[256];
+   static Int buf_size = 0;
+   static Int buf_used = 0;
+   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
+   my_assert(buf_used >= 0 && buf_used <= buf_size);
+   if (buf_used == buf_size) {
+      r = VG_(read)(fd, buf, sizeof buf);
+      if (r < 0) return r; /* read failed */
+      my_assert(r >= 0 && r <= sizeof buf);
+      buf_size = r;
+      buf_used = 0;
+   }
+   if (buf_size == 0)
+     return 0; /* eof */
+   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
+   my_assert(buf_used >= 0 && buf_used < buf_size);
+   *out_buf = buf[buf_used];
+   buf_used++;
+   return 1;
+}
+
+static Int my2_get_char ( Int fd, HChar* out_buf )
 {
    Int r;
    static HChar buf[256];
@@ -157,6 +188,37 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp, SizeT* lineno )
 }
 
 
+static Bool get_first_line ( Int fd, HChar** bufpp)
+{
+   // VG_(get_line) adapted
+   HChar* buf  = *bufpp;
+   Int i=0;
+   Int n;
+   HChar ch=0;
+   //Loop over the char until end of line
+   while (True) {
+     n = my2_get_char(fd, &ch);
+     if (n <= 0){
+       return False;
+     }
+     if (i == LINE_SIZEMAX-1) {
+       VG_(umsg)("too large line\n");
+       VG_(exit)(1);
+     }
+
+     if (ch == '\n'){
+       buf[i]=0;
+       break;
+     }else{
+       buf[i] = ch;
+       buf[i+1] = 0;
+     }
+     i++;
+   }
+   return True;
+}
+
+
 
 
 static
@@ -194,8 +256,8 @@ void vr_expect_clr_init (const HChar * fileName) {
                                       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
 
   if(vr.expectCLRFileOutput==NULL){
-      VG_(umsg)("ERROR (fopen)\n");
-      VG_(exit)(1);
+      VG_(umsg)("ERROR (fopen) %s\n",strLogFilenameExpanded);
+      VG_(tool_panic)("vr_expect_clr : missing file");
   }
 
 
@@ -218,10 +280,26 @@ void vr_expect_clr_init (const HChar * fileName) {
           VG_(strncpy)(vr_applyDefault,defaultAction, 128);
        }else{
           VG_(umsg)("default action %s is not valid", defaultAction);
-          VG_(exit)(1);
+          VG_(tool_panic)("vr_expect_clr : invalid action");
        }
        continue;
     }
+    /*
+    HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
+    */
+    //Treat filter line exec key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, 18)==0  ){
+       const HChar* filterExecCmd=vr_expectTmpLine+18;
+       VG_(umsg)("filter line exec str : %s\n", filterExecCmd);
+       vr_filter=True;
+       VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
+       VG_(umsg)("vr_filter_cmd : %s\n", vr_filter_cmd);
+       vr_filtered_buff=VG_(malloc)("vr_filtered_buff.1", LINE_SIZEMAX*sizeof(HChar));
+       Int id=VG_(mkstemp) ("vrFilterCmd", tmpFileNameFilter );
+       VG_(close)(id);
+       continue;
+    }
+
     //Treat expect key
     if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, 8)==0  ){
        vr_currentExpectStr=vr_expectTmpLine+8;
@@ -243,29 +321,29 @@ void vr_expect_apply_clr(const HChar* cmd){
       vr_expect_apply_clr(vr_applyDefault);
    }else{
       if( (VG_(strncmp)(cmd, "nop",4)==0) ||  (VG_(strncmp)(cmd, "",1)==0 )){
-         /*do nothing ... but avoid error msg*/
+	/*do nothing ... but avoid error msg*/
       }
       else if( (VG_(strncmp)(cmd, "stop",5)==0)){
-         vr_set_instrument_state ("Expect CLR", False, True);
-         VG_(fprintf)(vr.expectCLRFileOutput,"apply : stop\n");
+	vr_set_instrument_state ("Expect CLR", False, True);
+	VG_(fprintf)(vr.expectCLRFileOutput,"apply : stop\n");
       }
       else if( (VG_(strncmp)(cmd, "start",6)==0)){
-         vr_set_instrument_state ("Expect CLR", True, True);
-         VG_(fprintf)(vr.expectCLRFileOutput,"apply : start\n");
+	vr_set_instrument_state ("Expect CLR", True, True);
+	VG_(fprintf)(vr.expectCLRFileOutput,"apply : start\n");
 
       }
       else if( (VG_(strncmp)(cmd, "display_counter",16)==0)){
-         vr_ppOpCount();
-         VG_(fprintf)(vr.expectCLRFileOutput,"apply : display_counter\n");
+	vr_ppOpCount();
+	VG_(fprintf)(vr.expectCLRFileOutput,"apply : display_counter\n");
       }
       else if( (VG_(strncmp)(cmd, "dump_cover",11)==0)){
-         SizeT ret;
-         ret=vr_traceBB_dumpCov();
-         VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
+	SizeT ret;
+	ret=vr_traceBB_dumpCov();
+	VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
       }
       else{
-         VG_(umsg)("apply clr unknown cmd : %s\n", cmd);
-         VG_(exit)(1);
+	VG_(umsg)("apply clr unknown cmd : %s\n", cmd);
+	VG_(exit)(1);
       }
    }
 }
@@ -281,18 +359,18 @@ void vr_expect_apply_clrs(void){
 
       //except key
       if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, 8)==0  ){
-         if(countApply==0){
-            vr_expect_apply_clr("default");
-         }
-         vr_last_expect_lineNo=lineNo;
-         vr_currentExpectStr=vr_expectTmpLine+8;
-         return;
+	if(countApply==0){
+	  vr_expect_apply_clr("default");
+	}
+	vr_last_expect_lineNo=lineNo;
+	vr_currentExpectStr=vr_expectTmpLine+8;
+	return;
       }
       //Apply key
       if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, 7)==0  ){
-         vr_expect_apply_clr(vr_expectTmpLine+7);
-         countApply++;
-         continue;
+	vr_expect_apply_clr(vr_expectTmpLine+7);
+	countApply++;
+	continue;
       }
 
       // what to do with this line
@@ -322,18 +400,39 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 
    //Search end of file
    for( SizeT i =0; i<totalSize ; i++){
-      if(vr_writeLineBuff[i]=='\n'){
-         vr_writeLineBuff[i]=0;
-         if( VG_(string_match)(vr_currentExpectStr,vr_writeLineBuffCurrent)){      
-            //The line match the expect pattern
-            VG_(umsg)("expect: %s\n", vr_writeLineBuffCurrent);
-            VG_(fprintf)(vr.expectCLRFileOutput,"expect: %s\n", vr_writeLineBuffCurrent);
-            //All actions are applied
-            vr_expect_apply_clrs();
-         }else{
-            /*Nothing to do*/
-         }
-         vr_writeLineBuffCurrent= vr_writeLineBuff+i+1;
+       if(vr_writeLineBuff[i]=='\n'){
+	 vr_writeLineBuff[i]=0;
+
+	 HChar* filteredBuf=vr_writeLineBuffCurrent;
+	 if(vr_filter){
+	   // apply filter
+
+	   HChar cmdPattern[]="/usr/bin/sh -c \"echo %s | %s\" > %s ";
+	   HChar cmdPatternReplaced[FILTER_SIZEMAX];
+	   VG_(snprintf)(cmdPatternReplaced,FILTER_SIZEMAX, cmdPattern, vr_writeLineBuffCurrent, vr_filter_cmd, tmpFileNameFilter);
+	   //	   VG_(umsg)("debug: %s\n" , cmdPatternReplaced);
+	   VG_(system)(cmdPatternReplaced);
+	   Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0);
+	   get_first_line(tmpFile, &vr_filtered_buff);
+
+	   filteredBuf=vr_filtered_buff;
+	 }
+
+	 if( VG_(string_match)(vr_currentExpectStr,filteredBuf)){
+	    //The line match the expect pattern
+	   VG_(umsg)("expect: %s\n", vr_writeLineBuffCurrent);
+	   VG_(fprintf)(vr.expectCLRFileOutput,"expect: %s\n", vr_writeLineBuffCurrent);
+	    if(vr_filter){
+	      VG_(umsg)("expect(filtered): %s\n", filteredBuf);
+	      VG_(fprintf)(vr.expectCLRFileOutput,"expect(filtered): %s\n", filteredBuf);
+	    }
+
+	    //All actions are applied
+	    vr_expect_apply_clrs();
+	 }else{
+	   /*Nothing to do*/
+	 }
+	 vr_writeLineBuffCurrent= vr_writeLineBuff+i+1;
       }
    }
    //Move the end of buffer at the begin
@@ -359,15 +458,20 @@ void vr_expect_clr_finalize (void){
 
       SizeT lineNo=0;
       while (!get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
-         if( VG_(strncmp)(vr_expectTmpLine ,"", LINE_SIZEMAX)==0) continue;
-         VG_(fprintf)(vr.expectCLRFileOutput,"Unused line %lu : %s\n", lineNo,vr_expectTmpLine);
-         VG_(umsg)("\tUnused line %lu : %s\n", lineNo,vr_expectTmpLine);
+	if( VG_(strncmp)(vr_expectTmpLine ,"", LINE_SIZEMAX)==0) continue;
+	VG_(fprintf)(vr.expectCLRFileOutput,"Unused line %lu : %s\n", lineNo,vr_expectTmpLine);
+	VG_(umsg)("\tUnused line %lu : %s\n", lineNo,vr_expectTmpLine);
       }
    }
 
    //free and close evrything
    VG_(free)(vr_expectTmpLine);
    VG_(free)(vr_writeLineBuff);
+   if(vr_filter){
+     VG_(free)(vr_filtered_buff);
+     VG_(unlink)(tmpFileNameFilter);
+   }
    VG_(close)(vr.expectCLRFileInput);
    VG_(fclose)(vr.expectCLRFileOutput);
+
 }
