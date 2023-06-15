@@ -46,6 +46,7 @@ SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
 HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
 SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
 
+
 HChar vr_expectKeyStr[]= "expect: ";
 SizeT vr_expectKeyStrSize=sizeof(vr_expectKeyStr)-1;
 
@@ -78,12 +79,15 @@ HChar stopStr[]="stop";
 HChar startStr[]="start";
 HChar displayCounterStr[]="display_counter";
 HChar dumpCoverStr[]="dumpCoverStr";
+HChar panicStr[]="panic";
+HChar exitStr[]="exit";
 
 
-typedef enum {nopKey=0, emptyKey, defaultKey,stopKey, startKey, displayCounterKey, dumpCoverKey} Vr_applyKey;
-static const SizeT actionNumber=7;
-HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, stopStr, startStr, displayCounterStr,dumpCoverStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr),sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr),sizeof(dumpCoverStr)};
+
+typedef enum {nopKey=0, emptyKey, defaultKey,stopKey, startKey, displayCounterKey, dumpCoverKey, panicKey,exitKey} Vr_applyKey;
+static const SizeT actionNumber=9;
+HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, stopStr, startStr, displayCounterStr,dumpCoverStr, panicStr, exitStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr),sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr),sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
 
 static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
@@ -374,6 +378,16 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd){
       ret=vr_traceBB_dumpCov();
       VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
       return;
+    }
+  case panicKey:
+    {
+      VG_(fprintf)(vr.expectCLRFileOutput,"apply : panic\n");
+      VG_(tool_panic)("apply : panic");
+    }
+  case exitKey:
+    {
+      VG_(fprintf)(vr.expectCLRFileOutput,"apply : exit\n");
+      VG_(exit)(1);
     }
   }
   VG_(umsg)("vr_applyCmd :  unknown cmd : %s\n", cmd);
