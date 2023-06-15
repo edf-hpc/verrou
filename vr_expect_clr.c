@@ -41,11 +41,21 @@
 //void vr_expect_apply_clr(HChar* cmd);
 
 HChar vr_defaultKeyStr[]="default: ";
-HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
-HChar vr_expectKeyStr[]= "expect: ";
-HChar vr_applyKeyStr[]=  "apply: ";
+SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
 
-HChar vr_applyDefault[128]=  "nop";
+HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
+SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
+
+HChar vr_expectKeyStr[]= "expect: ";
+SizeT vr_expectKeyStrSize=sizeof(vr_expectKeyStr)-1;
+
+HChar vr_applyKeyStr[]=  "apply: ";
+SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
+
+#define DEFAULT_MAX 10
+#define DEFAULT_SIZE_MAX 50
+HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+SizeT vr_nbDefault=0;
 
 HChar* vr_currentExpectStr=NULL;
 HChar* vr_expectTmpLine =NULL;
@@ -57,8 +67,46 @@ SizeT vr_last_expect_lineNo=0;
 Bool vr_filter=False;
 HChar vr_filter_cmd[FILTER_SIZEMAX];
 HChar* vr_filtered_buff;
-
 HChar tmpFileNameFilter[256]="/tmp/shouldNotBeUsed";
+
+
+
+HChar nopStr[]="nop";
+HChar emptyStr[]="";
+HChar defaultStr[]="default";
+HChar stopStr[]="stop";
+HChar startStr[]="start";
+HChar displayCounterStr[]="display_counter";
+HChar dumpCoverStr[]="dumpCoverStr";
+
+
+typedef enum {nopKey=0, emptyKey, defaultKey,stopKey, startKey, displayCounterKey, dumpCoverKey} Vr_applyKey;
+static const SizeT actionNumber=7;
+HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, stopStr, startStr, displayCounterStr,dumpCoverStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr),sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr),sizeof(dumpCoverStr)};
+
+
+static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
+
+  for(SizeT i=0 ; i< actionNumber; i++){
+    if(VG_(strncmp)(cmd, actionStrTab[i],actionSizeTab[i])==0){
+      return i;
+    }
+  }
+  VG_(umsg)("vr_CmdToEnum unknown cmd : %s\n", cmd);
+  VG_(tool_panic)("invalid expect script");
+}
+
+static
+Bool vr_valid_apply_cmd(const HChar* cmd){
+   /*Function to known if a cmd is valid : useful to get fast error with cmd error for default*/
+   Bool res=False;
+   for(SizeT i=0 ; i< actionNumber; i++){
+     res= res || (VG_(strncmp)(cmd, actionStrTab[i],actionSizeTab[i])==0);
+   }
+   return res;
+}
+
 
 /*to avoid side effect we duplicate the code of get_char and get_line*/
 
@@ -221,19 +269,6 @@ static Bool get_first_line ( Int fd, HChar** bufpp)
 
 
 
-static
-Bool vr_valid_apply_cmd(const HChar* cmd){
-   /*Function to known if a cmd is valid : useful to get fast error with cmd error for default*/
-   Bool res=False;
-   res= res || (VG_(strncmp)(cmd, "nop",4)==0);
-   res= res || (VG_(strncmp)(cmd, "",1)==0);
-   res= res || (VG_(strncmp)(cmd, "start",6)==0);
-   res= res || (VG_(strncmp)(cmd, "stop",5)==0);
-   res= res || (VG_(strncmp)(cmd, "display_counter",16)==0);
-   res= res || (VG_(strncmp)(cmd, "dump_cover",11)==0);
-   return res;
-}
-
 
 
 void vr_expect_clr_init (const HChar * fileName) {
@@ -272,24 +307,23 @@ void vr_expect_clr_init (const HChar * fileName) {
   while (! get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) { 
 
      //Treat default key
-    if( VG_(strncmp)(vr_expectTmpLine, vr_defaultKeyStr, 9)==0  ){
-       const HChar* defaultAction=vr_expectTmpLine+9;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_defaultKeyStr, vr_defaultKeyStrSize)==0  ){
+       const HChar* defaultAction=vr_expectTmpLine+vr_defaultKeyStrSize;
        VG_(umsg)("default action str : %s\n", defaultAction);
        if (vr_valid_apply_cmd(defaultAction)){
-          VG_(fprintf)(vr.expectCLRFileOutput, "default action str : %s\n", defaultAction);
-          VG_(strncpy)(vr_applyDefault,defaultAction, 128);
+	 VG_(fprintf)(vr.expectCLRFileOutput, "default action [%lu] : %s\n",vr_nbDefault ,defaultAction);
+	 VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
+	 vr_nbDefault++;
        }else{
           VG_(umsg)("default action %s is not valid", defaultAction);
           VG_(tool_panic)("vr_expect_clr : invalid action");
        }
        continue;
     }
-    /*
-    HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
-    */
+
     //Treat filter line exec key
-    if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, 18)==0  ){
-       const HChar* filterExecCmd=vr_expectTmpLine+18;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, vr_filterLineExecKeyStrSize)==0  ){
+       const HChar* filterExecCmd=vr_expectTmpLine+vr_filterLineExecKeyStrSize;
        VG_(umsg)("filter line exec str : %s\n", filterExecCmd);
        vr_filter=True;
        VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
@@ -301,8 +335,8 @@ void vr_expect_clr_init (const HChar * fileName) {
     }
 
     //Treat expect key
-    if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, 8)==0  ){
-       vr_currentExpectStr=vr_expectTmpLine+8;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0  ){
+       vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
        vr_last_expect_lineNo=lineNo;
        break;
     }
@@ -311,41 +345,54 @@ void vr_expect_clr_init (const HChar * fileName) {
 }
 
 
+
+static void vr_applyCmd(Vr_applyKey key, const HChar* cmd){
+
+  switch(key){
+  case nopKey:
+    return;
+  case emptyKey:
+    return;
+  case defaultKey:
+    VG_(tool_panic)("default treated before");
+    return;
+  case stopKey:
+    vr_set_instrument_state ("Expect CLR", False, True);
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply : stop\n");
+    return;
+  case startKey:
+    vr_set_instrument_state ("Expect CLR", True, True);
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply : start\n");
+    return;
+  case displayCounterKey:
+    vr_ppOpCount();
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply : display_counter\n");
+    return;
+  case dumpCoverKey:
+    {
+      SizeT ret;
+      ret=vr_traceBB_dumpCov();
+      VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
+      return;
+    }
+  }
+  VG_(umsg)("vr_applyCmd :  unknown cmd : %s\n", cmd);
+  VG_(exit)(1);
+}
+
+
 static
 void vr_expect_apply_clr(const HChar* cmd){
-   /*Apply the command cmd*/
-   // recurssive call for default key
-   if( (VG_(strncmp)(cmd, "default",7)==0)){
-      VG_(umsg)("apply clr : default\n");
-      VG_(fprintf)(vr.expectCLRFileOutput,"apply : default\n");
-      vr_expect_apply_clr(vr_applyDefault);
-   }else{
-      if( (VG_(strncmp)(cmd, "nop",4)==0) ||  (VG_(strncmp)(cmd, "",1)==0 )){
-	/*do nothing ... but avoid error msg*/
-      }
-      else if( (VG_(strncmp)(cmd, "stop",5)==0)){
-	vr_set_instrument_state ("Expect CLR", False, True);
-	VG_(fprintf)(vr.expectCLRFileOutput,"apply : stop\n");
-      }
-      else if( (VG_(strncmp)(cmd, "start",6)==0)){
-	vr_set_instrument_state ("Expect CLR", True, True);
-	VG_(fprintf)(vr.expectCLRFileOutput,"apply : start\n");
+  Vr_applyKey key=vr_CmdToEnum(cmd);
 
-      }
-      else if( (VG_(strncmp)(cmd, "display_counter",16)==0)){
-	vr_ppOpCount();
-	VG_(fprintf)(vr.expectCLRFileOutput,"apply : display_counter\n");
-      }
-      else if( (VG_(strncmp)(cmd, "dump_cover",11)==0)){
-	SizeT ret;
-	ret=vr_traceBB_dumpCov();
-	VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
-      }
-      else{
-	VG_(umsg)("apply clr unknown cmd : %s\n", cmd);
-	VG_(exit)(1);
-      }
-   }
+  if(key==defaultKey){
+    for(SizeT i=0; i< vr_nbDefault;i++){
+      Vr_applyKey keyDefault=vr_CmdToEnum(vr_applyDefault[i]);
+      vr_applyCmd(keyDefault,vr_applyDefault[i]);
+    }
+  }else{
+    vr_applyCmd(key,cmd);
+  }
 }
 
 
@@ -358,17 +405,17 @@ void vr_expect_apply_clrs(void){
    while (!get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
 
       //except key
-      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, 8)==0  ){
+      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0  ){
 	if(countApply==0){
 	  vr_expect_apply_clr("default");
 	}
 	vr_last_expect_lineNo=lineNo;
-	vr_currentExpectStr=vr_expectTmpLine+8;
+	vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
 	return;
       }
       //Apply key
-      if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, 7)==0  ){
-	vr_expect_apply_clr(vr_expectTmpLine+7);
+      if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
+	vr_expect_apply_clr(vr_expectTmpLine+vr_applyKeyStrSize);
 	countApply++;
 	continue;
       }
