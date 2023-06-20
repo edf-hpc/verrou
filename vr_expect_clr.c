@@ -50,13 +50,31 @@ SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
 HChar vr_expectKeyStr[]= "expect: ";
 SizeT vr_expectKeyStrSize=sizeof(vr_expectKeyStr)-1;
 
+HChar vr_matchKeyStr[]= "match: ";
+SizeT vr_matchKeyStrSize=sizeof(vr_matchKeyStr)-1;
+
+HChar vr_beginKeyStr[]= "begin:"; //no space : no param
+SizeT vr_beginKeyStrSize=sizeof(vr_beginKeyStr)-1;
+
+
 HChar vr_applyKeyStr[]=  "apply: ";
 SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
 
 #define DEFAULT_MAX 10
-#define DEFAULT_SIZE_MAX 50
+#define DEFAULT_SIZE_MAX 30
 HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
 SizeT vr_nbDefault=0;
+
+#define MATCH_MAX 10
+#define APPLY_PER_MATCH_MAX 5
+#define MATCH_SIZE_MAX 30
+HChar vr_applyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+SizeT vr_nbApplyMatch[MATCH_MAX];
+HChar* vr_matchPattern[MATCH_MAX];
+SizeT vr_nbMatch=0;
+
+
+
 
 HChar* vr_currentExpectStr=NULL;
 HChar* vr_expectTmpLine =NULL;
@@ -301,13 +319,14 @@ void vr_expect_clr_init (const HChar * fileName) {
 
 
   /*Allocate requiered Buffer*/
-  vr_expectTmpLine = VG_(malloc)("vr_expect_cl_init.1", LINE_SIZEMAX*sizeof(HChar)); 
-  vr_writeLineBuff= VG_(malloc)("vr_expect_cl_init.2",  LINE_SIZEMAX*sizeof(HChar)); 
+  vr_expectTmpLine = VG_(malloc)("vr_expect_cl_init.1", LINE_SIZEMAX*sizeof(HChar));
+  vr_writeLineBuff = VG_(malloc)("vr_expect_cl_init.2", LINE_SIZEMAX*sizeof(HChar));
   vr_writeLineBuff[0]=0;
   vr_writeLineBuffCurrent= vr_writeLineBuff;
 
   /*Loop over input line until first expect key*/
   SizeT lineNo = 0;
+
   while (! get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) { 
 
      //Treat default key
@@ -324,11 +343,45 @@ void vr_expect_clr_init (const HChar * fileName) {
        }
        continue;
     }
+    //Treat match key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_matchKeyStr, vr_matchKeyStrSize)==0 ){
+      if(vr_nbMatch> MATCH_MAX){
+	VG_(tool_panic)("vr_expect_clr : to many match");
+      }
+      const HChar* matchPattern=vr_expectTmpLine+vr_matchKeyStrSize;
+      VG_(fprintf)(vr.expectCLRFileOutput, "match pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
+      vr_matchPattern[vr_nbMatch]=VG_(strdup)("math.patterndup", matchPattern);
+      vr_nbApplyMatch[vr_nbMatch]=0;
+      vr_nbMatch++;
+      continue;
+    }
+
+    if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
+      const HChar* applyCmd=vr_expectTmpLine+vr_applyKeyStrSize;
+      if(vr_nbApplyMatch<0){
+	VG_(tool_panic)("vr_expect_clr : match expected befor apply ");
+      }
+      vr_nbApplyMatch[vr_nbMatch-1]++;
+      if(vr_nbApplyMatch[vr_nbMatch-1]>=APPLY_PER_MATCH_MAX ){
+	VG_(tool_panic)("vr_expect_clr : too many apply per match ");
+      }
+      VG_(strncpy)(vr_applyMatch[vr_nbMatch-1][vr_nbApplyMatch[vr_nbMatch-1]],applyCmd, MATCH_SIZE_MAX);
+      continue;
+    }
+
+
+     //Treat begin key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_beginKeyStr, vr_beginKeyStrSize)==0  ){
+      break;
+    }
 
     //Treat filter line exec key
-    if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, vr_filterLineExecKeyStrSize)==0  ){
+    if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, vr_filterLineExecKeyStrSize)==0 ){
        const HChar* filterExecCmd=vr_expectTmpLine+vr_filterLineExecKeyStrSize;
        VG_(umsg)("filter line exec str : %s\n", filterExecCmd);
+       if(vr_filter==True){
+	 VG_(tool_panic)("vr_expect_clr : only one filter_line_exec cmd is accepted");
+       }
        vr_filter=True;
        VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
        VG_(umsg)("vr_filter_cmd : %s\n", vr_filter_cmd);
@@ -337,14 +390,24 @@ void vr_expect_clr_init (const HChar * fileName) {
        VG_(close)(id);
        continue;
     }
+    /*If there is no begin:*/
+    if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0  ){
+      vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
+      vr_last_expect_lineNo=lineNo;
+      return;
+    }
+    VG_(umsg)("unused line : %s\n", vr_expectTmpLine);
+  }
 
+  while (! get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
     //Treat expect key
     if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0  ){
-       vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
-       vr_last_expect_lineNo=lineNo;
-       break;
+      vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
+      vr_last_expect_lineNo=lineNo;
+      break;
     }
   }
+
 //  VG_(umsg)("expectCLR init done\n");
 }
 
@@ -479,7 +542,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   filteredBuf=vr_filtered_buff;
 	 }
 
-	 if( VG_(string_match)(vr_currentExpectStr,filteredBuf)){
+	 if( vr_currentExpectStr!=NULL && VG_(string_match)(vr_currentExpectStr,filteredBuf)){
 	    //The line match the expect pattern
 	   VG_(umsg)("expect: %s\n", vr_writeLineBuffCurrent);
 	   VG_(fprintf)(vr.expectCLRFileOutput,"expect: %s\n", vr_writeLineBuffCurrent);
@@ -491,10 +554,21 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	    //All actions are applied
 	    vr_expect_apply_clrs();
 	 }else{
-	   /*Nothing to do*/
+	   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
+	     if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
+	       //The line match the expect pattern
+	       VG_(umsg)("match: %s\n", vr_matchPattern[matchIndex]);
+	       VG_(fprintf)(vr.expectCLRFileOutput,"match: %s\n", vr_writeLineBuffCurrent);
+	       if(vr_filter){
+		 VG_(umsg)("match(filtered): %s\n", filteredBuf);
+		 VG_(fprintf)(vr.expectCLRFileOutput,"match(filtered): %s\n", filteredBuf);
+	       }
+	       //Loop apply to DO
+	     }
+	   }
 	 }
 	 vr_writeLineBuffCurrent= vr_writeLineBuff+i+1;
-      }
+       }
    }
    //Move the end of buffer at the begin
    SizeT i;
@@ -532,6 +606,11 @@ void vr_expect_clr_finalize (void){
      VG_(free)(vr_filtered_buff);
      VG_(unlink)(tmpFileNameFilter);
    }
+
+   for(SizeT i=0; i< vr_nbMatch; i++){
+     VG_(free)(vr_matchPattern[i]);
+   }
+
    VG_(close)(vr.expectCLRFileInput);
    VG_(fclose)(vr.expectCLRFileOutput);
 
