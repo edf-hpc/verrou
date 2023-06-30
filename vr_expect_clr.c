@@ -60,6 +60,11 @@ SizeT vr_beginKeyStrSize=sizeof(vr_beginKeyStr)-1;
 HChar vr_applyKeyStr[]=  "apply: ";
 SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
 
+HChar vr_postApplyKeyStr[]=  "post-apply: ";
+SizeT vr_postApplyKeyStrSize=sizeof(vr_postApplyKeyStr)-1;
+
+
+
 #define DEFAULT_MAX 10
 #define DEFAULT_SIZE_MAX 30
 HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
@@ -67,14 +72,17 @@ SizeT vr_nbDefault=0;
 
 #define MATCH_MAX 10
 #define APPLY_PER_MATCH_MAX 5
+#define POST_APPLY_PER_MATCH_MAX 2
 #define MATCH_SIZE_MAX 30
 HChar vr_applyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
 SizeT vr_nbApplyMatch[MATCH_MAX];
+HChar vr_postApplyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+SizeT vr_nbPostApplyMatch[MATCH_MAX];
 HChar* vr_matchPattern[MATCH_MAX];
 SizeT vr_nbMatch=0;
 
 
-
+Int previousMatchIndex=-1;
 
 HChar* vr_currentExpectStr=NULL;
 HChar* vr_expectTmpLine =NULL;
@@ -107,6 +115,7 @@ static const SizeT actionNumber=9;
 HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, stopStr, startStr, displayCounterStr,dumpCoverStr, panicStr, exitStr};
 SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr),sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr),sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
+Bool actionRequireCacheCleanTab[]={False, False, False, True, True, False, False, False, False };
 
 static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
 
@@ -359,13 +368,26 @@ void vr_expect_clr_init (const HChar * fileName) {
     if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
       const HChar* applyCmd=vr_expectTmpLine+vr_applyKeyStrSize;
       if(vr_nbApplyMatch<0){
-	VG_(tool_panic)("vr_expect_clr : match expected befor apply ");
+	VG_(tool_panic)("vr_expect_clr : match expected before apply ");
       }
       vr_nbApplyMatch[vr_nbMatch-1]++;
       if(vr_nbApplyMatch[vr_nbMatch-1]>=APPLY_PER_MATCH_MAX ){
 	VG_(tool_panic)("vr_expect_clr : too many apply per match ");
       }
-      VG_(strncpy)(vr_applyMatch[vr_nbMatch-1][vr_nbApplyMatch[vr_nbMatch-1]],applyCmd, MATCH_SIZE_MAX);
+      VG_(strncpy)(vr_applyMatch[vr_nbMatch-1][vr_nbApplyMatch[vr_nbMatch-1]-1],applyCmd, MATCH_SIZE_MAX);
+      continue;
+    }
+
+    if( VG_(strncmp)(vr_expectTmpLine, vr_postApplyKeyStr, vr_postApplyKeyStrSize)==0  ){
+      const HChar* applyCmd=vr_expectTmpLine+vr_postApplyKeyStrSize;
+      if(vr_nbApplyMatch<0){
+	VG_(tool_panic)("vr_expect_clr : match expected before post-apply ");
+      }
+      vr_nbPostApplyMatch[vr_nbMatch-1]++;
+      if(vr_nbPostApplyMatch[vr_nbMatch-1]>=POST_APPLY_PER_MATCH_MAX ){
+	VG_(tool_panic)("vr_expect_clr : too many post-apply per match ");
+      }
+      VG_(strncpy)(vr_postApplyMatch[vr_nbMatch-1][vr_nbPostApplyMatch[vr_nbMatch-1]-1],applyCmd, MATCH_SIZE_MAX);
       continue;
     }
 
@@ -425,31 +447,31 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd){
     return;
   case stopKey:
     vr_set_instrument_state ("Expect CLR", False, True);
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply : stop\n");
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: stop\n");
     return;
   case startKey:
     vr_set_instrument_state ("Expect CLR", True, True);
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply : start\n");
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: start\n");
     return;
   case displayCounterKey:
     vr_ppOpCount();
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply : display_counter\n");
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: display_counter\n");
     return;
   case dumpCoverKey:
     {
       SizeT ret;
       ret=vr_traceBB_dumpCov();
-      VG_(fprintf)(vr.expectCLRFileOutput,"apply : dump_cover : %lu\n", ret);
+      VG_(fprintf)(vr.expectCLRFileOutput,"apply: dump_cover : %lu\n", ret);
       return;
     }
   case panicKey:
     {
-      VG_(fprintf)(vr.expectCLRFileOutput,"apply : panic\n");
-      VG_(tool_panic)("apply : panic");
+      VG_(fprintf)(vr.expectCLRFileOutput, "apply: panic\n");
+      VG_(tool_panic)("apply: panic");
     }
   case exitKey:
     {
-      VG_(fprintf)(vr.expectCLRFileOutput,"apply : exit\n");
+      VG_(fprintf)(vr.expectCLRFileOutput, "apply: exit\n");
       VG_(exit)(1);
     }
   }
@@ -459,16 +481,20 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd){
 
 
 static
-void vr_expect_apply_clr(const HChar* cmd){
+void vr_expect_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
+  VG_(umsg)("vr_expect_apply_clr: %s\n",cmd);
   Vr_applyKey key=vr_CmdToEnum(cmd);
-
   if(key==defaultKey){
     for(SizeT i=0; i< vr_nbDefault;i++){
       Vr_applyKey keyDefault=vr_CmdToEnum(vr_applyDefault[i]);
-      vr_applyCmd(keyDefault,vr_applyDefault[i]);
+      if( !actionRequireCacheCleanTab[i] || !(noIntrusiveOnly)){
+	vr_applyCmd(keyDefault,vr_applyDefault[i]);
+      }
     }
   }else{
-    vr_applyCmd(key,cmd);
+    if( !actionRequireCacheCleanTab[key] || !(noIntrusiveOnly)){
+      vr_applyCmd(key,cmd);
+    }
   }
 }
 
@@ -482,17 +508,17 @@ void vr_expect_apply_clrs(void){
    while (!get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
 
       //except key
-      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0  ){
-	if(countApply==0){
-	  vr_expect_apply_clr("default");
-	}
+      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0 ){
 	vr_last_expect_lineNo=lineNo;
 	vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
+	if(countApply==0){
+	  vr_expect_apply_clr("default", False);
+	}
 	return;
       }
       //Apply key
       if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
-	vr_expect_apply_clr(vr_expectTmpLine+vr_applyKeyStrSize);
+	vr_expect_apply_clr(vr_expectTmpLine+vr_applyKeyStrSize, False);
 	countApply++;
 	continue;
       }
@@ -502,7 +528,7 @@ void vr_expect_apply_clrs(void){
       VG_(umsg)("expect_clr : Line %lu ignored : %s\n", lineNo, vr_expectTmpLine);
    }
    if(countApply==0){
-      vr_expect_apply_clr("default");
+     vr_expect_apply_clr("default", False);
    }
    vr_expectTmpLine[0]=0;
 }
@@ -528,6 +554,13 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 vr_writeLineBuff[i]=0;
 
 	 HChar* filteredBuf=vr_writeLineBuffCurrent;
+         if(previousMatchIndex!=-1){
+            for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
+	      vr_expect_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], False);
+            }           
+            previousMatchIndex=-1;
+         }
+         
 	 if(vr_filter){
 	   // apply filter
 
@@ -554,6 +587,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	    //All actions are applied
 	    vr_expect_apply_clrs();
 	 }else{
+	   previousMatchIndex=-1;
 	   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
 	     if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
 	       //The line match the expect pattern
@@ -564,6 +598,17 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 		 VG_(fprintf)(vr.expectCLRFileOutput,"match(filtered): %s\n", filteredBuf);
 	       }
 	       //Loop apply to DO
+               if(vr_nbApplyMatch[matchIndex]==0){
+		 vr_expect_apply_clr("default", False);
+               }
+               for(SizeT applyIndex=0 ; applyIndex< vr_nbApplyMatch[matchIndex]; applyIndex++){
+		 vr_expect_apply_clr(vr_applyMatch[matchIndex][applyIndex], False);
+               }
+	       if(previousMatchIndex==-1 && vr_nbPostApplyMatch[matchIndex]!=0){
+		 //post_apply only on the first match : the test can be simple if match only once is activated (cf. continue behind)		 
+		 previousMatchIndex=matchIndex;
+	       }
+	       continue; //match only once
 	     }
 	   }
 	 }
@@ -582,6 +627,14 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 
 
 void vr_expect_clr_finalize (void){
+
+  // If post_apply need to be applied
+  if(previousMatchIndex!=-1){
+    for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
+      vr_expect_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], True);
+    }
+    previousMatchIndex=-1;
+  }
 
    // If there are still line in the input file : it probably mean that an expect line was not found
    // Messages are required to debug (or not)
