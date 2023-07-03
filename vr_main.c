@@ -1650,6 +1650,8 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
    vr_env_clo("VERROU_SEED","--vr-seed");
 
+   vr_env_clo("VERROU_EXPECT_CLR","--expect-clr");
+
    //   if (vr.genAbove == NULL) {
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
