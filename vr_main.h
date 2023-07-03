@@ -215,6 +215,7 @@ extern Vr_State vr;
 UInt vr_count_fp_instrumented (void);
 UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
+void vr_resetCount(void);
 void vr_cancellation_handler(int cancelled );
 void vr_denorm_handler(void);
 void vr_float_max_handler(void);

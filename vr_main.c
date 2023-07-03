@@ -154,6 +154,21 @@ static const HChar* vr_ppVec (Vr_Vec vec) {
 
 
 static ULong vr_opCount[VR_OP][VR_PREC][VR_VEC][VR_INSTR];
+
+void vr_resetCount(void){
+   Vr_Op op;
+   Vr_Prec prec;
+   Vr_Vec vec;
+   for (op = 0 ; op<VR_OP ; ++op) {
+      for (prec = 0 ; prec < VR_PREC ; ++prec) {
+         for (vec = 0 ; vec < VR_VEC ; ++vec) {
+           vr_opCount[op][prec][vec][VR_INSTR_ON]=0;
+           vr_opCount[op][prec][vec][VR_INSTR_OFF]=0;
+         }
+      }
+   }
+};
+
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, SizeT increment) {
   counter[vr.instrument] += increment;
 }
@@ -163,9 +178,6 @@ static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT incre
 }
 
 
-static VG_REGPARM(0) void vr_updatep_prandom (void) {
-  verrou_updatep_prandom();
-}
 
 
 static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr) {
@@ -325,6 +337,11 @@ void vr_ppOpCount (void) {
     }
   }
 }
+
+static VG_REGPARM(0) void vr_updatep_prandom (void) {
+  verrou_updatep_prandom();
+}
+
 
 #include "vr_traceBB_impl.h"
 
@@ -1636,6 +1653,8 @@ static void vr_post_clo_init(void)
    //   if (vr.genAbove == NULL) {
    //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
    //   }
+
+   vr_resetCount();
 
    if(vr.sourceExcludeActivated){
      if(!vr_includeSourceMutuallyExclusive(vr.includeSource, vr.excludeSourceRead)){
