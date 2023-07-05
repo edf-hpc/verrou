@@ -25,4 +25,4 @@ def muller(nt,verbose=False):
 
 
 if __name__=="__main__":
-    muller(12)
+    muller(12, True)

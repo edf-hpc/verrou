@@ -316,7 +316,8 @@ def failure():
 
 class DDStoch(DD.DD):
     def __init__(self, config, prefix,
-                 selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x ):
+                 selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x,
+                 parseRef=None):
         DD.DD.__init__(self)
         self.config_=config
         if not  self.config_.get_quiet():
@@ -333,7 +334,7 @@ class DDStoch(DD.DD):
         self.prepareCache()
         prepareOutput(self.ref_)
         self.reference() #generate the reference computation
-        self.mergeList() #generate the search space
+        self.mergeList(parseRef) #generate the search space
         self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space
 
 
@@ -506,7 +507,7 @@ class DDStoch(DD.DD):
                 print("PASS")
 
 
-    def mergeList(self):
+    def mergeList(self, parseRef):
         """merge the file name.$PID into a uniq file called name """
         dirname=self.ref_
         name=self.getDeltaFileName()
@@ -520,11 +521,17 @@ class DDStoch(DD.DD):
 #        for excludeFile in listOfExcludeFile[1:]:
         excludeMerged=[]
         for excludeFile in listOfExcludeFile:
-            with open(os.path.join(dirname,excludeFile), "r") as f:
-                for line in f.readlines():
-                    rsline=line.rstrip()
-                    if rsline not in excludeMerged:
-                        excludeMerged+=[rsline]
+            lines=None
+            if parseRef==None:
+                with open(os.path.join(dirname,excludeFile), "r") as f:
+                    lines=[x.rstrip() for x in f.readlines()]
+            else:
+                lines=parseRef(os.path.join(dirname,excludeFile))
+
+            for line in lines:
+                if line not in excludeMerged:
+                    excludeMerged+=[line]
+
         with open(os.path.join(dirname, name), "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
@@ -946,7 +953,7 @@ class DDStoch(DD.DD):
         failure()
 
     def noPerturbationFailsFailure(self):
-        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) andthe code without instrumentation failed")
+        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) and the code without instrumentation failed")
 
         print("Suggestions:")
         print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)

@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+import sys
+import os
+import subprocess
+from valgrind import dd_config
+from valgrind import DD_stoch
+from valgrind import DD_exec_stat
+
+
+
+import re
+
+#adapatation from  https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
+regExp="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
+regCompiled=re.compile(regExp)
+
+def floatReplace(lineStr):
+    return regCompiled.sub("*",lineStr)
+
+
+
+def selectFloatTask(logFile):
+    currentTask=None
+    taskRes=[]
+
+    taskPattern="match [0]: "
+    fpInstrPattern="fp_instr: "
+    taskName=None
+    for line in open(logFile).readlines():
+        if line.startswith(taskPattern):
+            taskName=line[len(taskPattern):]
+            if taskName.endswith("\n"):
+                taskName=taskName[0:-1]
+        if line.startswith(fpInstrPattern):
+            if taskName==None:
+                if len(taskRes)==0:
+                    taskName="__verrou__stdout__init__"
+                else:
+                    print("Failure selectFloatTask")
+                    sys.exit(42)
+            nbInstr=int(line[len(fpInstrPattern):])
+            if nbInstr!=0:
+                taskName=floatReplace(taskName)
+                if not (taskName in taskRes):
+                    taskRes+=[taskName]
+
+    return taskRes
+
+
+class DDstdout(DD_stoch.DDStoch):
+    def __init__(self, config, prefix="dd.stdout"):
+        DD_stoch.DDStoch.__init__(self, config, prefix,parseRef=selectFloatTask)
+
+
+    def referenceRunEnv(self):
+        refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
+        refFile=open(refPath,"w")
+        refFile.write("verbose: 1\n")
+        refFile.write("post-init: nb_instr\n")
+        refFile.write("match: *\n")
+        refFile.write("apply: reset_counter\n")
+        refFile.write("post-apply: nb_instr\n")
+        refFile.write("begin:\n")
+        refFile.close()
+        return {"PYTHONUNBUFFERED": "x",
+                "VERROU_ROUNDING_MODE": "nearest",
+                "VERROU_MCA_MODE": "ieee",
+                "VERROU_EXPECT_CLR":refPath}
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("vr_expect_ref.txt.log-")
+
+    def getDeltaFileName(self):
+        return "dd.expect"
+
+
+    def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
+        """Generate the *.exclude and *.include file in dirname rep from deltas"""
+        excludes=self.getDelta0()
+        dd=self.getDeltaFileName()
+
+        with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
+            f.write("verbose: 1\n")
+            if "__verrou__stdout__init__" in excludes:
+                if "__verrou__stdout__init__" in deltas:
+                    f.write("init: start\n")
+                else:
+                    f.write("init: stop\n" )
+
+            for line in excludes:
+                if line=="__verrou__stdout__init__":
+                    continue
+                f.write("match: "+ line+"\n")
+                if line in deltas:
+                    f.write("apply: start\n")
+                else:
+                    f.write("apply: stop\n")
+            f.write("begin:")
+
+        if include:
+            with open(os.path.join(dirname,dd+".include"), "w") as f:
+                for d in deltas:
+                    f.write(d+"\n")
+
+        if exclude:
+            with open(os.path.join(dirname,dd+".exclude"), "w") as f:
+                for d in deltas:
+                    excludes.remove(d)
+
+                for line in excludes:
+                    f.write(line+"\n")
+
+    def sampleRunEnv(self,dirName):
+        return {"PYTHONUNBUFFERED": "x",
+                "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt")}
+
+    def coerce(self, delta_config):
+        return "\n "+" \n ".join(["%s"%e for e in [l.strip() for l in delta_config ]])
+#        return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
+#                                      [(col[0], int(col[1]), self.demangle(col[2])) for col in
+#                                       [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
+
+
+
+if __name__ == "__main__":
+    et=DD_exec_stat.exec_stat("dd.stdout")
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    dd = DDstdout(config)
+    dd.run()
+    et.terminate()

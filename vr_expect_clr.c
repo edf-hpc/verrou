@@ -1,15 +1,14 @@
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
-/*--- This file contains code allowing to exclude some symbols     ---*/
-/*--- from the instrumentation.                                    ---*/
-/*---                                                 vr_exclude.c ---*/
+/*--- This file contains code allowing to apply client request     ---*/
+/*--- from an expect script.                                       ---*/
+/*---                                              vr_expect_clr.c ---*/
 /*--------------------------------------------------------------------*/
 
 /*
    This file is part of Verrou, a FPU instrumentation tool.
 
-   Copyright (C) 2014-2016
-     F. Févotte     <francois.fevotte@edf.fr>
+   Copyright (C) 2014-2023
      B. Lathuilière <bruno.lathuiliere@edf.fr>
 
    This program is free software; you can redistribute it and/or
@@ -43,6 +42,13 @@
 HChar vr_defaultKeyStr[]="default: ";
 SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
 
+HChar vr_initKeyStr[]="init: ";
+SizeT vr_initKeyStrSize=sizeof(vr_initKeyStr)-1;
+
+HChar vr_postinitKeyStr[]="post-init: ";
+SizeT vr_postinitKeyStrSize=sizeof(vr_postinitKeyStr)-1;
+
+
 HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
 SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
 
@@ -68,12 +74,20 @@ HChar vr_verboseKeyStr[]=  "verbose: ";
 SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
 
 
+
 #define DEFAULT_MAX 10
 #define DEFAULT_SIZE_MAX 30
 HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
 SizeT vr_nbDefault=0;
 
-#define MATCH_MAX 10
+HChar vr_applyInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+SizeT vr_nbInit=0;
+
+HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+SizeT vr_nbpostInit=0;
+
+
+#define MATCH_MAX 1000
 #define APPLY_PER_MATCH_MAX 5
 #define POST_APPLY_PER_MATCH_MAX 2
 #define MATCH_SIZE_MAX 30
@@ -104,6 +118,8 @@ HChar tmpFileNameFilter[256]="/tmp/shouldNotBeUsed";
 HChar nopStr[]="nop";
 HChar emptyStr[]="";
 HChar defaultStr[]="default";
+HChar initStr[]="init";
+HChar postinitStr[]="post-init";
 HChar stopStr[]="stop";
 HChar startStr[]="start";
 HChar displayCounterStr[]="display_counter";
@@ -115,12 +131,12 @@ HChar exitStr[]="exit";
 
 
 
-typedef enum {nopKey=0, emptyKey, defaultKey, stopKey, startKey, displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
-static const SizeT actionNumber=11;
-HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr),sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
+typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
+static const SizeT actionNumber=12;
+HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
-Bool actionRequireCacheCleanTab[]={False, False, False, True, True, False, False, False, False, False, False };
+//Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
 UInt expect_verbose=1;
 
@@ -307,6 +323,154 @@ static Bool get_first_line ( Int fd, HChar** bufpp)
 
 
 
+static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly){
+  if(expect_verbose>1){
+     VG_(umsg)("vr_applyCmd : %s\n", cmd);
+  }
+  switch(key){
+  case nopKey:
+    return;
+  case emptyKey:
+    return;
+  case defaultKey:
+    VG_(tool_panic)("default treated before");
+    return;
+  case initKey:
+    VG_(tool_panic)("init treated before");
+    return;
+  case postinitKey:
+    VG_(tool_panic)("postinit treated before");
+    return;
+  case stopKey:
+    if(noIntrusiveOnly){
+      vr.instrument = False;
+    }else{
+      vr_set_instrument_state ("Expect CLR", False, True);
+    }
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: stop\n");
+    return;
+  case startKey:
+    if(noIntrusiveOnly){
+      vr.instrument = True;
+    }else{
+      vr_set_instrument_state ("Expect CLR", True, True);
+    }
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: start\n");
+    return;
+  case displayCounterKey:
+    vr_ppOpCount();
+    VG_(fprintf)(vr.expectCLRFileOutput,"apply: display_counter\n");
+    return;
+  case nbInstrKey:
+  {
+     UInt nbInstr=vr_count_fp_instrumented();
+     VG_(fprintf)(vr.expectCLRFileOutput,"fp_instr: %u\n", nbInstr );
+     return;
+  }
+  case resetCounterKey:
+  {
+     vr_resetCount();
+     return;
+  }
+  case dumpCoverKey:
+    {
+      SizeT ret;
+      ret=vr_traceBB_dumpCov();
+      VG_(fprintf)(vr.expectCLRFileOutput,"apply: dump_cover : %lu\n", ret);
+      return;
+    }
+  case panicKey:
+    {
+      VG_(fprintf)(vr.expectCLRFileOutput, "apply: panic\n");
+      VG_(tool_panic)("apply: panic");
+    }
+  case exitKey:
+    {
+      VG_(fprintf)(vr.expectCLRFileOutput, "apply: exit\n");
+      VG_(exit)(1);
+    }
+  }
+  VG_(umsg)("vr_applyCmd :  unknown cmd : %s\n", cmd);
+  VG_(exit)(1);
+}
+
+
+
+
+static
+void vr_expect_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
+   if(expect_verbose>2){
+      VG_(umsg)("vr_expect_apply_clr: %s\n",cmd);
+   }
+
+  Vr_applyKey key=vr_CmdToEnum(cmd);
+
+  if(key==initKey){
+    for(SizeT i=0; i< vr_nbInit;i++){
+      Vr_applyKey keyInit=vr_CmdToEnum(vr_applyInit[i]);
+      vr_applyCmd(keyInit,vr_applyInit[i], noIntrusiveOnly);
+    }
+    return;
+  }
+  if(key==postinitKey){
+    for(SizeT i=0; i< vr_nbpostInit;i++){
+      Vr_applyKey keypostInit=vr_CmdToEnum(vr_applypostInit[i]);
+      vr_applyCmd(keypostInit,vr_applypostInit[i],noIntrusiveOnly);
+    }
+    return;
+  }
+
+  if(key==defaultKey){
+    for(SizeT i=0; i< vr_nbDefault;i++){
+      Vr_applyKey keyDefault=vr_CmdToEnum(vr_applyDefault[i]);
+      vr_applyCmd(keyDefault,vr_applyDefault[i],noIntrusiveOnly);
+    }
+    return;
+  }
+
+  vr_applyCmd(key,cmd,noIntrusiveOnly);
+
+}
+
+
+
+static
+void vr_expect_apply_clrs(void){
+   Int countApply=0;
+   SizeT lineNo = 0;
+
+   //Loop over input file until next expect line
+   while (!get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
+
+      //except key
+      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0 ){
+	vr_last_expect_lineNo=lineNo;
+	vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
+	if(countApply==0){
+	  vr_expect_apply_clr("default", False);
+	}
+	return;
+      }
+      //Apply key
+      if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
+	vr_expect_apply_clr(vr_expectTmpLine+vr_applyKeyStrSize, False);
+	countApply++;
+	continue;
+      }
+
+      // what to do with this line
+      VG_(fprintf)(vr.expectCLRFileOutput,"Line %lu ignored : %s\n", lineNo, vr_expectTmpLine);
+      if( expect_verbose >0){
+	VG_(umsg)("expect_clr : Line %lu ignored : %s\n", lineNo, vr_expectTmpLine);
+      }
+   }
+   if(countApply==0){
+     vr_expect_apply_clr("default", False);
+   }
+   vr_expectTmpLine[0]=0;
+}
+
+
 
 
 void vr_expect_clr_init (const HChar * fileName) {
@@ -320,10 +484,13 @@ void vr_expect_clr_init (const HChar * fileName) {
   }
 
   /*Open output File*/
-  const HChar * strLogFilename="expect_clr.log-%p";
+  const HChar * strLogPost=".log-%p";
+  HChar strLogFilename[512];
+  VG_(sprintf)(strLogFilename, "%s%s",fileName,strLogPost);
+
   const HChar * strLogFilenameExpanded=   VG_(expand_file_name)("vr.expect_clr_log.1",  strLogFilename);
 
-  VG_(umsg)("Open expect clr file : `%s'... \n", strLogFilenameExpanded);
+  VG_(umsg)("Open expect clr log file : `%s'... \n", strLogFilenameExpanded);
   vr.expectCLRFileOutput = VG_(fopen)(strLogFilenameExpanded,
                                       VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
                                       VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
@@ -364,6 +531,41 @@ void vr_expect_clr_init (const HChar * fileName) {
        }
        continue;
     }
+
+     //Treat init key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_initKeyStr, vr_initKeyStrSize)==0  ){
+       const HChar* initAction=vr_expectTmpLine+vr_initKeyStrSize;
+       if(expect_verbose>1){
+          VG_(umsg)("init action str : %s\n", initAction);
+       }
+       if (vr_valid_apply_cmd(initAction)){
+	 VG_(fprintf)(vr.expectCLRFileOutput, "init action [%lu] : %s\n",vr_nbInit , initAction);
+	 VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
+	 vr_nbInit++;
+       }else{
+          VG_(umsg)("init action %s is not valid", initAction);
+          VG_(tool_panic)("vr_expect_clr : invalid action");
+       }
+       continue;
+    }
+
+         //Treat postinit key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_postinitKeyStr, vr_postinitKeyStrSize)==0  ){
+       const HChar* postinitAction=vr_expectTmpLine+vr_postinitKeyStrSize;
+       if(expect_verbose>1){
+          VG_(umsg)("post-init action str : %s\n", postinitAction);
+       }
+       if (vr_valid_apply_cmd(postinitAction)){
+	 VG_(fprintf)(vr.expectCLRFileOutput, "postinit action [%lu] : %s\n",vr_nbpostInit , postinitAction);
+	 VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
+	 vr_nbpostInit++;
+       }else{
+          VG_(umsg)("post init action %s is not valid", postinitAction);
+          VG_(tool_panic)("vr_expect_clr : invalid action");
+       }
+       continue;
+    }
+
     //Treat match key
     if( VG_(strncmp)(vr_expectTmpLine, vr_matchKeyStr, vr_matchKeyStrSize)==0 ){
       if(vr_nbMatch> MATCH_MAX){
@@ -461,131 +663,21 @@ void vr_expect_clr_init (const HChar * fileName) {
     }
   }
 
+  vr_expect_apply_clr("init", True);
+
 //  VG_(umsg)("expectCLR init done\n");
 }
 
 
 
-static void vr_applyCmd(Vr_applyKey key, const HChar* cmd){
-  if(expect_verbose>1){
-     VG_(umsg)("vr_applyCmd : %s\n", cmd);
-  }
-  switch(key){
-  case nopKey:
-    return;
-  case emptyKey:
-    return;
-  case defaultKey:
-    VG_(tool_panic)("default treated before");
-    return;
-  case stopKey:
-    vr_set_instrument_state ("Expect CLR", False, True);
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply: stop\n");
-    return;
-  case startKey:
-    vr_set_instrument_state ("Expect CLR", True, True);
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply: start\n");
-    return;
-  case displayCounterKey:
-    vr_ppOpCount();
-    VG_(fprintf)(vr.expectCLRFileOutput,"apply: display_counter\n");
-    return;
-  case nbInstrKey:
-  {
-     UInt nbInstr=vr_count_fp_instrumented();
-     VG_(fprintf)(vr.expectCLRFileOutput,"fp_instr: %u\n", nbInstr );
-     return;
-  }
-  case resetCounterKey:
-  {
-     vr_resetCount();
-     return;
-  }
-  case dumpCoverKey:
-    {
-      SizeT ret;
-      ret=vr_traceBB_dumpCov();
-      VG_(fprintf)(vr.expectCLRFileOutput,"apply: dump_cover : %lu\n", ret);
-      return;
-    }
-  case panicKey:
-    {
-      VG_(fprintf)(vr.expectCLRFileOutput, "apply: panic\n");
-      VG_(tool_panic)("apply: panic");
-    }
-  case exitKey:
-    {
-      VG_(fprintf)(vr.expectCLRFileOutput, "apply: exit\n");
-      VG_(exit)(1);
-    }
-  }
-  VG_(umsg)("vr_applyCmd :  unknown cmd : %s\n", cmd);
-  VG_(exit)(1);
-}
-
-
-static
-void vr_expect_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
-   if(expect_verbose>2){
-      VG_(umsg)("vr_expect_apply_clr: %s\n",cmd);
-   }
-
-  Vr_applyKey key=vr_CmdToEnum(cmd);
-  if(key==defaultKey){
-    for(SizeT i=0; i< vr_nbDefault;i++){
-      Vr_applyKey keyDefault=vr_CmdToEnum(vr_applyDefault[i]);
-      if( !actionRequireCacheCleanTab[i] || !(noIntrusiveOnly)){
-	vr_applyCmd(keyDefault,vr_applyDefault[i]);
-      }
-    }
-  }else{
-    if( !actionRequireCacheCleanTab[key] || !(noIntrusiveOnly)){
-      vr_applyCmd(key,cmd);
-    }
-  }
-}
-
-
-static
-void vr_expect_apply_clrs(void){
-   Int countApply=0;
-   SizeT lineNo = 0;
-
-   //Loop over input file until next expect line
-   while (!get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
-
-      //except key
-      if( VG_(strncmp)(vr_expectTmpLine, vr_expectKeyStr, vr_expectKeyStrSize)==0 ){
-	vr_last_expect_lineNo=lineNo;
-	vr_currentExpectStr=vr_expectTmpLine+vr_expectKeyStrSize;
-	if(countApply==0){
-	  vr_expect_apply_clr("default", False);
-	}
-	return;
-      }
-      //Apply key
-      if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
-	vr_expect_apply_clr(vr_expectTmpLine+vr_applyKeyStrSize, False);
-	countApply++;
-	continue;
-      }
-
-      // what to do with this line
-      VG_(fprintf)(vr.expectCLRFileOutput,"Line %lu ignored : %s\n", lineNo, vr_expectTmpLine);
-      if( expect_verbose >0){
-	VG_(umsg)("expect_clr : Line %lu ignored : %s\n", lineNo, vr_expectTmpLine);
-      }
-   }
-   if(countApply==0){
-     vr_expect_apply_clr("default", False);
-   }
-   vr_expectTmpLine[0]=0;
-}
-
 
 
 void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
    /*As the syscall to not give always a full line we need to create a buffer and to treat the buffer only we detect the end of line*/
+  static Bool first=True;
+   if(first){
+     vr_expect_apply_clr("post-init", False);
+   }
 
    SizeT totalSize= (vr_writeLineBuffCurrent - vr_writeLineBuff) + size;
    if(totalSize >=  LINE_SIZEMAX){
