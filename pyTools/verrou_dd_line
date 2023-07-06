@@ -41,8 +41,8 @@ def joinBlocAndNumLine(bloc, numLine):
 
 
 class DDline(DD_stoch.DDStoch):
-    def __init__(self, config, prefix="dd.line"):
-        DD_stoch.DDStoch.__init__(self, config, prefix,
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config,
                                   selectBlocAndNumLine,
                                   joinBlocAndNumLine)
 
@@ -77,8 +77,8 @@ class DDline(DD_stoch.DDStoch):
 
 
 if __name__ == "__main__":
-    et=DD_exec_stat.exec_stat("dd.line")
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"], prefix="dd.line")
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDline(config)
     dd.run()
     et.terminate()

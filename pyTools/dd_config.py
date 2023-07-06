@@ -38,13 +38,16 @@ def exponentialRange(nbRun):
 
 class ddConfig(gen_config.gen_config):
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"], prefix="dd.generic"):
+        self.prefix_=prefix
         super().__init__(argv, environ, config_keys)
         self.normalizeOptions()
         self.runScript=self.exec_arg[0]
         self.cmpScript=self.exec_arg[1]
 
+
     def registerOptions(self):
+        self.addRegistry("cacheRep",              "string",     "DD_REP",                     ["--rep="],                    self.prefix_,         None)
         self.addRegistry("nbRUN",                 "int",        "DD_NRUNS",                   ["--nruns="],                  5,          None)
         self.addRegistry("maxNbPROC",             "int",        "DD_NUM_THREADS",             ["--num-threads="],            None,       None)
         self.addRegistry("ddAlgo",                "string",     "DD_ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
@@ -68,6 +71,8 @@ class ddConfig(gen_config.gen_config):
         if self.rddminVariant=="strict":
             self.rddminVariant=""
 
+    def get_cacheRep(self):
+        return self.cacheRep
 
     ## Accessors
     def get_splitGranularity(self):

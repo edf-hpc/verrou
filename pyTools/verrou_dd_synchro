@@ -32,8 +32,8 @@ from valgrind import DD_exec_stat
 
 
 class DDSynchro(DD_stoch.DDStoch):
-    def __init__(self, config, prefix="dd.synchro"):
-        DD_stoch.DDStoch.__init__(self, config, prefix)
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config)
 
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": "nearest",
@@ -62,8 +62,8 @@ class DDSynchro(DD_stoch.DDStoch):
 
 
 if __name__ == "__main__":
-    et=DD_exec_stat.exec_stat("dd.synchro")
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"], prefix="dd.synchro")
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDSynchro(config)
     dd.run()
     et.terminate()

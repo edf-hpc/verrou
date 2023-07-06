@@ -78,8 +78,8 @@ def selectFloatTask(logFile):
 
 
 class DDstdout(DD_stoch.DDStoch):
-    def __init__(self, config, prefix="dd.stdout"):
-        DD_stoch.DDStoch.__init__(self, config, prefix,parseRef=selectFloatTask)
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config, parseRef=selectFloatTask)
 
 
     def referenceRunEnv(self):
@@ -153,8 +153,9 @@ class DDstdout(DD_stoch.DDStoch):
 
 
 if __name__ == "__main__":
-    et=DD_exec_stat.exec_stat("dd.stdout")
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+
+    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"], prefix="dd.stdout")
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDstdout(config)
     dd.run()
     et.terminate()

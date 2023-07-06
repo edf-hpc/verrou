@@ -315,7 +315,7 @@ def failure():
 
 
 class DDStoch(DD.DD):
-    def __init__(self, config, prefix,
+    def __init__(self, config,
                  selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x,
                  parseRef=None):
         DD.DD.__init__(self)
@@ -328,8 +328,8 @@ class DDStoch(DD.DD):
         self.compare_ = self.config_.get_cmpScript()
         self.cache_outcomes = False # the cache of DD.DD is ignored
         self.index=0
-        self.prefix_ = os.path.join(os.getcwd(),prefix)
-        self.relPrefix_=prefix
+        self.prefix_ = os.path.join(os.getcwd(), self.config_.get_cacheRep())
+        self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = os.path.join(self.prefix_, "ref")
         self.prepareCache()
         prepareOutput(self.ref_)
