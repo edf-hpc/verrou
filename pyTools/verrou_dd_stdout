@@ -36,13 +36,18 @@ from valgrind import DD_exec_stat
 import re
 
 #adapatation from  https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
-regExp="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
-regCompiled=re.compile(regExp)
+regExpFloat="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
+regFloatCompiled=re.compile(regExpFloat)
+
+regExpAddr="0x[0-9a-fA-F]{8}"
+regAddrCompiled=re.compile(regExpAddr)
+
 
 def floatReplace(lineStr):
-    return regCompiled.sub("*",lineStr)
+    return regFloatCompiled.sub("*",lineStr)
 
-
+def addrReplace(lineStr):
+    return regAddrCompiled.sub("0x????????",lineStr)
 
 def selectFloatTask(logFile):
     currentTask=None
@@ -65,7 +70,7 @@ def selectFloatTask(logFile):
                     sys.exit(42)
             nbInstr=int(line[len(fpInstrPattern):])
             if nbInstr!=0:
-                taskName=floatReplace(taskName)
+                taskName=addrReplace(floatReplace(taskName))
                 if not (taskName in taskRes):
                     taskRes+=[taskName]
 

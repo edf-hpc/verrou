@@ -21,8 +21,10 @@ def muller(nt,verbose=False):
         x0 = x1;
         x1 = x2;
     print("x[%i]=%f"%(nt,x1))
+    print("Function object at 0x49996a00>")
+    a=10.*4.
+    print("a=",a)
     
-
 
 if __name__=="__main__":
     muller(12, True)
