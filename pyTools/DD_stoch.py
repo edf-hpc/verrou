@@ -299,7 +299,7 @@ class verrouTask:
 def md5Name(deltas):
     copyDeltas=copy.copy(deltas)
     copyDeltas.sort()
-    return hashlib.md5(("".join(copyDeltas)).encode('utf-8')).hexdigest()
+    return hashlib.md5(("".join(["\n"+x for x in copyDeltas])).encode('utf-8')).hexdigest()
 
 
 def prepareOutput(dirname):

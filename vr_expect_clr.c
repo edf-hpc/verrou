@@ -70,6 +70,14 @@ HChar vr_postApplyKeyStr[]=  "post-apply: ";
 SizeT vr_postApplyKeyStrSize=sizeof(vr_postApplyKeyStr)-1;
 
 
+HChar vr_ignoreEmptyLineKeyStr[]=  "ignore-empty-line: ";
+SizeT vr_ignoreEmptyLineKeyStrSize=sizeof(vr_ignoreEmptyLineKeyStr)-1;
+
+
+Bool ignoreEmptyLine=True;
+
+
+
 HChar vr_verboseKeyStr[]=  "verbose: ";
 SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
 
@@ -532,6 +540,30 @@ void vr_expect_clr_init (const HChar * fileName) {
        continue;
     }
 
+     //Treat ignoreEmptyLine key
+    if( VG_(strncmp)(vr_expectTmpLine, vr_ignoreEmptyLineKeyStr, vr_ignoreEmptyLineKeyStrSize)==0  ){
+       const HChar* boolStr=vr_expectTmpLine+vr_ignoreEmptyLineKeyStrSize;
+       const HChar trueStr[]="true";
+       const HChar falseStr[]="false";
+       if( VG_(strncmp)(boolStr,trueStr, sizeof(trueStr))==0){
+	 ignoreEmptyLine=True;
+	 VG_(umsg)("ignoreEmptyLine=True\n");
+       }else{
+	 if( VG_(strncmp)(boolStr,falseStr, sizeof(falseStr))==0){
+	   ignoreEmptyLine=False;
+	   VG_(umsg)("ignoreEmptyLine=False\n");
+	 }else{
+	   VG_(umsg)("ignore-empty-line %s is not valid", boolStr);
+	   VG_(tool_panic)("ignore-empty-line %s is not valid");
+	 }
+       }
+
+       if(expect_verbose>1){
+          VG_(umsg)("ignore-empty-line: %s\n", boolStr);
+       }
+       continue;
+    }
+
      //Treat init key
     if( VG_(strncmp)(vr_expectTmpLine, vr_initKeyStr, vr_initKeyStrSize)==0  ){
        const HChar* initAction=vr_expectTmpLine+vr_initKeyStrSize;
@@ -675,9 +707,6 @@ void vr_expect_clr_init (const HChar * fileName) {
 void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
    /*As the syscall to not give always a full line we need to create a buffer and to treat the buffer only we detect the end of line*/
   static Bool first=True;
-   if(first){
-     vr_expect_apply_clr("post-init", False);
-   }
 
    SizeT totalSize= (vr_writeLineBuffCurrent - vr_writeLineBuff) + size;
    if(totalSize >=  LINE_SIZEMAX){
@@ -687,20 +716,17 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
    VG_(strncat)(vr_writeLineBuffCurrent , writeLine, size);
    vr_writeLineBuff[totalSize]=0;
 
+   if(expect_verbose>4){
+     VG_(umsg)("vr_writeLineBuff: |%s|\n",vr_writeLineBuff);
+   }
+
    vr_writeLineBuffCurrent=vr_writeLineBuff;
 
    //Search end of file
    for( SizeT i =0; i<totalSize ; i++){
        if(vr_writeLineBuff[i]=='\n'){
 	 vr_writeLineBuff[i]=0;
-
 	 HChar* filteredBuf=vr_writeLineBuffCurrent;
-         if(previousMatchIndex!=-1){
-            for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
-	      vr_expect_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], False);
-            }
-            previousMatchIndex=-1;
-         }
 
 	 if(vr_filter){
 	   // apply filter
@@ -716,10 +742,34 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   filteredBuf=vr_filtered_buff;
 	 }
 
+	 if(first){
+	   if( !ignoreEmptyLine || (filteredBuf[0]!=0) ){
+	     vr_expect_apply_clr("post-init", False);
+	     first=False;
+	   }
+	 }
+
+
+	 if(previousMatchIndex!=-1 ){
+	   if((ignoreEmptyLine) && (filteredBuf[0]==0 )){
+	     if(expect_verbose >0){
+	       VG_(umsg)("empty Line ignored: \n");
+	     }
+	   }else{
+	       if(expect_verbose >0){
+		 VG_(umsg)("post apply:\n");
+	       }
+	       for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
+		 vr_expect_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], False);
+	       }
+	       previousMatchIndex=-1;
+	   }
+	 }
+
 	 if( vr_currentExpectStr!=NULL && VG_(string_match)(vr_currentExpectStr,filteredBuf)){
 	    //The line match the expect pattern
 	   if(expect_verbose >0){
-	     VG_(umsg)("expect: %s\n", vr_writeLineBuffCurrent);
+	     VG_(umsg)("expect: |%s|\n", vr_writeLineBuffCurrent);
 	   }
 	   VG_(fprintf)(vr.expectCLRFileOutput,"expect: %s\n", vr_writeLineBuffCurrent);
 	   if(vr_filter){
@@ -727,37 +777,38 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	       VG_(umsg)("expect(filtered): %s\n", filteredBuf);
 	     }
 	      VG_(fprintf)(vr.expectCLRFileOutput,"expect(filtered): %s\n", filteredBuf);
-	    }
+	   }
 
 	    //All actions are applied
 	    vr_expect_apply_clrs();
 	 }else{
-	   previousMatchIndex=-1;
-	   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
-	     if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
-	       //The line match the expect pattern
-	       if(expect_verbose>0){
-		 VG_(umsg)("match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
-	       }
-	       VG_(fprintf)(vr.expectCLRFileOutput,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
-	       if(vr_filter){
+	   if(previousMatchIndex==-1){
+
+	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
+	       if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
+		 //The line match the expect pattern
 		 if(expect_verbose>0){
-		   VG_(umsg)("match(filtered): %s\n", filteredBuf);
+		   VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
 		 }
-		 VG_(fprintf)(vr.expectCLRFileOutput,"match(filtered): %s\n", filteredBuf);
-	       }
-	       //Loop apply to DO
-               if(vr_nbApplyMatch[matchIndex]==0){
-		 vr_expect_apply_clr("default", False);
-               }
-               for(SizeT applyIndex=0 ; applyIndex< vr_nbApplyMatch[matchIndex]; applyIndex++){
-		 vr_expect_apply_clr(vr_applyMatch[matchIndex][applyIndex], False);
-               }
-	       if(previousMatchIndex==-1 && vr_nbPostApplyMatch[matchIndex]!=0){
-		 //post_apply only on the first match : the test can be simple if match only once is activated (cf. continue behind)		 
+		 VG_(fprintf)(vr.expectCLRFileOutput,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
+		 if(vr_filter){
+		   if(expect_verbose>0){
+		     VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
+		   }
+		   VG_(fprintf)(vr.expectCLRFileOutput,"match(filtered): %s\n", filteredBuf);
+		 }
+		 //Loop apply to DO
+		 if(vr_nbApplyMatch[matchIndex]==0){
+		   vr_expect_apply_clr("default", False);
+		 }
+		 for(SizeT applyIndex=0 ; applyIndex< vr_nbApplyMatch[matchIndex]; applyIndex++){
+		   vr_expect_apply_clr(vr_applyMatch[matchIndex][applyIndex], False);
+		 }
+	       if(vr_nbPostApplyMatch[matchIndex]!=0){
 		 previousMatchIndex=matchIndex;
 	       }
 	       break; //match only once
+	       }
 	     }
 	   }
 	 }
@@ -766,12 +817,13 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
    }
    //Move the end of buffer at the begin
    SizeT i;
-   SizeT nbReste=vr_writeLineBuff+totalSize-vr_writeLineBuffCurrent;
-   for(i=0 ; i< nbReste; i++){
+   SizeT nbRemain=vr_writeLineBuff+totalSize-vr_writeLineBuffCurrent;
+   for(i=0 ; i< nbRemain; i++){
       vr_writeLineBuff[i]=vr_writeLineBuffCurrent[i];
    }
    vr_writeLineBuff[i]=0;
    vr_writeLineBuffCurrent=vr_writeLineBuff+i;
+
 }
 
 

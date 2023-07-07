@@ -102,7 +102,10 @@ class gen_config:
             value = strOption
 
         if conv_type=="bool":
-            value=True
+            if strOption in ["True","true","",None]:
+                value=True
+            if strOption in ["False","false"]:
+                value=False
 
         cmd="self."+attribut+"= copy.deepcopy(value)"
         if addAttributTab:

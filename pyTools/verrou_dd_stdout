@@ -39,15 +39,20 @@ import re
 regExpFloat="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
 regFloatCompiled=re.compile(regExpFloat)
 
-regExpAddr="0x[0-9a-fA-F]{8}"
-regAddrCompiled=re.compile(regExpAddr)
+regExpAddr8="0x[0-9a-fA-F]{8}"
+regAddr8Compiled=re.compile(regExpAddr8)
+regExpAddr10="0x[0-9a-fA-F]{10}"
+regAddr10Compiled=re.compile(regExpAddr10)
+
 
 
 def floatReplace(lineStr):
     return regFloatCompiled.sub("*",lineStr)
 
 def addrReplace(lineStr):
-    return regAddrCompiled.sub("0x????????",lineStr)
+    res=regAddr10Compiled.sub("0x??????????",lineStr)
+    res=regAddr8Compiled.sub("0x????????",res)
+    return res
 
 def selectFloatTask(logFile):
     currentTask=None
@@ -86,8 +91,15 @@ class DDstdout(DD_stoch.DDStoch):
         refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
         refFile=open(refPath,"w")
         refFile.write("verbose: 1\n")
+        if self.config_.get_ignoreEmptyLine():
+            refFile.write("ignore-empty-line: true\n")
+        else:
+            refFile.write("ignore-empty-line: false\n")
         refFile.write("post-init: nb_instr\n")
-        refFile.write("match: *\n")
+        if self.config_.get_ignoreEmptyLine():
+            refFile.write("match: ?*\n")
+        else:
+            refFile.write("match: *\n")
         refFile.write("apply: reset_counter\n")
         refFile.write("post-apply: nb_instr\n")
         refFile.write("begin:\n")
@@ -109,23 +121,39 @@ class DDstdout(DD_stoch.DDStoch):
         excludes=self.getDelta0()
         dd=self.getDeltaFileName()
 
+        unknownTask=self.config_.get_unknownTask()
+
+        if not unknownTask in ["stop","start","previous"]:
+            print("error unknownTask:", unknownTask)
+
         with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
             f.write("verbose: 1\n")
+            if self.config_.get_ignoreEmptyLine():
+                f.write("ignore-empty-line: true\n")
+            else:
+                f.write("ignore-empty-line: false\n")
             if "__verrou__stdout__init__" in excludes:
                 if "__verrou__stdout__init__" in deltas:
                     f.write("init: start\n")
+                    if unknownTask in ["stop"]:
+                        f.write("post-init: stop\n")
                 else:
                     f.write("init: stop\n" )
-
+                    if unknownTask in ["start"]:
+                        f.write("post-init: start\n")
             for line in excludes:
                 if line=="__verrou__stdout__init__":
                     continue
                 f.write("match: "+ line+"\n")
                 if line in deltas:
                     f.write("apply: start\n")
+                    if unknownTask in ["stop"]:
+                        f.write("post-apply: stop\n")
                 else:
                     f.write("apply: stop\n")
-            f.write("begin:")
+                    if unknownTask in ["start"]:
+                        f.write("post-apply: start\n")
+            f.write("begin:\n")
 
         if include:
             with open(os.path.join(dirname,dd+".include"), "w") as f:
@@ -145,16 +173,30 @@ class DDstdout(DD_stoch.DDStoch):
                 "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt")}
 
     def coerce(self, delta_config):
-        return "\n "+" \n ".join(["%s"%e for e in [l.strip() for l in delta_config ]])
+        return "\n "+" \n ".join(["|%s|"%e for e in [l.strip() for l in delta_config ]])
 #        return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
 #                                      [(col[0], int(col[1]), self.demangle(col[2])) for col in
 #                                       [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
 
 
+class stdoutConfig(dd_config.ddConfig):
+
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+        super().__init__(argv,environ,config_keys,prefix="dd.stdout")
+
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("unknownTask", "string", "DD_UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
+        self.addRegistry("ignoreEmptyLine", "bool", "DD_IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
+    def get_unknownTask(self):
+        return self.unknownTask
+
+    def get_ignoreEmptyLine(self):
+        return self.ignoreEmptyLine
 
 if __name__ == "__main__":
 
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"], prefix="dd.stdout")
+    config=stdoutConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDstdout(config)
     dd.run()
