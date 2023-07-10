@@ -91,10 +91,16 @@ class DDstdout(DD_stoch.DDStoch):
         refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
         refFile=open(refPath,"w")
         refFile.write("verbose: 1\n")
+        refFile.write("dump-stdout:\n")
+        if not self.config_.get_filterCmd() in [None,""]:
+            refFile.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
+            refFile.write("dump-filtered-stdout:\n")
+
         if self.config_.get_ignoreEmptyLine():
             refFile.write("ignore-empty-line: true\n")
         else:
             refFile.write("ignore-empty-line: false\n")
+
         refFile.write("post-init: nb_instr\n")
         if self.config_.get_ignoreEmptyLine():
             refFile.write("match: ?*\n")
@@ -128,6 +134,11 @@ class DDstdout(DD_stoch.DDStoch):
 
         with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
             f.write("verbose: 1\n")
+            f.write("dump-stdout:\n")
+            if not self.config_.get_filterCmd() in [None,""]:
+                f.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
+                f.write("dump-filtered-stdout:\n")
+
             if self.config_.get_ignoreEmptyLine():
                 f.write("ignore-empty-line: true\n")
             else:
@@ -188,11 +199,16 @@ class stdoutConfig(dd_config.ddConfig):
         super().registerOptions()
         self.addRegistry("unknownTask", "string", "DD_UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
         self.addRegistry("ignoreEmptyLine", "bool", "DD_IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
+        self.addRegistry("filterCmd", "string", "DD_FILTER_CMD",["--filter-cmd="],None, None )
+
     def get_unknownTask(self):
         return self.unknownTask
 
     def get_ignoreEmptyLine(self):
         return self.ignoreEmptyLine
+
+    def get_filterCmd(self):
+        return self.filterCmd
 
 if __name__ == "__main__":
 

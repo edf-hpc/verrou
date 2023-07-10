@@ -3,7 +3,7 @@
 
 typedef double Realtype;
 
-Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false){
+Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false, bool debugPrev=false, bool debugPost=false){
     Realtype x0 = 11./2.;
     Realtype x1 = 61./11.;
 
@@ -14,6 +14,9 @@ Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false){
         Realtype temp2 = temp1 /x1 ;
 
         Realtype x2 = 111. - temp2;
+	if(debugPrev){
+	  std::cout << "debugPrev"<<std::endl;
+	}
 
         if(verbose){
            std::cout <<"it: "<< it
@@ -27,6 +30,10 @@ Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false){
 	if(withEmptyLine){
 	  std::cout << std::endl<< std::flush;
 	}
+	if(debugPost){
+	  std::cout << "debugPost"<<std::endl;
+	}
+
         x0 = x1;
         x1 = x2;
     }
@@ -35,9 +42,25 @@ Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false){
 }
 
 int main(int argc, char** argv){
-  if( argc==2 && std::string(argv[1])==std::string("emptyLine") ){
-    muller(12,true,true);
-  }else{
-    muller(12,true);
+
+  bool withEmptyLine(false);
+  bool debugPrev(false);
+  bool debugPost(false);
+  for(size_t i=1; i< argc; i++){
+    if(std::string(argv[i])==std::string("emptyLine")){
+      withEmptyLine=true;
+      continue;
+    }
+    if(std::string(argv[i])==std::string("debugPrev")){
+      debugPrev=true;
+      continue;
+    }
+    if(std::string(argv[i])==std::string("debugPost")){
+      debugPost=true;
+      continue;
+    }
   }
+
+  muller(12,true,withEmptyLine, debugPrev, debugPost);
+
 }

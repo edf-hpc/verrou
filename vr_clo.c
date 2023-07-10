@@ -101,7 +101,6 @@ void vr_clo_defaults (void) {
 
   vr.useExpectCLR=False;
   vr.expectCLRFileInput=-1;
-  vr.expectCLRFileOutput=NULL;
 
   vr.checkDenorm=False;
   vr.ftz=False;

@@ -200,7 +200,7 @@ typedef struct {
 
   Bool useExpectCLR;
   Int expectCLRFileInput;
-  VgFile* expectCLRFileOutput;
+
 
   HChar* outputTraceRep;
 
