@@ -1,7 +1,7 @@
-.PHONY: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
+.PHONY: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro check-ddStdOut valgrind-test
 
 
-all: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro
+all: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro check-ddStdOut
 checkRounding:
 	make -C ./checkRounding
 
@@ -20,6 +20,10 @@ check-verrou-dd-synchro:
 
 check-dd:
 	make -C ./ddTest
+
+check-ddStdOut:
+	make -C ./ddStdOut
+
 
 #to be able to do valgrind test from this directory
 valgrind-test:
