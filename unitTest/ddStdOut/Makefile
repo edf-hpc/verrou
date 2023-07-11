@@ -1,3 +1,8 @@
+export INSTALLPATH = $(shell bash ../installpath)
+export BASH_ENV=$(INSTALLPATH)/env.sh
+export SHELL=bash
+
+
 PYTHON=/usr/bin/python3
 
 REP_LIST=dd.stdout dd.stdout.cpp dd.stdout.empty dd.stdout.emptyBis dd.stdout.debug dd.stdout.debug2
