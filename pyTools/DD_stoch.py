@@ -562,7 +562,7 @@ class DDStoch(DD.DD):
             deltas=self.getDelta0()
 
         if(len(deltas)==0):
-            emptySearchSpaceFailure()
+            self.emptySearchSpaceFailure()
 
         #basic verification
         testResult=self._test(deltas)
