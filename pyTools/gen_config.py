@@ -125,6 +125,16 @@ class gen_config:
                 else:
                     print("Error : "+ argv_name+" :  " + strOption+" should be a directory")
                 self.failure()
+        elif acceptedValue=="file_exists":
+            if os.path.isfile(value):
+                exec(cmd)
+                return
+            else:
+                if parse=="environ":
+                    print("Error : "+ self.PREFIX+"_"+key_name+ " should be a file")
+                else:
+                    print("Error : "+ argv_name+" :  " + strOption+" should be a file")
+                self.failure()
         else:
             if value in acceptedValue or None in acceptedValue:
                 exec(cmd)

@@ -54,42 +54,46 @@ def addrReplace(lineStr):
     res=regAddr8Compiled.sub("0x????????",res)
     return res
 
-def selectFloatTask(logFile):
-    currentTask=None
-    taskRes=[]
-
-    taskPattern="match [0]: "
-    fpInstrPattern="fp_instr: "
-    taskName=None
-    for line in open(logFile).readlines():
-        if line.startswith(taskPattern):
-            taskName=line[len(taskPattern):]
-            if taskName.endswith("\n"):
-                taskName=taskName[0:-1]
-        if line.startswith(fpInstrPattern):
-            if taskName==None:
-                if len(taskRes)==0:
-                    taskName="__verrou__stdout__init__"
-                else:
-                    print("Failure selectFloatTask")
-                    sys.exit(42)
-            nbInstr=int(line[len(fpInstrPattern):])
-            if nbInstr!=0:
-                taskName=addrReplace(floatReplace(taskName))
-                if not (taskName in taskRes):
-                    taskRes+=[taskName]
-
-    return taskRes
-
 
 class DDstdout(DD_stoch.DDStoch):
     def __init__(self, config):
-        DD_stoch.DDStoch.__init__(self, config, parseRef=selectFloatTask)
+        DD_stoch.DDStoch.__init__(self, config, parseRef=self.selectFloatTask)
+
+    def selectFloatTask(self,logFile):
+        currentTask=None
+        taskRes=[]
+        if self.config_.customSearchSpace!=None:
+            return [task.replace("\n","") for task in (open(self.config_.customSearchSpace)).readlines()]
+
+        taskPattern="match [0]: "
+        fpInstrPattern="fp_instr: "
+        taskName=None
+        for line in open(logFile).readlines():
+            if line.startswith(taskPattern):
+                taskName=line[len(taskPattern):]
+                if taskName.endswith("\n"):
+                    taskName=taskName[0:-1]
+            if line.startswith(fpInstrPattern):
+                if taskName==None:
+                    if len(taskRes)==0:
+                        taskName="__verrou__stdout__init__"
+                    else:
+                        print("Failure selectFloatTask")
+                        sys.exit(42)
+                nbInstr=int(line[len(fpInstrPattern):])
+                if nbInstr!=0:
+                    taskName=addrReplace(floatReplace(taskName))
+                    if not (taskName in taskRes):
+                        taskRes+=[taskName]
+
+        return taskRes
+
 
 
     def referenceRunEnv(self):
         refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
         refFile=open(refPath,"w")
+#        refFile.write(self.config_.get_expectHeader())
         refFile.write("verbose: 1\n")
         refFile.write("dump-stdout:\n")
         if not self.config_.get_filterCmd() in [None,""]:
@@ -133,6 +137,8 @@ class DDstdout(DD_stoch.DDStoch):
             print("error unknownTask:", unknownTask)
 
         with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
+            f.write(self.config_.get_expectHeader())
+
             f.write("verbose: 1\n")
             f.write("dump-stdout:\n")
             if not self.config_.get_filterCmd() in [None,""]:
@@ -200,6 +206,46 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("unknownTask", "string", "DD_UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
         self.addRegistry("ignoreEmptyLine", "bool", "DD_IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
         self.addRegistry("filterCmd", "string", "DD_FILTER_CMD",["--filter-cmd="],None, None )
+        self.addRegistry("expectHeaderFile", "string", "DD_EXPECT_HEADER",["--expect-header="], None, "file_exists")
+        self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SAPCE",["--custom-search-space="], None, "file_exists")
+
+    def normalizeOptions(self):
+        super().normalizeOptions()
+        self.normalizeExpectHeader()
+
+    def normalizeExpectHeader(self):
+        if self.expectHeaderFile==None:
+            self.expectHeader=""
+        else:
+            lines=(open(self.expectHeaderFile)).readlines()
+            error=False
+            for line in lines:
+                if not ":" in line:
+                    print("expect header need a : separator")
+                    error=True
+                    break
+                if line.startswith("match:"):
+                    continue
+                if line.startswith("apply: ") or line.startswith("post-apply: ") or line.startswith("default"):
+                    value=line.split(" ")[1].replace("\n","")
+                    correctValueTab=["nop","default","stop","start","panic","exit","display_counter"]
+                    if value in correctValueTab:
+                        continue
+                    else:
+                        error=True
+                        print("expect header : invalid value : ", value )
+                        print("value need to be in ", correctValueTab)
+
+                        break
+                error=True
+                break
+
+            if error:
+                print("invalid line: ", line)
+                print("%s should be a correct expect header file"%self.expectHeaderFile )
+                sys.exit(42)
+
+            self.expectHeader="\n".join(lines)
 
     def get_unknownTask(self):
         return self.unknownTask
@@ -209,6 +255,9 @@ class stdoutConfig(dd_config.ddConfig):
 
     def get_filterCmd(self):
         return self.filterCmd
+
+    def get_expectHeader(self):
+        return self.expectHeader
 
 if __name__ == "__main__":
 
