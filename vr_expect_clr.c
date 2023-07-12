@@ -771,7 +771,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 if(vr_filter){
 	   // apply filter
 
-	   HChar cmdPattern[]="/usr/bin/sh -c \"echo '%s' | %s\" > %s ";
+	   HChar cmdPattern[]="/bin/sh -c \"echo '%s' | %s\" > %s ";
 	   HChar cmdPatternReplaced[FILTER_SIZEMAX];
 	   VG_(snprintf)(cmdPatternReplaced,FILTER_SIZEMAX, cmdPattern, vr_writeLineBuffCurrent, vr_filter_cmd, tmpFileNameFilter);
 	   //	   VG_(umsg)("debug: %s\n" , cmdPatternReplaced);
