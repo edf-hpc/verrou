@@ -150,7 +150,7 @@ HChar exitStr[]="exit";
 
 
 typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
-static const SizeT actionNumber=12;
+static const SizeT actionNumber=13;
 HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
 SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
@@ -165,7 +165,7 @@ static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
       return i;
     }
   }
-  VG_(umsg)("vr_CmdToEnum unknown cmd : %s\n", cmd);
+  VG_(umsg)("vr_CmdToEnum unknown cmd : |%s|\n", cmd);
   VG_(tool_panic)("invalid expect script");
 }
 
@@ -408,7 +408,7 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
       VG_(exit)(1);
     }
   }
-  VG_(umsg)("vr_applyCmd :  unknown cmd : %s\n", cmd);
+  VG_(umsg)("vr_applyCmd :  unknown cmd : |%s|\n", cmd);
   VG_(exit)(1);
 }
 
