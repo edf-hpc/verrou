@@ -946,7 +946,8 @@ class DDStoch(DD.DD):
     def fullPerturbationSucceedsFailure(self):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
-        print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
+        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        print("\t1) check the correctness of the %s script : the failure criteria may be too large"%cmpScript)
         print("\t2) check if the number of samples (option --nruns=) is sufficient ")
 
         print("Directory to analyze: FullPerturbation")
@@ -956,7 +957,8 @@ class DDStoch(DD.DD):
         print("FAILURE: the comparison between the reference (code instrumented with nearest mode) and the code without instrumentation failed")
 
         print("Suggestions:")
-        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%cmpScript)
         print("\t2) check the libm library is not instrumented")
         print("Directory to analyze: NoPerturbation")
         failure()
@@ -966,9 +968,14 @@ class DDStoch(DD.DD):
         print("Suggestions:")
         print("\t1) check the correctness of the %s script"%self.compare_)
 
+        def relativePathRef(filename):
+            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+
         print("Files to analyze:")
-        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
-        print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
+        print("\t run output: " + relativePathRef("dd.out"))
+        print("\t             " + relativePathRef("dd.err"))
+        print("\t cmp output: " + relativePathRef("checkRef.out"))
+        print("\t             " + relativePathRef("checkRef.err"))
         failure()
 
     def referenceRunFailure(self):
@@ -976,8 +983,13 @@ class DDStoch(DD.DD):
         print("Suggestions:")
         print("\t1) check the correctness of the %s script"%self.run_)
 
+        def relativePathRef(filename):
+            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+
         print("Files to analyze:")
-        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        print("\t run output: " + relativePathRef("dd.out"))
+        print("\t             " + relativePathRef("dd.err"))
+
         failure()
 
 
