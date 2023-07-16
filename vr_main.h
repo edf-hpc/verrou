@@ -199,9 +199,10 @@ typedef struct {
   Vr_Include_Trace* includeTrace;
 
   Bool useExpectCLR;
+  HChar* expectScript;
   Int expectCLRFileInput;
 
-
+  HChar* outputExpectRep;
   HChar* outputTraceRep;
 
 } Vr_State;

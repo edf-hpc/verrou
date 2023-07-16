@@ -69,6 +69,7 @@ void vr_clo_defaults (void) {
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
+  vr.outputExpectRep = NULL;
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
@@ -91,7 +92,7 @@ void vr_clo_defaults (void) {
 
   vr.checknan=True;
   vr.checkinf=True;
-  
+
   vr.checkCancellation=False;
   vr.cc_threshold_float=18;
   vr.cc_threshold_double=40;
@@ -234,7 +235,6 @@ Bool vr_process_clo (const HChar *arg) {
      vr.checkinf= bool_val;
   }
 
-  
   else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
     vr.checkFloatMax=bool_val;
   }
@@ -307,12 +307,10 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   else if (VG_STR_CLOM (cloPD, arg, "--output-trace-rep", str)) {
-    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.outputTraceRep = VG_(expand_file_name)("vr.process_clo.trace-rep", str);
   }
   // Instrumentation of only specified source lines
   else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
-    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.includeSourceFile = VG_(expand_file_name)("vr.process_clo.gen-source", str);
     vr.genIncludeSource = True;
   }
@@ -346,10 +344,12 @@ Bool vr_process_clo (const HChar *arg) {
     }
   }
   else if (VG_STR_CLOM(cloPD, arg, "--expect-clr",str)){
-     vr_expect_clr_init(str);
+     vr.expectScript = VG_(expand_file_name)("vr.process_clo.expect-clr", str);
      vr.useExpectCLR=True;
   }
-
+  else if (VG_STR_CLOM (cloPD, arg, "--output-expect-rep", str)) {
+    vr.outputExpectRep = VG_(expand_file_name)("vr.process_clo.expect-rep", str);
+  }
   // Unknown option
   else {
     return False;

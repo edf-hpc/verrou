@@ -93,12 +93,12 @@ class DDstdout(DD_stoch.DDStoch):
     def referenceRunEnv(self):
         refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
         refFile=open(refPath,"w")
-#        refFile.write(self.config_.get_expectHeader())
-        refFile.write("verbose: 1\n")
-        refFile.write("dump-stdout:\n")
+#        refFile.write(self.config_.get_expectHeader()+"\n")
+        refFile.write("verbose: 2\n")
+        refFile.write("dump-stdout: \n")
         if not self.config_.get_filterCmd() in [None,""]:
             refFile.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
-            refFile.write("dump-filtered-stdout:\n")
+            refFile.write("dump-filtered-stdout: \n")
 
         if self.config_.get_ignoreEmptyLine():
             refFile.write("ignore-empty-line: true\n")
@@ -117,10 +117,12 @@ class DDstdout(DD_stoch.DDStoch):
         return {"PYTHONUNBUFFERED": "x",
                 "VERROU_ROUNDING_MODE": "nearest",
                 "VERROU_MCA_MODE": "ieee",
-                "VERROU_EXPECT_CLR":refPath}
+                "VERROU_EXPECT_CLR":refPath,
+                "VERROU_OUTPUT_EXPECT_REP":self.ref_
+                }
 
     def isFileValidToMerge(self, name):
-        return name.startswith("vr_expect_ref.txt.log-")
+        return name.startswith("expect.log-")
 
     def getDeltaFileName(self):
         return "dd.expect"
@@ -137,14 +139,13 @@ class DDstdout(DD_stoch.DDStoch):
             print("error unknownTask:", unknownTask)
 
         with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
-            f.write(self.config_.get_expectHeader())
+            f.write(self.config_.get_expectHeader()+"\n")
 
-            f.write("verbose: 1\n")
-            f.write("dump-stdout:\n")
+            f.write("verbose: 2\n")
+            f.write("dump-stdout: \n" )
             if not self.config_.get_filterCmd() in [None,""]:
                 f.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
-                f.write("dump-filtered-stdout:\n")
-
+                f.write("dump-filtered-stdout: \n")
             if self.config_.get_ignoreEmptyLine():
                 f.write("ignore-empty-line: true\n")
             else:
@@ -187,7 +188,9 @@ class DDstdout(DD_stoch.DDStoch):
 
     def sampleRunEnv(self,dirName):
         return {"PYTHONUNBUFFERED": "x",
-                "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt")}
+                "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
+                "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%")
+                }
 
     def coerce(self, delta_config):
         return "\n "+" \n ".join(["|%s|"%e for e in [l.strip() for l in delta_config ]])
@@ -218,6 +221,7 @@ class stdoutConfig(dd_config.ddConfig):
             self.expectHeader=""
         else:
             lines=(open(self.expectHeaderFile)).readlines()
+            lines=[line.replace("\n","") for line in lines]
             error=False
             for line in lines:
                 if not ":" in line:
