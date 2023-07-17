@@ -86,6 +86,12 @@ class DDstdout(DD_stoch.DDStoch):
                     if not (taskName in taskRes):
                         taskRes+=[taskName]
 
+        #move to the end several expr which match almost evrything
+        taskEnd=[" *","\t*","?*","*?","*"]
+        for task in taskEnd:
+            if task in taskRes:
+                taskRes.remove(task)
+                taskRes.append(task)
         return taskRes
 
 
