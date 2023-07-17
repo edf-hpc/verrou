@@ -207,7 +207,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("ignoreEmptyLine", "bool", "DD_IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
         self.addRegistry("filterCmd", "string", "DD_FILTER_CMD",["--filter-cmd="],None, None )
         self.addRegistry("expectHeaderFile", "string", "DD_EXPECT_HEADER",["--expect-header="], None, "file_exists")
-        self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SAPCE",["--custom-search-space="], None, "file_exists")
+        self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
 
     def normalizeOptions(self):
         super().normalizeOptions()
