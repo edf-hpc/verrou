@@ -627,10 +627,10 @@ if __name__=="__main__":
 
     </simplesect>
 
-    <simplesect>
+    <simplesect id="vr-manual.post_verrou_dd.description">
       <title>Description</title>
       <para>
-	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_*</command> commands.
+	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command> command.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
       </para>
