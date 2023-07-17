@@ -11,7 +11,7 @@
   </para>
 
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
-    <title>Delta-debugging with the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> commands</title>
+    <title>Delta-debugging with the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command> and <command>verrou_dd_stdout</command> commands</title>
 
     <para>
       The first technique builds upon Verrou's <xref linkend="vr-manual.feat.exclude"/> feature in
@@ -34,11 +34,14 @@
         information).</simpara></listitem>
       </itemizedlist>
     </para>
+    <para>
+      The tool <command>verrou_dd_stdout</command> perform a localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the float are replace by * and address by ?). As there are more corner cases, there are specific options to tackle it (cf.  <link linkend="verrou_dd_stdout.specific.option">Specific option of verrou_dd_stdout</link>)
 
+    </para>
     <para>
       This algorithm is called <emphasis>Delta-Debugging</emphasis>.
       <!-- , and is for example used in <command>git bisect</command>. -->
-      It is automated by the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> command,
+      It is automated by the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command> and  <command>verrou_dd_stdout</command> commands,
       which can be used in the following way:
     </para>
 
@@ -57,12 +60,19 @@
         <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
       </cmdsynopsis></screen>
 
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_stdout.synopsis">
+        <command>verrou_dd_stdout [options]</command>
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
     </simplesect>
     <simplesect>
       <title>Description</title>
       <para>
 	<command> verrou_dd_sym </command> is dedicated to search instable symbols (it corresponds more or less to code function).
-	Whereas <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
+	The tool <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
+	Whereas  <command> verrou_dd_stdout </command> is dedicated to search the instable portion of code defined by the stdout line.
       </para>
 
       <para id="vr-manual.verrou_dd.desc">
@@ -112,6 +122,33 @@ valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replace
 REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
+              <simpara>
+	      A classical python script look like this :
+	      </simpara>
+              <programlisting>
+<![CDATA[import sys
+import os
+def extractValue(rep):
+    """This parse function has to be adapted to each case"""
+    lines=(open(os.path.join(rep,"results.dat")).readlines())
+    for line in lines:
+        if line.startswith("res="):
+            return float(line.partition("=")[2])
+    return None
+if __name__=="__main__":
+    if len(sys.argv)==2:
+        #this case is to be compatible with the extract script of verrou_plot_stat
+        print(extractValue(sys.argv[1]))
+    if len(sys.argv)==3:
+        valueRef=extractValue(sys.argv[1])
+        value=extractValue(sys.argv[2])
+
+        relDiff=abs((value-valueRef)/valueRef)
+	#the tolerance has to be adapted
+        if relDiff < 1.e-6:
+	    sys.exit(0)
+        else:
+            sys.exit(1)]]></programlisting>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -122,7 +159,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       <title>Options and environment variables</title>
 
       <para>
-        The following options or environment variables affect the behaviour of <command>verrou_dd_sym</command> and <command>verrou_dd_line</command>:
+        The following options or environment variables affect the behavior of <command>verrou_dd_sym</command>,  <command>verrou_dd_line</command> and  <command>verrou_dd_stdout</command>:
       </para>
 
       <variablelist id="vr-manual.verrou_dd.envvars">
@@ -292,7 +329,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
         <listitem>
             <para>
-	      Option to reduce the verbosity of <command>verrou_dd_sym</command> or <command>verrou_dd_line</command>.
+	      Option to reduce the verbosity of <command>verrou_dd_*</command>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -387,12 +424,12 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
     <simplesect>
       <title>Results *rddmin </title>
       <para id="vr-manual.verrou_dd.results-rddmin">
-        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>) directory. Synthetic results are present in the form
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>/<command>verrou_dd_stdout</command>) stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>/<computeroutput>dd.stdout</computeroutput>) directory. Synthetic results are present in the form
         of symbolic links named after the pattern: <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput>.
       </para>
       <para>
-	The list of all symbols (resp. lines) found to be unstable in the
+	The list of all symbols (resp. lines/stdout pattern) found to be unstable in the
 	<computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> set can be retrieved in
 	the file: <computeroutput>ddmin-<replaceable>N</replaceable>/dd.include</computeroutput>.
       </para>
@@ -409,34 +446,133 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
     <simplesect>
       <title>Results ddmax</title>
       <para id="vr-manual.verrou_dd.results">
-        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>)
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command> / <command>verrou_dd_stdout</command>) stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput> /  <computeroutput>dd.stdout</computeroutput>)
         directories. The ddmax configuration is pinpointed by a symbolic link (<computeroutput>ddmax</computeroutput>).	
-
-	<!-- Synthetic results are present in the form of symbolic links named in the -->
-        <!-- following way: -->
-        <!-- <variablelist> -->
-        <!--   <varlistentry> -->
-        <!--       <term>dd.sym.<replaceable>SYMNAME</replaceable></term> -->
-        <!--       <listitem><simpara>The presence of such a symbolic link indicates that the function -->
-        <!--       associated to symbol <replaceable>SYMNAME</replaceable> has been detected as -->
-        <!--       unstable. When the <option><xref linkend="opt.demangle"/>=no</option> option was -->
-        <!--       provided in the verrou command line in -->
-        <!--       <command><replaceable>run_script</replaceable></command>, -->
-        <!--       <replaceable>SYMNAME</replaceable> is in mangled form. In this case, the -->
-        <!--       human-readable name of the function can be retrieved using -->
-        <!--       <command>c++filt</command>.</simpara></listitem> -->
-        <!--   </varlistentry> -->
-        <!--   <varlistentry> -->
-        <!--     <term>dd.sym.<replaceable>FILENAME</replaceable>:<replaceable>LINENO</replaceable></term> -->
-        <!--     <listitem><simpara>Such a symbolic link indicates that an instability was found in line -->
-        <!--     <replaceable>LINENO</replaceable> of file -->
-        <!--     <replaceable>FILENAME</replaceable>.</simpara></listitem> -->
-        <!--   </varlistentry> -->
-        <!-- </variablelist> -->
       </para>
     </simplesect>
 
+
+    <simplesect>
+      <title>Specific option of <command>verrou_dd_stdout</command> </title>
+      <simplesect id="verrou_dd_stdout.specific.option">
+      <para>
+        <variablelist>
+	  <varlistentry>
+	    <term>
+	      <computeroutput>--unknown-task=</computeroutput> or <computeroutput>VERROU_DD_UNKNOWN_TASK</computeroutput>
+            </term>
+            <listitem>
+              <para>
+		Option to choose the policy of task which are not in the search space.
+	      </para>
+	      <para>
+		<computeroutput>previous</computeroutput>: the status of the previous task is kept
+	      </para>
+	      <para>
+		<computeroutput>stop</computeroutput>: the task is uninstrumented.
+	      </para>
+	      <para>
+		<computeroutput>start</computeroutput>: the task is instrumented.
+	      </para>
+
+	      <para>
+		The default value is set to <computeroutput>previous</computeroutput>.
+	      </para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry>
+	      <term>
+		<computeroutput>--ignore-empty-line=[true[default]|false]</computeroutput> or <computeroutput>VERROU_DD_IGNORE_EMPTY_LINE</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  Option to define the status of empty-line. If set (by default) the task defined by an empty line is merged with the previous task.
+		</para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--expect-header=FILE</computeroutput> or <computeroutput>VERROU_DD_EXPECT_HEADER</computeroutput>
+              </term>
+              <listitem>
+		<para>
+This option allow to add the content of FILE in the expect script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iteration (especially when the additionnal iterations recover the poor precision of the first one)  with this kind of FILE.
+<programlisting>
+match: IT=42 *
+apply: exit</programlisting>
+Be careful the match expression should not match any line of the reference computation.
+		</para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--filter-cmd=CMD</computeroutput> or <computeroutput>VERROU_DD_FILTER_CMD</computeroutput>
+              </term>
+              <listitem>
+            <para>
+	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace a stdout line by the result of the command. CMD read the line from stdin and write his result to stdout. The command  <computeroutput>"sed s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
+	      If you want to write your own python script, these is an example :
+	 <programlisting>
+#!/usr/bin/python3
+import sys
+
+def applyFilter(strLine,filterList):
+    res=strLine
+    for filterFnc in filterList:
+        res=filterFnc(res)
+    return res
+
+def deleteDebug(strLine):
+    if "debug" in strLine:
+        return ""
+    else:
+        return strLine
+
+if __name__=="__main__":
+    line=sys.stdin.readline()
+    print(applyFilter(line, [deleteDebug]), end="")</programlisting>
+	    </para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--custom-search-space=FILE</computeroutput> or <computeroutput>VERROU_DD_CUSTOM_SEARCH_SPACE</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  The default search space generated may suffer of default. By default all floating point are replace by *. But if floating point are printed as int, there are missing. To bypass the issue it is possible to recover the file <computeroutput>dd.stdout/ref/dd.expect</computeroutput> and perform manually the correction. Usually we only add * but it is also possible to more complex modification:
+		  <itemizedlist>
+              <listitem><para>The line order can be modified. Indeed if a line match two wildcard expressions the first one is taken into account. So if one expression is more specific than an other one, we should place it first.</para></listitem>
+
+
+	      <listitem><para>By default the float are wildcarded by * and integer kept. But if we want specified iteration by the error order it is possible to rewrite the following example:
+		  <programlisting>
+		    IT=0 ERRS=*
+		    IT=1 ERRS=*
+		    IT=2 ERRS=*
+		    IT=3 ERRS=*</programlisting>
+		  by this search space :
+		  <programlisting>
+		    IT=* ERRS=*e-01
+		    IT=* ERRS=*e-02
+		    IT=* ERRS=*e-03
+		    IT=* ERRS=*e-04
+		    IT=* ERRS=*e-*
+		    IT=* ERRS=*</programlisting>
+	      </para></listitem>
+            </itemizedlist>
+		</para>
+              </listitem>
+            </varlistentry>
+        </variablelist>
+      </para>
+      </simplesect>
+    </simplesect>
   </section>
 
     <section id="vr-manual.localization.coverage" xreflabel="Coverage">
@@ -445,7 +581,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       The first technique to localize unstable tests, is based on the compatibility with instrumentation provided by the compilers.
       The idea is to produce with compiler tools (option <computeroutput>--coverage</computeroutput> and tool <computeroutput>gcov</computeroutput> for <computeroutput>gcc</computeroutput>) two code coverage for the analyzed test case.
       The first one can be generate without verrou or with <computeroutput>nearest</computeroutput> rounding mode and the second one with <computeroutput>random</computeroutput> rounding mode. The second one can be produced several time, to
-      get a coverage with sufficient discrepancie compared to the one with  <computeroutput>nearest</computeroutput> rounding mode. Once both code coverage generated, simple graphical tools
+      get a coverage with sufficient discrepancies compared to the one with  <computeroutput>nearest</computeroutput> rounding mode. Once both code coverage generated, simple graphical tools
       as <computeroutput>meld</computeroutput> or <computeroutput>kompare</computeroutput> can be used to pinpoint potential unstable test.
     </para>
     </section>
@@ -695,7 +831,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
       </para>
 
       <para>
-	The scripts <command> run_script </command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by exemple with
+	The scripts <command> run_script </command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by example with
 	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>).
 
 	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print

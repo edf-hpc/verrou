@@ -358,7 +358,7 @@ det2
 		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
 		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and average_[com]det
 		rounding mode.
-		This helps reproducing the behaviour of a program under Verrou.
+		This helps reproducing the behavior of a program under Verrou.
               </para>
               <para>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
@@ -372,7 +372,7 @@ det2
             <term><option><![CDATA[--prandom-update=func [default=none]]]></option></term>
             <listitem>
               <para>If present, this option the p-value of the prandom[|det|comdet] rounding mode is
-		updated (with an uniform random selection between 0 and 1) at the begining of each function call.
+		updated (with an uniform random selection between 0 and 1) at the beginning of each function call.
 		Be careful the option is highly sensitive
 		to the program compilation option. If each the update is inserted between each floating point
 		operations the  <link linkend="vr-manual.feat.rounding-mode">prandom and random modes</link> are equivalent.
@@ -523,6 +523,27 @@ det2
 	      <para>This option can be activated with the env variable <command>VERROU_GEN_SOURCE</command>.</para>
             </listitem>
           </varlistentry>
+
+	  <varlistentry id="vr-opt.expect-clr" xreflabel="--expect-clr">
+            <term><option><![CDATA[--expect-clr=EXPECT_FILE]]></option></term>
+            <listitem>
+              <para> When this option is present the expect script is read. This file
+		defines the interaction between verrou and the stdout (<link linkend= "id.expect.format">See expect format</link>). The main idea behind this format is to apply client request action when a line match a MATCH or EXPECT line. A MATCH line can be match anytime, whereas the EXPECT lines are matched sequentially.</para>
+
+	      <para>This option can be activated with the env variable <command>VERROU_EXPECT_CLR</command>.</para>
+	    </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.output-expect-rep" xreflabel="--output-expect-rep">
+            <term><option><![CDATA[--output-expect-rep=REP]]></option></term>
+            <listitem>
+              <para> Specify the repository of expect log file. By default the log file is
+		<computeroutput>EXPECT_FILE.log-PID</computeroutput>. With this option it is <computeroutput>REP/expect.log-PID</computeroutput>. This option as also influence on the keys <computeroutput> dump-stdout:</computeroutput> and <computeroutput> dump-filtered-stdout:</computeroutput>of the <link linkend= "id.expect.format">expect format</link>).
+	      </para>
+
+	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_EXPECT_REP</command>.</para>
+            </listitem>
+          </varlistentry>
         </variablelist>
       </section>
 
@@ -555,7 +576,7 @@ det2
             <term><option><![CDATA[--check-nan=<yes|no> [default=yes]]]></option></term>
               <listitem><para>
 		  Activate NaN detection. NaN produces a valgrind error.
-		  This functionnality requires the verrou backend.
+		  This functionality requires the verrou backend.
               </para></listitem>
             </varlistentry>
 
@@ -563,7 +584,7 @@ det2
               <term><option><![CDATA[--check-inf=<yes|no> [default=yes]]]></option></term>
 		<listitem><para>
 		    Activate Inf detection. +/-Inf produces a valgrind error.
-		    This functionnality requires the verrou backend.
+		    This functionality requires the verrou backend.
 		</para></listitem>
               </varlistentry>
 
@@ -571,7 +592,7 @@ det2
             <term><option><![CDATA[--check-cancellation=<yes|no> [default=no]]]></option></term>
             <listitem><para>
 		Activate cancellation detection. Cancellation produces a valgrind error.
-		This functionnality is available for the verrou, mcaquad  and checkdenorm backends. The level
+		This functionality is available for the verrou, mcaquad  and checkdenorm backends. The level
 		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
 		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
             </para></listitem>
@@ -581,7 +602,7 @@ det2
             <term><option><![CDATA[--cc-gen-file=<FILE>]]></option></term>
             <listitem><para>
 		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one cancellation.
-		This functionnality is available for verrou, mcaquad and checkdenorm backends. The level
+		This functionality is available for verrou, mcaquad and checkdenorm backends. The level
 		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
 		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
             </para></listitem>
@@ -591,7 +612,7 @@ det2
 	  <varlistentry id="vr.opt.cc-threshold-float" xreflabel="--cc-threshold-float">
             <term><option><![CDATA[--cc-threshold-float=<integer> [default=24]]]></option></term>
             <listitem><para>
-		Configure the cancellation  dectection threshold for float operations.
+		Configure the cancellation detection threshold for float operations.
 		Default value is still experimental and could have to change.
             </para></listitem>
           </varlistentry>
@@ -599,7 +620,7 @@ det2
 	  <varlistentry id="vr.opt.cc-threshold-double" xreflabel="--cc-threshold-double">
             <term><option><![CDATA[--cc-threshold-double=<integer> [default=40]]]></option></term>
             <listitem><para>
-		Configure the cancellation  dectection threshold for double operations.
+		Configure the cancellation  detection threshold for double operations.
 		Default value is still experimental and could have to change.
             </para></listitem>
           </varlistentry>
@@ -610,7 +631,7 @@ det2
             <term><option><![CDATA[--check-denorm=<yes|no> [default=no]]]></option></term>
             <listitem><para>
 		Activate denormal number detection. Denormal number produced by floating point operation produces a valgrind error.
-		This functionnality is available for the checkdenorm backend.
+		This functionality is available for the checkdenorm backend.
             </para></listitem>
           </varlistentry>
 
@@ -618,14 +639,14 @@ det2
             <term><option><![CDATA[--cd-gen-file=<FILE>]]></option></term>
             <listitem><para>
 		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one denormal number.
-		This functionnality is available for checkdenorm backend.
+		This functionality is available for checkdenorm backend.
             </para></listitem>
           </varlistentry>
 
 	  <varlistentry id="vr.opt.float_max" xreflabel="--check-max-float">
             <term><option><![CDATA[--check-max-float=<yes|no> [default=no]]]></option></term>
             <listitem><para>
-		Activate max float detection. This functionnality is compatible only with verrou backend.
+		Activate max float detection. This functionality is compatible only with verrou backend.
             </para></listitem>
           </varlistentry>
 
@@ -721,6 +742,218 @@ det2
         </varlistentry>
 
       </variablelist>
+    </section>
+
+    <section id="id.expect.format" xreflabel="expect format">
+      <title>Expect script</title>
+      <para>
+	The expect script is activated thanks the option <option><xref linkend="vr-opt.expect-clr"/>=EXPECT_FILE</option>.
+	The comment symbol is <computeroutput>#</computeroutput>.
+	The format is divided in two parts. The first one is called <replaceable>headers</replaceable> and the second one <replaceable>temporal part</replaceable>.
+	The two parts are separated by a key <computeroutput>begin:</computeroutput>.
+
+
+      </para>
+      <para>
+      The <replaceable>header part</replaceable> can contain the configuration keys :
+      <variablelist>
+	<varlistentry>
+	  <term><computeroutput>verbose: LEVEL</computeroutput></term>
+	  <listitem>
+	    Configure the verbosity level (default 1)
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>ignore-empty-line:</computeroutput></term>
+	  <listitem>
+	    If this key is present, the empty lines are ignored.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>filter_line_exec: CMD</computeroutput></term>
+	  <listitem>
+	    Activate the line replacement with CMD.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>dump-stdout: [FILENAME]</computeroutput></term>
+	  <listitem>
+	    Dump the stdout file. If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.stdout-PID</computeroutput> or <computeroutput>EXPECT_OUTPUT_REP/expect.stdout-PID</computeroutput> (if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>dump-filtered-stdout: [FILENAME]</computeroutput></term>
+	  <listitem>
+	    Dump the stdout file after application of <computeroutput>filter_line_exec CMD</computeroutput> to each line.
+	     If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.filtered.stdout-PID</computeroutput> or <computeroutput>EXPECT_OUTPUT_REP/expect.filtered.stdout-PID</computeroutput> (if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+
+      </para>
+      <para>
+	In the <replaceable>header part</replaceable> we can also set up action to each section.
+	<variablelist>
+	<varlistentry>
+	  <term><computeroutput>default: ACTION</computeroutput></term>
+	  <listitem>
+	    Add ACTION to the default section.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>init: ACTION</computeroutput></term>
+	  <listitem>
+	    Add ACTION to the init section. This action will be executed during the verrou initialization.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>post-init: ACTION</computeroutput></term>
+	  <listitem>
+	    Add ACTION to the post-init section. This action will be executed when the first stdout line appears.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>match: PATTERN</computeroutput></term>
+	  <listitem>
+	    Setup a  match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after :
+	    is a part of the format. Every space after this one is meaningful. The order of match section is important.
+	    If the first match is *. All following match section are ignored. The action associated to the section are
+	    defined in the following lines by <computeroutput>apply:</computeroutput> and <computeroutput>post-apply:</computeroutput>
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>apply: ACTION</computeroutput></term>
+	  <listitem>
+	    Add the ACTION to current <computeroutput>match</computeroutput> section. This action will be applied to the beginning of the match section.
+	    If no action is set for a match section, the default group of action will be executed. To avoid the default action, you can use a
+	    <computeroutput>nop</computeroutput> action.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>post-apply: ACTION</computeroutput></term>
+	  <listitem>
+	    Add the ACTION to current <computeroutput>match</computeroutput> section. This action will be applied to the end of the match section.
+	    If no post-action is defined, nothing is done (ie. no <computeroutput>default</computeroutput> action).
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+      </para>
+
+      <para>
+The different possible actions are :
+      <variablelist>
+	<varlistentry>
+	  <term><computeroutput>start</computeroutput></term>
+	  <listitem> Start instrumentation.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>stop</computeroutput></term>
+	  <listitem>
+	    Stop instrumentation.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>nop</computeroutput></term>
+	  <listitem>
+	    do nothing (useful to avoid default action)
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>display_counter</computeroutput></term>
+	  <listitem>
+	    display counters
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>nb_instr</computeroutput></term>
+	  <listitem>
+	    Display the number of instrumented floating point operation in the log file.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>reset_counter</computeroutput></term>
+	  <listitem>
+	    Set all floating point counters to zero.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>dump_cover</computeroutput></term>
+	  <listitem>
+	    Apply <computeroutput>DUMP_COVER</computeroutput> client request.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>panic</computeroutput></term>
+	  <listitem>
+	    Stop program with panic.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>exit</computeroutput></term>
+	  <listitem>
+	    Stop program with exit.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>default,init,post-init</computeroutput></term>
+	  <listitem>
+	    Apply the same group of actions defined for the section <computeroutput>default</computeroutput>, <computeroutput>init</computeroutput> and <computeroutput>post-init</computeroutput>.
+	  </listitem>
+	</varlistentry>
+
+      </variablelist>
+
+      </para>
+      In the <replaceable>temporal part</replaceable> (after <computeroutput>begin:</computeroutput> key) the following keys can be defined:
+      <variablelist>
+	<varlistentry>
+	  <term><computeroutput>except: PATTERN</computeroutput></term>
+	  <listitem>
+	    Define the pattern of the except line. As for <computeroutput>match: </computeroutput>,  <computeroutput>PATTERN</computeroutput> is a wildcard expression (with * and ?).
+	    The actions associated are defined by the <computeroutput>apply:</computeroutput> key.
+	  </listitem>
+	</varlistentry>
+	  <varlistentry>
+	  <term><computeroutput>apply: ACTION</computeroutput></term>
+	  <listitem>
+	    Add the ACTION to current <computeroutput>expect</computeroutput> section. If no <computeroutput>apply:</computeroutput> key is defined, the default actions are executed.
+	  </listitem>
+	</varlistentry>
+    </variablelist>
+
+      <para>
+	Remarks:
+	<variablelist>
+	  <varlistentry>
+	    <listitem>
+	     1) <computeroutput>expect:</computeroutput>key are more difficult to use than <computeroutput>match:</computeroutput>. Indeed if a pattern is not found, we will wait the end of the program without taking into account any following <computeroutput>expect:</computeroutput> key. But the temporal aspect of expect, allows sometimes to apply action by taking into account a context (by example the content of the previous line).
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <listitem>
+	      2) If a line match the current expect, the match actions won't be applied.
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <listitem>
+	      3) It is not possible to define <computeroutput>post-apply</computeroutput> action with <computeroutput>expect:</computeroutput>.
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+
+      </para>
     </section>
 
     <section>

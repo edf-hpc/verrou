@@ -22,6 +22,8 @@
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
     <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_line.synopsis"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_stdout.synopsis"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsynopsisdiv>
 
 
@@ -36,6 +38,12 @@
   <refsect1>
     <title>Options and Environment Variables</title>
     <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd.envvars"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect1>
+
+  <refsect1>
+    <title>Options and Environment Variables specific to verrou_dd_stdout</title>
+    <xi:include href="vr-manual.xml" xpointer="verrou_dd_stdout.specific.option"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 

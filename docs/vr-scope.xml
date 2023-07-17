@@ -66,7 +66,7 @@
         </para>
       </warning>
 
-      <para>A recommanded procedure to find the correct library path is the following: <screen>
+      <para>A recommenced procedure to find the correct library path is the following: <screen>
 <prompt>$</prompt> ldd <replaceable>program</replaceable>
         linux-vdso.so.1 (0x00007fffebbc6000)
         libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fdbe1760000)

@@ -185,7 +185,7 @@
 	</para>
         </listitem>
 	<listitem><para><command>average_det:</command> Randomly choose between upward and downward
-        rounding mode, with the same probabilitie law as <command>average</command> but insuring that, for a given seed, the same computation
+        rounding mode, with the same probability law as <command>average</command> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>average</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
@@ -223,7 +223,7 @@
         </listitem>
 
 	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
-            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symetric.
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symmetric.
 	  </para>
         </listitem>
 

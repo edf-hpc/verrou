@@ -73,8 +73,8 @@
           pseudo-Random Number Generator used for the random or average\n\
           rounding modes. The same option can also be used to set the seed of\n\
           the hash function used for the [p]random_[com]det and\n\
-          average_[com]det rounding mode. This helps reproducing the\n\
-          behaviour of a program under Verrou.\n\
+          average_[com]det rounding mode. This helps reproducing the behavior\n\
+          of a program under Verrou.\n\
 \n\
           If this option is omitted, the pRNG is seeded with a value based on\n\
           the current time and process id, so that it should change at each\n\
@@ -85,7 +85,7 @@
       --prandom-update=func [default=none]\n\
           If present, this option the p-value of the prandom[|det|comdet]\n\
           rounding mode is updated (with an uniform random selection between\n\
-          0 and 1) at the begining of each function call. Be careful the\n\
+          0 and 1) at the beginning of each function call. Be careful the\n\
           option is highly sensitive to the program compilation option. If\n\
           each the update is inserted between each floating point operations\n\
           the prandom and random modes are equivalent.\n\
@@ -186,6 +186,26 @@
           This option can be activated with the env variable\n\
           VERROU_GEN_SOURCE.\n\
 \n\
+      --expect-clr=EXPECT_FILE\n\
+          When this option is present the expect script is read. This file\n\
+          defines the interaction between verrou and the stdout (See expect\n\
+          format). The main idea behind this format is to apply client\n\
+          request action when a line match a MATCH or EXPECT line. A MATCH\n\
+          line can be match anytime, whereas the EXPECT lines are matched\n\
+          sequentially.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_EXPECT_CLR.\n\
+\n\
+      --output-expect-rep=REP\n\
+          Specify the repository of expect log file. By default the log file\n\
+          is EXPECT_FILE.log-PID. With this option it is REP/expect.log-PID.\n\
+          This option as also influence on the keys dump-stdout: and\n\
+          dump-filtered-stdout:of the expect format).\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_OUTPUT_EXPECT_REP.\n\
+\n\
     Coverage generation\n\
       --trace=FILE\n\
           Activate the Basic Blocks Coverage for the symbols specified in\n\
@@ -197,48 +217,48 @@
     Detection options\n\
       --check-nan=<yes|no> [default=yes]\n\
           Activate NaN detection. NaN produces a valgrind error. This\n\
-          functionnality requires the verrou backend.\n\
+          functionality requires the verrou backend.\n\
 \n\
       --check-inf=<yes|no> [default=yes]\n\
           Activate Inf detection. +/-Inf produces a valgrind error. This\n\
-          functionnality requires the verrou backend.\n\
+          functionality requires the verrou backend.\n\
 \n\
       --check-cancellation=<yes|no> [default=no]\n\
           Activate cancellation detection. Cancellation produces a valgrind\n\
-          error. This functionnality is available for the verrou, mcaquad and\n\
+          error. This functionality is available for the verrou, mcaquad and\n\
           checkdenorm backends. The level of detected cancellations can be\n\
           configured with --cc-threshold-float and --cc-threshold-double.\n\
 \n\
       --cc-gen-file=<FILE>\n\
           Generate in FILE with the source format for each code source line\n\
-          which produces at least one cancellation. This functionnality is\n\
+          which produces at least one cancellation. This functionality is\n\
           available for verrou, mcaquad and checkdenorm backends. The level\n\
           of detected cancellations can be configured with --cc-threshold-\n\
           float and --cc-threshold-double.\n\
 \n\
       --cc-threshold-float=<integer> [default=24]\n\
-          Configure the cancellation dectection threshold for float\n\
+          Configure the cancellation detection threshold for float\n\
           operations. Default value is still experimental and could have to\n\
           change.\n\
 \n\
       --cc-threshold-double=<integer> [default=40]\n\
-          Configure the cancellation dectection threshold for double\n\
+          Configure the cancellation detection threshold for double\n\
           operations. Default value is still experimental and could have to\n\
           change.\n\
 \n\
       --check-denorm=<yes|no> [default=no]\n\
           Activate denormal number detection. Denormal number produced by\n\
           floating point operation produces a valgrind error. This\n\
-          functionnality is available for the checkdenorm backend.\n\
+          functionality is available for the checkdenorm backend.\n\
 \n\
       --cd-gen-file=<FILE>\n\
           Generate in FILE with the source format for each code source line\n\
-          which produces at least one denormal number. This functionnality is\n\
+          which produces at least one denormal number. This functionality is\n\
           available for checkdenorm backend.\n\
 \n\
       --check-max-float=<yes|no> [default=no]\n\
-          Activate max float detection. This functionnality is compatible\n\
-          only with verrou backend.\n\
+          Activate max float detection. This functionality is compatible only\n\
+          with verrou backend.\n\
 \n\
     Performance optimization\n\
       --vr-unsafe-llo-optim=<yes|no> [default=no]\n\
