@@ -343,7 +343,7 @@ static Bool get_first_line ( Int fd, HChar** bufpp)
 
 
 static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly){
-  if(expect_verbose>1){
+  if(expect_verbose>2){
      VG_(umsg)("vr_applyCmd : %s\n", cmd);
   }
   switch(key){
