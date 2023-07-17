@@ -100,17 +100,23 @@ class verrouTask:
     def printDir(self):
         print(self.pathToPrint,end="")
 
-    def nameDir(self,i):
-        return  os.path.join(self.dirname,"dd.run%i" % (i))
+    def nameDir(self,i,relative=False):
+        if relative:
+            return "dd.run%i" % (i)
+        else:
+            return  os.path.join(self.dirname,"dd.run%i" % (i))
 
     def mkdir(self,i):
          os.mkdir(self.nameDir(i))
     def rmdir(self,i):
         shutil.rmtree(self.nameDir(i))
 
+    def replacePattern(self, value, i):
+        return value.replace("%DDRUN%", self.nameDir(i,True))
+
     def runOneSample(self,i):
         rundir= self.nameDir(i)
-        env={key:self.runEnv[key] for key in self.runEnv}
+        env={key:self.replacePattern(self.runEnv[key],i) for key in self.runEnv}
         if self.seedTab!=None:
             env["VERROU_SEED"]=str(self.seedTab[i])
         if self.preRunLambda!=None:

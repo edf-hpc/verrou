@@ -114,6 +114,7 @@ SizeT vr_nbApplyMatch[MATCH_MAX];
 HChar vr_postApplyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
 SizeT vr_nbPostApplyMatch[MATCH_MAX];
 HChar* vr_matchPattern[MATCH_MAX];
+SizeT vr_countMatchPattern[MATCH_MAX];
 SizeT vr_nbMatch=0;
 
 
@@ -491,11 +492,26 @@ void vr_expect_apply_clrs(void){
 
 
 
-VgFile* openOutputExpectFile(const HChar * fileName,const HChar * strPost){
+VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpect, const HChar * strPost){
   /*Open output File*/
-
   HChar strFilename[512];
-  VG_(sprintf)(strFilename, "%s%s",fileName,strPost);
+  if( VG_(strncmp)(fileName, "",512)==0){
+     if(vr.outputExpectRep==NULL){
+        VG_(sprintf)(strFilename, "%s%s",fileNameExpect,strPost);
+     }else{
+        VG_(sprintf)(strFilename, "%s/%s%s",vr.outputExpectRep,"expect",strPost);
+     }
+  }else{
+     if(vr.outputExpectRep==NULL){
+        VG_(sprintf)(strFilename, "%s",fileName);
+     }else{
+        if(fileName[0]=='/'){
+           VG_(umsg)("incomptatible option --output-expect-rep with abspath : %s", fileName);
+           VG_(tool_panic)("incomptatible option --output-expect-rep with abspath");
+        }
+        VG_(sprintf)(strFilename, "%s/%s", vr.outputExpectRep, fileName);
+     }
+  }
 
   const HChar * strFilenameExpanded=   VG_(expand_file_name)(strPost,  strFilename);
 
@@ -512,6 +528,23 @@ VgFile* openOutputExpectFile(const HChar * fileName,const HChar * strPost){
 };
 
 
+HChar* stripSpace(HChar* str){
+   if(str[0]==0) return str;
+
+   HChar* res=str;
+   while(res[0]==' ') res+=1;
+
+   HChar* end=res;
+   while(*end!=0) end+=1;
+
+   end--;
+   while(*end==' '){
+      *end=0;
+      end-=1;
+   }
+   return res;
+}
+
 void vr_expect_clr_init (const HChar * fileName) {
    /*Open input File*/
    VG_(umsg)("Open expect clr file : `%s'... \n", fileName);
@@ -523,7 +556,7 @@ void vr_expect_clr_init (const HChar * fileName) {
   }
 
   /*Open output File*/
-  vr_expectCLRFileLog=openOutputExpectFile(fileName, ".log-%p");
+  vr_expectCLRFileLog=openOutputExpectFile("",fileName, ".log-%p");
 
   /*Allocate requiered Buffer*/
   vr_expectTmpLine = VG_(malloc)("vr_expect_cl_init.1", LINE_SIZEMAX*sizeof(HChar));
@@ -534,15 +567,15 @@ void vr_expect_clr_init (const HChar * fileName) {
   /*Loop over input line until first expect key*/
   SizeT lineNo = 0;
 
-  while (! get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) { 
+  while (! get_fullnc_line(vr.expectCLRFileInput, &vr_expectTmpLine, &lineNo)) {
      if(expect_verbose>3){
         VG_(umsg)("debug line : %s\n", vr_expectTmpLine);
      }
 
      //Treat default key
     if( VG_(strncmp)(vr_expectTmpLine, vr_defaultKeyStr, vr_defaultKeyStrSize)==0  ){
-       const HChar* defaultAction=vr_expectTmpLine+vr_defaultKeyStrSize;
-       if(expect_verbose>1){
+       const HChar* defaultAction=stripSpace(vr_expectTmpLine+vr_defaultKeyStrSize);
+       if(expect_verbose>2){
           VG_(umsg)("default action str : %s\n", defaultAction);
        }
        if (vr_valid_apply_cmd(defaultAction)){
@@ -558,7 +591,7 @@ void vr_expect_clr_init (const HChar * fileName) {
 
      //Treat ignoreEmptyLine key
     if( VG_(strncmp)(vr_expectTmpLine, vr_ignoreEmptyLineKeyStr, vr_ignoreEmptyLineKeyStrSize)==0  ){
-       const HChar* boolStr=vr_expectTmpLine+vr_ignoreEmptyLineKeyStrSize;
+       const HChar* boolStr=stripSpace(vr_expectTmpLine+vr_ignoreEmptyLineKeyStrSize);
        const HChar trueStr[]="true";
        const HChar falseStr[]="false";
        if( VG_(strncmp)(boolStr,trueStr, sizeof(trueStr))==0){
@@ -574,7 +607,7 @@ void vr_expect_clr_init (const HChar * fileName) {
 	 }
        }
 
-       if(expect_verbose>1){
+       if(expect_verbose>2){
           VG_(umsg)("ignore-empty-line: %s\n", boolStr);
        }
        continue;
@@ -582,8 +615,8 @@ void vr_expect_clr_init (const HChar * fileName) {
 
      //Treat init key
     if( VG_(strncmp)(vr_expectTmpLine, vr_initKeyStr, vr_initKeyStrSize)==0  ){
-       const HChar* initAction=vr_expectTmpLine+vr_initKeyStrSize;
-       if(expect_verbose>1){
+       const HChar* initAction=stripSpace(vr_expectTmpLine+vr_initKeyStrSize);
+       if(expect_verbose>2){
           VG_(umsg)("init action str : %s\n", initAction);
        }
        if (vr_valid_apply_cmd(initAction)){
@@ -599,8 +632,8 @@ void vr_expect_clr_init (const HChar * fileName) {
 
          //Treat postinit key
     if( VG_(strncmp)(vr_expectTmpLine, vr_postinitKeyStr, vr_postinitKeyStrSize)==0  ){
-       const HChar* postinitAction=vr_expectTmpLine+vr_postinitKeyStrSize;
-       if(expect_verbose>1){
+       const HChar* postinitAction=stripSpace(vr_expectTmpLine+vr_postinitKeyStrSize);
+       if(expect_verbose>2){
           VG_(umsg)("post-init action str : %s\n", postinitAction);
        }
        if (vr_valid_apply_cmd(postinitAction)){
@@ -623,17 +656,18 @@ void vr_expect_clr_init (const HChar * fileName) {
       VG_(fprintf)(vr_expectCLRFileLog, "match pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
       vr_matchPattern[vr_nbMatch]=VG_(strdup)("math.patterndup", matchPattern);
       vr_nbApplyMatch[vr_nbMatch]=0;
+      vr_countMatchPattern[vr_nbMatch]=0;
       vr_nbMatch++;
       continue;
     }
 
-    if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0  ){
-      const HChar* applyCmd=vr_expectTmpLine+vr_applyKeyStrSize;
-      if(expect_verbose>1){
+    if( VG_(strncmp)(vr_expectTmpLine, vr_applyKeyStr, vr_applyKeyStrSize)==0 ){
+      const HChar* applyCmd=stripSpace(vr_expectTmpLine+vr_applyKeyStrSize);
+      if(expect_verbose>2){
          VG_(umsg)("apply : %s\n", applyCmd);
       }
       if(vr_nbApplyMatch<0){
-	VG_(tool_panic)("vr_expect_clr : match expected befor apply ");
+	VG_(tool_panic)("vr_expect_clr : match expected before apply ");
       }
       vr_nbApplyMatch[vr_nbMatch-1]++;
       if(vr_nbApplyMatch[vr_nbMatch-1]>=APPLY_PER_MATCH_MAX ){
@@ -643,13 +677,13 @@ void vr_expect_clr_init (const HChar * fileName) {
       continue;
     }
 
-    if( VG_(strncmp)(vr_expectTmpLine, vr_postApplyKeyStr, vr_postApplyKeyStrSize)==0  ){
-      const HChar* applyCmd=vr_expectTmpLine+vr_postApplyKeyStrSize;
-      if(expect_verbose>1){
+    if( VG_(strncmp)(vr_expectTmpLine, vr_postApplyKeyStr, vr_postApplyKeyStrSize)==0 ){
+      const HChar* applyCmd=stripSpace(vr_expectTmpLine+vr_postApplyKeyStrSize);
+      if(expect_verbose>2){
          VG_(umsg)("post_apply : %s\n", applyCmd);
       }
       if(vr_nbApplyMatch<0){
-	VG_(tool_panic)("vr_expect_clr : match expected befor post-apply ");
+	VG_(tool_panic)("vr_expect_clr : match expected before post-apply ");
       }
       vr_nbPostApplyMatch[vr_nbMatch-1]++;
       if(vr_nbPostApplyMatch[vr_nbMatch-1]>=POST_APPLY_PER_MATCH_MAX ){
@@ -661,33 +695,35 @@ void vr_expect_clr_init (const HChar * fileName) {
 
 
      //Treat begin key
-    if( VG_(strncmp)(vr_expectTmpLine, vr_beginKeyStr, vr_beginKeyStrSize)==0  ){
+    if( VG_(strncmp)(vr_expectTmpLine, vr_beginKeyStr, vr_beginKeyStrSize)==0 ){
        vr_expectTmpLine[0]='\0';
        break;
     }
-    if( VG_(strncmp)(vr_expectTmpLine, vr_verboseKeyStr, vr_verboseKeyStrSize)==0  ){
-      const HChar* verboseStr=vr_expectTmpLine+vr_verboseKeyStrSize;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_verboseKeyStr, vr_verboseKeyStrSize)==0 ){
+      const HChar* verboseStr=stripSpace(vr_expectTmpLine+vr_verboseKeyStrSize);
       expect_verbose=VG_(strtoull10)(verboseStr,  NULL);
       continue;
     }
 
-    if( VG_(strncmp)(vr_expectTmpLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0  ){
-      //const HChar* dumpStr=vr_expectTmpLine+vr_dumpStdoutKeyStrSize;
-      vr_dumpStdout=True;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0 ){
+       const HChar* dumpStr=stripSpace(vr_expectTmpLine+vr_dumpStdoutKeyStrSize);
+       vr_dumpStdout=True;
+       vr_expectCLRFileStdout=openOutputExpectFile(dumpStr,fileName,".stdout-%p");
       continue;
     }
 
-    if( VG_(strncmp)(vr_expectTmpLine, vr_dumpFilteredStdoutKeyStr, vr_dumpFilteredStdoutKeyStrSize)==0  ){
-      //      const HChar* dumpStr=vr_expectTmpLine+vr_dumpFilteredStdoutKeyStrSize;
-      vr_dumpFilteredStdout=True;
+    if( VG_(strncmp)(vr_expectTmpLine, vr_dumpFilteredStdoutKeyStr, vr_dumpFilteredStdoutKeyStrSize)==0 ){
+       const HChar* dumpStr=stripSpace(vr_expectTmpLine+vr_dumpFilteredStdoutKeyStrSize);
+       vr_dumpFilteredStdout=True;
+       vr_expectCLRFileFilteredStdout=openOutputExpectFile(dumpStr,fileName,".filtered.stdout-%p");
       continue;
     }
 
 
     //Treat filter line exec key
     if( VG_(strncmp)(vr_expectTmpLine, vr_filterLineExecKeyStr, vr_filterLineExecKeyStrSize)==0 ){
-       const HChar* filterExecCmd=vr_expectTmpLine+vr_filterLineExecKeyStrSize;
-       if(expect_verbose>1){
+       const HChar* filterExecCmd=stripSpace(vr_expectTmpLine+vr_filterLineExecKeyStrSize);
+       if(expect_verbose>3){
           VG_(umsg)("filter line exec str : %s\n", filterExecCmd);
        }
 
@@ -696,8 +732,8 @@ void vr_expect_clr_init (const HChar * fileName) {
        }
        vr_filter=True;
        VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
-       if(expect_verbose>1){
-          VG_(umsg)("vr_filter_cmd : %s\n", vr_filter_cmd);
+       if(expect_verbose>2){
+          VG_(umsg)("vr_filter_cmd: %s\n", vr_filter_cmd);
        }
        vr_filtered_buff=VG_(malloc)("vr_filtered_buff.1", LINE_SIZEMAX*sizeof(HChar));
        Int id=VG_(mkstemp) ("vrFilterCmd", tmpFileNameFilter );
@@ -724,14 +760,6 @@ void vr_expect_clr_init (const HChar * fileName) {
     }
   }
 
-  if(vr_dumpStdout){
-    vr_expectCLRFileStdout=openOutputExpectFile(fileName,".stdout-%p");
-  }
-  if(vr_filter &&  vr_dumpFilteredStdout){
-    vr_expectCLRFileFilteredStdout=openOutputExpectFile(fileName,".filtered.stdout-%p");
-  }else{
-    vr_expectCLRFileFilteredStdout=NULL;
-  }
   vr_expect_apply_clr("init", True);
 
 //  VG_(umsg)("expectCLR init done\n");
@@ -785,7 +813,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   filteredBuf=vr_filtered_buff;
 	   if(vr_dumpFilteredStdout){
 	     VG_(fprintf)(vr_expectCLRFileFilteredStdout,"%s\n", vr_filtered_buff);
-	   }	   
+	   }
 	 }
 
 	 if(first){
@@ -836,6 +864,8 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 		 if(expect_verbose>0){
 		   VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
 		 }
+                 vr_countMatchPattern[matchIndex]++;
+
 		 VG_(fprintf)(vr_expectCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
 		 if(vr_filter){
 		   if(expect_verbose>0){
@@ -854,7 +884,14 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 		 previousMatchIndex=matchIndex;
 	       }
 	       break; //match only once
-	       }
+	       }else{
+                  VG_(fprintf)(vr_expectCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+                  VG_(fprintf)(vr_expectCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
+                  if(expect_verbose>1){
+                     VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+                     VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
+                  }
+               }
 	     }
 	   }
 	 }
@@ -897,6 +934,15 @@ void vr_expect_clr_finalize (void){
 	VG_(fprintf)(vr_expectCLRFileLog,"Unused line %lu : %s\n", lineNo,vr_expectTmpLine);
 	VG_(umsg)("\tUnused line %lu : %s\n", lineNo,vr_expectTmpLine);
       }
+   }
+
+
+   VG_(fprintf)(vr_expectCLRFileLog,"match pattern count\n");
+   VG_(umsg)("match pattern count\n");
+   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
+      SizeT count=vr_countMatchPattern[matchIndex];
+      VG_(fprintf)(vr_expectCLRFileLog,"\t%lu : %s\n", count,vr_matchPattern[matchIndex]);
+      VG_(umsg)("\t%lu : %s\n", count,vr_matchPattern[matchIndex]);
    }
 
    //free and close evrything

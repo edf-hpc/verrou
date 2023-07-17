@@ -1605,7 +1605,6 @@ static void vr_fini(Int exitcode)
   vr_freeIncludeSourceList( vr.excludeSourceRead);
   vr_freeIncludeTraceList  (vr.includeTrace );
   VG_(free)(vr.excludeFile);
-  //  VG_(free)(vr.genAbove);
 }
 
 //void vr_cancellation_handler(int cancelled ){
@@ -1651,11 +1650,11 @@ static void vr_post_clo_init(void)
    vr_env_clo("VERROU_SEED","--vr-seed");
 
    vr_env_clo("VERROU_EXPECT_CLR","--expect-clr");
+   vr_env_clo("VERROU_OUTPUT_EXPECT_REP","--output-expect-rep");
 
-   //   if (vr.genAbove == NULL) {
-   //     vr.genAbove = VG_(strdup)("vr.post_clo_init.gen-above", "main");
-   //   }
-
+   if(vr.useExpectCLR){
+      vr_expect_clr_init(vr.expectScript);
+   }
    vr_resetCount();
 
    if(vr.sourceExcludeActivated){
