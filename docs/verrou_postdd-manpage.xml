@@ -1,0 +1,57 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
+          [ <!ENTITY % vg-entities SYSTEM "../../docs/xml/vg-entities.xml"> %vg-entities; ]>
+
+
+<refentry id="verrou-postdd">
+
+  <refmeta>
+    <refentrytitle>Verrou Delta-Debug Post-Treatment</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo>Release &rel-version;</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>post_verrou_dd</refname>
+    <refpurpose>Post-treat the results of verrou_dd_line</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.post_verrou_dd.synopsis"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsynopsisdiv>
+
+
+  <refsect1>
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.post_verrou_dd.description"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect1>
+
+  <refsect1>
+    <title>Options and Environment Variables</title>
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.post_verrou_dd.envvars"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect1>
+
+  <refsect1>
+    <title>See Also</title>
+    <para>
+      valgrind(1),
+      verrou_dd(1),
+      verrou_plot_stat(1),
+      <filename>&vg-docs-path;</filename> or
+      <filename>&vg-docs-url;</filename>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Authors</title>
+    <para>Bruno Lathuili&egrave;re.</para>
+  </refsect1>
+</refentry>
+
+<!-- Local Variables: -->
+<!-- mode: nxml -->
+<!-- fill-column: 100 -->
+<!-- End: -->

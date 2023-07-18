@@ -802,7 +802,7 @@ if __name__=="__main__":
 
     </simplesect>
 
-    <simplesect>
+    <simplesect id="vr-manual.plotstat.description">
       <title>Description</title>
       <para>
 	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
