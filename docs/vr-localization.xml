@@ -569,6 +569,22 @@ if __name__=="__main__":
 		</para>
               </listitem>
             </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--file-pattern=FILE_PATTERN</computeroutput> or <computeroutput>VERROU_DD_FILE_PATTERN</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  The stdout file be replaced by the file which match the FILE_PATTERN. The FILE_PATTERN has to match only one opened file.
+		  To avoid difficulties with the absolut and relative path, the easiest way is to use a wildcard * for the path. If you want to be more precise,
+		  you could use a <computeroutput>strace</computeroutput> command to know how a file is opened :
+		  <programlisting>
+		    strace -e openat,open,creat -f -ff -o strace_verrou MYPROG MYARGS
+		    cat strace_verrou.*</programlisting>
+		</para>
+	      </listitem>
+            </varlistentry>    
         </variablelist>
       </para>
       </simplesect>
