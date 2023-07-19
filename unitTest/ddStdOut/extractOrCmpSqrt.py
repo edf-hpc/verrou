@@ -4,7 +4,10 @@ import os
 
 
 def extractValue(rep):
-    lines=(open(os.path.join(rep,"res.dat")).readlines())
+    fileName=os.path.join(rep,"res.dat")
+    if "PARAM" in os.environ:
+        fileName=os.path.join(rep,os.environ["PARAM"])
+    lines=(open(fileName).readlines())
     for line in lines:
         if line.startswith("res="):
             return float(line.partition("=")[2])

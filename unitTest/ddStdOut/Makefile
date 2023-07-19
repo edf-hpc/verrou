@@ -5,7 +5,7 @@ export SHELL=bash
 
 PYTHON=/usr/bin/python3
 
-REP_LIST=dd.stdout dd.stdout.cpp dd.stdout.empty dd.stdout.debug dd.stdout.debug2 dd.stdout.sqrt
+REP_LIST=dd.stdout dd.stdout.cpp dd.stdout.empty dd.stdout.debug dd.stdout.debug2 dd.stdout.sqrt dd.stdout.sqrt.listing
 #dd.stdout.emptyBis 
 NBRUN=15
 
@@ -48,6 +48,11 @@ dd.stdout.debug2: ./muller exclude.ex
 dd.stdout.sqrt: ./sqrt exclude.ex
 	verrou_dd_stdout --rep=dd.stdout.sqrt --num-threads=5 --nruns=10 --expect-header=expect.header --custom-search-space=expect.custom ddRunSqrt.sh extractOrCmpSqrt.py
 	./assertSqrt.py dd.stdout.sqrt
+
+dd.stdout.sqrt.listing: ./sqrt exclude.ex
+	PARAM=listing verrou_dd_stdout --rep=dd.stdout.sqrt.listing --num-threads=5 --nruns=10 --expect-header=expect.header --custom-search-space=expect.custom.listing --file-pattern=*listing  ddRunSqrt.sh extractOrCmpSqrt.py
+	./assertSqrt.py dd.stdout.sqrt.listing
+
 
 clean:
 	rm -rf exclude.ex $(REP_LIST)  muller sqrt

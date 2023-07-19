@@ -12,16 +12,22 @@ cmpExpected=["__verrou__stdout__init__",
              "xn[5]=*  delta=*"
 ]
 
+
 cmpUnExpected=[
     "xn[6]=*  delta=*",
     "xn[7]=*  delta=*"
 ]
 
+def filterInit(line):
+    if line.startswith("expect open filename:"):
+        return "__verrou__stdout__init__"
+    else:
+        return line
+
 def checkDDcmp(rep):
     ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.expect.include")
     if os.path.exists(ddminCmp):
-        lines=open(ddminCmp).readlines()
-
+        lines=[filterInit(line) for line in open(ddminCmp).readlines()]
         for expectedLine in cmpExpected:
             if expectedLine not in cmpExpected:
                 return False

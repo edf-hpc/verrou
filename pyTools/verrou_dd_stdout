@@ -59,6 +59,10 @@ class DDstdout(DD_stoch.DDStoch):
     def __init__(self, config):
         DD_stoch.DDStoch.__init__(self, config, parseRef=self.selectFloatTask)
 
+    def filePathReplace(self,strLine):
+        cachePath=self.config_.get_cacheRep()
+        return strLine.replace(os.path.join(cachePath, "ref"),os.path.join(cachePath, "*"))
+
     def selectFloatTask(self,logFile):
         currentTask=None
         taskRes=[]
@@ -82,7 +86,7 @@ class DDstdout(DD_stoch.DDStoch):
                         sys.exit(42)
                 nbInstr=int(line[len(fpInstrPattern):])
                 if nbInstr!=0:
-                    taskName=addrReplace(floatReplace(taskName))
+                    taskName=self.filePathReplace(addrReplace(floatReplace(taskName)))
                     if not (taskName in taskRes):
                         taskRes+=[taskName]
 
@@ -120,12 +124,17 @@ class DDstdout(DD_stoch.DDStoch):
         refFile.write("post-apply: nb_instr\n")
         refFile.write("begin:\n")
         refFile.close()
-        return {"PYTHONUNBUFFERED": "x",
+        res= {"PYTHONUNBUFFERED": "x",
                 "VERROU_ROUNDING_MODE": "nearest",
                 "VERROU_MCA_MODE": "ieee",
                 "VERROU_EXPECT_CLR":refPath,
                 "VERROU_OUTPUT_EXPECT_REP":self.ref_
                 }
+        filePattern=self.config_.get_file_pattern()
+        if filePattern!=None:
+            res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
+        return res
+
 
     def isFileValidToMerge(self, name):
         return name.startswith("expect.log-")
@@ -193,10 +202,14 @@ class DDstdout(DD_stoch.DDStoch):
                     f.write(line+"\n")
 
     def sampleRunEnv(self,dirName):
-        return {"PYTHONUNBUFFERED": "x",
-                "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
-                "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%")
-                }
+        res={"PYTHONUNBUFFERED": "x",
+             "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
+             "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%")
+        }
+        filePattern=self.config_.get_file_pattern()
+        if filePattern!=None:
+            res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
+        return res
 
     def coerce(self, delta_config):
         return "\n "+" \n ".join(["|%s|"%e for e in [l.strip() for l in delta_config ]])
@@ -217,6 +230,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("filterCmd", "string", "DD_FILTER_CMD",["--filter-cmd="],None, None )
         self.addRegistry("expectHeaderFile", "string", "DD_EXPECT_HEADER",["--expect-header="], None, "file_exists")
         self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
+        self.addRegistry("filePattern", "string", "DD_FILE_PATTERN",["--file-pattern="], None, None)
 
     def normalizeOptions(self):
         super().normalizeOptions()
@@ -268,6 +282,9 @@ class stdoutConfig(dd_config.ddConfig):
 
     def get_expectHeader(self):
         return self.expectHeader
+
+    def get_file_pattern(self):
+        return self.filePattern
 
 if __name__ == "__main__":
 

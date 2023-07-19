@@ -103,6 +103,7 @@ SizeT vr_nbInit=0;
 
 HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
 SizeT vr_nbpostInit=0;
+SizeT vr_countPostInit=0;
 
 
 #define MATCH_MAX 1000
@@ -491,7 +492,7 @@ void vr_expect_apply_clrs(void){
 
 
 
-
+VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpect, const HChar * strPost);
 VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpect, const HChar * strPost){
   /*Open output File*/
   HChar strFilename[512];
@@ -528,6 +529,7 @@ VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpec
 };
 
 
+HChar* stripSpace(HChar* str);
 HChar* stripSpace(HChar* str){
    if(str[0]==0) return str;
 
@@ -818,7 +820,9 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 
 	 if(first){
 	   if( !ignoreEmptyLine || (filteredBuf[0]!=0) ){
+	     VG_(fprintf)(vr_expectCLRFileLog,"post-init:\n");
 	     vr_expect_apply_clr("post-init", False);
+	     vr_countPostInit+=1;
 	     first=False;
 	   }
 	 }
@@ -911,6 +915,11 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 
 
 void vr_expect_clr_finalize (void){
+  if(vr_countPostInit==0 && vr_nbpostInit!=0){
+    VG_(fprintf)(vr_expectCLRFileLog,"post-init:\n");
+    vr_expect_apply_clr("post-init", True);
+  }
+
 
   // If post_apply need to be applied
   if(previousMatchIndex!=-1){

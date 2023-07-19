@@ -202,6 +202,9 @@ typedef struct {
   HChar* expectScript;
   Int expectCLRFileInput;
 
+  HChar* outputExpectFilePattern;
+  Int ExpectFileDescriptor;
+
   HChar* outputExpectRep;
   HChar* outputTraceRep;
 

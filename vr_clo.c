@@ -70,6 +70,8 @@ void vr_clo_defaults (void) {
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
   vr.outputExpectRep = NULL;
+  vr.outputExpectFilePattern= NULL;
+  vr.ExpectFileDescriptor=1;//stdout
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
@@ -349,6 +351,10 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_STR_CLOM (cloPD, arg, "--output-expect-rep", str)) {
     vr.outputExpectRep = VG_(expand_file_name)("vr.process_clo.expect-rep", str);
+  }
+  else if (VG_STR_CLOM (cloPD, arg, "--expect-file-pattern", str)) {
+    vr.ExpectFileDescriptor=-1;
+    vr.outputExpectFilePattern = VG_(strdup)("vr.process_clo.expect-file-pattern", str);
   }
   // Unknown option
   else {

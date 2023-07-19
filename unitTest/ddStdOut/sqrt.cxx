@@ -1,10 +1,12 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <cmath>
 
 typedef double Realtype;
 
-Realtype sqrtNewton(Realtype a, size_t nbMax=100){
+template<class FLUX>
+Realtype sqrtNewton(Realtype a, size_t nbMax, FLUX& flux){
   Realtype xp=0;
   Realtype xn=a;
   size_t i=0;
@@ -13,7 +15,7 @@ Realtype sqrtNewton(Realtype a, size_t nbMax=100){
     xp=xn;
     xn=1/2.*(xp+a/xp);
     i+=1;
-    std::cout << "xn["<<i<<"]="<< xn <<"  delta="<<xn-xp<< std::endl;
+    flux << "xn["<<i<<"]="<< xn <<"  delta="<<xn-xp<< std::endl;
     if(xn==xp){
       if(!first){
 	return xn;
@@ -23,16 +25,24 @@ Realtype sqrtNewton(Realtype a, size_t nbMax=100){
       first=true;
     }
     if(i==nbMax){
-      std::cout << "nbItMax reached"<<std::endl;
+      flux << "nbItMax reached"<<std::endl;
       return xn;
     }
   }
 }
 
 
-        
 int main(int argc, char** argv){
-  std::cout << std::setprecision(17);
-  Realtype res=sqrtNewton(0.1);
-  std::cout << "res=" << res<<std::endl;
+  if(argc>1){
+    std::ofstream flux;
+    flux.open(argv[1], std::ios::out);
+    flux << std::setprecision(17);
+    Realtype res=sqrtNewton(0.1, 100,flux);
+    flux << "res=" << res<<std::endl;
+  }else{
+    std::cout << std::setprecision(17);
+    Realtype res=sqrtNewton(0.1, 100,std::cout);
+    std::cout << "res=" << res<<std::endl;
+  }
+
 };

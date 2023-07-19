@@ -581,6 +581,10 @@ class DDStoch(DD.DD):
         if testResult!=self.PASS:
             self.noPerturbationFailsFailure()
 
+        if(len(deltas)==1):
+            self.configuration_found("ddmin0",deltas)
+            self.configuration_found("rddmin-cmp",[])
+            return deltas
 
         #select the right variant of algo and apply it
         algo=self.config_.get_ddAlgo()
