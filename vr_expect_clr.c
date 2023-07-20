@@ -106,7 +106,7 @@ SizeT vr_nbpostInit=0;
 SizeT vr_countPostInit=0;
 
 
-#define MATCH_MAX 1000
+#define MATCH_MAX 2000
 #define APPLY_PER_MATCH_MAX 5
 #define POST_APPLY_PER_MATCH_MAX 2
 #define MATCH_SIZE_MAX 30
@@ -808,6 +808,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   VG_(system)(cmdPatternReplaced);
 	   Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0);
 	   Bool check=get_first_line(tmpFile, &vr_filtered_buff);
+	   VG_(close)(tmpFile);
 
 	   if(!check){
 	     vr_filtered_buff[0]=0;
@@ -861,9 +862,10 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	    vr_expect_apply_clrs();
 	 }else{
 	   if(previousMatchIndex==-1){
-
+	     Bool matchFound=False;
 	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
 	       if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
+		 matchFound=True;
 		 //The line match the expect pattern
 		 if(expect_verbose>0){
 		   VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
@@ -888,14 +890,15 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 		 previousMatchIndex=matchIndex;
 	       }
 	       break; //match only once
-	       }else{
-                  VG_(fprintf)(vr_expectCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
-                  VG_(fprintf)(vr_expectCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
-                  if(expect_verbose>1){
-                     VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
-                     VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
-                  }
-               }
+	       }
+	     }
+	     if( matchFound==False){
+	       VG_(fprintf)(vr_expectCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+	       VG_(fprintf)(vr_expectCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
+	       if(expect_verbose>1){
+	       VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+	       VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
+	       }
 	     }
 	   }
 	 }
