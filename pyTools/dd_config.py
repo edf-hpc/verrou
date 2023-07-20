@@ -59,6 +59,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("cache",                 "string",     "DD_CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
         self.addRegistry("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
         self.addRegistry("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ["--rddmin-heuristics-rep="],   [] ,       "rep_exists", True)
+        self.addRegistry("rddminHeuristicsFile" , "string",     "DD_RDDMIN_HEURISTICS_FILE",  ["--rddmin-heuristics-file="],   [] ,       "file_exists", True)
         self.addRegistry("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None)
         self.addRegistry("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
 
@@ -142,6 +143,9 @@ class ddConfig(gen_config.gen_config):
 
     def get_rddminHeuristicsRep_Tab(self):
         return self.rddminHeuristicsRep
+
+    def get_rddminHeuristicsFile_Tab(self):
+        return self.rddminHeuristicsFile
 
     def get_rddminHeuristicsLineConv(self):
         return self.rddminHeuristicsLineConv

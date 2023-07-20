@@ -379,7 +379,7 @@ class DDStoch(DD.DD):
         """ Load the results of previous ddmin. Need to be called after prepareCache"""
 
         self.useRddminHeuristic=False
-        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0:
+        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0 or len(self.config_.get_rddminHeuristicsFile_Tab())!=0:
             self.useRddminHeuristic=True
         if self.useRddminHeuristic==False:
             return
@@ -404,19 +404,23 @@ class DDStoch(DD.DD):
                 rddmin_heuristic_rep+=[rep]
 
         self.ddminHeuristic=[]
+
+        for deltaFile in self.config_.get_rddminHeuristicsFile_Tab():
+            self.ddminHeuristic+=[ self.loadDeltaFile(deltaFile)]
+
         if self.config_.get_cache=="continue":
-            self.ddminHeuristic+=[ self.loadDeltaFile(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
+            self.ddminHeuristic+=[ self.loadDeltaFileFromRep(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
 
         if self.config_.get_rddminHeuristicsLineConv():
             for rep in rddmin_heuristic_rep:
-                deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
+                deltaOld=self.loadDeltaFileFromRep(os.path.join(rep,"ref"), True)
                 if deltaOld==None:
                     continue
                 cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
                 repTab=glob.glob(os.path.join(rep, "ddmin*"))
 
                 for repDDmin in repTab:
-                    deltas=self.loadDeltaFile(repDDmin)
+                    deltas=self.loadDeltaFileFromRep(repDDmin)
                     if deltas==None:
                         continue
                     deltasNew=[]
@@ -427,21 +431,25 @@ class DDStoch(DD.DD):
             for rep in rddmin_heuristic_rep:
                 repTab=glob.glob(os.path.join(rep, "ddmin*"))
                 for repDDmin in repTab:
-                    deltas=self.loadDeltaFile(repDDmin)
+                    deltas=self.loadDeltaFileFromRep(repDDmin)
                     if deltas==None:
                         continue
                     self.ddminHeuristic+=[deltas]
 
-    def loadDeltaFile(self,rep, ref=False):
+    def loadDeltaFileFromRep(self,rep, ref=False):
         fileName=os.path.join(rep, self.getDeltaFileName()+".include")
         if ref:
             fileName=os.path.join(rep, self.getDeltaFileName())
+        return self.loadDeltaFile(fileName)
+
+    def loadDeltaFile(self,fileName):
         if os.path.exists(fileName):
             deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
             return deltasTab
         else:
             print(fileName + " do not exist")
         return None
+
 
     def prepareCache(self):
         cache=self.config_.get_cache()
@@ -1006,7 +1014,7 @@ class DDStoch(DD.DD):
 
 
     def getDelta0(self):
-        return self.loadDeltaFile(self.ref_, True)
+        return self.loadDeltaFileFromRep(self.ref_, True)
 #        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
 #            return f.readlines()
 
