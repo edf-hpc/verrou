@@ -33,6 +33,9 @@
 #include "pub_tool_seqmatch.h"
 #include "coregrind/pub_core_libcfile.h"
 
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+
 
 VgFile* vr_expectCLRFileLog;
 VgFile* vr_expectCLRFileStdout;
@@ -56,7 +59,6 @@ SizeT vr_postinitKeyStrSize=sizeof(vr_postinitKeyStr)-1;
 
 HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
 SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
-
 
 HChar vr_expectKeyStr[]= "expect: ";
 SizeT vr_expectKeyStrSize=sizeof(vr_expectKeyStr)-1;
@@ -131,8 +133,9 @@ SizeT vr_last_expect_lineNo=0;
 Bool vr_filter=False;
 HChar vr_filter_cmd[FILTER_SIZEMAX];
 HChar* vr_filtered_buff;
-HChar tmpFileNameFilter[256]="/tmp/shouldNotBeUsed";
 
+#define ARGV_FILTER_MAX 10
+HChar *argvFiltered[ARGV_FILTER_MAX];
 
 
 HChar nopStr[]="nop";
@@ -734,12 +737,56 @@ void vr_expect_clr_init (const HChar * fileName) {
        }
        vr_filter=True;
        VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
-       if(expect_verbose>2){
-          VG_(umsg)("vr_filter_cmd: %s\n", vr_filter_cmd);
+       //TOTO
+       Bool beginWord=True;
+       Int indexWord=0;
+       Int indexShift=0;
+       Bool escaped=False;
+       for(Int indexStr=0; indexStr<FILTER_SIZEMAX; indexStr++){
+
+	 HChar currentChar=vr_filter_cmd[indexStr];
+	 if(currentChar== '\\'){
+	   indexShift++;
+	   escaped=True;
+	   continue;
+	 }
+	 if(currentChar==0){
+	   vr_filter_cmd[indexStr-indexShift]=0;
+	   argvFiltered[indexWord+1]=NULL;
+	   break;
+	 }
+	 if(currentChar==' ' && (!escaped)){
+	   vr_filter_cmd[indexStr-indexShift]=0;
+	   indexWord++;
+	   if(indexWord==(ARGV_FILTER_MAX-1) ){
+	     VG_(tool_panic)("too many args for filter_line_exec:");
+	   }
+	   beginWord=True;
+	   escaped=False;
+	   continue;
+	 }
+	 if(beginWord && ((currentChar!=' ')|| escaped) ){
+	   argvFiltered[indexWord] = vr_filter_cmd+indexStr-indexShift;
+	   beginWord=False;
+	 }
+	 if(beginWord==False && ((currentChar!=' ')|| escaped)){
+	   vr_filter_cmd[indexStr-indexShift]=vr_filter_cmd[indexStr];
+	 }
+	 escaped=False;
+       }
+
+       if(expect_verbose>1){
+	 VG_(umsg)("vr_filter_cmd: %s\n", argvFiltered[0]);
+	 Int indexArg=1;
+	 while(True){
+	   if(argvFiltered[indexArg]==NULL){
+	     break;
+	   }
+	   VG_(umsg)("\tARGV[%d]: %s\n", indexArg,argvFiltered[indexArg]);
+	   indexArg+=1;
+	 }
        }
        vr_filtered_buff=VG_(malloc)("vr_filtered_buff.1", LINE_SIZEMAX*sizeof(HChar));
-       Int id=VG_(mkstemp) ("vrFilterCmd", tmpFileNameFilter );
-       VG_(close)(id);
        continue;
     }
     /*If there is no begin:*/
@@ -801,17 +848,76 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 if(vr_filter){
 	   // apply filter
 
-	   HChar cmdPattern[]="/bin/sh -c \"echo '%s' | %s\" > %s ";
-	   HChar cmdPatternReplaced[FILTER_SIZEMAX];
-	   VG_(snprintf)(cmdPatternReplaced,FILTER_SIZEMAX, cmdPattern, vr_writeLineBuffCurrent, vr_filter_cmd, tmpFileNameFilter);
-	   //	   VG_(umsg)("debug: %s\n" , cmdPatternReplaced);
-	   VG_(system)(cmdPatternReplaced);
-	   Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0);
-	   Bool check=get_first_line(tmpFile, &vr_filtered_buff);
-	   VG_(close)(tmpFile);
+	   /* HChar cmdPattern[]="/bin/sh -c \"echo '%s' | %s\" > %s "; */
+	   /* HChar cmdPatternReplaced[FILTER_SIZEMAX]; */
+	   /* VG_(snprintf)(cmdPatternReplaced,FILTER_SIZEMAX, cmdPattern, vr_writeLineBuffCurrent, vr_filter_cmd, tmpFileNameFilter); */
+	   /* //	   VG_(umsg)("debug: %s\n" , cmdPatternReplaced); */
+	   /* VG_(system)(cmdPatternReplaced); */
+	   /* Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0); */
+	   /* Bool check=get_first_line(tmpFile, &vr_filtered_buff); */
+	   /* VG_(close)(tmpFile); */
+	   Bool check=False;
+	   Int fdin[2];
+	   Int fdout[2];
+	   if( VG_(pipe)(fdin)!=0 &&  VG_(pipe)(fdout)!=0){
+	     VG_(umsg)("vr_expectCLR : problem with PIPE fdin\n");
+	     VG_(tool_panic)("Pipe error");
+	   }
+	   if( VG_(pipe)(fdout)!=0){
+	     VG_(umsg)("vr_expectCLR : problem with PIPE fdout\n");
+	     VG_(tool_panic)("Pipe error");
+	   }
+	   Int pid= VG_(fork)();
+	   if(pid == 0){
+	     VG_(close)(fdin[1]);
+	     SysRes res = VG_(dup2)(fdin[0], STDIN_FILENO);
+	     if (sr_Res(res) < 0){
+	       VG_(umsg)("vr_expectCLR : problem with DUP2 in pipe 0\n");
+	       VG_(exit)(1);
+	     }
+	     VG_(close)(fdout[0]);
+	     SysRes res2 = VG_(dup2)(fdout[1], STDOUT_FILENO );
+	     if (sr_Res(res2) < 0){
+	       VG_(umsg)("vr_expectCLR : problem with DUP2 out pipe 1\n");
+	       VG_(exit)(1);
+	     }
 
-	   if(!check){
-	     vr_filtered_buff[0]=0;
+	     VG_(execv)(argvFiltered[0], argvFiltered);
+
+	     /* If we are still alive here, execv failed. */
+	     VG_(umsg)("vr_expectCLR : problem with EXECV\n");
+	     VG_(umsg)("ARGV[0] %s\n", argvFiltered[0]);
+	     Int indexArg=1;
+	     while(True){
+	       if(argvFiltered[indexArg]==NULL){
+		 break;
+	       }
+	       VG_(umsg)("ARGV[%d] %s\n", indexArg,argvFiltered[indexArg]);
+	       indexArg+=1;
+	     }
+	     VG_(tool_panic)("EXECV filter failed");
+	   }
+	   VG_(close)(fdin[0]);
+	   VG_(close)(fdout[1]);
+	   VG_(write)(fdin[1],vr_writeLineBuffCurrent, VG_(strlen)(vr_writeLineBuffCurrent)+1);
+	   VG_(close)(fdin[1]);
+	   VG_(waitpid)(pid, NULL, 0);
+	   Int sizeRead=VG_(read)(fdout[0],vr_filtered_buff,LINE_SIZEMAX);
+	   if(sizeRead <0){
+	     VG_(umsg)("vr_expectCLR : read error\n");
+	   }
+	   if(sizeRead >=LINE_SIZEMAX){
+	     VG_(umsg)("vr_expectCLR : read error sizemax\n");
+	   }
+	   vr_filtered_buff[sizeRead]=0;
+	   for(Int ibuffer=0; ibuffer<sizeRead; ibuffer++){
+	     if(vr_filtered_buff[ibuffer]=='\n'){
+	       vr_filtered_buff[ibuffer]=0;
+	       break;
+	     }
+	   }
+	   if (pid < 0) {
+	     VG_(umsg)("vr_expectCLR : problem with DUP2\n");
 	   }
 	   filteredBuf=vr_filtered_buff;
 	   if(vr_dumpFilteredStdout){
@@ -827,7 +933,6 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	     first=False;
 	   }
 	 }
-
 
 	 if(previousMatchIndex!=-1 ){
 	   if((ignoreEmptyLine) && (filteredBuf[0]==0 )){
@@ -962,7 +1067,6 @@ void vr_expect_clr_finalize (void){
    VG_(free)(vr_writeLineBuff);
    if(vr_filter){
      VG_(free)(vr_filtered_buff);
-     VG_(unlink)(tmpFileNameFilter);
    }
 
    for(SizeT i=0; i< vr_nbMatch; i++){
