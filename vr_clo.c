@@ -139,6 +139,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_SCOMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_monotonic",
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",
+                         vr.roundingMode, VR_SR_SMONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",

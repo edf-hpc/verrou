@@ -220,6 +220,16 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONICcast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+// generation of operation cast backend verrou
+
+
+static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICcast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_verrou_cast_double_to_float_SR_SMONOTONIC(*arg1, &res,backend_verrou_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
 #ifdef USE_VERROU_SQRT
 // generation of operation sqrt backend verrou
 
@@ -1442,6 +1452,64 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsqrt32Fx4 (/*OUT*/V128* output, 
 
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_SR_MONOTONIC(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation sqrt backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICsqrt64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double res;
+  interflop_verrou_sqrt_double_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[0], res, backend_verrou_context);
+  interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt64Fx4 (/*OUT*/V256* output,
+                                           ULong a0, ULong a1, ULong a2,ULong a3) {
+
+  double arg1[4] = {*((double*)(&a0)),*((double*)(&a1)), *((double*)(&a2)),*((double*)(&a3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICsqrt32F (Long a) {
+  float *arg1 = (float*)(&a);
+  float res;
+  interflop_verrou_sqrt_float_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt32Fx8 (/*OUT*/V256* output,
+					   ULong a0, ULong a1, ULong a2,ULong a3) {
+  V256 reg1;   reg1.w64[0]=a0;   reg1.w64[1]=a1;   reg1.w64[2]=a2;   reg1.w64[3]=a3;
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  for(int i=0; i<8; i++){
+     interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
 }
 
@@ -3651,6 +3719,70 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICadd32Fx4 (/*OUT*/V128* output, U
 }
 
 
+// generation of operation add backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_add_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_add_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_add_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_add_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
 // generation of operation sub backend verrou
 
 
@@ -4799,6 +4931,70 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsub32Fx4 (/*OUT*/V128* output, U
 
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation sub backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_sub_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_sub_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_sub_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_sub_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
 }
 
@@ -5955,6 +6151,70 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICmul32Fx4 (/*OUT*/V128* output, U
 }
 
 
+// generation of operation mul backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICmul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_mul_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_mul_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICmul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
 // generation of operation div backend verrou
 
 
@@ -7103,6 +7363,70 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICdiv32Fx4 (/*OUT*/V128* output, U
 
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+
+// generation of operation div backend verrou
+
+
+static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICdiv64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_verrou_div_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_verrou_div_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
+  interflop_verrou_div_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICdiv32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_verrou_div_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
 }
 
@@ -8541,6 +8865,37 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONICmadd32F (Long a, Long b, Long c) 
   Int *d = (Int*)(&res);
   return *d;
 }
+// generation of operation madd backend verrou
+//FMA Operator
+static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONICmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 //FMA Operator
 static VG_REGPARM(3) Long vr_verrou_NEARESTmsub64F (Long a, Long b, Long c) {
@@ -9092,6 +9447,37 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONICmsub32F (Long a, Long b, Long c) 
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend verrou
+//FMA Operator
+static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONICmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");

@@ -7,7 +7,7 @@ import subprocess
 import math
 from tabular import *
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
 buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
@@ -109,7 +109,7 @@ def checkCoherence(stat):
             return False
     return True
 
-def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
+def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
     refName="current"
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
@@ -124,7 +124,7 @@ def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","
     tab.endLine()
     roundingTab=[("all", "all", "current"),"SEPARATOR"]
     for rd in rndList:
-        if rd!= "sr_monotonic":
+        if not rd in  ["sr_monotonic", "sr_smonotonic"]:
             roundingTab+=[(rd, rd,refName)]
         if rd=="average":
             for gen in buildConfListXoshiro:
@@ -206,7 +206,7 @@ if __name__=="__main__":
     feedTab(statRes,rndList=["random","average"],detTab=["_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMono.tex")
-    feedTab(statRes,rndList=["average","sr_monotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["average","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMCA.tex")
     feedTab(statRes,rndList=["random","average","sr_monotonic"],detTab=["_det","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit", buildConfList=[ "current","double_tabulation", "xxhash","mersenne_twister"])

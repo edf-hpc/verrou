@@ -221,8 +221,12 @@
 
 	<listitem><para><command>average_scomdet:</command> variant of <command>average_det</command> which respects the same constraints as <command>random_scomdet</command></para> 
         </listitem>
-
 	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. 
+	  </para>
+        </listitem>
+
+	<listitem><para><command>sr_smonotonic:</command>  Choose between downward and upward
             rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symmetric.
 	  </para>
         </listitem>

@@ -8,7 +8,7 @@ from tabular import *
 
 
 roundingListPerf=["random", "average","nearest"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
 
 buildConfigList=["stable","current", "current_fast"]
 buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
@@ -266,7 +266,7 @@ if __name__=="__main__":
 #        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
-        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic"])
+        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
 
         sys.exit()
         tab=tabular()

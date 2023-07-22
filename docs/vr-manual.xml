@@ -282,7 +282,8 @@ det2
 		    <computeroutput>prandom_comdet</computeroutput>,
 		    <computeroutput>random_scomdet</computeroutput>,
                     <computeroutput>average_scomdet</computeroutput>,
-		    <computeroutput>sr_monotonic</computeroutput>.
+		    <computeroutput>sr_monotonic</computeroutput>,
+		    <computeroutput>sr_smonotonic</computeroutput>.
                 </para></listitem>
                 <listitem><para>
                   <command>IEEE-754 rounding modes:</command>
