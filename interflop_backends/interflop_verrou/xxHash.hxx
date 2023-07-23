@@ -97,7 +97,10 @@ class vr_xxhash_hash{
 public:
   typedef vr_xxhash_hash xxHash;
 
-  static inline void genTable(tinymt64_t& gen){};
+  static inline void genTable(tinymt64_t& gen){
+    const uint64_t seed=tinymt64_generate_uint64(&gen);
+    update_pre_computed_bitflip(seed);
+  };
 
   template<class REALTYPE, int NB>
   static inline bool hashBool(const Vr_Rand * r,
@@ -144,24 +147,25 @@ public:
 
   static inline double hashRatioFromResult(const Vr_Rand * r,
 					   const double* res){
-    const uint64_t seed=vr_rand_getSeed(r);
+
 #ifndef USE_XXH3
+    const uint64_t seed=vr_rand_getSeed(r);
     const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(REALTYPE), seed);
 #else
-    const uint64_t hashValue=XXH3_64bits_withSeed(res,seed);
+    const uint64_t hashValue=XXH3_64bits_withSeed_with_precomputedbitflip(res);
     //    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
 #endif
     return xoshiro_uint64_to_double(hashValue);
   };
 
-  template<class REALTYPE>
   static inline double hashRatioFromResult(const Vr_Rand * r,
-					   const REALTYPE* res){
-    const uint64_t seed=vr_rand_getSeed(r);
+					   const float* res){
 #ifndef USE_XXH3
+    const uint64_t seed=vr_rand_getSeed(r);
     const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(REALTYPE), seed);
 #else
-    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
+    //    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
+    const uint64_t hashValue=XXH3_64bits_withSeed_with_precomputedbitflip(res);
 #endif
     return xoshiro_uint64_to_double(hashValue);
   };
