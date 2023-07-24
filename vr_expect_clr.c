@@ -919,6 +919,8 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   if (pid < 0) {
 	     VG_(umsg)("vr_expectCLR : problem with DUP2\n");
 	   }
+	   VG_(close)(fdout[0]);
+	   
 	   filteredBuf=vr_filtered_buff;
 	   if(vr_dumpFilteredStdout){
 	     VG_(fprintf)(vr_expectCLRFileFilteredStdout,"%s\n", vr_filtered_buff);
