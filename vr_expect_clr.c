@@ -856,7 +856,7 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   /* Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0); */
 	   /* Bool check=get_first_line(tmpFile, &vr_filtered_buff); */
 	   /* VG_(close)(tmpFile); */
-	   Bool check=False;
+	   //Bool check=False;
 	   Int fdin[2];
 	   Int fdout[2];
 	   if( VG_(pipe)(fdin)!=0 &&  VG_(pipe)(fdout)!=0){
