@@ -471,8 +471,7 @@ public:
 	  down =( error < (limit * u));
 	}else{//res <0 : res==0 => error=>0
 	  resp=nextTowardZero<RealType>(res);
-	  const RealType resHash(resp);
-	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
 	  const RealType u(resp-resm);
 	  down =( error <= (limit * u));
 	}
@@ -487,8 +486,7 @@ public:
 	  down =( errorTh < (limit * u));
 	}else{
 	  resm=nextAwayFromZero<RealType>(res);
-	  const RealType resHash(resp);
-	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType limit=RAND::randRatioFromResult(&vr_rand, &resm);
 	  const RealType u(resp-resm);
 	  const RealType errorTh(u+error);
 	  down =( errorTh <= (limit * u));

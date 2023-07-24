@@ -22,13 +22,16 @@ EXTRA_DIST = \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
 	test_det_random_det.stderr.exp  test_det_random_det.stdout.exp  test_det_random_det.vgtest
 
-check_PROGRAMS = clreq accuClreq sum test_det
+check_PROGRAMS = clreq accuClreq sum
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
 
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx
+
+check_PROGRAMS += test_det
+test_det_SOURCES = test_det.cxx
 
 AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3
 AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -lm
