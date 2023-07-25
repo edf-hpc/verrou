@@ -237,7 +237,7 @@
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-      command-line option. For the modes <command>average_[[s]com]det</command> and <command>random_[[s]com]det</command>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <command>average_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>

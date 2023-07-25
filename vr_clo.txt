@@ -19,7 +19,7 @@
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|away_zero|farthest|float|ftz>\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|upward|downward|toward_zero|away_zero|farthest|float|ftz>\n\
       [default=nearest]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
@@ -28,7 +28,7 @@
           •   Stochastic rounding modes: random, average, prandom,\n\
               random_det, average_det, prandom_det, random_comdet,\n\
               average_comdet, prandom_comdet, random_scomdet,\n\
-              average_scomdet, sr_monotonic.\n\
+              average_scomdet, sr_monotonic, sr_smonotonic.\n\
 \n\
           •   IEEE-754 rounding modes: nearest (default), upward, downward,\n\
               toward_zero.\n\

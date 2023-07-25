@@ -260,7 +260,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|away_zero|farthest|float|ftz> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|upward|downward|toward_zero|away_zero|farthest|float|ftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -777,6 +777,14 @@ det2
 	  <listitem>
 	    Activate the line replacement with CMD.
 	  </listitem>
+
+	  <para>
+	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolut (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.	  </para>
+
+	   <para>
+	     If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>--20481-- warning: Unable to record PID of internal process (pipe)</programlisting>
+</para>
+
 	</varlistentry>
 
 	<varlistentry>
