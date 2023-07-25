@@ -514,7 +514,7 @@ Be careful the match expression should not match any line of the reference compu
               </term>
               <listitem>
             <para>
-	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace a stdout line by the result of the command. CMD read the line from stdin and write his result to stdout. The command  <computeroutput>"sed s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
+	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace a stdout line by the result of the command. CMD read the line from stdin and write his result to stdout. The command  <computeroutput>"/usr/bin/sed s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
 	      If you want to write your own python script, these is an example :
 	 <programlisting>
 #!/usr/bin/python3
@@ -536,6 +536,14 @@ if __name__=="__main__":
     line=sys.stdin.readline()
     print(applyFilter(line, [deleteDebug]), end="")</programlisting>
 	    </para>
+
+	    <para>
+	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolut (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.
+	    </para>
+	    <para>
+	      If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>
+--20481-- warning: Unable to record PID of internal process (pipe)</programlisting>
+</para>
               </listitem>
             </varlistentry>
 
@@ -736,6 +744,7 @@ if __name__=="__main__":
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>sr_[s]monotonic</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -915,6 +924,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>sr_[s]monotonic</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,

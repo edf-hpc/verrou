@@ -61,4 +61,4 @@ plot      100000+ 0.1*x title 'reference' lc black,\
      "AVERAGE.out"     using 1:2 title 'average' lc "blue" pt 1,\
      "RANDOM_DET.out" using 1:2 title 'random\_det' lc "orange-red" pt 12,\
      "AVERAGE_DET.out" using 1:2 title 'average\_det' lc 0x008B8B pt 4 ,\
-     "SR_MONOTONIC.out" using 1:2 title 'random\_monotonic' lc "red" pt 6
+     "SR_MONOTONIC.out" using 1:2 title 'sr\_monotonic' lc "red" pt 6
