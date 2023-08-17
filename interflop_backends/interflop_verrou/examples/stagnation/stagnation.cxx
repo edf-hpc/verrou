@@ -43,7 +43,7 @@ int  main(int argc, char** argv){
     void* context;
     interflop_verrou_init(&context);
     interflop_verrou_configure(roundingMode[i], context);
-    uint64_t seed(42);
+    uint64_t seed(0);
     verrou_set_seed (seed);
 
     //init acc
