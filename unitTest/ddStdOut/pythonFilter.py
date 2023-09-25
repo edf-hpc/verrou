@@ -14,5 +14,8 @@ def deleteDebug(strLine):
         return strLine
 
 if __name__=="__main__":
-    line=sys.stdin.readline()
-    print(applyFilter(line, [deleteDebug]), end="")
+    while True:
+        line=sys.stdin.readline()
+        if line=="":
+            sys.exit(0)
+        print(applyFilter(line, [deleteDebug]),end="")
