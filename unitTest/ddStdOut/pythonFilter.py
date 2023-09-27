@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 import sys
 
 def applyFilter(strLine,filterList):
@@ -13,9 +13,20 @@ def deleteDebug(strLine):
     else:
         return strLine
 
+
+def getLineCharByChar():
+    line=""
+    while True:
+        c=sys.stdin.read(1)
+        if line== "\x00": #EOF detected
+            return None
+        if c=='\n':
+            return line
+        line+=c
+
 if __name__=="__main__":
     while True:
-        line=sys.stdin.readline()
-        if line=="":
+        line=getLineCharByChar()
+        if line==None:
             sys.exit(0)
-        print(applyFilter(line, [deleteDebug]),end="")
+        print(applyFilter(line, [deleteDebug]))

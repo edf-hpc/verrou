@@ -237,29 +237,6 @@ static Int my_get_char ( Int fd, HChar* out_buf )
    return 1;
 }
 
-static Int my2_get_char ( Int fd, HChar* out_buf )
-{
-   Int r;
-   static HChar buf[256];
-   static Int buf_size = 0;
-   static Int buf_used = 0;
-   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
-   my_assert(buf_used >= 0 && buf_used <= buf_size);
-   if (buf_used == buf_size) {
-      r = VG_(read)(fd, buf, sizeof buf);
-      if (r < 0) return r; /* read failed */
-      my_assert(r >= 0 && r <= sizeof buf);
-      buf_size = r;
-      buf_used = 0;
-   }
-   if (buf_size == 0)
-     return 0; /* eof */
-   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
-   my_assert(buf_used >= 0 && buf_used < buf_size);
-   *out_buf = buf[buf_used];
-   buf_used++;
-   return 1;
-}
 
 // Get a non blank non comment line.
 // Returns True if eof.
@@ -315,36 +292,6 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp, SizeT* lineno )
    }
 }
 
-
-static Bool get_first_line ( Int fd, HChar** bufpp)
-{
-   // VG_(get_line) adapted
-   HChar* buf  = *bufpp;
-   Int i=0;
-   Int n;
-   HChar ch=0;
-   //Loop over the char until end of line
-   while (True) {
-     n = my2_get_char(fd, &ch);
-     if (n <= 0){
-       return False;
-     }
-     if (i == LINE_SIZEMAX-1) {
-       VG_(umsg)("too large line\n");
-       VG_(exit)(1);
-     }
-
-     if (ch == '\n'){
-       buf[i]=0;
-       break;
-     }else{
-       buf[i] = ch;
-       buf[i+1] = 0;
-     }
-     i++;
-   }
-   return True;
-}
 
 
 
@@ -862,11 +809,28 @@ void vr_expect_clr_init (const HChar * fileName) {
   }
 
   vr_expect_apply_clr("init", True);
-
 //  VG_(umsg)("expectCLR init done\n");
 }
 
 
+int readlineCharByChar(int fd, char* msgRead,int sizeMax){
+  int totalSize=0;
+  while(totalSize<sizeMax){
+    char buffer[1];
+    int size=VG_(read)(fd,buffer, 1);
+    if(size==1){
+      msgRead[totalSize]=buffer[0];
+      if(buffer[0]=='\n'){
+	msgRead[totalSize]=0;
+	return totalSize+1;
+      }else{
+	totalSize+=1;
+      }
+      continue;
+    }
+  }
+  return -1;
+}
 
 
 
@@ -899,25 +863,15 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 }
 	 if(vr_filter){
 	   // apply filter
-	   //VG_(write)(filter_fdin[1],vr_writeLineBuffCurrent, VG_(strlen)(vr_writeLineBuffCurrent)+1);
-	   //	   HChar endl[2];
-	   //	   endl[0]='\n'; endl[1]=0;
-	   //	   VG_(write)(filter_fdin[1],endl, 2);
-	   VG_(umsg)("vr_expectCLR : after write\n");
-	   Int sizeRead=VG_(read)(filter_fdout[0],vr_filtered_buff, LINE_SIZEMAX);	   
-	   VG_(umsg)("vr_expectCLR : read size %i\n", sizeRead);
+	   vr_writeLineBuff[i]='\n';
+	   VG_(write)(filter_fdin[1],vr_writeLineBuffCurrent, i+1);
+	   vr_writeLineBuff[i]=0;
+	   Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 	   if(sizeRead <0){
 	     VG_(umsg)("vr_expectCLR : read error\n");
 	   }
 	   if(sizeRead >=LINE_SIZEMAX){
 	     VG_(umsg)("vr_expectCLR : read error sizemax\n");
-	   }
-	   vr_filtered_buff[sizeRead]=0;
-	   for(Int ibuffer=0; ibuffer<sizeRead; ibuffer++){
-	     if(vr_filtered_buff[ibuffer]=='\n'){
-	       vr_filtered_buff[ibuffer]=0;
-	       break;
-	     }
 	   }
 
 	   filteredBuf=vr_filtered_buff;
@@ -1067,6 +1021,9 @@ void vr_expect_clr_finalize (void){
    VG_(free)(vr_expectTmpLine);
    VG_(free)(vr_writeLineBuff);
    if(vr_filter){
+     char msgEnd[]="";
+     VG_(write)(filter_fdin[1], msgEnd, 1);
+
      VG_(close)(filter_fdout[0]);
      VG_(close)(filter_fdin[1]);
      VG_(waitpid)(filter_pid, NULL, 0);
