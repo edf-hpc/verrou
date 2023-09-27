@@ -132,6 +132,9 @@ SizeT vr_last_expect_lineNo=0;
 
 Bool vr_filter=False;
 HChar vr_filter_cmd[FILTER_SIZEMAX];
+Int filter_fdin[2];
+Int filter_fdout[2];
+Int filter_pid;
 HChar* vr_filtered_buff;
 
 #define ARGV_FILTER_MAX 10
@@ -234,29 +237,6 @@ static Int my_get_char ( Int fd, HChar* out_buf )
    return 1;
 }
 
-static Int my2_get_char ( Int fd, HChar* out_buf )
-{
-   Int r;
-   static HChar buf[256];
-   static Int buf_size = 0;
-   static Int buf_used = 0;
-   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
-   my_assert(buf_used >= 0 && buf_used <= buf_size);
-   if (buf_used == buf_size) {
-      r = VG_(read)(fd, buf, sizeof buf);
-      if (r < 0) return r; /* read failed */
-      my_assert(r >= 0 && r <= sizeof buf);
-      buf_size = r;
-      buf_used = 0;
-   }
-   if (buf_size == 0)
-     return 0; /* eof */
-   my_assert(buf_size >= 0 && buf_size <= sizeof buf);
-   my_assert(buf_used >= 0 && buf_used < buf_size);
-   *out_buf = buf[buf_used];
-   buf_used++;
-   return 1;
-}
 
 // Get a non blank non comment line.
 // Returns True if eof.
@@ -312,36 +292,6 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp, SizeT* lineno )
    }
 }
 
-
-static Bool get_first_line ( Int fd, HChar** bufpp)
-{
-   // VG_(get_line) adapted
-   HChar* buf  = *bufpp;
-   Int i=0;
-   Int n;
-   HChar ch=0;
-   //Loop over the char until end of line
-   while (True) {
-     n = my2_get_char(fd, &ch);
-     if (n <= 0){
-       return False;
-     }
-     if (i == LINE_SIZEMAX-1) {
-       VG_(umsg)("too large line\n");
-       VG_(exit)(1);
-     }
-
-     if (ch == '\n'){
-       buf[i]=0;
-       break;
-     }else{
-       buf[i] = ch;
-       buf[i+1] = 0;
-     }
-     i++;
-   }
-   return True;
-}
 
 
 
@@ -786,6 +736,55 @@ void vr_expect_clr_init (const HChar * fileName) {
 	   indexArg+=1;
 	 }
        }
+
+       // Run the filterCMD
+       if( VG_(pipe)(filter_fdin)!=0){
+	 VG_(umsg)("vr_expectCLR : problem with PIPE fdin\n");
+	 VG_(tool_panic)("Pipe error");
+       }
+       if( VG_(pipe)(filter_fdout)!=0){
+	 VG_(umsg)("vr_expectCLR : problem with PIPE fdout\n");
+	 VG_(tool_panic)("Pipe error");
+       }
+       filter_pid= VG_(fork)();
+       if(filter_pid == 0){
+	 VG_(close)(filter_fdin[1]);
+	 SysRes res = VG_(dup2)(filter_fdin[0], STDIN_FILENO);
+	 if (sr_Res(res) < 0){
+	   VG_(umsg)("vr_expectCLR : problem with DUP2 in pipe 0\n");
+	   VG_(exit)(1);
+	 }
+	 VG_(close)(filter_fdout[0]);
+	 SysRes res2 = VG_(dup2)(filter_fdout[1], STDOUT_FILENO );
+	 if (sr_Res(res2) < 0){
+	   VG_(umsg)("vr_expectCLR : problem with DUP2 out pipe 1\n");
+	   VG_(exit)(1);
+	 }
+
+	 VG_(execv)(argvFiltered[0], argvFiltered);
+
+	 /* If we are still alive here, execv failed. */
+	 VG_(umsg)("vr_expectCLR : problem with EXECV\n");
+	 VG_(umsg)("ARGV[0] %s\n", argvFiltered[0]);
+	 Int indexArg=1;
+	 while(True){
+	   if(argvFiltered[indexArg]==NULL){
+	     break;
+	   }
+	   VG_(umsg)("ARGV[%d] %s\n", indexArg,argvFiltered[indexArg]);
+	   indexArg+=1;
+	 }
+	 VG_(tool_panic)("EXECV filter failed");
+       }
+
+       if (filter_pid < 0) {
+	 VG_(umsg)("vr_expectCLR : problem with fork\n");
+       }
+
+       VG_(close)(filter_fdin[0]);
+       VG_(close)(filter_fdout[1]);
+
+       //initialize  vr_filtered_buff
        vr_filtered_buff=VG_(malloc)("vr_filtered_buff.1", LINE_SIZEMAX*sizeof(HChar));
        continue;
     }
@@ -810,11 +809,28 @@ void vr_expect_clr_init (const HChar * fileName) {
   }
 
   vr_expect_apply_clr("init", True);
-
 //  VG_(umsg)("expectCLR init done\n");
 }
 
 
+int readlineCharByChar(int fd, char* msgRead,int sizeMax){
+  int totalSize=0;
+  while(totalSize<sizeMax){
+    char buffer[1];
+    int size=VG_(read)(fd,buffer, 1);
+    if(size==1){
+      msgRead[totalSize]=buffer[0];
+      if(buffer[0]=='\n'){
+	msgRead[totalSize]=0;
+	return totalSize+1;
+      }else{
+	totalSize+=1;
+      }
+      continue;
+    }
+  }
+  return -1;
+}
 
 
 
@@ -847,80 +863,17 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 }
 	 if(vr_filter){
 	   // apply filter
-
-	   /* HChar cmdPattern[]="/bin/sh -c \"echo '%s' | %s\" > %s "; */
-	   /* HChar cmdPatternReplaced[FILTER_SIZEMAX]; */
-	   /* VG_(snprintf)(cmdPatternReplaced,FILTER_SIZEMAX, cmdPattern, vr_writeLineBuffCurrent, vr_filter_cmd, tmpFileNameFilter); */
-	   /* //	   VG_(umsg)("debug: %s\n" , cmdPatternReplaced); */
-	   /* VG_(system)(cmdPatternReplaced); */
-	   /* Int tmpFile=VG_(fd_open)(tmpFileNameFilter,  VKI_O_RDONLY, 0); */
-	   /* Bool check=get_first_line(tmpFile, &vr_filtered_buff); */
-	   /* VG_(close)(tmpFile); */
-	   //Bool check=False;
-	   Int fdin[2];
-	   Int fdout[2];
-	   if( VG_(pipe)(fdin)!=0 &&  VG_(pipe)(fdout)!=0){
-	     VG_(umsg)("vr_expectCLR : problem with PIPE fdin\n");
-	     VG_(tool_panic)("Pipe error");
-	   }
-	   if( VG_(pipe)(fdout)!=0){
-	     VG_(umsg)("vr_expectCLR : problem with PIPE fdout\n");
-	     VG_(tool_panic)("Pipe error");
-	   }
-	   Int pid= VG_(fork)();
-	   if(pid == 0){
-	     VG_(close)(fdin[1]);
-	     SysRes res = VG_(dup2)(fdin[0], STDIN_FILENO);
-	     if (sr_Res(res) < 0){
-	       VG_(umsg)("vr_expectCLR : problem with DUP2 in pipe 0\n");
-	       VG_(exit)(1);
-	     }
-	     VG_(close)(fdout[0]);
-	     SysRes res2 = VG_(dup2)(fdout[1], STDOUT_FILENO );
-	     if (sr_Res(res2) < 0){
-	       VG_(umsg)("vr_expectCLR : problem with DUP2 out pipe 1\n");
-	       VG_(exit)(1);
-	     }
-
-	     VG_(execv)(argvFiltered[0], argvFiltered);
-
-	     /* If we are still alive here, execv failed. */
-	     VG_(umsg)("vr_expectCLR : problem with EXECV\n");
-	     VG_(umsg)("ARGV[0] %s\n", argvFiltered[0]);
-	     Int indexArg=1;
-	     while(True){
-	       if(argvFiltered[indexArg]==NULL){
-		 break;
-	       }
-	       VG_(umsg)("ARGV[%d] %s\n", indexArg,argvFiltered[indexArg]);
-	       indexArg+=1;
-	     }
-	     VG_(tool_panic)("EXECV filter failed");
-	   }
-	   VG_(close)(fdin[0]);
-	   VG_(close)(fdout[1]);
-	   VG_(write)(fdin[1],vr_writeLineBuffCurrent, VG_(strlen)(vr_writeLineBuffCurrent)+1);
-	   VG_(close)(fdin[1]);
-	   VG_(waitpid)(pid, NULL, 0);
-	   Int sizeRead=VG_(read)(fdout[0],vr_filtered_buff,LINE_SIZEMAX);
+	   vr_writeLineBuff[i]='\n';
+	   VG_(write)(filter_fdin[1],vr_writeLineBuffCurrent, i+1);
+	   vr_writeLineBuff[i]=0;
+	   Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 	   if(sizeRead <0){
 	     VG_(umsg)("vr_expectCLR : read error\n");
 	   }
 	   if(sizeRead >=LINE_SIZEMAX){
 	     VG_(umsg)("vr_expectCLR : read error sizemax\n");
 	   }
-	   vr_filtered_buff[sizeRead]=0;
-	   for(Int ibuffer=0; ibuffer<sizeRead; ibuffer++){
-	     if(vr_filtered_buff[ibuffer]=='\n'){
-	       vr_filtered_buff[ibuffer]=0;
-	       break;
-	     }
-	   }
-	   if (pid < 0) {
-	     VG_(umsg)("vr_expectCLR : problem with DUP2\n");
-	   }
-	   VG_(close)(fdout[0]);
-	   
+
 	   filteredBuf=vr_filtered_buff;
 	   if(vr_dumpFilteredStdout){
 	     VG_(fprintf)(vr_expectCLRFileFilteredStdout,"%s\n", vr_filtered_buff);
@@ -1068,6 +1021,13 @@ void vr_expect_clr_finalize (void){
    VG_(free)(vr_expectTmpLine);
    VG_(free)(vr_writeLineBuff);
    if(vr_filter){
+     char msgEnd[]="";
+     VG_(write)(filter_fdin[1], msgEnd, 1);
+
+     VG_(close)(filter_fdout[0]);
+     VG_(close)(filter_fdin[1]);
+     VG_(waitpid)(filter_pid, NULL, 0);
+
      VG_(free)(vr_filtered_buff);
    }
 

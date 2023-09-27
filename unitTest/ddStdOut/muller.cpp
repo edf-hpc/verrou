@@ -60,7 +60,7 @@ int main(int argc, char** argv){
       continue;
     }
   }
-
   muller(12,true,withEmptyLine, debugPrev, debugPost);
+  //  muller(3000,true,withEmptyLine, debugPrev, debugPost);
 
 }

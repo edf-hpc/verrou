@@ -514,10 +514,10 @@ Be careful the match expression should not match any line of the reference compu
               </term>
               <listitem>
             <para>
-	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace a stdout line by the result of the command. CMD read the line from stdin and write his result to stdout. The command  <computeroutput>"/usr/bin/sed s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
+	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace the stdout lines by the result of the command. CMD reads lines from stdin and write his result to stdout for each line. The command is run only once, so it mean we have to pay attention to bufferisation (We may need to use the option <computeroutput>-u</computeroutput> of <computeroutput>sed</computeroutput> or <computeroutput>python3</computeroutput>). The command  <computeroutput>"/usr/bin/sed -u s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
 	      If you want to write your own python script, these is an example :
 	 <programlisting>
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 import sys
 
 def applyFilter(strLine,filterList):
@@ -532,18 +532,30 @@ def deleteDebug(strLine):
     else:
         return strLine
 
+def getLineCharByChar():
+    line=""
+    while True:
+        c=sys.stdin.read(1)
+        if line== "\x00": #EOF detected
+            return None
+        if c=='\n':
+            return line
+        line+=c
+
 if __name__=="__main__":
-    line=sys.stdin.readline()
-    print(applyFilter(line, [deleteDebug]), end="")</programlisting>
+    while True:
+        line=getLineCharByChar()
+        if line==None:
+            sys.exit(0)
+        print(applyFilter(line, [deleteDebug]))
+	 </programlisting>
+To avoid problem with bufferisation, we need to write your own <computeroutput>readline</computeroutput> function (cf. <computeroutput>getLineCharByChar</computeroutput>) and to use <computeroutput>-u</computeroutput> <computeroutput>python3</computeroutput> option. 
+
 	    </para>
 
 	    <para>
 	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolut (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.
 	    </para>
-	    <para>
-	      If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>
---20481-- warning: Unable to record PID of internal process (pipe)</programlisting>
-</para>
               </listitem>
             </varlistentry>
 

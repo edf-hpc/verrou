@@ -42,7 +42,7 @@ dd.stdout.debug: ./muller exclude.ex
 	./assertDDMuller.py dd.stdout.debug
 
 dd.stdout.debug2: ./muller exclude.ex
-	CMD="./muller debugPrev debugPost" verrou_dd_stdout --rep=dd.stdout.debug2 --num-threads=6 --nruns=$(NBRUN) --ignore-empty-line=True --filter-cmd="/usr/bin/sed s/debug.*//" ddRun.sh extractOrCmp.py
+	CMD="./muller debugPrev debugPost" verrou_dd_stdout --rep=dd.stdout.debug2 --num-threads=6 --nruns=$(NBRUN) --ignore-empty-line=True --filter-cmd="/usr/bin/sed -u s/debug.*//" ddRun.sh extractOrCmp.py
 	./assertDDMuller.py dd.stdout.debug2
 
 dd.stdout.sqrt: ./sqrt exclude.ex
