@@ -813,6 +813,8 @@ void vr_expect_clr_init (const HChar * fileName) {
 }
 
 
+
+
 int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   int totalSize=0;
   while(totalSize<sizeMax){
@@ -820,7 +822,7 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
     int size=VG_(read)(fd,buffer, 1);
     if(size==1){
       msgRead[totalSize]=buffer[0];
-      if(buffer[0]=='\n'){
+      if(buffer[0]=='\n' || buffer[0]==0){
 	msgRead[totalSize]=0;
 	return totalSize+1;
       }else{
@@ -863,10 +865,13 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
 	 }
 	 if(vr_filter){
 	   // apply filter
+
 	   vr_writeLineBuff[i]='\n';
-	   VG_(write)(filter_fdin[1],vr_writeLineBuffCurrent, i+1);
+	   VG_(write)(filter_fdin[1],vr_writeLineBuffCurrent, i+1 - (vr_writeLineBuffCurrent -vr_writeLineBuff ));
 	   vr_writeLineBuff[i]=0;
+
 	   Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
+
 	   if(sizeRead <0){
 	     VG_(umsg)("vr_expectCLR : read error\n");
 	   }
@@ -971,8 +976,8 @@ void vr_expect_clr_checkmatch(const HChar* writeLine,SizeT size){
    for(i=0 ; i< nbRemain; i++){
       vr_writeLineBuff[i]=vr_writeLineBuffCurrent[i];
    }
-   vr_writeLineBuff[i]=0;
-   vr_writeLineBuffCurrent=vr_writeLineBuff+i;
+   vr_writeLineBuff[nbRemain]=0;
+   vr_writeLineBuffCurrent=vr_writeLineBuff+nbRemain;
 
 }
 
