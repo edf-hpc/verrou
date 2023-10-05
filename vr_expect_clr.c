@@ -820,26 +820,6 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
     int size=VG_(read)(fd,buffer, 1);
     if(size==1){
       msgRead[totalSize]=buffer[0];
-      if(buffer[0]=='\n'){
-	msgRead[totalSize]=0;
-	return totalSize+1;
-      }else{
-	totalSize+=1;
-      }
-      continue;
-    }
-  }
-  return -1;
-}
-
-
-int readlineCharByChar(int fd, char* msgRead,int sizeMax){
-  int totalSize=0;
-  while(totalSize<sizeMax){
-    char buffer[1];
-    int size=VG_(read)(fd,buffer, 1);
-    if(size==1){
-      msgRead[totalSize]=buffer[0];
       if(buffer[0]=='\n' || buffer[0]==0){
 	msgRead[totalSize]=0;
 	return totalSize+1;
