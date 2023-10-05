@@ -47,50 +47,50 @@ VgFile* vr_expectCLRFileFilteredStdout;
 //void vr_expect_apply_clrs(void);
 //void vr_expect_apply_clr(HChar* cmd);
 
-HChar vr_defaultKeyStr[]="default: ";
+const HChar vr_defaultKeyStr[]="default: ";
 SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
 
-HChar vr_initKeyStr[]="init: ";
+const HChar vr_initKeyStr[]="init: ";
 SizeT vr_initKeyStrSize=sizeof(vr_initKeyStr)-1;
 
-HChar vr_postinitKeyStr[]="post-init: ";
+const HChar vr_postinitKeyStr[]="post-init: ";
 SizeT vr_postinitKeyStrSize=sizeof(vr_postinitKeyStr)-1;
 
 
-HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
+const HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
 SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
 
-HChar vr_expectKeyStr[]= "expect: ";
+const HChar vr_expectKeyStr[]= "expect: ";
 SizeT vr_expectKeyStrSize=sizeof(vr_expectKeyStr)-1;
 
-HChar vr_matchKeyStr[]= "match: ";
+const HChar vr_matchKeyStr[]= "match: ";
 SizeT vr_matchKeyStrSize=sizeof(vr_matchKeyStr)-1;
 
-HChar vr_beginKeyStr[]= "begin:"; //no space : no param
+const HChar vr_beginKeyStr[]= "begin:"; //no space : no param
 SizeT vr_beginKeyStrSize=sizeof(vr_beginKeyStr)-1;
 
 
-HChar vr_applyKeyStr[]=  "apply: ";
+const HChar vr_applyKeyStr[]=  "apply: ";
 SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
 
-HChar vr_postApplyKeyStr[]=  "post-apply: ";
+const HChar vr_postApplyKeyStr[]=  "post-apply: ";
 SizeT vr_postApplyKeyStrSize=sizeof(vr_postApplyKeyStr)-1;
 
 
-HChar vr_ignoreEmptyLineKeyStr[]=  "ignore-empty-line: ";
+const HChar vr_ignoreEmptyLineKeyStr[]=  "ignore-empty-line: ";
 SizeT vr_ignoreEmptyLineKeyStrSize=sizeof(vr_ignoreEmptyLineKeyStr)-1;
 
 
 Bool ignoreEmptyLine=True;
 
-HChar vr_verboseKeyStr[]=  "verbose: ";
+const HChar vr_verboseKeyStr[]=  "verbose: ";
 SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
 
-HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
+const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
 SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
 Bool vr_dumpStdout=False;
 
-HChar vr_dumpFilteredStdoutKeyStr[]=  "dump-filtered-stdout:";//no space : no param
+const HChar vr_dumpFilteredStdoutKeyStr[]=  "dump-filtered-stdout:";//no space : no param
 SizeT vr_dumpFilteredStdoutKeyStrSize=sizeof(vr_dumpFilteredStdoutKeyStr)-1;
 Bool vr_dumpFilteredStdout=False;
 
@@ -138,28 +138,28 @@ Int filter_pid;
 HChar* vr_filtered_buff;
 
 #define ARGV_FILTER_MAX 10
-HChar *argvFiltered[ARGV_FILTER_MAX];
+const HChar *argvFiltered[ARGV_FILTER_MAX];
 
 
-HChar nopStr[]="nop";
-HChar emptyStr[]="";
-HChar defaultStr[]="default";
-HChar initStr[]="init";
-HChar postinitStr[]="post-init";
-HChar stopStr[]="stop";
-HChar startStr[]="start";
-HChar displayCounterStr[]="display_counter";
-HChar nbInstrStr[]="nb_instr";
-HChar resetCounterStr[]="reset_counter";
-HChar dumpCoverStr[]="dump_cover";
-HChar panicStr[]="panic";
-HChar exitStr[]="exit";
+const HChar nopStr[]="nop";
+const HChar emptyStr[]="";
+const HChar defaultStr[]="default";
+const HChar initStr[]="init";
+const HChar postinitStr[]="post-init";
+const HChar stopStr[]="stop";
+const HChar startStr[]="start";
+const HChar displayCounterStr[]="display_counter";
+const HChar nbInstrStr[]="nb_instr";
+const HChar resetCounterStr[]="reset_counter";
+const HChar dumpCoverStr[]="dump_cover";
+const HChar panicStr[]="panic";
+const HChar exitStr[]="exit";
 
 
 
 typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
 static const SizeT actionNumber=13;
-HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
+const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
 SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
@@ -813,6 +813,7 @@ void vr_expect_clr_init (const HChar * fileName) {
 }
 
 
+int readlineCharByChar(int fd, char* msgRead,int sizeMax);
 int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   int totalSize=0;
   while(totalSize<sizeMax){
@@ -830,7 +831,7 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
     }
   }
   return -1;
-}
+};
 
 
 
