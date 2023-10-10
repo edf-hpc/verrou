@@ -31,6 +31,10 @@ while [ ! -z "$1" ]; do
 	"-copyright")
             cmd="${cmd} | perl -pne 's/^(Copyright \(C\) )[\S\s]*/\$1XXXXX/;'"
             ;;
+	"-exclude")
+            cmd="${cmd} | perl -pne 's/^(EXCLUDE DETECTED: )[^\s]*/\$1XXXXX/;'"
+	    cmd="${cmd} | perl -pne 's/^(Using exclusion rule: \*\s)[^\s]*/\$1XXXXX/;'"
+            ;;
     esac
     shift
 done

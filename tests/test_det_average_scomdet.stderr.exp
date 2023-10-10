@@ -30,6 +30,8 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 Backend verrou simulating AVERAGE_COMDET rounding mode
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 New seed : 0
 New seed : 1
 New seed : 2

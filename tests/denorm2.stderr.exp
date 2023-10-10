@@ -29,6 +29,8 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 
  ---------------------------------------------------------------------
  Operation                            Instruction count

@@ -29,6 +29,8 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 Denorm: 
    at 0xFFFFFF: main (denorm.cxx:8)
 

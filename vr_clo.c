@@ -59,6 +59,8 @@ void vr_clo_defaults (void) {
   vr.genExcludeBool = False;
   vr.exclude = NULL;
   vr.gen_exclude = NULL;
+
+  vr.excludeDetect = True;
   //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
@@ -303,6 +305,14 @@ Bool vr_process_clo (const HChar *arg) {
   /* } */
   else if (VG_STR_CLOM (cloPD, arg, "--exclude", str)) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
+  }
+
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=detect_exclude", vr.excludeDetect,True)) {
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=ignore", vr.excludeDetect,False)) {
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=instr", vr.excludeDetect,True)) {
+    VG_(umsg)("--libm=instr : not yet implemented" );
   }
 
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {

@@ -33,9 +33,9 @@ resNative.dat: $(BIN)
 	$(BIN) > $@
 
 libm.ex: $(BIN) $(INTERLIBMREP)/interlibmath.so
-	ldd $(BIN)             |grep libm.so     |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" > libm.ex
-	ldd $(INTERLIBMREP)/interlibmath.so |grep libquadmath |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
-	ldd $(INTERLIBMREP)/interlibmath.so |grep libgcc_s    |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
+#	ldd $(BIN)             |grep libm.so     |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" > libm.ex
+#	ldd $(INTERLIBMREP)/interlibmath.so |grep libquadmath |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
+	ldd $(INTERLIBMREP)/interlibmath.so |grep libgcc_s    |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >libm.ex
 
 resRandomverrou.dat: $(BIN) libm.ex
 	$(VALGRIND) --rounding-mode=random --exclude=libm.ex $(BIN) $(NUMSAMPLEIN) > $@

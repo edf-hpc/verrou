@@ -30,6 +30,8 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 Backend verrou simulating UPWARD rounding mode
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 
  ---------------------------------------------------------------------
  Operation                            Instruction count

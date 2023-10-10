@@ -32,6 +32,7 @@
 #include "pub_tool_libcfile.h"
 #include "coregrind/pub_core_transtab.h"
 #include "coregrind/pub_core_debuginfo.h"
+#include "coregrind/pub_core_libcfile.h"
 #include "pub_tool_seqmatch.h"
 //#pragma STDC FENV_ACCESS ON
 Vr_State vr;
@@ -1842,6 +1843,21 @@ void vr_pre_syscall(ThreadId tid, UInt syscallno,
 static
 void vr_post_syscall(ThreadId tid, UInt syscallno,
                      UWord* args, UInt nArgs, SysRes res){
+   if(vr.excludeDetect){
+     if(syscallno==257){//openat
+       SizeT fd= sr_Res(res);
+       if(fd>0){
+	 const HChar* buffer;
+	 Bool resolved=VG_(resolve_filename)(fd,&buffer);
+	 if(resolved){
+	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
+	 }else{
+	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
+	 }
+       }
+     }
+   }
+
    if(vr.useExpectCLR){
       if(syscallno==1 && vr.ExpectFileDescriptor !=-1){//syscall write
          int fd=(int)args[0];

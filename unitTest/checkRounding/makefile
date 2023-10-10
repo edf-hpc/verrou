@@ -17,7 +17,7 @@ endif
 
 include ../flag.mk
 
-FLAGS1 = $(FLAGS) $(DEBUGFLAGS)
+FLAGS1 = $(FLAGS) $(DEBUGFLAGS) -DTEST_SSE
 FLAGS2 = $(FLAGS) $(NATIVEFLAGS) -mfma $(FMA_FLAG) -DTEST_SSE
 
 .PHONY: run run1 run2

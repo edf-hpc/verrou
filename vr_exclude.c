@@ -32,6 +32,7 @@
 */
 
 #include "vr_main.h"
+#include "pub_tool_seqmatch.h"
 
 #define LINE_SIZEMAX VR_FNNAME_BUFSIZE
 
@@ -147,6 +148,32 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
   return list;
 }
+
+
+Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName){
+  static const HChar libmPattern1[]="*libm.so*";
+  static const HChar libmPattern2[]="*libm-*.so*";
+  static const HChar libumathPattern[]="*umath.cpython-36-x86_64-linux-gnu.so*";
+  static const HChar libinterlibmPattern[]="*interlibmath.so";
+  static const HChar libquadmathPattern[]="libquadmath*.so*";
+
+#define LIB_NB_PATTERN 5
+  const HChar* libPattern[LIB_NB_PATTERN]={libmPattern1, libmPattern2,
+					   libumathPattern,
+					   libinterlibmPattern,
+					   libquadmathPattern};
+  const HChar star[]="*";
+  for(int i=0; i< LIB_NB_PATTERN; i++){
+    if( VG_(string_match)(libPattern[i],objName)){
+      VG_(umsg)("EXCLUDE DETECTED: %s\n",objName);
+      return vr_addExclude (list, star, objName,False);
+    }
+  }
+  return list;
+}
+
+
+
 
 Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr) {
 

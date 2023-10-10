@@ -1,4 +1,4 @@
 prog: test_det
 args: 
 vgopts: --rounding-mode=random_scomdet --vr-seed=42
-stderr_filter_args: -cnt-cmp-conv -backend-version -copyright
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude
