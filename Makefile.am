@@ -176,10 +176,6 @@ if VGCONF_HAVE_PLATFORM_SEC
 noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
 endif
 
-if VGCONF_OS_IS_DARWIN
-noinst_DSYMS = $(noinst_PROGRAMS)
-endif
-
 VERROUSYNCHROLIB_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
 
 verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
@@ -188,3 +184,27 @@ verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
 	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
 verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
 	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+
+#----------------------------------------------------------------------------
+# vgpreload_verrou-<platform>.so
+#----------------------------------------------------------------------------
+
+noinst_PROGRAMS += vgpreload_verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
+if VGCONF_HAVE_PLATFORM_SEC
+noinst_PROGRAMS += vgpreload_verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
+endif
+
+if VGCONF_OS_IS_DARWIN
+noinst_DSYMS = $(noinst_PROGRAMS)
+endif
+
+VERROUINTERLIBM_SOURCES_COMMON = Interlibmath/interlibmath.cxx Interlibmath/stacktrace.cxx  interflop_backends/backend_mcaquad/common/tinymt64.c
+
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
+	$(VERROUINTERLIBM_SOURCES_COMMON)
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -static-libstdc++ -Wno-missing-declarations
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
+	-static-libstdc++ -lm -lquadmath \
+	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
