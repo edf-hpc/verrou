@@ -33,5 +33,6 @@ denorm_SOURCES = denorm.cxx
 check_PROGRAMS += test_det
 test_det_SOURCES = test_det.cxx
 
-AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3
-AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -lm
+AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3 -fno-builtin
+AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -fno-builtin
+LDADD  =  -lm

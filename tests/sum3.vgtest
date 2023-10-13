@@ -1,4 +1,4 @@
 prog: sum
 args: 3
 vgopts: --instr-atstart=no --rounding-mode=average
-stderr_filter_args: -seed -backend-version -copyright -exclude
+stderr_filter_args: -seed -backend-version -copyright -exclude -cnt-cmp-conv

@@ -32,14 +32,14 @@ Instrumented type :
 EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX
 Denorm: 
-   at 0xFFFFFF: main (denorm.cxx:8)
+   at 0xFFFFFF: main (denorm.cxx:23)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.cxx:21)
+   at 0xFFFFFF: main (denorm.cxx:25)
 
 Denorm: 
    at 0xFFFFFF: double vr_fma<double>(double const&, double const&, double const&) (fmaintrin.h:73)
-   by 0xFFFFFF: main (denorm.cxx:22)
+   by 0xFFFFFF: main (denorm.cxx:27)
 
 
  ---------------------------------------------------------------------
@@ -47,13 +47,21 @@ Denorm:
   `- Precision
       `- Vectorization          Total             Instrumented
  ---------------------------------------------------------------------
- mul                        2                        2          (100%)
+ add                        4                        0          (  0%)
+  `- dbl                        4                        0      (  0%)
+      `- llo                        4                        0  (  0%)
+ ---------------------------------------------------------------------
+ sub                        5                        0          (  0%)
+  `- dbl                        5                        0      (  0%)
+      `- llo                        5                        0  (  0%)
+ ---------------------------------------------------------------------
+ mul                        5                        2          ( 40%)
   `- flt                        1                        1      (100%)
       `- llo                        1                        1  (100%)
-  `- dbl                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
+  `- dbl                        4                        1      ( 25%)
+      `- llo                        4                        1  ( 25%)
  ---------------------------------------------------------------------
- mAdd                       1                        1          (100%)
-  `- dbl                        1                        1      (100%)
+ mAdd                      16                        1          (  6%)
+  `- dbl                       16                        1      (  6%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)

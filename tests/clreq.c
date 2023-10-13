@@ -1,6 +1,6 @@
 #include "../verrou.h"
 #include <stdio.h>
-
+#include <math.h>
 float compute () {
   int i;
   float sum = 0;
@@ -11,6 +11,8 @@ float compute () {
 }
 
 int main () {
+  double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
+
   if (compute() == (float)4950.)
     printf ("OK\n");
 

@@ -1,6 +1,6 @@
 #include "../verrou.h"
 #include <stdio.h>
-
+#include <math.h>
 float compute () {
   float res=0;
   int i;
@@ -11,6 +11,7 @@ float compute () {
 }
 
 int main () {
+  double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
 
   float res_init=compute();
   // Uninstrumented part

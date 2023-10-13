@@ -36,6 +36,7 @@
 #include "vr_isNan.hxx"
 #include "vr_sqrt.hxx"
 #include "cmath"
+#include "vr_fma.hxx"
 
 enum opHash : uint32_t{
   addHash=0,

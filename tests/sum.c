@@ -19,6 +19,7 @@ float compute () {
 }
 
 int main (int argc, char **argv) {
+  double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
   float res = compute();
   float ref = 1 + N*epsilon;
 

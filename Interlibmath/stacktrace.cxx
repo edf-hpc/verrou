@@ -34,6 +34,7 @@
 #include <string>
 #include <sstream>
 
+extern unsigned int my_pid;
 // This function produces a stack backtrace with demangled function & method names.
 inline std::string Backtrace(int skip = 1)
 {
