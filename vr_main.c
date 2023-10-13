@@ -1681,6 +1681,39 @@ static void vr_post_clo_init(void)
    }
    VG_(umsg)("First seed : %llu\n", vr.firstSeed);
 
+   //deactivate interlibm LD_PRELOAD
+   if(! vr.loadInterLibm){
+     //adaptation from ms_mainc.c in massif tool
+     HChar* s1;
+     HChar* s2;
+     HChar* LD_PRELOAD_val;
+
+     LD_PRELOAD_val = VG_(getenv)( VG_(LD_PRELOAD_var_name) );
+     tl_assert(LD_PRELOAD_val);
+
+     // Make sure the vgpreload_core-$PLATFORM entry is there, for sanity.
+     s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_core");
+     tl_assert(s1);
+
+     // Now find the vgpreload_massif-$PLATFORM entry.
+     s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_verrou");
+     tl_assert(s1);
+     s2 = s1;
+
+     // Position s1 on the previous ':', which must be there because
+     // of the preceding vgpreload_core-$PLATFORM entry.
+     for (; *s1 != ':'; s1--)
+       ;
+
+     // Position s2 on the next ':' or \0
+     for (; *s2 != ':' && *s2 != '\0'; s2++)
+       ;
+
+     // Move all characters from s2 to s1
+     while ((*s1++ = *s2++))
+       ;
+   }//end deactivate LD_PRELOAD
+
 
    if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
      if( (vr.roundingMode==VR_PRANDOM_DET ||  vr.roundingMode==VR_PRANDOM_COMDET)){

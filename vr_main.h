@@ -162,6 +162,7 @@ typedef struct {
   Vr_Exclude * exclude;
   Vr_Exclude * gen_exclude;
   Bool excludeDetect;
+  Bool loadInterLibm;
 
   Bool genIncludeSource;
   HChar* includeSourceFile;

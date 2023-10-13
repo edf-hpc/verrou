@@ -61,6 +61,7 @@ void vr_clo_defaults (void) {
   vr.gen_exclude = NULL;
 
   vr.excludeDetect = True;
+  vr.loadInterLibm = False;
   //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
@@ -308,11 +309,13 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   else if (VG_XACT_CLOM (cloPD, arg, "--libm=detect_exclude", vr.excludeDetect,True)) {
+    vr.loadInterLibm = False;
   }
   else if (VG_XACT_CLOM (cloPD, arg, "--libm=ignore", vr.excludeDetect,False)) {
+    vr.loadInterLibm = False;
   }
   else if (VG_XACT_CLOM (cloPD, arg, "--libm=instr", vr.excludeDetect,True)) {
-    VG_(umsg)("--libm=instr : not yet implemented" );
+    vr.loadInterLibm = True;
   }
 
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
