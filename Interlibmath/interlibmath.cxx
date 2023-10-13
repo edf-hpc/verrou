@@ -369,17 +369,26 @@ void printCounter(){
 
 	std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
 
-	std::cerr << "=="<<my_pid<<"== ";
-	std::cerr<< " `-" " flt ";
-	std::cerr<< "\t" <<  getCounter(nbParam,i,0,0)+getCounter(nbParam,i,0,1)  << "\t" << getCounter(nbParam,i,0,0)<<std::endl;
+	int totalFloat=getCounter(nbParam,i,0,0)+getCounter(nbParam,i,0,1);
+	if(totalFloat>0){
+	  std::cerr << "=="<<my_pid<<"== ";
+	  std::cerr<< " `-" " flt ";
+	  std::cerr<< "\t" <<  totalFloat  << "\t" << getCounter(nbParam,i,0,0)<<std::endl;
+	}
 
-	std::cerr << "=="<<my_pid<<"== ";
-	std::cerr<< " `-" " dbl ";
-	std::cerr<< "\t" <<  getCounter(nbParam,i,1,0)+getCounter(nbParam,i,1,1)  << "\t" << getCounter(nbParam,i,1,0)<<std::endl;
+	int totalDouble=getCounter(nbParam,i,1,0)+getCounter(nbParam,i,1,1);
+	if(totalDouble>0){
+	  std::cerr << "=="<<my_pid<<"== ";
+	  std::cerr<< " `-" " dbl ";
+	  std::cerr<< "\t" <<  totalDouble  << "\t" << getCounter(nbParam,i,1,0)<<std::endl;
+	}
 
-	std::cerr << "=="<<my_pid<<"== ";
-	std::cerr<< " `-" " lgd ";
-	std::cerr<< "\t" <<  getCounter(nbParam,i,2,0)+getCounter(nbParam,i,2,1)  << "\t" << getCounter(nbParam,i,2,0)<<std::endl;
+	int totalLDouble= getCounter(nbParam,i,2,0)+getCounter(nbParam,i,2,1);
+	if(totalLDouble){
+	  std::cerr << "=="<<my_pid<<"== ";
+	  std::cerr<< " `-" " lgd ";
+	  std::cerr<< "\t" << totalLDouble  << "\t" << getCounter(nbParam,i,2,0)<<std::endl;
+	}
       }
     }
   }
