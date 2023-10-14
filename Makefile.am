@@ -204,8 +204,8 @@ VERROUINTERLIBM_SOURCES_COMMON = Interlibmath/interlibmath.cxx Interlibmath/stac
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
 	$(VERROUINTERLIBM_SOURCES_COMMON)
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
-	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -static-libstdc++ -Wno-missing-declarations
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -static-libstdc++ -Wno-missing-declarations -I../include
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
-	-static-libstdc++ -lm -lquadmath \
+	-static-libstdc++ -lquadmath -lm \
 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
-vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDADD  =  -ldl
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDADD  =  -ldl -lquadmath

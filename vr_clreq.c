@@ -298,6 +298,20 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
       }
     }
     break;
+  case VR_USERREQ__GET_ROUNDING:
+     *ret=(UWord)vr.roundingMode;
+     break;
+  case VR_USERREQ__GET_LIBM_ROUNDING:
+     *ret=(UWord)vr.roundingMode;
+     break;
+
+  case VR_USERREQ__NAN_DETECTED:
+     vr_handle_NaN();
+     break;
+
+  case VR_USERREQ__INF_DETECTED:
+     vr_handle_Inf();
+     break;
   }
   return True;
 }

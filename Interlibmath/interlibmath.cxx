@@ -18,8 +18,10 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 
+#define CLIENTREQUEST
 #ifdef CLIENTREQUEST
-#include "valgrind/verrou.h"
+//#include "valgrind/verrou.h"
+#include "verrou/verrou.h"
 #else
 #define VERROU_START_INSTRUMENTATION
 #define VERROU_STOP_INSTRUMENTATION
@@ -29,6 +31,7 @@ unsigned int my_pid;
 
 #include "stacktrace.cxx"
 
+#ifdef INTERLIBM_STAND_ALONE
 void printNan(){
   std::cerr << "\n=="<<my_pid<<"== NaN Detected:"<< std::endl;
   std::cerr << Backtrace(3);
@@ -38,13 +41,26 @@ void printInf(){
   std::cerr << Backtrace(3);
 }
 
+void (*vr_nanHandler)()=printNan;
+void (*vr_infHandler)()=printInf;
+#else
+void signalNan(){
+  VERROU_NAN_DETECTED;
+}
+void signalInf(){
+  VERROU_INF_DETECTED;
+}
+
+
+void (*vr_nanHandler)()=signalNan;
+void (*vr_infHandler)()=signalInf;
+#endif
+
 
 
 vr_RoundingMode ROUNDINGMODE;
 void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
-void (*vr_nanHandler)()=printNan;
-void (*vr_infHandler)()=printInf;
 
 
 class myLibMathFunction1{
@@ -337,8 +353,7 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
 
 
 void printCounter(){
-  std::cerr  << "=="<<my_pid<<"== "<< "ROUNDINGMODE: "<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<std::endl;
-  std::cerr << "=="<<my_pid<<"== " << "Interlibm counter " <<std::endl;
+  std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<" )"<<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "\t\t Total \tInstrumented" <<std::endl;
 
   for(int nbParam=1; nbParam <=2; nbParam++){
@@ -642,8 +657,9 @@ void __attribute__((constructor)) init_interlibmath(){
   uint64_t vr_seed=  now.tv_usec + my_pid;
   vr_rand_setSeed(&vr_rand, vr_seed);
 
-  ROUNDINGMODE=VR_NATIVE; //Default value
+  ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING; // VR_NATIVE; //Default value
 
+#ifdef INTERLIBM_STAND_ALONE
   char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
   if(vrm==NULL){
     vrm=std::getenv("VERROU_ROUNDING_MODE");
@@ -714,7 +730,7 @@ void __attribute__((constructor)) init_interlibmath(){
       exit(1);
     }
   }
-
+#endif
   initLibMathCounter();
 }
 

@@ -58,6 +58,10 @@ enum {
   VR_USERREQ__SET_SEED,
   VR_USERREQ__PRANDOM_UPDATE,
   VR_USERREQ__PRANDOM_UPDATE_VALUE,
+  VR_USERREQ__GET_ROUNDING,
+  VR_USERREQ__GET_LIBM_ROUNDING,
+  VR_USERREQ__NAN_DETECTED,
+  VR_USERREQ__INF_DETECTED,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -108,5 +112,22 @@ enum {
 #define VERROU_PRANDOM_UPDATE_VALUE(P)\
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRANDOM_UPDATE_VALUE,    \
 				  P, 0, 0, 0, 0)
+
+#define VERROU_GET_ROUNDING \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_ROUNDING, \
+					    0, 0, 0, 0, 0)
+#define VERROU_GET_LIBM_ROUNDING \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_LIBM_ROUNDING, \
+					    0, 0, 0, 0, 0)
+
+#define VERROU_NAN_DETECTED \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__NAN_DETECTED,    \
+                                  0, 0, 0, 0, 0)
+#define VERROU_INF_DETECTED \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__INF_DETECTED,    \
+                                  0, 0, 0, 0, 0)
+
 
 #endif /* __VERROU_H */
