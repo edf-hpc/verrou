@@ -65,6 +65,7 @@ enum {
   VR_USERREQ__IS_INSTRUMENTED_FLOAT,
   VR_USERREQ__IS_INSTRUMENTED_DOUBLE,
   VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,
+  VR_USERREQ__COUNT_OP,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -143,6 +144,10 @@ enum {
 #define VERROU_IS_INSTRUMENTED_LDOUBLE \
   (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,\
+					    0, 0, 0, 0, 0)
+#define VERROU_COUNT_OP \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__COUNT_OP,\
 					    0, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

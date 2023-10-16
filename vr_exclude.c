@@ -154,14 +154,18 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   static const HChar libmPattern1[]="*libm.so*";
   static const HChar libmPattern2[]="*libm-*.so*";
   static const HChar libumathPattern[]="*umath.cpython-36-x86_64-linux-gnu.so*";
-  static const HChar libinterlibmPattern[]="*interlibmath.so";
+  static const HChar libinterlibmPattern1[]="*interlibmath.so";
+  static const HChar libinterlibmPattern2[]="*vgpreload_verrou-*.so";
   static const HChar libquadmathPattern[]="libquadmath*.so*";
+  static const HChar libgccPattern[]="libgcc_s*.so*";
 
-#define LIB_NB_PATTERN 5
+
+#define LIB_NB_PATTERN 7
   const HChar* libPattern[LIB_NB_PATTERN]={libmPattern1, libmPattern2,
 					   libumathPattern,
-					   libinterlibmPattern,
-					   libquadmathPattern};
+					   libinterlibmPattern1, libinterlibmPattern2,
+					   libquadmathPattern,
+					   libgccPattern};
   const HChar star[]="*";
   for(int i=0; i< LIB_NB_PATTERN; i++){
     if( VG_(string_match)(libPattern[i],objName)){

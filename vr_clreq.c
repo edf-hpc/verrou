@@ -321,6 +321,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__IS_INSTRUMENTED_LDOUBLE:
     *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_LDBL] );
     break;
+  case VR_USERREQ__COUNT_OP:
+    *ret=(UWord)( (Bool)(vr.count) );
+    break;
 
   }
   return True;

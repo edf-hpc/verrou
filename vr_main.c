@@ -1840,7 +1840,11 @@ static void vr_post_clo_init(void)
 
    VG_(umsg)("Instrumented type :\n");
    int precIt;
-   for (precIt=0; precIt< 2 ;precIt++){
+   int nbPrec=2;
+   if(vr.loadInterLibm){
+     nbPrec=3;
+   }
+   for (precIt=0; precIt< nbPrec ;precIt++){
       VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
       if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
       else VG_(umsg)("no\n");

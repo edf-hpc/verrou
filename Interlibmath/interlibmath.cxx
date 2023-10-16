@@ -38,10 +38,12 @@ void printInf(){
 void (*vr_nanHandler)()=printNan;
 void (*vr_infHandler)()=printInf;
 
-#define VERROU_IS_INSTRUMENTED_FLOAT true;
-#define VERROU_IS_INSTRUMENTED_DOUBLE true;
-#define VERROU_IS_INSTRUMENTED_LDOUBLE true;
+#define VERROU_IS_INSTRUMENTED_FLOAT true
+#define VERROU_IS_INSTRUMENTED_DOUBLE true
+#define VERROU_IS_INSTRUMENTED_LDOUBLE true
 #define VERROU_GET_LIBM_ROUNDING VR_NATIVE
+#define VERROU_COUNT_OP true
+
 #else
 
 #define Bool bool
@@ -736,5 +738,7 @@ void __attribute__((constructor)) init_interlibmath(){
 
 
 void __attribute__((destructor)) finalyze_interlibmath(){
-  printCounter();
+  if(VERROU_COUNT_OP){
+    printCounter();
+  }
 };
