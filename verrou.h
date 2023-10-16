@@ -62,6 +62,9 @@ enum {
   VR_USERREQ__GET_LIBM_ROUNDING,
   VR_USERREQ__NAN_DETECTED,
   VR_USERREQ__INF_DETECTED,
+  VR_USERREQ__IS_INSTRUMENTED_FLOAT,
+  VR_USERREQ__IS_INSTRUMENTED_DOUBLE,
+  VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -128,6 +131,18 @@ enum {
 #define VERROU_INF_DETECTED \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__INF_DETECTED,    \
                                   0, 0, 0, 0, 0)
+#define VERROU_IS_INSTRUMENTED_FLOAT \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_FLOAT,\
+					    0, 0, 0, 0, 0)
 
+#define VERROU_IS_INSTRUMENTED_DOUBLE \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_DOUBLE,\
+					    0, 0, 0, 0, 0)
+#define VERROU_IS_INSTRUMENTED_LDOUBLE \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,\
+					    0, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

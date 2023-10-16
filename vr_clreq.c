@@ -312,6 +312,16 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__INF_DETECTED:
      vr_handle_Inf();
      break;
+  case VR_USERREQ__IS_INSTRUMENTED_FLOAT:
+    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_FLT] );
+    break;
+  case VR_USERREQ__IS_INSTRUMENTED_DOUBLE:
+    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_DBL] );
+    break;
+  case VR_USERREQ__IS_INSTRUMENTED_LDOUBLE:
+    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_LDBL] );
+    break;
+
   }
   return True;
 }

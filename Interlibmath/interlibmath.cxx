@@ -18,20 +18,14 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 
-#define CLIENTREQUEST
-#ifdef CLIENTREQUEST
-//#include "valgrind/verrou.h"
-#include "verrou/verrou.h"
-#else
-#define VERROU_START_INSTRUMENTATION
-#define VERROU_STOP_INSTRUMENTATION
-#endif
 
 unsigned int my_pid;
 
-#include "stacktrace.cxx"
+
 
 #ifdef INTERLIBM_STAND_ALONE
+#include "stacktrace.cxx"
+
 void printNan(){
   std::cerr << "\n=="<<my_pid<<"== NaN Detected:"<< std::endl;
   std::cerr << Backtrace(3);
@@ -43,7 +37,16 @@ void printInf(){
 
 void (*vr_nanHandler)()=printNan;
 void (*vr_infHandler)()=printInf;
+
+#define VERROU_IS_INSTRUMENTED_FLOAT true;
+#define VERROU_IS_INSTRUMENTED_DOUBLE true;
+#define VERROU_IS_INSTRUMENTED_LDOUBLE true;
+#define VERROU_GET_LIBM_ROUNDING VR_NATIVE
 #else
+
+#define Bool bool
+#include "verrou/verrou.h"
+
 void signalNan(){
   VERROU_NAN_DETECTED;
 }
@@ -530,16 +533,19 @@ public:
 };									\
   extern "C"{								\
   double FCT (double a){						\
-    if(ROUNDINGMODE==VR_NATIVE){					\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE;		\
+    if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
+    if(isInstrumented){							\
+      incCounter1<double, enum##FCT ,0>();				\
+    }else{								\
       incCounter1<double, enum##FCT ,1>();				\
-      return function1NameTab[enum##FCT].apply(a);			\
+    }									\
+    return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<double, enum##FCT ,0>();				\
       typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
       double res;							\
-      VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
-      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\
@@ -550,11 +556,9 @@ public:
       return function1NameTab[enum##FCT].apply(a);			\
     }else{								\
       incCounter1<float, enum##FCT,0>();				\
-      VERROU_STOP_INSTRUMENTATION;                                      \
 typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       float res;							\
       Op::apply(Op::PackArgs(a) ,&res,NULL);				\
-      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\
@@ -578,10 +582,8 @@ typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       }else{								\
       incCounter2<double, enum##FCT ,0>();				\
       typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
-      VERROU_STOP_INSTRUMENTATION;                                      \
       double res;							\
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
-      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\
@@ -594,9 +596,7 @@ typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
       incCounter2<float, enum##FCT,0>();				\
       typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
       float res;							\
-      VERROU_STOP_INSTRUMENTATION;                                      \
       Op::apply(Op::PackArgs(a,b) ,&res,NULL);				\
-      VERROU_START_INSTRUMENTATION;                                     \
       return res;							\
     }									\
   }									\

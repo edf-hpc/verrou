@@ -88,6 +88,7 @@ void vr_clo_defaults (void) {
 
   vr.instr_prec[VR_PREC_FLT]=True;
   vr.instr_prec[VR_PREC_DBL]=True;
+  vr.instr_prec[VR_PREC_LDBL]=True;
   vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
   vr.firstSeed=(ULong)(-1);
@@ -273,6 +274,9 @@ Bool vr_process_clo (const HChar *arg) {
 
   else if (VG_BOOL_CLO (arg, "--vr-instr-dbl", bool_val)) {
      vr.instr_prec[VR_PREC_DBL]= bool_val;
+  }
+  else if (VG_BOOL_CLO (arg, "--vr-instr-ldbl", bool_val)) {
+     vr.instr_prec[VR_PREC_LDBL]= bool_val;
   }
 
   //Option --vr-verbose (to avoid verbose of valgrind)

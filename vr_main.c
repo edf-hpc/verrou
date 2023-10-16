@@ -112,6 +112,8 @@ static const HChar* vr_ppPrec (Vr_Prec prec) {
     return "flt";
   case VR_PREC_DBL:
     return "dbl";
+  case VR_PREC_LDBL:
+    return "ldbl";
   case VR_PREC_DBL_TO_FLT:
     return "dbl=>flt";
   case VR_PREC_FLT_TO_DBL:

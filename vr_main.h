@@ -101,6 +101,7 @@ typedef enum {
 typedef enum {
   VR_PREC_FLT,  // Single
   VR_PREC_DBL,  // Double
+  VR_PREC_LDBL,  // LDouble
   VR_PREC_DBL_TO_FLT,
   VR_PREC_FLT_TO_DBL,
   VR_PREC_DBL_TO_INT,
