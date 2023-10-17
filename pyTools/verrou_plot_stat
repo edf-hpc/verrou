@@ -522,7 +522,7 @@ class config_stat(gen_config.gen_config):
     def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
         self.defaultRoundingTab=["random","average","det"]
-        super().__init__(argv,environ, config_keys,[2,3])
+        super().__init__(argv,environ, config_keys,[1,2,3])
         self.normalize()
         self.check()
 
@@ -576,6 +576,7 @@ class config_stat(gen_config.gen_config):
                 self._runScript=self.exec_arg[0]
             if len(self.exec_arg)>1:
                 self.help()
+                print(self.exec_arg, "size should be one")
                 self.failure()
             return
 
@@ -593,12 +594,14 @@ class config_stat(gen_config.gen_config):
         if len(self._pattern)!=0:
             if len(self.exec_arg)>1:
                 self.help()
+                print(self.exec_arg, "size should be at least 2")
                 self.failure()
             self._extractScript=self.exec_arg[0]
             self._runScript=None
         if self._time:
             if len(self.exec_arg)>3:
                 self.help()
+                print(self.exec_arg, "size should be at least 3")
                 self.failure()
             self._runScript=self.exec_arg[0]
             self._extractTimeScript=self.exec_arg[1]
@@ -633,6 +636,8 @@ class config_stat(gen_config.gen_config):
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
         print("\t det is an alias to "+",".join(rounding_tool.roundingDetTab))
 
+    def help(self):
+        self.usageCmd()
 
     def nbBin(self):
         return self._nbBin
