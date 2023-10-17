@@ -312,13 +312,13 @@ Bool vr_process_clo (const HChar *arg) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
-  else if (VG_XACT_CLOM (cloPD, arg, "--libm=detect_exclude", vr.excludeDetect,True)) {
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=auto_exclude", vr.excludeDetect,True)) {
     vr.loadInterLibm = False;
   }
-  else if (VG_XACT_CLOM (cloPD, arg, "--libm=ignore", vr.excludeDetect,False)) {
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=manual_exclude", vr.excludeDetect,False)) {
     vr.loadInterLibm = False;
   }
-  else if (VG_XACT_CLOM (cloPD, arg, "--libm=instr", vr.excludeDetect,True)) {
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=instrumented", vr.excludeDetect,True)) {
     vr.loadInterLibm = True;
   }
 

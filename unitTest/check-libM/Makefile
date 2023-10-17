@@ -45,7 +45,7 @@ resRandominterlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so
 	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so  VERROU_LIBM_ROUNDING_MODE=random  $(BIN) $(NUMSAMPLEIN) > $@
 
 resRandomverrou+interlibm.dat: $(BIN)
-	VERROU_ROUNDING_MODE=random $(VALGRIND) --libm=instr $(BIN) $(NUMSAMPLEIN) > $@
+	VERROU_ROUNDING_MODE=random $(VALGRIND) --libm=instrumented $(BIN) $(NUMSAMPLEIN) > $@
 
 reference.dat:
 	$(BIN) -1 > $@
