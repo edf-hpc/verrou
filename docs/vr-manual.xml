@@ -304,6 +304,30 @@ det2
             </listitem>
           </varlistentry>
 
+	  <varlistentry id="vr-opt.libm" xreflabel="--libm">
+	                  <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
+            <listitem>
+              <para>
+		Define the behaviour of verrou with libm.
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>auto_exclude</command> : The libm exclusion is automaticaly detected thanks pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
+                </para></listitem>
+                <listitem><para>
+                  <command>manual_exclude</command> : The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is usefull if the pattern detection detect object you need to perturb.
+                </para></listitem>
+		<listitem><para>
+                  <command>instrumented</command> : the interposition library Interlibmath is loaded. This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
+                </para></listitem>
+              </itemizedlist>
+
+	      <para>
+		The option <command>instrumented</command> is not yet compatible with verrou_dd_sym and verrou_dd_line. When it will be the case, the default will switch from <command>auto_exclude</command>  to <command>instrumented</command>
+	      </para>
+            </listitem>
+	  </varlistentry>
+
           <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
             <term><option><![CDATA[--mca-mode=<mca|rr|pb|ieee> [default=mca]]]></option></term>
             <listitem>

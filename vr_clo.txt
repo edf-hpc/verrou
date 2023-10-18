@@ -39,6 +39,27 @@
           This option can be activated with the env variable\n\
           VERROU_ROUNDING_MODE.\n\
 \n\
+      --libm=<auto_exclude|manual_exclude|instrumented>\n\
+      [default=auto_exclude]\n\
+          Define the behaviour of verrou with libm.\n\
+\n\
+          •   auto_exclude : The libm exclusion is automaticaly detected\n\
+              thanks pattern detection. The library detected are libm,\n\
+              vgpreload_verrou, interlibmath, libquadmath and libgcc_s.\n\
+\n\
+          •   manual_exclude : The automatic detection is ignored and the\n\
+              user has to define manually the exclusion thanks --exclude\n\
+              option. This option is usefull if the pattern detection detect\n\
+              object you need to perturb.\n\
+\n\
+          •   instrumented : the interposition library Interlibmath is\n\
+              loaded. This option is valid only with verrou backend. This\n\
+              option imply implicitly the libm exclusion.\n\
+\n\
+          The option instrumented is not yet compatible with verrou_dd_sym\n\
+          and verrou_dd_line. When it will be the case, the default will\n\
+          switch from auto_exclude to instrumented\n\
+\n\
       --mca-mode=<mca|rr|pb|ieee> [default=mca]\n\
           Emulate the given MCA mode for operations instrumented with the\n\
           mcaquad backend. Supported mca modes are:\n\
