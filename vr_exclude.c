@@ -153,7 +153,7 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName){
   static const HChar libmPattern1[]="*libm.so*";
   static const HChar libmPattern2[]="*libm-*.so*";
-  static const HChar libumathPattern[]="*umath.cpython-36-x86_64-linux-gnu.so*";
+  static const HChar libumathPattern[]="*umath.cpython*.so*";
   static const HChar libinterlibmPattern1[]="*interlibmath.so";
   static const HChar libinterlibmPattern2[]="*vgpreload_verrou-*.so";
   static const HChar libquadmathPattern[]="libquadmath*.so*";
