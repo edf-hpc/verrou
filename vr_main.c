@@ -1808,6 +1808,10 @@ static void vr_post_clo_init(void)
     VG_(tool_panic)("backend check_float_max is only compatible with verrou backend");
   }
 
+  if( vr.loadInterLibm && (vr.backend!=vr_verrou) ){
+    VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
+  }
+
   if(vr.genTrace){
      vr_traceBB_initialize(vr.outputTraceRep);
    }

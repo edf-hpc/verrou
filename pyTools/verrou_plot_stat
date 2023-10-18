@@ -136,12 +136,14 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 
     def getValueData(repName):
         try:
-            return float(subprocess.getoutput(extract_run +" "+ repName))
+            resProcess=subprocess.getoutput(extract_run +" "+ repName+ " 2> "+repName+"/extract.err")
+            return float(resProcess)
         except ValueError as err:
             print("Value Error while extracting value from :"+ extract_run +" "+ repName)
             if continueOnExtractError:
                 return "fail"
             else:
+                print("debug:", resProcess)
                 sys.exit(42)
 
 
