@@ -273,6 +273,9 @@ void vr_handle_CD (void);
 void vr_handle_FLT_MAX (void);
 
 
+void vr_register_cache(unsigned int*, unsigned int);
+void vr_clean_cache(void);
+
 // ** vr_exclude.c
 
 void        vr_freeExcludeList (Vr_Exclude* list);
@@ -295,6 +298,10 @@ void vr_includeSource_generate (Vr_IncludeSource** list,
 Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
 					const HChar * filename, UInt linenum);
 Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude, Vr_IncludeSource* listExclude);
+
+void vr_generate_exclude_source(const char* functionName, int line, const char* object );
+Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object);
+
 // ** vr_include_trace.c
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
 Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);

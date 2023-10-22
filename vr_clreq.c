@@ -52,6 +52,7 @@ void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard)
 
   if(discard){
      VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+     vr_clean_cache();
   }
      /* if(vr.instrument == VR_INSTR_ON){ */
   /*   verrou_begin_instr(); */
@@ -324,7 +325,15 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__COUNT_OP:
     *ret=(UWord)( (Bool)(vr.count) );
     break;
-
+  case VR_USERREQ__GENERATE_EXCLUDE_SOURCE:
+     vr_generate_exclude_source((const char*)args[1], *(int*)args[2], (const char*)args[3] );
+     break;
+  case VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE:
+     *ret=(UWord)( (Bool)(vr_clrIsInstrumented((const char*)args[1], *(int*)args[2], (const char*)args[3] )));
+     break;
+  case VR_USERREQ__REGISTER_CACHE:
+     vr_register_cache((unsigned int*) args[1], (unsigned int)args[2]);
+     break;
   }
   return True;
 }

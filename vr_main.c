@@ -346,6 +346,43 @@ static VG_REGPARM(0) void vr_updatep_prandom (void) {
   verrou_updatep_prandom();
 }
 
+void vr_generate_exclude_source(const char* functionName, int line, const char* object ){
+   if(vr.genExcludeBool){
+    vr_excludeIRSB_generate (&functionName, &object);
+   }
+   if(vr.genIncludeSource){
+      vr_includeSource_generate (&vr.gen_includeSource, object, functionName, line);
+   }
+}
+
+Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object){
+   VG_(umsg)("function Name: %s\tline: %d\tobject: %s\n",functionName, line, object);
+   Bool excludeIrsb=vr_excludeIRSB (&functionName, &object);
+   if(excludeIrsb){
+      return False;
+   }
+
+   Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, object, functionName, line);
+   return sourceInclude;
+}
+
+unsigned int* cacheTab[10];
+unsigned int  cacheSizeTab[10];
+unsigned int nbRegistredCache=0;
+void vr_register_cache(unsigned int* cache, unsigned int size){
+   if(nbRegistredCache==10){
+      VG_(tool_panic)("too much cache");
+   }
+   cacheTab[nbRegistredCache]=cache;
+   cacheSizeTab[nbRegistredCache]=size;
+   nbRegistredCache++;
+}
+
+void vr_clean_cache(void){
+   for(unsigned int i=0; i< nbRegistredCache;i++){
+      VG_(memset)(cacheTab[i],0,cacheSizeTab[i]) ;
+   }
+}
 
 #include "vr_traceBB_impl.h"
 

@@ -20,6 +20,8 @@
 
 
 unsigned int my_pid;
+char libraryName[]="verrou-interLibm";
+int unknownLine=0;
 
 
 
@@ -248,6 +250,11 @@ myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
 unsigned int libMathCounter1[enum_libm_function1_name_size][3][2];
 unsigned int libMathCounter2[enum_libm_function2_name_size][3][2];
 
+unsigned int* cacheInstrumentStatus1;
+unsigned int* cacheInstrumentStatus2;
+
+
+
 void initLibMathCounter(){
   for(int i=0; i< (int)enum_libm_function1_name_size;i++){
     for(int j=0; j< 3; j++){
@@ -356,6 +363,39 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
   return "undefined";
 }
 
+
+
+#ifndef INTERLIBM_STAND_ALONE
+void generateExcludeSource(){
+  for(int nbParam=1; nbParam <=2; nbParam++){
+    int paramSize= (int)enum_libm_function1_name_size;
+    if(nbParam==2){
+      paramSize=(int)enum_libm_function2_name_size;
+    }
+
+    for(int i=0; i< paramSize;i++){
+      std::string functionName;
+      if(nbParam==1){
+	functionName=function1NameTab[i].name();
+      }
+      if(nbParam==2){
+	functionName=function2NameTab[i].name();
+      }
+      if( getCounter(nbParam,i,0,0)!=0){  //float
+	std::string fctName=functionName+std::string("f");
+	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &unknownLine, libraryName);
+      }
+      if( getCounter(nbParam,i,1,0)!=0){ //double
+	VERROU_GENERATE_EXCLUDE_SOURCE(functionName.c_str(), &unknownLine, libraryName);
+      }
+      if( getCounter(nbParam,i,2,0)!=0){//ldouble
+	std::string fctName=functionName+std::string("l");
+	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &unknownLine, libraryName);
+      }
+    }
+  }
+}
+#endif
 
 void printCounter(){
   std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<" )"<<std::endl;
@@ -527,6 +567,47 @@ public:
 //   return x;
 // }
 
+#ifdef INTERLIBM_STAND_ALONE
+bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  return true;
+}
+bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  return true;
+}
+#else
+bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  unsigned int index= functionType * enum_libm_function1_name_size+ functionEnum;
+  if(  cacheInstrumentStatus1[index]==0){
+    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName,  &unknownLine,libraryName)){
+      cacheInstrumentStatus1[index]=1;
+    }else{
+      cacheInstrumentStatus1[index]=2;
+    }
+  }
+  if( cacheInstrumentStatus1[index]==1){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  unsigned int index= functionType * enum_libm_function2_name_size+ functionEnum;
+  if(  cacheInstrumentStatus2[index]==0){
+    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName,  &unknownLine,libraryName)){
+      cacheInstrumentStatus2[index]=1;
+    }else{
+      cacheInstrumentStatus2[index]=2;
+    }
+  }
+  if( cacheInstrumentStatus2[index]==1){
+    return true;
+  }else{
+    return false;
+  }
+}
+#endif
+
 
 #define DEFINE_INTERP_LIBM1_C_IMPL(FCT)					\
   struct libmq##FCT{							\
@@ -535,7 +616,8 @@ public:
 };									\
   extern "C"{								\
   double FCT (double a){						\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE;		\
+    const char fctStr[]=#FCT;						\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,1); \
     if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
     if(isInstrumented){							\
       incCounter1<double, enum##FCT ,0>();				\
@@ -552,8 +634,9 @@ public:
     }									\
   }									\
 									\
-    float FCT##f (float a){						\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT;		\
+  float FCT##f (float a){						\
+    const char fctStr[]="FCT##f";					\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,0);\
     if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
       if(isInstrumented){						\
 	incCounter1<float, enum##FCT ,0>();				\
@@ -583,7 +666,8 @@ public:
 };									\
   extern "C"{								\
     double FCT (double a, double b){					\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE;		\
+      const char fctStr[]=#FCT;						\
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2(fctStr, enum##FCT,1); \
       if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
 	if(isInstrumented){						\
 	  incCounter2<double, enum##FCT ,0>();				\
@@ -601,7 +685,8 @@ public:
     }									\
 									\
     float FCT##f (float a, float b){					\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT;		\
+    const char fctStr[]="FCT##f";					\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,0);\
       if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
 	if(isInstrumented){						\
 	  incCounter2<float, enum##FCT ,0>();				\
@@ -747,13 +832,26 @@ void __attribute__((constructor)) init_interlibmath(){
       exit(1);
     }
   }
+#else
+  cacheInstrumentStatus1=(unsigned int*)calloc(3 * enum_libm_function1_name_size, sizeof(unsigned int));
+  VERROU_REGISTER_CACHE(cacheInstrumentStatus1, 3 * enum_libm_function1_name_size * sizeof(unsigned int));
+
+  cacheInstrumentStatus2=(unsigned int*)calloc(3 * enum_libm_function2_name_size, sizeof(unsigned int));
+  VERROU_REGISTER_CACHE(cacheInstrumentStatus2, 3 * enum_libm_function2_name_size * sizeof(unsigned int));
 #endif
   initLibMathCounter();
 }
 
 
 void __attribute__((destructor)) finalyze_interlibmath(){
+#ifndef INTERLIBM_STAND_ALONE
+  generateExcludeSource();
+#endif
   if(VERROU_COUNT_OP){
     printCounter();
   }
+#ifndef INTERLIBM_STAND_ALONE
+  free(cacheInstrumentStatus1);
+  free(cacheInstrumentStatus2);
+#endif
 };
