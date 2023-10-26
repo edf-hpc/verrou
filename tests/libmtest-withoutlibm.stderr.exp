@@ -1,0 +1,68 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : XXX
+Backend verrou : test-version
+Backend mcaquad : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend verrou simulating RANDOM rounding mode
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                     1800                        0          (  0%)
+  `- flt                      840                        0      (  0%)
+      `- llo                      840                        0  (  0%)
+  `- dbl                      960                        0      (  0%)
+      `- llo                      960                        0  (  0%)
+ ---------------------------------------------------------------------
+ sub                     2760                      320          ( 12%)
+  `- flt                     1200                      160      ( 13%)
+      `- llo                     1200                      160  ( 13%)
+  `- dbl                     1560                      160      ( 10%)
+      `- llo                     1560                      160  ( 10%)
+ ---------------------------------------------------------------------
+ mul                     2640                        0          (  0%)
+  `- flt                     1680                        0      (  0%)
+      `- llo                     1680                        0  (  0%)
+  `- dbl                      960                        0      (  0%)
+      `- llo                      960                        0  (  0%)
+ ---------------------------------------------------------------------
+ div                      480                        0          (  0%)
+  `- flt                      240                        0      (  0%)
+      `- llo                      240                        0  (  0%)
+  `- dbl                      240                        0      (  0%)
+      `- llo                      240                        0  (  0%)
+ ---------------------------------------------------------------------
+ mAdd                    3480                        0          (  0%)
+  `- dbl                     3480                        0      (  0%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

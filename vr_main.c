@@ -356,14 +356,20 @@ void vr_generate_exclude_source(const char* functionName, int line, const char* 
 }
 
 Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object){
-   VG_(umsg)("function Name: %s\tline: %d\tobject: %s\n",functionName, line, object);
-   Bool excludeIrsb=vr_excludeIRSB (&functionName, &object);
+  if(vr.verbose){
+    VG_(umsg)("function Name: %s\tline: %d\tobject: %s\n",functionName, line, object);
+  }
+  Bool excludeIrsb=vr_excludeIRSB (&functionName, &object);
    if(excludeIrsb){
       return False;
    }
 
-   Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, object, functionName, line);
-   return sourceInclude;
+   if(vr.sourceActivated){
+     Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, object, functionName, line);
+     return sourceInclude;
+   }else{
+     return True;
+   }
 }
 
 unsigned int* cacheTab[10];

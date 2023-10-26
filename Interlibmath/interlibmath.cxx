@@ -609,6 +609,8 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
 #endif
 
 
+#define STRINGIFY(A) #A
+
 #define DEFINE_INTERP_LIBM1_C_IMPL(FCT)					\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a){return FCT##q(a);}		\
@@ -616,7 +618,7 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
 };									\
   extern "C"{								\
   double FCT (double a){						\
-    const char fctStr[]=#FCT;						\
+    const char fctStr[]=STRINGIFY(FCT);					\
     const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,1); \
     if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
     if(isInstrumented){							\
@@ -635,7 +637,7 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
   }									\
 									\
   float FCT##f (float a){						\
-    const char fctStr[]="FCT##f";					\
+  char fctStr[30]=STRINGIFY(FCT##f);			\
     const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,0);\
     if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
       if(isInstrumented){						\
@@ -685,7 +687,7 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
     }									\
 									\
     float FCT##f (float a, float b){					\
-    const char fctStr[]="FCT##f";					\
+    const char fctStr[]=STRINGIFY(FCT##f);				\
     const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,0);\
       if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
 	if(isInstrumented){						\
