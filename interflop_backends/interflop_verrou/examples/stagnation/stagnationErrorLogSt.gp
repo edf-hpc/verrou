@@ -13,50 +13,110 @@ set format y "10^{%L}"
 set key top left
 #set key at 14000000, 0.0000004
 set grid
-#set size square
+
 file_exists(file) = system("[ -f '".file."' ] && echo '1' || echo '0'") + 0
 
-if (file_exists("NEAREST.STAGNATION_st.out")) {
-   stagnationNearest=`cat "NEAREST.STAGNATION_st.out"`
-    set arrow from stagnationNearest, graph 0 to stagnationNearest, graph 1 nohead  linecolor "dark-green" dashtype 4 lw 2
-}
 
-set output "stagnationErrorLog-0_st.pdf"
-plot "NEAREST_st.out"     using 1:4 title 'nearest' lc "dark-green" pt 3
+set pointsize 0.75
+set label "nearest" at      1400,0.40
 
-set output "stagnationErrorLog-1_st.pdf"
-plot "NEAREST_st.out"     using 1:4 title 'nearest' lc "dark-green" pt 3,\
-     "RANDOM_st.out"     using 1:4 title 'random' lc "dark-red" pt 1 ,\
-     "AVERAGE_st.out"     using 1:4 title 'average' lc "blue" pt 1
+set output "stagnationErrorLogSt-0.pdf"
 
-if (file_exists("RANDOM_DET.STAGNATION_st.out")){
-   stagnationRandomDet=`cat "RANDOM_DET.STAGNATION_st.out" 2>/dev/null`
-   set arrow from stagnationRandomDet, graph 0 to stagnationRandomDet, graph 1 nohead  linecolor "orange-red" dashtype 2 lw 2
-}
-
-if (file_exists("AVERAGE_DET.STAGNATION_st.out")){
-   stagnationAverageDet=`cat "AVERAGE_DET.STAGNATION_st.out" 2>/dev/null`
-   set arrow from stagnationAverageDet, graph 0 to stagnationAverageDet, graph 1 nohead  linecolor 0x008B8B dashtype 5 lw 2
-}
+plot "NEAREST_st.out"       using 1:4 notitle  lc "dark-green" pt 2 ,\
+      "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
 
 
-set output "stagnationErrorLog-2_st.pdf"
-plot "NEAREST_st.out"     using 1:4 title 'nearest' lc "dark-green" pt 3,\
-     "RANDOM_st.out"     using 1:4 title 'random' lc "dark-red" pt 1 ,\
-     "AVERAGE_st.out"     using 1:4 title 'average' lc "blue" pt 1,\
-     "RANDOM_DET_st.out" using 1:4 title 'random\_det' lc "orange-red" pt 12,\
-     "AVERAGE_DET_st.out" using 1:4 title 'average\_det' lc 0x008B8B pt 4
+set label "random" at	    1400,0.2
+set label "average" at      1400,0.1
+set label "first" at      12000,0.65 font "sans,10"
+set label "mean" at       22000,0.65 font "sans,10"
+set label "max" at        50000,0.65 font "sans,10"
 
 
-if (file_exists("SR_MONOTONIC.STAGNATION_st.out")){
-   stagnationSRMono=`cat "SR_MONOTONIC.STAGNATION_st.out"  2>/dev/null`
-   set arrow from stagnationSRMono, graph 0 to stagnationSRMono, graph 1 nohead  linecolor "red" dashtype 7 lw 2
-}
+set output "stagnationErrorLogSt-1.pdf"
+plot "NEAREST_st.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
+     "RANDOM_st.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
+     "RANDOM_st.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
+     "RANDOM_st.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
+     "AVERAGE_st.0.out"      using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "AVERAGE_st.post.out"   using 1:3 notitle  lc "blue" pt 6 ps 0.5 ,\
+     "AVERAGE_st.post.out"   using 1:7 notitle  with line lc "blue" lt 3,\
+      "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
+      "<echo '15000 0.2'" notitle lc "dark-red" pt 2 ,\
+      "<echo '30000 0.2'" notitle lc "dark-red" pt 6 ps 0.5 ,\
+      "<echo '50000 0.2\n90000 0.2'" notitle  with line lc "dark-red"  lt 3 ,\
+      "<echo '15000 0.1'" notitle lc "blue" pt 2 ,\
+      "<echo '30000 0.1'" notitle lc "blue" pt 6 ps 0.5 ,\
+      "<echo '50000 0.1\n90000 0.1'" notitle  with line lc "blue"  lt 3 ,\
 
-set output "stagnationErrorLog_st.pdf"
-plot "NEAREST_st.out"     using 1:4 title 'nearest' lc "dark-green" pt 3,\
-     "RANDOM_st.out"     using 1:4 title 'random' lc "dark-red" pt 1 ,\
-     "AVERAGE_st.out"     using 1:4 title 'average' lc "blue" pt 1,\
-     "RANDOM_DET_st.out" using 1:4 title 'random\_det' lc "orange-red" pt 12,\
-     "AVERAGE_DET_st.out" using 1:4 title 'average\_det' lc 0x008B8B pt 4,\
-     "SR_MONOTONIC.out" using 1:4 title 'sr\_monotonic' lc "red" pt 6
+
+
+set label "random\_det" noenhanced at	    1400,0.05
+set label "average\_det"  noenhanced  at 1400,0.025
+
+set output "stagnationErrorLogSt-2.pdf"
+plot "NEAREST_st.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
+     "RANDOM_st.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
+     "RANDOM_st.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
+     "RANDOM_st.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
+     "AVERAGE_st.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "AVERAGE_st.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
+     "AVERAGE_st.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
+     "RANDOM_DET_st.0.out"      using 1:4 notitle  lc "dark-violet" pt 2 ps 0.8 ,\
+     "RANDOM_DET_st.post.out"   using 1:3 notitle  lc "dark-violet" pt 6 ps 0.5 ,\
+     "RANDOM_DET_st.post.out"   using 1:7 notitle  with line lc "dark-violet" lt 3,\
+     "AVERAGE_DET_st.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
+     "AVERAGE_DET_st.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
+     "AVERAGE_DET_st.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
+      "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
+      "<echo '15000 0.2'" notitle lc "dark-red" pt 2 ,\
+      "<echo '30000 0.2'" notitle lc "dark-red" pt 6 ps 0.5 ,\
+      "<echo '50000 0.2\n90000 0.2'" notitle  with line lc "dark-red"  lt 3 ,\
+      "<echo '15000 0.1'" notitle lc "blue" pt 2 ,\
+      "<echo '30000 0.1'" notitle lc "blue" pt 6 ps 0.5 ,\
+      "<echo '50000 0.1\n90000 0.1'" notitle  with line lc "blue"  lt 3 ,\
+      "<echo '15000 0.05'" notitle lc "dark-violet" pt 2 ,\
+      "<echo '30000 0.05'" notitle lc "dark-violet" pt 6 ps 0.5 ,\
+      "<echo '50000 0.05\n90000 0.05'" notitle  with line lc "dark-violet"  lt 3 ,\
+      "<echo '15000 0.025'" notitle lc 0x008B8B pt 2 ,\
+      "<echo '30000 0.025'" notitle lc 0x008B8B pt 6 ps 0.5 ,\
+      "<echo '50000 0.025\n90000 0.025'" notitle  with line lc 0x008B8B  lt 3 ,\
+
+
+set label "sr_monotonic"  noenhanced at 1400,0.0125
+
+set output "stagnationErrorLogSt.pdf"
+plot "NEAREST_st.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
+     "RANDOM_st.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
+     "RANDOM_st.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
+     "RANDOM_st.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
+     "AVERAGE_st.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "AVERAGE_st.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
+     "AVERAGE_st.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
+     "RANDOM_DET_st.0.out"      using 1:4 notitle  lc "dark-violet" pt 2 ps 0.8,\
+     "RANDOM_DET_st.post.out"   using 1:3 notitle  lc "dark-violet" pt 6 ps 0.5 ,\
+     "RANDOM_DET_st.post.out"   using 1:7 notitle  with line lc "dark-violet" lt 3,\
+     "AVERAGE_DET_st.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
+     "AVERAGE_DET_st.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
+     "AVERAGE_DET_st.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
+     "SR_MONOTONIC_st.0.out" using 1:4 notitle lc "red" pt 2 ps 0.8,\
+     "SR_MONOTONIC_st.post.out"  using 1:3 notitle  lc "red" pt 6  ps 0.5,\
+     "SR_MONOTONIC_st.post.out"  using 1:7 notitle  with line lc "red"  lt 3,\
+     "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
+      "<echo '15000 0.2'" notitle lc "dark-red" pt 2 ,\
+      "<echo '30000 0.2'" notitle lc "dark-red" pt 6 ps 0.5 ,\
+      "<echo '50000 0.2\n90000 0.2'" notitle  with line lc "dark-red"  lt 3 ,\
+      "<echo '15000 0.1'" notitle lc "blue" pt 2 ,\
+      "<echo '30000 0.1'" notitle lc "blue" pt 6 ps 0.5 ,\
+      "<echo '50000 0.1\n90000 0.1'" notitle  with line lc "blue"  lt 3 ,\
+      "<echo '15000 0.05'" notitle lc "dark-violet" pt 2 ,\
+      "<echo '30000 0.05'" notitle lc "dark-violet" pt 6 ps 0.5 ,\
+      "<echo '50000 0.05\n90000 0.05'" notitle  with line lc "dark-violet"  lt 3 ,\
+      "<echo '15000 0.025'" notitle lc 0x008B8B pt 2 ,\
+      "<echo '30000 0.025'" notitle lc 0x008B8B pt 6 ps 0.5 ,\
+      "<echo '50000 0.025\n90000 0.025'" notitle  with line lc 0x008B8B  lt 3 ,\
+      "<echo '15000 0.0125'" notitle lc "red" pt 2 ,\
+      "<echo '30000 0.0125'" notitle lc "red" pt 6 ps 0.5 ,\
+      "<echo '50000 0.0125\n90000 0.0125'" notitle  with line lc "red"  lt 3 ,\
+      
+
