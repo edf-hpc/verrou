@@ -326,10 +326,10 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     *ret=(UWord)( (Bool)(vr.count) );
     break;
   case VR_USERREQ__GENERATE_EXCLUDE_SOURCE:
-     vr_generate_exclude_source((const char*)args[1], *(int*)args[2], (const char*)args[3] );
+    vr_generate_exclude_source((const char*)args[1], *(int*)args[2], (const char*)args[3], (const char*)args[4] );
      break;
   case VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE:
-     *ret=(UWord)( (Bool)(vr_clrIsInstrumented((const char*)args[1], *(int*)args[2], (const char*)args[3] )));
+    *ret=(UWord)( (Bool)(vr_clrIsInstrumented((const char*)args[1], *(int*)args[2], (const char*)args[3],(const char*)args[4] )));
      break;
   case VR_USERREQ__REGISTER_CACHE:
      vr_register_cache((unsigned int*) args[1], (unsigned int)args[2]);

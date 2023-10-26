@@ -346,18 +346,18 @@ static VG_REGPARM(0) void vr_updatep_prandom (void) {
   verrou_updatep_prandom();
 }
 
-void vr_generate_exclude_source(const char* functionName, int line, const char* object ){
+void vr_generate_exclude_source(const char* functionName, int line, const char* fileName, const char* object ){
    if(vr.genExcludeBool){
     vr_excludeIRSB_generate (&functionName, &object);
    }
    if(vr.genIncludeSource){
-      vr_includeSource_generate (&vr.gen_includeSource, object, functionName, line);
+     vr_includeSource_generate (&vr.gen_includeSource, functionName, fileName, line);
    }
 }
 
-Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object){
+Bool vr_clrIsInstrumented(const char* functionName, int line, const char* fileName, const char* object){
   if(vr.verbose){
-    VG_(umsg)("function Name: %s\tline: %d\tobject: %s\n",functionName, line, object);
+    VG_(umsg)("function Name: %s\tline: %d\tfileName: %s\tobject: %s\n",functionName, line, fileName, object);
   }
   Bool excludeIrsb=vr_excludeIRSB (&functionName, &object);
    if(excludeIrsb){
@@ -365,7 +365,7 @@ Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object
    }
 
    if(vr.sourceActivated){
-     Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, object, functionName, line);
+     Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, functionName, fileName, line);
      return sourceInclude;
    }else{
      return True;

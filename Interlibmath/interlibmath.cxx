@@ -20,8 +20,16 @@
 
 
 unsigned int my_pid;
+
+#ifdef INTERLIBM_STAND_ALONE
 char libraryName[]="verrou-interLibm";
-int unknownLine=0;
+#else
+char libraryName[]="*vgpreload_verrou-*.so";
+#endif
+
+char fileName[]=__FILE__;
+
+
 
 
 
@@ -72,8 +80,10 @@ void (*vr_panicHandler)(const char*)=NULL;
 
 class myLibMathFunction1{
 public:
-  myLibMathFunction1(std::string name, uint64_t enumName):name_(name),
-							  hash_(enumName+nbOpHash){
+  myLibMathFunction1(std::string name, uint64_t enumName, uint64_t line):name_(name),
+									 hash_(enumName+nbOpHash),
+									 line_(line)
+  {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
@@ -99,6 +109,10 @@ public:
     return hash_;
   }
 
+  uint64_t getLine()const{
+    return line_;
+  }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -113,12 +127,14 @@ private:
   long double (*real_name_long_double)(long double) ;
   std::string name_;
   uint64_t hash_;
+  uint64_t line_;
 };
 
 class myLibMathFunction2{
 public:
-  myLibMathFunction2(std::string name, uint64_t enumName):name_(name),
-							  hash_(enumName+ nbOpHash)
+  myLibMathFunction2(std::string name, uint64_t enumName, uint64_t line):name_(name),
+									 hash_(enumName+ nbOpHash),
+									 line_(line)
   {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
@@ -144,6 +160,10 @@ public:
     return hash_;
   }
 
+  uint64_t getLine()const{
+    return line_;
+  }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -158,6 +178,7 @@ private:
   long double (*real_name_long_double)(long double, long double) ;
   std::string name_;
   uint64_t hash_;
+  uint64_t line_;
 };
 
 
@@ -197,35 +218,35 @@ enum Function1Name: uint64_t {
   enum_libm_function1_name_size};
 
 myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={
-  //shell command to generate  for i in $LIST1 ; do  echo "myLibMathFunction1(\"$i\", enum$i),"; done;
-  myLibMathFunction1("acos", enumacos),
-  myLibMathFunction1("acosh", enumacosh),
-  myLibMathFunction1("asin", enumasin),
-  myLibMathFunction1("asinh", enumasinh),
-  myLibMathFunction1("atan", enumatan),
-  myLibMathFunction1("atanh", enumatanh),
-  myLibMathFunction1("cbrt", enumcbrt),
-  myLibMathFunction1("erf", enumerf),
-  myLibMathFunction1("exp", enumexp),
-  myLibMathFunction1("exp2", enumexp2),
-  myLibMathFunction1("expm1", enumexpm1),
-  myLibMathFunction1("log", enumlog),
-  myLibMathFunction1("log10", enumlog10),
-  myLibMathFunction1("log1p", enumlog1p),
-  myLibMathFunction1("log2", enumlog2),
-  myLibMathFunction1("tgamma", enumtgamma),
-  myLibMathFunction1("lgamma", enumlgamma),
-  myLibMathFunction1("sin", enumsin),
-  myLibMathFunction1("sinh", enumsinh),
-  myLibMathFunction1("cos", enumcos),
-  myLibMathFunction1("cosh", enumcosh),
-  myLibMathFunction1("sqrt", enumsqrt),
-  myLibMathFunction1("tan", enumtan),
-  myLibMathFunction1("tanh", enumtanh),
-  myLibMathFunction1("j0", enumj0),
-  myLibMathFunction1("j1", enumj1),
-  myLibMathFunction1("y0", enumy0),
-  myLibMathFunction1("y1", enumy1),
+//shell command to generate  for i in $LIST1 ; do  echo "myLibMathFunction1(\"$i\", enum$i,__LINE__),"; done;
+  myLibMathFunction1("acos", enumacos, __LINE__),
+  myLibMathFunction1("acosh", enumacosh, __LINE__),
+  myLibMathFunction1("asin", enumasin, __LINE__),
+  myLibMathFunction1("asinh", enumasinh, __LINE__),
+  myLibMathFunction1("atan", enumatan, __LINE__),
+  myLibMathFunction1("atanh", enumatanh, __LINE__),
+  myLibMathFunction1("cbrt", enumcbrt, __LINE__),
+  myLibMathFunction1("erf", enumerf, __LINE__),
+  myLibMathFunction1("exp", enumexp, __LINE__),
+  myLibMathFunction1("exp2", enumexp2, __LINE__),
+  myLibMathFunction1("expm1", enumexpm1, __LINE__),
+  myLibMathFunction1("log", enumlog, __LINE__),
+  myLibMathFunction1("log10", enumlog10, __LINE__),
+  myLibMathFunction1("log1p", enumlog1p, __LINE__),
+  myLibMathFunction1("log2", enumlog2, __LINE__),
+  myLibMathFunction1("tgamma", enumtgamma, __LINE__),
+  myLibMathFunction1("lgamma", enumlgamma, __LINE__),
+  myLibMathFunction1("sin", enumsin, __LINE__),
+  myLibMathFunction1("sinh", enumsinh, __LINE__),
+  myLibMathFunction1("cos", enumcos, __LINE__),
+  myLibMathFunction1("cosh", enumcosh, __LINE__),
+  myLibMathFunction1("sqrt", enumsqrt, __LINE__),
+  myLibMathFunction1("tan", enumtan, __LINE__),
+  myLibMathFunction1("tanh", enumtanh, __LINE__),
+  myLibMathFunction1("j0", enumj0, __LINE__),
+  myLibMathFunction1("j1", enumj1, __LINE__),
+  myLibMathFunction1("y0", enumy0, __LINE__),
+  myLibMathFunction1("y1", enumy1, __LINE__),
 };
 enum Function2Name : uint64_t{
   enumatan2,
@@ -237,12 +258,12 @@ enum Function2Name : uint64_t{
   enum_libm_function2_name_size};
 
 myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
-  myLibMathFunction2("atan2",enumatan2),
-  myLibMathFunction2("fmod", enumfmod),
-  myLibMathFunction2("hypot", enumhypot),
-  myLibMathFunction2("pow", enumpow),
-  myLibMathFunction2("fdim",enumfdim),
-  myLibMathFunction2("remainder", enumremainder),
+  myLibMathFunction2("atan2",enumatan2, __LINE__),
+  myLibMathFunction2("fmod", enumfmod,  __LINE__),
+  myLibMathFunction2("hypot", enumhypot, __LINE__),
+  myLibMathFunction2("pow", enumpow, __LINE__),
+  myLibMathFunction2("fdim",enumfdim, __LINE__),
+  myLibMathFunction2("remainder", enumremainder, __LINE__),
 };
 
 
@@ -375,22 +396,25 @@ void generateExcludeSource(){
 
     for(int i=0; i< paramSize;i++){
       std::string functionName;
+      int line;
       if(nbParam==1){
 	functionName=function1NameTab[i].name();
+	line=function1NameTab[i].getLine();
       }
       if(nbParam==2){
 	functionName=function2NameTab[i].name();
+	line=function1NameTab[i].getLine();
       }
       if( getCounter(nbParam,i,0,0)!=0){  //float
 	std::string fctName=functionName+std::string("f");
-	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &unknownLine, libraryName);
+	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &line, fileName, libraryName);
       }
       if( getCounter(nbParam,i,1,0)!=0){ //double
-	VERROU_GENERATE_EXCLUDE_SOURCE(functionName.c_str(), &unknownLine, libraryName);
+	VERROU_GENERATE_EXCLUDE_SOURCE(functionName.c_str(), &line, fileName, libraryName);
       }
       if( getCounter(nbParam,i,2,0)!=0){//ldouble
 	std::string fctName=functionName+std::string("l");
-	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &unknownLine, libraryName);
+	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &line, fileName,libraryName);
       }
     }
   }
@@ -577,8 +601,9 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
 #else
 bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsigned int functionType){
   unsigned int index= functionType * enum_libm_function1_name_size+ functionEnum;
+  int line=( function2NameTab[functionEnum]).getLine();
   if(  cacheInstrumentStatus1[index]==0){
-    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName,  &unknownLine,libraryName)){
+    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName, &line, fileName, libraryName)){
       cacheInstrumentStatus1[index]=1;
     }else{
       cacheInstrumentStatus1[index]=2;
@@ -593,8 +618,9 @@ bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsign
 
 bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsigned int functionType){
   unsigned int index= functionType * enum_libm_function2_name_size+ functionEnum;
+  int line=( function2NameTab[functionEnum]).getLine();
   if(  cacheInstrumentStatus2[index]==0){
-    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName,  &unknownLine,libraryName)){
+    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName, &line, fileName, libraryName)){
       cacheInstrumentStatus2[index]=1;
     }else{
       cacheInstrumentStatus2[index]=2;

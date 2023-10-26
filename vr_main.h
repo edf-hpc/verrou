@@ -299,8 +299,8 @@ Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnn
 					const HChar * filename, UInt linenum);
 Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude, Vr_IncludeSource* listExclude);
 
-void vr_generate_exclude_source(const char* functionName, int line, const char* object );
-Bool vr_clrIsInstrumented(const char* functionName, int line, const char* object);
+void vr_generate_exclude_source(const char* functionName, int line, const char* fileName, const char* object );
+Bool vr_clrIsInstrumented(const char* functionName, int line, const char* fileName, const char* object);
 
 // ** vr_include_trace.c
 void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
