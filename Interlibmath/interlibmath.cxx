@@ -181,6 +181,58 @@ private:
   uint64_t line_;
 };
 
+class myLibMathFunction2IntFP{
+public:
+  myLibMathFunction2IntFP(std::string name, uint64_t enumName, uint64_t line):name_(name),
+									 hash_(enumName+ nbOpHash),
+									 line_(line)
+  {
+    load_real_sym((void**)&(real_name_float) , name +std::string("f"));
+    load_real_sym((void**)&(real_name_double) , name);
+    load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
+  }
+
+  inline double apply(double a, double b)const{
+    return real_name_double((int)a,b);
+  }
+
+  inline long double apply(long double a, long double b)const{
+    return real_name_long_double((int)a,b);
+  }
+
+  inline float apply(float a, float b)const{
+    return real_name_float((int)a,b);
+  }
+
+  const std::string& name()const{
+    return name_;
+  }
+  uint64_t getHash()const{
+    return hash_;
+  }
+
+  uint64_t getLine()const{
+    return line_;
+  }
+
+private:
+  void load_real_sym(void**fctPtr, std::string name ){
+    (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
+    if(*fctPtr==NULL){
+      std::cerr << "Problem with function "<< name<<std::endl;
+    }
+  }
+
+  //Attributs
+  float (*real_name_float)(int,float) ;
+  double (*real_name_double)(int,double) ;
+  long double (*real_name_long_double)(int, long double) ;
+  std::string name_;
+  uint64_t hash_;
+  uint64_t line_;
+};
+
+
 
 class myLibMathFunction3{
 public:
@@ -238,9 +290,12 @@ private:
 //ceil trunc modf frexp fabs floor nearbyint
 
 // not instrumented
-// exp2 exp10 : do not exist in quadmath
-// sincos yn frexp  ldexp (instrumentation discutable)
+// exp2 exp10 : do not exist in quadmath (but counted)
+// not instrumented at all
+// frexp  ldexp (instrumentation discutable)
 // all complex function
+
+// sincos is a the sequence sin, cos: impact on counters
 
 //shell LIST1="acos acosh asin asinh atan atanh cbrt erf exp exp2 exp10 expm1 log log10 log1p log2 tgamma lgamma sin sinh cos cosh sqrt tan tanh j0 j1 y0 y1"
 enum Function1Name: uint64_t {
@@ -327,6 +382,17 @@ myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
   myLibMathFunction2("remainder", enumremainder, __LINE__),
 };
 
+enum Function2IntFP : uint64_t{
+  enumjn,
+  enumyn,
+  enum_libm_function2IntFP_name_size
+};
+
+myLibMathFunction2IntFP function2IntFPNameTab[  enum_libm_function2IntFP_name_size]={
+  myLibMathFunction2IntFP("jn",enumjn, __LINE__),
+  myLibMathFunction2IntFP("yn",enumyn, __LINE__),
+};
+
 
 enum Function3Name : uint64_t{
   enumfma,
@@ -337,12 +403,16 @@ myLibMathFunction3 function3NameTab[enum_libm_function3_name_size]={
 };
 
 
+
+
 unsigned int libMathCounter1[enum_libm_function1_name_size][3][2];
 unsigned int libMathCounter2[enum_libm_function2_name_size][3][2];
+unsigned int libMathCounter2IntFP[enum_libm_function2_name_size][3][2];
 unsigned int libMathCounter3[enum_libm_function3_name_size][3][2];
 
 unsigned int* cacheInstrumentStatus1;
 unsigned int* cacheInstrumentStatus2;
+unsigned int* cacheInstrumentStatus2IntFP;
 unsigned int* cacheInstrumentStatus3;
 
 
@@ -358,6 +428,12 @@ void initLibMathCounter(){
     for(int j=0; j< 3; j++){
       libMathCounter2[i][j][0]=0;
       libMathCounter2[i][j][1]=0;
+    }
+  }
+  for(int i=0; i< (int)enum_libm_function2IntFP_name_size;i++){
+    for(int j=0; j< 3; j++){
+      libMathCounter2IntFP[i][j][0]=0;
+      libMathCounter2IntFP[i][j][1]=0;
     }
   }
   for(int i=0; i< (int)enum_libm_function3_name_size;i++){
@@ -395,6 +471,11 @@ inline void incCounter2(){
 }
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
+inline void incCounter2IntFP(){
+  libMathCounter2IntFP[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+}
+
+template<class REALTYPE, int ENUM_LIBM, int INST>
 inline void incCounter3(){
   libMathCounter3[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
 }
@@ -407,6 +488,9 @@ unsigned int getCounter(int nbParam, int index,  int type, int isInst){
   }
   if(nbParam==2){
     return libMathCounter2[index][type][isInst];
+  }
+  if(nbParam==0){
+    return libMathCounter2IntFP[index][type][isInst];
   }
   if(nbParam==3){
     return libMathCounter3[index][type][isInst];
@@ -473,13 +557,16 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
 
 #ifndef INTERLIBM_STAND_ALONE
 void generateExcludeSource(){
-  for(int nbParam=1; nbParam <=3; nbParam++){
+  for(int nbParam=0; nbParam <=3; nbParam++){
     int paramSize= (int)enum_libm_function1_name_size;
     if(nbParam==2){
       paramSize=(int)enum_libm_function2_name_size;
     }
     if(nbParam==3){
       paramSize=(int)enum_libm_function3_name_size;
+    }
+    if(nbParam==0){
+      paramSize=(int)enum_libm_function2IntFP_name_size;
     }
 
     for(int i=0; i< paramSize;i++){
@@ -492,6 +579,10 @@ void generateExcludeSource(){
       if(nbParam==2){
 	functionName=function2NameTab[i].name();
 	line=function2NameTab[i].getLine();
+      }
+      if(nbParam==0){
+	functionName=function2IntFPNameTab[i].name();
+	line=function2IntFPNameTab[i].getLine();
       }
       if(nbParam==3){
 	functionName=function3NameTab[i].name();
@@ -518,13 +609,16 @@ void printCounter(){
   std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<" )"<<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "\t\t Total \tInstrumented" <<std::endl;
 
-  for(int nbParam=1; nbParam <=3; nbParam++){
+  for(int nbParam=0; nbParam <=3; nbParam++){
     int paramSize= (int)enum_libm_function1_name_size;
     if(nbParam==2){
       paramSize=(int)enum_libm_function2_name_size;
     }
     if(nbParam==3){
       paramSize=(int)enum_libm_function3_name_size;
+    }
+    if(nbParam==0){
+      paramSize=(int)enum_libm_function2IntFP_name_size;
     }
 
     for(int i=0; i< paramSize;i++){
@@ -545,6 +639,9 @@ void printCounter(){
 	}
 	if(nbParam==2){
 	  std::cerr<< function2NameTab[i].name();
+	}
+	if(nbParam==0){
+	  std::cerr<< function2IntFPNameTab[i].name();
 	}
 	if(nbParam==3){
 	  std::cerr<< function3NameTab[i].name();
@@ -685,6 +782,61 @@ public:
 
 
 template<class LIBMQ, typename REALTYPE >
+class libMathFunction2IntFP{
+public:
+  typedef REALTYPE RealType;
+  typedef vr_packArg<RealType,2> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
+
+  static const char* OpName(){return "libmath ?";}
+  static inline uint32_t getHash(){return LIBMQ::getHash();}
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    const int & a(p.arg1);
+    const RealType & b(p.arg2);
+
+    __float128 ref=LIBMQ::apply((int) a, (__float128)b);
+    return (RealType)ref;
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& z) {\
+    const int a(p.arg1);
+    const RealType & b(p.arg2);
+
+    __float128 ref=LIBMQ::apply(a,(__float128)b);
+    const __float128 error128=  ref -(__float128)z ;
+    return (RealType)error128;
+  };
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+    return error(p,c) ;
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
+
+  static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(getHash());
+    return r.hash(p,hashOp);
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    const uint32_t hashOp(getHash());
+    return r.hash(p, hashOp);
+  };
+
+};
+
+
+
+template<class LIBMQ, typename REALTYPE >
 class libMathFunction3{
 public:
   typedef REALTYPE RealType;
@@ -758,6 +910,9 @@ bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsign
 bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsigned int functionType){
   return true;
 }
+bool isInstrumented2IntFP(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  return true;
+}
 bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsigned int functionType){
   return true;
 }
@@ -790,6 +945,23 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
     }
   }
   if( cacheInstrumentStatus2[index]==1){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+bool isInstrumented2IntFP(const char* functionName, unsigned int functionEnum, unsigned int functionType){
+  unsigned int index= functionType * enum_libm_function2IntFP_name_size+ functionEnum;
+  int line=( function2IntFPNameTab[functionEnum]).getLine();
+  if(  cacheInstrumentStatus2IntFP[index]==0){
+    if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName, &line, fileName, libraryName)){
+      cacheInstrumentStatus2IntFP[index]=1;
+    }else{
+      cacheInstrumentStatus2IntFP[index]=2;
+    }
+  }
+  if( cacheInstrumentStatus2IntFP[index]==1){
     return true;
   }else{
     return false;
@@ -867,6 +1039,22 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
   }									\
 };
 
+#define DEFINE_INTERP_LIBM1_C_IMPL_UNINST(FCT)				\
+  extern "C"{								\
+    float FCT##f (float a){						\
+      incCounter1<float, enum##FCT,1>();				\
+      return function1NameTab[enum##FCT].apply(a);			\
+    }									\
+    double FCT (double a){						\
+      incCounter1<double, enum##FCT,1>();				\
+      return function1NameTab[enum##FCT].apply(a);			\
+    }									\
+    long double FCT##l (long double a){				\
+      incCounter1<long double, enum##FCT,1>();				\
+      return function1NameTab[enum##FCT].apply(a);			\
+    }									\
+  };
+
 #define DEFINE_INTERP_LIBM2_C_IMPL(FCT)				\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a,__float128 b){return FCT##q(a,b);} \
@@ -916,6 +1104,57 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
     return function2NameTab[enum##FCT].apply(a,b);			\
   }									\
 };
+
+#define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)				\
+  struct libmq##FCT{							\
+    static __float128 apply(__float128 a,__float128 b){return FCT##q((int)a,b);} \
+    static __uint64_t getHash(){return enum##FCT; }			\
+};									\
+  extern "C"{								\
+    double FCT (int a, double b){					\
+      const char fctStr[]=#FCT;						\
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2IntFP(fctStr, enum##FCT,1); \
+      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
+	if(isInstrumented){						\
+	  incCounter2IntFP<double, enum##FCT ,0>();				\
+	}else{								\
+	  incCounter2IntFP<double, enum##FCT ,1>();				\
+	}								\
+	return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+      }else{								\
+	incCounter2IntFP<double, enum##FCT ,0>();				\
+	typedef OpWithDynSelectedRoundingMode<libMathFunction2IntFP<libmq##FCT,double> > Op; \
+	double res;							\
+	Op::apply(Op::PackArgs((double)a,b) ,&res,NULL);			\
+	return res;							\
+      }									\
+    }									\
+									\
+    float FCT##f (int a, float b){					\
+    const char fctStr[]=STRINGIFY(FCT##f);				\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2IntFP(fctStr, enum##FCT,0);\
+      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
+	if(isInstrumented){						\
+	  incCounter2IntFP<float, enum##FCT ,0>();				\
+	}else{								\
+	  incCounter2IntFP<float, enum##FCT ,1>();				\
+	}								\
+	return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+      }else{								\
+	incCounter2IntFP<float, enum##FCT,0>();				\
+	typedef OpWithDynSelectedRoundingMode<libMathFunction2IntFP<libmq##FCT,float> > Op; \
+	float res;							\
+	Op::apply(Op::PackArgs((float)a,b) ,&res,NULL);			\
+	return res;							\
+      }									\
+}									\
+									\
+  long double FCT##l (int a, long double b){			\
+    incCounter2IntFP<long double, enum##FCT,1>();				\
+    return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+  }									\
+};
+
 
 #define DEFINE_INTERP_LIBM3_C_IMPL(FCT)				\
   struct libmq##FCT{							\
@@ -969,8 +1208,6 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
 
 
 
-
-
 //shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
  DEFINE_INTERP_LIBM1_C_IMPL(acos);
  DEFINE_INTERP_LIBM1_C_IMPL(acosh);
@@ -981,8 +1218,8 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
  DEFINE_INTERP_LIBM1_C_IMPL(cbrt);
  DEFINE_INTERP_LIBM1_C_IMPL(erf);
  DEFINE_INTERP_LIBM1_C_IMPL(exp);
-// DEFINE_INTERP_LIBM1_C_IMPL(exp2);
-// DEFINE_INTERP_LIBM1_C_IMPL(exp10);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp2);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp10);
  DEFINE_INTERP_LIBM1_C_IMPL(expm1);
  DEFINE_INTERP_LIBM1_C_IMPL(log);
  DEFINE_INTERP_LIBM1_C_IMPL(log10);
@@ -1010,12 +1247,27 @@ DEFINE_INTERP_LIBM2_C_IMPL(pow);
 DEFINE_INTERP_LIBM2_C_IMPL(fdim);
 DEFINE_INTERP_LIBM2_C_IMPL(remainder);
 
+DEFINE_INTERP_LIBM2INTFP_C_IMPL(yn);
+DEFINE_INTERP_LIBM2INTFP_C_IMPL(jn);
+
 DEFINE_INTERP_LIBM3_C_IMPL(fma);
 
 
 #undef DEFINE_INTERP_LIBM1_C_IMPL
 #undef DEFINE_INTERP_LIBM2_C_IMPL
 
+void sincos(double x, double* resSin, double* resCos){
+  *resSin=sin(x);
+  *resCos=cos(x);
+}
+void sincosf(float x, float* resSin, float* resCos){
+  *resSin=sin(x);
+  *resCos=cos(x);
+}
+void sincosl(long double x, long double* resSin, long double* resCos){
+  *resSin=sinl(x);
+  *resCos=cosl(x);
+}
 
 
 void __attribute__((constructor)) init_interlibmath(){
@@ -1105,6 +1357,9 @@ void __attribute__((constructor)) init_interlibmath(){
   cacheInstrumentStatus2=(unsigned int*)calloc(3 * enum_libm_function2_name_size, sizeof(unsigned int));
   VERROU_REGISTER_CACHE(cacheInstrumentStatus2, 3 * enum_libm_function2_name_size * sizeof(unsigned int));
 
+  cacheInstrumentStatus2IntFP=(unsigned int*)calloc(3 * enum_libm_function2IntFP_name_size, sizeof(unsigned int));
+  VERROU_REGISTER_CACHE(cacheInstrumentStatus2IntFP, 3 * enum_libm_function2IntFP_name_size * sizeof(unsigned int));
+
   cacheInstrumentStatus3=(unsigned int*)calloc(3 * enum_libm_function3_name_size, sizeof(unsigned int));
   VERROU_REGISTER_CACHE(cacheInstrumentStatus3, 3 * enum_libm_function3_name_size * sizeof(unsigned int));
 #endif
@@ -1122,6 +1377,7 @@ void __attribute__((destructor)) finalyze_interlibmath(){
 #ifndef INTERLIBM_STAND_ALONE
   free(cacheInstrumentStatus1);
   free(cacheInstrumentStatus2);
+  free(cacheInstrumentStatus2IntFP);
   free(cacheInstrumentStatus3);
 #endif
 };
