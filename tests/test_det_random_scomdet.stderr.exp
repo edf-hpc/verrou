@@ -31,6 +31,8 @@ Instrumented type :
 	dbl : yes
 Backend verrou simulating RANDOM_SCOMDET rounding mode
 EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
 New seed : 0
 New seed : 1

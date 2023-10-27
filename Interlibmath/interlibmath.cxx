@@ -24,7 +24,7 @@ unsigned int my_pid;
 #ifdef INTERLIBM_STAND_ALONE
 char libraryName[]="verrou-interLibm";
 #else
-char libraryName[]="*vgpreload_verrou-*.so";
+char libraryName[]="builtin(vgpreload_verrou-ARCH.so)";
 #endif
 
 char fileName[]=__FILE__;

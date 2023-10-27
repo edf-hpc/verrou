@@ -30,6 +30,8 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
 Denorm: 
    at 0xFFFFFF: main (denorm.cxx:23)

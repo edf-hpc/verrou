@@ -33,6 +33,10 @@ Instrumented type :
 Backend verrou simulating RANDOM rounding mode
 EXCLUDE DETECTED: XXXXX
 EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
 Interlibm counter ( ROUNDINGMODE=RANDOM )
@@ -51,31 +55,31 @@ atan2		240	160
   `- Precision
       `- Vectorization          Total             Instrumented
  ---------------------------------------------------------------------
- add                     1800                        0          (  0%)
-  `- flt                      840                        0      (  0%)
-      `- llo                      840                        0  (  0%)
-  `- dbl                      960                        0      (  0%)
-      `- llo                      960                        0  (  0%)
+ add                    32920                        0          (  0%)
+  `- flt                      280                        0      (  0%)
+      `- llo                      280                        0  (  0%)
+  `- dbl                    32640                        0      (  0%)
+      `- llo                    32640                        0  (  0%)
  ---------------------------------------------------------------------
- sub                     2760                      320          ( 12%)
-  `- flt                     1200                      160      ( 13%)
-      `- llo                     1200                      160  ( 13%)
-  `- dbl                     1560                      160      ( 10%)
-      `- llo                     1560                      160  ( 10%)
+ sub                     9000                      160          (  2%)
+  `- flt                      440                       80      ( 18%)
+      `- llo                      440                       80  ( 18%)
+  `- dbl                     8560                       80      (  1%)
+      `- llo                     8560                       80  (  1%)
  ---------------------------------------------------------------------
- mul                     2640                        0          (  0%)
-  `- flt                     1680                        0      (  0%)
-      `- llo                     1680                        0  (  0%)
-  `- dbl                      960                        0      (  0%)
-      `- llo                      960                        0  (  0%)
+ mul                    31281                        0          (  0%)
+  `- flt                      560                        0      (  0%)
+      `- llo                      560                        0  (  0%)
+  `- dbl                    30721                        0      (  0%)
+      `- llo                    30721                        0  (  0%)
  ---------------------------------------------------------------------
- div                      480                        0          (  0%)
-  `- flt                      240                        0      (  0%)
-      `- llo                      240                        0  (  0%)
-  `- dbl                      240                        0      (  0%)
-      `- llo                      240                        0  (  0%)
+ div                    18080                        0          (  0%)
+  `- flt                    18000                        0      (  0%)
+      `- llo                    18000                        0  (  0%)
+  `- dbl                       80                        0      (  0%)
+      `- llo                       80                        0  (  0%)
  ---------------------------------------------------------------------
- mAdd                    3480                        0          (  0%)
-  `- dbl                     3480                        0      (  0%)
+ mAdd                    1160                        0          (  0%)
+  `- dbl                     1160                        0      (  0%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

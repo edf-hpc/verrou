@@ -156,8 +156,8 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   static const HChar libumathPattern[]="*umath.cpython*.so*";
   static const HChar libinterlibmPattern1[]="*interlibmath.so";
   static const HChar libinterlibmPattern2[]="*vgpreload_verrou-*.so";
-  static const HChar libquadmathPattern[]="libquadmath*.so*";
-  static const HChar libgccPattern[]="libgcc_s*.so*";
+  static const HChar libquadmathPattern[]="*libquadmath*.so*";
+  static const HChar libgccPattern[]="*libgcc_s*.so*";
 
 
 #define LIB_NB_PATTERN 7
