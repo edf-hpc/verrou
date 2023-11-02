@@ -365,7 +365,7 @@ Bool vr_clrIsInstrumented(const char* functionName, int line, const char* fileNa
    }
 
    if(vr.sourceActivated){
-     Bool sourceInclude= vr_includeSource(&vr.excludeSourceRead, functionName, fileName, line);
+     Bool sourceInclude= vr_includeSource(&vr.includeSource, functionName, fileName, line);
      return sourceInclude;
    }else{
      return True;
