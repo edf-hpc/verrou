@@ -78,6 +78,13 @@ void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
 
 
+typedef enum libMparity: uint64_t {
+			   enumNoParity,
+			   enumEven,
+			   enumOdd
+} libMparity_t;
+
+
 class myLibMathFunction1{
 public:
   myLibMathFunction1(std::string name, uint64_t enumName, uint64_t line):name_(name),
@@ -113,6 +120,14 @@ public:
     return line_;
   }
 
+  void setParity(libMparity_t p){
+    parity_=p;
+  }
+
+  libMparity_t getParity(){
+    return parity_;
+  }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -128,6 +143,7 @@ private:
   std::string name_;
   uint64_t hash_;
   uint64_t line_;
+  libMparity_t parity_;
 };
 
 class myLibMathFunction2{
@@ -415,6 +431,27 @@ unsigned int* cacheInstrumentStatus2;
 unsigned int* cacheInstrumentStatus2IntFP;
 unsigned int* cacheInstrumentStatus3;
 
+
+void initLibMathParity(){
+  for(int i=0; i< (int)enum_libm_function1_name_size;i++){
+    function1NameTab[i].setParity(enumNoParity);
+  }
+  function1NameTab[enumsin].setParity(enumOdd);
+  function1NameTab[enumsinh].setParity(enumOdd);
+  function1NameTab[enumasin].setParity(enumOdd);
+  function1NameTab[enumasinh].setParity(enumOdd);
+  function1NameTab[enumtan].setParity(enumOdd);
+  function1NameTab[enumtanh].setParity(enumOdd);
+  function1NameTab[enumatan].setParity(enumOdd);
+  function1NameTab[enumatanh].setParity(enumOdd);
+  function1NameTab[enumcbrt].setParity(enumOdd);
+  function1NameTab[enumerf].setParity(enumOdd);
+  function1NameTab[enumj1].setParity(enumOdd);
+
+  function1NameTab[enumcos].setParity(enumEven);
+  function1NameTab[enumcosh].setParity(enumEven);
+  function1NameTab[enumj0].setParity(enumEven);
+}
 
 
 void initLibMathCounter(){
@@ -716,6 +753,24 @@ public:
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     const uint32_t hashOp(getHash());
+    if(  LIBMQ::getParity()==enumEven ){
+      if(p.arg1>=0){
+	return r.hash(p, hashOp);
+      }else{
+	const RealType absp1(-p.arg1);
+	const PackArgs pnew(absp1);
+	return r.hash(pnew, hashOp);
+      }
+    }
+    if(  LIBMQ::getParity()==enumOdd ){
+      if(p.arg1>0){
+	return r.hash(p, hashOp);
+      }else{
+	const RealType absp1(-p.arg1);
+	const PackArgs pnew(absp1);
+	return r.hashBar(pnew, hashOp);
+      }
+    }
     return r.hash(p, hashOp);
   };
 
@@ -919,7 +974,7 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
 #else
 bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsigned int functionType){
   unsigned int index= functionType * enum_libm_function1_name_size+ functionEnum;
-  int line=( function2NameTab[functionEnum]).getLine();
+  int line=( function1NameTab[functionEnum]).getLine();
   if(  cacheInstrumentStatus1[index]==0){
     if(VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(functionName, &line, fileName, libraryName)){
       cacheInstrumentStatus1[index]=1;
@@ -993,6 +1048,7 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
   struct libmq##FCT{							\
     static __float128 apply(__float128 a){return FCT##q(a);}		\
     static __uint64_t getHash(){return enum##FCT; }                     \
+    static libMparity_t getParity(){return function1NameTab[enum##FCT].getParity();};\
 };									\
   extern "C"{								\
   double FCT (double a){						\
@@ -1364,6 +1420,7 @@ void __attribute__((constructor)) init_interlibmath(){
   VERROU_REGISTER_CACHE(cacheInstrumentStatus3, 3 * enum_libm_function3_name_size * sizeof(unsigned int));
 #endif
   initLibMathCounter();
+  initLibMathParity();
 }
 
 
