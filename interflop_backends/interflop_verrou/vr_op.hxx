@@ -236,7 +236,7 @@ public:
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "add";}
-  static inline uint32_t getHash(){return opHash::addHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::addHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -321,7 +321,7 @@ public:
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "sub";}
-  static inline uint32_t getHash(){return opHash::subHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::subHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs&  p) {
     const RealType & a(p.arg1);
@@ -477,7 +477,7 @@ public:
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "mul";}
-  static inline uint32_t getHash(){return opHash::mulHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::mulHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
 
 
@@ -637,7 +637,7 @@ public:
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "div";}
-  static inline uint32_t getHash(){return opHash::divHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::divHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
 
   static RealType inline nearestOp (const PackArgs& p) {
@@ -708,7 +708,7 @@ public:
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "madd";}
-  static inline uint32_t getHash(){return opHash::maddHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::maddHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
   static RealType inline nearestOp (const PackArgs& p) {
 #ifdef    USE_VERROU_FMA
@@ -825,7 +825,7 @@ public:
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "cast";}
-  static inline uint32_t getHash(){return opHash::castHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::castHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
   static inline RealTypeOut nearestOp (const PackArgs& p) {
     const RealTypeIn & in(p.arg1);
@@ -947,7 +947,7 @@ public:
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "sqrt";}
-  static inline uint32_t getHash(){return opHash::sqrtHash * typeHash::nbTypeHash + getTypeHash<RealType>();}
+  static inline uint32_t getHash(){return (uint32_t)opHash::sqrtHash * (uint32_t)typeHash::nbTypeHash + (uint32_t)getTypeHash<RealType>();}
 
   static inline RealType nearestOp (const PackArgs& p) {
     return vr_sqrt<RealType>(p.arg1);

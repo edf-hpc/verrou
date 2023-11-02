@@ -68,6 +68,7 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   tinymt64_init(&(r->gen_), r->seed_);
 #ifdef USE_XOSHIRO
   init_xoshiro128_state(r->rng128_, r->seed_);
+  init_xoroshiro128_state(r->rng128r_, r->seed_);
   init_xoshiro256_state(r->rng256_, r->seed_);
 #endif
   r->current_ = vr_rand_next (r);
@@ -141,7 +142,7 @@ inline double vr_rand_ratio<double>(Vr_Rand *r){
   const double res=tinymt64_generate_double(&(r->gen_) );
 #else
   //const double res=xoshiro_uint32_to_float(xoshiro128plus_next(r->rng128_));
-  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128_));
+  const double res=xoshiro_uint64_to_double(xoroshiro128plus_next(r->rng128r_));
 #endif
   return res;
 #else
