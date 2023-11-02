@@ -56,13 +56,15 @@ int main(int argc, char** argv){
      }
   //  d=di;
   //#endif
+  double libmFMA=fma(a,b,c);
+  float libmFMAf=fmaf(af,bf,cf);
 
-  
   std::cout << " a, b, c : " << a <<","<< b <<","<< c <<std::endl;
   std::cout << "resultat intri fma double: " << d << std::endl;
   std::cout << "resultat intri fma float: " << df << std::endl;
 
-
+  std::cout << "fma double diff intri/lib: " << d -libmFMA << std::endl;
+  std::cout << "fma float diff intri/lib: " << df -libmFMAf<< std::endl;
 
   return EXIT_SUCCESS;
 }

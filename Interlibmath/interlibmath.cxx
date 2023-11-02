@@ -415,7 +415,7 @@ enum Function3Name : uint64_t{
   enum_libm_function3_name_size};
 
 myLibMathFunction3 function3NameTab[enum_libm_function3_name_size]={
-  myLibMathFunction3("fma",enumfma, __LINE__),
+  myLibMathFunction3("fma",enumfma, __LINE__), //Warning myLibMathFunction3 implementation is valid  only for fma
 };
 
 
@@ -937,15 +937,13 @@ public:
     const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
     const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
     const vr_packArg<RealType,3> pcom(pmin,pmax,p.arg3);
-    const uint32_t hashOp(getHash());
+    const uint32_t hashOp(MAddOp<RealType>::getHash());
     return r.hash(pcom,hashOp);
   };
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
-    //Warning
-    const uint32_t hashOp(getHash());
-    return r.hash(p, hashOp);
+    return MAddOp<RealType>::hashScom(r,p);
   };
 
 };
