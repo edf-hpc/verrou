@@ -432,6 +432,9 @@ unsigned int* cacheInstrumentStatus2IntFP;
 unsigned int* cacheInstrumentStatus3;
 
 
+unsigned int* cacheNeedSeedUpdate;
+
+
 void initLibMathParity(){
   for(int i=0; i< (int)enum_libm_function1_name_size;i++){
     function1NameTab[i].setParity(enumNoParity);
@@ -588,6 +591,15 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
   }
 
   return "undefined";
+}
+
+void updateSeedCache(){
+  if(*cacheNeedSeedUpdate == 0){
+    uint64_t libm_seed=  VERROU_GET_SEED;
+    vr_rand_setSeed_for_libm (&vr_rand, libm_seed);
+    //    verrou_set_seed_for_libm (libm_seed);
+    *cacheNeedSeedUpdate = 1;
+  }
 }
 
 
@@ -981,6 +993,7 @@ bool isInstrumented1(const char* functionName, unsigned int functionEnum, unsign
     }
   }
   if( cacheInstrumentStatus1[index]==1){
+    updateSeedCache();
     return true;
   }else{
     return false;
@@ -998,6 +1011,7 @@ bool isInstrumented2(const char* functionName, unsigned int functionEnum, unsign
     }
   }
   if( cacheInstrumentStatus2[index]==1){
+    updateSeedCache();
     return true;
   }else{
     return false;
@@ -1015,6 +1029,7 @@ bool isInstrumented2IntFP(const char* functionName, unsigned int functionEnum, u
     }
   }
   if( cacheInstrumentStatus2IntFP[index]==1){
+    updateSeedCache();
     return true;
   }else{
     return false;
@@ -1032,6 +1047,7 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
     }
   }
   if( cacheInstrumentStatus3[index]==1){
+    updateSeedCache();
     return true;
   }else{
     return false;
@@ -1325,15 +1341,16 @@ void sincosl(long double x, long double* resSin, long double* resCos){
 
 
 void __attribute__((constructor)) init_interlibmath(){
-  struct timeval now;
-  gettimeofday(&now, NULL);
   my_pid = getpid();
-  uint64_t vr_seed=  now.tv_usec + my_pid;
-  vr_rand_setSeed(&vr_rand, vr_seed);
-
   ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING; // VR_NATIVE; //Default value
 
 #ifdef INTERLIBM_STAND_ALONE
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  uint64_t vr_seed=  now.tv_usec + my_pid;
+  vr_rand_setSeed(&vr_rand, vr_seed);
+
+
   char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
   if(vrm==NULL){
     vrm=std::getenv("VERROU_ROUNDING_MODE");
@@ -1405,6 +1422,7 @@ void __attribute__((constructor)) init_interlibmath(){
     }
   }
 #else
+
   cacheInstrumentStatus1=(unsigned int*)calloc(3 * enum_libm_function1_name_size, sizeof(unsigned int));
   VERROU_REGISTER_CACHE(cacheInstrumentStatus1, 3 * enum_libm_function1_name_size * sizeof(unsigned int));
 
@@ -1416,9 +1434,13 @@ void __attribute__((constructor)) init_interlibmath(){
 
   cacheInstrumentStatus3=(unsigned int*)calloc(3 * enum_libm_function3_name_size, sizeof(unsigned int));
   VERROU_REGISTER_CACHE(cacheInstrumentStatus3, 3 * enum_libm_function3_name_size * sizeof(unsigned int));
+
+  cacheNeedSeedUpdate=(unsigned int*)calloc(1, sizeof(unsigned int));
+  VERROU_REGISTER_CACHE_SEED(cacheNeedSeedUpdate);
 #endif
   initLibMathCounter();
   initLibMathParity();
+
 }
 
 

@@ -60,6 +60,7 @@ uint64_t seed_;
 //extern Vr_Rand vr_rand;
 
 Vr_Rand vr_rand;
+Vr_Rand vr_rand_save;
 
 #include "vr_rand_implem.h"
 

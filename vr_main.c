@@ -390,6 +390,17 @@ void vr_clean_cache(void){
    }
 }
 
+unsigned int* cacheSeed;
+void vr_register_cache_seed(unsigned int* cache){
+  cacheSeed=cache;
+}
+
+void vr_clean_cache_seed(){
+  *cacheSeed=0;
+}
+  
+
+
 #include "vr_traceBB_impl.h"
 
 

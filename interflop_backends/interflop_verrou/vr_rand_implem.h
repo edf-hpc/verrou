@@ -37,7 +37,7 @@
 #include "vr_op.hxx"
 
 inline uint64_t vr_rand_getSeed (const Vr_Rand * r);
-
+inline void vr_rand_setSeed_for_libm (Vr_Rand * r, uint64_t c);
 
 #include "tableHash.hxx"
 #include "dietzfelbingerHash.hxx"
@@ -83,11 +83,64 @@ inline void vr_rand_setSeed (Vr_Rand * r, uint64_t c) {
   r->p=p;
 }
 
+uint64_t libmMask=457547457;
+
+inline void vr_rand_setSeed_for_libm (Vr_Rand * r, uint64_t c) {
+  r->count_   = 0;
+  r->seed_    = c;
+
+  tinymt64_init(&(r->gen_), r->seed_);
+#ifdef USE_XOSHIRO
+  init_xoshiro128_state(r->rng128_, (r->seed_) ^ libmMask);
+  init_xoroshiro128_state(r->rng128r_, (r->seed_) ^ libmMask);
+  init_xoshiro256_state(r->rng256_, (r->seed_) ^ libmMask);
+#endif
+  r->current_ = vr_rand_next (r);
+
+#ifdef VERROU_DET_HASH
+    typedef VERROU_DET_HASH hash;
+    hash::genTable((r->gen_));
+#else
+#error "VERROU_DET_HASH has to be defined"
+#endif
+  const double p=tinymt64_generate_double(&(r->gen_) );
+  r->p=p;
+
+  tinymt64_init(&(r->gen_), (r->seed_)^libmMask);
+}
 
 
 inline uint64_t vr_rand_getSeed (const Vr_Rand * r) {
   return r->seed_;
 }
+
+
+void vr_rand_memcpy ( void *dest, const void *src, uint32_t sz );
+void vr_rand_memcpy ( void *dest, const void *src, uint32_t sz ){ // reimplementation to avoid compilation hack between memcpy and VG_(memcpy
+  const char* s=(const char*)src;
+  char* d =(char*)dest;
+  for(uint32_t i=0; i< sz; i++){
+    d[i]=s[i];
+  }
+  return ;
+}
+
+
+void vr_rand_copy_state(const Vr_Rand * r,Vr_Rand * rsav);
+void vr_rand_copy_state(const Vr_Rand * r,Vr_Rand * rsav){
+  rsav->count_= r->count_;
+  rsav->seed_ = r->seed_;
+
+  vr_rand_memcpy(&rsav->gen_,&r->gen_, sizeof(tinymt64_t));
+#ifdef USE_XOSHIRO
+  vr_rand_memcpy(&rsav->rng128_, &r->rng128_, sizeof(xoshiro128_state_t));
+  vr_rand_memcpy(&rsav->rng128r_,&r->rng128r_, sizeof(xoroshiro128_state_t));
+  vr_rand_memcpy(&rsav->rng256_, &r->rng256_, sizeof(xoshiro256_state_t));
+#endif
+  rsav->current_=  r->current_;
+  rsav->p=r->p;
+}
+
 
 
 inline bool vr_rand_bool (Vr_Rand * r) {

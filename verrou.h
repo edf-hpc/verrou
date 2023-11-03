@@ -69,6 +69,8 @@ enum {
   VR_USERREQ__GENERATE_EXCLUDE_SOURCE,
   VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE,
   VR_USERREQ__REGISTER_CACHE,
+  VR_USERREQ__GET_SEED,
+  VR_USERREQ__REGISTER_CACHE_SEED,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -166,5 +168,14 @@ enum {
 #define VERROU_REGISTER_CACHE(CACHEPTR, SIZE)                 \
    VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__REGISTER_CACHE,\
                                    CACHEPTR,SIZE, 0, 0, 0)
+
+#define VERROU_GET_SEED \
+  (uint64_t) VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	  \
+					     VR_USERREQ__GET_SEED,\
+					     0, 0, 0, 0, 0)
+
+#define VERROU_REGISTER_CACHE_SEED(CACHEPTR)			\
+   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__REGISTER_CACHE_SEED,\
+                                   CACHEPTR,0, 0, 0, 0)
 
 #endif /* __VERROU_H */

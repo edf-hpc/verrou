@@ -275,6 +275,9 @@ void vr_handle_FLT_MAX (void);
 
 void vr_register_cache(unsigned int*, unsigned int);
 void vr_clean_cache(void);
+void vr_register_cache_seed(unsigned int*);
+void vr_clean_cache_seed(void);
+
 
 // ** vr_exclude.c
 

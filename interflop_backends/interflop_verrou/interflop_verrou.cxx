@@ -179,12 +179,19 @@ void verrou_end_instr(){
 }
 
 void verrou_set_seed (unsigned int seed) {
-  vr_seed = vr_rand_next(&vr_rand);
   vr_rand_setSeed (&vr_rand, seed);
 }
 
-void verrou_set_random_seed () {
-  vr_rand_setSeed(&vr_rand, vr_seed);
+unsigned int verrou_get_seed (void) {
+  return vr_rand_getSeed (&vr_rand);
+}
+
+void verrou_seed_save_state (void) {
+  vr_rand_copy_state(&vr_rand, &vr_rand_save);
+}
+
+void verrou_seed_restore_state (void) {
+  vr_rand_copy_state(&vr_rand_save, &vr_rand);
 }
 
 void verrou_updatep_prandom (void) {
