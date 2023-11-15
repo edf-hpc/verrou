@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
             Nz = Nz * scale;
         }
     }
-    if ((argc == 3)) {
+    if (argc == 3) {
       test_iterations = atoi(argv[2]);
     }
 

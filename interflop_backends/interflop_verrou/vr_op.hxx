@@ -182,7 +182,7 @@ struct vr_packArg<REALTYPE,3>{
 #include <algorithm>
 
 template<class REALTYPE, int NB>
-class vr_roundFloat;
+struct vr_roundFloat;
 
 
 template<class REALTYPE>
