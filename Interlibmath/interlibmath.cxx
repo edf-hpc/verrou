@@ -593,6 +593,8 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
   return "undefined";
 }
 
+
+#ifndef INTERLIBM_STAND_ALONE
 void updateSeedCache(){
   if(*cacheNeedSeedUpdate == 0){
     uint64_t libm_seed=  VERROU_GET_SEED;
@@ -601,7 +603,7 @@ void updateSeedCache(){
     *cacheNeedSeedUpdate = 1;
   }
 }
-
+#endif
 
 
 #ifndef INTERLIBM_STAND_ALONE
@@ -830,8 +832,8 @@ public:
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
-  template<class RANDSCOM>
-  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+  template<class RANDCOM>
+  static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
     const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
     const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
     const vr_packArg<RealType,2> pcom(pmin,pmax);
@@ -887,8 +889,8 @@ public:
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
-  template<class RANDSCOM>
-  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+  template<class RANDCOM>
+  static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
     const uint32_t hashOp(getHash());
     return r.hash(p,hashOp);
   };
@@ -914,20 +916,19 @@ public:
   static inline uint32_t getHash(){return LIBMQ::getHash();}
 
   static inline RealType nearestOp (const PackArgs& p) {
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-    const RealType & c(p.arg3);
-
-    __float128 ref=LIBMQ::apply((__float128)a, (__float128)b,  (__float128)c);
+    const __float128 a=p.arg1;
+    const __float128 b=p.arg2;
+    const __float128 c=p.arg3;
+    __float128 ref=LIBMQ::apply(a, b, c);
     return (RealType)ref;
   };
 
   static inline RealType error (const PackArgs& p, const RealType& z) {\
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-    const RealType & c(p.arg3);
+    const __float128 a=p.arg1;
+    const __float128 b=p.arg2;
+    const __float128 c=p.arg3;
 
-    __float128 ref=LIBMQ::apply((__float128)a, (__float128)b, (__float128)c);
+    __float128 ref=LIBMQ::apply(a, b, c);
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -944,8 +945,8 @@ public:
   static inline void check(const PackArgs& p, const RealType& d){
   };
 
-  template<class RANDSCOM>
-  static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
+  template<class RANDCOM>
+  static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
     const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
     const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
     const vr_packArg<RealType,3> pcom(pmin,pmax,p.arg3);
@@ -1276,6 +1277,51 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
   }									\
 };
 
+#define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)				\
+  extern "C"{								\
+    double FCT (double a, double b, double c){					\
+      const char fctStr[]=#FCT;						\
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,1); \
+      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
+	if(isInstrumented){						\
+	  incCounter3<double, enum##FCT ,0>();				\
+	}else{								\
+	  incCounter3<double, enum##FCT ,1>();				\
+	}								\
+	return function3NameTab[enum##FCT].apply(a,b,c);		\
+      }else{								\
+	incCounter3<double, enum##FCT ,0>();				\
+	typedef OpWithDynSelectedRoundingMode<MAddOp<double> > Op; \
+	double res;							\
+	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
+	return res;							\
+      }									\
+    }									\
+									\
+    float FCT##f (float a, float b, float c){					\
+    const char fctStr[]=STRINGIFY(FCT##f);				\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,0);\
+      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
+	if(isInstrumented){						\
+	  incCounter3<float, enum##FCT ,0>();				\
+	}else{								\
+	  incCounter3<float, enum##FCT ,1>();				\
+	}								\
+	return function3NameTab[enum##FCT].apply(a,b,c);			\
+      }else{								\
+	incCounter3<float, enum##FCT,0>();				\
+	typedef OpWithDynSelectedRoundingMode<MAddOp<float> > Op; \
+	float res;							\
+	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
+	return res;							\
+      }									\
+}									\
+									\
+    long double FCT##l (long double a, long double b, long double c){	\
+    incCounter3<long double, enum##FCT,1>();				\
+    return function3NameTab[enum##FCT].apply(a,b,c);			\
+  }									\
+};
 
 
 //shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
@@ -1320,7 +1366,7 @@ DEFINE_INTERP_LIBM2_C_IMPL(remainder);
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(yn);
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(jn);
 
-DEFINE_INTERP_LIBM3_C_IMPL(fma);
+DEFINE_INTERP_LIBM3_FMA_C_IMPL(fma);
 
 
 #undef DEFINE_INTERP_LIBM1_C_IMPL
