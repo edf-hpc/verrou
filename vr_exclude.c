@@ -39,11 +39,12 @@
 #define UNAMED_FUNCTION_VERROU "unamed_function_verrou"
 #define UNAMED_OBJECT_VERROU "unamed_object_verrou"
 
-static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname, Bool used) {
+static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname, Bool used, Bool counted) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
   cell->objname = VG_(strdup)("vr.addExclude.3", objname);
   cell->used    = used;
+  cell->counted = counted;
   cell->next    = list;
   return cell;
 }
@@ -137,7 +138,8 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
     list = vr_addExclude (list,
 			  line, /*fnname=*/
 			  c,/*objname*/
-			  False
+			  False,/*used*/
+			  True /*counted*/
 			  );
   }
 
@@ -170,7 +172,7 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   for(int i=0; i< LIB_NB_PATTERN; i++){
     if( VG_(string_match)(libPattern[i],objName)){
       VG_(umsg)("EXCLUDE DETECTED: %s\n",objName);
-      return vr_addExclude (list, star, objName,False);
+      return vr_addExclude (list, star, objName,False,False);
     }
   }
   return list;
@@ -179,14 +181,20 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
 
 
 
-Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr) {
+Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr, Bool* counted) {
 
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
   if (exclude == NULL) {
+    if(counted !=NULL){
+      *counted=True;
+    }
     return False;
   }
 
+  if(counted !=NULL){
+    *counted=exclude->counted;
+  }
   // Inform the first time a rule is used
   if (!exclude->used) {
     VG_(umsg)("Using exclusion rule: %s\t%s\n", exclude->fnname, exclude->objname);
@@ -203,7 +211,8 @@ vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr);
   if(exclude==NULL){
-    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr, True);
+    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr,
+				    True , True/* Normally not used */);
   }
 }
 

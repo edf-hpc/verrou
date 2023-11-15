@@ -122,6 +122,7 @@ struct Vr_Exclude_ {
   HChar*      fnname;
   HChar*      objname;
   Bool        used;
+  Bool        counted;
   Vr_Exclude* next;
 };
 
@@ -285,7 +286,7 @@ void        vr_freeExcludeList (Vr_Exclude* list);
 void        vr_dumpExcludeList (Vr_Exclude* list, const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
 Vr_Exclude* vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName);
-Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname);
+Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname, Bool* counted);
 
 
 void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);

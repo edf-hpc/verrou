@@ -359,7 +359,7 @@ Bool vr_clrIsInstrumented(const char* functionName, int line, const char* fileNa
   if(vr.verbose){
     VG_(umsg)("function Name: %s\tline: %d\tfileName: %s\tobject: %s\n",functionName, line, fileName, object);
   }
-  Bool excludeIrsb=vr_excludeIRSB (&functionName, &object);
+  Bool excludeIrsb=vr_excludeIRSB (&functionName, &object, NULL);
    if(excludeIrsb){
       return False;
    }
@@ -1497,7 +1497,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   }
   /*End of recuperation*/
 
-  Bool excludeIrsb=vr_excludeIRSB (fnnamePtr, objnamePtr);
+  Bool countIrsb=True;
+  Bool excludeIrsb=vr_excludeIRSB (fnnamePtr, objnamePtr,&countIrsb);
   //if (excludeIrsb && !genIRSBTrace){
   //    return sbIn;
   //  }
@@ -1586,6 +1587,11 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       break;
     case Ist_WrTmp:
       {
+	if(countIrsb==False){
+	  addStmtToIRSB (sbOut, sbIn->stmts[i]);
+	  break;
+	}
+
 	Bool countOnly=False;
 	if (excludeIrsb || !includeSource){
 	  countOnly=True;
