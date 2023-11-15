@@ -261,4 +261,8 @@ int main(int argc, char *argv[]) {
       }
     }
     std::cout << std::setprecision(16)<< "norm: " << sqrt(norm)<<std::endl;
+
+    delete[] Aserial[0];
+    delete[] Aserial[1];
+    delete[] vsq;
 }

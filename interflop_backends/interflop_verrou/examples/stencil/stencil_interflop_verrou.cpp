@@ -55,13 +55,15 @@ void* context;
 
 #ifdef FLOAT
 typedef  float RealType;
-#define add(a,b,c)  interflop_verrou_add_float(a,b,c,context);
+#define add(a,b,c)   interflop_verrou_add_float(a,b,c,context);
+#define fma(a,b,c,d) interflop_verrou_madd_float(a,b,c,d,context);
 #define sub(a,b,c)  interflop_verrou_sub_float(a,b,c,context);
 #define mul(a,b,c)  interflop_verrou_mul_float(a,b,c,context);
 #define div(a,b,c)  interflop_verrou_div_float(a,b,c,context);
 #else
 typedef double RealType;
 #define add(a,b,c)  interflop_verrou_add_double(a,b,c,context);
+#define fma(a,b,c,d)  interflop_verrou_madd_double(a,b,c,d,context);
 #define sub(a,b,c)  interflop_verrou_sub_double(a,b,c,context);
 #define mul(a,b,c)  interflop_verrou_mul_double(a,b,c,context);
 #define div(a,b,c)  interflop_verrou_div_double(a,b,c,context);
@@ -91,7 +93,7 @@ stencil_step(int x0, int x1,
 #define A_cur(x, y, z) Ain[index + (x) + ((y) * Nx) + ((z) * Nxy)]
 #define A_next(x, y, z) Aout[index + (x) + ((y) * Nx) + ((z) * Nxy)]
                 RealType div = coef[0];
-		mul(div,A_cur(0, 0, 0),&div);		  
+		mul(div,A_cur(0, 0, 0),&div);
 
 		RealType acc1=A_cur(+1, 0, 0);
 		add(acc1,A_cur(-1, 0, 0),&acc1);
@@ -99,63 +101,53 @@ stencil_step(int x0, int x1,
 		add(acc1,A_cur(0, -1, 0),&acc1);
 		add(acc1,A_cur(0, 0, +1),&acc1);
 		add(acc1,A_cur(0, 0, -1),&acc1);
-		
-		mul(acc1,coef[1],&acc1);
-		
+
 		RealType acc2=A_cur(+2, 0, 0);
 		add(acc2,A_cur(-2, 0, 0),&acc2);
 		add(acc2,A_cur(0, +2, 0),&acc2);
 		add(acc2,A_cur(0, -2, 0),&acc2);
 		add(acc2,A_cur(0, 0, +2),&acc2);
 		add(acc2,A_cur(0, 0, -2),&acc2);
-		
-		mul(acc2,coef[2],&acc2);
-		
+
 		RealType acc3=A_cur(+3, 0, 0);
 		add(acc3,A_cur(-3, 0, 0),&acc3);
 		add(acc3,A_cur(0, +3, 0),&acc3);
 		add(acc3,A_cur(0, -3, 0),&acc3);
 		add(acc3,A_cur(0, 0, +3),&acc3);
 		add(acc3,A_cur(0, 0, -3),&acc3);
-		
-		mul(acc3,coef[3],&acc3);
 
-		add(div,acc1,&div);		  
-		add(div,acc2,&div);		  
-		add(div,acc2,&div);		  
-
-
-		
-
-                //A_next(0, 0, 0) = 2 * A_cur(0, 0, 0) - A_next(0, 0, 0) + 
+		fma(acc1, coef[1], div, &div);
+		fma(acc2, coef[2], div, &div);
+		fma(acc3, coef[3], div, &div);
+                //A_next(0, 0, 0) = 2 * A_cur(0, 0, 0) - A_next(0, 0, 0) +
 		//                    vsq[index] * div;
 		RealType localAcc=2.;
 		add(localAcc,  A_cur(0, 0, 0),&localAcc);
 		sub(localAcc,  A_next(0, 0, 0),&localAcc);
-		mul(div,vsq[index],&div);		  
+		mul(div,vsq[index],&div);
 
-		add(localAcc, div,&A_next(0, 0, 0));		      
-            }
-        }
+		add(localAcc, div,&A_next(0, 0, 0));
+	    }
+	}
     }
 }
 
 
-void loop_stencil_serial(int t0, int t1, 
+void loop_stencil_serial(int t0, int t1,
                          int x0, int x1,
                          int y0, int y1,
                          int z0, int z1,
                          int Nx, int Ny, int Nz,
-                         const RealType coef[4], 
+                         const RealType coef[4],
                          const RealType vsq[],
                          RealType Aeven[], RealType Aodd[])
 {
     for (int t = t0; t < t1; ++t) {
         if ((t & 1) == 0)
-            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, 
+            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq,
                          Aeven, Aodd);
         else
-            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq, 
+            stencil_step(x0, x1, y0, y1, z0, z1, Nx, Ny, Nz, coef, vsq,
                          Aodd, Aeven);
     }
 }
@@ -193,11 +185,11 @@ int main(int argc, char *argv[]) {
 
     //struct interflop_backend_interface_t ifverrou=interflop_verrou_init(&context);
     interflop_verrou_init(&context);
-    interflop_verrou_configure(VR_AVERAGE, context);
-    //    interflop_verrou_configure(VR_NEAREST, context);
+    interflop_verrou_configure(VR_RANDOM_DET, context);
+    //interflop_verrou_configure(VR_NEAREST, context);
     uint64_t seed(42);
     verrou_set_seed (seed);
-    
+
     //Allocation and initialisation
     RealType *Aserial[2];
     Aserial[0] = new RealType [Nx * Ny * Nz];
@@ -241,4 +233,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout << std::setprecision(16)<< "norm: " << sqrt(norm)<<std::endl;
     interflop_verrou_finalize(&context);
+    delete[] Aserial[0];
+    delete[] Aserial[1];
+    delete[] vsq;
 }
