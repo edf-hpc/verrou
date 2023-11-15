@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -146,7 +146,7 @@ private:
 
 
 int main (int argc, char **argv) {
-  double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
+  double x=cos(42.); if(x!=x) std::cout << "FAILURE"<<std::endl;// line to force libm use
 
   test_compute<float> tFloat;
   test_compute<double> tDouble;
