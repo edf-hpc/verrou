@@ -367,9 +367,7 @@ public:
 
 //splitFactor used by MulOp
 template<class REALTYPE>
-REALTYPE splitFactor(){
-  return 0./ 0.; //nan to make sure not used
-}
+REALTYPE splitFactor();
 
 template<>
 double splitFactor<double>(){

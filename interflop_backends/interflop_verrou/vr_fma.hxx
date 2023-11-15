@@ -38,9 +38,7 @@
 //#include  <fmaintrin.h>
 
 template<class REALTYPE>
-inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&){
-  return 0./ 0.; //nan to be sur not used
-}
+inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&);
 
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
