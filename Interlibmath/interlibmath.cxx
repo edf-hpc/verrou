@@ -727,6 +727,11 @@ void printCounter(){
 }
 
 
+#ifndef INTERLIBM_STAND_ALONE
+static __float128 verrou_libm_res_ref=0.;
+#endif
+
+
 template<class LIBMQ, typename REALTYPE >
 class libMathFunction1{
 public:
@@ -740,12 +745,19 @@ public:
   static inline RealType nearestOp (const PackArgs& p) {
     const RealType & a(p.arg1);
     __float128 ref=LIBMQ::apply((__float128)a);
+#ifndef INTERLIBM_STAND_ALONE
+    verrou_libm_res_ref=ref;
+#endif
     return (RealType)ref;
   };
 
-  static inline RealType error (const PackArgs& p, const RealType& z) {\
-    const RealType & a(p.arg1);
-    __float128 ref=LIBMQ::apply((__float128)a);
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+#ifdef INTERLIBM_STAND_ALONE
+    const __float128 a(p.arg1);
+    __float128 ref=LIBMQ::apply(a);
+#else
+    __float128 ref=verrou_libm_res_ref;
+#endif
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -905,6 +917,7 @@ public:
 
 
 
+/*Warning no used : for fma we use MAddOp from vr_op.hxx : if you want to use it please pay attention to hash* methods */
 template<class LIBMQ, typename REALTYPE >
 class libMathFunction3{
 public:
@@ -950,13 +963,13 @@ public:
     const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
     const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
     const vr_packArg<RealType,3> pcom(pmin,pmax,p.arg3);
-    const uint32_t hashOp(MAddOp<RealType>::getHash());
+    const uint32_t hashOp(getHash());
     return r.hash(pcom,hashOp);
   };
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
-    return MAddOp<RealType>::hashScom(r,p);
+    return hashCom(r,p);
   };
 
 };

@@ -20,15 +20,15 @@ NUMSAMPLEIN=459 #probablility 0.99 and confidence level 1-alpha=0.99
 data=resNative.dat resRandomverrou.dat resRandominterlibm.dat resRandomverrou+interlibm.dat reference.dat
 
 .PHONY: $(data) $(INTERLIBMREP)/interlibmath.so
-all: check
+all:check
 
 
 $(BIN): $(SRC)
-	     g++ $(FLAGS) $(LDFLAGS) -o $@  $^ $(MPFILIB)
+	g++ $(FLAGS) $(LDFLAGS) -o $@  $^ $(MPFILIB)
 
 $(INTERLIBMREP)/interlibmath.so:
-       make -C $(INTERLIBMREP) clean
-       make -C $(INTERLIBMREP)
+	make -C $(INTERLIBMREP) clean
+	make -C $(INTERLIBMREP)
 
 resNative.dat: $(BIN)
 	$(BIN) > $@
