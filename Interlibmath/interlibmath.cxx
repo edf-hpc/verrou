@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 
+#include <complex.h>
 
 unsigned int my_pid;
 
@@ -153,6 +154,60 @@ private:
   uint64_t line_;
   libMparity_t parity_;
 };
+
+class myLibMathFunction1Complex{
+public:
+  myLibMathFunction1Complex(std::string name, uint64_t enumName, uint64_t line):name_(name),
+										hash_(enumName+nbOpHash),
+										line_(line)
+  {
+    load_real_sym((void**)&(real_name_float) , name +std::string("f"));
+    load_real_sym((void**)&(real_name_double) , name);
+    load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
+  }
+
+  double _Complex apply(double _Complex a)const{
+    return real_name_double(a);
+  }
+
+  long double _Complex apply(long double _Complex a)const{
+    return real_name_long_double(a);
+  }
+
+  float _Complex apply(float _Complex a)const{
+    return real_name_float(a);
+  }
+
+  inline const std::string& name()const{
+    return name_;
+  }
+
+  inline uint64_t getHash()const{
+    return hash_;
+  }
+
+  inline uint64_t getLine()const{
+    return line_;
+  }
+
+
+private:
+  void load_real_sym(void**fctPtr, std::string name ){
+    (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
+    if(*fctPtr==NULL){
+      std::cerr << "Problem with function "<< name<<std::endl;
+    }
+  }
+
+  //Attributs
+  float _Complex(*real_name_float)(float _Complex) ;
+  double _Complex(*real_name_double)(double _Complex) ;
+  long double (*real_name_long_double)(long double _Complex) ;
+  std::string name_;
+  uint64_t hash_;
+  uint64_t line_;
+};
+
 
 class myLibMathFunction2{
 public:
@@ -339,6 +394,8 @@ private:
 // sincos is a the sequence sin, cos: impact on counters
 
 //shell LIST1="acos acosh asin asinh atan atanh cbrt erf exp exp2 exp10 expm1 log log10 log1p log2 tgamma lgamma sin sinh cos cosh sqrt tan tanh j0 j1 y0 y1"
+
+
 enum Function1Name: uint64_t {
   //shell comand to generate:  for i in $LIST1 ; do  echo "enum$i,"; done;
   enumacos,
@@ -405,6 +462,52 @@ myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={
   myLibMathFunction1("y0", enumy0, __LINE__),
   myLibMathFunction1("y1", enumy1, __LINE__),
 };
+
+//shell LIST1COMPLEX="cexp clog cpow csqrt csin ccos ctan casin cacos catan csinh ccosh ctanh casinh cacosh catanh"
+
+enum Function1NameComplex: uint64_t {
+  //shell comand to generate:  for i in $LIST1COMPLEX ; do  echo "enum$i,"; done;
+  enumcexp,
+  enumclog,
+  enumcpow,
+  enumcsqrt,
+  enumcsin,
+  enumccos,
+  enumctan,
+  enumcasin,
+  enumcacos,
+  enumcatan,
+  enumcsinh,
+  enumccosh,
+  enumctanh,
+  enumcasinh,
+  enumcacosh,
+  enumcatanh,
+  //fin shell
+  enum_libm_function1_name_complex_size
+};
+
+myLibMathFunction1Complex function1NameComplexTab[enum_libm_function1_name_complex_size]={
+//shell command to generate  for i in $LIST1COMPLEX ; do  echo "myLibMathFunction1Complex(\"$i\", enum$i,__LINE__),"; done;
+  myLibMathFunction1Complex("cexp", enumcexp,__LINE__),
+  myLibMathFunction1Complex("clog", enumclog,__LINE__),
+  myLibMathFunction1Complex("cpow", enumcpow,__LINE__),
+  myLibMathFunction1Complex("csqrt", enumcsqrt,__LINE__),
+  myLibMathFunction1Complex("csin", enumcsin,__LINE__),
+  myLibMathFunction1Complex("ccos", enumccos,__LINE__),
+  myLibMathFunction1Complex("ctan", enumctan,__LINE__),
+  myLibMathFunction1Complex("casin", enumcasin,__LINE__),
+  myLibMathFunction1Complex("cacos", enumcacos,__LINE__),
+  myLibMathFunction1Complex("catan", enumcatan,__LINE__),
+  myLibMathFunction1Complex("csinh", enumcsinh,__LINE__),
+  myLibMathFunction1Complex("ccosh", enumccosh,__LINE__),
+  myLibMathFunction1Complex("ctanh", enumctanh,__LINE__),
+  myLibMathFunction1Complex("casinh", enumcasinh,__LINE__),
+  myLibMathFunction1Complex("cacosh", enumcacosh,__LINE__),
+  myLibMathFunction1Complex("catanh", enumcatanh,__LINE__),
+};
+
+
 enum Function2Name : uint64_t{
   enumatan2,
   //  enumfmod,
@@ -447,6 +550,7 @@ myLibMathFunction3 function3NameTab[enum_libm_function3_name_size]={
 
 
 unsigned int libMathCounter1[enum_libm_function1_name_size][3][2];
+unsigned int libMathCounter1Complex[enum_libm_function1_name_complex_size][3][2];
 unsigned int libMathCounter2[enum_libm_function2_name_size][3][2];
 unsigned int libMathCounter2IntFP[enum_libm_function2_name_size][3][2];
 unsigned int libMathCounter3[enum_libm_function3_name_size][3][2];
@@ -498,6 +602,12 @@ void initLibMathCounter(){
       libMathCounter1[i][j][1]=0;
     }
   }
+  for(int i=0; i< (int)enum_libm_function1_name_complex_size;i++){
+    for(int j=0; j< 3; j++){
+      libMathCounter1Complex[i][j][0]=0;
+      libMathCounter1Complex[i][j][1]=0;
+    }
+  }
   for(int i=0; i< (int)enum_libm_function2_name_size;i++){
     for(int j=0; j< 3; j++){
       libMathCounter2[i][j][0]=0;
@@ -533,10 +643,29 @@ struct realTypeIndex<long double>{
   static const int index=2;
 };
 
+template<>
+struct realTypeIndex<float _Complex>{
+  static const int index=0;
+};
+template<>
+struct realTypeIndex<double _Complex>{
+  static const int index=1;
+};
+template<>
+struct realTypeIndex<long double _Complex>{
+  static const int index=2;
+};
+
+
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
 inline void incCounter1(){
   libMathCounter1[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+}
+
+template<class REALTYPE, int ENUM_LIBM, int INST>
+inline void incCounter1Complex(){
+  libMathCounter1Complex[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
 }
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
@@ -568,6 +697,9 @@ unsigned int getCounter(int nbParam, int index,  int type, int isInst){
   }
   if(nbParam==3){
     return libMathCounter3[index][type][isInst];
+  }
+  if(nbParam==-1){
+    return libMathCounter1Complex[index][type][isInst];
   }
   return 0;
 };
@@ -642,8 +774,11 @@ void updateSeedCache(){
 
 #ifndef INTERLIBM_STAND_ALONE
 void generateExcludeSource(){
-  for(int nbParam=0; nbParam <=3; nbParam++){
+  for(int nbParam=-1; nbParam <=3; nbParam++){
     int paramSize= (int)enum_libm_function1_name_size;
+    if(nbParam==-1){
+      paramSize=(int)enum_libm_function1_name_complex_size;
+    }
     if(nbParam==2){
       paramSize=(int)enum_libm_function2_name_size;
     }
@@ -673,6 +808,10 @@ void generateExcludeSource(){
 	functionName=function3NameTab[i].name();
 	line=function3NameTab[i].getLine();
       }
+      if(nbParam==-1){
+	functionName=function1NameComplexTab[i].name();
+	line=function1NameComplexTab[i].getLine();
+      }
 
       if( getCounter(nbParam,i,0,0)!=0){  //float
 	std::string fctName=functionName+std::string("f");
@@ -694,7 +833,7 @@ void printCounter(){
   std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<" )"<<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "\t\t Total \tInstrumented" <<std::endl;
 
-  for(int nbParam=0; nbParam <=3; nbParam++){
+  for(int nbParam=-1; nbParam <=3; nbParam++){
     int paramSize= (int)enum_libm_function1_name_size;
     if(nbParam==2){
       paramSize=(int)enum_libm_function2_name_size;
@@ -704,6 +843,9 @@ void printCounter(){
     }
     if(nbParam==0){
       paramSize=(int)enum_libm_function2IntFP_name_size;
+    }
+    if(nbParam==-1){
+      paramSize=(int)enum_libm_function1_name_complex_size;
     }
 
     for(int i=0; i< paramSize;i++){
@@ -721,6 +863,9 @@ void printCounter(){
 
 	if(nbParam==1){
 	  std::cerr<< function1NameTab[i].name();
+	}
+	if(nbParam==-1){
+	  std::cerr<< function1NameComplexTab[i].name();
 	}
 	if(nbParam==2){
 	  std::cerr<< function2NameTab[i].name();
@@ -1198,6 +1343,23 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
     }									\
   };
 
+#define DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(FCT)			\
+  extern "C"{								\
+    float _Complex FCT##f (float _Complex a){				\
+      incCounter1Complex<float, enum##FCT,1>();			\
+      return function1NameComplexTab[enum##FCT].apply(a);		\
+    }									\
+    double _Complex FCT (double _Complex a){				\
+      incCounter1Complex<double, enum##FCT,1>();			\
+      return function1NameComplexTab[enum##FCT].apply(a);		\
+    }									\
+    long double _Complex FCT##l (long double _Complex a){		\
+      incCounter1Complex<long double, enum##FCT,1>();			\
+      return function1NameComplexTab[enum##FCT].apply(a);		\
+    }									\
+  };
+
+
 #define DEFINE_INTERP_LIBM2_C_IMPL(FCT)				\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a,__float128 b){return FCT##q(a,b);} \
@@ -1428,6 +1590,24 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
  DEFINE_INTERP_LIBM1_C_IMPL(j1);
  DEFINE_INTERP_LIBM1_C_IMPL(y0);
  DEFINE_INTERP_LIBM1_C_IMPL(y1);
+
+//shell for i in $LIST1COMPLEX ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX($i);"; done;
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(cexp);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(clog);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(cpow);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(csqrt);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(csin);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(ccos);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(ctan);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(casin);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(cacos);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(catan);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(csinh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(ccosh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(ctanh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(casinh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(cacosh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(catanh);
 
 
 DEFINE_INTERP_LIBM2_C_IMPL(atan2);
