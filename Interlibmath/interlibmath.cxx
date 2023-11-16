@@ -85,6 +85,14 @@ typedef enum libMparity: uint64_t {
 } libMparity_t;
 
 
+typedef enum libM2parity: uint64_t {
+				    enum2NoParity,
+				    enum2Even,
+				    enum2OddFirst
+} libM2parity_t;
+
+
+
 class myLibMathFunction1{
 public:
   myLibMathFunction1(std::string name, uint64_t enumName, uint64_t line):name_(name),
@@ -108,23 +116,23 @@ public:
     return real_name_float(a);
   }
 
-  const std::string& name()const{
+  inline const std::string& name()const{
     return name_;
   }
 
-  uint64_t getHash()const{
+  inline uint64_t getHash()const{
     return hash_;
   }
 
-  uint64_t getLine()const{
+  inline uint64_t getLine()const{
     return line_;
   }
 
-  void setParity(libMparity_t p){
+  inline void setParity(libMparity_t p){
     parity_=p;
   }
 
-  libMparity_t getParity(){
+  inline libMparity_t getParity(){
     return parity_;
   }
 
@@ -187,6 +195,14 @@ public:
     return commutativity_;
   }
 
+  inline void setParity2(libM2parity_t p){
+    parity2_=p;
+  }
+
+  inline libM2parity_t getParity2(){
+    return parity2_;
+  }
+
 private:
   void load_real_sym(void**fctPtr, std::string name ){
     (*fctPtr) =dlsym(RTLD_NEXT, name.c_str());
@@ -203,6 +219,7 @@ private:
   uint64_t hash_;
   uint64_t line_;
   bool commutativity_;
+  libM2parity_t parity2_;
 };
 
 class myLibMathFunction2IntFP{
@@ -228,14 +245,14 @@ public:
     return real_name_float((int)a,b);
   }
 
-  const std::string& name()const{
+  inline const std::string& name()const{
     return name_;
   }
-  uint64_t getHash()const{
+  inline uint64_t getHash()const{
     return hash_;
   }
 
-  uint64_t getLine()const{
+  inline uint64_t getLine()const{
     return line_;
   }
 
@@ -281,14 +298,14 @@ public:
     return real_name_float(a,b,c);
   }
 
-  const std::string& name()const{
+  inline const std::string& name()const{
     return name_;
   }
-  uint64_t getHash()const{
+  inline uint64_t getHash()const{
     return hash_;
   }
 
-  uint64_t getLine()const{
+  inline uint64_t getLine()const{
     return line_;
   }
 
@@ -311,7 +328,7 @@ private:
 
 //Remarks:
 //do not need to be instrumented
-//ceil trunc modf frexp fabs floor nearbyint
+//ceil trunc modf frexp fabs floor nearbyint fmod
 
 // not instrumented
 // exp2 exp10 : do not exist in quadmath (but counted)
@@ -390,20 +407,20 @@ myLibMathFunction1 function1NameTab[enum_libm_function1_name_size]={
 };
 enum Function2Name : uint64_t{
   enumatan2,
-  enumfmod,
+  //  enumfmod,
   enumhypot,
   enumpow,
   enumfdim,
-  enumremainder,
+  //  enumremainder,
   enum_libm_function2_name_size};
 
 myLibMathFunction2 function2NameTab[enum_libm_function2_name_size]={
   myLibMathFunction2("atan2",enumatan2, __LINE__),
-  myLibMathFunction2("fmod", enumfmod,  __LINE__),
+  //  myLibMathFunction2("fmod", enumfmod,  __LINE__),
   myLibMathFunction2("hypot", enumhypot, __LINE__),
   myLibMathFunction2("pow", enumpow, __LINE__),
   myLibMathFunction2("fdim",enumfdim, __LINE__),
-  myLibMathFunction2("remainder", enumremainder, __LINE__),
+  //  myLibMathFunction2("remainder", enumremainder, __LINE__),
 };
 
 enum Function2IntFP : uint64_t{
@@ -466,9 +483,11 @@ void initLibMathParity(){
 
   for(int i=0; i< (int)enum_libm_function2_name_size;i++){
       function2NameTab[i].setCommutativity(false);
+      function2NameTab[i].setParity2(enum2NoParity);
   }
   function2NameTab[enumhypot].setCommutativity(true);
-
+  function2NameTab[enumhypot].setParity2(enum2Even);
+  function2NameTab[enumatan2].setParity2(enum2OddFirst);
 }
 
 
@@ -874,9 +893,31 @@ public:
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     const uint32_t hashOp(getHash());
+    if( LIBMQ::getParity2()==  enum2Even  ){
+      const RealType p1= p.arg1>=0?p.arg1:-p.arg1;
+      const RealType p2= p.arg2>=0?p.arg2:-p.arg2;
+      if( LIBMQ::isCommutative()){
+	const RealType pmin(std::min<RealType>(p1,p2));
+	const RealType pmax(std::max<RealType>(p1,p2));
+	const vr_packArg<RealType,2> pcom(pmin,pmax);
+	return r.hash(pcom,hashOp);
+      }else{
+	const vr_packArg<RealType,2> pcom(p1,p2);
+	return r.hash(pcom,hashOp);
+      }
+    }
+    if( LIBMQ::getParity2()==  enum2OddFirst ){
+      if(p.arg1>0){
+	return r.hash(p, hashOp);
+      }else{
+	const RealType absp1(-p.arg1);
+	const RealType p2(p.arg2);
+	const PackArgs pnew(absp1, p2);
+	return r.hashBar(pnew, hashOp);
+      }
+    }
     return r.hash(p, hashOp);
   };
-
 };
 
 
@@ -1162,6 +1203,7 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
     static __float128 apply(__float128 a,__float128 b){return FCT##q(a,b);} \
     static __uint64_t getHash(){return enum##FCT; }			\
     static bool isCommutative(){return function2NameTab[enum##FCT].getCommutativity();}\
+    static libM2parity_t getParity2(){return function2NameTab[enum##FCT].getParity2();}; \
 };									\
   extern "C"{								\
     double FCT (double a, double b){					\
@@ -1389,11 +1431,11 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
 
 
 DEFINE_INTERP_LIBM2_C_IMPL(atan2);
-DEFINE_INTERP_LIBM2_C_IMPL(fmod);
+//DEFINE_INTERP_LIBM2_C_IMPL(fmod);
 DEFINE_INTERP_LIBM2_C_IMPL(hypot);
 DEFINE_INTERP_LIBM2_C_IMPL(pow);
 DEFINE_INTERP_LIBM2_C_IMPL(fdim);
-DEFINE_INTERP_LIBM2_C_IMPL(remainder);
+//DEFINE_INTERP_LIBM2_C_IMPL(remainder);
 
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(yn);
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(jn);
@@ -1446,8 +1488,6 @@ void __attribute__((constructor)) init_interlibmath(){
       ROUNDINGMODE=VR_RANDOM_COMDET;
     }
     if(envString==std::string("random_scomdet")){
-      std::cerr<< "Rounding RANDOM_SCOMDET not yet implemented in interlibmath"<<std::endl;
-      exit(1);
       ROUNDINGMODE=VR_RANDOM_SCOMDET;
     }
     if(envString==std::string("sr_monotonic")){
@@ -1466,8 +1506,6 @@ void __attribute__((constructor)) init_interlibmath(){
       ROUNDINGMODE=VR_AVERAGE_COMDET;
     }
     if(envString==std::string("average_scomdet")){
-      std::cerr<< "Rounding RANDOM_SCOMDET not yet implemented in interlibmath"<<std::endl;
-      exit(1);
       ROUNDINGMODE=VR_AVERAGE_SCOMDET;
     }
     if(envString==std::string("nearest")){
