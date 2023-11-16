@@ -89,7 +89,7 @@ class myLibMathFunction1{
 public:
   myLibMathFunction1(std::string name, uint64_t enumName, uint64_t line):name_(name),
 									 hash_(enumName+nbOpHash),
-									 line_(line)
+									 line_(line) /*Warning do no initialize parity_ : strange order init*/
   {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
@@ -150,7 +150,7 @@ class myLibMathFunction2{
 public:
   myLibMathFunction2(std::string name, uint64_t enumName, uint64_t line):name_(name),
 									 hash_(enumName+ nbOpHash),
-									 line_(line)
+									 line_(line) /*Warning do no initialize commutativity_ : strange order init*/
   {
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
@@ -169,15 +169,22 @@ public:
     return real_name_float(a,b);
   }
 
-  const std::string& name()const{
+  inline const std::string& name()const{
     return name_;
   }
-  uint64_t getHash()const{
+  inline uint64_t getHash()const{
     return hash_;
   }
 
-  uint64_t getLine()const{
+  inline uint64_t getLine()const{
     return line_;
+  }
+
+  inline void setCommutativity(bool value){
+    commutativity_=value;
+  }
+  inline bool getCommutativity()const{
+    return commutativity_;
   }
 
 private:
@@ -195,6 +202,7 @@ private:
   std::string name_;
   uint64_t hash_;
   uint64_t line_;
+  bool commutativity_;
 };
 
 class myLibMathFunction2IntFP{
@@ -454,6 +462,13 @@ void initLibMathParity(){
   function1NameTab[enumcos].setParity(enumEven);
   function1NameTab[enumcosh].setParity(enumEven);
   function1NameTab[enumj0].setParity(enumEven);
+
+
+  for(int i=0; i< (int)enum_libm_function2_name_size;i++){
+      function2NameTab[i].setCommutativity(false);
+  }
+  function2NameTab[enumhypot].setCommutativity(true);
+
 }
 
 
@@ -846,11 +861,14 @@ public:
 
   template<class RANDCOM>
   static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
-    const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
-    const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
-    const vr_packArg<RealType,2> pcom(pmin,pmax);
     const uint32_t hashOp(getHash());
-    return r.hash(pcom,hashOp);
+    if( LIBMQ::isCommutative()){
+      const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
+      const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
+      const vr_packArg<RealType,2> pcom(pmin,pmax);
+      return r.hash(pcom,hashOp);
+    }
+    return r.hash(p,hashOp);
   };
 
   template<class RANDSCOM>
@@ -1143,6 +1161,7 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
   struct libmq##FCT{							\
     static __float128 apply(__float128 a,__float128 b){return FCT##q(a,b);} \
     static __uint64_t getHash(){return enum##FCT; }			\
+    static bool isCommutative(){return function2NameTab[enum##FCT].getCommutativity();}\
 };									\
   extern "C"{								\
     double FCT (double a, double b){					\
