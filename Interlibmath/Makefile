@@ -1,7 +1,7 @@
 
 
 SRC=interlibmath.cxx ../interflop_backends/backend_mcaquad/common/tinymt64.c
-FLAGS= -std=c++11 -DLIBMATHINTERP -DINTERLIBM_STAND_ALONE -I../backend_verrou -Wall -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash
+FLAGS= -std=c++11 -DLIBMATHINTERP -DINTERLIBM_STAND_ALONE -I../backend_verrou -Wall -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -fno-builtin -Wno-strict-aliasing
 
 CXX=g++
 
