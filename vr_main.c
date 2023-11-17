@@ -1205,7 +1205,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #define IGNORESQRT
 #endif
 
-     if(vr.roundingMode==VR_NEAREST){
+     if(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #include "vr_instrumentOp_impl.h"
@@ -1699,6 +1699,7 @@ static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
    vr_env_clo("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
    vr_env_clo("VERROU_PRANDOM_UPDATE", "--prandom-update");
    vr_env_clo("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
    vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");

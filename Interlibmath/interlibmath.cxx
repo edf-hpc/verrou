@@ -22,6 +22,7 @@
 
 unsigned int my_pid;
 
+
 #ifdef INTERLIBM_STAND_ALONE
 char libraryName[]="verrou-interLibm";
 #else
@@ -53,6 +54,7 @@ void (*vr_infHandler)()=printInf;
 #define VERROU_IS_INSTRUMENTED_DOUBLE true
 #define VERROU_IS_INSTRUMENTED_LDOUBLE true
 #define VERROU_GET_LIBM_ROUNDING VR_NATIVE
+#define VERROU_GET_LIBM_ROUNDING_NO_INST VR_NATIVE
 #define VERROU_COUNT_OP true
 
 #else
@@ -75,6 +77,8 @@ void (*vr_infHandler)()=signalInf;
 
 
 vr_RoundingMode ROUNDINGMODE;
+vr_RoundingMode ROUNDINGMODE_NOINST;
+
 void (*vr_cancellationHandler)(int)=NULL;
 void (*vr_panicHandler)(const char*)=NULL;
 
@@ -103,6 +107,11 @@ public:
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
+  }
+
+  template<class REALTYPE>
+  inline REALTYPE apply(const vr_packArg<REALTYPE,1>& p)const{
+    return apply(p.arg1);
   }
 
   inline double apply(double a)const{
@@ -220,6 +229,11 @@ public:
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
   }
 
+  template<class REALTYPE>
+  inline REALTYPE apply(const vr_packArg<REALTYPE,2>& p)const{
+    return apply(p.arg1, p.arg2);
+  }
+
   inline double apply(double a, double b)const{
     return real_name_double(a,b);
   }
@@ -288,6 +302,11 @@ public:
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
   }
 
+  template<class REALTYPE>
+  inline REALTYPE apply(const vr_packArg<REALTYPE,2>& p)const{
+    return apply(p.arg1, p.arg2);
+  }
+
   inline double apply(double a, double b)const{
     return real_name_double((int)a,b);
   }
@@ -339,6 +358,11 @@ public:
     load_real_sym((void**)&(real_name_float) , name +std::string("f"));
     load_real_sym((void**)&(real_name_double) , name);
     load_real_sym((void**)&(real_name_long_double) , name +std::string("l"));
+  }
+
+  template<class REALTYPE>
+  inline REALTYPE apply(const vr_packArg<REALTYPE,3>& p)const{
+    return apply(p.arg1, p.arg2, p.arg3);
   }
 
   inline double apply(double a, double b, double c)const{
@@ -664,6 +688,14 @@ inline void incCounter1(){
 }
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
+class incCounter1Class{
+public:
+  static inline void apply(){
+    libMathCounter1[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+  }
+};
+
+template<class REALTYPE, int ENUM_LIBM, int INST>
 inline void incCounter1Complex(){
   libMathCounter1Complex[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
 }
@@ -674,9 +706,27 @@ inline void incCounter2(){
 }
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
+class incCounter2Class{
+public:
+  static inline void apply(){
+    libMathCounter2[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+  }
+};
+
+template<class REALTYPE, int ENUM_LIBM, int INST>
 inline void incCounter2IntFP(){
   libMathCounter2IntFP[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
 }
+
+template<class REALTYPE, int ENUM_LIBM, int INST>
+class incCounter2IntFPClass{
+public:
+  static inline void apply(){
+    libMathCounter2IntFP[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+  }
+};
+
+
 
 template<class REALTYPE, int ENUM_LIBM, int INST>
 inline void incCounter3(){
@@ -684,6 +734,13 @@ inline void incCounter3(){
 }
 
 
+template<class REALTYPE, int ENUM_LIBM, int INST>
+class incCounter3Class{
+public:
+  static inline void apply(){
+    libMathCounter3[ENUM_LIBM][realTypeIndex<REALTYPE>::index][INST]++;
+  }
+};
 
 unsigned int getCounter(int nbParam, int index,  int type, int isInst){
   if(nbParam==1){
@@ -1274,9 +1331,36 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
 #endif
 
 
+template<class REALTYPE, int NBPARAM, class LIBMQ, template<class,int,int> class INCCOUNTER, int ENUM_LIBM >
+class instrumentFunction{
+public:
+  template<class LIBMNAMETAB>
+  static REALTYPE apply(const LIBMNAMETAB& functionNameTab,const char* fctStr, bool isInstrumented,  const vr_packArg<REALTYPE,NBPARAM>& p){
+    if(isInstrumented){
+      INCCOUNTER<REALTYPE, ENUM_LIBM ,0>::apply();
+    }else{
+      INCCOUNTER<REALTYPE, ENUM_LIBM ,1>::apply();
+    }
+    if(ROUNDINGMODE==VR_NATIVE || (!(isInstrumented) && ROUNDINGMODE_NOINST==VR_NATIVE)){
+      return functionNameTab[ENUM_LIBM].apply(p);
+    }
+    if(ROUNDINGMODE==VR_NEAREST || (!(isInstrumented) && ROUNDINGMODE_NOINST==VR_NEAREST)){
+      typedef OpWithNearestRoundingMode<LIBMQ > Op;
+      REALTYPE res;
+      Op::apply(p,&res,NULL);
+      return res;
+    }
+    typedef OpWithDynSelectedRoundingMode<LIBMQ > Op;
+    REALTYPE res;
+    Op::apply(p,&res,NULL);
+    return res;
+  }
+};
+
+
 #define STRINGIFY(A) #A
 
-#define DEFINE_INTERP_LIBM1_C_IMPL(FCT)					\
+#define DEFINE_INTERP_LIBM1_C_IMPL(FCT)\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a){return FCT##q(a);}		\
     static __uint64_t getHash(){return enum##FCT; }                     \
@@ -1285,41 +1369,19 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
   extern "C"{								\
   double FCT (double a){						\
     const char fctStr[]=STRINGIFY(FCT);					\
+    const vr_packArg<double,1> p(a);					\
     const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,1); \
-    if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
-    if(isInstrumented){							\
-      incCounter1<double, enum##FCT ,0>();				\
-    }else{								\
-      incCounter1<double, enum##FCT ,1>();				\
-    }									\
-    return function1NameTab[enum##FCT].apply(a);			\
-    }else{								\
-      incCounter1<double, enum##FCT ,0>();				\
-      typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,double> > Op; \
-      double res;							\
-      Op::apply(Op::PackArgs(a) ,&res,NULL);				\
-      return res;							\
-    }									\
+    typedef instrumentFunction<double,1, libMathFunction1<libmq##FCT,double>, incCounter1Class, enum##FCT > inst; \
+    return inst::apply(function1NameTab, fctStr, isInstrumented, p);		\
   }									\
 									\
   float FCT##f (float a){						\
-  char fctStr[]=STRINGIFY(FCT##f);			\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,0);\
-    if(ROUNDINGMODE==VR_NATIVE || !(isInstrumented)){			\
-      if(isInstrumented){						\
-	incCounter1<float, enum##FCT ,0>();				\
-      }else{								\
-	incCounter1<float, enum##FCT ,1>();				\
-      }									\
-      return function1NameTab[enum##FCT].apply(a);			\
-    }else{								\
-      incCounter1<float, enum##FCT,0>();				\
-      typedef OpWithDynSelectedRoundingMode<libMathFunction1<libmq##FCT,float> > Op; \
-      float res;							\
-      Op::apply(Op::PackArgs(a) ,&res,NULL);				\
-      return res;							\
-    }									\
-    }									\
+    char fctStr[]=STRINGIFY(FCT##f);					\
+    const vr_packArg<float,1> p(a);					\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,0); \
+    typedef instrumentFunction<float,1, libMathFunction1<libmq##FCT,float>, incCounter1Class, enum##FCT > inst; \
+    return inst::apply(function1NameTab, fctStr, isInstrumented, p);		\
+  }									\
 									\
   long double FCT##l (long double a){					\
     incCounter1<long double, enum##FCT,1>();				\
@@ -1366,198 +1428,88 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
     static __uint64_t getHash(){return enum##FCT; }			\
     static bool isCommutative(){return function2NameTab[enum##FCT].getCommutativity();}\
     static libM2parity_t getParity2(){return function2NameTab[enum##FCT].getParity2();}; \
-};									\
+  };									\
   extern "C"{								\
     double FCT (double a, double b){					\
-      const char fctStr[]=#FCT;						\
+      const char fctStr[]=STRINGIFY(FCT);				\
+      const vr_packArg<double,2> p(a,b);				\
       const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2(fctStr, enum##FCT,1); \
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter2<double, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter2<double, enum##FCT ,1>();				\
-	}								\
-	return function2NameTab[enum##FCT].apply(a,b);			\
-      }else{								\
-	incCounter2<double, enum##FCT ,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,double> > Op; \
-	double res;							\
-	Op::apply(Op::PackArgs(a,b) ,&res,NULL);			\
-	return res;							\
-      }									\
+      typedef instrumentFunction<double,2, libMathFunction2<libmq##FCT,double>, incCounter2Class, enum##FCT > inst; \
+      return inst::apply(function2NameTab, fctStr, isInstrumented, p);	\
     }									\
 									\
     float FCT##f (float a, float b){					\
     const char fctStr[]=STRINGIFY(FCT##f);				\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,0);\
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter2<float, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter2<float, enum##FCT ,1>();				\
-	}								\
-	return function2NameTab[enum##FCT].apply(a,b);			\
-      }else{								\
-	incCounter2<float, enum##FCT,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction2<libmq##FCT,float> > Op; \
-	float res;							\
-	Op::apply(Op::PackArgs(a,b) ,&res,NULL);			\
-	return res;							\
-      }									\
-}									\
+      const vr_packArg<float,2> p(a,b);					\
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,0); \
+      typedef instrumentFunction<float,2, libMathFunction2<libmq##FCT,float>, incCounter2Class, enum##FCT > inst; \
+      return inst::apply(function2NameTab, fctStr, isInstrumented, p);	\
+    }									\
 									\
-  long double FCT##l (long double a, long double b){			\
-    incCounter2<long double, enum##FCT,1>();				\
-    return function2NameTab[enum##FCT].apply(a,b);			\
-  }									\
-};
+    long double FCT##l (long double a, long double b){			\
+      incCounter2<long double, enum##FCT,1>();				\
+      return function2NameTab[enum##FCT].apply(a,b);			\
+    }									\
+  };
+
 
 #define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)				\
   struct libmq##FCT{							\
     static __float128 apply(__float128 a,__float128 b){return FCT##q((int)a,b);} \
     static __uint64_t getHash(){return enum##FCT; }			\
-};									\
+  };									\
   extern "C"{								\
-    double FCT (int a, double b){					\
-      const char fctStr[]=#FCT;						\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2IntFP(fctStr, enum##FCT,1); \
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter2IntFP<double, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter2IntFP<double, enum##FCT ,1>();				\
-	}								\
-	return function2IntFPNameTab[enum##FCT].apply(a,b);			\
-      }else{								\
-	incCounter2IntFP<double, enum##FCT ,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction2IntFP<libmq##FCT,double> > Op; \
-	double res;							\
-	Op::apply(Op::PackArgs((double)a,b) ,&res,NULL);			\
-	return res;							\
-      }									\
-    }									\
-									\
-    float FCT##f (int a, float b){					\
-    const char fctStr[]=STRINGIFY(FCT##f);				\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2IntFP(fctStr, enum##FCT,0);\
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter2IntFP<float, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter2IntFP<float, enum##FCT ,1>();				\
-	}								\
-	return function2IntFPNameTab[enum##FCT].apply(a,b);			\
-      }else{								\
-	incCounter2IntFP<float, enum##FCT,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction2IntFP<libmq##FCT,float> > Op; \
-	float res;							\
-	Op::apply(Op::PackArgs((float)a,b) ,&res,NULL);			\
-	return res;							\
-      }									\
-}									\
-									\
-  long double FCT##l (int a, long double b){			\
-    incCounter2IntFP<long double, enum##FCT,1>();				\
-    return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+  double FCT (int a, double b){						\
+    const vr_packArg<double,2> p((double)a,b);				\
+    const char fctStr[]=#FCT;						\
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2IntFP(fctStr, enum##FCT,1); \
+    typedef instrumentFunction<double,2, libMathFunction2IntFP<libmq##FCT,double>, incCounter2IntFPClass, enum##FCT > inst; \
+    return inst::apply(function2IntFPNameTab, fctStr, isInstrumented, p);	\
+  };									\
+  float FCT##f (int a, float b){						\
+  const vr_packArg<float,2> p((float)a,b);					\
+  const char fctStr[]=STRINGIFY(FCT##f);				\
+  const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2IntFP(fctStr, enum##FCT,0); \
+  typedef instrumentFunction<float,2, libMathFunction2IntFP<libmq##FCT,float>, incCounter2IntFPClass, enum##FCT > inst; \
+  return inst::apply(function2IntFPNameTab, fctStr, isInstrumented, p);	\
   }									\
-};
+									\
+   long double FCT##l (int a, long double b){				\
+     incCounter2IntFP<long double, enum##FCT,1>();			\
+     return function2IntFPNameTab[enum##FCT].apply(a,b);		\
+   }									\
+   };
 
 
-#define DEFINE_INTERP_LIBM3_C_IMPL(FCT)				\
-  struct libmq##FCT{							\
-    static __float128 apply(__float128 a,__float128 b,__float128 c){return FCT##q(a,b,c);} \
-    static __uint64_t getHash(){return enum##FCT; }			\
-};									\
-  extern "C"{								\
-    double FCT (double a, double b, double c){					\
-      const char fctStr[]=#FCT;						\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,1); \
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter3<double, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter3<double, enum##FCT ,1>();				\
-	}								\
-	return function3NameTab[enum##FCT].apply(a,b,c);		\
-      }else{								\
-	incCounter3<double, enum##FCT ,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction3<libmq##FCT,double> > Op; \
-	double res;							\
-	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
-	return res;							\
-      }									\
-    }									\
-									\
-    float FCT##f (float a, float b, float c){					\
-    const char fctStr[]=STRINGIFY(FCT##f);				\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,0);\
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter3<float, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter3<float, enum##FCT ,1>();				\
-	}								\
-	return function3NameTab[enum##FCT].apply(a,b,c);			\
-      }else{								\
-	incCounter3<float, enum##FCT,0>();				\
-	typedef OpWithDynSelectedRoundingMode<libMathFunction3<libmq##FCT,float> > Op; \
-	float res;							\
-	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
-	return res;							\
-      }									\
-}									\
-									\
-    long double FCT##l (long double a, long double b, long double c){	\
-    incCounter3<long double, enum##FCT,1>();				\
-    return function3NameTab[enum##FCT].apply(a,b,c);			\
-  }									\
-};
+
 
 #define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)				\
   extern "C"{								\
     double FCT (double a, double b, double c){					\
+      const vr_packArg<double,3> p(a,b,c);				\
       const char fctStr[]=#FCT;						\
       const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,1); \
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter3<double, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter3<double, enum##FCT ,1>();				\
-	}								\
-	return function3NameTab[enum##FCT].apply(a,b,c);		\
-      }else{								\
-	incCounter3<double, enum##FCT ,0>();				\
-	typedef OpWithDynSelectedRoundingMode<MAddOp<double> > Op; \
-	double res;							\
-	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
-	return res;							\
-      }									\
+      typedef instrumentFunction<double,3, MAddOp<double>, incCounter3Class, enum##FCT > inst; \
+      return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
     }									\
 									\
-    float FCT##f (float a, float b, float c){					\
-    const char fctStr[]=STRINGIFY(FCT##f);				\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,0);\
-      if(ROUNDINGMODE==VR_NATIVE ||(!isInstrumented)){			\
-	if(isInstrumented){						\
-	  incCounter3<float, enum##FCT ,0>();				\
-	}else{								\
-	  incCounter3<float, enum##FCT ,1>();				\
-	}								\
-	return function3NameTab[enum##FCT].apply(a,b,c);			\
-      }else{								\
-	incCounter3<float, enum##FCT,0>();				\
-	typedef OpWithDynSelectedRoundingMode<MAddOp<float> > Op; \
-	float res;							\
-	Op::apply(Op::PackArgs(a,b,c) ,&res,NULL);			\
-	return res;							\
+    float FCT##f (float a, float b, float c){				\
+      const vr_packArg<float,3> p(a,b,c);				\
+      const char fctStr[]=STRINGIFY(FCT##f);				\
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,0); \
+      typedef instrumentFunction<float,3, MAddOp<float>, incCounter3Class, enum##FCT > inst; \
+      return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
       }									\
-}									\
 									\
     long double FCT##l (long double a, long double b, long double c){	\
     incCounter3<long double, enum##FCT,1>();				\
     return function3NameTab[enum##FCT].apply(a,b,c);			\
   }									\
 };
+
+
+
+
 
 
 //shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
@@ -1643,6 +1595,7 @@ void sincosl(long double x, long double* resSin, long double* resCos){
 void __attribute__((constructor)) init_interlibmath(){
   my_pid = getpid();
   ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING; // VR_NATIVE; //Default value
+  ROUNDINGMODE_NOINST = VERROU_GET_LIBM_ROUNDING_NO_INST;
 
 #ifdef INTERLIBM_STAND_ALONE
   struct timeval now;

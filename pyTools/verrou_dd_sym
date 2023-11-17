@@ -37,7 +37,7 @@ class DDsym(DD_stoch.DDStoch):
         DD_stoch.DDStoch.__init__(self, config)
 
     def referenceRunEnv(self):
-        return {"VERROU_ROUNDING_MODE": "nearest",
+        return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                          "VERROU_MCA_MODE": "ieee",
                          "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")}
 
@@ -48,7 +48,9 @@ class DDsym(DD_stoch.DDStoch):
         return "dd.sym"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
+        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+        }
 
     def coerce(self, delta_config):
         def transform(line):
@@ -64,14 +66,18 @@ class DDsym(DD_stoch.DDStoch):
         return line
 
 
+class ddSymConfig(dd_config.ddConfig):
 
+    def __init__(self, argv, environ,config_keys):
+        super().__init__(argv,environ,config_keys,prefix="dd.sym")
 
-
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
 
 if __name__ == "__main__":
-
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"],prefix="dd.sym")
+    config=ddSymConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDsym(config)
     dd.run()

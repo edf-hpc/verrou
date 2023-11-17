@@ -306,6 +306,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__GET_LIBM_ROUNDING:
      *ret=(UWord)vr.roundingMode;
      break;
+  case VR_USERREQ__GET_LIBM_ROUNDING_NO_INST:
+     *ret=(UWord)vr.roundingModeNoInst;
+     break;
 
   case VR_USERREQ__NAN_DETECTED:
      vr_handle_NaN();

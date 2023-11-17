@@ -125,7 +125,7 @@ class DDstdout(DD_stoch.DDStoch):
         refFile.write("begin:\n")
         refFile.close()
         res= {"PYTHONUNBUFFERED": "x",
-                "VERROU_ROUNDING_MODE": "nearest",
+                "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_MCA_MODE": "ieee",
                 "VERROU_EXPECT_CLR":refPath,
                 "VERROU_OUTPUT_EXPECT_REP":self.ref_
@@ -204,7 +204,8 @@ class DDstdout(DD_stoch.DDStoch):
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
              "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
-             "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%")
+             "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%"),
+             "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
         }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:
@@ -231,6 +232,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("expectHeaderFile", "string", "DD_EXPECT_HEADER",["--expect-header="], None, "file_exists")
         self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
         self.addRegistry("filePattern", "string", "DD_FILE_PATTERN",["--file-pattern="], None, None)
+        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
     def normalizeOptions(self):
         super().normalizeOptions()

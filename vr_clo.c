@@ -49,6 +49,7 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
 void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
+  vr.roundingModeNoInst = VR_NATIVE;
   vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
   vr.prandomFixedInitialValue=-1.;
   vr.count = True;
@@ -177,6 +178,11 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_NATIVE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
                          vr.roundingMode, VR_FTZ)) {}
+
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=nearest",
+                         vr.roundingModeNoInst, VR_NEAREST)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=native",
+                         vr.roundingModeNoInst, VR_NATIVE)) {}
 
   else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=func",
                          vr.prandomUpdate, VR_PRANDOM_UPDATE_FUNC)) {}

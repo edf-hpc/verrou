@@ -47,7 +47,7 @@ class DDline(DD_stoch.DDStoch):
                                   joinBlocAndNumLine)
 
     def referenceRunEnv(self):
-        return {"VERROU_ROUNDING_MODE": "nearest",
+        return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_MCA_MODE": "ieee",
                 "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.line.%p"),
                 "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")
@@ -61,7 +61,9 @@ class DDline(DD_stoch.DDStoch):
 
     def sampleRunEnv(self,dirName):
         return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include"),
-                "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".exclude")}
+                "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".exclude"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+        }
 
     def coerce(self, delta_config):
         return  "\n  " + "\n  ".join(["%s:%d (%s)" % e for e in
@@ -75,9 +77,18 @@ class DDline(DD_stoch.DDStoch):
             line=mangledName
         return line
 
+class ddlineConfig(dd_config.ddConfig):
 
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+        super().__init__(argv,environ,config_keys,prefix="dd.line")
+
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+
+    
 if __name__ == "__main__":
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"], prefix="dd.line")
+    config=ddlineConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDline(config)
     dd.run()

@@ -71,6 +71,7 @@ enum {
   VR_USERREQ__REGISTER_CACHE,
   VR_USERREQ__GET_SEED,
   VR_USERREQ__REGISTER_CACHE_SEED,
+  VR_USERREQ__GET_LIBM_ROUNDING_NO_INST,
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -130,7 +131,10 @@ enum {
   (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
                                                 VR_USERREQ__GET_LIBM_ROUNDING, \
 					    0, 0, 0, 0, 0)
-
+#define VERROU_GET_LIBM_ROUNDING_NO_INST \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_LIBM_ROUNDING_NO_INST, \
+					    0, 0, 0, 0, 0)
 #define VERROU_NAN_DETECTED \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__NAN_DETECTED,    \
                                   0, 0, 0, 0, 0)

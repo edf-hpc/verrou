@@ -145,6 +145,7 @@ struct Vr_IncludeSource_ {
 typedef struct {
   vr_backend_name_t backend;
   enum vr_RoundingMode roundingMode;
+  enum vr_RoundingMode roundingModeNoInst;
   Vr_Prandom_update prandomUpdate;
   double prandomFixedInitialValue;
   Bool count;

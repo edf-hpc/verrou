@@ -857,6 +857,33 @@ public:
 #include "vr_op.hxx"
 
 template<class OP>
+class OpWithNearestRoundingMode{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline void apply(const PackArgs& p, RealType* res, void* context){
+    *res=applySeq(p,context);
+#ifdef DEBUG_PRINT_OP
+    print_debug(p,res);
+#endif
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+  }
+  static inline RealType applySeq(const PackArgs& p, void* context){
+    return RoundingNearest<OP>::apply (p);
+  }
+};
+
+template<class OP>
 class OpWithDynSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
