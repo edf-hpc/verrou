@@ -63,8 +63,17 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p){
+#ifdef LIBM_DEBUG
+    WRITE_DEBUG("RoundingNearest 1\n");
+#endif
     const RealType res=OP::nearestOp(p) ;
+#ifdef LIBM_DEBUG
+    WRITE_DEBUG("RoundingNearest 2\n");
+#endif
     OP::check(p,res);
+#ifdef LIBM_DEBUG
+    WRITE_DEBUG("RoundingNearest 3\n");
+#endif
     return res;
   } ;
 
@@ -79,7 +88,7 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p){
-    vr_roundFloat<typename PackArgs::RealType, PackArgs::nb> roundedArgs (p);
+    vr_roundFloat<PackArgs> roundedArgs (p);
     const float res=(float) OP::nearestOp(roundedArgs.getPack()) ;
     return RealType(res);
   } ;
@@ -879,6 +888,9 @@ public:
 #endif
   }
   static inline RealType applySeq(const PackArgs& p, void* context){
+#ifdef LIBM_DEBUG
+    WRITE_DEBUG("applySeq 2\n");
+#endif
     return RoundingNearest<OP>::apply (p);
   }
 };

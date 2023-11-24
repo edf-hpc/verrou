@@ -144,6 +144,33 @@ struct vr_packArg<REALTYPE,2>{
 
 
 template<class REALTYPE>
+struct packargsIntReal{
+public:
+
+  static const int nb= 2;
+  typedef REALTYPE RealType;
+
+  inline packargsIntReal(const int& v1, const REALTYPE& v2):arg1(v1),arg2(v2)
+  {
+  };
+
+
+  inline void serialyzeDouble(double* res)const{
+    res[0]=(double)arg1;
+    res[1]=(double)arg2;
+  }
+
+  inline bool isOneArgNanInf()const{
+    return isNanInf<RealType>(arg2);
+  }
+
+  const int& arg1;
+  const RealType& arg2;
+};
+
+
+
+template<class REALTYPE>
 struct vr_packArg<REALTYPE,3>{
   static const int nb= 3;
   typedef REALTYPE RealType;
@@ -181,12 +208,13 @@ struct vr_packArg<REALTYPE,3>{
 
 #include <algorithm>
 
-template<class REALTYPE, int NB>
+template<class PACKARGS>
 struct vr_roundFloat;
 
 
+
 template<class REALTYPE>
-struct vr_roundFloat<REALTYPE, 1>{
+struct vr_roundFloat<vr_packArg<REALTYPE,1> >{
   vr_roundFloat(const vr_packArg<REALTYPE,1>& p): arg1(REALTYPE(float(p.arg1))){
   }
   inline vr_packArg<REALTYPE,1> getPack()const{
@@ -198,7 +226,7 @@ struct vr_roundFloat<REALTYPE, 1>{
 
 
 template<class REALTYPE>
-struct vr_roundFloat<REALTYPE, 2>{
+struct vr_roundFloat<vr_packArg<REALTYPE, 2> >{
   vr_roundFloat(const vr_packArg<REALTYPE,2>& p): arg1(REALTYPE(float(p.arg1 ))),
 						  arg2(REALTYPE(float(p.arg2 ))){
   }
@@ -210,7 +238,7 @@ struct vr_roundFloat<REALTYPE, 2>{
 };
 
 template<class REALTYPE>
-struct vr_roundFloat<REALTYPE, 3>{
+struct vr_roundFloat<vr_packArg<REALTYPE, 3> >{
   vr_roundFloat(const vr_packArg<REALTYPE,3>& p): arg1(REALTYPE(float(p.arg1 ))),
 						  arg2(REALTYPE(float(p.arg2 ))),
 						  arg3(REALTYPE(float(p.arg3 ))){
@@ -222,6 +250,21 @@ struct vr_roundFloat<REALTYPE, 3>{
   const REALTYPE arg2;
   const REALTYPE arg3;
 };
+
+
+template<class REALTYPE>
+struct vr_roundFloat<packargsIntReal<REALTYPE> >{
+  vr_roundFloat(const packargsIntReal<REALTYPE>& p):arg1(REALTYPE(p.arg1)),
+						    arg2(REALTYPE(float(p.arg2))){
+  }
+  inline packargsIntReal<REALTYPE> getPack()const{
+    return packargsIntReal<REALTYPE>(arg1,arg2);
+  }
+
+  const int arg1;
+  const REALTYPE arg2;
+};
+
 
 
 

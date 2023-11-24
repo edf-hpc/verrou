@@ -321,13 +321,13 @@ public:
   randScomBool(const Vr_Rand*& r):r_(r){
   }
 
-  template<class REALTYPE, int NB>
-  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+  template<class PACKARGS>
+  inline TypeOut hash(const PACKARGS& p, uint32_t opHash)const{
     return hashDet::hashBool(r_, p, opHash);
   }
 
-  template<class REALTYPE, int NB>
-  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+  template<class PACKARGS>
+  inline TypeOut hashBar(const PACKARGS& p, uint32_t opHash)const{
     return !hashDet::hashBool(r_, p,opHash);
   }
 };
@@ -346,14 +346,14 @@ public:
   }
 
 
-  template<class REALTYPE, int NB>
-  inline TypeOut hash(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+  template<class PACKARGS>
+  inline TypeOut hash(const PACKARGS& p, uint32_t opHash)const{
     return hashDet::hashRatio(r_, p, opHash);
   }
 
 
-  template<class REALTYPE, int NB>
-  inline TypeOut hashBar(const vr_packArg<REALTYPE,NB>& p, uint32_t opHash)const{
+  template<class PACKARGS>
+  inline TypeOut hashBar(const PACKARGS& p, uint32_t opHash)const{
     return 1.- hashDet::hashRatio(r_, p, opHash);
   }
 };

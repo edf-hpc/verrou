@@ -14,11 +14,11 @@
 #include "prng/xoshiro.cxx"
 #endif
 
-template<class REALTYPE, int NB>
+template<class PACKARGS>
 struct buffer_hash_op;
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,1>{
+struct __attribute__ ((__packed__)) buffer_hash_op<vr_packArg<REALTYPE,1> >{
   const REALTYPE arg1;
   const uint32_t op;
   buffer_hash_op(const vr_packArg<REALTYPE,1>& pack, uint32_t hashOp):
@@ -29,7 +29,7 @@ struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,1>{
 };
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,2>{
+struct __attribute__ ((__packed__)) buffer_hash_op<vr_packArg<REALTYPE,2> >{
   const REALTYPE arg1;
   const REALTYPE arg2;
   const uint32_t op;
@@ -42,7 +42,21 @@ struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,2>{
 };
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,3>{
+struct __attribute__ ((__packed__)) buffer_hash_op<packargsIntReal<REALTYPE> >{
+  const int arg1;
+  const REALTYPE arg2;
+  const uint32_t op;
+  buffer_hash_op(const packargsIntReal<REALTYPE>& pack, uint32_t hashOp):
+    arg1(pack.arg1),
+    arg2(pack.arg2),
+    op(hashOp)
+  {
+  }
+};
+
+
+template<class REALTYPE>
+struct __attribute__ ((__packed__)) buffer_hash_op<vr_packArg<REALTYPE,3> >{
   const REALTYPE arg1;
   const REALTYPE arg2;
   const REALTYPE arg3;
@@ -57,11 +71,11 @@ struct __attribute__ ((__packed__)) buffer_hash_op<REALTYPE,3>{
 };
 
 
-template<class REALTYPE, int NB>
+template<class PACKARGS>
 struct buffer_hash;
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash<REALTYPE,1>{
+struct __attribute__ ((__packed__)) buffer_hash<vr_packArg<REALTYPE,1> >{
   const REALTYPE arg1;
   buffer_hash(const vr_packArg<REALTYPE,1>& pack):
     arg1(pack.arg1)
@@ -70,7 +84,7 @@ struct __attribute__ ((__packed__)) buffer_hash<REALTYPE,1>{
 };
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash<REALTYPE,2>{
+struct __attribute__ ((__packed__)) buffer_hash<vr_packArg<REALTYPE,2> >{
   const REALTYPE arg1;
   const REALTYPE arg2;
   buffer_hash(const vr_packArg<REALTYPE,2>& pack):
@@ -81,7 +95,20 @@ struct __attribute__ ((__packed__)) buffer_hash<REALTYPE,2>{
 };
 
 template<class REALTYPE>
-struct __attribute__ ((__packed__)) buffer_hash<REALTYPE,3>{
+struct __attribute__ ((__packed__)) buffer_hash<packargsIntReal<REALTYPE> >{
+  const int arg1;
+  const REALTYPE arg2;
+  buffer_hash(const packargsIntReal<REALTYPE>& pack):
+    arg1(pack.arg1),
+    arg2(pack.arg2)
+  {
+  }
+};
+
+
+
+template<class REALTYPE>
+struct __attribute__ ((__packed__)) buffer_hash<vr_packArg<REALTYPE,3> >{
   const REALTYPE arg1;
   const REALTYPE arg2;
   const REALTYPE arg3;
@@ -102,43 +129,43 @@ public:
     update_pre_computed_bitflip(seed);
   };
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline bool hashBool(const Vr_Rand * r,
-			      const vr_packArg<REALTYPE,NB>& pack,
+			      const PACKARGS& pack,
 			      uint32_t hashOp){
     const uint64_t seed=vr_rand_getSeed(r);
 #ifndef USE_XXH3
-    const buffer_hash_op<REALTYPE,NB> buffer(pack,hashOp);
+    const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
     const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<REALTYPE,NB>), seed);
 #else
 #ifdef USE_SEED_OP
-    const buffer_hash<REALTYPE,NB> buffer(pack);
-    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed ^ hashOp);
+    const buffer_hash<PACKARGS> buffer(pack);
+    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash<PACKARGS>), seed ^ hashOp);
 #else
-    const buffer_hash_op<REALTYPE,NB> buffer(pack,hashOp);
-    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash_op<REALTYPE,NB>), seed);
+    const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
+    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash_op<PACKARGS>), seed);
 #endif
 #endif
 
     return (hashValue>>63);
   };
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline double hashRatio(const Vr_Rand * r,
-				 const vr_packArg<REALTYPE,NB>& pack,
+				 const PACKARGS& pack,
 				 uint32_t hashOp){
     const uint64_t seed=vr_rand_getSeed(r);
 
 #ifndef USE_XXH3
-    const buffer_hash_op<REALTYPE,NB> buffer(pack,hashOp);
-    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<REALTYPE,NB>), seed);
+    const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
+    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<PACK>), seed);
 #else
 #ifdef USE_SEED_OP
-    const buffer_hash<REALTYPE,NB> buffer(pack);
-    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash<REALTYPE,NB>), seed ^ hashOp);
+    const buffer_hash<PACKARGS> buffer(pack);
+    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)&buffer, sizeof(buffer_hash<PACKARGS>), seed ^ hashOp);
 #else
-    const buffer_hash_op<REALTYPE,NB> buffer(pack,hashOp);
-    const uint64_t hashValue = XXH3_64bits_withSeed( (const char*)&buffer, sizeof(buffer_hash_op<REALTYPE,NB>), seed);
+    const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
+    const uint64_t hashValue = XXH3_64bits_withSeed( (const char*)&buffer, sizeof(buffer_hash_op<PACKARGS>), seed);
 #endif
 #endif
     return xoshiro_uint64_to_double(hashValue);
