@@ -262,9 +262,10 @@ public:
   inline REALTYPE apply(const vr_packArg<REALTYPE,2>& p)const{
     return apply(p.arg1, p.arg2);
   }
+  inline float apply(float a, float b)const{ return real_name_float(a,b);}
   inline double apply(double a, double b)const{ return real_name_double(a,b);}
   inline long double apply(long double a, long double b)const{ return real_name_long_double(a,b);}
-  inline float apply(float a, float b)const{ return real_name_float(a,b);}
+
 
   inline void setCommutativity(bool value){
     commutativity_=value;
@@ -311,22 +312,18 @@ public:
   inline REALTYPE apply(const packargsIntReal<REALTYPE>& p)const{
     return apply(p.arg1, p.arg2);
   }
+  inline float apply(int a, float b)const            { return real_name_float(a,b);}
   inline double apply(int a, double b)const          { return real_name_double(a,b);}
   inline long double apply(int a, long double b)const{ return real_name_long_double(a,b);}
-  inline float apply(int a, float b)const            { return real_name_float(a,b);}
 
   void liberate(){ //Implemn to debug liberate
-    WRITE_DEBUG("liberate begin\n");
     dlclose(&real_name_float);
-    WRITE_DEBUG("liberate entre float double\n");
     dlclose(&real_name_double);
-    WRITE_DEBUG("liberate entre double long  double\n");
     dlclose(&real_name_long_double);
-    WRITE_DEBUG("liberate end\n");
   }
 
   //attribute
-  float (*real_name_float)(int,float) ;
+  float (*real_name_float)(int, float) ;
   double (*real_name_double)(int, double) ;
   long double (*real_name_long_double)(int, long double) ;
 };
@@ -340,8 +337,7 @@ public:
   myLibMathFunction3(const myLibMathFunction3& rhs):myLibMathGen(rhs),
 						    real_name_float(rhs.real_name_float),
 						    real_name_double(rhs.real_name_double),
-						    real_name_long_double(rhs.real_name_long_double){
-  }
+						    real_name_long_double(rhs.real_name_long_double){}
   ~myLibMathFunction3(){}
   void liberate(){}//Comment debuggy liberate
 
@@ -349,9 +345,9 @@ public:
   inline REALTYPE apply(const vr_packArg<REALTYPE,3>& p)const{
     return apply(p.arg1, p.arg2, p.arg3);
   }
+  inline float apply(float a, float b, float c)const{return real_name_float(a,b,c);}
   inline double apply(double a, double b, double c)const{ return real_name_double(a,b,c);}
   inline long double apply(long double a, long double b, long double c)const{return real_name_long_double(a,b,c);}
-  inline float apply(float a, float b, float c)const{return real_name_float(a,b,c);}
 
   //Attributs
   float (*real_name_float)(float,float,float) ;
@@ -485,7 +481,7 @@ size_t functionNameSize(size_t param){
 }
 
 
-//Avoid libc allocator : not sur it is required 
+//Avoid libc allocator : not sur it is required
 static char bufferLibM[8000];
 static size_t** data_=NULL;
 
@@ -513,10 +509,27 @@ public:
     data_[param][6*enumLibm + typeIndex*2 + instrumentStatus ]++;
   }
 
+  static void incInstrOff(size_t param, size_t enumLibm, size_t typeIndex){
+    inc(param, enumLibm, typeIndex, 1);
+  }
+
+  static void incInstrOn(size_t param, size_t enumLibm, size_t typeIndex){
+    inc(param, enumLibm, typeIndex, 0);
+  }
+
   static size_t getValue(size_t param, size_t enumLibm, size_t typeIndex, size_t instrumentStatus){
     return data_[param][6*enumLibm + typeIndex*2 + instrumentStatus ];
   }
 
+  static size_t getValueInstrOn(size_t param, size_t enumLibm, size_t typeIndex){
+    return getValue(param, enumLibm, typeIndex, 0);
+  }
+  static size_t getValueInstrOff(size_t param, size_t enumLibm, size_t typeIndex){
+    return getValue(param, enumLibm, typeIndex, 1);
+  }
+  static size_t getValueInstrTotal(size_t param, size_t enumLibm, size_t typeIndex){
+    return getValue(param, enumLibm, typeIndex, 0)+getValue(param, enumLibm, typeIndex, 1);
+  }
 };
 
 
@@ -630,43 +643,45 @@ void updateSeedCache(){
 #endif
 
 
+std::string getFunctionName(size_t nbParam, size_t index_function){
+  if(nbParam==oneReal){ return function1NameTab[index_function].name();}
+  if(nbParam==twoReal){ return function2NameTab[index_function].name();}
+  if(nbParam==intReal){ return function2IntFPNameTab[index_function].name();}
+  if(nbParam==threeReal){ return function3NameTab[index_function].name();}
+  if(nbParam==oneComplex){ return function1NameComplexTab[index_function].name();}
+  return std::string("unknown name");
+}
+
+int getLine(size_t nbParam, size_t index_function){
+  if(nbParam==oneReal){ return function1NameTab[index_function].getLine();}
+  if(nbParam==twoReal){ return function2NameTab[index_function].getLine();}
+  if(nbParam==intReal){ return function2IntFPNameTab[index_function].getLine();}
+  if(nbParam==threeReal){ return function3NameTab[index_function].getLine();}
+  if(nbParam==oneComplex){ return function1NameComplexTab[index_function].getLine();}
+  return 0;
+}
+
+
+
+
+
 #ifndef INTERLIBM_STAND_ALONE
 void generateExcludeSource(){
   for(size_t nbParam=0; nbParam <=enum_function_param_size; nbParam++){
     size_t paramSize= functionNameSize(nbParam);
 
     for(size_t i=0; i< paramSize;i++){
-      std::string functionName;
-      int line;
-      if(nbParam==oneReal){
-	functionName=function1NameTab[i].name();
-	line=function1NameTab[i].getLine();
-      }
-      if(nbParam==twoReal){
-	functionName=function2NameTab[i].name();
-	line=function2NameTab[i].getLine();
-      }
-      if(nbParam==intReal){
-	functionName=function2IntFPNameTab[i].name();
-	line=function2IntFPNameTab[i].getLine();
-      }
-      if(nbParam==threeReal){
-	functionName=function3NameTab[i].name();
-	line=function3NameTab[i].getLine();
-      }
-      if(nbParam==oneComplex){
-	functionName=function1NameComplexTab[i].name();
-	line=function1NameComplexTab[i].getLine();
-      }
+      std::string functionName(getFunctionName(nbParam,i));
+      int line(getLine(nbParam,i));
 
-      if( libMathCounter::getValue(nbParam,i,0,0)!=0){  //float
+      if( libMathCounter::getValueInstrOn(nbParam,i,0)!=0){  //float
 	std::string fctName=functionName+std::string("f");
 	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &line, fileName, libraryName);
       }
-      if(libMathCounter::getValue(nbParam,i,1,0)!=0){ //double
+      if(libMathCounter::getValueInstrOn(nbParam,i,1)!=0){ //double
 	VERROU_GENERATE_EXCLUDE_SOURCE(functionName.c_str(), &line, fileName, libraryName);
       }
-      if( libMathCounter::getValue(nbParam,i,2,0)!=0){//ldouble
+      if( libMathCounter::getValueInstrOn(nbParam,i,2)!=0){//ldouble
 	std::string fctName=functionName+std::string("l");
 	VERROU_GENERATE_EXCLUDE_SOURCE(fctName.c_str(), &line, fileName,libraryName);
       }
@@ -686,8 +701,8 @@ void printCounter(){
       size_t total=0;
       size_t totalInst=0;
       for(size_t j=0;j<3;j++){
-	total+=libMathCounter::getValue(nbParam,i,j,0)+libMathCounter::getValue(nbParam,i,j,1);
-	totalInst+=libMathCounter::getValue(nbParam,i,j,0);
+	total+=libMathCounter::getValueInstrTotal(nbParam,i,j);
+	totalInst+=libMathCounter::getValueInstrOn(nbParam,i,j);
       }
 
       if(total!=0){
@@ -695,44 +710,31 @@ void printCounter(){
 	std::cerr<<  "---------------------------------------------------"<<std::endl;
 	std::cerr << "=="<<my_pid<<"== ";
 
-	if(nbParam==oneReal){
-	  std::cerr<< function1NameTab[i].name();
-	}
-	if(nbParam==oneComplex){
-	  std::cerr<< function1NameComplexTab[i].name();
-	}
-	if(nbParam==twoReal){
-	  std::cerr<< function2NameTab[i].name();
-	}
-	if(nbParam==intReal){
-	  std::cerr<< function2IntFPNameTab[i].name();
-	}
-	if(nbParam==threeReal){
-	  std::cerr<< function3NameTab[i].name();
-	}
+	std::string functionName(getFunctionName(nbParam,i));
+	std::cerr<< functionName<<"\t\t" <<  total << "\t" << totalInst<<std::endl;
 
-
-	std::cerr<< "\t\t" <<  total << "\t" << totalInst<<std::endl;
-
-	size_t totalFloat=libMathCounter::getValue(nbParam,i,0,0)+libMathCounter::getValue(nbParam,i,0,1);
+	size_t indexFloat(realTypeIndex<float>::index);
+	size_t totalFloat(libMathCounter::getValueInstrTotal(nbParam,i,indexFloat));
 	if(totalFloat>0){
 	  std::cerr << "=="<<my_pid<<"== ";
 	  std::cerr<< " `-" " flt ";
-	  std::cerr<< "\t" <<  totalFloat  << "\t" << libMathCounter::getValue(nbParam,i,0,0)<<std::endl;
+	  std::cerr<< "\t" <<  totalFloat  << "\t" << libMathCounter::getValueInstrOn(nbParam,i, indexFloat)<<std::endl;
 	}
 
-	size_t totalDouble=libMathCounter::getValue(nbParam,i,1,0)+libMathCounter::getValue(nbParam,i,1,1);
+	const size_t indexDouble(realTypeIndex<double>::index);
+	const size_t totalDouble(libMathCounter::getValueInstrTotal(nbParam,i,indexDouble));
 	if(totalDouble>0){
 	  std::cerr << "=="<<my_pid<<"== ";
 	  std::cerr<< " `-" " dbl ";
-	  std::cerr<< "\t" <<  totalDouble  << "\t" << libMathCounter::getValue(nbParam,i,1,0)<<std::endl;
+	  std::cerr<< "\t" <<  totalDouble  << "\t" << libMathCounter::getValueInstrOn(nbParam,i, indexDouble)<<std::endl;
 	}
 
-	size_t totalLDouble= libMathCounter::getValue(nbParam,i,2,0)+libMathCounter::getValue(nbParam,i,2,1);
+	const size_t indexLDouble(realTypeIndex<long double>::index);
+	const size_t totalLDouble(libMathCounter::getValueInstrTotal(nbParam,i,indexLDouble));
 	if(totalLDouble){
 	  std::cerr << "=="<<my_pid<<"== ";
 	  std::cerr<< " `-" " lgd ";
-	  std::cerr<< "\t" << totalLDouble  << "\t" << libMathCounter::getValue(nbParam,i,2,0)<<std::endl;
+	  std::cerr<< "\t" << totalLDouble  << "\t" << libMathCounter::getValueInstrOn(nbParam,i,indexLDouble)<<std::endl;
 	}
       }
     }
@@ -752,7 +754,7 @@ public:
   typedef vr_packArg<RealType,1> PackArgs;
   static const bool sign_denorm_hack_needed=false;
 
-  static const char* OpName(){return "libmath ?";}
+  static const char* OpName(){return "libmath 1 param";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
 
   static inline RealType nearestOp (const PackArgs& p) {
@@ -825,22 +827,27 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
   static const bool sign_denorm_hack_needed=false;
 
-  static const char* OpName(){return "libmath ?";}
+  static const char* OpName(){return "libmath 2 param";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
 
   static inline RealType nearestOp (const PackArgs& p) {
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-
-    __float128 ref=LIBMQ::apply((__float128)a, (__float128)b);
+    const __float128  a(p.arg1);
+    const __float128  b(p.arg2);
+    __float128 ref=LIBMQ::apply(a,b);
+#ifndef INTERLIBM_STAND_ALONE
+    verrou_libm_res_ref=ref;
+#endif
     return (RealType)ref;
   };
 
-  static inline RealType error (const PackArgs& p, const RealType& z) {\
-    const RealType & a(p.arg1);
-    const RealType & b(p.arg2);
-
-    __float128 ref=LIBMQ::apply((__float128)a,(__float128)b);
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+#ifdef INTERLIBM_STAND_ALONE
+    const __float128 a(p.arg1);
+    const __float128 b(p.arg2);
+    __float128 ref=LIBMQ::apply(a,b);
+#else
+    __float128 ref=verrou_libm_res_ref;
+#endif
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -907,20 +914,27 @@ public:
   typedef packargsIntReal<REALTYPE> PackArgs;
   static const bool sign_denorm_hack_needed=false;
 
-  static const char* OpName(){return "libmath IntFP";}
+  static const char* OpName(){return "libmath Int+Fp param";}
   static inline uint32_t getHash(){return LIBMQ::getHash();}
 
   static inline RealType nearestOp (const PackArgs& p) {
     const int & a(p.arg1);
     const __float128  b(p.arg2);
     __float128 ref=LIBMQ::apply(a,b);
+#ifndef INTERLIBM_STAND_ALONE
+    verrou_libm_res_ref=ref;
+#endif
     return (RealType)ref;
   };
 
-  static inline RealType error (const PackArgs& p, const RealType& z) {\
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+#ifdef INTERLIBM_STAND_ALONE
     const int & a(p.arg1);
     const __float128  b(p.arg2);
     __float128 ref=LIBMQ::apply(a,b);
+#else
+    __float128 ref=verrou_libm_res_ref;
+#endif
     const __float128 error128=  ref -(__float128)z ;
     return (RealType)error128;
   };
@@ -946,64 +960,6 @@ public:
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
     const uint32_t hashOp(getHash());
     return r.hash(p,hashOp);
-  };
-
-};
-
-
-
-/*Warning no used : for fma we use MAddOp from vr_op.hxx : if you want to use it please pay attention to hash* methods */
-template<class LIBMQ, typename REALTYPE >
-class libMathFunction3{
-public:
-  typedef REALTYPE RealType;
-  typedef vr_packArg<RealType,3> PackArgs;
-  static const bool sign_denorm_hack_needed=false;
-
-  static const char* OpName(){return "libmath3";}
-  static inline uint32_t getHash(){return LIBMQ::getHash();}
-
-  static inline RealType nearestOp (const PackArgs& p) {
-    const __float128 a=p.arg1;
-    const __float128 b=p.arg2;
-    const __float128 c=p.arg3;
-    __float128 ref=LIBMQ::apply(a, b, c);
-    return (RealType)ref;
-  };
-
-  static inline RealType error (const PackArgs& p, const RealType& z) {\
-    const __float128 a=p.arg1;
-    const __float128 b=p.arg2;
-    const __float128 c=p.arg3;
-
-    __float128 ref=LIBMQ::apply(a, b, c);
-    const __float128 error128=  ref -(__float128)z ;
-    return (RealType)error128;
-  };
-
-  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
-    return error(p,c) ;
-  };
-
-  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
-    return p.isOneArgNanInf();
-  }
-
-  static inline void check(const PackArgs& p, const RealType& d){
-  };
-
-  template<class RANDCOM>
-  static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
-    const RealType pmin(std::min<RealType>(p.arg1,p.arg2));
-    const RealType pmax(std::max<RealType>(p.arg1,p.arg2));
-    const vr_packArg<RealType,3> pcom(pmin,pmax,p.arg3);
-    const uint32_t hashOp(getHash());
-    return r.hash(pcom,hashOp);
-  };
-
-  template<class RANDSCOM>
-  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
-    return hashCom(r,p);
   };
 
 };
@@ -1103,9 +1059,9 @@ public:
   template<class LIBMNAMETAB, class PACKARGS>
   static REALTYPE apply(const LIBMNAMETAB& functionNameTab,const char* fctStr, bool isInstrumented,  const PACKARGS& p){
     if(isInstrumented){
-      libMathCounter::inc(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index,0);
+      libMathCounter::incInstrOn(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index);
     }else{
-      libMathCounter::inc(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index,1);
+      libMathCounter::incInstrOff(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index);
     }
     if(ROUNDINGMODE==VR_NATIVE || (!(isInstrumented) && ROUNDINGMODE_NOINST==VR_NATIVE)){
       return functionNameTab[ENUM_LIBM].apply(p);
@@ -1136,7 +1092,7 @@ public:
   double FCT (double a){						\
     const char fctStr[]=STRINGIFY(FCT);					\
     const vr_packArg<double,1> p(a);					\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,1); \
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,realTypeIndex<double>::index); \
     typedef instrumentFunction<double,oneReal, libMathFunction1<libmq##FCT,double>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
@@ -1144,13 +1100,13 @@ public:
   float FCT##f (float a){						\
     char fctStr[]=STRINGIFY(FCT##f);					\
     const vr_packArg<float,1> p(a);					\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,0); \
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,realTypeIndex<float>::index); \
     typedef instrumentFunction<float,oneReal, libMathFunction1<libmq##FCT,float>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
 									\
   long double FCT##l (long double a){					\
-    libMathCounter::inc(oneReal,enum##FCT, realTypeIndex<long double>::index,1);\
+    libMathCounter::incInstrOff(oneReal,enum##FCT, realTypeIndex<long double>::index);\
     return function1NameTab[enum##FCT].apply(a);			\
   }									\
 };
@@ -1158,15 +1114,15 @@ public:
 #define DEFINE_INTERP_LIBM1_C_IMPL_UNINST(FCT)				\
   extern "C"{								\
     float FCT##f (float a){						\
-      libMathCounter::inc(oneReal,enum##FCT, realTypeIndex<float>::index,1); \
+      libMathCounter::incInstrOff(oneReal,enum##FCT, realTypeIndex<float>::index); \
       return function1NameTab[enum##FCT].apply(a);			\
     }									\
     double FCT (double a){						\
-      libMathCounter::inc(oneReal,enum##FCT, realTypeIndex<double>::index,1); \
+      libMathCounter::incInstrOff(oneReal,enum##FCT, realTypeIndex<double>::index); \
       return function1NameTab[enum##FCT].apply(a);			\
     }									\
     long double FCT##l (long double a){				\
-      libMathCounter::inc(oneReal,enum##FCT, realTypeIndex<long double>::index,1); \
+      libMathCounter::incInstrOff(oneReal,enum##FCT, realTypeIndex<long double>::index); \
       return function1NameTab[enum##FCT].apply(a);			\
     }									\
   };
@@ -1174,15 +1130,15 @@ public:
 #define DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(FCT)			\
   extern "C"{								\
     float _Complex FCT##f (float _Complex a){				\
-      libMathCounter::inc(oneComplex,enum##FCT, realTypeIndex<float>::index,1); \
+      libMathCounter::incInstrOff(oneComplex,enum##FCT, realTypeIndex<float>::index);\
       return function1NameComplexTab[enum##FCT].apply(a);		\
     }									\
     double _Complex FCT (double _Complex a){				\
-      libMathCounter::inc(oneComplex,enum##FCT, realTypeIndex<double>::index,1); \
+      libMathCounter::incInstrOff(oneComplex,enum##FCT, realTypeIndex<double>::index);\
       return function1NameComplexTab[enum##FCT].apply(a);		\
     }									\
     long double _Complex FCT##l (long double _Complex a){		\
-      libMathCounter::inc(oneComplex,enum##FCT, realTypeIndex<long double>::index,1); \
+      libMathCounter::incInstrOff(oneComplex,enum##FCT, realTypeIndex<long double>::index);\
       return function1NameComplexTab[enum##FCT].apply(a);		\
     }									\
   };
@@ -1199,7 +1155,7 @@ public:
     double FCT (double a, double b){					\
       const char fctStr[]=STRINGIFY(FCT);				\
       const vr_packArg<double,2> p(a,b);				\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2(fctStr, enum##FCT,1); \
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2(fctStr, enum##FCT,realTypeIndex<double>::index); \
       typedef instrumentFunction<double,twoReal, libMathFunction2<libmq##FCT,double>, enum##FCT > inst; \
       return inst::apply(function2NameTab, fctStr, isInstrumented, p);	\
     }									\
@@ -1207,46 +1163,42 @@ public:
     float FCT##f (float a, float b){					\
     const char fctStr[]=STRINGIFY(FCT##f);				\
       const vr_packArg<float,2> p(a,b);					\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,0); \
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2(fctStr, enum##FCT,realTypeIndex<float>::index); \
       typedef instrumentFunction<float,twoReal, libMathFunction2<libmq##FCT,float>, enum##FCT > inst; \
       return inst::apply(function2NameTab, fctStr, isInstrumented, p);	\
     }									\
 									\
     long double FCT##l (long double a, long double b){			\
-      libMathCounter::inc(twoReal,enum##FCT, realTypeIndex<long double>::index,1); \
+      libMathCounter::incInstrOff(twoReal,enum##FCT, realTypeIndex<long double>::index); \
       return function2NameTab[enum##FCT].apply(a,b);			\
     }									\
   };
 
 #define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)				\
   struct libmq##FCT{							\
-    static __float128 apply(int a,__float128 b){		       \
-      WRITE_DEBUG("befor FCTq\n");					\
-__float128 res=FCT##q(a,b);						\
-      WRITE_DEBUG("after FCTq\n");					\
-      return res;							\
+    static __float128 apply(int a,__float128 b){			\
+      return FCT##q(a,b);						\
     }									\
     static __uint64_t getHash(){return enum##FCT; }			\
   };									\
   extern "C"{								\
   double FCT (int a, double b){						\
-  WRITE_DEBUG("lib double 1\n");						\
-  const packargsIntReal<double> p((double)a,b);				\
+    const packargsIntReal<double> p(a,b);				\
     const char fctStr[]=#FCT;						\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2IntFP(fctStr, enum##FCT,1); \
+    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented2IntFP(fctStr, enum##FCT, realTypeIndex<double>::index); \
     typedef instrumentFunction<double,intReal, libMathFunction2IntFP<libmq##FCT,double>, enum##FCT > inst; \
     return inst::apply(function2IntFPNameTab, fctStr, isInstrumented, p);	\
   };									\
 float FCT##f (int a, float b){						\
-  const packargsIntReal<float> p((float)a,b);				\
+  const packargsIntReal<float> p(a,b);				\
   const char fctStr[]=STRINGIFY(FCT##f);				\
-  const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2IntFP(fctStr, enum##FCT,0); \
+  const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented2IntFP(fctStr, enum##FCT, realTypeIndex<float>::index); \
   typedef instrumentFunction<float,intReal, libMathFunction2IntFP<libmq##FCT,float>, enum##FCT > inst; \
   return inst::apply(function2IntFPNameTab, fctStr, isInstrumented, p);	\
   }									\
 									\
    long double FCT##l (int a, long double b){				\
-     libMathCounter::inc(intReal,enum##FCT, realTypeIndex<long double>::index,1); \
+     libMathCounter::incInstrOff(intReal,enum##FCT, realTypeIndex<long double>::index); \
      return function2IntFPNameTab[enum##FCT].apply(a,b);		\
    }									\
   };
@@ -1259,7 +1211,7 @@ float FCT##f (int a, float b){						\
     double FCT (double a, double b, double c){					\
       const vr_packArg<double,3> p(a,b,c);				\
       const char fctStr[]=#FCT;						\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,1); \
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,realTypeIndex<double>::index); \
       typedef instrumentFunction<double,threeReal, MAddOp<double>, enum##FCT > inst; \
       return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
     }									\
@@ -1267,13 +1219,13 @@ float FCT##f (int a, float b){						\
     float FCT##f (float a, float b, float c){				\
       const vr_packArg<float,3> p(a,b,c);				\
       const char fctStr[]=STRINGIFY(FCT##f);				\
-      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,0); \
+      const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,realTypeIndex<float>::index); \
       typedef instrumentFunction<float,threeReal, MAddOp<float>, enum##FCT > inst; \
       return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
       }									\
 									\
     long double FCT##l (long double a, long double b, long double c){	\
-     libMathCounter::inc(threeReal,enum##FCT, realTypeIndex<long double>::index,1); \
+     libMathCounter::incInstrOff(threeReal,enum##FCT, realTypeIndex<long double>::index); \
       return function3NameTab[enum##FCT].apply(a,b,c);			\
   }									\
 };
@@ -1585,8 +1537,6 @@ void __attribute__((constructor)) init_interlibmath(){
   VERROU_REGISTER_CACHE_SEED(cacheNeedSeedUpdate);
 #endif
 
-
-  WRITE_DEBUG("fini init\n");
 }
 
 
