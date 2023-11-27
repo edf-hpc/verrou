@@ -160,9 +160,7 @@ public:
   virtual ~myLibMathGen(){}
 
   void liberate(){
-    dlclose(&(static_cast<DERIVED*>(this)->real_name_float));
-    dlclose(&(static_cast<DERIVED*>(this)->real_name_double));
-    dlclose(&(static_cast<DERIVED*>(this)->real_name_long_double));
+    //nothing to do
   }
 
   inline const char* name()const{return name_;}
@@ -190,7 +188,6 @@ public:
   }
 
   ~myLibMathFunction1(){}
-  void liberate(){}//Comment debuggy liberate
 
   template<class REALTYPE>
   inline REALTYPE apply(const vr_packArg<REALTYPE,1>& p)const{
@@ -225,7 +222,6 @@ public:
   }
 
   ~myLibMathFunction1Complex(){}
-  void liberate(){}//Comment debuggy liberate
 
   template<class REALTYPE>
   inline REALTYPE apply(const vr_packArg<REALTYPE,1>& p)const{
@@ -256,7 +252,6 @@ public:
   }
 
   ~myLibMathFunction2(){}
-  void liberate(){}//Comment debuggy liberate
 
   template<class REALTYPE>
   inline REALTYPE apply(const vr_packArg<REALTYPE,2>& p)const{
@@ -316,12 +311,6 @@ public:
   inline double apply(int a, double b)const          { return real_name_double(a,b);}
   inline long double apply(int a, long double b)const{ return real_name_long_double(a,b);}
 
-  void liberate(){ //Implemn to debug liberate
-    dlclose(&real_name_float);
-    dlclose(&real_name_double);
-    dlclose(&real_name_long_double);
-  }
-
   //attribute
   float (*real_name_float)(int, float) ;
   double (*real_name_double)(int, double) ;
@@ -339,7 +328,6 @@ public:
 						    real_name_double(rhs.real_name_double),
 						    real_name_long_double(rhs.real_name_long_double){}
   ~myLibMathFunction3(){}
-  void liberate(){}//Comment debuggy liberate
 
   template<class REALTYPE>
   inline REALTYPE apply(const vr_packArg<REALTYPE,3>& p)const{
