@@ -275,6 +275,7 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     vr.firstSeed=args[1];
     VG_(umsg)("New seed : %llu\n", vr.firstSeed);
     verrou_set_seed (vr.firstSeed);
+    vr_clean_cache_seed();
 #ifdef USE_VERROU_QUAD
     mcaquad_set_seed(vr.firstSeed);
 #endif

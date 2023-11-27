@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <../verrou.h>
 
-int N = 100000;
+int N = 10000;
 
 
 template<class REALTYPE>

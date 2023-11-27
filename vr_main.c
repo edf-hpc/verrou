@@ -390,13 +390,15 @@ void vr_clean_cache(void){
    }
 }
 
-unsigned int* cacheSeed;
+unsigned int* cacheSeed=NULL;
 void vr_register_cache_seed(unsigned int* cache){
   cacheSeed=cache;
 }
 
 void vr_clean_cache_seed(){
-  *cacheSeed=0;
+  if(cacheSeed!=NULL){
+    *cacheSeed=0;
+  }
 }
   
 

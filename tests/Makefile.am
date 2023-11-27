@@ -30,8 +30,9 @@ naninf_SOURCES = naninf.cxx
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx
 
-check_PROGRAMS += test_det
+check_PROGRAMS += test_det test_libm
 test_det_SOURCES = test_det.cxx
+test_libm_SOURCES = test_libm.cxx
 
 AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3 -fno-builtin
 AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -fno-builtin
