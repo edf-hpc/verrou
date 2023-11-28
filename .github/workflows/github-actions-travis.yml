@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get -qq update; sudo apt-get install -y libc-dbg python3-numpy python3-matplotlib texlive-latex-extra texlive-fonts-recommended dvipng cm-super
 
       - name: Download valgrind
-        run: export VALGRIND_VERSION=VALGRIND_3_21_0; make -f travis.mk download-valgrind
+        run: export VALGRIND_VERSION=VALGRIND_3_22_0; make -f travis.mk download-valgrind
 
       - name: Patch valgrind
         run: make -f travis.mk patch-valgrind || make -f travis.mk patch-error

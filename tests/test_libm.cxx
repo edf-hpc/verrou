@@ -224,7 +224,6 @@ void checkLibM(){
     functorFmaInstrinsic<REALTYPE> fmaI(0.1,0.1,0.1);
     functorFma<REALTYPE> fmaLibm(-0.1,-0.1,0.1);
     REALTYPE resDiff=loopMaxAbs<REALTYPE>::diff(fmaI, fmaLibm, loopNumber);
-    REALTYPE resError=resDiff /(REALTYPE)0.1;
     std::cout << "fma: max diff ="<< resDiff<<std::endl;
   }
 }
