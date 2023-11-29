@@ -9,6 +9,7 @@ static VG_REGPARM(3) Int vr_verroucast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+#ifdef USE_VERROU_QUAD
 // generation of operation cast backend mcaquad
 
 
@@ -19,6 +20,7 @@ static VG_REGPARM(3) Int vr_mcaquadcast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+#endif //USE_VERROU_QUAD
 // generation of operation cast backend checkdenorm
 
 
@@ -1771,6 +1773,7 @@ static VG_REGPARM(3) void vr_verroudiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULo
 }
 
 
+#ifdef USE_VERROU_QUAD
 // generation of operation add backend mcaquad
 
 
@@ -2027,6 +2030,7 @@ static VG_REGPARM(3) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output, ULong aHi, UL
 }
 
 
+#endif //USE_VERROU_QUAD
 // generation of operation add backend checkdenorm
 
 
@@ -7573,6 +7577,7 @@ static VG_REGPARM(3) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* outpu
 }
 
 
+#ifdef USE_VERROU_QUAD
 // generation of operation add backend mcaquad
 
 
@@ -7715,6 +7720,7 @@ static VG_REGPARM(3) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* outp
 }
 
 
+#endif //USE_VERROU_QUAD
 // generation of operation add backend checkdenorm
 
 
@@ -7919,6 +7925,7 @@ static VG_REGPARM(3) Int vr_verroumsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+#ifdef USE_VERROU_QUAD
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquadmadd64F (Long a, Long b, Long c) {
@@ -7981,6 +7988,7 @@ static VG_REGPARM(3) Int vr_mcaquadmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+#endif //USE_VERROU_QUAD
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenormmadd64F (Long a, Long b, Long c) {
@@ -8109,6 +8117,7 @@ static VG_REGPARM(3) Int vr_verroucheckcancellationmsub32F (Long a, Long b, Long
   Int *d = (Int*)(&res);
   return *d;
 }
+#ifdef USE_VERROU_QUAD
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquadcheckcancellationmadd64F (Long a, Long b, Long c) {
@@ -8175,6 +8184,7 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellationmsub32F (Long a, Long b, Lon
   Int *d = (Int*)(&res);
   return *d;
 }
+#endif //USE_VERROU_QUAD
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenormcheckcancellationmadd64F (Long a, Long b, Long c) {

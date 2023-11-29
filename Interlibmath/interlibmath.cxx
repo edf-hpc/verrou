@@ -10,7 +10,10 @@
 #include <cstdlib>
 
 #include <float.h>
+
+#ifdef USE_VERROU_QUAD
 #include <quadmath.h>
+#endif
 
 #define LIBM_DEBUG
 #define WRITE_DEBUG(STR) write(0, STR, sizeof(STR));
@@ -729,6 +732,7 @@ void printCounter(){
   }
 }
 
+#ifdef USE_VERROU_QUAD
 
 #ifndef INTERLIBM_STAND_ALONE
 static __float128 verrou_libm_res_ref=0.;
@@ -951,6 +955,7 @@ public:
   };
 
 };
+#endif //USE_VERROU_QUAD
 
 
 #ifdef INTERLIBM_STAND_ALONE
@@ -1162,6 +1167,23 @@ public:
     }									\
   };
 
+#define DEFINE_INTERP_LIBM2_C_IMPL_UNINST(FCT)				\
+  extern "C"{								\
+    float FCT##f (float a, float b){					\
+      libMathCounter::incInstrOff(twoReal, enum##FCT, realTypeIndex<float>::index);\
+      return function2NameTab[enum##FCT].apply(a,b);			\
+    }									\
+    double  FCT (double a, double b){					\
+      libMathCounter::incInstrOff(twoReal, enum##FCT, realTypeIndex<double>::index);\
+      return function2NameTab[enum##FCT].apply(a,b);			\
+    }									\
+    long double FCT##l (long double a, long double b){			\
+      libMathCounter::incInstrOff(twoReal, enum##FCT, realTypeIndex<long double>::index);\
+      return function2NameTab[enum##FCT].apply(a,b);			\
+    }									\
+  };
+
+
 #define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)				\
   struct libmq##FCT{							\
     static __float128 apply(int a,__float128 b){			\
@@ -1189,6 +1211,22 @@ float FCT##f (int a, float b){						\
      libMathCounter::incInstrOff(intReal,enum##FCT, realTypeIndex<long double>::index); \
      return function2IntFPNameTab[enum##FCT].apply(a,b);		\
    }									\
+  };
+
+#define DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(FCT)				\
+  extern "C"{								\
+    float FCT##f (int a, float b){					\
+      libMathCounter::incInstrOff(intReal, enum##FCT, realTypeIndex<float>::index);\
+      return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+    }									\
+    double  FCT (int a, double b){					\
+      libMathCounter::incInstrOff(intReal, enum##FCT, realTypeIndex<double>::index);\
+      return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+    }									\
+    long double FCT##l (int a, long double b){			\
+      libMathCounter::incInstrOff(intReal, enum##FCT, realTypeIndex<long double>::index);\
+      return function2IntFPNameTab[enum##FCT].apply(a,b);			\
+    }									\
   };
 
 
@@ -1224,6 +1262,7 @@ float FCT##f (int a, float b){						\
 
 
 //shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
+#ifdef USE_VERROU_QUAD
  DEFINE_INTERP_LIBM1_C_IMPL(acos);
  DEFINE_INTERP_LIBM1_C_IMPL(acosh);
  DEFINE_INTERP_LIBM1_C_IMPL(asin);
@@ -1233,8 +1272,6 @@ float FCT##f (int a, float b){						\
  DEFINE_INTERP_LIBM1_C_IMPL(cbrt);
  DEFINE_INTERP_LIBM1_C_IMPL(erf);
  DEFINE_INTERP_LIBM1_C_IMPL(exp);
- DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp2);
- DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp10);
  DEFINE_INTERP_LIBM1_C_IMPL(expm1);
  DEFINE_INTERP_LIBM1_C_IMPL(log);
  DEFINE_INTERP_LIBM1_C_IMPL(log10);
@@ -1253,7 +1290,40 @@ float FCT##f (int a, float b){						\
  DEFINE_INTERP_LIBM1_C_IMPL(j1);
  DEFINE_INTERP_LIBM1_C_IMPL(y0);
  DEFINE_INTERP_LIBM1_C_IMPL(y1);
+#else
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(acos);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(acosh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(asin);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(asinh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(atan);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(atanh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(cbrt);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(erf);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(expm1);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(log);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(log10);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(log1p);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(log2);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(tgamma);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(lgamma);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(sin);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(sinh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(cos);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(cosh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(sqrt);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(tan);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(tanh);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(j0);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(j1);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(y0);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(y1);
+#endif
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp2);
+ DEFINE_INTERP_LIBM1_C_IMPL_UNINST(exp10);
 #undef DEFINE_INTERP_LIBM1_C_IMPL
+#undef DEFINE_INTERP_LIBM1_C_IMPL_UNINST
+
 
 //shell for i in $LIST1COMPLEX ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX($i);"; done;
  DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(cexp);
@@ -1274,16 +1344,32 @@ float FCT##f (int a, float b){						\
  DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX(catanh);
 #undef DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX
 
+
+#ifdef USE_VERROU_QUAD
 DEFINE_INTERP_LIBM2_C_IMPL(atan2);
 DEFINE_INTERP_LIBM2_C_IMPL(hypot);
 DEFINE_INTERP_LIBM2_C_IMPL(pow);
 DEFINE_INTERP_LIBM2_C_IMPL(fdim);
-#undef DEFINE_INTERP_LIBM2_C_IMPL
+#else
+DEFINE_INTERP_LIBM2_C_IMPL_UNINST(atan2);
+DEFINE_INTERP_LIBM2_C_IMPL_UNINST(hypot);
+DEFINE_INTERP_LIBM2_C_IMPL_UNINST(pow);
+DEFINE_INTERP_LIBM2_C_IMPL_UNINST(fdim);
+#endif
 
+#undef DEFINE_INTERP_LIBM2_C_IMPL
+#undef DEFINE_INTERP_LIBM2_C_IMPL_UNINST
+
+#ifdef USE_VERROU_QUAD
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(yn);
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(jn);
+#else
+DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(yn);
+DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(jn);
+#endif
 
 #undef DEFINE_INTERP_LIBM2INTFP_C_IMPL
+#undef DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST
 
 DEFINE_INTERP_LIBM3_FMA_C_IMPL(fma);
 #undef DEFINE_INTERP_LIB3_FMA_C_IMPL

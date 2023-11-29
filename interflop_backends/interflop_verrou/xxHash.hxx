@@ -1,7 +1,9 @@
 #pragma once
 
-
+#if !defined(VGA_arm64)
 #define USE_XXH3
+#endif
+
 #define USE_SEED_OP
 
 #ifndef USE_XXH3
@@ -125,8 +127,10 @@ public:
   typedef vr_xxhash_hash xxHash;
 
   static inline void genTable(tinymt64_t& gen){
+#ifdef USE_XXH3
     const uint64_t seed=tinymt64_generate_uint64(&gen);
     update_pre_computed_bitflip(seed);
+#endif
   };
 
   template<class PACKARGS>
@@ -136,7 +140,7 @@ public:
     const uint64_t seed=vr_rand_getSeed(r);
 #ifndef USE_XXH3
     const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
-    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<REALTYPE,NB>), seed);
+    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<PACKARGS>), seed);
 #else
 #ifdef USE_SEED_OP
     const buffer_hash<PACKARGS> buffer(pack);
@@ -158,7 +162,7 @@ public:
 
 #ifndef USE_XXH3
     const buffer_hash_op<PACKARGS> buffer(pack,hashOp);
-    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<PACK>), seed);
+    const uint64_t hashValue = xxh64::hash((const char*)&buffer, sizeof(buffer_hash_op<PACKARGS>), seed);
 #else
 #ifdef USE_SEED_OP
     const buffer_hash<PACKARGS> buffer(pack);
@@ -177,7 +181,7 @@ public:
 
 #ifndef USE_XXH3
     const uint64_t seed=vr_rand_getSeed(r);
-    const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(REALTYPE), seed);
+    const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(double), seed);
 #else
     const uint64_t hashValue=XXH3_64bits_withSeed_with_precomputedbitflip(res);
     //    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
@@ -189,7 +193,7 @@ public:
 					   const float* res){
 #ifndef USE_XXH3
     const uint64_t seed=vr_rand_getSeed(r);
-    const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(REALTYPE), seed);
+    const uint64_t hashValue = xxh64::hash((const char*)res, sizeof(float), seed);
 #else
     //    const uint64_t hashValue =  XXH3_64bits_withSeed((const char*)res, sizeof(REALTYPE), seed);
     const uint64_t hashValue=XXH3_64bits_withSeed_with_precomputedbitflip(res);

@@ -34,6 +34,11 @@ check_PROGRAMS += test_det test_libm
 test_det_SOURCES = test_det.cxx
 test_libm_SOURCES = test_libm.cxx
 
-AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3 -fno-builtin -mno-avx512f
-AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -fno-builtin -mno-avx512f
+
+VERROU_FLAG = -O0 -g3 -fno-builtin -mno-avx512f
+if HAVE_FMA_INTRIN
+VERROU_FLAG += -march=native -mfma -DUSE_VERROU_FMA
+endif
+AM_CFLAGS   += $(AM_FLAG_M3264_PRI)  $(VERROU_FLAG)
+AM_CXXFLAGS += $(AM_FLAG_M3264_PRI)  -std=c++11 $(VERROU_FLAG)
 LDADD  =  -lm
