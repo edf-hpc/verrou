@@ -5,9 +5,9 @@ public:
   typedef vr_mersenne_twister_hash mersenneHash;
   static inline void genTable(tinymt64_t& gen){};
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline bool hashBool(const Vr_Rand * r,
-			      const vr_packArg<REALTYPE,NB>& pack,
+			      const PACKARGS& pack,
 			      uint32_t hashOp){
     uint64_t seed=vr_rand_getSeed(r);
     tinymt64_t localGen;
@@ -16,9 +16,9 @@ public:
     return (res>>31);
   };
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline double hashRatio(const Vr_Rand * r,
-				 const vr_packArg<REALTYPE,NB>& pack,
+				 const PACKARGS& pack,
 				 uint32_t hashOp){
     uint64_t seed=vr_rand_getSeed(r);
     tinymt64_t localGen;
@@ -55,6 +55,16 @@ private:
 			    uint64_t seed){
     const uint64_t keys[2]={seed,
 			    realToUint64_reinterpret_cast<REALTYPE>(pack.arg1)
+    };
+    tinymt64_init_by_array(&gen, keys, 2);
+  };
+
+  template<class REALTYPE>
+  static inline void setGen(tinymt64_t& gen,
+			    const packargsIntReal<REALTYPE>& pack,
+			    uint64_t seed){
+    const uint64_t keys[2]={seed,
+			    realToUint64_reinterpret_cast<REALTYPE>(pack.arg2)
     };
     tinymt64_init_by_array(&gen, keys, 2);
   };

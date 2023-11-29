@@ -12,17 +12,17 @@ static uint32_t hashTableOp[2][256];
 class vr_tabulation_hash{
 public:
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline bool hashBool(__attribute__((unused)) const Vr_Rand * r,
-			      const vr_packArg<REALTYPE,NB>& pack,
+			      const PACKARGS& pack,
 			      uint32_t hashOp){
     const uint32_t v=vr_tabulation_hash::hash(pack,hashOp);
     return v&1;
   }
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline double hashRatio(__attribute__((unused)) const Vr_Rand * r,
-				 const vr_packArg<REALTYPE,NB>& pack,
+				 const PACKARGS& pack,
 				 uint32_t hashOp){
     const uint32_t v=vr_tabulation_hash::hash(pack,hashOp);
     constexpr double invMax=(1./ 4294967296.);
@@ -48,6 +48,25 @@ public:
     return res;
   }
 
+  static inline uint32_t hash(const packargsIntReal<double>& pack,
+			      uint32_t hashOp){
+    uint32_t res=0;
+    vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
+    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg2);
+    vr_tabulation_hash::hash_aux(res, 0, a1);
+    return res;
+  }
+
+  static inline uint32_t hash(const packargsIntReal<float>& pack,
+			      uint32_t hashOp){
+    uint32_t res=0;
+    vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
+    uint32_t a1=realToUint32_reinterpret_cast(pack.arg2);
+    vr_tabulation_hash::hash_aux(res, 0, a1);
+    return res;
+  }
+
+  
 
   static inline uint32_t hash(const vr_packArg<double,2>& pack,
 			      uint32_t hashOp){
@@ -314,9 +333,9 @@ public:
     vr_tabulation_hash::genTable(gen);
   }
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline  bool hashBool(__attribute__((unused)) const Vr_Rand * r,
-			       const vr_packArg<REALTYPE,NB>& pack,
+			       const PACKARGS& pack,
 			       uint32_t hashOp){
     const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
@@ -324,9 +343,9 @@ public:
     return res&1;
   }
 
-  template<class REALTYPE, int NB>
+  template<class PACKARGS>
   static inline double hashRatio(__attribute__((unused)) const Vr_Rand * r,
-				 const vr_packArg<REALTYPE,NB>& pack,
+				 const PACKARGS& pack,
 				 uint32_t hashOp){
     const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
