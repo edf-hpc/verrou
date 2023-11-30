@@ -1056,19 +1056,26 @@ public:
     }else{
       libMathCounter::incInstrOff(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index);
     }
-    if(ROUNDINGMODE==VR_NATIVE || (!(isInstrumented) && ROUNDINGMODE_NOINST==VR_NATIVE)){
-      return functionNameTab[ENUM_LIBM].apply(p);
-    }
-    if(ROUNDINGMODE==VR_NEAREST || (!(isInstrumented) && ROUNDINGMODE_NOINST==VR_NEAREST)){
-      typedef OpWithNearestRoundingMode<LIBMQ > Op;
+    if(!isInstrumented){
+      if(ROUNDINGMODE_NOINST==VR_NATIVE){
+	return functionNameTab[ENUM_LIBM].apply(p);
+      }
+      if(ROUNDINGMODE_NOINST==VR_NEAREST){
+	typedef OpWithNearestRoundingMode<LIBMQ > Op;
+	REALTYPE res;
+	Op::apply(p,&res,NULL);
+	return res;
+      }
+      return std::nan("");
+    }else{
+      if(ROUNDINGMODE==VR_NATIVE){
+	return functionNameTab[ENUM_LIBM].apply(p);
+      }
+      typedef OpWithDynSelectedRoundingMode<LIBMQ > Op;
       REALTYPE res;
       Op::apply(p,&res,NULL);
       return res;
     }
-    typedef OpWithDynSelectedRoundingMode<LIBMQ > Op;
-    REALTYPE res;
-    Op::apply(p,&res,NULL);
-    return res;
   }
 };
 

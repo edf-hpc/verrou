@@ -1,4 +1,4 @@
-SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-synchro ddStdOut
+SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-synchro ddStdOut ddLibm
 
 .PHONY: valgrind-test
 
