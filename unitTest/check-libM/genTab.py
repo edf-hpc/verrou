@@ -19,8 +19,13 @@ def computeEvalError(dataNative, data):
     res={}
     for key in dataNative.keys():
         resIEEE=float(dataNative[key][0])
-        evalError=  - math.log2(max(abs(data[key][1] - resIEEE),
-                                    abs(data[key][0] - resIEEE)) / resIEEE)
+
+        maxRelativeDiff=max(abs(data[key][1] - resIEEE),
+                                    abs(data[key][0] - resIEEE)) / resIEEE
+        if maxRelativeDiff!=0.:
+            evalError=  - math.log2(maxRelativeDiff)
+        else:
+            evalError=math.inf
         res[key]=evalError
     return res
 
@@ -92,7 +97,8 @@ def main(reference=None):
     output.write(r"\bottomrule"+"\n")
     output.write(r"\end{tabular}"+"\n")
     output.write(r"\end{center}" +" \n")
-    output.write(r"\caption{Number of significant bits for 4~implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
+#    output.write(r"\caption{Number of significant bits for 4~implementations of function $f(a, a+6.ulp(a))$, as assessed by 3~techniques.}"+"\n")
+    output.write(r"\caption{Number of significant bits for 4~implementations of function $f(a, a+6.\epsilon)$, as assessed by 3~techniques.}"+"\n")
     output.write(r"\label{sdAster}"+"\n")
     output.write(r"\end{table}"+"\n")
 

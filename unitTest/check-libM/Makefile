@@ -33,6 +33,9 @@ $(INTERLIBMREP)/interlibmath.so:
 resNative.dat: $(BIN)
 	$(BIN) > $@
 
+
+bin.ex: $(BIN)
+	echo "* $(shell readlink -f $(BIN))" > bin.ex
 #libm.ex: $(BIN)
 #	ldd $(BIN)             |grep libm.so     |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" > libm.ex
 #	ldd $(INTERLIBMREP)/interlibmath.so |grep libquadmath |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
@@ -41,11 +44,18 @@ resNative.dat: $(BIN)
 resRandomverrou.dat: $(BIN)# libm.ex
 	$(VALGRIND) --rounding-mode=random $(BIN) $(NUMSAMPLEIN) > $@
 
-resRandominterlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so
-	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so  VERROU_LIBM_ROUNDING_MODE=random  $(BIN) $(NUMSAMPLEIN) > $@
+#resRandominterlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so
+#	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so  VERROU_LIBM_ROUNDING_MODE=random  $(BIN) $(NUMSAMPLEIN) > $@
+
+resRandominterlibm.dat: $(BIN) bin.ex
+	$(VALGRIND) --rounding-mode=random --exclude=bin.ex --libm=instrumented $(BIN) $(NUMSAMPLEIN) > $@
+
+
 
 resRandomverrou+interlibm.dat: $(BIN)
 	VERROU_ROUNDING_MODE=random $(VALGRIND) --libm=instrumented $(BIN) $(NUMSAMPLEIN) > $@
+
+
 
 reference.dat:
 	$(BIN) -1 > $@
