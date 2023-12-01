@@ -3,7 +3,7 @@
 #include <math.h>
 #include <iostream>
 
-#define    USE_VERROU_FMA
+
 #include "../interflop_backends/interflop_verrou/vr_fma.hxx"
 
 int main (int argc, char **argv) {
@@ -24,7 +24,11 @@ int main (int argc, char **argv) {
    std::cout << "after axb" << std::endl;
    double cf=af*bf;
    std::cout << "after afxbf" << std::endl;
+#ifdef    USE_VERROU_FMA
    double cfma=vr_fma(a1,a2,a3);
+#else
+   double cfma=fma(a1,a2,a3);
+#endif
    printf("c: %e\n", c);
    printf("cf: %e\n", cf);
    printf("cfma: %e\n",cfma );

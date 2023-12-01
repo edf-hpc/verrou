@@ -35,7 +35,7 @@ test_det_SOURCES = test_det.cxx
 test_libm_SOURCES = test_libm.cxx
 
 
-VERROU_FLAG = -O0 -g3 -fno-builtin -mno-avx512f
+VERROU_FLAG = -O0 -g3 -fno-builtin @vg_test_no_avx512f_flag@
 if HAVE_FMA_INTRIN
 VERROU_FLAG += -march=native -mfma -DUSE_VERROU_FMA
 endif

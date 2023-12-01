@@ -6,8 +6,8 @@
 #include <../verrou.h>
 #include <iomanip>
 
-#include  <immintrin.h>
-#include  <fmaintrin.h>
+#include "../interflop_backends/interflop_verrou/vr_fma.hxx"
+
 
 size_t loopNumber=16;
 
@@ -114,7 +114,7 @@ struct functorAtan2{
   };
 };
 
-
+#ifdef    USE_VERROU_FMA
 //want to test the equivalence between hardware and libm fma
 template<class REALTYPE>
 struct functorFmaInstrinsic{
@@ -124,31 +124,10 @@ struct functorFmaInstrinsic{
   functorFmaInstrinsic(REALTYPE input1, REALTYPE input2, REALTYPE input3):_input1(input1),_input2(input2),_input3(input3){}
 
   REALTYPE operator()()const{
-    return apply(_input1,_input2,_input3);
+    return vr_fma<REALTYPE>(_input1,_input2,_input3);
   };
-
-  float apply(float a, float b, float c)const{
-    float d;
-    __m128 ai, bi,ci,di;
-    ai = _mm_load_ss(&a);
-    bi = _mm_load_ss(&b);
-    ci = _mm_load_ss(&c);
-    di=_mm_fmadd_ss(ai,bi,ci);
-    d=_mm_cvtss_f32(di);
-    return d;
-  }
-
-  double apply(double a, double b, double c)const{
-    double d;
-    __m128d ai, bi,ci,di;
-    ai = _mm_load_sd(&a);
-    bi = _mm_load_sd(&b);
-    ci = _mm_load_sd(&c);
-    di=_mm_fmadd_sd(ai,bi,ci);
-    d=_mm_cvtsd_f64(di);
-    return d;
-  }
 };
+#endif
 
 template<class REALTYPE>
 struct functorFma{
@@ -221,7 +200,11 @@ void checkLibM(){
   }
 
   {
+#ifdef USE_VERROU_FMA
     functorFmaInstrinsic<REALTYPE> fmaI(0.1,0.1,0.1);
+#else
+    functorFma<REALTYPE> fmaI(0.1,0.1,0.1);
+#endif
     functorFma<REALTYPE> fmaLibm(-0.1,-0.1,0.1);
     REALTYPE resDiff=loopMaxAbs<REALTYPE>::diff(fmaI, fmaLibm, loopNumber);
     std::cout << "fma: max diff ="<< resDiff<<std::endl;
