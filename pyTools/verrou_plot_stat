@@ -45,16 +45,19 @@ roundingDetTab=rounding_tool.roundingDetTab
 roundingNonDetTab=rounding_tool.roundingNonDetTab
 
 
-def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None):
+def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None, fullAsync=True):
+    if maxNbPROC in [None,1]:
+        fullAsync=False
+
     if not os.path.exists(rep):
         os.mkdir(rep)
     listOfStat=copy.deepcopy(listOfConfigStat)
     if not ref in listOfConfigStat and rounding_tool.isValidRounding(ref):
         listOfStat[ref]=1
 
+    taskTab=[]
     for roundingMode in listOfStat:
         nbSample=listOfStat[roundingMode]
-
         seedTab=None
         if seed!=None:
             import random
@@ -77,18 +80,13 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed
         refDir=None
         script_cmp=None
 
-        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, envvars , verbose=True, seedTab=seedTab)
-        task.run(earlyExit=False)
-
-
-def run(dicParam):
-    print(dicParam["repName"], "begin")
-    subProcessRun=runCmdAsync([dicParam["script_run"], dicParam["repName"]],
-                              dicParam["output_prefix"],
-                              dicParam["env"])
-    getResult(subProcessRun)
-    print(dicParam["repName"],"end")
-
+        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab)
+        if fullAsync:
+            taskTab+=[task]
+        else:
+            task.run(earlyExit=False)
+    if fullAsync:
+        DD_stoch.runMultipleVerrouTask(taskTab,  maxNbPROC)
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
@@ -523,7 +521,7 @@ class config_stat(gen_config.gen_config):
 
     def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
-        self.defaultRoundingTab=["random","average","det"]
+        self.defaultRoundingTab=["det","random","average"]
         super().__init__(argv,environ, config_keys,[1,2,3])
         self.normalize()
         self.check()
@@ -569,7 +567,7 @@ class config_stat(gen_config.gen_config):
 
         if "det" in self._roundingTab:
             self._roundingTab.remove("det")
-            self._roundingTab+=[x for x in roundingDetTab if x not in ["float","ftz"]]
+            self._roundingTab=[x for x in roundingDetTab if x not in ["float","ftz"]]+self._roundingTab
 
         self._roundingTab=list(dict.fromkeys(self._roundingTab)) #uniq
 

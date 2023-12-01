@@ -89,6 +89,19 @@ class verrouTask:
         self.preRunLambda=None
         self.postRunLambda=None
         self.seedTab=seedTab
+        self.bufferizedPrint=False
+        self.bufferPrint=""
+    def printProgress(self,string, end="\n", flush=None):
+        if not self.bufferizedPrint:
+            if flush==True:
+                print(string, end=end, flush=True)
+            else:
+                print(string,end=end)
+        else:
+            self.bufferPrint+=(string+end)
+    def flushProgress(self):
+        print(self.bufferPrint, flush=True, end="")
+        self.bufferPrint=""
 
     def setPostRun(self, postLambda):
         self.postRunLambda=postLambda
@@ -98,7 +111,7 @@ class verrouTask:
 
 
     def printDir(self):
-        print(self.pathToPrint,end="")
+        self.printProgress(self.pathToPrint,end="")
 
     def nameDir(self,i,relative=False):
         if relative:
@@ -203,7 +216,7 @@ class verrouTask:
 
         workToDo=self.sampleToCompute(self.nbRun, earlyExit)
         if workToDo==None:
-            print(" --(cache) -> FAIL")
+            self.printProgress(" --(cache) -> FAIL")
             return self.FAIL
         cmpOnlyToDo=workToDo[0]
         runToDo=workToDo[1]
@@ -212,36 +225,42 @@ class verrouTask:
 
         if len(cmpOnlyToDo)==0 and len(runToDo)==0:
             if(len(failureIndex)==0):
-                print(" --(cache) -> PASS("+str(self.nbRun)+")")
+                self.printProgress(" --(cache) -> PASS("+str(self.nbRun)+")")
                 return self.PASS
             else:
-                print(" --(cache) -> FAIL(%s)"%((str(failureIndex)[1:-1]).replace(" ","")))
+                self.printProgress(" --(cache) -> FAIL(%s)"%((str(failureIndex)[1:-1]).replace(" ","")))
                 return self.FAIL
 
         if len(cmpOnlyToDo)!=0:
-            print(" --( cmp ) -> ",end="",flush=True)
+            self.printProgress(" --( cmp ) -> ",end="",flush=True)
             returnVal=self.cmpSeq(cmpOnlyToDo, earlyExit)
             if returnVal==self.FAIL:
                 if earlyExit:
-                    print("FAIL", end="\n",flush=True)
+                    self.printProgress("FAIL", end="\n",flush=True)
                     return self.FAIL
                 else:
-                    print("FAIL", end="",flush= True)
+                    self.printProgress("FAIL", end="",flush= True)
             else:
-                print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
+                self.printProgress("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
 
+        self.futures=[]
+        self.dataAsyncPrint=None
         if len(runToDo)!=0:
 
             if self.maxNbPROC==None:
                 returnVal=self.runSeq(runToDo, earlyExit, self.verbose)
+            elif self.maxNbPROC=="async":
+                self.runParAsync(runToDo)
+                self.dataAsyncPrint="PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")"
+                return None
             else:
                 returnVal=self.runPar(runToDo)
 
             if(returnVal==self.PASS):
-                print("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+                self.printProgress("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
             return returnVal
         else:
-            print("")
+            self.printProgress("")
         return self.PASS
 
 
@@ -259,17 +278,17 @@ class verrouTask:
 
     def runSeq(self,workToDo, earlyExit,printStatus=False):
         if printStatus:
-            print(" --( run ) -> ",end="",flush=True)
+            self.printProgress(" --( run ) -> ",end="",flush=True)
         res=self.PASS
         for run in workToDo:
             if not os.path.exists(self.nameDir(run)):
                 self.mkdir(run)
             else:
-                print("Manual cache modification detected (runSeq)")
+                print(self.nameDir(run) +" : manual cache modification detected (runSeq)")
 
             if self.alreadyFail:
                 if printStatus:
-                    print(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
+                    self.printProgress(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
@@ -278,17 +297,17 @@ class verrouTask:
 
                 if earlyExit:
                     if printStatus:
-                        print("FAIL(%i)"%(run))
+                        self.printProgress("FAIL(%i)"%(run))
                     return res
                 else:
                     if printStatus:
-                        print("FAIL(%i)"%(run))
+                        self.printProgress("FAIL(%i)"%(run))
                         self.alreadyFail=True
         return res
 
 
     def runPar(self,workToDo):
-        print(" --(/run ) -> ",end="",flush=True)
+        self.printProgress(" --(/run ) -> ",end="",flush=True)
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
             futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
@@ -297,9 +316,43 @@ class verrouTask:
         if self.FAIL in results:
             indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
             failIndices=[workToDo[indice] for indice in indices ]
-            print("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
+            self.printProgress("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
             return self.FAIL
         return self.PASS
+
+    def runParAsync(self, workToDo):
+        self.printProgress(" --(/run/) -> ",end="",flush=True)
+        self.futures=[self.executor.submit(self.runSeq, [work],False, False) for work in workToDo]
+
+    def runParAsyncWait(self):
+        import concurrent.futures
+        concurrent.futures.wait(self.futures)
+        results=[futur.result() for futur in self.futures]
+        if self.FAIL in results:
+            indices=[i for i in range(len(self.futures)) if self.futures[i].result()==self.FAIL]
+            failIndices=[workToDo[indice] for indice in indices ]
+            self.printProgress("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
+            self.flushProgress()
+            return self.FAIL
+        if self.dataAsyncPrint!=None:
+            self.printProgress(self.dataAsyncPrint);
+        self.flushProgress()
+        return self.PASS
+
+def runMultipleVerrouTask(verrouTaskTab, maxNbPROC):
+    import concurrent.futures
+    executor=concurrent.futures.ThreadPoolExecutor(max_workers=maxNbPROC)
+    for verrouTask in verrouTaskTab:
+        verrouTask.executor=executor
+        verrouTask.maxNbPROC="async"
+        verrouTask.bufferizedPrint=True
+        verrouTask.run()
+
+    for verrouTask in verrouTaskTab:
+        verrouTask.runParAsyncWait()
+
+    for verrouTask in verrouTaskTab:
+        verrouTask.executor=None
 
 
 def md5Name(deltas):
