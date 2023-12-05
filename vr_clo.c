@@ -30,12 +30,10 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "vr_main.h"
-//#include "backend_verrou/vr_rand.h"
-//#include "backend_verrou/interflop_verrou.h"
-//#include "backend_mcaquad/interflop_mcaquad.h"
+#include "vr_clo.h"
 
-void vr_env_clo (const HChar* env, const HChar *clo) {
+
+void vr_env_clo_one_option (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
   if (val) {
     HChar tmp[256];
@@ -44,6 +42,35 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
       VG_(umsg)("WARNING: unknown command-line option `%s'\n", tmp);
     }
   }
+}
+
+void vr_env_clo(void){
+   vr_env_clo_one_option("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo_one_option("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
+   vr_env_clo_one_option("VERROU_PRANDOM_UPDATE", "--prandom-update");
+   vr_env_clo_one_option("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
+   vr_env_clo_one_option("VERROU_INSTR_ATSTART", "--instr-atstart");
+   vr_env_clo_one_option("VERROU_EXCLUDE",       "--exclude");
+   vr_env_clo_one_option("VERROU_GEN_EXCLUDE",   "--gen-exclude");
+
+   vr_env_clo_one_option("VERROU_SOURCE",        "--source");
+   vr_env_clo_one_option("VERROU_WARN_UNKNOWN_SOURCE","--warn-unknown-source");
+   vr_env_clo_one_option("VERROU_GEN_SOURCE",    "--gen-source");
+   vr_env_clo_one_option("VERROU_MCA_MODE",      "--mca-mode");
+
+   vr_env_clo_one_option("VERROU_BACKEND", "--backend");
+   vr_env_clo_one_option("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
+   vr_env_clo_one_option("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
+
+   vr_env_clo_one_option("VERROU_INSTR","--vr-instr");
+
+   vr_env_clo_one_option("VERROU_TRACE","--trace");
+   vr_env_clo_one_option("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
+   vr_env_clo_one_option("VERROU_SEED","--vr-seed");
+
+   vr_env_clo_one_option("VERROU_EXPECT_CLR","--expect-clr");
+   vr_env_clo_one_option("VERROU_OUTPUT_EXPECT_REP","--output-expect-rep");
+   vr_env_clo_one_option("VERROU_EXPECT_FILE_PATTERN","--expect-file-pattern");
 }
 
 void vr_clo_defaults (void) {

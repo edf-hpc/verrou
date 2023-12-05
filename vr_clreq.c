@@ -31,6 +31,8 @@
 */
 
 #include "vr_main.h"
+#include "vr_clreq.h"
+
 #include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 

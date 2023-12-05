@@ -32,6 +32,8 @@
 */
 
 #include "vr_main.h"
+#include "vr_exclude.h"
+
 #include "pub_tool_seqmatch.h"
 
 #define LINE_SIZEMAX VR_FNNAME_BUFSIZE

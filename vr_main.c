@@ -1680,9 +1680,6 @@ static void vr_fini(Int exitcode)
   VG_(free)(vr.excludeFile);
 }
 
-//void vr_cancellation_handler(int cancelled ){
-//  VG_(fprintf)(vr_outCancellationFile, "C  %d\n", cancelled);
-//}
 
 static void print_op(int nbArg, const char* name, const double* args,const double* res){
   if(nbArg==1){
@@ -1700,32 +1697,7 @@ static void print_op(int nbArg, const char* name, const double* args,const doubl
 static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
-   vr_env_clo("VERROU_ROUNDING_MODE", "--rounding-mode");
-   vr_env_clo("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
-   vr_env_clo("VERROU_PRANDOM_UPDATE", "--prandom-update");
-   vr_env_clo("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
-   vr_env_clo("VERROU_INSTR_ATSTART", "--instr-atstart");
-   vr_env_clo("VERROU_EXCLUDE",       "--exclude");
-   vr_env_clo("VERROU_GEN_EXCLUDE",   "--gen-exclude");
-   //   vr_env_clo("VERROU_GEN_ABOVE",     "--gen-above");
-   vr_env_clo("VERROU_SOURCE",        "--source");
-   vr_env_clo("VERROU_WARN_UNKNOWN_SOURCE","--warn-unknown-source");
-   vr_env_clo("VERROU_GEN_SOURCE",    "--gen-source");
-   vr_env_clo("VERROU_MCA_MODE",      "--mca-mode");
-
-   vr_env_clo("VERROU_BACKEND", "--backend");
-   vr_env_clo("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
-   vr_env_clo("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
-
-   vr_env_clo("VERROU_INSTR","--vr-instr");
-
-   vr_env_clo("VERROU_TRACE","--trace");
-   vr_env_clo("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
-   vr_env_clo("VERROU_SEED","--vr-seed");
-
-   vr_env_clo("VERROU_EXPECT_CLR","--expect-clr");
-   vr_env_clo("VERROU_OUTPUT_EXPECT_REP","--output-expect-rep");
-   vr_env_clo("VERROU_EXPECT_FILE_PATTERN","--expect-file-pattern");
+   vr_env_clo();
 
    if(vr.useExpectCLR){
       vr_expect_clr_init(vr.expectScript);

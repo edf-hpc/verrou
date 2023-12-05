@@ -57,6 +57,11 @@
 
 #include "interflop_backends/statically_integrated_backends.h"
 
+#include "vr_exclude.h"
+#include "vr_error.h"
+#include "vr_include_trace.h"
+
+#define VR_FNNAME_BUFSIZE 4096
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
 
@@ -117,30 +122,7 @@ typedef enum {
 } Vr_Prandom_update;
 
 
-typedef struct Vr_Exclude_ Vr_Exclude;
-struct Vr_Exclude_ {
-  HChar*      fnname;
-  HChar*      objname;
-  Bool        used;
-  Bool        counted;
-  Vr_Exclude* next;
-};
 
-typedef struct Vr_Include_Trace_ Vr_Include_Trace;
-struct Vr_Include_Trace_ {
-  HChar*      fnname;
-  HChar*      objname;
-  Vr_Include_Trace* next;
-};
-
-
-typedef struct Vr_IncludeSource_ Vr_IncludeSource;
-struct Vr_IncludeSource_ {
-  HChar*            fnname;
-  HChar*            filename;
-  UInt              linenum;
-  Vr_IncludeSource* next;
-};
 
 typedef struct {
   vr_backend_name_t backend;
@@ -217,63 +199,13 @@ typedef struct {
 
 extern Vr_State vr;
 
+#include "vr_clreq.h"
 
-// * Functions declarations
-
-// ** vr_main.c
+// Functions declarations
 UInt vr_count_fp_instrumented (void);
 UInt vr_count_fp_not_instrumented (void);
 void vr_ppOpCount (void);
 void vr_resetCount(void);
-void vr_cancellation_handler(int cancelled );
-void vr_denorm_handler(void);
-void vr_float_max_handler(void);
-
-
-
-// ** vr_clreq.c
-
-Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret);
-void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard);
-
-
-// ** vr_error.c
-
-typedef enum {
-  VR_ERROR_UNCOUNTED,
-  VR_ERROR_SCALAR,
-  VR_ERROR_NAN,
-  VR_ERROR_INF,
-  VR_ERROR_CC,
-  VR_ERROR_CD,
-  VR_ERROR_FLT_MAX,
-  VR_ERROR
-} Vr_ErrorKind;
-
-const HChar* vr_get_error_name (const Error* err);
-Bool vr_recognised_suppression (const HChar* name, Supp* su);
-void vr_before_pp_Error (const Error* err) ;
-void vr_pp_Error (const Error* err);
-Bool vr_eq_Error (VgRes res, const Error* e1, const Error* e2);
-UInt vr_update_extra (const Error* err);
-Bool vr_error_matches_suppression (const Error* err, const Supp* su);
-Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBuf,
-                                     Int* lineno, Supp* su);
-SizeT vr_print_extra_suppression_info (const Error* er,
-                                      /*OUT*/HChar* buf, Int nBuf);
-SizeT vr_print_extra_suppression_use (const Supp* s,
-                                     /*OUT*/HChar* buf, Int nBuf);
-void vr_update_extra_suppression_use (const Error* err, const Supp* su);
-
-
-void vr_maybe_record_ErrorOp (Vr_ErrorKind kind, IROp op);
-void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
-void vr_handle_NaN (void);
-void vr_handle_Inf (void);
-void vr_handle_CC (int);
-void vr_handle_CD (void);
-void vr_handle_FLT_MAX (void);
-
 
 void vr_register_cache(unsigned int*, unsigned int);
 void vr_clean_cache(void);
@@ -281,59 +213,12 @@ void vr_register_cache_seed(unsigned int*);
 void vr_clean_cache_seed(void);
 
 
-// ** vr_exclude.c
-
-void        vr_freeExcludeList (Vr_Exclude* list);
-void        vr_dumpExcludeList (Vr_Exclude* list, const HChar* filename);
-Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
-Vr_Exclude* vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName);
-Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname, Bool* counted);
-
-
-void        vr_excludeIRSB_generate(const HChar** fnname, const HChar** objname);
-
-void vr_freeIncludeSourceList (Vr_IncludeSource* list);
-void vr_dumpIncludeSourceList (Vr_IncludeSource* list, const HChar* fname);
-Vr_IncludeSource * vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname);
-Bool vr_includeSource (Vr_IncludeSource** list,
-                       const HChar* fnname, const HChar* filename, UInt linenum);
-void vr_includeSource_generate (Vr_IncludeSource** list,
-				const HChar* fnname, const HChar* filename, UInt linenum);
-
-Vr_IncludeSource * vr_addIncludeSource (Vr_IncludeSource* list, const HChar* fnname,
-					const HChar * filename, UInt linenum);
-Bool vr_includeSourceMutuallyExclusive( Vr_IncludeSource* listInclude, Vr_IncludeSource* listExclude);
-
-void vr_generate_exclude_source(const char* functionName, int line, const char* fileName, const char* object );
-Bool vr_clrIsInstrumented(const char* functionName, int line, const char* fileName, const char* object);
-
-// ** vr_include_trace.c
-void vr_freeIncludeTraceList (Vr_Include_Trace* list) ;
-Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname);
-Bool vr_includeTraceIRSB (const HChar** fnname, const HChar **objname);
-
-
-//**  vr_traceBB.c
-
-
+/* Implem in vr_traceBB_impl.h*/
 void vr_traceBB_resetCov(void);
 UInt vr_traceBB_dumpCov(void);
 
-#define VR_FNNAME_BUFSIZE 4096
-
-
-// ** vr_clo.c
-
-void vr_env_clo (const HChar* env, const HChar *clo);
-void vr_clo_defaults (void);
-Bool vr_process_clo (const HChar *arg);
-void vr_print_usage (void);
-void vr_print_debug_usage (void);
-
-// ** vr_expect_clr.c
-void vr_expect_clr_init (const HChar * fileName);
-void vr_expect_clr_checkmatch(const HChar* writeLine, SizeT size);
-void vr_expect_clr_finalize (void);
+#include "vr_clo.h"
+#include "vr_expect_clr.h"
 
 
 #endif /*ndef __VR_MAIN_H*/

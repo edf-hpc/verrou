@@ -30,6 +30,8 @@
 */
 
 #include "vr_main.h"
+#include "vr_expect_clr.h"
+
 #include "pub_tool_seqmatch.h"
 #include "coregrind/pub_core_libcfile.h"
 
