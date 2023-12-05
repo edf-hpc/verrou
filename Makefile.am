@@ -49,11 +49,11 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C = @vg_test_no_avx512f_flag@
+VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += @vg_test_no_avx512f_flag@ -fno-exceptions -fno-rtti -std=c++11
+VERROU_FLAG_CXX += @vg_test_no_avx512f_flag@ -fno-exceptions -fno-rtti -std=c++11 -march=native
 VERROU_LD =
 
 # We use the test of fma normally use to configure check
