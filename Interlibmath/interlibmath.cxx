@@ -955,6 +955,65 @@ public:
   };
 
 };
+
+template<class LIBMQ, typename REALTYPE >
+class libMathFunction3Fma{
+public:
+  typedef REALTYPE RealType;
+  typedef vr_packArg<RealType,3> PackArgs;
+  static const bool sign_denorm_hack_needed=false;
+
+  static const char* OpName(){return "libmath 3 param";}
+  static inline uint32_t getHash(){return MAddOp<REALTYPE>::getHash();}
+
+  static inline RealType nearestOp (const PackArgs& p) {
+    const __float128  a(p.arg1);
+    const __float128  b(p.arg2);
+    const __float128  c(p.arg3);
+    __float128 ref=LIBMQ::apply(a,b,c);
+#ifndef INTERLIBM_STAND_ALONE
+    verrou_libm_res_ref=ref;
+#endif
+    return (RealType)ref;
+  };
+
+  static inline RealType error (const PackArgs& p, const RealType& z) {
+#ifdef INTERLIBM_STAND_ALONE
+    const __float128 a(p.arg1);
+    const __float128 b(p.arg2);
+    const __float128 c(p.arg3);
+    __float128 ref=LIBMQ::apply(a,b,c);
+#else
+    __float128 ref=verrou_libm_res_ref;
+#endif
+    const __float128 error128=  ref -(__float128)z ;
+    return (RealType)error128;
+  };
+
+  static inline RealType sameSignOfError (const PackArgs& p,const RealType& c) {
+    return error(p,c) ;
+  };
+
+  static inline bool isInfNotSpecificToNearest(const PackArgs&p){
+    return p.isOneArgNanInf();
+  }
+
+
+  static inline void check(const PackArgs& p, const RealType& d){
+  };
+
+  template<class RANDCOM>
+  static inline typename RANDCOM::TypeOut hashCom(const RANDCOM& r,const PackArgs& p){
+    return MAddOp<REALTYPE>::hashCom(r,p);
+  };
+
+  template<class RANDSCOM>
+  static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
+    return MAddOp<REALTYPE>::hashScom(r,p);
+  };
+};
+
+
 #endif //USE_VERROU_QUAD
 
 
@@ -1240,12 +1299,18 @@ float FCT##f (int a, float b){						\
 
 
 #define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)				\
-  extern "C"{								\
+    struct libmq##FCT{							\
+      static __float128 apply(__float128 a,__float128 b, __float128 c){	\
+	return FCT##q(a,b,c);						\
+    }									\
+    static __uint64_t getHash(){return enum##FCT; }			\
+    };									\
+extern "C"{								\
     double FCT (double a, double b, double c){					\
       const vr_packArg<double,3> p(a,b,c);				\
       const char fctStr[]=#FCT;						\
       const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented3(fctStr, enum##FCT,realTypeIndex<double>::index); \
-      typedef instrumentFunction<double,threeReal, MAddOp<double>, enum##FCT > inst; \
+      typedef instrumentFunction<double,threeReal, libMathFunction3Fma<libmq##FCT,double>, enum##FCT > inst; \
       return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
     }									\
 									\
@@ -1253,7 +1318,7 @@ float FCT##f (int a, float b){						\
       const vr_packArg<float,3> p(a,b,c);				\
       const char fctStr[]=STRINGIFY(FCT##f);				\
       const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented3(fctStr, enum##FCT,realTypeIndex<float>::index); \
-      typedef instrumentFunction<float,threeReal, MAddOp<float>, enum##FCT > inst; \
+      typedef instrumentFunction<float,threeReal, libMathFunction3Fma<libmq##FCT,float>, enum##FCT > inst; \
       return inst::apply(function3NameTab, fctStr, isInstrumented, p); \
       }									\
 									\
