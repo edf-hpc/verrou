@@ -25,11 +25,18 @@ slowDown=True
 # nbRunTuple=(5,20) #inner outer
 # slowDown=False
 
+buildConfigList=["current", "last_stable"]
+ref_name="current"
+buildSpecialConfigList=[]
+detRounding=[]
+nbRunTuple=(5,2) #inner outer
+slowDown=True
+
 
 verrouOptionsList=[("","")]
 
 postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
-#postFixTab=["O3-DOUBLE-FMA"]
+postFixTab=["O3-DOUBLE-FMA"]
 
 
 pathPerfBin="../unitTest/testPerf"
