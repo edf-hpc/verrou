@@ -49,17 +49,17 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C =
+VERROU_FLAG_C = @vg_test_no_avx512f_flag@
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
+VERROU_FLAG_CXX += @vg_test_no_avx512f_flag@ -fno-exceptions -fno-rtti -std=c++11
 VERROU_LD =
 
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
-VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
-VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
+VERROU_FLAG_CXX += -mfma -DUSE_VERROU_FMA
+VERROU_FLAG_C   += -mfma -DUSE_VERROU_FMA
 endif
 if HAVE_SQRT_INTRIN
 VERROU_FLAG_CXX += -DUSE_VERROU_SQRT
@@ -206,7 +206,7 @@ VERROUINTERLIBM_SOURCES_COMMON = Interlibmath/interlibmath.cxx Interlibmath/stac
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
 	$(VERROUINTERLIBM_SOURCES_COMMON)
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
-	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -DVGA_@VGCONF_ARCH_PRI@  -static-libstdc++ -Wno-missing-declarations -I../include
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -DVGA_@VGCONF_ARCH_PRI@  -static-libstdc++ -Wno-missing-declarations -I../include -fno-builtin @vg_test_no_avx512f_flag@
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
 	-static-libstdc++ -lm \
 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
