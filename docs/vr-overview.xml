@@ -14,12 +14,12 @@
       variant of the CESTAC method, or a subset of Monte Carlo Arithmetic, performing only output
       randomization.
     </para>
-    
+
     <para>
       As with many other Valgrind tools, you probably want to recompile your program with debugging
       info (the <option>-g</option> option) and with optimization turned on.
     </para>
-    
+
     <para>
       To start a floating-point check for a program, execute:
       <screen><cmdsynopsis><command>valgrind</command><arg choice="plain">--tool=verrou</arg><arg choice="opt"><replaceable>verrou options</replaceable></arg><arg choice="req"><replaceable>program</replaceable></arg><arg choice="opt"><replaceable>program options</replaceable></arg></cmdsynopsis></screen>
@@ -118,7 +118,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 ==20752== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 </screen>
     </para>
-    
+
     <para>
       First, Verrou will output a header indicating which floating-point instructions will be
       perturbed, and how. By default, nothing will be perturbed. The <option><xref
@@ -152,9 +152,14 @@ Type "help", "copyright", "credits" or "license" for more information.
 
     <para>
       This is for example the case of the douple-precision cosine implementation of the Gnu
-      mathematical library (<literal>libm</literal>). Getting back to the previous python example:
-    </para> 
+      mathematical library (<literal>libm</literal>). By default the libm is not instrumented, so to illustrate
+      the problem we add use the option <option><xref linkend="vr-opt.libm"/>=--libm=manual_exclude</option>.
+
+      Getting back to the previous python example:
+    </para>
     <screen>
+<prompt>$</prompt>  valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude python3
+[VERROU INIT]
 Python 3.7.3 (default, Oct 31 2022, 14:04:00) 
 [GCC 8.3.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
@@ -182,7 +187,7 @@ Type "help", "copyright", "credits" or "license" for more information.
       linkend="vr-opt.exclude"/>=<replaceable>LIST</replaceable></option> command-line switch in the
       following way:
     </para>
-    <screen>valgrind --tool=verrou --rounding-mode=random --exclude=libm.ex python3</screen>
+    <screen>valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude --exclude=libm.ex python3</screen>
     <para>
       where the file <filename>libm.ex</filename> contains a list of functions to be left
       unperturbed. For example, in order to disable random rounding modes in the whole
@@ -207,7 +212,11 @@ Type "help", "copyright", "credits" or "license" for more information.
     <para>
       When the <literal>libm</literal> is excluded from perturbations in such a way, the python
       example above works as expected: the cosine is accurately computed, as usual. See <xref
-      linkend="vr-manual.feat.exclude"/> for more details about exclusion lists.
+											  linkend="vr-manual.feat.exclude"/> for more details about exclusion lists.
+
+      But by doing this you are no able to measure the floating point error implied by <literal>libm</literal>. To pertub
+      libm we need to use the option <option><xref linkend="vr-opt.libm"/>=--libm=instrumentation</option>, which replace the dynamically loaded <literal>libm</literal> by your own
+      stochastic implementation. If libm is statically linked with your application (Please don't do it), you will need to exclude yourself each <literal>libm</literal> symbol and it is not possible to measure floating point error implied by <literal>libm</literal>.
     </para>
   </section>
 </section>

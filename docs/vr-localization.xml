@@ -188,6 +188,18 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
+            <computeroutput>--reference-rounding</computeroutput> or <computeroutput>VERROU_REFERENCE_ROUNDING</computeroutput> [default native].
+	  </term>
+	  <listitem>
+	  <para>
+	    Select the reference rounding mode between native and nearest. The nearest and native rounding mode are different only when
+	    the verrou option <option>--libm=instrumented</option> is used.
+	  </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
              <computeroutput>--res-with-all-samples </computeroutput> or <computeroutput>VERROU_DD_RES_WITH_ALL_SAMPLES</computeroutput>
           </term>
           <listitem>

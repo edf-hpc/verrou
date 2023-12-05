@@ -287,13 +287,14 @@ det2
                 </para></listitem>
                 <listitem><para>
                   <command>IEEE-754 rounding modes:</command>
-                  <computeroutput>nearest</computeroutput> (default),
+                  <computeroutput>nearest</computeroutput>,
                   <computeroutput>upward</computeroutput>,
                   <computeroutput>downward</computeroutput>,
                   <computeroutput>toward_zero</computeroutput>.
                 </para></listitem>
                 <listitem><para>
                     <command>Other:</command>
+		    <computeroutput>native</computeroutput>[default] (similar to nearest (maybe different with <option>--libm=instrumented</option>),
 		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
@@ -308,7 +309,7 @@ det2
 	                  <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
             <listitem>
               <para>
-		Define the behaviour of verrou with libm.
+		Define the behavior of verrou with libm.
               </para>
               <itemizedlist>
                 <listitem><para>
@@ -327,8 +328,16 @@ det2
 	      </para>
             </listitem>
 	  </varlistentry>
+	  <varlistentry id="vr-opt.libm-noinst-rounding-mode" xreflabel="--libm-noinst-rounding-mode=">
+            <term><option><![CDATA[--libm-noinst-rounding-mode==<native|nearest> [default=native]]]></option></term>
+	      <para>
+		Select the behavior of libm (when <option>--libm=instrumented</option> is activated) when libm function are not instrumented (thanks <option>--exclude</option> or <option>--source</option>) between <command>native</command> and <command>nearest</command>.
+	      </para>
 
-          <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
+	      <para>This option can be activated with the env variable <command>VERROU_LIBM_NOINST_ROUNDING_MODE</command>.</para>
+
+	  </varlistentry>
+			  <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
             <term><option><![CDATA[--mca-mode=<mca|rr|pb|ieee> [default=mca]]]></option></term>
             <listitem>
               <para>

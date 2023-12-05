@@ -30,22 +30,24 @@
               average_comdet, prandom_comdet, random_scomdet,\n\
               average_scomdet, sr_monotonic, sr_smonotonic.\n\
 \n\
-          •   IEEE-754 rounding modes: nearest (default), upward, downward,\n\
+          •   IEEE-754 rounding modes: nearest, upward, downward,\n\
               toward_zero.\n\
 \n\
-          •   Other: away_zero, farthest, float, ftz(imply checkdenorm\n\
-              backend).\n\
+          •   Other: native[default] (similar to nearest (maybe different\n\
+              with --libm=instrumented), away_zero, farthest, float,\n\
+              ftz(imply checkdenorm backend).\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_ROUNDING_MODE.\n\
 \n\
       --libm=<auto_exclude|manual_exclude|instrumented>\n\
       [default=auto_exclude]\n\
-          Define the behaviour of verrou with libm.\n\
+          Define the behavior of verrou with libm.\n\
 \n\
           •   auto_exclude : The libm exclusion is automaticaly detected\n\
               thanks pattern detection. The library detected are libm,\n\
-              vgpreload_verrou, interlibmath, libquadmath and libgcc_s.\n\
+              vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If\n\
+              you need to perturb libgcc_s, we will need to use libgcc_s.\n\
 \n\
           •   manual_exclude : The automatic detection is ignored and the\n\
               user has to define manually the exclusion thanks --exclude\n\
@@ -59,6 +61,15 @@
           The option instrumented is not yet compatible with verrou_dd_sym\n\
           and verrou_dd_line. When it will be the case, the default will\n\
           switch from auto_exclude to instrumented\n\
+\n\
+      --libm-noinst-rounding-mode==<native|nearest> [default=native]\n\
+\n\
+          Select the behavior of libm (when --libm=instrumented is activated)\n\
+          when libm function are not instrumented (thanks --exclude or\n\
+          --source) between native and nearest.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_LIBM_NOINST_ROUNDING_MODE.\n\
 \n\
       --mca-mode=<mca|rr|pb|ieee> [default=mca]\n\
           Emulate the given MCA mode for operations instrumented with the\n\
