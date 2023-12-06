@@ -1328,6 +1328,22 @@ extern "C"{								\
   }									\
 };
 
+#define DEFINE_INTERP_LIBM3_C_IMPL_UNINST(FCT)				\
+  extern "C"{								\
+    float FCT##f (float a, float b, float c){				\
+      libMathCounter::incInstrOff(threeReal, enum##FCT, realTypeIndex<float>::index);\
+      return function3NameTab[enum##FCT].apply(a,b,c);			\
+    }									\
+    double  FCT (double a, double b, double c){				\
+      libMathCounter::incInstrOff(threeReal, enum##FCT, realTypeIndex<double>::index);\
+      return function3NameTab[enum##FCT].apply(a,b,c);			\
+    }									\
+    long double FCT##l (long double a, long double b, long double c){	\
+      libMathCounter::incInstrOff(threeReal, enum##FCT, realTypeIndex<long double>::index);\
+      return function3NameTab[enum##FCT].apply(a,b,c);			\
+    }									\
+  };
+
 
 
 
@@ -1443,8 +1459,14 @@ DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(jn);
 #undef DEFINE_INTERP_LIBM2INTFP_C_IMPL
 #undef DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST
 
+#ifdef USE_VERROU_QUAD
 DEFINE_INTERP_LIBM3_FMA_C_IMPL(fma);
-#undef DEFINE_INTERP_LIB3_FMA_C_IMPL
+#else
+DEFINE_INTERP_LIBM3_C_IMPL_UNINST(fma)
+#endif
+
+#undef DEFINE_INTERP_LIBM3_FMA_C_IMPL
+#undef DEFINE_INTERP_LIBM3_C_IMPL_UNINST
 
 void sincos(double x, double* resSin, double* resCos){
   *resSin=sin(x);
