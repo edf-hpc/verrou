@@ -79,16 +79,17 @@ class DDline(DD_stoch.DDStoch):
 
 class ddlineConfig(dd_config.ddConfig):
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP_DD","VERROU_DD"]):
         super().__init__(argv,environ,config_keys,prefix="dd.line")
+        self.instr_prefix="VERROU"
 
     def registerOptions(self):
         super().registerOptions()
-        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
     
 if __name__ == "__main__":
-    config=ddlineConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=ddlineConfig(sys.argv,os.environ)
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDline(config)
     dd.run()

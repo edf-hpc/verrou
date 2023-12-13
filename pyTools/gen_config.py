@@ -25,6 +25,8 @@ class gen_config:
                   "additive":additive,
                   "docStr":docStr}
         self.registryTab+=[registry]
+        self.instr_ignore=[]
+        self.instr_prefix=None
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
@@ -82,26 +84,27 @@ class gen_config:
         """Need to be called after read_environ"""
         resEnv="ENV %s:\n"%(self.argv[0])
         for env in  self.environ:
-            if env.startswith(self.PREFIX):
-                find=False
-                for registry in self.registryTab:
-                    if env==self.PREFIX+"_"+registry["ENV"]:
-                        strValue=self.environ[env]
-                        resEnv+="\t"+self.PREFIX+"_"+registry["ENV"] + "="+strValue+"\n"
-                        find=True
-                        break
-                if not find:
-                    print("Warning : unknown env variable :", env)
-
-        resInstr="ENV VERROU:\n"
-        instr=False
-        for env in  self.environ:
-            if env.startswith("VERROU_"):
-                strValue=self.environ[env]
-                resInstr+="\t"+env + "="+strValue+"\n"
-                instr=True
-        if instr:
-            resEnv+=resInstr
+            for prefix in self.config_keys:
+                if env.startswith(prefix):
+                    find=False
+                    for registry in self.registryTab:
+                        if env==self.prefix+"_"+registry["ENV"]:
+                            strValue=self.environ[env]
+                            resEnv+="\t"+self.prefix+"_"+registry["ENV"] + "="+strValue+"\n"
+                            find=True
+                            break
+                    if not find:
+                        print("Warning : unknown env variable :", env)
+        if self.instr_prefix!=None:
+            resInstr="ENV "+self.instr_prefix+":\n"
+            instr=False
+            for env in  self.environ:
+                if env.startswith(self.instr_prefix):
+                    strValue=self.environ[env]
+                    resInstr+="\t"+env + "="+strValue+"\n"
+                    instr=True
+            if instr:
+                resEnv+=resInstr
 
         resCmd="Cmd: "+ " ".join(self.argv)+"\n"
         return resEnv + resCmd
@@ -110,7 +113,7 @@ class gen_config:
         if os.path.exists(fileName):
             timeValue=datetime.datetime.fromtimestamp(os.path.getmtime(fileName))
             timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
-            os.rename(fileName,fileName+"-"+timeStr)
+            os.rename(fileName,fileName.replace(".last","."+timeStr))
 
         strRes=self.confToStr()
 

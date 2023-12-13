@@ -392,6 +392,9 @@ class DDStoch(DD.DD):
         self.ref_ = os.path.join(self.prefix_, "ref")
         self.prepareCache()
         prepareOutput(self.ref_)
+
+        self.config_.saveParam(os.path.join(self.prefix_,"cmd.last"))
+
         self.reference() #generate the reference computation
         self.mergeList(parseRef) #generate the search space
         self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space

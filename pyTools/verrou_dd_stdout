@@ -221,18 +221,18 @@ class DDstdout(DD_stoch.DDStoch):
 
 class stdoutConfig(dd_config.ddConfig):
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP_DD","VERROU_DD"]):
         super().__init__(argv,environ,config_keys,prefix="dd.stdout")
 
     def registerOptions(self):
         super().registerOptions()
-        self.addRegistry("unknownTask", "string", "DD_UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
-        self.addRegistry("ignoreEmptyLine", "bool", "DD_IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
-        self.addRegistry("filterCmd", "string", "DD_FILTER_CMD",["--filter-cmd="],None, None )
-        self.addRegistry("expectHeaderFile", "string", "DD_EXPECT_HEADER",["--expect-header="], None, "file_exists")
-        self.addRegistry("customSearchSpace", "string", "DD_CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
-        self.addRegistry("filePattern", "string", "DD_FILE_PATTERN",["--file-pattern="], None, None)
-        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("unknownTask", "string", "UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
+        self.addRegistry("ignoreEmptyLine", "bool", "IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
+        self.addRegistry("filterCmd", "string", "FILTER_CMD",["--filter-cmd="],None, None )
+        self.addRegistry("expectHeaderFile", "string", "EXPECT_HEADER",["--expect-header="], None, "file_exists")
+        self.addRegistry("customSearchSpace", "string", "CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
+        self.addRegistry("filePattern", "string", "FILE_PATTERN",["--file-pattern="], None, None)
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
     def normalizeOptions(self):
         super().normalizeOptions()
@@ -290,7 +290,7 @@ class stdoutConfig(dd_config.ddConfig):
 
 if __name__ == "__main__":
 
-    config=stdoutConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=stdoutConfig(sys.argv,os.environ)
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDstdout(config)
     dd.run()

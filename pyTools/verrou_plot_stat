@@ -538,6 +538,7 @@ class config_stat(gen_config.gen_config):
         self.normalize()
         self.check()
         self.cachePrepare()
+        self.instr_prefix="VERROU"
         self.saveParam(os.path.join(self._rep,"cmd.last"))
 
     def registerOptions(self):

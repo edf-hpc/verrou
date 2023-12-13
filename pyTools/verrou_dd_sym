@@ -68,16 +68,17 @@ class DDsym(DD_stoch.DDStoch):
 
 class ddSymConfig(dd_config.ddConfig):
 
-    def __init__(self, argv, environ,config_keys):
-        super().__init__(argv,environ,config_keys,prefix="dd.sym")
+    def __init__(self, argv, environ):
+        super().__init__(argv,environ,config_keys=["DD_INTERFLOP","DD_VERROU"],prefix="dd.sym")
+        self.instr_prefix="VERROU"
 
     def registerOptions(self):
         super().registerOptions()
-        self.addRegistry("referenceRounding", "string", "DD_REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
 
 if __name__ == "__main__":
-    config=ddSymConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=ddSymConfig(sys.argv,os.environ)
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDsym(config)
     dd.run()
