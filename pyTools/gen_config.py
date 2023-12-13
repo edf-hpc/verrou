@@ -3,6 +3,9 @@ import os
 import sys
 import re
 import copy
+import shutil
+import datetime
+import hashlib
 
 class gen_config:
 
@@ -11,6 +14,7 @@ class gen_config:
         self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
+        self.argv=argv
         self.parseArgv(argv, lengthValidTab)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
@@ -74,12 +78,64 @@ class gen_config:
             except KeyError:
                 pass
 
+    def confToStr(self):
+        """Need to be called after read_environ"""
+        resEnv="ENV %s:\n"%(self.argv[0])
+        for env in  self.environ:
+            if env.startswith(self.PREFIX):
+                find=False
+                for registry in self.registryTab:
+                    if env==self.PREFIX+"_"+registry["ENV"]:
+                        strValue=self.environ[env]
+                        resEnv+="\t"+self.PREFIX+"_"+registry["ENV"] + "="+strValue+"\n"
+                        find=True
+                        break
+                if not find:
+                    print("Warning : unknown env variable :", env)
+
+        resInstr="ENV VERROU:\n"
+        instr=False
+        for env in  self.environ:
+            if env.startswith("VERROU_"):
+                strValue=self.environ[env]
+                resInstr+="\t"+env + "="+strValue+"\n"
+                instr=True
+        if instr:
+            resEnv+=resInstr
+
+        resCmd="Cmd: "+ " ".join(self.argv)+"\n"
+        return resEnv + resCmd
+
+    def saveParam(self,fileName):
+        if os.path.exists(fileName):
+            timeValue=datetime.datetime.fromtimestamp(os.path.getmtime(fileName))
+            timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
+            os.rename(fileName,fileName+"-"+timeStr)
+
+        strRes=self.confToStr()
+
+        for arg in self.exec_arg:
+            content=open(arg).read()
+            md5Script=hashlib.md5((content).encode('utf-8')).hexdigest()
+            strRes+=("arg: "+ arg + " (md5="+md5Script+")\n")
+            if content.count("\n") < 100:
+                strRes+="--begin content--\n"
+                strRes+=content
+                strRes+="--end content--\n"
+
+        with open(fileName,"w") as f:
+            f.write(strRes)
+        self._md5Param=hashlib.md5((strRes).encode('utf-8')).hexdigest()
+
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
         print(self.get_EnvDoc(self.config_keys[-1]))
 
     def failure(self):
         sys.exit(42)
+
+    def md5Param(self):
+        return self._md5Param
 
     def checkScriptPath(self,fpath):
         if os.path.isfile(fpath) and os.access(fpath, os.X_OK):

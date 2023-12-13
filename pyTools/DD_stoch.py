@@ -523,6 +523,7 @@ class DDStoch(DD.DD):
             print(repToKeep)
             for item in os.listdir(self.prefix_):
                 if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
+                    #check md5sum format
                     if not item in repToKeep:
                         shutil.rmtree(os.path.join(self.prefix_, item))
 

@@ -34,6 +34,9 @@ import functools
 import glob
 import math
 from fractions import Fraction
+import shutil
+import datetime
+
 
 maxNbPROC=None
 
@@ -433,7 +436,16 @@ def estimMca(tab):
         bit=float("Inf")
     return (ratio, bit)
 
-def print_stat(data, ref,  mca_estimator=False):
+def print_stat(data, conf):
+    ref=conf.ref()
+    mca_estimator=conf.mca_estimator()
+    handler=open(os.path.join(conf.repName(),"stat.last") ,"w")
+    handler.write("md5 cmd.last: "+ conf.md5Param()+"\n" )
+    def localPrint(strValue):
+        print(strValue)
+        if handler!=None:
+            handler.write(strValue+"\n")
+
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
 
@@ -451,10 +463,10 @@ def print_stat(data, ref,  mca_estimator=False):
     else:
         refValue=numpy.mean(data["ref"])
 
-    print("\nrefValue[%s] : %.17e"%(ref,refValue))
+    localPrint("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
     if mca_estimator:
-        print("[mca] estimator\trel\trel(in bit)")
+        localPrint("[mca] estimator\trel\trel(in bit)")
 
     maxEstim=0
     nbTotalError=0
@@ -466,10 +478,10 @@ def print_stat(data, ref,  mca_estimator=False):
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
             estimRel, estimRelBit=computeRelative(estim, refValue)
-            print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+            localPrint("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
             if mca_estimator:
                 estimRel, estimRelBit=estimMca(data[rounding])
-                print("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
+                localPrint("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
                 tabValue+=data[rounding]
 
         else:
@@ -477,16 +489,16 @@ def print_stat(data, ref,  mca_estimator=False):
             nbTotalError+=nbError
             nbTotalSample+=len(data[rounding])
             if nbError==len(data):
-                print("%s (100\% fail) :"%(rounding))
+                localPrint("%s (100\% fail) :"%(rounding))
             else:
                 estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
                 maxEstim=max(estim,maxEstim)
                 estimRel, estimRelBit=computeRelative(estim, refValue)
-                print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+                localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
                 if mca_estimator:
                     estimRel, estimRelBit=estimMca([x for x in data[rounding] if x!="fail"])
                     tabValue+=[x for x in data[rounding] if x!="fail"]
-                    print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
+                    localPrint("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
 
     for rounding in listOfScalar:
 
@@ -500,20 +512,20 @@ def print_stat(data, ref,  mca_estimator=False):
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
         else:
-            print("Warning %s failing")
+            localPrint("Warning %s failing")
 
     estimRel, estimRelBit=computeRelative(maxEstim, refValue)
     if nbTotalError==0:
-        print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
+        localPrint("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
     else:
-        print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
+        localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
 
     if mca_estimator:
         estimRel, estimRelBit=estimMca(tabValue)
         if nbTotalError==0:
-            print("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
+            localPrint("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
         else:
-            print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
+            localPrint("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
 
 
 
@@ -525,12 +537,14 @@ class config_stat(gen_config.gen_config):
         super().__init__(argv,environ, config_keys,[1,2,3])
         self.normalize()
         self.check()
-
+        self.cachePrepare()
+        self.saveParam(os.path.join(self._rep,"cmd.last"))
 
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
                          docStr="rounding mode list (coma separated) [default random,average,det]")
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
+        self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
         self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, docStr="number of parallel run")
 
@@ -625,6 +639,24 @@ class config_stat(gen_config.gen_config):
                 print("With --specific-pattern option --ref shold be a float")
                 self.failure()
 
+    def cachePrepare(self):
+        rep=self.repName()
+        if self.getCache()=="continue":
+            if not os.path.exists(rep):
+                os.mkdir(rep)
+        if self.getCache()=="clean":
+            if os.path.exists(rep):
+                shutil.rmtree(rep, ignore_errors=True)
+            os.mkdir(rep)
+        if self.getCache()=="rename":
+            if os.path.exists(rep):
+                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(os.path.join(rep,x)) for x in os.listdir(rep)+["."] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                self.oldRepName=rep+"-"+timeStr
+                os.rename(rep,self.oldRepName)
+            os.mkdir(rep)
+        else:
+            self.oldRepName=None
+
 
     def usageCmd(self):
         name=sys.argv[0]
@@ -638,6 +670,9 @@ class config_stat(gen_config.gen_config):
 
     def help(self):
         self.usageCmd()
+
+    def getCache(self):
+        return self._cache
 
     def nbBin(self):
         return self._nbBin
@@ -722,12 +757,12 @@ if __name__=="__main__":
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref(), conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png(), relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref(), conf.mca_estimator())
+            print_stat(dataExtracted, conf)
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref(), continueOnExtractError=conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref(), conf.mca_estimator() )
+            print_stat(dataExtracted, conf)
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)
