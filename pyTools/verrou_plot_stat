@@ -439,7 +439,14 @@ def estimMca(tab):
 def print_stat(data, conf):
     ref=conf.ref()
     mca_estimator=conf.mca_estimator()
-    handler=open(os.path.join(conf.repName(),"stat.last") ,"w")
+
+    pathName=os.path.join(conf.repName(),"stat.last")
+    if os.path.exists(pathName):
+        timeValue=datetime.datetime.fromtimestamp(os.path.getmtime(pathName))
+        timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
+        os.rename(pathName,pathName.replace(".last","."+timeStr))
+
+    handler=open(pathName ,"w")
     handler.write("md5 cmd.last: "+ conf.md5Param()+"\n" )
     def localPrint(strValue):
         print(strValue)
