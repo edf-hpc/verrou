@@ -616,7 +616,7 @@ To avoid problem with bufferisation, we need to write your own <computeroutput>r
 		    cat strace_verrou.*</programlisting>
 		</para>
 	      </listitem>
-            </varlistentry>    
+            </varlistentry>
         </variablelist>
       </para>
       </simplesect>
@@ -769,6 +769,8 @@ To avoid problem with bufferisation, we need to write your own <computeroutput>r
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
 	     <computeroutput>sr_[s]monotonic</computeroutput>,
+	     <computeroutput>nearest</computeroutput>,
+	     <computeroutput>native</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -855,7 +857,7 @@ To avoid problem with bufferisation, we need to write your own <computeroutput>r
       <title>Description</title>
       <para>
 	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
-	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator.
+	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator (result are printed in <command>stdout</command> and in a file <command>stat.last</command>).
       </para>
 
       <screen>
@@ -886,8 +888,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print
 	the extracted value on the first line of the standard output.
 
-	To study several output variables the command can be called several time the command with different <command>extract_script </command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun.
+	To study several output variables the command can be called several time the command with different <command>extract_script </command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun. The are no garanty in cas of concurrent run of the command verrou_plot_stat and the <command> run_script</command> and <command>extract_script </command> should not be modify during a <command>verrou_plot_stat</command> call.
       </para>
+
     </simplesect>
 
     <simplesect>
@@ -920,7 +923,27 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--samples=</computeroutput> or <computeroutput>-s</computeroutput>
+          <computeroutput>--cache=continue[default]|clean|rename</computeroutput>
+          </term>
+	  <listitem>
+            <para>
+	      Option to choose the policy with the existing cache defined by <computeroutput>--rep</computeroutput> option.
+	    </para>
+	    <para>
+	      <computeroutput>clean</computeroutput>: the previous cache is removed.
+	    </para>
+	    <para>
+	      <computeroutput>rename</computeroutput>: the previous cache is renamed with time information (time of last file modification).
+	    </para>
+	    <para>
+	      <computeroutput>continue</computeroutput>: the previous cache is kept for all computation.
+	    </para>
+	    </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--samples=</computeroutput> or <computeroutput>--nruns=</computeroutput>  or <computeroutput>-s</computeroutput>
           </term>
           <listitem>
             <para>An integer setting the run number of random and average distribution. If this variable is not set, the default value is
@@ -941,7 +964,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--rounding-list=</computeroutput>
+            <computeroutput>--rounding-list=</computeroutput> or  <computeroutput>--rounding-mode=</computeroutput> or  <computeroutput>--rounding=</computeroutput>
           </term>
           <listitem>
             <para> A coma separated list of rounding mode. The list can contain
@@ -949,6 +972,8 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
 	     <computeroutput>sr_[s]monotonic</computeroutput>,
+	     <computeroutput>nearest</computeroutput>,
+	     <computeroutput>native</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -969,6 +994,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	  <listitem>
 	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>.
 	    </para>
+	  </listitem>
+	  <listitem>
+	    If the option is set multiple times, the list will be append to the current list.
 	  </listitem>
 	</varlistentry>
 

@@ -214,6 +214,7 @@
 	      <listitem> fma(x,y,z) == fma(-x,-y,z)</listitem>
 	      <listitem> fma(-x,y,-z) == -fma(x,y,z)</listitem>
 	      <listitem> fma(x,-y,-z) == -fma(x,y,z)</listitem>
+	      <listitem> fma(x,y,0) == (x*y) </listitem>
 	      <listitem> cast(-x) == -cast(x)</listitem>
 	    </itemizedlist>
 	  </para>
