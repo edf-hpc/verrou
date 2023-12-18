@@ -115,6 +115,7 @@ class postConfig(gen_config.gen_config):
 
     def get_rep_sub_rep(self):
         if self.sub_rep==[]:
+            self.saveParam(os.path.join(self.rep,"cmd_post.last"))
             return {self.rep:self.findDDmin(self.rep)}
         else:
             res={}
@@ -130,6 +131,8 @@ class postConfig(gen_config.gen_config):
                         print("sub_rep %s is not a valid"%(sub_rep))
                         self.usageCmd()
                         self.failure()
+            for rep in res:
+                self.saveParam(os.path.join(rep,"cmd_post.last"))
             return res
     def get_instr(self):
         if self.instr==[]:

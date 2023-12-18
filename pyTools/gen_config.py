@@ -95,6 +95,9 @@ class gen_config:
                             break
                     if not find:
                         print("Warning : unknown env variable :", env)
+            if env in ["PWD"]:
+                resEnv+="\t"+env+"="+self.environ[env]+"\n"
+
         if self.instr_prefix!=None:
             resInstr="ENV "+self.instr_prefix+":\n"
             instr=False
@@ -107,7 +110,11 @@ class gen_config:
                 resEnv+=resInstr
 
         resCmd="Cmd: "+ " ".join(self.argv)+"\n"
-        return resEnv + resCmd
+
+        now=datetime.datetime.now()
+        resTime="TimeStamp: "+now.strftime("%m-%d-%Y_%Hh%Mm%Ss")+"\n"
+
+        return resEnv + resCmd + resTime
 
     def saveParam(self,fileName):
         if os.path.exists(fileName):
@@ -115,7 +122,7 @@ class gen_config:
             timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
             os.rename(fileName,fileName.replace(".last","."+timeStr))
 
-        strRes=self.confToStr()
+        strRes=self.confToStr()+"\n"
 
         for arg in self.exec_arg:
             content=open(arg).read()
