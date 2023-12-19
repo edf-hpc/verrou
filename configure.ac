@@ -10,9 +10,11 @@ AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
 if test "$vg_cv_verrou_fma" = yes; then
   # Check for fmaintrin.h
   AC_LANG_PUSH(C++)
-  CXXFLAGS="$safe_CXXFLAGS -mfma"
-  AC_MSG_CHECKING([for fmaintrin.h ])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    CXXFLAGS="$safe_CXXFLAGS -march=native"
+  AC_MSG_CHECKING([for fma instrinsics])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include  <immintrin.h>
       #include <stdlib.h>
 ]], [[
@@ -31,7 +33,29 @@ if test "$vg_cv_verrou_fma" = yes; then
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with fmaintrin.h is required for --enable-verrou-fma ])
+  ]) ;;
+  arm64-linux)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include "arm_neon.h"
+  #include <stdlib.h>
+]], [[
+  double a,b,c,d;
+  float64x1_t ai, bi,ci,di;
+  ai = vld1_dup_f64(&a);
+  bi = vld1_dup_f64(&b);
+  ci = vld1_dup_f64(&c);
+  di=vfma_f64(ai,bi,ci);
+  vst1_f64(&d, di);
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+      AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-fma ])
   ])
+  esac
   AC_LANG_POP(C++)
 else
   AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
@@ -50,12 +74,14 @@ AC_CACHE_CHECK([verrou ], vg_cv_verrou_sqrt,
 if test "$vg_cv_verrou_sqrt" = yes; then
   # Check for sqrt intrinsics
   AC_LANG_PUSH(C++)
-  AC_MSG_CHECKING([for immintrin.h ])
+  AC_MSG_CHECKING([for sqrt intrinsic ])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include  <immintrin.h>
       #include <stdlib.h>
 ]], [[
-       double a,d;
+       double a=1.,d;
       __m128d ai, di;
       ai = _mm_load_sd(&a);
       di=_mm_sqrt_sd(ai,ai);
@@ -68,7 +94,25 @@ if test "$vg_cv_verrou_sqrt" = yes; then
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with sqrt intrinsics is required for --enable-verrou-sqrt ])
+  ]);;
+    arm64-linux)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include "arm_neon.h"
+  #include <stdlib.h>
+]], [[
+  double a=1.2;
+  double d=vrsqrted_f64(a);
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+      AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-sqrt ])
   ])
+  esac
+
   AC_LANG_POP(C++)
 else
   AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
@@ -200,6 +244,25 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
   ])
 AC_LANG_POP(C++)
 AC_SUBST(vg_test_no_avx512f_flag)
+
+# mfma
+vg_test_mfma_flag=-mfma
+AC_LANG_PUSH(C++)
+CXXFLAGS="$safe_CXXFLAGS $vg_test_mfma_flag"
+AC_MSG_CHECKING([for -mfma compil option])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <stdlib.h>
+      ]], [[return EXIT_SUCCESS;]])],
+    [
+      CXXFLAGS="$safe_CXXFLAGS"
+      AC_MSG_RESULT([yes])
+    ],[
+    CXXFLAGS="$safe_CXXFLAGS"
+     vg_test_mfma_flag=
+      AC_MSG_RESULT([no])
+  ])
+AC_LANG_POP(C++)
+AC_SUBST(vg_test_mfma_flag)
 
 
 AC_CONFIG_FILES([verrou/env.sh])

@@ -1,4 +1,3 @@
-
 /*--------------------------------------------------------------------*/
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- This file contains low-level code calling FMA instructions.  ---*/
@@ -34,42 +33,56 @@
 #pragma once
 
 #ifdef    USE_VERROU_SQRT
+
+#if defined(VGA_amd64)
 #include  <immintrin.h>
 #endif
-//#include  <fmaintrin.h>
+
+#if defined(VGA_arm64)
+#include "arm_neon.h"
+#endif
+
 
 template<class REALTYPE>
-inline REALTYPE vr_sqrt(const REALTYPE&){
-  return 0./ 0.; //nan to be sur not used
-}
+inline REALTYPE vr_sqrt(const REALTYPE&);
 
+#if defined(VGA_amd64)
 template<>
 inline double vr_sqrt<double>(const double& a){
-#ifdef USE_VERROU_SQRT
   double d;
   __m128d ai,resi;
   ai = _mm_load_sd(&a);
   resi=_mm_sqrt_sd(ai,ai);
   d=_mm_cvtsd_f64(resi);
   return d;
-#else
-  return 0./ 0.; //nan to be sur not used
-#endif
 }
+#endif
 
+#if defined(VGA_arm64)
+template<>
+inline double vr_sqrt<double>(const double& a){
+  return vrsqrted_f64(a);
+}
+#endif
 
+#if defined(VGA_amd64)
 template<>
 inline float vr_sqrt<float>(const float& a){
-#ifdef USE_VERROU_SQRT
   float d;
   __m128 ai,resi;
   ai = _mm_load_ss(&a);
   resi=_mm_sqrt_ss(ai);
   d=_mm_cvtss_f32(resi);
   return d;
-#else
-  return 0./ 0.; //nan to be sur not used
-#endif
-  
 }
+#endif
 
+#if defined(VGA_arm64)
+template<>
+inline float vr_sqrt<float>(const float& a){
+  return vrsqrtes_f32(a);
+}
+#endif
+
+
+#endif

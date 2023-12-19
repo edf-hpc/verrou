@@ -34,12 +34,21 @@
 #pragma once
 
 #ifdef    USE_VERROU_FMA
+
+#if defined(VGA_amd64)
 #include  <immintrin.h>
+#endif
+
+#if defined(VGA_arm64)
+#include "arm_neon.h"
+#endif
 //#include  <fmaintrin.h>
 
 template<class REALTYPE>
 inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&);
 
+
+#if defined(VGA_amd64)
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
   double d;
@@ -51,8 +60,25 @@ inline double vr_fma<double>(const double& a, const double& b, const double& c){
   d=_mm_cvtsd_f64(di);
   return d;
 }
+#endif
+
+#if defined(VGA_arm64)
+template<>
+inline double vr_fma<double>(const double& a, const double& b, const double& c){
+  double d;
+  float64x1_t ai, bi,ci,di;
+  ai = vld1_dup_f64(&a);
+  bi = vld1_dup_f64(&b);
+  ci = vld1_dup_f64(&c);
+  di=vfma_f64(ai,bi,ci);
+  vst1_f64(&d, di);
+  return d;
+}
+#endif
 
 
+
+#if defined(VGA_amd64)
 template<>
 inline float vr_fma<float>(const float& a, const float& b, const float& c){
   float d;
@@ -64,4 +90,18 @@ inline float vr_fma<float>(const float& a, const float& b, const float& c){
   d=_mm_cvtss_f32(di);
   return d;
 }
+#endif
+
+
+#if defined(VGA_arm64)
+template<>
+inline float vr_fma<float>(const float& a, const float& b, const float& c){
+  const double ad=a,bd=b,cd=c;
+  return (float)vr_fma<double>(ad,bd,cd);
+}
+#endif
+
+
+
+
 #endif //USE_VERROU_FMA

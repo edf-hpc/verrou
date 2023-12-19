@@ -578,7 +578,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
 						 functionName, VG_(fnptr_to_fnentry)(function),
 						 mkIRExprVec_2 (arg1, arg2))));
-
+#if defined(VGA_amd64)
   //conversion after call
   if(prec==VR_PREC_FLT){
       IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
@@ -589,6 +589,20 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
   }
+#elif defined(VGA_arm64)
+//arm64
+  if(prec==VR_PREC_FLT){
+     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                                      IRExpr_Unop (Iop_ReinterpI32asF32, IRExpr_RdTmp(res ) )));
+  }
+  if(prec==VR_PREC_DBL){
+     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                                      IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+  }
+#else
+#error "not yet implemented"
+#endif
+  
   return True;
 }
 
@@ -1861,6 +1875,13 @@ static void vr_post_clo_init(void)
      for(opIt=0; opIt<  VR_OP_CMP ;opIt++){ // Instruction after VR_OP_CMP (included) are not instrumented
        vr.instr_op[opIt]=True;
      }
+#ifndef USE_VERROU_FMA
+     vr.instr_op[VR_OP_MADD]=False;
+     vr.instr_op[VR_OP_MSUB]=False;
+#endif
+#ifndef USE_VERROU_SQRT
+     vr.instr_op[VR_OP_SQRT]=False;
+#endif
      vr.instr_op[VR_OP_CONV]=True;
    }
    VG_(umsg)("Instrumented operations :\n");
@@ -1917,18 +1938,35 @@ void vr_pre_syscall(ThreadId tid, UInt syscallno,
                     UWord* args, UInt nArgs){
 }
 
+#if defined(VGA_amd64)
+#define VR_OPEN_AT_SYSCALLNO 257
+#define VR_WRITE_SYSCALLNO 1
+#define VR_OPEN_SYSCALLNO 2
+#define VR_CLOSE_SYSCALLNO 3
+#define VR_CREAT_SYSCALLNO 85
 
+#elif defined(VGA_arm64)
+#define VR_ARM64_UNDEF 255
+
+#define VR_OPEN_AT_SYSCALLNO 56
+#define VR_WRITE_SYSCALLNO 64
+#define VR_OPEN_SYSCALLNO 255
+#define VR_CLOSE_SYSCALLNO 57
+#define VR_CREAT_SYSCALLNO 255
+#else
+#error "Unknown arch : syscallno need to be defined"
+#endif
 static
 void vr_post_syscall(ThreadId tid, UInt syscallno,
                      UWord* args, UInt nArgs, SysRes res){
    if(vr.excludeDetect){
-     if(syscallno==257){//openat
-       SizeT fd= sr_Res(res);
-       if(fd>0){
+     if(syscallno==VR_OPEN_AT_SYSCALLNO){//openat
+        SizeT fd= sr_Res(res);
+        if(fd>0){
 	 const HChar* buffer;
 	 Bool resolved=VG_(resolve_filename)(fd,&buffer);
 	 if(resolved){
-	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
+       	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
 	 }else{
 	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
 	 }
@@ -1937,7 +1975,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
    }
 
    if(vr.useExpectCLR){
-      if(syscallno==1 && vr.ExpectFileDescriptor !=-1){//syscall write
+      if((syscallno==VR_WRITE_SYSCALLNO) && (vr.ExpectFileDescriptor !=-1)){//syscall write
          int fd=(int)args[0];
 	 //	 VG_(umsg)("fd write %d, %d\n",fd, fdExpec);
          if(fd==vr.ExpectFileDescriptor){//sortie standard
@@ -1950,13 +1988,13 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
          }
       }
       if(vr.outputExpectFilePattern!=NULL){
-	if(syscallno==257 || syscallno==2 || syscallno==85){//syscall openat open creat
+         if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO)){//syscall openat open creat
 	  SizeT fd= sr_Res(res);;
 	  char* filenameParam=NULL;
-	  if(syscallno==257){//openat
+	  if(syscallno == VR_OPEN_AT_SYSCALLNO){//openat
 	    filenameParam=(char*) args[1];
 	  }
-	  if(syscallno==2 || syscallno==85){//open creat
+	  if( (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO)){//open creat
 	    filenameParam=(char*) args[0];
 	  }
 
@@ -1976,7 +2014,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	  //VG_(umsg)("%s do not match %s\n", filename, vr.outputExpectFilePattern );
 	}
 
-	if(syscallno==3){//syscall close
+	if(syscallno==VR_CLOSE_SYSCALLNO){//syscall close
 	  int fd=(int)args[0];
 	  if(fd==vr.ExpectFileDescriptor ){
 	    vr.ExpectFileDescriptor=-1;//retour à la sortie standard.

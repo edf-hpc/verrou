@@ -1,0 +1,30 @@
+diff --git a/VEX/priv/host_arm64_isel.c b/VEX/priv/host_arm64_isel.c
+index b4b7d8021..33a5e0d7b 100644
+--- a/VEX/priv/host_arm64_isel.c
++++ b/VEX/priv/host_arm64_isel.c
+@@ -3436,6 +3436,12 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, IRExpr* e )
+             addInstr(env, ARM64Instr_VCvtI2F(cvt_op, dst, src));
+             return dst;
+          }
++      case Iop_ReinterpI64asF64: {
++            HReg src   = iselIntExpr_R(env, e->Iex.Unop.arg);
++            HReg dst   = newVRegD(env);
++            addInstr(env, ARM64Instr_VDfromX(dst,src));
++            return dst;
++         }
+          default:
+             break;
+       }
+@@ -3624,6 +3630,12 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, IRExpr* e )
+             addInstr(env, ARM64Instr_VCvtHS(True/*hToS*/, dst, src));
+             return dst;
+          }
++         case Iop_ReinterpI32asF32: {
++            HReg src   = iselIntExpr_R(env, e->Iex.Unop.arg);
++            HReg dst   = newVRegD(env);
++            addInstr(env, ARM64Instr_VDfromX(dst,src));
++            return dst;
++         }
+          default:
+             break;
+       }

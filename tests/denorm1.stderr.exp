@@ -3,7 +3,6 @@ Copyright (C) XXXXX
 
 First seed : XXX
 Backend verrou : test-version
-Backend mcaquad : test-version
 Backend checkcancellation : test-version
 Backend check_float_max : test-version
 Backend checkdenorm : test-version
