@@ -362,7 +362,7 @@ public:
     uint32_t resHash=0;
     vr_tabulation_hash::hash_aux(resHash, 0, a1);
     uint32_t resHash2=0;
-    vr_tabulation_hash::hash_aux(resHash, 1, resHash2);
+    vr_tabulation_hash::hash_aux(resHash2, 1, resHash);
 
     constexpr double invMax=(1./ 4294967296.);
     return ((double)resHash2 *invMax );
