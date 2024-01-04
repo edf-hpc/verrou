@@ -29,6 +29,25 @@ public:
     return ((double)v *invMax );
   }
 
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const double* res){
+    uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash *invMax );
+  }
+
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const float* res){
+    uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash *invMax );
+  }
+
 
   static inline uint32_t hash(const vr_packArg<double,1>& pack,
 			      uint32_t hashOp){
@@ -66,7 +85,6 @@ public:
     return res;
   }
 
-  
 
   static inline uint32_t hash(const vr_packArg<double,2>& pack,
 			      uint32_t hashOp){
