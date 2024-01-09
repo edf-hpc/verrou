@@ -11,11 +11,14 @@ roundingListPerf=["random", "average","nearest"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
 
 buildConfigList=["stable","current", "current_fast"]
-buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
+buildSpecialConfigList=["dietzfelbinger", "multiply_shift","tabulation","double_tabulation", "xxhash","mersenne_twister"]
 
-nbRunTuple=(5,5) #inner outer
+nbRunTuple=(5,10) #inner outer
 ref_name="current_fast"
 slowDown=True
+
+minTime=True
+minTime=False
 
 
 # buildConfigList=["current", "current-upgrade"]
@@ -25,18 +28,18 @@ slowDown=True
 # nbRunTuple=(5,20) #inner outer
 # slowDown=False
 
-buildConfigList=["current", "last_stable"]
-ref_name="current"
-buildSpecialConfigList=[]
-detRounding=[]
-nbRunTuple=(5,2) #inner outer
-slowDown=True
+# buildConfigList=["current", "last_stable"]
+# ref_name="current"
+# buildSpecialConfigList=[]
+# detRounding=[]
+# nbRunTuple=(5,2) inner outer
+# slowDown=True
 
 
 verrouOptionsList=[("","")]
 
 postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
-postFixTab=["O3-DOUBLE-FMA"]
+#postFixTab=["O3-DOUBLE-FMA"]
 
 
 pathPerfBin="../unitTest/testPerf"
@@ -151,6 +154,19 @@ def extractPerfRef():
             res[binName]=resPerf
     return res
 
+def meanTab(tab):
+    return sum(tab)/ len(tab)
+
+
+def extractTime(data):
+    if minTime==True:
+        return data["min"]
+    else:
+        tab=data["tab"]
+        tab.sort()
+        filterTab=tab[10:-10]
+        return meanTab(filterTab)
+
 
 
 def nonPerfRegressionAnalyze(data, refName, refOption=""):
@@ -166,8 +182,8 @@ def nonPerfRegressionAnalyze(data, refName, refOption=""):
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
-                    minTimeRef=dataRef[binName][refOption][rounding]["min"]
-                    minTimeNew=dataNew[binName][optionStr][rounding]["min"]
+                    minTimeRef=extractTime(dataRef[binName][refOption][rounding])
+                    minTimeNew=extractTime(dataNew[binName][optionStr][rounding])
                     print("\t\t\t%s  ratio: %.4f "%(binName, minTimeNew/minTimeRef))
 
 def slowDownAnalyze(data):
@@ -182,8 +198,8 @@ def slowDownAnalyze(data):
             for rounding in roundingTab:
                 print("\t\trounding : %s "%(rounding))
                 for binName in  perfBinNameList:
-                    minTimeNew=dataNew[binName][optionStr][rounding]["min"]
-                    refTime=refData[binName]["min"]
+                    minTimeNew=extractTime(dataNew[binName][optionStr][rounding])
+                    refTime=extractTime(refData[binName])
                     print("\t\t\t%s  slowDown: x%.1f "%(binName, minTimeNew/refTime))
 
 def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr=""):
@@ -207,8 +223,8 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
     for rd in ["random","average"]:
         roundingTab+=[(rd, rd,"current")]
 
-        for gen in buildList:#on supprime master
-            for detType in detTab:
+        for detType in detTab:
+            for gen in buildList:#on supprime master
                 roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
         roundingTab+=["SEPARATOR"]
     roundingTab=roundingTab[0:-1]
@@ -228,8 +244,8 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
         head= [confLine[0]]
         def content(post, rounding, configure):
             binName="stencil-"+post
-            minTimeNew=data[configure][binName][optionStr][rounding]["min"]
-            refTime=refData[binName]["min"]
+            minTimeNew=extractTime(data[configure][binName][optionStr][rounding])
+            refTime=extractTime(refData[binName])
             slowDown="x%.1f "%(minTimeNew/refTime)
             return slowDown
         contentTab=[ content(post,confLine[1],confLine[2]) for post in postFixTab ]
@@ -269,13 +285,11 @@ if __name__=="__main__":
         tab=tabularLatex("lcccc", output="slowDown_scomdet.tex")
         feedPerfTab(resAll,buildSpecialConfigList, detTab=["_scomdet"])
 
-#        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
-#        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
+        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
+        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
         feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
 
-        sys.exit()
-        tab=tabular()
-        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det","_comdet"])
-
+        tab=tabularLatex("lcccc", output="slowDown_all.tex")
+        feedPerfTab(resAll,["dietzfelbinger", "multiply_shift", "tabulation","double_tabulation", "xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
