@@ -126,6 +126,8 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
     else:
         roundingTab=[]
     for rd in rndList:
+        if rd in ["sr_monotonic", "sr_smonotonic"]:
+            break
         if not rd in  ["sr_monotonic", "sr_smonotonic"]:
             roundingTab+=[(rd, rd,refName)]
         if rd=="average":
@@ -146,7 +148,17 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
                 roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
         roundingTab+=["SEPARATOR"]
-
+    needNewSep=False
+    for gen in buildConfList:
+        if gen=="current":
+            continue
+        for rd in rndList:
+            if not rd in ["sr_monotonic", "sr_smonotonic"]:
+                continue
+            roundingTab+=[(rd+"("+gen+")",rd,gen)]
+            needNewSep=True
+    if needNewSep:
+        roundingTab+=["SEPARATOR"]
     for confLine in roundingTab[0:-1]:
         if confLine=="SEPARATOR":
             tab.lineSep()
@@ -209,6 +221,9 @@ if __name__=="__main__":
 
     tab=tabularLatex("lcccc", output="tabMono.tex")
     feedTab(statRes,rndList=["average","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabMaxDiff.tex")
+    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMCA.tex")
     feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")

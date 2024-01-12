@@ -246,7 +246,10 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
             binName="stencil-"+post
             minTimeNew=extractTime(data[configure][binName][optionStr][rounding])
             refTime=extractTime(refData[binName])
-            slowDown="x%.1f "%(minTimeNew/refTime)
+            slowDownF=minTimeNew/refTime
+            slowDown="x%.1f "%(slowDownF)
+            if slowDownF>100.:
+                slowDown="x%.0f "%(slowDownF)
             return slowDown
         contentTab=[ content(post,confLine[1],confLine[2]) for post in postFixTab ]
         tab.line(head+contentTab)
@@ -292,4 +295,4 @@ if __name__=="__main__":
         feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
 
         tab=tabularLatex("lcccc", output="slowDown_all.tex")
-        feedPerfTab(resAll,["dietzfelbinger", "multiply_shift", "tabulation","double_tabulation", "xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
+        feedPerfTab(resAll,["dietzfelbinger", "multiply_shift", "tabulation","double_tabulation", "xxhash","mersenne_twister"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
