@@ -37,6 +37,7 @@
 #include "vr_sqrt.hxx"
 #include "cmath"
 #include "vr_fma.hxx"
+#include <algorithm>
 
 enum opHash : uint32_t{
   addHash=0,
@@ -121,6 +122,10 @@ struct vr_packArg<REALTYPE,2>{
   typedef REALTYPE RealType;
 
   vr_packArg(const RealType& v1,const RealType& v2):arg1(v1),arg2(v2)
+  {
+  };
+
+  vr_packArg(const std::pair<const REALTYPE&, const REALTYPE&>& pair):arg1(pair.first),arg2(pair.second)
   {
   };
 
@@ -314,45 +319,48 @@ public:
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
-    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
-    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
-    const PackArgs pnew(pmin,pmax);
+    const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+    const PackArgs pnew(pminmax);
     const uint32_t hashOp(AddOp<RealType>::getHash());
     return r.hash(pnew, hashOp);
   }
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r,const PackArgs& p){
-    if( p.isSameSign()){//same sign
-      const uint32_t hashOp(AddOp<RealType>::getHash());
-      if( p.arg1 >0){
-	const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
-	const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
-	const PackArgs pnew(pmin,pmax);
+    if( p.arg1 >0){//same sign
+      if( p.arg2 >0){
+	// p.arg1 >0  p.arg2 >0
+	const uint32_t hashOp(AddOp<RealType>::getHash());
+	const std::pair<const RealType&, const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+	const PackArgs pnew(pminmax);
 	return r.hash(pnew, hashOp);
       }else{
-	const RealType pmin(std::min<RealType>(-p.arg1, -p.arg2));
-	const RealType pmax(std::max<RealType>(-p.arg1, -p.arg2));
-	const PackArgs pnew(pmin,pmax);
-	return r.hashBar(pnew,hashOp);
-
+	// p.arg1 >0  p.arg2 <0
+	const uint32_t hashOp(SubOp<RealType>::getHash());
+	const RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,mparg2));
+	const PackArgs pnew(pminmax);
+	return r.hash(pnew, hashOp);
       }
-    }else{//sign diff
-      const uint32_t hashOp(SubOp<RealType>::getHash());
-      if( p.arg1 >0){
-	const RealType pmin(std::min<RealType>(p.arg1, -p.arg2));
-	const RealType pmax(std::max<RealType>(p.arg1, -p.arg2));
-	const PackArgs pnew(pmin,pmax);
-	return r.hash(pnew, hashOp);
-      }else{
-	const RealType pmin(std::min<RealType>(-p.arg1, p.arg2));
-	const RealType pmax(std::max<RealType>(-p.arg1, p.arg2));
-	const PackArgs pnew(pmin,pmax);
+    }else{//p.arg1<0
+      if( p.arg2 >0){
+	// p.arg1 <0  p.arg2 >0
+	const uint32_t hashOp(SubOp<RealType>::getHash());
+	const RealType mparg1(-p.arg1);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,p.arg2));
+	const PackArgs pnew(pminmax);
 	return r.hashBar(pnew, hashOp);
+      }else{
+	// p.arg1 <0  p.arg2 <0
+	const uint32_t hashOp(AddOp<RealType>::getHash());
+	const RealType mparg1(-p.arg1);
+	const RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,mparg2));
+	const PackArgs pnew(pminmax);
+	return r.hashBar(pnew,hashOp);
       }
     }
   }
-
 };
 
 
@@ -553,9 +561,8 @@ public:
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
-    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
-    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
-    const PackArgs pnew(pmin,pmax);
+    const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+    const PackArgs pnew(pminmax);
     const uint32_t hashOp(MulOp<RealType>::getHash());
     return r.hash(pnew, hashOp);
   }
@@ -564,29 +571,29 @@ public:
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
     const uint32_t hashOp(MulOp<RealType>::getHash());
-    if( p.isSameSign()){//same sign
-      if( p.arg1 >0){
-	const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
-	const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
-	const PackArgs pnew(pmin,pmax);
+    if( p.arg1 >0 ){
+      if( p.arg2 >0 ){
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+	const PackArgs pnew(pminmax);
 	return r.hash(pnew,hashOp);
       }else{
-	const RealType pmin(std::min<RealType>(-p.arg1, -p.arg2));
-	const RealType pmax(std::max<RealType>(-p.arg1, -p.arg2));
-	const PackArgs pnew(pmin,pmax);
-	return r.hash(pnew,hashOp);
+	RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,mparg2));
+	const PackArgs pnew(pminmax);
+	return r.hashBar(pnew,hashOp);
       }
-    }else{//sign diff
-      if( p.arg1 >0){
-	const RealType pmin(std::min<RealType>(p.arg1, -p.arg2));
-	const RealType pmax(std::max<RealType>(p.arg1, -p.arg2));
-	const PackArgs pnew(pmin,pmax);
+    }else{//p.arg1 <0 
+      if( p.arg2 >0){
+	RealType mparg1(-p.arg1);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,p.arg2));
+	const PackArgs pnew(pminmax);
 	return r.hashBar(pnew,hashOp);
       }else{
-	const RealType pmin(std::min<RealType>(-p.arg1, p.arg2));
-	const RealType pmax(std::max<RealType>(-p.arg1, p.arg2));
-	const PackArgs pnew(pmin,pmax);
-	return r.hashBar(pnew,hashOp);
+	RealType mparg1(-p.arg1);
+	RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,mparg2));
+	const PackArgs pnew(pminmax);
+	return r.hash(pnew,hashOp);
       }
     }
   }
@@ -725,13 +732,16 @@ public:
       if( p.arg1 >0){
 	return r.hash(PackArgs(p.arg1, p.arg2), hashOp);
       }else{
-	return r.hash(PackArgs(-p.arg1, -p.arg2), hashOp);
+	RealType mparg1(- p.arg1);
+	return r.hash(PackArgs(mparg1, -p.arg2), hashOp);
       }
     }else{//sign diff
       if( p.arg1 >0){
-	return r.hashBar(PackArgs(p.arg1, -p.arg2), hashOp);
+	RealType mparg2(- p.arg2);
+	return r.hashBar(PackArgs(p.arg1, mparg2), hashOp);
       }else{
-	return r.hashBar(PackArgs(-p.arg1, p.arg2), hashOp);
+	RealType mparg1(- p.arg1);
+	return r.hashBar(PackArgs(mparg1, p.arg2), hashOp);
       }
     }
   }
@@ -828,25 +838,24 @@ public:
     const RealType p2(p.arg2);
     const RealType absP1( p1>=0. ? p1 : -p1 );
     const RealType absP2( p2>=0. ? p2 : -p2 );
-    const RealType pmin(std::min<RealType>(absP1, absP2));
-    const RealType pmax(std::max<RealType>(absP1, absP2));
+    const std::pair<const RealType&,const RealType&> pminmax(std::minmax(absP1,absP2));
 
     if( p.isEvenNumPositive()){//r2
       if( p.arg3 >0){
 	const RealType p3(-p.arg3);
-	const vr_packArg<RealType,3> pnew(pmin,pmax,p3);
+	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p3);
 	return r.hash(pnew,hashOp);
       }else{
-	const vr_packArg<RealType,3> pnew(pmin,pmax,p.arg3);
+	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
 	return r.hashBar(pnew,hashOp);
       }
     }else{//r1
       if( p.arg3 >0){
-	const vr_packArg<RealType,3> pnew(pmin,pmax,p.arg3);
+	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
 	return r.hash( pnew,hashOp);
       }else{
 	const RealType p3(-p.arg3);
-	const vr_packArg<RealType,3> pnew(pmin,pmax,p3);
+	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p3);
 	return r.hashBar(pnew, hashOp);
       }
     }
