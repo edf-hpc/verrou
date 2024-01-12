@@ -959,9 +959,9 @@ public:
     MulOp<double>::twoProd(x,x,u,uu);
     const double res ((a-u)-uu) ;
 #endif
-  if(res==0.) return 0.;
-  if(res<0) return -1.;
-  return 1.;
+    if(res==0.) return 0.;
+    if(res<0) return -1.;
+    return 1.; //to avoid flush to zero during double to float cast
   };
 
   static inline RealType apply_float (const PackArgs& p,const RealType& c) {
