@@ -454,12 +454,15 @@ public:
     REALTYPE arg1=p.arg1;
     REALTYPE arg2=p.arg2;
     REALTYPE cshift=c;
-    REALTYPE shift(std::pow<REALTYPE>(2.,500));
-    if(arg1 <1.){
+    constexpr REALTYPE shift(0x1.p500);
+    constexpr REALTYPE one(1.);
+    constexpr REALTYPE mone(-1.);
+
+    if(arg1 < one && arg1 >mone){
       arg1 *= shift;
       cshift*=shift;
     }
-    if(arg2 <1.){
+    if(arg2 < one && arg2 > mone){
       arg2 *= shift;
       cshift*=shift;
     }
@@ -564,7 +567,7 @@ public:
 	const PackArgs pnew(pminmax);
 	return r.hashBar(pnew,hashOp);
       }
-    }else{//p.arg1 <0 
+    }else{//p.arg1 <0
       if( p.arg2 >0){
 	RealType mparg1(-p.arg1);
 	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,p.arg2));
@@ -786,9 +789,8 @@ public:
 
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashCom(const RANDSCOM& r,const PackArgs& p){
-    const RealType pmin(std::min<RealType>(p.arg1, p.arg2));
-    const RealType pmax(std::max<RealType>(p.arg1, p.arg2));
-    const vr_packArg<RealType,3> pnew(pmin, pmax, p.arg3);
+    const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+    const vr_packArg<RealType,3> pnew(pminmax.first, pminmax.second, p.arg3);
     const uint32_t hashOp(MAddOp::getHash());
     return r.hash(pnew,hashOp);
   }
