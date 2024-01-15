@@ -138,11 +138,6 @@ struct vr_packArg<REALTYPE,2>{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2));
   }
 
-  inline bool isSameSign()const{
-    //return (arg1*arg2) >0; //should be faster but may fail with denorm
-    return (arg1 >0  &&  arg2 >0) || (arg1 <0  &&  arg2 <0);
-  }
-
   const RealType& arg1;
   const RealType& arg2;
 };
@@ -191,19 +186,6 @@ struct vr_packArg<REALTYPE,3>{
 
   inline bool isOneArgNanInf()const{
     return (isNanInf<RealType>(arg1) || isNanInf<RealType>(arg2) || isNanInf<RealType>(arg3) );
-  }
-
-  inline bool isEvenNumPositive()const{
-    int count=0;
-    if(arg1 > 0) count++;
-    if(arg2 > 0) count++;
-    if(arg3 > 0) count++;
-
-    if(count==0 || count==2){
-      return true;
-    }else{
-      return false;
-    }
   }
 
   const RealType& arg1;
@@ -728,24 +710,27 @@ public:
   template<class RANDSCOM>
   static inline typename RANDSCOM::TypeOut hashScom(const RANDSCOM& r, const PackArgs& p){
     const uint32_t hashOp(DivOp::getHash());
-    if( p.isSameSign()){//same sign
-      if( p.arg1 >0){
+    if( p.arg1 >0){
+      if( p.arg2 >0){
+	//p.arg1 >0  p.arg2 >0
 	return r.hash(PackArgs(p.arg1, p.arg2), hashOp);
       }else{
-	RealType mparg1(- p.arg1);
-	return r.hash(PackArgs(mparg1, -p.arg2), hashOp);
-      }
-    }else{//sign diff
-      if( p.arg1 >0){
-	RealType mparg2(- p.arg2);
+	//p.arg1 >0  p.arg2 <0
+	const RealType mparg2(- p.arg2);
 	return r.hashBar(PackArgs(p.arg1, mparg2), hashOp);
-      }else{
-	RealType mparg1(- p.arg1);
+      }
+    }else{//p.arg1<0
+      if( p.arg2 >0){
+	const RealType mparg1(- p.arg1);
 	return r.hashBar(PackArgs(mparg1, p.arg2), hashOp);
+      }else{
+	//p.arg1<0  p.arg2<0
+	const RealType mparg1(- p.arg1);
+	const RealType mparg2(- p.arg2);
+	return r.hash(PackArgs(mparg1, mparg2), hashOp);
       }
     }
   }
-
 };
 
 
@@ -834,33 +819,63 @@ public:
       }*/
 
     const uint32_t hashOp(MAddOp::getHash());
-    const RealType p1(p.arg1);
-    const RealType p2(p.arg2);
-    const RealType absP1( p1>=0. ? p1 : -p1 );
-    const RealType absP2( p2>=0. ? p2 : -p2 );
-    const std::pair<const RealType&,const RealType&> pminmax(std::minmax(absP1,absP2));
-
-    if( p.isEvenNumPositive()){//r2
-      if( p.arg3 >0){
-	const RealType p3(-p.arg3);
-	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p3);
-	return r.hash(pnew,hashOp);
-      }else{
-	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
-	return r.hashBar(pnew,hashOp);
+    if(p.arg1 >0){
+      if(p.arg2 >0){
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,p.arg2));
+	if(p.arg3 >0){
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
+	  //evenNumPositive: False
+	  return r.hash( pnew,hashOp);
+	}else{//p.arg3<0
+	  //evenNumPositive: True
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
+	  return r.hashBar(pnew,hashOp);
+	}
+      }else{//p.arg2<0
+	const RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,mparg2));
+	if(p.arg3 >0){
+	  //evenNumPositive: True
+	  const RealType mparg3(-p.arg3);
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,mparg3);
+	  return r.hash(pnew,hashOp);
+	}else{//p.arg3<0
+	  //evenNumPositive: False
+	  const RealType mparg3(-p.arg3);
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,mparg3);
+	  return r.hashBar(pnew, hashOp);
+	}
       }
-    }else{//r1
-      if( p.arg3 >0){
-	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
-	return r.hash( pnew,hashOp);
-      }else{
-	const RealType p3(-p.arg3);
-	const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p3);
-	return r.hashBar(pnew, hashOp);
+    }else{//p.arg1<0
+      const RealType mparg1(-p.arg1);
+      if(p.arg2 >0){
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,p.arg2));
+	if(p.arg3 >0){
+	  //evenNumPositive: True
+	  const RealType mparg3(-p.arg3);
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,mparg3);
+	  return r.hash(pnew,hashOp);
+	}else{//p.arg3<0
+	  //evenNumPositive: False
+	  const RealType mparg3(-p.arg3);
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,mparg3);
+	  return r.hashBar(pnew, hashOp);
+	}
+      }else{//p.arg1<0 p.arg2<0
+	const RealType mparg2(-p.arg2);
+	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,mparg2));
+	if(p.arg3 >0){
+	  //evenNumPositive: False
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
+	  return r.hash( pnew,hashOp);
+	}else{//p.arg3<0
+	  //evenNumPositive: True
+	  const vr_packArg<RealType,3> pnew(pminmax.first,pminmax.second,p.arg3);
+	  return r.hashBar(pnew,hashOp);
+	}
       }
     }
   }
-
 };
 
 
