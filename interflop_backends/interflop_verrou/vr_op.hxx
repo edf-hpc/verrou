@@ -421,9 +421,7 @@ public:
   static inline RealType apply(const RealType& a, const RealType& b, const RealType& x){
     /*Provient de "Accurate Sum and dot product" OGITA RUMP OISHI */
 #ifdef    USE_VERROU_FMA
-    RealType c;
-    c=vr_fma(a,b,-x);
-    return c;
+    return vr_fma(a,b,-x);
 #else
     RealType a1,a2;
     RealType b1,b2;
@@ -436,38 +434,39 @@ public:
 
   static inline void split(RealType a, RealType& x, RealType& y){
     //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
-    const RealType factor(splitFactor<RealType>());
+    constexpr RealType factor(splitFactor<RealType>());
     const RealType c=factor*a;
     x=(c-(c-a));
     y=(a-x);
   }
 };
 
+
 template<class REALTYPE>
-class sameSignOfErrorForMul{
+class sameSignOfErrorForMul;
+
+template<>
+class sameSignOfErrorForMul<double>{
 public:
-  typedef REALTYPE RealType;
+  typedef double RealType;
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
 #ifdef VERROU_DENORM_HACKS_DOUBLE
-    REALTYPE arg1=p.arg1;
-    REALTYPE arg2=p.arg2;
-    REALTYPE cshift=c;
-    constexpr REALTYPE shift(0x1.p500);
-    constexpr REALTYPE one(1.);
-    constexpr REALTYPE mone(-1.);
-
-    if(arg1 < one && arg1 >mone){
+    RealType arg1=p.arg1;
+    RealType arg2=p.arg2;
+    RealType cshift=c;
+    constexpr RealType shift(0x1.p500);
+    constexpr RealType mone(-1.);
+    if(arg1 < 1. && arg1 >mone){
       arg1 *= shift;
       cshift*=shift;
     }
-    if(arg2 < one && arg2 > mone){
+    if(arg2 < 1. && arg2 > mone){
       arg2 *= shift;
       cshift*=shift;
     }
-    REALTYPE res(ErrorForMul<RealType>::apply(arg1,arg2,cshift));
-    return res;
+    return ErrorForMul<RealType>::apply(arg1,arg2,cshift);
 #else
     return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
 #endif
@@ -562,20 +561,20 @@ public:
 	const PackArgs pnew(pminmax);
 	return r.hash(pnew,hashOp);
       }else{
-	RealType mparg2(-p.arg2);
+	const RealType mparg2(-p.arg2);
 	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(p.arg1,mparg2));
 	const PackArgs pnew(pminmax);
 	return r.hashBar(pnew,hashOp);
       }
     }else{//p.arg1 <0
       if( p.arg2 >0){
-	RealType mparg1(-p.arg1);
+	const RealType mparg1(-p.arg1);
 	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,p.arg2));
 	const PackArgs pnew(pminmax);
 	return r.hashBar(pnew,hashOp);
       }else{
-	RealType mparg1(-p.arg1);
-	RealType mparg2(-p.arg2);
+	const RealType mparg1(-p.arg1);
+	const RealType mparg2(-p.arg2);
 	const std::pair<const RealType&,const RealType&> pminmax(std::minmax(mparg1,mparg2));
 	const PackArgs pnew(pminmax);
 	return r.hash(pnew,hashOp);
@@ -929,8 +928,8 @@ public:
     if( p.arg1 >0){
       return r.hash(p, hashOp);
     }else{
-      const RealType p1(-p.arg1);
-      return r.hashBar(PackArgs(p1), hashOp);
+      const RealType mparg1(-p.arg1);
+      return r.hashBar(PackArgs(mparg1), hashOp);
     }
   }
 
