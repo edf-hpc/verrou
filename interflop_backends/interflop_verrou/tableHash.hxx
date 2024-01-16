@@ -29,13 +29,32 @@ public:
     return ((double)v *invMax );
   }
 
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const double* res){
+    const uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux<0>(resHash, a1);
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash *invMax );
+  }
+
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+					   const float* res){
+    const uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
+    uint32_t resHash=0;
+    vr_tabulation_hash::hash_aux<0>(resHash, a1);
+
+    constexpr double invMax=(1./ 4294967296.);
+    return ((double)resHash *invMax );
+  }
+
 
   static inline uint32_t hash(const vr_packArg<double,1>& pack,
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
+    const uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
     return res;
   }
 
@@ -43,8 +62,8 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
     return res;
   }
 
@@ -52,8 +71,8 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg2);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
+    const uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg2);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
     return res;
   }
 
@@ -61,12 +80,11 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg2);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg2);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
     return res;
   }
 
-  
 
   static inline uint32_t hash(const vr_packArg<double,2>& pack,
 			      uint32_t hashOp){
@@ -74,8 +92,8 @@ public:
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
     uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
     uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
-    vr_tabulation_hash::hash_aux(res, 1, a2);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
+    vr_tabulation_hash::hash_aux<1>(res, a2);
     return res;
   }
 
@@ -83,10 +101,10 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
-    uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
-    vr_tabulation_hash::hash_aux(res, 1, a2);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    const uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
+    vr_tabulation_hash::hash_aux<1>(res, a2);
     return res;
   }
 
@@ -96,12 +114,12 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
-    uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
-    uint64_t a3=realToUint64_reinterpret_cast<double>(pack.arg3);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
-    vr_tabulation_hash::hash_aux(res, 1, a2);
-    vr_tabulation_hash::hash_aux(res, 2, a3);
+    const uint64_t a1=realToUint64_reinterpret_cast<double>(pack.arg1);
+    const uint64_t a2=realToUint64_reinterpret_cast<double>(pack.arg2);
+    const uint64_t a3=realToUint64_reinterpret_cast<double>(pack.arg3);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
+    vr_tabulation_hash::hash_aux<1>(res, a2);
+    vr_tabulation_hash::hash_aux<2>(res, a3);
     return res;
   }
 
@@ -110,44 +128,51 @@ public:
 			      uint32_t hashOp){
     uint32_t res=0;
     vr_tabulation_hash::hash_op(res, (uint16_t)hashOp);
-    uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
-    uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
-    uint32_t a3=realToUint32_reinterpret_cast(pack.arg3);
-    vr_tabulation_hash::hash_aux(res, 0, a1);
-    vr_tabulation_hash::hash_aux(res, 1, a2);
-    vr_tabulation_hash::hash_aux(res, 2, a3);
+    const uint32_t a1=realToUint32_reinterpret_cast(pack.arg1);
+    const uint32_t a2=realToUint32_reinterpret_cast(pack.arg2);
+    const uint32_t a3=realToUint32_reinterpret_cast(pack.arg3);
+    vr_tabulation_hash::hash_aux<0>(res, a1);
+    vr_tabulation_hash::hash_aux<1>(res, a2);
+    vr_tabulation_hash::hash_aux<2>(res, a3);
     return res;
   }
 
 
-  static inline void  hash_op(uint32_t& h, uint16_t optEnum){
-    uint32_t x(optEnum);
-    uint32_t i;
-    uint8_t c;
-    for(i=0 ; i <2 ; i++){
-      c=x;
+  /*  static inline void  hash_op(uint32_t& h, uint16_t optEnum){
+    uint16_t x(optEnum);
+    for(uint32_t i=0 ; i <2 ; i++){
+      const uint8_t c=x;
       h^= hashTableOp[i][c];
       x = x >> 8;
     }
+    }*/
+
+  static inline void  hash_op(uint32_t& h, uint16_t optEnum){
+    /* Need to be called befor any hash_aux*/
+    uint16_t x(optEnum);
+    const uint8_t c1=x;
+    h = hashTableOp[0][c1];
+    const uint8_t c2 = (x >> 8);
+    h ^= hashTableOp[1][c2];
   }
-  static inline void hash_aux(uint32_t& h, uint32_t index, uint64_t value){
+
+
+  template<int INDEX>
+  static inline void hash_aux(uint32_t& h, const uint64_t& value){
     uint64_t x(value);
-    uint32_t i;
-    uint8_t c;
-    for(i=0 ; i <8 ; i++){
-      c=x;
-      h^= hashTable[index][i][c];
+    for(uint32_t i=0 ; i <8 ; i++){
+      const uint8_t c=x;
+      h^= hashTable[INDEX][i][c];
       x = x >> 8;
     }
   }
 
-  static inline void hash_aux(uint32_t& h, uint32_t index, uint32_t value){
+  template<int INDEX>
+  static inline void hash_aux(uint32_t& h, const uint32_t& value){
     uint32_t x(value);
-    uint32_t i;
-    uint8_t c;
-    for(i=0 ; i <4 ; i++){
-      c=x;
-      h^= hashTable[index][i][c];
+    for(uint32_t i=0 ; i <4 ; i++){
+      const uint8_t c=x;
+      h^= hashTable[INDEX][i][c];
       x = x >> 8;
     }
   }
@@ -339,7 +364,7 @@ public:
 			       uint32_t hashOp){
     const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
-    vr_tabulation_hash::hash_aux(res, 3, tmp);
+    vr_tabulation_hash::hash_aux<3>(res, tmp);
     return res&1;
   }
 
@@ -349,7 +374,7 @@ public:
 				 uint32_t hashOp){
     const uint32_t tmp=vr_tabulation_hash::hash(pack,hashOp);
     uint32_t res=0;
-    vr_tabulation_hash::hash_aux(res, 3, tmp);
+    vr_tabulation_hash::hash_aux<3>(res, tmp);
     constexpr double invMax=(1./ 4294967296.); //2**32 = 4294967296
     return ((double)res *invMax );
   }
@@ -358,23 +383,23 @@ public:
 
   static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
 					   const double* res){
-    uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
+    const uint64_t a1=*reinterpret_cast<const uint64_t*>(res);
     uint32_t resHash=0;
-    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+    vr_tabulation_hash::hash_aux<0>(resHash,  a1);
     uint32_t resHash2=0;
-    vr_tabulation_hash::hash_aux(resHash, 1, resHash2);
+    vr_tabulation_hash::hash_aux<1>(resHash2, resHash);
 
     constexpr double invMax=(1./ 4294967296.);
     return ((double)resHash2 *invMax );
   }
 
-    static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
+  static inline double hashRatioFromResult(__attribute__((unused)) const Vr_Rand * r,
 					   const float* res){
-    uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
+    const uint32_t a1=*reinterpret_cast<const uint32_t*>(res);
     uint32_t resHash=0;
-    vr_tabulation_hash::hash_aux(resHash, 0, a1);
+    vr_tabulation_hash::hash_aux<0>(resHash, a1);
     uint32_t resHash2=0;
-    vr_tabulation_hash::hash_aux(resHash2, 1, resHash);
+    vr_tabulation_hash::hash_aux<1>(resHash2, resHash);
 
     constexpr double invMax=(1./ 4294967296.);
     return ((double)resHash2 *invMax );

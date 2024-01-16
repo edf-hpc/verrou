@@ -123,7 +123,7 @@ REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
               <simpara>
-	      A classical python script look like this :
+	      A classical python script looks like this :
 	      </simpara>
               <programlisting>
 <![CDATA[import sys

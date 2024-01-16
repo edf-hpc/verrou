@@ -58,8 +58,8 @@ VERROU_LD =
 
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
-VERROU_FLAG_CXX += -mfma -DUSE_VERROU_FMA
-VERROU_FLAG_C   += -mfma -DUSE_VERROU_FMA
+VERROU_FLAG_CXX += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
+VERROU_FLAG_C   += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
 endif
 if HAVE_SQRT_INTRIN
 VERROU_FLAG_CXX += -DUSE_VERROU_SQRT

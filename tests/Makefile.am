@@ -37,7 +37,7 @@ test_libm_SOURCES = test_libm.cxx
 
 VERROU_FLAG = -O0 -g3 -fno-builtin @vg_test_no_avx512f_flag@
 if HAVE_FMA_INTRIN
-VERROU_FLAG += -mfma -DUSE_VERROU_FMA
+VERROU_FLAG += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
 endif
 AM_CFLAGS   += $(AM_FLAG_M3264_PRI)  $(VERROU_FLAG)
 AM_CXXFLAGS += $(AM_FLAG_M3264_PRI)  -std=c++11 $(VERROU_FLAG)

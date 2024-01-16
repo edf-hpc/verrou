@@ -12,24 +12,21 @@ branch="master"
 valgrind_version="valgrind-3.22.0"
 
 verrouConfigList={
-    "stable":           { "tag":"v2.4.0" ,"flags":"--enable-verrou-fma"},
+    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma"},
     "current":           { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":""},
     "current_fast":      { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
     "dietzfelbinger":   { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
     "multiply_shift":   { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
-    "double_tabulation":{ "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "double_tabulation":{ "valgrind":valgrind_version, "branch_verrou":"bl/tabulation" ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "tabulation":{ "valgrind":valgrind_version, "branch_verrou":"bl/tabulation" ,"flags":"--with-verrou-det-hash=tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
     "mersenne_twister": { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
     "xxhash": { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
-#}
-#verrouConfigList={
-#    "current":           { "valgrind":"valgrind-3.20.0", "branch_verrou":"master" ,"flags":""},
-#    "current-upgrade":   { "valgrind":"valgrind-3.21.0", "branch_verrou":"bl/val3.21" ,"flags":""},
-    }
-
-verrouConfigList={
-    "current":           { "valgrind":"valgrind-3.22.0", "branch_verrou":"bl/checkperf" ,"flags":""},
-    "last_stable":       { "tag":"v2.5.0" ,"flags":""},
 }
+
+#verrouConfigList={
+#    "current":           { "valgrind":"valgrind-3.22.0", "branch_verrou":"bl/checkperf" ,"flags":""},
+#    "last_stable":       { "tag":"v2.5.0" ,"flags":""},
+#}
 
 
 valgrindConfigList={

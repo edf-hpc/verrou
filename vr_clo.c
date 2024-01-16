@@ -113,7 +113,9 @@ void vr_clo_defaults (void) {
     vr.instr_vec[vecIt]=True;
   }
   vr.instr_vec[VR_VEC_SCAL]=False;
-
+#if defined(VGA_arm64)
+  vr.instr_vec[VR_VEC_SCAL]=True;
+#endif 
   vr.instr_prec[VR_PREC_FLT]=True;
   vr.instr_prec[VR_PREC_DBL]=True;
   vr.instr_prec[VR_PREC_LDBL]=False;

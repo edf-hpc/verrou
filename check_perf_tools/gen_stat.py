@@ -9,7 +9,7 @@ from tabular import *
 
 detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
+buildConfList=[ "current","dietzfelbinger","multiply_shift","tabulation","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
 buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
@@ -119,11 +119,15 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
     tab.line(["","float","double", "float","double"])
     tab.endLine()
     tab.lineSep()
-
-    tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
-    tab.endLine()
-    roundingTab=[("all", "all", "current"),"SEPARATOR"]
+    if precisionVar=="bit":
+        tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
+        tab.endLine()
+        roundingTab=[("all", "all", "current"),"SEPARATOR"]
+    else:
+        roundingTab=[]
     for rd in rndList:
+        if rd in ["sr_monotonic", "sr_smonotonic"]:
+            break
         if not rd in  ["sr_monotonic", "sr_smonotonic"]:
             roundingTab+=[(rd, rd,refName)]
         if rd=="average":
@@ -144,7 +148,17 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
                 roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
         roundingTab+=["SEPARATOR"]
-
+    needNewSep=False
+    for gen in buildConfList:
+        if gen=="current":
+            continue
+        for rd in rndList:
+            if not rd in ["sr_monotonic", "sr_smonotonic"]:
+                continue
+            roundingTab+=[(rd+"("+gen+")",rd,gen)]
+            needNewSep=True
+    if needNewSep:
+        roundingTab+=["SEPARATOR"]
     for confLine in roundingTab[0:-1]:
         if confLine=="SEPARATOR":
             tab.lineSep()
@@ -208,8 +222,11 @@ if __name__=="__main__":
     tab=tabularLatex("lcccc", output="tabMono.tex")
     feedTab(statRes,rndList=["average","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
 
+    tab=tabularLatex("lcccc", output="tabMaxDiff.tex")
+    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1)
+
     tab=tabularLatex("lcccc", output="tabMCA.tex")
-    feedTab(statRes,rndList=["random","average","sr_monotonic"],detTab=["_det","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit", buildConfList=[ "current","double_tabulation", "xxhash","mersenne_twister"])
+    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")
 
 
     cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
