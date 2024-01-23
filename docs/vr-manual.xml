@@ -462,7 +462,14 @@ det2
                 Toggle instrumentation of vectorized instructions (number corresponds to the pack size)
             </para></listitem>
           </varlistentry>
+	  <varlistentry id="vr-opt.instr-unk" xreflabel="--vr-instr-unk">
+            <term><option><![CDATA[--vr-instr-unk=<yes|no> [default=yes]]]></option></term>
+            <listitem><para>
+                Toggle instrumentation of instructions with unknown vectorized status (fma is unvectorized in valgrind IR).
+            </para></listitem>
+          </varlistentry>
 
+	      
 	      <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
             <term><option><![CDATA[--vr-instr-[flt|dbl]=<yes|no> [default=yes]]]></option></term>
             <listitem><para>

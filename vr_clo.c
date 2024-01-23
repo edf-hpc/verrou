@@ -302,6 +302,9 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--vr-instr-vec8", bool_val)) {
      vr.instr_vec[VR_VEC_FULL8]= bool_val;
   }
+  else if (VG_BOOL_CLO (arg, "--vr-instr-unk", bool_val)) {
+     vr.instr_vec[VR_VEC_UNK]= bool_val;
+  }
 
   else if (VG_BOOL_CLO (arg, "--vr-instr-flt", bool_val)) {
      vr.instr_prec[VR_PREC_FLT]= bool_val;
