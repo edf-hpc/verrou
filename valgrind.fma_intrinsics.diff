@@ -1,0 +1,226 @@
+diff --git a/Makefile.vex.am b/Makefile.vex.am
+index 98d848359..b6f0f56f1 100644
+--- a/Makefile.vex.am
++++ b/Makefile.vex.am
+@@ -54,6 +54,7 @@ noinst_HEADERS = \
+ 	priv/host_generic_simd128.h \
+ 	priv/host_generic_simd256.h \
+ 	priv/host_generic_maddf.h \
++	priv/host_amd64_maddf.h \
+ 	priv/host_x86_defs.h \
+ 	priv/host_amd64_defs.h \
+ 	priv/host_ppc_defs.h \
+@@ -156,6 +157,7 @@ LIBVEX_SOURCES_COMMON = \
+ 	priv/host_generic_simd128.c \
+ 	priv/host_generic_simd256.c \
+ 	priv/host_generic_maddf.c \
++	priv/host_amd64_maddf.c \
+ 	priv/host_generic_reg_alloc2.c \
+ 	priv/host_generic_reg_alloc3.c \
+ 	priv/host_x86_defs.c \
+@@ -176,6 +178,12 @@ LIBVEX_SOURCES_COMMON = \
+ 	priv/host_mips_isel.c \
+ 	priv/host_nanomips_isel.c
+ 
++if HAVE_FMA_INTRIN
++LIBVEX_CFLAGS_FMA = -mfma -DUSE_FMA_INTRIN
++else
++LIBVEX_CFLAGS_FMA =
++endif
++
+ LIBVEXMULTIARCH_SOURCES = priv/multiarch_main_main.c
+ 
+ LIBVEX_CFLAGS_NO_LTO = \
+@@ -183,7 +191,8 @@ LIBVEX_CFLAGS_NO_LTO = \
+ 	-fstrict-aliasing
+ 
+ LIBVEX_CFLAGS = ${LTO_CFLAGS} \
+-	${LIBVEX_CFLAGS_NO_LTO}
++	${LIBVEX_CFLAGS_NO_LTO} \
++	${LIBVEX_CFLAGS_FMA}
+ 
+ libvex_@VGCONF_ARCH_PRI@_@VGCONF_OS@_a_SOURCES  = $(LIBVEX_SOURCES_COMMON)
+ libvex_@VGCONF_ARCH_PRI@_@VGCONF_OS@_a_CPPFLAGS = \
+diff --git a/VEX/priv/host_amd64_isel.c b/VEX/priv/host_amd64_isel.c
+index e15e1e60f..eccdf7c57 100644
+--- a/VEX/priv/host_amd64_isel.c
++++ b/VEX/priv/host_amd64_isel.c
+@@ -42,7 +42,11 @@
+ #include "host_generic_simd64.h"
+ #include "host_generic_simd128.h"
+ #include "host_generic_simd256.h"
++#ifdef USE_FMA_INTRIN
++#include "host_amd64_maddf.h"
++#else
+ #include "host_generic_maddf.h"
++#endif
+ #include "host_amd64_defs.h"
+ 
+ 
+@@ -2863,7 +2867,11 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, const IRExpr* e )
+                                        AMD64AMode_IR(0, hregAMD64_RCX())));
+       /* call the helper */
+       addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++#ifdef USE_FMA_INTRIN
++                                     (ULong)(HWord)h_amd64_calc_MAddF32,
++#else
+                                      (ULong)(HWord)h_generic_calc_MAddF32,
++#endif
+                                      4, mk_RetLoc_simple(RLPri_None) ));
+       /* fetch the result from memory, using %r_argp, which the
+          register allocator will keep alive across the call. */
+@@ -3055,7 +3063,11 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, const IRExpr* e )
+                                        AMD64AMode_IR(0, hregAMD64_RCX())));
+       /* call the helper */
+       addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++#ifdef USE_FMA_INTRIN
++                                     (ULong)(HWord)h_amd64_calc_MAddF64,
++#else
+                                      (ULong)(HWord)h_generic_calc_MAddF64,
++#endif
+                                      4, mk_RetLoc_simple(RLPri_None) ));
+       /* fetch the result from memory, using %r_argp, which the
+          register allocator will keep alive across the call. */
+diff --git a/VEX/priv/host_amd64_maddf.c b/VEX/priv/host_amd64_maddf.c
+new file mode 100644
+index 000000000..8634d6ef9
+--- /dev/null
++++ b/VEX/priv/host_amd64_maddf.c
+@@ -0,0 +1,50 @@
++
++/*---------------------------------------------------------------*/
++/*--- begin                                host_amd64_maddf.c ---*/
++/*---------------------------------------------------------------*/
++
++/*
++   Compute x * y + z as ternary operation with intrinsics.
++*/
++
++
++#include "libvex_basictypes.h"
++#ifdef USE_FMA_INTRIN
++#include "host_amd64_maddf.h"
++#include  <immintrin.h>
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF32 ( /*OUT*/Float* res,
++                            Float* argX, Float* argY, Float* argZ )
++{
++  Float d;
++  __m128 ai, bi,ci,di;
++  ai = _mm_load_ss(argX);
++  bi = _mm_load_ss(argY);
++  ci = _mm_load_ss(argZ);
++  di=_mm_fmadd_ss(ai,bi,ci);
++  d=_mm_cvtss_f32(di);
++  *res=d;
++  return ;
++}
++
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF64 ( /*OUT*/Double* res,
++                            Double* argX, Double* argY, Double* argZ )
++{
++    double d;
++  __m128d ai, bi,ci,di;
++  ai = _mm_load_sd(argX);
++  bi = _mm_load_sd(argY);
++  ci = _mm_load_sd(argZ);
++  di=_mm_fmadd_sd(ai,bi,ci);
++  d=_mm_cvtsd_f64(di);
++  *res=d;
++  return;
++}
++#endif /* USE_FMA_INTRIN*/
++
++/*---------------------------------------------------------------*/
++/*--- end                                   host_amd64_maddf.c --*/
++/*---------------------------------------------------------------*/
+diff --git a/VEX/priv/host_amd64_maddf.h b/VEX/priv/host_amd64_maddf.h
+new file mode 100644
+index 000000000..19be916d1
+--- /dev/null
++++ b/VEX/priv/host_amd64_maddf.h
+@@ -0,0 +1,32 @@
++
++/*---------------------------------------------------------------*/
++/*--- begin                                host_amd64_maddf.h ---*/
++/*---------------------------------------------------------------*/
++
++/* 
++   Compute x * y + z as ternary operation with intrinsics
++*/
++
++/* Generic helper functions for doing FMA, i.e. compute x * y + z
++   as ternary operation.
++   These are purely back-end entities and cannot be seen/referenced
++   from IR. */
++
++#ifndef __VEX_HOST_GENERIC_MADDF_H
++#define __VEX_HOST_GENERIC_MADDF_H
++
++#include "libvex_basictypes.h"
++#ifdef USE_FMA_INTRIN
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF32 ( /*OUT*/Float*, Float*, Float*, Float* );
++
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF64 ( /*OUT*/Double*, Double*, Double*,
++                                   Double* );
++#endif /*USE_FMA_INTRIN*/
++
++#endif /* ndef __VEX_HOST_AMD64_MADDF_H */
++
++/*---------------------------------------------------------------*/
++/*--- end                                   host_amd64_maddf.h --*/
++/*---------------------------------------------------------------*/
+diff --git a/configure.ac b/configure.ac
+index 8561ea9ac..5ad848099 100755
+--- a/configure.ac
++++ b/configure.ac
+@@ -3316,6 +3316,44 @@ AC_MSG_RESULT([no])
+ AM_CONDITIONAL(BUILD_FMA4_TESTS, test x$ac_have_as_vfmaddpd = xyes)
+ 
+ 
++#x86 fma intrinsics can be used?
++AC_CACHE_CHECK([for fma intrinsics], vg_cv_fma_intrinsics,
++  [AC_ARG_ENABLE(fma-intrinsics,
++    [  --enable-fma-intrinsics          enables valgrind to use fma intrinsics],
++    [vg_cv_fma_intrinsics=$enableval],
++    [vg_cv_fma_intrinsics=yes])])
++
++if test "$vg_cv_fma_intrinsics" = yes; then
++   CFLAGS="$safe_CFLAGS -mfma"
++AC_MSG_CHECKING([for fma intrinsics])
++case "$ARCH_MAX-$VGCONF_OS" in
++     amd64-linux)
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
++      #include  <immintrin.h>
++      #include <stdlib.h>
++]], [[
++       double a,b,c,d;
++      __m128d ai, bi,ci,di;
++      ai = _mm_load_sd(&a);
++      bi = _mm_load_sd(&b);
++      ci = _mm_load_sd(&c);
++      di=_mm_fmadd_sd(ai,bi,ci);
++      d=_mm_cvtsd_f64(di);
++      return EXIT_SUCCESS;
++    ]])],
++    [
++      AC_MSG_RESULT([yes])
++      ],[
++      AC_MSG_RESULT([no])
++      AC_MSG_ERROR([A compiler with _mm_fmadd_sd is required for --enable-fma-intrinsics ])
++  ]) ;;
++  *)
++  vg_cv_fma_intrinsics=no
++  ;;
++esac
++fi
++AM_CONDITIONAL([HAVE_FMA_INTRIN], test "$vg_cv_fma_intrinsics" = yes, [])
++
+ # does the x86/amd64 assembler understand the LZCNT instruction?
+ # Note, this doesn't generate a C-level symbol.  It generates a
+ # automake-level symbol (BUILD_LZCNT_TESTS), used in test Makefile.am's
