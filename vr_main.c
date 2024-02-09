@@ -657,6 +657,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 						 mkIRExprVec_1 (arg1))));
 
   //conversion after call
+#if defined(VGA_amd64)
   if(prec==VR_PREC_FLT){
       IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
@@ -666,6 +667,18 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
   }
+#elif defined(VGA_arm64)
+  if(prec==VR_PREC_FLT){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI32asF32, IRExpr_RdTmp(res ))));
+  }
+  if(prec==VR_PREC_DBL){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+  }
+#else
+#error "not yet implemented"
+#endif
   return True;
 }
 
