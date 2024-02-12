@@ -400,15 +400,15 @@ public:
 
 //splitFactor used by MulOp
 template<class REALTYPE>
-REALTYPE splitFactor();
+constexpr REALTYPE splitFactor();
 
 template<>
-double splitFactor<double>(){
+constexpr double splitFactor<double>(){
   return 134217729; //((2^27)+1); /27 en double  sup(53/2) /
 }
 
 template<>
-float splitFactor<float>(){
+constexpr float splitFactor<float>(){
   return 4097; //((2^12)+1); / 24/2 en float/
 }
 
