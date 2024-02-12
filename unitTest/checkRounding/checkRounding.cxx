@@ -693,9 +693,16 @@ public:
   }
 #else
 template<class REALTYPE>
-inline REALTYPE mySqrt(REALTYPE a){
-  return std::sqrt(a);
-  }
+inline REALTYPE mySqrt(REALTYPE a);
+
+template<>
+inline double mySqrt<double>(double a){
+  return __builtin_sqrt(a);
+}
+template<>
+inline float mySqrt<float>(float a){
+  return __builtin_sqrtf(a);
+}
 #endif
 
 template<class REALTYPE>
