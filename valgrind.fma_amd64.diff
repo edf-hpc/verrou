@@ -1,0 +1,297 @@
+diff --git a/Makefile.vex.am b/Makefile.vex.am
+index 98d848359..c2e7034da 100644
+--- a/Makefile.vex.am
++++ b/Makefile.vex.am
+@@ -54,6 +54,7 @@ noinst_HEADERS = \
+ 	priv/host_generic_simd128.h \
+ 	priv/host_generic_simd256.h \
+ 	priv/host_generic_maddf.h \
++	priv/host_amd64_maddf.h \
+ 	priv/host_x86_defs.h \
+ 	priv/host_amd64_defs.h \
+ 	priv/host_ppc_defs.h \
+@@ -156,6 +157,7 @@ LIBVEX_SOURCES_COMMON = \
+ 	priv/host_generic_simd128.c \
+ 	priv/host_generic_simd256.c \
+ 	priv/host_generic_maddf.c \
++	priv/host_amd64_maddf.c \
+ 	priv/host_generic_reg_alloc2.c \
+ 	priv/host_generic_reg_alloc3.c \
+ 	priv/host_x86_defs.c \
+@@ -176,6 +178,7 @@ LIBVEX_SOURCES_COMMON = \
+ 	priv/host_mips_isel.c \
+ 	priv/host_nanomips_isel.c
+ 
++
+ LIBVEXMULTIARCH_SOURCES = priv/multiarch_main_main.c
+ 
+ LIBVEX_CFLAGS_NO_LTO = \
+diff --git a/VEX/priv/host_amd64_isel.c b/VEX/priv/host_amd64_isel.c
+index e15e1e60f..b0bd7a1a9 100644
+--- a/VEX/priv/host_amd64_isel.c
++++ b/VEX/priv/host_amd64_isel.c
+@@ -42,6 +42,7 @@
+ #include "host_generic_simd64.h"
+ #include "host_generic_simd128.h"
+ #include "host_generic_simd256.h"
++#include "host_amd64_maddf.h"
+ #include "host_generic_maddf.h"
+ #include "host_amd64_defs.h"
+ 
+@@ -2861,10 +2862,22 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, const IRExpr* e )
+                                        AMD64AMode_IR(0, hregAMD64_RDX())));
+       addInstr(env, AMD64Instr_SseLdSt(False/*!isLoad*/, 4, argZ,
+                                        AMD64AMode_IR(0, hregAMD64_RCX())));
+-      /* call the helper */
+-      addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
+-                                     (ULong)(HWord)h_generic_calc_MAddF32,
+-                                     4, mk_RetLoc_simple(RLPri_None) ));
++
++      /* call the helper with priority order : fma4 -> fma3 -> fallback generic */
++      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_amd64_calc_MAddF32_fma4,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }else if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3){
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_amd64_calc_MAddF32_fma3,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }else{
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_generic_calc_MAddF32,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }
++
+       /* fetch the result from memory, using %r_argp, which the
+          register allocator will keep alive across the call. */
+       addInstr(env, AMD64Instr_SseLdSt(True/*isLoad*/, 4, dst,
+@@ -3053,10 +3066,21 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, const IRExpr* e )
+                                        AMD64AMode_IR(0, hregAMD64_RDX())));
+       addInstr(env, AMD64Instr_SseLdSt(False/*!isLoad*/, 8, argZ,
+                                        AMD64AMode_IR(0, hregAMD64_RCX())));
+-      /* call the helper */
+-      addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
+-                                     (ULong)(HWord)h_generic_calc_MAddF64,
+-                                     4, mk_RetLoc_simple(RLPri_None) ));
++      /* call the helper with priority order fma4 -> fma3 -> fallback generic */
++      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_amd64_calc_MAddF64_fma4,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }else if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3){
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_amd64_calc_MAddF64_fma3,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }else{
++         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
++                                        (ULong)(HWord)h_generic_calc_MAddF64,
++                                        4, mk_RetLoc_simple(RLPri_None) ));
++      }
++
+       /* fetch the result from memory, using %r_argp, which the
+          register allocator will keep alive across the call. */
+       addInstr(env, AMD64Instr_SseLdSt(True/*isLoad*/, 8, dst,
+@@ -5372,7 +5396,9 @@ HInstrArray* iselSB_AMD64 ( const IRSB* bb,
+                      | VEX_HWCAPS_AMD64_AVX2
+                      | VEX_HWCAPS_AMD64_F16C
+                      | VEX_HWCAPS_AMD64_RDRAND
+-                     | VEX_HWCAPS_AMD64_RDSEED)));
++                     | VEX_HWCAPS_AMD64_RDSEED
++                     | VEX_HWCAPS_AMD64_FMA3
++                     | VEX_HWCAPS_AMD64_FMA4)));
+ 
+    /* Check that the host's endianness is as expected. */
+    vassert(archinfo_host->endness == VexEndnessLE);
+diff --git a/VEX/priv/host_amd64_maddf.c b/VEX/priv/host_amd64_maddf.c
+new file mode 100644
+index 000000000..8a6fe87b5
+--- /dev/null
++++ b/VEX/priv/host_amd64_maddf.c
+@@ -0,0 +1,54 @@
++
++/*---------------------------------------------------------------*/
++/*--- begin                                host_amd64_maddf.c ---*/
++/*---------------------------------------------------------------*/
++
++/*
++   Compute x * y + z as ternary operation with intrinsics.
++*/
++
++
++#include "libvex_basictypes.h"
++#include "host_amd64_maddf.h"
++#include  <immintrin.h>
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF32_fma3 ( /*OUT*/Float* res,
++                            Float* argX, Float* argY, Float* argZ )
++{
++   __asm__ ("vfmadd132ss %2,%3,%0;" :
++            "=x"(*res): "0"(*argX),"x"(*argY), "x"(*argZ));
++   return ;
++}
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float* res,
++                            Float* argX, Float* argY, Float* argZ )
++{
++   __asm__ ("vfmaddss %3,%2,%1,%0;" :
++            "=x"(*res): "x"(*argX),"x"(*argY), "x"(*argZ));
++   return ;
++}
++
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF64_fma3 ( /*OUT*/Double* res,
++                            Double* argX, Double* argY, Double* argZ )
++{
++   __asm__ ("vfmadd132sd %2,%3,%0;" :
++            "=x"(*res): "0"(*argX),"x"(*argY), "x"(*argZ));
++   return;
++}
++
++void VEX_REGPARM(3)
++     h_amd64_calc_MAddF64_fma4 ( /*OUT*/Double* res,
++                            Double* argX, Double* argY, Double* argZ )
++{
++   __asm__ ("vfmaddsd %3,%2,%1,%0;" :
++            "=x"(*res): "x"(*argX),"x"(*argY), "x"(*argZ));
++   return;
++}
++
++/*---------------------------------------------------------------*/
++/*--- end                                   host_amd64_maddf.c --*/
++/*---------------------------------------------------------------*/
+diff --git a/VEX/priv/host_amd64_maddf.h b/VEX/priv/host_amd64_maddf.h
+new file mode 100644
+index 000000000..8ce15048c
+--- /dev/null
++++ b/VEX/priv/host_amd64_maddf.h
+@@ -0,0 +1,37 @@
++
++/*---------------------------------------------------------------*/
++/*--- begin                                host_amd64_maddf.h ---*/
++/*---------------------------------------------------------------*/
++
++/* 
++   Compute x * y + z as ternary operation with intrinsics
++*/
++
++/* Generic helper functions for doing FMA, i.e. compute x * y + z
++   as ternary operation.
++   These are purely back-end entities and cannot be seen/referenced
++   from IR. */
++
++#ifndef __VEX_HOST_AMD64_MADDF_H
++#define __VEX_HOST_AMD64_MADDF_H
++
++#include "libvex_basictypes.h"
++
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF32_fma3 ( /*OUT*/Float*, Float*, Float*, Float* );
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float*, Float*, Float*, Float* );
++
++
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF64_fma3 ( /*OUT*/Double*, Double*, Double*,
++                                        Double* );
++extern VEX_REGPARM(3)
++       void h_amd64_calc_MAddF64_fma4 ( /*OUT*/Double*, Double*, Double*,
++                                        Double* );
++
++#endif /* ndef __VEX_HOST_AMD64_MADDF_H */
++
++/*---------------------------------------------------------------*/
++/*--- end                                   host_amd64_maddf.h --*/
++/*---------------------------------------------------------------*/
+diff --git a/VEX/priv/main_main.c b/VEX/priv/main_main.c
+index 482047c7a..eda2fe6ee 100644
+--- a/VEX/priv/main_main.c
++++ b/VEX/priv/main_main.c
+@@ -1650,6 +1650,8 @@ static const HChar* show_hwcaps_amd64 ( UInt hwcaps )
+       { VEX_HWCAPS_AMD64_F16C,   "f16c"   },
+       { VEX_HWCAPS_AMD64_RDRAND, "rdrand" },
+       { VEX_HWCAPS_AMD64_RDSEED, "rdseed" },
++      { VEX_HWCAPS_AMD64_FMA3,   "fma"    }, /*fma to keep the same naming as /proc/cpuinfo*/
++      { VEX_HWCAPS_AMD64_FMA4,   "fma4"   },
+    };
+    /* Allocate a large enough buffer */
+    static HChar buf[sizeof prefix + 
+diff --git a/VEX/pub/libvex.h b/VEX/pub/libvex.h
+index 27bb6e0f4..0d09e40fa 100644
+--- a/VEX/pub/libvex.h
++++ b/VEX/pub/libvex.h
+@@ -101,6 +101,8 @@ typedef
+ #define VEX_HWCAPS_AMD64_RDRAND (1<<13) /* RDRAND instructions */
+ #define VEX_HWCAPS_AMD64_F16C   (1<<14) /* F16C instructions */
+ #define VEX_HWCAPS_AMD64_RDSEED (1<<15) /* RDSEED instructions */
++#define VEX_HWCAPS_AMD64_FMA3   (1<<16) /* FMA3 instructions */
++#define VEX_HWCAPS_AMD64_FMA4   (1<<17) /* FMA4 instructions */
+ 
+ /* ppc32: baseline capability is integer only */
+ #define VEX_HWCAPS_PPC32_F     (1<<8)  /* basic (non-optional) FP */
+diff --git a/coregrind/m_machine.c b/coregrind/m_machine.c
+index a4c2218bf..84294c587 100644
+--- a/coregrind/m_machine.c
++++ b/coregrind/m_machine.c
+@@ -984,6 +984,7 @@ Bool VG_(machine_get_hwcaps)( void )
+ #elif defined(VGA_amd64)
+    { Bool have_sse3, have_ssse3, have_cx8, have_cx16;
+      Bool have_lzcnt, have_avx, have_bmi, have_avx2;
++     Bool have_fma3, have_fma4;
+      Bool have_rdtscp, have_rdrand, have_f16c, have_rdseed;
+      UInt eax, ebx, ecx, edx, max_basic, max_extended;
+      ULong xgetbv_0 = 0;
+@@ -1022,7 +1023,7 @@ Bool VG_(machine_get_hwcaps)( void )
+      // we assume that SSE1 and SSE2 are available by default
+      have_sse3  = (ecx & (1<<0)) != 0;  /* True => have sse3 insns */
+      have_ssse3 = (ecx & (1<<9)) != 0;  /* True => have Sup SSE3 insns */
+-     // fma     is ecx:12
++     have_fma3  = (ecx & (1<<12))!= 0;  /* True => have fma3 insns */
+      // sse41   is ecx:19
+      // sse42   is ecx:20
+      // xsave   is ecx:26
+@@ -1032,7 +1033,7 @@ Bool VG_(machine_get_hwcaps)( void )
+      have_rdrand = (ecx & (1<<30)) != 0; /* True => have RDRAND insns */
+ 
+      have_avx = False;
+-     /* have_fma = False; */
++
+      if ( (ecx & ((1<<28)|(1<<27)|(1<<26))) == ((1<<28)|(1<<27)|(1<<26)) ) {
+         /* Processor supports AVX instructions and XGETBV is enabled
+            by OS and AVX instructions are enabled by the OS. */
+@@ -1059,9 +1060,6 @@ Bool VG_(machine_get_hwcaps)( void )
+            if (ebx2 == 576 && eax2 == 256) {
+               have_avx = True;
+            }
+-           /* have_fma = (ecx & (1<<12)) != 0; */
+-           /* have_fma: Probably correct, but gcc complains due to
+-              unusedness. */
+         }
+      }
+ 
+@@ -1089,6 +1087,12 @@ Bool VG_(machine_get_hwcaps)( void )
+         have_rdtscp = (edx & (1<<27)) != 0; /* True => have RDTSVCP */
+      }
+ 
++     have_fma4 =False;
++     if (max_extended >= 0x80000001) {
++        VG_(cpuid)(0x80000001, 0, &eax, &ebx, &ecx, &edx);
++        have_fma4= (ecx & (1<<16)) != 0; /* True => have fma4 */
++     }
++
+      /* Check for BMI1 and AVX2.  If we have AVX1 (plus OS support). */
+      have_bmi  = False;
+      have_avx2 = False;
+@@ -1120,7 +1124,9 @@ Bool VG_(machine_get_hwcaps)( void )
+                  | (have_rdtscp ? VEX_HWCAPS_AMD64_RDTSCP : 0)
+                  | (have_f16c   ? VEX_HWCAPS_AMD64_F16C   : 0)
+                  | (have_rdrand ? VEX_HWCAPS_AMD64_RDRAND : 0)
+-                 | (have_rdseed ? VEX_HWCAPS_AMD64_RDSEED : 0);
++                 | (have_rdseed ? VEX_HWCAPS_AMD64_RDSEED : 0)
++                 | (have_fma3   ? VEX_HWCAPS_AMD64_FMA3   : 0)
++                 | (have_fma4   ? VEX_HWCAPS_AMD64_FMA4   : 0);
+ 
+      VG_(machine_get_cache_info)(&vai);
+ 

@@ -6,6 +6,9 @@ download-valgrind:
 patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
 	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.diff
+	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.arm64.diff
+	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.fma_amd64.diff
+
 patch-error:
 	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
 	# try to build verrou anyway if we check the development version of Valgrind
