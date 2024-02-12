@@ -36,11 +36,18 @@
 #include "verrou.h"
 
 #ifdef  TEST_FMA
+#ifdef __x86_64__
 #include  <immintrin.h>
-#include  <fmaintrin.h>
 #endif
+#ifdef __arch64__
+#include <arm_neon.h>
+#endif
+#endif
+
 #ifdef TEST_SSE
+#ifdef __x86_64__
 #include  <immintrin.h>
+#endif
 #endif
 
 void usage(char** argv){
@@ -507,9 +514,7 @@ class testMixSseLlo<double>:public test<double>{
     const double a[]={1,2};
     const double b[]={3,4};
     const double c[]={5,6};
-#ifndef TEST_SSE
-    return a[0]+a[1]+b[0]+c[0]+c[1];
-#else
+#if defined(TEST_SSE) && defined(__x86_64__)
     double res[2];
     __m128d bi,ci,ri;
     ri = _mm_loadu_pd(a);
@@ -519,6 +524,8 @@ class testMixSseLlo<double>:public test<double>{
     ri = _mm_add_pd(ri,ci);
     _mm_storeu_pd(res,ri);
     return res[0]+res[1];
+#else
+    return a[0]+a[1]+b[0]+c[0]+c[1];
 #endif
   }
 };
@@ -538,12 +545,9 @@ class testMixSseLlo<float>:public test<float>{
 
   float compute(){
     const float a[]={1,2,3,4};//Sum 10
-    const float b[]={5,6,7,8};//Sum 5 beacause 6 7 8 will be ignored
+    const float b[]={5,6,7,8};//Sum 5 because 6 7 8 will be ignored
     const float c[]={9,10,11,12};//Sum 42
-#ifndef TEST_SSE
-    float res;
-    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
-#else
+#if defined(TEST_SSE) && defined(__x86_64__)
     float res[4];
     __m128 bi,ci,ri;
     ri = _mm_loadu_ps(a);
@@ -553,6 +557,9 @@ class testMixSseLlo<float>:public test<float>{
     ri=_mm_add_ps(ri,ci);
     _mm_storeu_ps(res,ri);
     return res[0]+res[1]+res[2]+res[3];
+#else
+    float res;
+    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
 #endif
   }
 };
@@ -581,9 +588,7 @@ class testMixSseLlom<double>:public test<double>{
     const double a[]={-1,-2};
     const double b[]={-3,-4};
     const double c[]={-5,-6};
-#ifndef TEST_SSE
-    return a[0]+a[1]+b[0]+c[0]+c[1];
-#else
+#if defined(TEST_SSE) && defined(__x86_64__)
     double res[2];
     __m128d bi,ci,ri;
     ri = _mm_loadu_pd(a);
@@ -593,6 +598,8 @@ class testMixSseLlom<double>:public test<double>{
     ri = _mm_add_pd(ri,ci);
     _mm_storeu_pd(res,ri);
     return res[0]+res[1];
+#else
+    return a[0]+a[1]+b[0]+c[0]+c[1];
 #endif
   }
 };
@@ -612,13 +619,11 @@ class testMixSseLlom<float>:public test<float>{
 
 
   float compute(){
-    const float a[]={-1,-2,-3,-4};//Sum 10
-    const float b[]={-5,-6,-7,-8};//Sum 5 beacause 6 7 8 will be ignored
-    const float c[]={-9,-10,-11,-12};//Sum 42
-#ifndef TEST_SSE
-    float res;
-    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
-#else
+    const float a[]={-1,-2,-3,-4};//Sum -10
+    const float b[]={-5,-6,-7,-8};//Sum -5 because -6 -7 -8 will be ignored
+    const float c[]={-9,-10,-11,-12};//Sum -42
+
+#if defined(TEST_SSE) && defined(__x86_64__)
     float res[4];
     __m128 bi,ci,ri;
     ri = _mm_loadu_ps(a);
@@ -628,6 +633,9 @@ class testMixSseLlom<float>:public test<float>{
     ri=_mm_add_ps(ri,ci);
     _mm_storeu_ps(res,ri);
     return res[0]+res[1]+res[2]+res[3];
+#else
+    float res;
+    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
 #endif
   }
 };
@@ -669,9 +677,7 @@ public:
 
 
 
-
-
-#ifdef TEST_SSE
+#if defined(TEST_SSE) && defined(__x86_64__)
   inline double mySqrt(const double& a){
     double d;
     __m128d ai,di;
@@ -818,15 +824,6 @@ int main(int argc, char** argv){
     testCastm<RealType,double> t7m; t7m.run();
     testDiffSqrt<RealType> t8; t8.run();
   }
-
-  /*    {
-    typedef long double RealType;
-    test1<RealType> t1; t1.run();
-    test2<RealType> t2; t2.run();
-    test3<RealType> t3; t3.run();
-    test4<RealType> t4; t4.run();
-    //test5<RealType> t5; t5.run();
-    }*/
 
   return EXIT_SUCCESS;
 }

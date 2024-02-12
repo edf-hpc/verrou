@@ -3,9 +3,17 @@
 #include <sstream>
 #include <vector>
 #include <stdint.h>
-//#include <xmmintrin.h>
+
+
+#ifdef __x86_64__
 #include  <immintrin.h>
-//#include <avxintrin.h>
+#endif
+
+#ifdef __arch64__
+#include <arm_neon.h>
+#include "sse2neon.h"
+#endif
+
 #include <fenv.h>
 
 
@@ -16,7 +24,9 @@ struct Add32{
   static std::string name(){return std::string("adds");}
   static RealType apply(RealType a, RealType b){return a+b;}
   static __m128 applySSE(__m128 ai, __m128 bi){return _mm_add_ps(ai,bi);};
+#ifdef HAVE_AVX
   static __m256 applyAVX(__m256 ai, __m256 bi){return _mm256_add_ps(ai,bi);};
+#endif
 };
 
 struct Mul32{
@@ -25,8 +35,9 @@ struct Mul32{
   static std::string name(){return std::string("muls");}
   static RealType apply(RealType a, RealType b){return a*b;}
   static __m128 applySSE(__m128 ai, __m128 bi){return _mm_mul_ps(ai,bi);};
+#ifdef HAVE_AVX
   static __m256 applyAVX(__m256 ai, __m256 bi){return _mm256_mul_ps(ai,bi);};
-
+#endif
 };
 
 struct Sub32{
@@ -35,7 +46,9 @@ struct Sub32{
   static std::string name(){return std::string("subs");}
   static RealType apply(RealType a, RealType b){return a-b;}
   static __m128 applySSE(__m128 ai, __m128 bi){return _mm_sub_ps(ai,bi);};
+#ifdef HAVE_AVX
   static __m256 applyAVX(__m256 ai, __m256 bi){return _mm256_sub_ps(ai,bi);};
+#endif
 };
 
 struct Div32{
@@ -44,7 +57,9 @@ struct Div32{
   static std::string name(){return std::string("divs");}
   static RealType apply(RealType a, RealType b){return a/b;}
   static __m128 applySSE(__m128 ai, __m128 bi){return _mm_div_ps(ai,bi);};
+#ifdef HAVE_AVX
   static __m256 applyAVX(__m256 ai, __m256 bi){return _mm256_div_ps(ai,bi);};
+#endif
 };
 
 struct Sqrt32{
@@ -61,7 +76,9 @@ struct Sqrt32{
     return res[0];
   }
   static __m128 applySSE(__m128 ai){return _mm_sqrt_ps(ai);};
+#ifdef HAVE_AVX
   static __m256 applyAVX(__m256 ai){return _mm256_sqrt_ps(ai);};
+#endif
 };
 
 
@@ -72,7 +89,9 @@ struct Add64{
   static std::string name(){return std::string("addd");}
   static RealType apply(RealType a, RealType b){return a+b;}
   static __m128d applySSE(__m128d ai, __m128d bi){return _mm_add_pd(ai,bi);};
+#ifdef HAVE_AVX
   static __m256d applyAVX(__m256d ai, __m256d bi){return _mm256_add_pd(ai,bi);};
+#endif
 };
 
 struct Mul64{
@@ -81,7 +100,9 @@ struct Mul64{
   static std::string name(){return std::string("muld");}
   static RealType apply(RealType a, RealType b){return a*b;}
   static __m128d applySSE(__m128d ai, __m128d bi){return _mm_mul_pd(ai,bi);};
+#ifdef HAVE_AVX
   static __m256d applyAVX(__m256d ai, __m256d bi){return _mm256_mul_pd(ai,bi);};
+#endif
 };
 
 struct Sub64{
@@ -90,7 +111,9 @@ struct Sub64{
   static std::string name(){return std::string("subd");}
   static RealType apply(RealType a, RealType b){return a-b;}
   static __m128d applySSE(__m128d ai, __m128d bi){return _mm_sub_pd(ai,bi);};
+#ifdef HAVE_AVX
   static __m256d applyAVX(__m256d ai, __m256d bi){return _mm256_sub_pd(ai,bi);};
+#endif
 };
 
 struct Div64{
@@ -99,7 +122,9 @@ struct Div64{
   static std::string name(){return std::string("divd");}
   static RealType apply(RealType a, RealType b){return a/b;}
   static __m128d applySSE(__m128d ai, __m128d bi){return _mm_div_pd(ai,bi);};
+#ifdef HAVE_AVX
   static __m256d applyAVX(__m256d ai, __m256d bi){return _mm256_div_pd(ai,bi);};
+#endif
 };
 
 struct Sqrt64{
@@ -116,7 +141,9 @@ struct Sqrt64{
     return res[0];
   }
   static __m128d applySSE(__m128d ai){return _mm_sqrt_pd(ai);};
+#ifdef HAVE_AVX
   static __m256d applyAVX(__m256d ai){return _mm256_sqrt_pd(ai);};
+#endif
 };
 
 
@@ -147,7 +174,7 @@ struct Loop<OP,float,2>{
       _mm_storeu_ps(&res[i],ri);
     }
   }
-
+#ifdef HAVE_AVX
   static void applyAVX(vectType& res, const vectType& v1, const vectType&v2){
     int size=(int)v1.size();
     for(int i=0; i< size;i+=8){
@@ -158,7 +185,9 @@ struct Loop<OP,float,2>{
       _mm256_storeu_ps(&res[i],ri);
     }
   }
+#endif
 };
+
 
 template<class OP>
 struct Loop<OP,float,1>{
@@ -185,7 +214,7 @@ struct Loop<OP,float,1>{
   static void applySSE(vectType& res, const vectType& v1, const vectType& v2){
     applySSE(res, v1);
   }
-
+#ifdef HAVE_AVX
   static void applyAVX(vectType& res, const vectType& v1){
     int size=(int)v1.size();
     for(int i=0; i< size;i+=8){
@@ -199,7 +228,7 @@ struct Loop<OP,float,1>{
   static void applyAVX(vectType& res, const vectType& v1, const vectType& v2){
     applyAVX(res, v1);
   }
-
+#endif
 };
 
 //Loop over std::vector :: Double precision
@@ -225,6 +254,7 @@ struct Loop<OP,double,2>{
     }
   }
 
+#ifdef HAVE_AVX
   static void applyAVX(vectType& res, const vectType& v1, const vectType&v2){
     int size=(int)v1.size();
     for(int i=0; i< size;i+=4){
@@ -235,7 +265,7 @@ struct Loop<OP,double,2>{
       _mm256_storeu_pd(&res[i],ri);
     }
   }
-
+#endif
 };
 
 template<class OP>
@@ -264,6 +294,7 @@ struct Loop<OP,double,1>{
     applySSE(res,v1);
   }
 
+#ifdef HAVE_AVX
   static void applyAVX(vectType& res, const vectType& v1){
     int size=(int)v1.size();
     for(int i=0; i< size;i+=4){
@@ -276,7 +307,7 @@ struct Loop<OP,double,1>{
   static void applyAVX(vectType& res, const vectType& v1, const vectType& v2){
     applyAVX(res,v1);
   }
-
+#endif
 };
 
 //Basic conversion
@@ -579,6 +610,7 @@ inline int loadDataAndCheck(const std::string& round){
   }
   if(!ok) nbKO++;
 
+#ifdef HAVE_AVX
   //AVX
   std::vector<RealType> testComputationTabAVX(size);
   Loop<OP,RealType,OP::nbArgs>::applyAVX(testComputationTabAVX, v1Tab,v2Tab);
@@ -588,7 +620,7 @@ inline int loadDataAndCheck(const std::string& round){
   if(OP::nbArgs==1){
     ok=checkTab(fileName,std::string("AVX"),testComputationTabAVX,refTab,lineTab,v1Tab);
   }
-
+#endif
 
   if(!ok) nbKO++;
 

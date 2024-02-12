@@ -6,6 +6,8 @@ export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
 
+FLAGS += -O1 #required to get hardware sqrt with builtin_sqrt
+
 FMA_FLAG=
 HAS_FMA = $(shell grep VERROU_COMPILED_WITH_FMA= $(INSTALLPATH)/env.sh)
 ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=yes)
@@ -18,7 +20,7 @@ endif
 include ../flag.mk
 
 FLAGS1 = $(FLAGS) $(DEBUGFLAGS) -DTEST_SSE
-FLAGS2 = $(FLAGS) $(NATIVEFLAGS) -mfma $(FMA_FLAG) -DTEST_SSE
+FLAGS2 = $(FLAGS) $(NATIVEFLAGS) -DTEST_SSE $(FMA_FLAG)
 
 .PHONY: run run1 run2
 
