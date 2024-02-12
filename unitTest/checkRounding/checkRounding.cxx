@@ -39,7 +39,7 @@
 #ifdef __x86_64__
 #include  <immintrin.h>
 #endif
-#ifdef __arch64__
+#ifdef __aarch64__
 #include <arm_neon.h>
 #endif
 #endif

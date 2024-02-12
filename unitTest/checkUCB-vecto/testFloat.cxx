@@ -9,7 +9,7 @@
 #include  <immintrin.h>
 #endif
 
-#ifdef __arch64__
+#ifdef __aarch64__
 #include <arm_neon.h>
 #include "sse2neon.h"
 #endif
