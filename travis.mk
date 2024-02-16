@@ -8,7 +8,7 @@ patch-valgrind:
 	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.diff
 	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.arm64.diff
 	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.fma_amd64.diff
-	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.fma.arm64.diff
+	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.fma_arm64.diff
 
 patch-error:
 	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
