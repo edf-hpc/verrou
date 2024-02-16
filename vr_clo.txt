@@ -19,8 +19,8 @@
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|upward|downward|toward_zero|away_zero|farthest|float|ftz>\n\
-      [default=nearest]\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|ftz>\n\
+      [default=native]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
           rounds to the nearest floating-point. Supported rounding modes are:\n\
@@ -158,6 +158,10 @@
       --vr-instr-vec<2,4,8>=<yes|no> [default=yes]\n\
           Toggle instrumentation of vectorized instructions (number\n\
           corresponds to the pack size)\n\
+\n\
+      --vr-instr-unk=<yes|no> [default=yes]\n\
+          Toggle instrumentation of instructions with unknown vectorized\n\
+          status (fma is unvectorized in valgrind IR).\n\
 \n\
       --vr-instr-[flt|dbl]=<yes|no> [default=yes]\n\
           Toggle instrumentation of float (or double) instructions.\n\

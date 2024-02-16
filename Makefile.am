@@ -57,11 +57,11 @@ VERROU_FLAG_CXX += @vg_test_no_avx512f_flag@ -fno-exceptions -fno-rtti -std=c++1
 VERROU_LD =
 
 # We use the test of fma normally use to configure check
-if HAVE_FMA_INTRIN
+if HAVE_VERROU_FMA_INTRIN
 VERROU_FLAG_CXX += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
 VERROU_FLAG_C   += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
 endif
-if HAVE_SQRT_INTRIN
+if HAVE_VERROU_SQRT_INTRIN
 VERROU_FLAG_CXX += -DUSE_VERROU_SQRT
 VERROU_FLAG_C   += -DUSE_VERROU_SQRT
 endif

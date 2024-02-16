@@ -29,7 +29,6 @@ case "$ARCH_MAX-$VGCONF_OS" in
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with fmaintrin.h is required for --enable-verrou-fma ])
@@ -50,17 +49,18 @@ case "$ARCH_MAX-$VGCONF_OS" in
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-fma ])
-  ])
+  ]) ;;
+  *)
+  vg_cv_verrou_fma=no
+  ;;
   esac
   AC_LANG_POP(C++)
-else
-  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 fi
 
+AM_CONDITIONAL([HAVE_VERROU_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 AC_SUBST(vg_cv_verrou_fma)
 
 
@@ -90,7 +90,6 @@ case "$ARCH_MAX-$VGCONF_OS" in
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with sqrt intrinsics is required for --enable-verrou-sqrt ])
@@ -106,18 +105,18 @@ case "$ARCH_MAX-$VGCONF_OS" in
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-sqrt ])
   ])
+  ;;
+  *)
+  vg_cv_verrou_sqrt=no
   esac
-
   AC_LANG_POP(C++)
-else
-  AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
 fi
 
+AM_CONDITIONAL([HAVE_VERROU_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
 AC_SUBST(vg_cv_verrou_sqrt)
 
 

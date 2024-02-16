@@ -47,7 +47,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "valgrind/verrou.h"
+//#include "valgrind/verrou.h"
 //#include "stencil_ispc.h"
 //using namespace ispc;
 
@@ -233,11 +233,11 @@ int main(int argc, char *argv[]) {
 
       reset_and_start_timer();
       //	VERROU_PRINT_PROFILING_EXACT;
-      VERROU_START_INSTRUMENTATION;
+      //VERROU_START_INSTRUMENTATION;
       loop_stencil_serial(0, 6, width, Nx-width, width, Ny - width,
 			  width, Nz - width, Nx, Ny, Nz, coeff, vsq,
 			  Aserial[0], Aserial[1]);
-      VERROU_STOP_INSTRUMENTATION;
+      //VERROU_STOP_INSTRUMENTATION;
 	//	VERROU_PRINT_PROFILING_EXACT;
       double dt = get_elapsed_sec();
       printf("@time of serial run:\t\t\t[%.3f] secondes\n", dt);
