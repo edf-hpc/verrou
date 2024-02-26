@@ -28,7 +28,7 @@ RUN git clone --branch=${VALGRIND_BRANCH} --single-branch --depth=1 git://source
 WORKDIR /build/valgrind-${VALGRIND_VERSION}+verrou-dev
 
 RUN git clone --branch=${VERROU_BRANCH} --single-branch --depth=1 https://github.com/edf-hpc/verrou.git verrou \
-    && patch -p1 <verrou/valgrind.diff
+    && cat verrou/valgrind.*diff | patch -p1
 
 RUN  ./autogen.sh \
     && ./configure --enable-only64bit --enable-verrou-fma --prefix=/opt/valgrind-${VALGRIND_VERSION}+verrou-dev \
