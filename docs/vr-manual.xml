@@ -241,7 +241,7 @@ det2
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extented precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
+		based on extended precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
 		<option><xref linkend="vr-opt.mca-precision-double"/></option> and  <option><xref linkend="vr-opt.mca-precision-float"/></option>  options).
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
@@ -313,10 +313,10 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>auto_exclude</command> : The libm exclusion is automaticaly detected thanks pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
+                  <command>auto_exclude</command> : The libm exclusion is automatically detected thanks pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
                 </para></listitem>
                 <listitem><para>
-                  <command>manual_exclude</command> : The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is usefull if the pattern detection detect object you need to perturb.
+                  <command>manual_exclude</command> : The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is useful if the pattern detection detect object you need to perturb.
                 </para></listitem>
 		<listitem><para>
                   <command>instrumented</command> : the interposition library Interlibmath is loaded. This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
@@ -510,7 +510,7 @@ det2
             <term><option><![CDATA[--gen-exclude=FILE]]></option></term>
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> a list of
-                all symbols (which contain perturbated floating point instruction)
+                all symbols (which contain perturbed floating point instruction)
 		encountered during program execution. This is useful
                 to build an <link linkend="vr-manual.feat.exclude">exclusion
                 list</link>.</para>
@@ -525,7 +525,7 @@ det2
                 instrumented. When using
                 both <option><xref linkend="vr-opt.gen-exclude"/></option>
                 and <option><xref linkend="vr-opt.exclude"/></option>, it is
-                advised to avoid perturbating rounding-modes
+                advised to avoid perturbing rounding-modes
                 using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
               </para>
 	      <para>This option can be activated with the env variable <command>VERROU_GEN_EXCLUDE</command>.</para>
@@ -555,7 +555,7 @@ det2
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> the list
                 of all <link linkend="vr-manual.feat.source">source code
-                  lines</link> (which contain perturbated floating point instruction)
+                  lines</link> (which contain perturbed floating point instruction)
 		encountered during program execution.</para>
               <para>In combination with
                 <option><xref linkend="vr-opt.source"/></option>, only list
@@ -819,7 +819,7 @@ det2
 	  </listitem>
 
 	  <para>
-	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolut (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.	  </para>
+	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.	  </para>
 
 	   <para>
 	     If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>--20481-- warning: Unable to record PID of internal process (pipe)</programlisting>

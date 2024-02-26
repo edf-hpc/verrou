@@ -18,7 +18,7 @@
       order to perform a search of functions and source code lines whose perturbation produces the
       most important errors in final results. The idea is the following:
       <itemizedlist>
-        <listitem><simpara>First, a complete list of all symbols (which contain perturbated
+        <listitem><simpara>First, a complete list of all symbols (which contain perturbed
 	floating point instructions) is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
@@ -70,9 +70,9 @@
     <simplesect>
       <title>Description</title>
       <para>
-	<command> verrou_dd_sym </command> is dedicated to search instable symbols (it corresponds more or less to code function).
-	The tool <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
-	Whereas  <command> verrou_dd_stdout </command> is dedicated to search the instable portion of code defined by the stdout line.
+	<command> verrou_dd_sym </command> is dedicated to search unstable symbols (it corresponds more or less to code function).
+	The tool <command> verrou_dd_line </command> is dedicated to search unstable lines for code compiled with debugging symbols (with -g option).
+	Whereas  <command> verrou_dd_stdout </command> is dedicated to search the unstable portion of code defined by the stdout line.
       </para>
 
       <para id="vr-manual.verrou_dd.desc">
@@ -511,7 +511,7 @@ if __name__=="__main__":
               </term>
               <listitem>
 		<para>
-This option allow to add the content of FILE in the expect script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iteration (especially when the additionnal iterations recover the poor precision of the first one)  with this kind of FILE.
+This option allow to add the content of FILE in the expect script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iteration (especially when the additional iterations recover the poor precision of the first one)  with this kind of FILE.
 <programlisting>
 match: IT=42 *
 apply: exit</programlisting>
@@ -566,7 +566,7 @@ To avoid problem with bufferisation, we need to write your own <computeroutput>r
 	    </para>
 
 	    <para>
-	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolut (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.
+	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.
 	    </para>
               </listitem>
             </varlistentry>
@@ -609,7 +609,7 @@ To avoid problem with bufferisation, we need to write your own <computeroutput>r
               <listitem>
 		<para>
 		  The stdout file be replaced by the file which match the FILE_PATTERN. The FILE_PATTERN has to match only one opened file.
-		  To avoid difficulties with the absolut and relative path, the easiest way is to use a wildcard * for the path. If you want to be more precise,
+		  To avoid difficulties with the absolute and relative path, the easiest way is to use a wildcard * for the path. If you want to be more precise,
 		  you could use a <computeroutput>strace</computeroutput> command to know how a file is opened :
 		  <programlisting>
 		    strace -e openat,open,creat -f -ff -o strace_verrou MYPROG MYARGS
@@ -876,7 +876,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           <listitem><simpara> The abs estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)</mathphrase> .</simpara></listitem>
 	  <listitem><simpara> The rel estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|</mathphrase> </simpara></listitem>
           <listitem><simpara> The binary rel estimator is <mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|)</mathphrase></simpara></listitem>
-          <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all determinist computed rounding mode</simpara></listitem>
+          <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all deterministic computed rounding mode</simpara></listitem>
 
 	</itemizedlist>
       </para>
@@ -888,7 +888,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print
 	the extracted value on the first line of the standard output.
 
-	To study several output variables the command can be called several time the command with different <command>extract_script </command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun. The are no garanty in cas of concurrent run of the command verrou_plot_stat and the <command> run_script</command> and <command>extract_script </command> should not be modify during a <command>verrou_plot_stat</command> call.
+	To study several output variables the command can be called several times the command with different <command>extract_script </command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun. There is no guarantee in case of concurrent run of the command verrou_plot_stat and the <command> run_script</command> and <command>extract_script </command> should not be modify during a <command>verrou_plot_stat</command> call.
       </para>
 
     </simplesect>
@@ -1068,7 +1068,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <computeroutput>--ref=VALUE</computeroutput>
           </term>
           <listitem>
-            <para> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not determinist, the average value is taken.
+            <para> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not deterministic, the average value is taken.
 	    </para>
           </listitem>
 	</varlistentry>

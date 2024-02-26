@@ -291,7 +291,7 @@ s_sin.c         12       cos</screen>
     <para>
       Instrumentation can be toggled off at program start using the <option><xref
       linkend="vr-opt.instr-atstart"/></option> command-line option. Furthermore, it can be
-      (de)activated programatically using the <computeroutput><xref
+      (de)activated programmatically using the <computeroutput><xref
       linkend="vr-cr.start-instrumentation"/></computeroutput> and <computeroutput><xref
       linkend="vr-cr.stop-instrumentation"/></computeroutput> client requests. This feature is
       greatly inspired by Callgrind (see <xref linkend="cl-manual.limits"/> in the Callgrind
