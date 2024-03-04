@@ -397,7 +397,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
   inline double myFma(const double& a, const double& b, const double& c){
     double d;
 #ifdef TEST_FMA
-#if defined(__X86_64__)
+#if defined(__x86_64__)
     __m128d ai, bi,ci,di;
     ai = _mm_load_sd(&a);
     bi = _mm_load_sd(&b);
@@ -412,7 +412,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
   // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
   vst1_f64(&d, di);
 #else
-#error "notyet implemented for this architecture"
+#error "not yet implemented for this architecture"
 #endif
 #else
     d=a*b+c;
@@ -424,7 +424,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
   inline float myFma(const float& a, const float& b, const float& c){
     float d;
 #ifdef TEST_FMA
-#if defined(__X86_64__)
+#if defined(__x86_64__)
     __m128 ai, bi,ci,di;
     ai = _mm_load_ss(&a);
     bi = _mm_load_ss(&b);
@@ -446,7 +446,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
   vst1_f32(res, resp);
   d=res[0];
 #else
-#error "notyet implemented for this architecture"
+#error "not yet implemented for this architecture"
 #endif
 #else
     d=a*b+c;
