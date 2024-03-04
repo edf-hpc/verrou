@@ -1020,10 +1020,10 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
 
-  IRExpr* arg1Tab[4];
-  IRExpr* arg2Tab[4];
-  vr_getTabArgAVX (sb, arg1, arg1Tab);
-  vr_getTabArgAVX (sb, arg2, arg2Tab);
+  //IRExpr* arg1Tab[4];
+  //IRExpr* arg2Tab[4];
+  //vr_getTabArgAVX (sb, arg1, arg1Tab);
+  //vr_getTabArgAVX (sb, arg2, arg2Tab);
 
   IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
 
@@ -1043,26 +1043,39 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
   if( prec==VR_PREC_DBL){
-    addStmtToIRSB (sb,
-		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
-						   "vr_AvxDoubleCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxDoubleCopyFirstArg),
-						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
-						   )));
+
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxDouble), arg1)
+        );
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxDouble), arg2)
+        );
+//     addStmtToIRSB (sb,
+//		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
+//						   "vr_AvxDoubleCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxDoubleCopyFirstArg),
+//						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
+//						   )));
   }else if(prec==VR_PREC_FLT){
-     addStmtToIRSB (sb,
-		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
-						   "vr_AvxFloatCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxFloatCopyFirstArg),
-						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
-						   )));
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxFloat), arg1)
+        );
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxFloat), arg2)
+        );
+//     addStmtToIRSB (sb,
+//                    IRStmt_Dirty(unsafeIRDirty_0_N (1,
+//						   "vr_AvxFloatCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxFloatCopyFirstArg),
+//                                                    mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
+//                                    )));
   }
 
 
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
                                                  functionName, VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_5 (IRExpr_VECRET(),
-								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
-								)
+                                                 mkIRExprVec_1 (IRExpr_VECRET())
+//								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
+//								)
 						 )));
 
 
