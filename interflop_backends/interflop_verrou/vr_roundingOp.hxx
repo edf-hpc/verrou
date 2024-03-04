@@ -857,33 +857,6 @@ public:
 #include "vr_op.hxx"
 
 template<class OP>
-class OpWithNearestRoundingMode{
-public:
-  typedef typename OP::RealType RealType;
-  typedef typename OP::PackArgs PackArgs;
-
-  static inline void apply(const PackArgs& p, RealType* res, void* context){
-    *res=applySeq(p,context);
-#ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
-#endif
-#ifndef VERROU_IGNORE_NANINF_CHECK
-    if (isNanInf(*res)) {
-      if(isNan(*res)){
-	vr_nanHandler();
-      }
-      if(isinf(*res)){
-	vr_infHandler();
-      }
-    }
-#endif
-  }
-  static inline RealType applySeq(const PackArgs& p, void* context){
-    return RoundingNearest<OP>::apply (p);
-  }
-};
-
-template<class OP>
 class OpWithDynSelectedRoundingMode{
 public:
   typedef typename OP::RealType RealType;
@@ -892,7 +865,7 @@ public:
   static inline void apply(const PackArgs& p, RealType* res, void* context){
     *res=applySeq(p,context);
 #ifdef DEBUG_PRINT_OP
-    print_debug(p,res);
+    OpWithDynSelectedRoundingMode<OP>::printDebug(p,res);
 #endif
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -907,7 +880,7 @@ public:
   }
 
 #ifdef DEBUG_PRINT_OP
-  static inline void print_debug(const PackArgs& p, const RealType* res){
+  static inline void printDebug(const PackArgs& p, const RealType* res){
     static const int nbParam= OP::PackArgs::nb;
 
     double args[nbParam];
@@ -968,6 +941,33 @@ public:
     }
 
     return 0;
+  }
+};
+
+template<class OP>
+class OpWithNearestRoundingMode{
+public:
+  typedef typename OP::RealType RealType;
+  typedef typename OP::PackArgs PackArgs;
+
+  static inline void apply(const PackArgs& p, RealType* res, void* context){
+    *res=applySeq(p,context);
+#ifdef DEBUG_PRINT_OP
+    OpWithDynSelectedRoundingMode<OP>::printDebug(p,res);
+#endif
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+  }
+  static inline RealType applySeq(const PackArgs& p, void* context){
+    return RoundingNearest<OP>::apply (p);
   }
 };
 

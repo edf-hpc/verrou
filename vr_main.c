@@ -1234,6 +1234,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #define IGNORESQRT
 #endif
 
+#ifndef DEBUG_PRINT_OP //the switch case with rounding mode during instrumentation is incompatible with DEBUG_PRINT_OP (to make it compatible python code generation need to be adapted)
      if(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -1367,6 +1368,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #undef bcName
 #undef bcNameWithCC
      }
+#endif // end of DEBUG_PRINT_OP
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
