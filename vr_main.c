@@ -915,22 +915,40 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
 
-  IRExpr *arg1Lo=vr_getLLDouble (sb, arg1);
-  IRExpr *arg1Hi=vr_getHLDouble (sb, arg1);
-  IRExpr *arg2Lo=vr_getLLDouble (sb, arg2);
-  IRExpr *arg2Hi=vr_getHLDouble (sb, arg2);
+//  IRExpr *arg1Lo=vr_getLLDouble (sb, arg1);
+//  IRExpr *arg1Hi=vr_getHLDouble (sb, arg1);
+//  IRExpr *arg2Lo=vr_getLLDouble (sb, arg2);
+//  IRExpr *arg2Hi=vr_getHLDouble (sb, arg2);
 
   IRTemp res= newIRTemp (sb->tyenv, Ity_V128);
 
+  if(prec==VR_PREC_DBL){
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1)
+        );
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEDouble), arg2)
+        );
+  }
+  if(prec==VR_PREC_FLT){
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1)
+        );
+     addStmtToIRSB(sb,
+                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEFloat), arg2)
+        );  
+  }
 
-
+  
+     
   //call
   addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 3,
+                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 0,
                                                  "", VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_5 (IRExpr_VECRET(),
-								arg1Hi,arg1Lo,
-								arg2Hi,arg2Lo))));
+                                                 mkIRExprVec_1 (IRExpr_VECRET())
+//								arg1Hi,arg1Lo,
+//								arg2Hi,arg2Lo)
+                                 )));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
   return True;

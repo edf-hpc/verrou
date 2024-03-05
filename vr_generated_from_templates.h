@@ -1529,9 +1529,11 @@ static VG_REGPARM(2) Long vr_verrouadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrouadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrouadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1568,14 +1570,16 @@ static VG_REGPARM(3) void vr_verrouadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrouadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrouadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1594,9 +1598,11 @@ static VG_REGPARM(2) Long vr_verrousub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrousub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrousub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1633,14 +1639,16 @@ static VG_REGPARM(3) void vr_verrousub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrousub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrousub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1659,9 +1667,11 @@ static VG_REGPARM(2) Long vr_verroumul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroumul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroumul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1698,14 +1708,16 @@ static VG_REGPARM(3) void vr_verroumul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verroumul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroumul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1724,9 +1736,11 @@ static VG_REGPARM(2) Long vr_verroudiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroudiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroudiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1763,14 +1777,16 @@ static VG_REGPARM(3) void vr_verroudiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verroudiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroudiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1790,9 +1806,11 @@ static VG_REGPARM(2) Long vr_mcaquadadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquadadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquadadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_add_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1829,14 +1847,16 @@ static VG_REGPARM(3) void vr_mcaquadadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquadadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquadadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1855,9 +1875,11 @@ static VG_REGPARM(2) Long vr_mcaquadsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquadsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquadsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_sub_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1894,14 +1916,16 @@ static VG_REGPARM(3) void vr_mcaquadsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquadsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquadsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1920,9 +1944,11 @@ static VG_REGPARM(2) Long vr_mcaquadmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquadmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquadmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_mul_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_mul_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1959,14 +1985,16 @@ static VG_REGPARM(3) void vr_mcaquadmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquadmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquadmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_mul_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1985,9 +2013,11 @@ static VG_REGPARM(2) Long vr_mcaquaddiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquaddiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquaddiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_div_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_div_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -2024,14 +2054,16 @@ static VG_REGPARM(3) void vr_mcaquaddiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_div_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -2051,9 +2083,11 @@ static VG_REGPARM(2) Long vr_checkdenormadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -2090,14 +2124,16 @@ static VG_REGPARM(3) void vr_checkdenormadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -2116,9 +2152,11 @@ static VG_REGPARM(2) Long vr_checkdenormsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -2155,14 +2193,16 @@ static VG_REGPARM(3) void vr_checkdenormsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -2181,9 +2221,11 @@ static VG_REGPARM(2) Long vr_checkdenormmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_mul_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_mul_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -2220,14 +2262,16 @@ static VG_REGPARM(3) void vr_checkdenormmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -2246,9 +2290,11 @@ static VG_REGPARM(2) Long vr_checkdenormdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_div_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_div_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -2285,14 +2331,16 @@ static VG_REGPARM(3) void vr_checkdenormdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -2312,9 +2360,11 @@ static VG_REGPARM(2) Long vr_verroucheck_float_maxadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheck_float_maxadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_add_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2356,14 +2406,16 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxadd32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheck_float_maxadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2384,9 +2436,11 @@ static VG_REGPARM(2) Long vr_verroucheck_float_maxsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheck_float_maxsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_sub_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2428,14 +2482,16 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxsub32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheck_float_maxsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2456,9 +2512,11 @@ static VG_REGPARM(2) Long vr_verroucheck_float_maxmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheck_float_maxmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_mul_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2500,14 +2558,16 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxmul32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheck_float_maxmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2528,9 +2588,11 @@ static VG_REGPARM(2) Long vr_verroucheck_float_maxdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheck_float_maxdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_div_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2572,14 +2634,16 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxdiv32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheck_float_maxdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheck_float_maxdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2599,9 +2663,11 @@ static VG_REGPARM(2) Long vr_verrou_NEARESTadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_NEARESTadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2638,14 +2704,16 @@ static VG_REGPARM(3) void vr_verrou_NEARESTadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_NEARESTadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2664,9 +2732,11 @@ static VG_REGPARM(2) Long vr_verrou_UPWARDadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_UPWARDadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2703,14 +2773,16 @@ static VG_REGPARM(3) void vr_verrou_UPWARDadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_UPWARDadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2729,9 +2801,11 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARDadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2768,14 +2842,16 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2794,9 +2870,11 @@ static VG_REGPARM(2) Long vr_verrou_FARTHESTadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_FARTHESTadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2833,14 +2911,16 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_FARTHESTadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2859,9 +2939,11 @@ static VG_REGPARM(2) Long vr_verrou_ZEROadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_ZEROadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2898,14 +2980,16 @@ static VG_REGPARM(3) void vr_verrou_ZEROadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_ZEROadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2924,9 +3008,11 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2963,14 +3049,16 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2989,9 +3077,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOMadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOMadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3028,14 +3118,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOMadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOMadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3054,9 +3146,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3093,14 +3187,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3119,9 +3215,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3158,14 +3256,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3184,9 +3284,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGEadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGEadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3223,14 +3325,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGEadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3249,9 +3353,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3288,14 +3394,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3314,9 +3422,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3353,14 +3463,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETadd32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3379,9 +3491,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOMadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOMadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3418,14 +3532,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOMadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3444,9 +3560,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3483,14 +3601,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3509,9 +3629,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3548,14 +3670,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETadd32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3574,9 +3698,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3613,14 +3739,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETadd32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3639,9 +3767,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDETadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3678,14 +3808,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETadd32Fx8 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3704,9 +3836,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONICadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3743,14 +3877,16 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3769,9 +3905,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3808,14 +3946,16 @@ static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3834,9 +3974,11 @@ static VG_REGPARM(2) Long vr_verrou_NEARESTsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_NEARESTsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3873,14 +4015,16 @@ static VG_REGPARM(3) void vr_verrou_NEARESTsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_NEARESTsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3899,9 +4043,11 @@ static VG_REGPARM(2) Long vr_verrou_UPWARDsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_UPWARDsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3938,14 +4084,16 @@ static VG_REGPARM(3) void vr_verrou_UPWARDsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_UPWARDsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3964,9 +4112,11 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARDsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4003,14 +4153,16 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4029,9 +4181,11 @@ static VG_REGPARM(2) Long vr_verrou_FARTHESTsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_FARTHESTsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4068,14 +4222,16 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_FARTHESTsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4094,9 +4250,11 @@ static VG_REGPARM(2) Long vr_verrou_ZEROsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_ZEROsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4133,14 +4291,16 @@ static VG_REGPARM(3) void vr_verrou_ZEROsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_ZEROsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4159,9 +4319,11 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4198,14 +4360,16 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4224,9 +4388,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOMsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOMsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4263,14 +4429,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOMsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOMsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4289,9 +4457,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4328,14 +4498,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4354,9 +4526,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4393,14 +4567,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4419,9 +4595,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGEsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGEsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4458,14 +4636,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGEsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4484,9 +4664,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4523,14 +4705,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4549,9 +4733,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4588,14 +4774,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsub32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4614,9 +4802,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOMsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOMsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4653,14 +4843,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOMsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4679,9 +4871,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4718,14 +4912,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4744,9 +4940,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4783,14 +4981,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsub32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4809,9 +5009,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4848,14 +5050,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsub32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4874,9 +5078,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDETsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4913,14 +5119,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsub32Fx8 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4939,9 +5147,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONICsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4978,14 +5188,16 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5004,9 +5216,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5043,14 +5257,16 @@ static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5069,9 +5285,11 @@ static VG_REGPARM(2) Long vr_verrou_NEARESTmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_NEARESTmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5108,14 +5326,16 @@ static VG_REGPARM(3) void vr_verrou_NEARESTmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_NEARESTmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5134,9 +5354,11 @@ static VG_REGPARM(2) Long vr_verrou_UPWARDmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_UPWARDmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5173,14 +5395,16 @@ static VG_REGPARM(3) void vr_verrou_UPWARDmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_UPWARDmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5199,9 +5423,11 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARDmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5238,14 +5464,16 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5264,9 +5492,11 @@ static VG_REGPARM(2) Long vr_verrou_FARTHESTmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_FARTHESTmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5303,14 +5533,16 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_FARTHESTmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5329,9 +5561,11 @@ static VG_REGPARM(2) Long vr_verrou_ZEROmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_ZEROmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5368,14 +5602,16 @@ static VG_REGPARM(3) void vr_verrou_ZEROmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_ZEROmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5394,9 +5630,11 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5433,14 +5671,16 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5459,9 +5699,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOMmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOMmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5498,14 +5740,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOMmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOMmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5524,9 +5768,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5563,14 +5809,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5589,9 +5837,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5628,14 +5878,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5654,9 +5906,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGEmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGEmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5693,14 +5947,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGEmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5719,9 +5975,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5758,14 +6016,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5784,9 +6044,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5823,14 +6085,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETmul32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5849,9 +6113,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOMmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOMmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5888,14 +6154,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOMmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5914,9 +6182,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5953,14 +6223,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5979,9 +6251,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6018,14 +6292,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETmul32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6044,9 +6320,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6083,14 +6361,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETmul32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6109,9 +6389,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDETmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6148,14 +6430,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETmul32Fx8 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6174,9 +6458,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONICmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6213,14 +6499,16 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6239,9 +6527,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICmul64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICmul64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6278,14 +6568,16 @@ static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICmul32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6304,9 +6596,11 @@ static VG_REGPARM(2) Long vr_verrou_NEARESTdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_NEARESTdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6343,14 +6637,16 @@ static VG_REGPARM(3) void vr_verrou_NEARESTdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_NEARESTdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_NEARESTdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6369,9 +6665,11 @@ static VG_REGPARM(2) Long vr_verrou_UPWARDdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_UPWARDdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6408,14 +6706,16 @@ static VG_REGPARM(3) void vr_verrou_UPWARDdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_UPWARDdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_UPWARDdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6434,9 +6734,11 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARDdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6473,14 +6775,16 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_DOWNWARDdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_DOWNWARDdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6499,9 +6803,11 @@ static VG_REGPARM(2) Long vr_verrou_FARTHESTdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_FARTHESTdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6538,14 +6844,16 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_FARTHESTdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_FARTHESTdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6564,9 +6872,11 @@ static VG_REGPARM(2) Long vr_verrou_ZEROdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_ZEROdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6603,14 +6913,16 @@ static VG_REGPARM(3) void vr_verrou_ZEROdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_ZEROdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_ZEROdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6629,9 +6941,11 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6668,14 +6982,16 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AWAY_ZEROdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6694,9 +7010,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOMdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOMdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6733,14 +7051,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOMdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOMdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOMdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6759,9 +7079,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6798,14 +7120,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_DETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6824,9 +7148,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6863,14 +7189,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6889,9 +7217,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGEdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGEdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6928,14 +7258,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGEdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGEdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -6954,9 +7286,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -6993,14 +7327,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_DETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7019,9 +7355,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7058,14 +7396,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETdiv32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7084,9 +7424,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOMdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOMdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7123,14 +7465,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOMdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOMdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7149,9 +7493,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7188,14 +7534,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_DETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7214,9 +7562,11 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7253,14 +7603,16 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7279,9 +7631,11 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7318,14 +7672,16 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETdiv32Fx8 (/*OUT*/V256* output)
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7344,9 +7700,11 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDETdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7383,14 +7741,16 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETdiv32Fx8 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7409,9 +7769,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONICdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7448,14 +7810,16 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_MONOTONICdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7474,9 +7838,11 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICdiv64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICdiv64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -7513,14 +7879,16 @@ static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv32Fx8 (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -7540,9 +7908,11 @@ static VG_REGPARM(2) Long vr_verroucheckcancellationadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheckcancellationadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheckcancellationadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7584,14 +7954,16 @@ static VG_REGPARM(3) void vr_verroucheckcancellationadd32Fx8 (/*OUT*/V256* outpu
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheckcancellationadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheckcancellationadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -7612,9 +7984,11 @@ static VG_REGPARM(2) Long vr_verroucheckcancellationsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_verroucheckcancellationsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_verroucheckcancellationsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7656,14 +8030,16 @@ static VG_REGPARM(3) void vr_verroucheckcancellationsub32Fx8 (/*OUT*/V256* outpu
   }
 }
 
-static VG_REGPARM(3) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -7685,9 +8061,11 @@ static VG_REGPARM(2) Long vr_mcaquadcheckcancellationadd64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquadcheckcancellationadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquadcheckcancellationadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7729,14 +8107,16 @@ static VG_REGPARM(3) void vr_mcaquadcheckcancellationadd32Fx8 (/*OUT*/V256* outp
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquadcheckcancellationadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquadcheckcancellationadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -7757,9 +8137,11 @@ static VG_REGPARM(2) Long vr_mcaquadcheckcancellationsub64F (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void vr_mcaquadcheckcancellationsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_mcaquadcheckcancellationsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7801,14 +8183,16 @@ static VG_REGPARM(3) void vr_mcaquadcheckcancellationsub32Fx8 (/*OUT*/V256* outp
   }
 }
 
-static VG_REGPARM(3) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -7830,9 +8214,11 @@ static VG_REGPARM(2) Long vr_checkdenormcheckcancellationadd64F (Long a, Long b)
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormcheckcancellationadd64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7874,14 +8260,16 @@ static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd32Fx8 (/*OUT*/V256* 
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormcheckcancellationadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormcheckcancellationadd32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -7902,9 +8290,11 @@ static VG_REGPARM(2) Long vr_checkdenormcheckcancellationsub64F (Long a, Long b)
   return *c;
 }
 
-static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void vr_checkdenormcheckcancellationsub64Fx2(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -7946,14 +8336,16 @@ static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub32Fx8 (/*OUT*/V256* 
   }
 }
 
-static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void vr_checkdenormcheckcancellationsub32Fx4 (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);

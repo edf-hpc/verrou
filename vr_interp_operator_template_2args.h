@@ -9,9 +9,11 @@ static VG_REGPARM(2) Long FCTNAME(64F,) (Long a, Long b) {
   return *c;
 }
 
-static VG_REGPARM(3) void FCTNAME(64Fx2,)(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
-  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+static VG_REGPARM(0) void FCTNAME(64Fx2,)(/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+//  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+//  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  const double* arg1=arg1CopySSEDouble;
+  const double* arg2=arg2CopySSEDouble;
   double* res=(double*) output;
   BACKENDFUNC(double)(arg1[0], arg2[0], res, CONTEXT);
   BACKENDFUNC(double)(arg1[1], arg2[1], res+1, CONTEXT);
@@ -48,14 +50,16 @@ static VG_REGPARM(3) void FCTNAME(32Fx8,) (/*OUT*/V256* output){
   }
 }
 
-static VG_REGPARM(3) void FCTNAME(32Fx4,) (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
-  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
-  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+static VG_REGPARM(0) void FCTNAME(32Fx4,) (/*OUT*/V128* output){//, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+/*  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+    V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;*/
 
   float* res=(float*) output;
-  float* arg1=(float*) &reg1;
-  float* arg2=(float*) &reg2;
+//  float* arg1=(float*) &reg1;
+//  float* arg2=(float*) &reg2;
 
+  const float* arg1=arg1CopySSEFloat;
+  const float* arg2=arg2CopySSEFloat;
   for(int i=0; i<4;i++){
      BACKENDFUNC(float)(arg1[i], arg2[i], res+i, CONTEXT);
   }

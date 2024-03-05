@@ -2,6 +2,11 @@
 /*Tools for copy : workaround to avoid limitation of 6args*/
 
 #ifndef INTERFLOP_VECTO
+static double arg1CopySSEDouble[2];
+static double arg2CopySSEDouble[2];
+static float arg1CopySSEFloat[4];
+static float arg2CopySSEFloat[4];
+
 static double arg1CopyAvxDouble[4];
 static double arg2CopyAvxDouble[4];
 static VG_REGPARM(3) void vr_AvxDoubleCopyFirstArg (ULong a0, ULong a1, ULong a2,ULong a3) {
