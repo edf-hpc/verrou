@@ -744,14 +744,19 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
                                                  //mkIRExprVec_2 (arg1LL, arg2LL)
 						 )));
 
+//  extern IRExpr* IRExpr_Load   ( IREndness end, IRType ty, IRExpr* addr );
   //update after call
   if (prec==VR_PREC_FLT){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
+                                     IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEFloat))));
+
+//				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
   }
   if (prec==VR_PREC_DBL){
-    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
+     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                                      IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEDouble))));
+                    //ddStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                    //		     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
   }
   return True;
 }
