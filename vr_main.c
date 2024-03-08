@@ -400,7 +400,6 @@ void vr_clean_cache_seed(){
     *cacheSeed=0;
   }
 }
-  
 
 
 #include "vr_traceBB_impl.h"
@@ -418,13 +417,6 @@ void vr_clean_cache_seed(){
 
 // *** Helpers
 
-
-/* Return the Lowest Lane of a given packed temporary register */
-static IRExpr* vr_getLLFloat (IRSB* sb, IRExpr* expr) {
-  IRTemp tmp = newIRTemp (sb->tyenv, Ity_I32);
-  addStmtToIRSB (sb, IRStmt_WrTmp (tmp, IRExpr_Unop (Iop_V128to32, expr)));
-  return IRExpr_RdTmp(tmp);
-}
 /* Return the Lowest Lane of a given packed temporary register */
 static IRExpr* vr_getLLDouble (IRSB* sb, IRExpr* expr) {
   IRTemp tmp = newIRTemp (sb->tyenv, Ity_I64);
@@ -602,7 +594,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 #else
 #error "not yet implemented"
 #endif
-  
+
   return True;
 }
 
@@ -703,32 +695,13 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   }
 
   vr_countOp (sb,  op, prec,vec, True);
-  //conversion before call
-  IRExpr * arg1LL=NULL;
-  //  IRExpr * arg1;
-  IRExpr * arg2LL;
-  IRType ity=Ity_I64;//type of call result
 
-  /*  arg1 = expr->Iex.Binop.arg1;
-  arg2LL = expr->Iex.Binop.arg2;
-  if (prec==VR_PREC_FLT) {
-    arg1LL = vr_getLLFloat (sb, arg1);
-    arg2LL = vr_getLLFloat (sb, arg2LL);
-    arg1LL = vr_I32toI64 (sb, arg1LL);
-    arg2LL = vr_I32toI64 (sb, arg2LL);
-    ity=Ity_I32;
-  }
-  if (prec==VR_PREC_DBL) {
-    arg1LL = vr_getLLDouble (sb, arg1);
-    arg2LL = vr_getLLDouble (sb, arg2LL);
-    }*/
   IRExpr * arg1 = expr->Iex.Binop.arg1;
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
   if (prec==VR_PREC_FLT) {
     addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1));
     addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEFloat), arg2));
-    ity=Ity_I32;//type of call result
   }
   if (prec==VR_PREC_DBL) {
     addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1));
@@ -736,27 +709,18 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   }
 
   //call
-  IRTemp res=newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function)//,
-						 ,mkIRExprVec_0()
-                                                 //mkIRExprVec_2 (arg1LL, arg2LL)
-						 )));
-
-//  extern IRExpr* IRExpr_Load   ( IREndness end, IRType ty, IRExpr* addr );
+                 IRStmt_Dirty(unsafeIRDirty_0_N( 0,
+                                                 functionName, VG_(fnptr_to_fnentry)(function),
+						 mkIRExprVec_0())));
   //update after call
   if (prec==VR_PREC_FLT){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
                                      IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEFloat))));
-
-//				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
   }
   if (prec==VR_PREC_DBL){
      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
                                       IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEDouble))));
-                    //ddStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                    //		     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
   }
   return True;
 }
@@ -782,37 +746,29 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
   }
 
   vr_countOp (sb,  op, prec,vec, True);
-  //conversion before call
-  IRExpr * arg1LL=NULL;
-  IRExpr * arg1;
-  IRType ity=Ity_I64;//type of call result
 
-  arg1 = expr->Iex.Unop.arg;
+  IRExpr * arg1 = expr->Iex.Binop.arg1;
 
   if (prec==VR_PREC_FLT) {
-    arg1LL = vr_getLLFloat (sb, arg1);
-    arg1LL = vr_I32toI64 (sb, arg1LL);
-    ity=Ity_I32;
+    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1));
   }
   if (prec==VR_PREC_DBL) {
-    arg1LL = vr_getLLDouble (sb, arg1);
+    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1));
   }
 
   //call
-  IRTemp res=newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
+                 IRStmt_Dirty(unsafeIRDirty_0_N ( 0,
                                                  functionName, VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_1 (arg1LL))));
-
+                                                 mkIRExprVec_0 ())));
   //update after call
   if (prec==VR_PREC_FLT){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				     IRExpr_Binop (Iop_SetV128lo32, arg1,IRExpr_RdTmp(res))));
+                                     IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEFloat))));
   }
   if (prec==VR_PREC_DBL){
-    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				     IRExpr_Binop (Iop_SetV128lo64,arg1,IRExpr_RdTmp(res))));
+     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+                                      IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopySSEDouble))));
   }
   return True;
 }
@@ -829,76 +785,6 @@ static Bool vr_replaceBinFpOpLLO_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					       countOnly);
 }
 
-static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					      const HChar* functionName, void* function,
-					      Vr_Op op,
-					      Vr_Prec prec,
-					      Vr_Vec vec,
-					      Bool countOnly){
-  //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return False;
-  }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
-  vr_countOp (sb,  op, prec,vec, True);
-  //conversion before call
-
-  IRExpr * arg1;
-  IRExpr * arg2;
-
-  IRType ity=Ity_I64;//type of call result
-
-  arg1 = expr->Iex.Binop.arg1;
-  arg2 = expr->Iex.Binop.arg2;
-  /* if (prec==VR_PREC_FLT) {
-    arg1 = vr_getLLFloat (sb, arg1);
-    arg2 = vr_getLLFloat (sb, arg2);
-    arg1 = vr_I32toI64 (sb, arg1);
-    arg2 = vr_I32toI64 (sb, arg2);
-    ity=Ity_I32;
-  }
-  if (prec==VR_PREC_DBL) {
-    arg1 = vr_getLLDouble (sb, arg1);
-    arg2 = vr_getLLDouble (sb, arg2);
-  }*/
-
-
-  if (prec==VR_PREC_FLT) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1));
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEFloat), arg2));
-    ity=Ity_I32;
-  }
-  if (prec==VR_PREC_DBL) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1));
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEDouble), arg2));
-  }
-
-
-  //call
-  IRTemp res=newIRTemp (sb->tyenv, ity);
-  addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function)//,
-						 ,mkIRExprVec_0()
-						 //mkIRExprVec_2 (arg1, arg2)
-						 )));
-
-  //update after call
-  IROp opReg;
-  if (prec==VR_PREC_FLT) opReg = Iop_32UtoV128;
-  if (prec==VR_PREC_DBL) opReg = Iop_64UtoV128;
-  addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-				   IRExpr_Unop (opReg, IRExpr_RdTmp(res))));
-  return True;
-}
-
 
 static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				 const HChar* functionName, void* function,
@@ -906,11 +792,7 @@ static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				 Vr_Prec prec,
 				 Vr_Vec vec,
 				 Bool countOnly){
-  if(vr.unsafe_llo_optim){
-    return vr_replaceBinFpOpLLO_fast_unsafe(sb,stmt,expr,functionName,function,op,prec,vec,countOnly);
-  }else{
-    return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec,countOnly);
-  }
+   return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec,countOnly);
 }
 
 
@@ -947,41 +829,21 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr * arg1 = expr->Iex.Triop.details->arg2;
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
-
-//  IRExpr *arg1Lo=vr_getLLDouble (sb, arg1);
-//  IRExpr *arg1Hi=vr_getHLDouble (sb, arg1);
-//  IRExpr *arg2Lo=vr_getLLDouble (sb, arg2);
-//  IRExpr *arg2Hi=vr_getHLDouble (sb, arg2);
-
   IRTemp res= newIRTemp (sb->tyenv, Ity_V128);
 
   if(prec==VR_PREC_DBL){
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1)
-        );
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEDouble), arg2)
-        );
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEDouble), arg2));
   }
   if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1)
-        );
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEFloat), arg2)
-        );  
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopySSEFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopySSEFloat), arg2));
   }
-
-  
-     
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 0,
                                                  "", VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_1 (IRExpr_VECRET())
-//								arg1Hi,arg1Lo,
-//								arg2Hi,arg2Lo)
-                                 )));
+                                                 mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
   return True;
@@ -1070,66 +932,19 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRExpr * arg1 = expr->Iex.Triop.details->arg2;
   IRExpr * arg2 = expr->Iex.Triop.details->arg3;
 
-
-  //IRExpr* arg1Tab[4];
-  //IRExpr* arg2Tab[4];
-  //vr_getTabArgAVX (sb, arg1, arg1Tab);
-  //vr_getTabArgAVX (sb, arg2, arg2Tab);
-
   IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
-
-
-
-  //call
-
-  /* 1 call avx
-    addStmtToIRSB (sb,
-                 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_9 (IRExpr_VECRET(),
-								arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3],
-								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
-								)
-								)));*/
-
-
   if( prec==VR_PREC_DBL){
-
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxDouble), arg1)
-        );
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxDouble), arg2)
-        );
-//     addStmtToIRSB (sb,
-//		   IRStmt_Dirty(unsafeIRDirty_0_N (1,
-//						   "vr_AvxDoubleCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxDoubleCopyFirstArg),
-//						   mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
-//						   )));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxDouble), arg2));
   }else if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxFloat), arg1)
-        );
-     addStmtToIRSB(sb,
-                   IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxFloat), arg2)
-        );
-//     addStmtToIRSB (sb,
-//                    IRStmt_Dirty(unsafeIRDirty_0_N (1,
-//						   "vr_AvxFloatCopyFirstArg", VG_(fnptr_to_fnentry)(&vr_AvxFloatCopyFirstArg),
-//                                                    mkIRExprVec_4 (arg1Tab[0],arg1Tab[1], arg1Tab[2],arg1Tab[3])
-//                                    )));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyAvxFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyAvxFloat), arg2));
   }
-
-
+  //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
                                                  functionName, VG_(fnptr_to_fnentry)(function),
-                                                 mkIRExprVec_1 (IRExpr_VECRET())
-//								arg2Tab[0],arg2Tab[1], arg2Tab[2],arg2Tab[3]
-//								)
-						 )));
-
-
+                                                 mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
   return True;

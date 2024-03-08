@@ -236,12 +236,10 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICcast64FTo32F (Long a) {
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrousqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrousqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrousqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -261,12 +259,10 @@ static VG_REGPARM(3) void vr_verrousqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrousqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrousqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrousqrt32Fx8 (/*OUT*/V256* output,
@@ -294,12 +290,10 @@ static VG_REGPARM(3) void vr_verrousqrt32Fx4 (/*OUT*/V128* output, ULong aHi, UL
 // generation of operation sqrt backend checkdenorm
 
 
-static VG_REGPARM(2) Long vr_checkdenormsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_checkdenormsqrt64F (void) {
   double res;
-  interflop_checkdenorm_sqrt_double(*arg1, &res, backend_checkdenorm_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_checkdenorm_sqrt_double(arg1CopySSEDouble[0], &res, backend_checkdenorm_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_checkdenormsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -319,12 +313,10 @@ static VG_REGPARM(3) void vr_checkdenormsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_checkdenormsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_checkdenormsqrt32F (void) {
   float res;
-  interflop_checkdenorm_sqrt_float(*arg1, &res, backend_checkdenorm_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_checkdenorm_sqrt_float(arg1CopySSEFloat[0], &res, backend_checkdenorm_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_checkdenormsqrt32Fx8 (/*OUT*/V256* output,
@@ -352,13 +344,11 @@ static VG_REGPARM(3) void vr_checkdenormsqrt32Fx4 (/*OUT*/V128* output, ULong aH
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verroucheck_float_maxsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verroucheck_float_maxsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double(*arg1, &res, backend_verrou_context);
-  interflop_check_float_max_sqrt_double(*arg1, &res, backend_check_float_max_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_sqrt_double(arg1CopySSEDouble[0], &res, backend_check_float_max_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verroucheck_float_maxsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -381,13 +371,11 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxsqrt64Fx4 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(2) Int vr_verroucheck_float_maxsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verroucheck_float_maxsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float(*arg1, &res, backend_verrou_context);
-  interflop_check_float_max_sqrt_float(*arg1, &res, backend_check_float_max_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_sqrt_float(arg1CopySSEFloat[0], &res, backend_check_float_max_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verroucheck_float_maxsqrt32Fx8 (/*OUT*/V256* output,
@@ -417,12 +405,10 @@ static VG_REGPARM(3) void vr_verroucheck_float_maxsqrt32Fx4 (/*OUT*/V128* output
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_NEARESTsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_NEARESTsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_NEAREST(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_NEARESTsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -442,12 +428,10 @@ static VG_REGPARM(3) void vr_verrou_NEARESTsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_NEARESTsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_NEARESTsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_NEAREST(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_NEARESTsqrt32Fx8 (/*OUT*/V256* output,
@@ -475,12 +459,10 @@ static VG_REGPARM(3) void vr_verrou_NEARESTsqrt32Fx4 (/*OUT*/V128* output, ULong
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_UPWARDsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_UPWARDsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_UPWARD(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_UPWARD(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_UPWARDsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -500,12 +482,10 @@ static VG_REGPARM(3) void vr_verrou_UPWARDsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_UPWARDsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_UPWARDsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_UPWARD(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_UPWARD(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_UPWARDsqrt32Fx8 (/*OUT*/V256* output,
@@ -533,12 +513,10 @@ static VG_REGPARM(3) void vr_verrou_UPWARDsqrt32Fx4 (/*OUT*/V128* output, ULong 
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_DOWNWARDsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_DOWNWARDsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_DOWNWARD(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_DOWNWARD(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_DOWNWARDsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -558,12 +536,10 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_DOWNWARDsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_DOWNWARDsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_DOWNWARD(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_DOWNWARD(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_DOWNWARDsqrt32Fx8 (/*OUT*/V256* output,
@@ -591,12 +567,10 @@ static VG_REGPARM(3) void vr_verrou_DOWNWARDsqrt32Fx4 (/*OUT*/V128* output, ULon
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_FARTHESTsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_FARTHESTsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_FARTHEST(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_FARTHEST(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_FARTHESTsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -616,12 +590,10 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_FARTHESTsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_FARTHESTsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_FARTHEST(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_FARTHEST(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_FARTHESTsqrt32Fx8 (/*OUT*/V256* output,
@@ -649,12 +621,10 @@ static VG_REGPARM(3) void vr_verrou_FARTHESTsqrt32Fx4 (/*OUT*/V128* output, ULon
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_ZEROsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_ZEROsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_ZERO(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_ZERO(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_ZEROsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -674,12 +644,10 @@ static VG_REGPARM(3) void vr_verrou_ZEROsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_ZEROsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_ZEROsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_ZERO(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_ZERO(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_ZEROsqrt32Fx8 (/*OUT*/V256* output,
@@ -707,12 +675,10 @@ static VG_REGPARM(3) void vr_verrou_ZEROsqrt32Fx4 (/*OUT*/V128* output, ULong aH
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_AWAY_ZEROsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AWAY_ZERO(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -732,12 +698,10 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_AWAY_ZEROsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AWAY_ZERO(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_AWAY_ZERO(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt32Fx8 (/*OUT*/V256* output,
@@ -765,12 +729,10 @@ static VG_REGPARM(3) void vr_verrou_AWAY_ZEROsqrt32Fx4 (/*OUT*/V128* output, ULo
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_RANDOMsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOMsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_RANDOM(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOMsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -790,12 +752,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOMsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_RANDOMsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOMsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_RANDOM(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOMsqrt32Fx8 (/*OUT*/V256* output,
@@ -823,12 +783,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOMsqrt32Fx4 (/*OUT*/V128* output, ULong 
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_RANDOM_DETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_DET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_RANDOM_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_DETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -848,12 +806,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_RANDOM_DETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_DET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_RANDOM_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_DETsqrt32Fx8 (/*OUT*/V256* output,
@@ -881,12 +837,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_DETsqrt32Fx4 (/*OUT*/V128* output, UL
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_COMDET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -906,12 +860,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_COMDET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_RANDOM_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output,
@@ -939,12 +891,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output,
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_AVERAGEsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGEsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_AVERAGE(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGEsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -964,12 +914,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_AVERAGEsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGEsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_AVERAGE(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGEsqrt32Fx8 (/*OUT*/V256* output,
@@ -997,12 +945,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGEsqrt32Fx4 (/*OUT*/V128* output, ULong
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_AVERAGE_DETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_DET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1022,12 +968,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_AVERAGE_DETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_DET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_AVERAGE_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1055,12 +999,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_DETsqrt32Fx4 (/*OUT*/V128* output, U
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_COMDET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1080,12 +1022,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsqrt64Fx4 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_COMDET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1113,12 +1053,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_COMDETsqrt32Fx4 (/*OUT*/V128* output
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_PRANDOMsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOMsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_PRANDOM(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOMsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1138,12 +1076,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_PRANDOMsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOMsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_PRANDOM(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOMsqrt32Fx8 (/*OUT*/V256* output,
@@ -1171,12 +1107,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOMsqrt32Fx4 (/*OUT*/V128* output, ULong
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_PRANDOM_DETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM_DET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1196,12 +1130,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_PRANDOM_DETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM_DET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_PRANDOM_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1229,12 +1161,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_DETsqrt32Fx4 (/*OUT*/V128* output, U
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM_COMDET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1254,12 +1184,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsqrt64Fx4 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM_COMDET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1287,12 +1215,10 @@ static VG_REGPARM(3) void vr_verrou_PRANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_SCOMDET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1312,12 +1238,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsqrt64Fx4 (/*OUT*/V256* output
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_SCOMDET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1345,12 +1269,10 @@ static VG_REGPARM(3) void vr_verrou_RANDOM_SCOMDETsqrt32Fx4 (/*OUT*/V128* output
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDETsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_SCOMDET(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1370,12 +1292,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsqrt64Fx4 (/*OUT*/V256* outpu
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDETsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_SCOMDET(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx8 (/*OUT*/V256* output,
@@ -1403,12 +1323,10 @@ static VG_REGPARM(3) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx4 (/*OUT*/V128* outpu
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_SR_MONOTONICsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_SR_MONOTONIC(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1428,12 +1346,10 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_SR_MONOTONICsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_SR_MONOTONIC(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_SR_MONOTONIC(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsqrt32Fx8 (/*OUT*/V256* output,
@@ -1461,12 +1377,10 @@ static VG_REGPARM(3) void vr_verrou_SR_MONOTONICsqrt32Fx4 (/*OUT*/V128* output, 
 // generation of operation sqrt backend verrou
 
 
-static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONICsqrt64F (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
-  Long *c = (Long*)(&res);
-  return *c;
+  interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopySSEDouble[0], &res, backend_verrou_context);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -1486,12 +1400,10 @@ static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt64Fx4 (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONICsqrt32F (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
-  Int *c = (Int*)(&res);
-  return *c;
+  interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1CopySSEFloat[0], &res, backend_verrou_context);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void vr_verrou_SR_SMONOTONICsqrt32Fx8 (/*OUT*/V256* output,

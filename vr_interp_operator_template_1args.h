@@ -1,11 +1,9 @@
 
 
-static VG_REGPARM(2) Long FCTNAME(64F,) (Long a, Long b) {
-  double *arg1 = (double*)(&a);
+static VG_REGPARM(0) void FCTNAME(64F,) (void) {
   double res;
-  BACKENDFUNC(double)(*arg1, &res, CONTEXT);
-  Long *c = (Long*)(&res);
-  return *c;
+  BACKENDFUNC(double)(arg1CopySSEDouble[0], &res, CONTEXT);
+  arg1CopySSEDouble[0]=res;
 }
 
 static VG_REGPARM(3) void FCTNAME(64Fx2,)(/*OUT*/V128* output, ULong aHi, ULong aLo) {
@@ -25,12 +23,10 @@ static VG_REGPARM(3) void FCTNAME(64Fx4,) (/*OUT*/V256* output,
   }
 }
 
-static VG_REGPARM(2) Int FCTNAME(32F,) (Long a) {
-  float *arg1 = (float*)(&a);
+static VG_REGPARM(0) void FCTNAME(32F,) (void) {
   float res;
-  BACKENDFUNC(float)(*arg1, &res, CONTEXT);
-  Int *c = (Int*)(&res);
-  return *c;
+  BACKENDFUNC(float)(arg1CopySSEFloat[0], &res, CONTEXT);
+  arg1CopySSEFloat[0]=res;
 }
 
 static VG_REGPARM(3) void FCTNAME(32Fx8,) (/*OUT*/V256* output,
