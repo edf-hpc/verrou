@@ -37,6 +37,14 @@
 //#pragma STDC FENV_ACCESS ON
 Vr_State vr;
 
+//
+#if defined(VG_BIGENDIAN)
+# define ENDIANNESS Iend_BE
+#elif defined(VG_LITTLEENDIAN)
+# define ENDIANNESS Iend_LE
+#else
+# error "Unknown endianness"
+#endif
 
 typedef struct {
   Bool containFloatModOp;
@@ -658,12 +666,12 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
   if (prec==VR_PREC_FLT) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
   }
   if (prec==VR_PREC_DBL) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
   }
 
   //call
@@ -674,11 +682,11 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   //update after call
   if (prec==VR_PREC_FLT){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                     IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyFloat))));
+                                     IRExpr_Load(ENDIANNESS, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyFloat))));
   }
   if (prec==VR_PREC_DBL){
      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                      IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyDouble))));
+                                      IRExpr_Load(ENDIANNESS, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyDouble))));
   }
   return True;
 }
@@ -708,10 +716,10 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
   IRExpr * arg1 = expr->Iex.Binop.arg1;
 
   if (prec==VR_PREC_FLT) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
   }
   if (prec==VR_PREC_DBL) {
-    addStmtToIRSB(sb, IRStmt_Store   ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+    addStmtToIRSB(sb, IRStmt_Store   ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
   }
 
   //call
@@ -722,11 +730,11 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
   //update after call
   if (prec==VR_PREC_FLT){
     addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                     IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyFloat))));
+                                     IRExpr_Load(ENDIANNESS, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyFloat))));
   }
   if (prec==VR_PREC_DBL){
      addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
-                                      IRExpr_Load(Iend_LE, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyDouble))));
+                                      IRExpr_Load(ENDIANNESS, Ity_V128, mkIRExpr_HWord ((HWord) arg1CopyDouble))));
   }
   return True;
 }
@@ -790,12 +798,12 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, Ity_V128);
 
   if(prec==VR_PREC_DBL){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
   }
   if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
   }
   //call
   addStmtToIRSB (sb,
@@ -840,10 +848,10 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, Ity_V128);
 
   if(prec==VR_PREC_DBL){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
   }
   if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
   }
 
   //call
@@ -892,11 +900,11 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
   IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
   if( prec==VR_PREC_DBL){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyDouble), arg2));
   }else if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg2CopyFloat), arg2));
   }
   //call
   addStmtToIRSB (sb,
@@ -942,9 +950,9 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
   IRTemp res= newIRTemp (sb->tyenv, Ity_V256);
   if( prec==VR_PREC_DBL){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyDouble), arg1));
   }else if(prec==VR_PREC_FLT){
-     addStmtToIRSB(sb, IRStmt_Store ( Iend_LE, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
+     addStmtToIRSB(sb, IRStmt_Store ( ENDIANNESS, mkIRExpr_HWord ((HWord) arg1CopyFloat), arg1));
   }
 
   addStmtToIRSB (sb,
