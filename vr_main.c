@@ -1893,7 +1893,7 @@ static void vr_pre_clo_init(void)
      = VG_(clo_px_file_backed)
      = VexRegUpdSpAtMemAccess; // overridable by the user.
 
-   VG_(clo_vex_control).iropt_unroll_thresh = 0;   // cannot be overriden.
+   //VG_(clo_vex_control).iropt_unroll_thresh = 0;   // cannot be overriden.
 
    VG_(basic_tool_funcs)        (vr_post_clo_init,
                                  vr_instrument,
