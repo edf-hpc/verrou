@@ -238,12 +238,12 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICcast64FTo32F (Long a) {
 
 static VG_REGPARM(0) void vr_verrousqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrousqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double(arg1[1], res+1, backend_verrou_context);
@@ -252,19 +252,19 @@ static VG_REGPARM(1) void vr_verrousqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrousqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrousqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrousqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
   }
@@ -273,7 +273,7 @@ static VG_REGPARM(1) void vr_verrousqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrousqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
   }
@@ -285,12 +285,12 @@ static VG_REGPARM(1) void vr_verrousqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_checkdenormsqrt64F (void) {
   double res;
-  interflop_checkdenorm_sqrt_double(arg1CopySSEDouble[0], &res, backend_checkdenorm_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_sqrt_double(arg1CopyDouble[0], &res, backend_checkdenorm_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_sqrt_double(arg1[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_sqrt_double(arg1[1], res+1, backend_checkdenorm_context);
@@ -299,19 +299,19 @@ static VG_REGPARM(1) void vr_checkdenormsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_checkdenormsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_sqrt_double(arg1CopyAvxDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkdenorm_sqrt_double(arg1CopyDouble[i], res+i, backend_checkdenorm_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormsqrt32F (void) {
   float res;
-  interflop_checkdenorm_sqrt_float(arg1CopySSEFloat[0], &res, backend_checkdenorm_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_sqrt_float(arg1CopyFloat[0], &res, backend_checkdenorm_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sqrt_float(arg1[i], res+i, backend_checkdenorm_context);
   }
@@ -320,7 +320,7 @@ static VG_REGPARM(1) void vr_checkdenormsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_checkdenormsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sqrt_float(arg1[i], res+i, backend_checkdenorm_context);
   }
@@ -332,13 +332,13 @@ static VG_REGPARM(1) void vr_checkdenormsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_check_float_max_sqrt_double(arg1CopySSEDouble[0], &res, backend_check_float_max_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double(arg1CopyDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_sqrt_double(arg1CopyDouble[0], &res, backend_check_float_max_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double(arg1[0], res, backend_verrou_context);
   interflop_check_float_max_sqrt_double(arg1[0], res, backend_check_float_max_context);
@@ -349,21 +349,21 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_check_float_max_sqrt_double(arg1CopyAvxDouble[i], res+i, backend_check_float_max_context);
+     interflop_verrou_sqrt_double(arg1CopyDouble[i], res+i, backend_verrou_context);
+     interflop_check_float_max_sqrt_double(arg1CopyDouble[i], res+i, backend_check_float_max_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_check_float_max_sqrt_float(arg1CopySSEFloat[0], &res, backend_check_float_max_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float(arg1CopyFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_sqrt_float(arg1CopyFloat[0], &res, backend_check_float_max_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
      interflop_check_float_max_sqrt_float(arg1[i], res+i, backend_check_float_max_context);
@@ -373,7 +373,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
      interflop_check_float_max_sqrt_float(arg1[i], res+i, backend_check_float_max_context);
@@ -386,12 +386,12 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void vr_verrou_NEARESTsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_NEAREST(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_NEAREST(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_NEAREST(arg1[1], res+1, backend_verrou_context);
@@ -400,19 +400,19 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_NEARESTsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_NEAREST(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_NEARESTsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_NEAREST(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_NEAREST(arg1[i], res+i, backend_verrou_context);
   }
@@ -421,7 +421,7 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_NEAREST(arg1[i], res+i, backend_verrou_context);
   }
@@ -433,12 +433,12 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_UPWARDsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_UPWARD(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_UPWARD(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_UPWARD(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_UPWARD(arg1[1], res+1, backend_verrou_context);
@@ -447,19 +447,19 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_UPWARDsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_UPWARD(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_UPWARD(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_UPWARDsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_UPWARD(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_UPWARD(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_UPWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -468,7 +468,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_UPWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -480,12 +480,12 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_DOWNWARD(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_DOWNWARD(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_DOWNWARD(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_DOWNWARD(arg1[1], res+1, backend_verrou_context);
@@ -494,19 +494,19 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_DOWNWARD(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_DOWNWARD(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_DOWNWARD(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_DOWNWARD(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_DOWNWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -515,7 +515,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_DOWNWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -527,12 +527,12 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_FARTHEST(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_FARTHEST(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_FARTHEST(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_FARTHEST(arg1[1], res+1, backend_verrou_context);
@@ -541,19 +541,19 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_FARTHEST(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_FARTHEST(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_FARTHEST(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_FARTHEST(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_FARTHEST(arg1[i], res+i, backend_verrou_context);
   }
@@ -562,7 +562,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_FARTHEST(arg1[i], res+i, backend_verrou_context);
   }
@@ -574,12 +574,12 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_ZEROsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_ZERO(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_ZERO(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_ZERO(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_ZERO(arg1[1], res+1, backend_verrou_context);
@@ -588,19 +588,19 @@ static VG_REGPARM(1) void vr_verrou_ZEROsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_ZEROsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_ZERO(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_ZERO(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_ZEROsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_ZERO(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_ZERO(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -609,7 +609,7 @@ static VG_REGPARM(1) void vr_verrou_ZEROsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_ZEROsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -621,12 +621,12 @@ static VG_REGPARM(1) void vr_verrou_ZEROsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_AWAY_ZERO(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AWAY_ZERO(arg1[1], res+1, backend_verrou_context);
@@ -635,19 +635,19 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AWAY_ZERO(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_AWAY_ZERO(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -656,7 +656,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -668,12 +668,12 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_RANDOMsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_RANDOM(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_RANDOM(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM(arg1[1], res+1, backend_verrou_context);
@@ -682,19 +682,19 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_RANDOMsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_RANDOM(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_RANDOM(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOMsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_RANDOM(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -703,7 +703,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -715,12 +715,12 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_RANDOM_DET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_RANDOM_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_DET(arg1[1], res+1, backend_verrou_context);
@@ -729,19 +729,19 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_RANDOM_DET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_RANDOM_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_RANDOM_DET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -750,7 +750,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -762,12 +762,12 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_RANDOM_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_COMDET(arg1[1], res+1, backend_verrou_context);
@@ -776,19 +776,19 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output) 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_RANDOM_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -797,7 +797,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -809,12 +809,12 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_AVERAGE(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_AVERAGE(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE(arg1[1], res+1, backend_verrou_context);
@@ -823,19 +823,19 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_AVERAGE(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_AVERAGE(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_AVERAGE(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE(arg1[i], res+i, backend_verrou_context);
   }
@@ -844,7 +844,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE(arg1[i], res+i, backend_verrou_context);
   }
@@ -856,12 +856,12 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_AVERAGE_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_DET(arg1[1], res+1, backend_verrou_context);
@@ -870,19 +870,19 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_AVERAGE_DET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -891,7 +891,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -903,12 +903,12 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1[1], res+1, backend_verrou_context);
@@ -917,19 +917,19 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -938,7 +938,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -950,12 +950,12 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsqrt32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_PRANDOM(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_PRANDOM(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM(arg1[1], res+1, backend_verrou_context);
@@ -964,19 +964,19 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_PRANDOM(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_PRANDOM(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_PRANDOM(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -985,7 +985,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -997,12 +997,12 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_PRANDOM_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM_DET(arg1[1], res+1, backend_verrou_context);
@@ -1011,19 +1011,19 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM_DET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_PRANDOM_DET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1032,7 +1032,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1044,12 +1044,12 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1[1], res+1, backend_verrou_context);
@@ -1058,19 +1058,19 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1079,7 +1079,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1091,12 +1091,12 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsqrt32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1[1], res+1, backend_verrou_context);
@@ -1105,19 +1105,19 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1126,7 +1126,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1138,12 +1138,12 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsqrt32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1[1], res+1, backend_verrou_context);
@@ -1152,19 +1152,19 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt64Fx2(/*OUT*/V128* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1173,7 +1173,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx8 (/*OUT*/V256* outpu
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -1185,12 +1185,12 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsqrt32Fx4 (/*OUT*/V128* outpu
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_SR_MONOTONIC(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_SR_MONOTONIC(arg1[1], res+1, backend_verrou_context);
@@ -1199,19 +1199,19 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt64Fx2(/*OUT*/V128* output) {
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_SR_MONOTONIC(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_SR_MONOTONIC(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_SR_MONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -1220,7 +1220,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_SR_MONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -1232,12 +1232,12 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsqrt32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsqrt64F (void) {
   double res;
-  interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt64Fx2(/*OUT*/V128* output) {
-  const double* arg1=arg1CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[1], res+1, backend_verrou_context);
@@ -1246,19 +1246,19 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt64Fx2(/*OUT*/V128* output) 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsqrt32F (void) {
   float res;
-  interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -1267,7 +1267,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -1280,13 +1280,13 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrouadd64F (void){
   double res;
-  interflop_verrou_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrouadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1295,20 +1295,20 @@ static VG_REGPARM(1) void vr_verrouadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrouadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrouadd32F (void){
   float res;
-  interflop_verrou_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrouadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1317,8 +1317,8 @@ static VG_REGPARM(1) void vr_verrouadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrouadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1330,13 +1330,13 @@ static VG_REGPARM(1) void vr_verrouadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrousub64F (void){
   double res;
-  interflop_verrou_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrousub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1345,20 +1345,20 @@ static VG_REGPARM(1) void vr_verrousub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrousub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrousub32F (void){
   float res;
-  interflop_verrou_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrousub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1367,8 +1367,8 @@ static VG_REGPARM(1) void vr_verrousub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrousub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1380,13 +1380,13 @@ static VG_REGPARM(1) void vr_verrousub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verroumul64F (void){
   double res;
-  interflop_verrou_mul_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroumul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1395,20 +1395,20 @@ static VG_REGPARM(1) void vr_verroumul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroumul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroumul32F (void){
   float res;
-  interflop_verrou_mul_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroumul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1417,8 +1417,8 @@ static VG_REGPARM(1) void vr_verroumul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verroumul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1430,13 +1430,13 @@ static VG_REGPARM(1) void vr_verroumul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verroudiv64F (void){
   double res;
-  interflop_verrou_div_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroudiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -1445,20 +1445,20 @@ static VG_REGPARM(1) void vr_verroudiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroudiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroudiv32F (void){
   float res;
-  interflop_verrou_div_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroudiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1467,8 +1467,8 @@ static VG_REGPARM(1) void vr_verroudiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verroudiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -1481,13 +1481,13 @@ static VG_REGPARM(1) void vr_verroudiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_mcaquadadd64F (void){
   double res;
-  interflop_mcaquad_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_add_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1496,20 +1496,20 @@ static VG_REGPARM(1) void vr_mcaquadadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_mcaquadadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
+     interflop_mcaquad_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquadadd32F (void){
   float res;
-  interflop_mcaquad_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1518,8 +1518,8 @@ static VG_REGPARM(1) void vr_mcaquadadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_mcaquadadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1531,13 +1531,13 @@ static VG_REGPARM(1) void vr_mcaquadadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_mcaquadsub64F (void){
   double res;
-  interflop_mcaquad_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_sub_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1546,20 +1546,20 @@ static VG_REGPARM(1) void vr_mcaquadsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_mcaquadsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
+     interflop_mcaquad_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquadsub32F (void){
   float res;
-  interflop_mcaquad_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1568,8 +1568,8 @@ static VG_REGPARM(1) void vr_mcaquadsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_mcaquadsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1581,13 +1581,13 @@ static VG_REGPARM(1) void vr_mcaquadsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_mcaquadmul64F (void){
   double res;
-  interflop_mcaquad_mul_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_mul_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_mul_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1596,20 +1596,20 @@ static VG_REGPARM(1) void vr_mcaquadmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_mcaquadmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_mul_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
+     interflop_mcaquad_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquadmul32F (void){
   float res;
-  interflop_mcaquad_mul_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_mul_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1618,8 +1618,8 @@ static VG_REGPARM(1) void vr_mcaquadmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_mcaquadmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_mul_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1631,13 +1631,13 @@ static VG_REGPARM(1) void vr_mcaquadmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_mcaquaddiv64F (void){
   double res;
-  interflop_mcaquad_div_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquaddiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_div_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_div_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -1646,20 +1646,20 @@ static VG_REGPARM(1) void vr_mcaquaddiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_mcaquaddiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_div_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
+     interflop_mcaquad_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquaddiv32F (void){
   float res;
-  interflop_mcaquad_div_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquaddiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_div_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1668,8 +1668,8 @@ static VG_REGPARM(1) void vr_mcaquaddiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_div_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -1682,13 +1682,13 @@ static VG_REGPARM(1) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_checkdenormadd64F (void){
   double res;
-  interflop_checkdenorm_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -1697,20 +1697,20 @@ static VG_REGPARM(1) void vr_checkdenormadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_checkdenormadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkdenorm_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormadd32F (void){
   float res;
-  interflop_checkdenorm_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1719,8 +1719,8 @@ static VG_REGPARM(1) void vr_checkdenormadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_checkdenormadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1732,13 +1732,13 @@ static VG_REGPARM(1) void vr_checkdenormadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_checkdenormsub64F (void){
   double res;
-  interflop_checkdenorm_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -1747,20 +1747,20 @@ static VG_REGPARM(1) void vr_checkdenormsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_checkdenormsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkdenorm_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormsub32F (void){
   float res;
-  interflop_checkdenorm_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1769,8 +1769,8 @@ static VG_REGPARM(1) void vr_checkdenormsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_checkdenormsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1782,13 +1782,13 @@ static VG_REGPARM(1) void vr_checkdenormsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_checkdenormmul64F (void){
   double res;
-  interflop_checkdenorm_mul_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_mul_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_mul_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -1797,20 +1797,20 @@ static VG_REGPARM(1) void vr_checkdenormmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_checkdenormmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_mul_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkdenorm_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormmul32F (void){
   float res;
-  interflop_checkdenorm_mul_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1819,8 +1819,8 @@ static VG_REGPARM(1) void vr_checkdenormmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_checkdenormmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1832,13 +1832,13 @@ static VG_REGPARM(1) void vr_checkdenormmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_checkdenormdiv64F (void){
   double res;
-  interflop_checkdenorm_div_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_div_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_div_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -1847,20 +1847,20 @@ static VG_REGPARM(1) void vr_checkdenormdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_checkdenormdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_div_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkdenorm_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormdiv32F (void){
   float res;
-  interflop_checkdenorm_div_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1869,8 +1869,8 @@ static VG_REGPARM(1) void vr_checkdenormdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -1882,14 +1882,14 @@ static VG_REGPARM(1) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verroucheck_float_maxadd64F (void){
   double res;
-  interflop_verrou_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_check_float_max_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_check_float_max_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_add_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -1900,22 +1900,22 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroucheck_float_maxadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_check_float_max_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_check_float_max_context);
+     interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_check_float_max_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxadd32F (void){
   float res;
-  interflop_verrou_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_check_float_max_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_check_float_max_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -1925,8 +1925,8 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxadd32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verroucheck_float_maxadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -1939,14 +1939,14 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxadd32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verroucheck_float_maxsub64F (void){
   double res;
-  interflop_verrou_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_check_float_max_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_check_float_max_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_sub_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -1957,22 +1957,22 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroucheck_float_maxsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_check_float_max_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_check_float_max_context);
+     interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_check_float_max_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxsub32F (void){
   float res;
-  interflop_verrou_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_check_float_max_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_check_float_max_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -1982,8 +1982,8 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsub32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verroucheck_float_maxsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -1996,14 +1996,14 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsub32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verroucheck_float_maxmul64F (void){
   double res;
-  interflop_verrou_mul_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_check_float_max_mul_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_check_float_max_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_mul_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2014,22 +2014,22 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroucheck_float_maxmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_check_float_max_mul_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_check_float_max_context);
+     interflop_verrou_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_check_float_max_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxmul32F (void){
   float res;
-  interflop_verrou_mul_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_check_float_max_mul_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_check_float_max_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2039,8 +2039,8 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxmul32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verroucheck_float_maxmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2053,14 +2053,14 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxmul32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verroucheck_float_maxdiv64F (void){
   double res;
-  interflop_verrou_div_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_check_float_max_div_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_check_float_max_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_check_float_max_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_div_double(arg1[0], arg2[0], res, backend_check_float_max_context);
@@ -2071,22 +2071,22 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verroucheck_float_maxdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_check_float_max_div_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_check_float_max_context);
+     interflop_verrou_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_check_float_max_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheck_float_maxdiv32F (void){
   float res;
-  interflop_verrou_div_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_check_float_max_div_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_check_float_max_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_check_float_max_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheck_float_maxdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2096,8 +2096,8 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxdiv32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verroucheck_float_maxdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -2110,13 +2110,13 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxdiv32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_NEARESTadd64F (void){
   double res;
-  interflop_verrou_add_double_NEAREST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2125,20 +2125,20 @@ static VG_REGPARM(1) void vr_verrou_NEARESTadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_NEAREST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_NEARESTadd32F (void){
   float res;
-  interflop_verrou_add_float_NEAREST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2147,8 +2147,8 @@ static VG_REGPARM(1) void vr_verrou_NEARESTadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2160,13 +2160,13 @@ static VG_REGPARM(1) void vr_verrou_NEARESTadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARDadd64F (void){
   double res;
-  interflop_verrou_add_double_UPWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2175,20 +2175,20 @@ static VG_REGPARM(1) void vr_verrou_UPWARDadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_UPWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_UPWARDadd32F (void){
   float res;
-  interflop_verrou_add_float_UPWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2197,8 +2197,8 @@ static VG_REGPARM(1) void vr_verrou_UPWARDadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2210,13 +2210,13 @@ static VG_REGPARM(1) void vr_verrou_UPWARDadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARDadd64F (void){
   double res;
-  interflop_verrou_add_double_DOWNWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2225,20 +2225,20 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_DOWNWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDadd32F (void){
   float res;
-  interflop_verrou_add_float_DOWNWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2247,8 +2247,8 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2260,13 +2260,13 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHESTadd64F (void){
   double res;
-  interflop_verrou_add_double_FARTHEST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2275,20 +2275,20 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_FARTHEST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTadd32F (void){
   float res;
-  interflop_verrou_add_float_FARTHEST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2297,8 +2297,8 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2310,13 +2310,13 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_ZEROadd64F (void){
   double res;
-  interflop_verrou_add_double_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2325,20 +2325,20 @@ static VG_REGPARM(1) void vr_verrou_ZEROadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_ZEROadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_ZEROadd32F (void){
   float res;
-  interflop_verrou_add_float_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2347,8 +2347,8 @@ static VG_REGPARM(1) void vr_verrou_ZEROadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_ZEROadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2360,13 +2360,13 @@ static VG_REGPARM(1) void vr_verrou_ZEROadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZEROadd64F (void){
   double res;
-  interflop_verrou_add_double_AWAY_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2375,20 +2375,20 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROadd32F (void){
   float res;
-  interflop_verrou_add_float_AWAY_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2397,8 +2397,8 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2410,13 +2410,13 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOMadd64F (void){
   double res;
-  interflop_verrou_add_double_RANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2425,20 +2425,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOMadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_RANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOMadd32F (void){
   float res;
-  interflop_verrou_add_float_RANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2447,8 +2447,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOMadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2460,13 +2460,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOMadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DETadd64F (void){
   double res;
-  interflop_verrou_add_double_RANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2475,20 +2475,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_RANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETadd32F (void){
   float res;
-  interflop_verrou_add_float_RANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2497,8 +2497,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2510,13 +2510,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDETadd64F (void){
   double res;
-  interflop_verrou_add_double_RANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2525,20 +2525,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_RANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETadd32F (void){
   float res;
-  interflop_verrou_add_float_RANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2547,8 +2547,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2560,13 +2560,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGEadd64F (void){
   double res;
-  interflop_verrou_add_double_AVERAGE(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2575,20 +2575,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_AVERAGE(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEadd32F (void){
   float res;
-  interflop_verrou_add_float_AVERAGE(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2597,8 +2597,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2610,13 +2610,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DETadd64F (void){
   double res;
-  interflop_verrou_add_double_AVERAGE_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2625,20 +2625,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_AVERAGE_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETadd32F (void){
   float res;
-  interflop_verrou_add_float_AVERAGE_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2647,8 +2647,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2660,13 +2660,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDETadd64F (void){
   double res;
-  interflop_verrou_add_double_AVERAGE_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2675,20 +2675,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_AVERAGE_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETadd32F (void){
   float res;
-  interflop_verrou_add_float_AVERAGE_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2697,8 +2697,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2710,13 +2710,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETadd32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOMadd64F (void){
   double res;
-  interflop_verrou_add_double_PRANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2725,20 +2725,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_PRANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMadd32F (void){
   float res;
-  interflop_verrou_add_float_PRANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2747,8 +2747,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2760,13 +2760,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DETadd64F (void){
   double res;
-  interflop_verrou_add_double_PRANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2775,20 +2775,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_PRANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETadd32F (void){
   float res;
-  interflop_verrou_add_float_PRANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2797,8 +2797,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2810,13 +2810,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDETadd64F (void){
   double res;
-  interflop_verrou_add_double_PRANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2825,20 +2825,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_PRANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETadd32F (void){
   float res;
-  interflop_verrou_add_float_PRANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2847,8 +2847,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2860,13 +2860,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETadd32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDETadd64F (void){
   double res;
-  interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2875,20 +2875,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETadd32F (void){
   float res;
-  interflop_verrou_add_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2897,8 +2897,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2910,13 +2910,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETadd32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDETadd64F (void){
   double res;
-  interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2925,20 +2925,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETadd32F (void){
   float res;
-  interflop_verrou_add_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2947,8 +2947,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2960,13 +2960,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETadd32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONICadd64F (void){
   double res;
-  interflop_verrou_add_double_SR_MONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -2975,20 +2975,20 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_SR_MONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICadd32F (void){
   float res;
-  interflop_verrou_add_float_SR_MONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -2997,8 +2997,8 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3010,13 +3010,13 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONICadd64F (void){
   double res;
-  interflop_verrou_add_double_SR_SMONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3025,20 +3025,20 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICadd32F (void){
   float res;
-  interflop_verrou_add_float_SR_SMONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3047,8 +3047,8 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3060,13 +3060,13 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICadd32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_NEARESTsub64F (void){
   double res;
-  interflop_verrou_sub_double_NEAREST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3075,20 +3075,20 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_NEAREST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_NEARESTsub32F (void){
   float res;
-  interflop_verrou_sub_float_NEAREST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3097,8 +3097,8 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3110,13 +3110,13 @@ static VG_REGPARM(1) void vr_verrou_NEARESTsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARDsub64F (void){
   double res;
-  interflop_verrou_sub_double_UPWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3125,20 +3125,20 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_UPWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_UPWARDsub32F (void){
   float res;
-  interflop_verrou_sub_float_UPWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3147,8 +3147,8 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3160,13 +3160,13 @@ static VG_REGPARM(1) void vr_verrou_UPWARDsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARDsub64F (void){
   double res;
-  interflop_verrou_sub_double_DOWNWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3175,20 +3175,20 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_DOWNWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDsub32F (void){
   float res;
-  interflop_verrou_sub_float_DOWNWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3197,8 +3197,8 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3210,13 +3210,13 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHESTsub64F (void){
   double res;
-  interflop_verrou_sub_double_FARTHEST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3225,20 +3225,20 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_FARTHEST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTsub32F (void){
   float res;
-  interflop_verrou_sub_float_FARTHEST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3247,8 +3247,8 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3260,13 +3260,13 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_ZEROsub64F (void){
   double res;
-  interflop_verrou_sub_double_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3275,20 +3275,20 @@ static VG_REGPARM(1) void vr_verrou_ZEROsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_ZEROsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_ZEROsub32F (void){
   float res;
-  interflop_verrou_sub_float_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3297,8 +3297,8 @@ static VG_REGPARM(1) void vr_verrou_ZEROsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_ZEROsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3310,13 +3310,13 @@ static VG_REGPARM(1) void vr_verrou_ZEROsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZEROsub64F (void){
   double res;
-  interflop_verrou_sub_double_AWAY_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3325,20 +3325,20 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROsub32F (void){
   float res;
-  interflop_verrou_sub_float_AWAY_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3347,8 +3347,8 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3360,13 +3360,13 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOMsub64F (void){
   double res;
-  interflop_verrou_sub_double_RANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3375,20 +3375,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_RANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOMsub32F (void){
   float res;
-  interflop_verrou_sub_float_RANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3397,8 +3397,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3410,13 +3410,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOMsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DETsub64F (void){
   double res;
-  interflop_verrou_sub_double_RANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3425,20 +3425,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_RANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETsub32F (void){
   float res;
-  interflop_verrou_sub_float_RANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3447,8 +3447,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3460,13 +3460,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDETsub64F (void){
   double res;
-  interflop_verrou_sub_double_RANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3475,20 +3475,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_RANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETsub32F (void){
   float res;
-  interflop_verrou_sub_float_RANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3497,8 +3497,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3510,13 +3510,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGEsub64F (void){
   double res;
-  interflop_verrou_sub_double_AVERAGE(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3525,20 +3525,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_AVERAGE(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEsub32F (void){
   float res;
-  interflop_verrou_sub_float_AVERAGE(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3547,8 +3547,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3560,13 +3560,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DETsub64F (void){
   double res;
-  interflop_verrou_sub_double_AVERAGE_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3575,20 +3575,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_AVERAGE_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETsub32F (void){
   float res;
-  interflop_verrou_sub_float_AVERAGE_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3597,8 +3597,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3610,13 +3610,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDETsub64F (void){
   double res;
-  interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3625,20 +3625,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETsub32F (void){
   float res;
-  interflop_verrou_sub_float_AVERAGE_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3647,8 +3647,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3660,13 +3660,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETsub32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOMsub64F (void){
   double res;
-  interflop_verrou_sub_double_PRANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3675,20 +3675,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_PRANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMsub32F (void){
   float res;
-  interflop_verrou_sub_float_PRANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3697,8 +3697,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3710,13 +3710,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DETsub64F (void){
   double res;
-  interflop_verrou_sub_double_PRANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3725,20 +3725,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_PRANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETsub32F (void){
   float res;
-  interflop_verrou_sub_float_PRANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3747,8 +3747,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3760,13 +3760,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDETsub64F (void){
   double res;
-  interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3775,20 +3775,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETsub32F (void){
   float res;
-  interflop_verrou_sub_float_PRANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3797,8 +3797,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3810,13 +3810,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETsub32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDETsub64F (void){
   double res;
-  interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3825,20 +3825,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETsub32F (void){
   float res;
-  interflop_verrou_sub_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3847,8 +3847,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3860,13 +3860,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETsub32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDETsub64F (void){
   double res;
-  interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3875,20 +3875,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETsub32F (void){
   float res;
-  interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3897,8 +3897,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3910,13 +3910,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETsub32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONICsub64F (void){
   double res;
-  interflop_verrou_sub_double_SR_MONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3925,20 +3925,20 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_SR_MONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICsub32F (void){
   float res;
-  interflop_verrou_sub_float_SR_MONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3947,8 +3947,8 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3960,13 +3960,13 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONICsub64F (void){
   double res;
-  interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -3975,20 +3975,20 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICsub32F (void){
   float res;
-  interflop_verrou_sub_float_SR_SMONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -3997,8 +3997,8 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4010,13 +4010,13 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsub32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_NEARESTmul64F (void){
   double res;
-  interflop_verrou_mul_double_NEAREST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4025,20 +4025,20 @@ static VG_REGPARM(1) void vr_verrou_NEARESTmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_NEAREST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_NEARESTmul32F (void){
   float res;
-  interflop_verrou_mul_float_NEAREST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4047,8 +4047,8 @@ static VG_REGPARM(1) void vr_verrou_NEARESTmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4060,13 +4060,13 @@ static VG_REGPARM(1) void vr_verrou_NEARESTmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARDmul64F (void){
   double res;
-  interflop_verrou_mul_double_UPWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4075,20 +4075,20 @@ static VG_REGPARM(1) void vr_verrou_UPWARDmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_UPWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_UPWARDmul32F (void){
   float res;
-  interflop_verrou_mul_float_UPWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4097,8 +4097,8 @@ static VG_REGPARM(1) void vr_verrou_UPWARDmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4110,13 +4110,13 @@ static VG_REGPARM(1) void vr_verrou_UPWARDmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARDmul64F (void){
   double res;
-  interflop_verrou_mul_double_DOWNWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4125,20 +4125,20 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_DOWNWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDmul32F (void){
   float res;
-  interflop_verrou_mul_float_DOWNWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4147,8 +4147,8 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4160,13 +4160,13 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHESTmul64F (void){
   double res;
-  interflop_verrou_mul_double_FARTHEST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4175,20 +4175,20 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_FARTHEST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTmul32F (void){
   float res;
-  interflop_verrou_mul_float_FARTHEST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4197,8 +4197,8 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4210,13 +4210,13 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_ZEROmul64F (void){
   double res;
-  interflop_verrou_mul_double_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4225,20 +4225,20 @@ static VG_REGPARM(1) void vr_verrou_ZEROmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_ZEROmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_ZEROmul32F (void){
   float res;
-  interflop_verrou_mul_float_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4247,8 +4247,8 @@ static VG_REGPARM(1) void vr_verrou_ZEROmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_ZEROmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4260,13 +4260,13 @@ static VG_REGPARM(1) void vr_verrou_ZEROmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZEROmul64F (void){
   double res;
-  interflop_verrou_mul_double_AWAY_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4275,20 +4275,20 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROmul32F (void){
   float res;
-  interflop_verrou_mul_float_AWAY_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4297,8 +4297,8 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4310,13 +4310,13 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOMmul64F (void){
   double res;
-  interflop_verrou_mul_double_RANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4325,20 +4325,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOMmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_RANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOMmul32F (void){
   float res;
-  interflop_verrou_mul_float_RANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4347,8 +4347,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOMmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4360,13 +4360,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOMmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DETmul64F (void){
   double res;
-  interflop_verrou_mul_double_RANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4375,20 +4375,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_RANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETmul32F (void){
   float res;
-  interflop_verrou_mul_float_RANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4397,8 +4397,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4410,13 +4410,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDETmul64F (void){
   double res;
-  interflop_verrou_mul_double_RANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4425,20 +4425,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_RANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETmul32F (void){
   float res;
-  interflop_verrou_mul_float_RANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4447,8 +4447,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4460,13 +4460,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGEmul64F (void){
   double res;
-  interflop_verrou_mul_double_AVERAGE(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4475,20 +4475,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_AVERAGE(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEmul32F (void){
   float res;
-  interflop_verrou_mul_float_AVERAGE(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4497,8 +4497,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4510,13 +4510,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DETmul64F (void){
   double res;
-  interflop_verrou_mul_double_AVERAGE_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4525,20 +4525,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_AVERAGE_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETmul32F (void){
   float res;
-  interflop_verrou_mul_float_AVERAGE_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4547,8 +4547,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4560,13 +4560,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDETmul64F (void){
   double res;
-  interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4575,20 +4575,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETmul32F (void){
   float res;
-  interflop_verrou_mul_float_AVERAGE_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4597,8 +4597,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4610,13 +4610,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETmul32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOMmul64F (void){
   double res;
-  interflop_verrou_mul_double_PRANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4625,20 +4625,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_PRANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMmul32F (void){
   float res;
-  interflop_verrou_mul_float_PRANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4647,8 +4647,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4660,13 +4660,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DETmul64F (void){
   double res;
-  interflop_verrou_mul_double_PRANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4675,20 +4675,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_PRANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETmul32F (void){
   float res;
-  interflop_verrou_mul_float_PRANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4697,8 +4697,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4710,13 +4710,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDETmul64F (void){
   double res;
-  interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4725,20 +4725,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETmul32F (void){
   float res;
-  interflop_verrou_mul_float_PRANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4747,8 +4747,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4760,13 +4760,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETmul32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDETmul64F (void){
   double res;
-  interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4775,20 +4775,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETmul32F (void){
   float res;
-  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4797,8 +4797,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4810,13 +4810,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETmul32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDETmul64F (void){
   double res;
-  interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4825,20 +4825,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETmul32F (void){
   float res;
-  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4847,8 +4847,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4860,13 +4860,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETmul32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONICmul64F (void){
   double res;
-  interflop_verrou_mul_double_SR_MONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4875,20 +4875,20 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_SR_MONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICmul32F (void){
   float res;
-  interflop_verrou_mul_float_SR_MONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4897,8 +4897,8 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4910,13 +4910,13 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONICmul64F (void){
   double res;
-  interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4925,20 +4925,20 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICmul32F (void){
   float res;
-  interflop_verrou_mul_float_SR_SMONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_mul_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4947,8 +4947,8 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4960,13 +4960,13 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICmul32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_NEARESTdiv64F (void){
   double res;
-  interflop_verrou_div_double_NEAREST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -4975,20 +4975,20 @@ static VG_REGPARM(1) void vr_verrou_NEARESTdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_NEAREST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_NEARESTdiv32F (void){
   float res;
-  interflop_verrou_div_float_NEAREST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_NEARESTdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -4997,8 +4997,8 @@ static VG_REGPARM(1) void vr_verrou_NEARESTdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_NEARESTdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5010,13 +5010,13 @@ static VG_REGPARM(1) void vr_verrou_NEARESTdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARDdiv64F (void){
   double res;
-  interflop_verrou_div_double_UPWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5025,20 +5025,20 @@ static VG_REGPARM(1) void vr_verrou_UPWARDdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_UPWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_UPWARDdiv32F (void){
   float res;
-  interflop_verrou_div_float_UPWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_UPWARDdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5047,8 +5047,8 @@ static VG_REGPARM(1) void vr_verrou_UPWARDdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_UPWARDdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5060,13 +5060,13 @@ static VG_REGPARM(1) void vr_verrou_UPWARDdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARDdiv64F (void){
   double res;
-  interflop_verrou_div_double_DOWNWARD(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5075,20 +5075,20 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_DOWNWARD(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARDdiv32F (void){
   float res;
-  interflop_verrou_div_float_DOWNWARD(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5097,8 +5097,8 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5110,13 +5110,13 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARDdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHESTdiv64F (void){
   double res;
-  interflop_verrou_div_double_FARTHEST(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5125,20 +5125,20 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_FARTHEST(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_FARTHESTdiv32F (void){
   float res;
-  interflop_verrou_div_float_FARTHEST(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_FARTHESTdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5147,8 +5147,8 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_FARTHESTdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5160,13 +5160,13 @@ static VG_REGPARM(1) void vr_verrou_FARTHESTdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_ZEROdiv64F (void){
   double res;
-  interflop_verrou_div_double_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5175,20 +5175,20 @@ static VG_REGPARM(1) void vr_verrou_ZEROdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_ZEROdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_ZEROdiv32F (void){
   float res;
-  interflop_verrou_div_float_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_ZEROdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5197,8 +5197,8 @@ static VG_REGPARM(1) void vr_verrou_ZEROdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_ZEROdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5210,13 +5210,13 @@ static VG_REGPARM(1) void vr_verrou_ZEROdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZEROdiv64F (void){
   double res;
-  interflop_verrou_div_double_AWAY_ZERO(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5225,20 +5225,20 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_AWAY_ZERO(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZEROdiv32F (void){
   float res;
-  interflop_verrou_div_float_AWAY_ZERO(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5247,8 +5247,8 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5260,13 +5260,13 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZEROdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOMdiv64F (void){
   double res;
-  interflop_verrou_div_double_RANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5275,20 +5275,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOMdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_RANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOMdiv32F (void){
   float res;
-  interflop_verrou_div_float_RANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOMdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5297,8 +5297,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOMdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOMdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5310,13 +5310,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOMdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DETdiv64F (void){
   double res;
-  interflop_verrou_div_double_RANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5325,20 +5325,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_RANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DETdiv32F (void){
   float res;
-  interflop_verrou_div_float_RANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5347,8 +5347,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5360,13 +5360,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DETdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDETdiv64F (void){
   double res;
-  interflop_verrou_div_double_RANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5375,20 +5375,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_RANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDETdiv32F (void){
   float res;
-  interflop_verrou_div_float_RANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5397,8 +5397,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5410,13 +5410,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGEdiv64F (void){
   double res;
-  interflop_verrou_div_double_AVERAGE(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5425,20 +5425,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_AVERAGE(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGEdiv32F (void){
   float res;
-  interflop_verrou_div_float_AVERAGE(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGEdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5447,8 +5447,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGEdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5460,13 +5460,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGEdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DETdiv64F (void){
   double res;
-  interflop_verrou_div_double_AVERAGE_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5475,20 +5475,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_AVERAGE_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DETdiv32F (void){
   float res;
-  interflop_verrou_div_float_AVERAGE_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5497,8 +5497,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5510,13 +5510,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DETdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDETdiv64F (void){
   double res;
-  interflop_verrou_div_double_AVERAGE_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5525,20 +5525,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_AVERAGE_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDETdiv32F (void){
   float res;
-  interflop_verrou_div_float_AVERAGE_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5547,8 +5547,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5560,13 +5560,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDETdiv32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOMdiv64F (void){
   double res;
-  interflop_verrou_div_double_PRANDOM(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5575,20 +5575,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_PRANDOM(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOMdiv32F (void){
   float res;
-  interflop_verrou_div_float_PRANDOM(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOMdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5597,8 +5597,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOMdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5610,13 +5610,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOMdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DETdiv64F (void){
   double res;
-  interflop_verrou_div_double_PRANDOM_DET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5625,20 +5625,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_PRANDOM_DET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DETdiv32F (void){
   float res;
-  interflop_verrou_div_float_PRANDOM_DET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5647,8 +5647,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5660,13 +5660,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DETdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDETdiv64F (void){
   double res;
-  interflop_verrou_div_double_PRANDOM_COMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5675,20 +5675,20 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_PRANDOM_COMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDETdiv32F (void){
   float res;
-  interflop_verrou_div_float_PRANDOM_COMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5697,8 +5697,8 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5710,13 +5710,13 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDETdiv32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDETdiv64F (void){
   double res;
-  interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5725,20 +5725,20 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDETdiv32F (void){
   float res;
-  interflop_verrou_div_float_RANDOM_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5747,8 +5747,8 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv32Fx8 (/*OUT*/V256* output)
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5760,13 +5760,13 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDETdiv32Fx4 (/*OUT*/V128* output)
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDETdiv64F (void){
   double res;
-  interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5775,20 +5775,20 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv64Fx2(/*OUT*/V128* output)
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDETdiv32F (void){
   float res;
-  interflop_verrou_div_float_AVERAGE_SCOMDET(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5797,8 +5797,8 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv32Fx8 (/*OUT*/V256* output
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5810,13 +5810,13 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDETdiv32Fx4 (/*OUT*/V128* output
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONICdiv64F (void){
   double res;
-  interflop_verrou_div_double_SR_MONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5825,20 +5825,20 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_SR_MONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONICdiv32F (void){
   float res;
-  interflop_verrou_div_float_SR_MONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5847,8 +5847,8 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5860,13 +5860,13 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONICdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONICdiv64F (void){
   double res;
-  interflop_verrou_div_double_SR_SMONOTONIC(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -5875,20 +5875,20 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv64Fx2(/*OUT*/V128* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
+     interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONICdiv32F (void){
   float res;
-  interflop_verrou_div_float_SR_SMONOTONIC(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_div_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5897,8 +5897,8 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx8 (/*OUT*/V256* output){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -5910,14 +5910,14 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output){
 
 static VG_REGPARM(0) void  vr_verroucheckcancellationadd64F (void){
   double res;
-  interflop_verrou_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_checkcancellation_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheckcancellationadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -5928,22 +5928,22 @@ static VG_REGPARM(1) void vr_verroucheckcancellationadd64Fx2(/*OUT*/V128* output
 static VG_REGPARM(1) void vr_verroucheckcancellationadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_checkcancellation_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheckcancellationadd32F (void){
   float res;
-  interflop_verrou_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_checkcancellation_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheckcancellationadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -5953,8 +5953,8 @@ static VG_REGPARM(1) void vr_verroucheckcancellationadd32Fx8 (/*OUT*/V256* outpu
 static VG_REGPARM(1) void vr_verroucheckcancellationadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -5967,14 +5967,14 @@ static VG_REGPARM(1) void vr_verroucheckcancellationadd32Fx4 (/*OUT*/V128* outpu
 
 static VG_REGPARM(0) void  vr_verroucheckcancellationsub64F (void){
   double res;
-  interflop_verrou_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_verrou_context);
-  interflop_checkcancellation_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
+  interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheckcancellationsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -5985,22 +5985,22 @@ static VG_REGPARM(1) void vr_verroucheckcancellationsub64Fx2(/*OUT*/V128* output
 static VG_REGPARM(1) void vr_verroucheckcancellationsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_verrou_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_verrou_context);
-     interflop_checkcancellation_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
+     interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_verroucheckcancellationsub32F (void){
   float res;
-  interflop_verrou_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_verrou_context);
-  interflop_checkcancellation_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
+  interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_verroucheckcancellationsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6010,8 +6010,8 @@ static VG_REGPARM(1) void vr_verroucheckcancellationsub32Fx8 (/*OUT*/V256* outpu
 static VG_REGPARM(1) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6025,14 +6025,14 @@ static VG_REGPARM(1) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* outpu
 
 static VG_REGPARM(0) void  vr_mcaquadcheckcancellationadd64F (void){
   double res;
-  interflop_mcaquad_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  interflop_checkcancellation_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -6043,22 +6043,22 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd64Fx2(/*OUT*/V128* outpu
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
-     interflop_checkcancellation_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_mcaquad_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
+     interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquadcheckcancellationadd32F (void){
   float res;
-  interflop_mcaquad_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  interflop_checkcancellation_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6068,8 +6068,8 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd32Fx8 (/*OUT*/V256* outp
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6082,14 +6082,14 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationadd32Fx4 (/*OUT*/V128* outp
 
 static VG_REGPARM(0) void  vr_mcaquadcheckcancellationsub64F (void){
   double res;
-  interflop_mcaquad_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_mcaquad_context);
-  interflop_checkcancellation_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_mcaquad_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -6100,22 +6100,22 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub64Fx2(/*OUT*/V128* outpu
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_mcaquad_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_mcaquad_context);
-     interflop_checkcancellation_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_mcaquad_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
+     interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_mcaquadcheckcancellationsub32F (void){
   float res;
-  interflop_mcaquad_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_mcaquad_context);
-  interflop_checkcancellation_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_mcaquad_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6125,8 +6125,8 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub32Fx8 (/*OUT*/V256* outp
 static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6140,14 +6140,14 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* outp
 
 static VG_REGPARM(0) void  vr_checkdenormcheckcancellationadd64F (void){
   double res;
-  interflop_checkdenorm_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  interflop_checkcancellation_add_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -6158,22 +6158,22 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd64Fx2(/*OUT*/V128* o
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
-     interflop_checkcancellation_add_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_checkdenorm_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormcheckcancellationadd32F (void){
   float res;
-  interflop_checkdenorm_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  interflop_checkcancellation_add_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6183,8 +6183,8 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd32Fx8 (/*OUT*/V256* 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6197,14 +6197,14 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellationadd32Fx4 (/*OUT*/V128* 
 
 static VG_REGPARM(0) void  vr_checkdenormcheckcancellationsub64F (void){
   double res;
-  interflop_checkdenorm_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkdenorm_context);
-  interflop_checkcancellation_sub_double(arg1CopySSEDouble[0], arg2CopySSEDouble[0], &res, backend_checkcancellation_context);
-  arg1CopySSEDouble[0]=res;
+  interflop_checkdenorm_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
+  arg1CopyDouble[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub64Fx2(/*OUT*/V128* output){
-  const double* arg1=arg1CopySSEDouble;
-  const double* arg2=arg2CopySSEDouble;
+  const double* arg1=arg1CopyDouble;
+  const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
@@ -6215,22 +6215,22 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub64Fx2(/*OUT*/V128* o
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
   for(int i=0; i<4; i++){
-     interflop_checkdenorm_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkdenorm_context);
-     interflop_checkcancellation_sub_double(arg1CopyAvxDouble[i], arg2CopyAvxDouble[i], res+i, backend_checkcancellation_context);
+     interflop_checkdenorm_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
+     interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
   }
 }
 
 static VG_REGPARM(0) void vr_checkdenormcheckcancellationsub32F (void){
   float res;
-  interflop_checkdenorm_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkdenorm_context);
-  interflop_checkcancellation_sub_float(arg1CopySSEFloat[0], arg2CopySSEFloat[0], &res, backend_checkcancellation_context);
-  arg1CopySSEFloat[0]=res;
+  interflop_checkdenorm_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
+  arg1CopyFloat[0]=res;
 }
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
-  float* arg1=arg1CopyAvxFloat;
-  float* arg2=arg2CopyAvxFloat;
+  float* arg1=arg1CopyFloat;
+  float* arg2=arg2CopyFloat;
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -6240,8 +6240,8 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub32Fx8 (/*OUT*/V256* 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellationsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
 
-  const float* arg1=arg1CopySSEFloat;
-  const float* arg2=arg2CopySSEFloat;
+  const float* arg1=arg1CopyFloat;
+  const float* arg2=arg2CopyFloat;
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
