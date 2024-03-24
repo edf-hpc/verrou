@@ -231,7 +231,7 @@ index e2ed2613b..eae878e31 100644
                                             AMD64AMode* amFailAddr );
  extern AMD64Instr* AMD64Instr_ProfInc    ( void );
 diff --git a/VEX/priv/host_amd64_isel.c b/VEX/priv/host_amd64_isel.c
-index e15e1e60f..1fd613ccc 100644
+index e15e1e60f..21d20c77f 100644
 --- a/VEX/priv/host_amd64_isel.c
 +++ b/VEX/priv/host_amd64_isel.c
 @@ -42,6 +42,7 @@
@@ -267,7 +267,7 @@ index e15e1e60f..1fd613ccc 100644
 +
 +      /* call the helper with priority order : fma4 -> fallback generic
 +         remark: the fma3 case is handled before without helper*/
-+#if !defined(VGA_x86)
++#if defined(VGA_amd64)
 +      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_amd64_calc_MAddF32_fma4,
@@ -309,7 +309,7 @@ index e15e1e60f..1fd613ccc 100644
 +
 +      /* call the helper with priority order : fma4 -> fallback generic
 +         remark: the fma3 case is handled before without helper*/
-+#if !defined(VGA_x86)
++#if defined(VGA_amd64)
 +      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_amd64_calc_MAddF64_fma4,
@@ -338,10 +338,10 @@ index e15e1e60f..1fd613ccc 100644
     vassert(archinfo_host->endness == VexEndnessLE);
 diff --git a/VEX/priv/host_amd64_maddf.c b/VEX/priv/host_amd64_maddf.c
 new file mode 100644
-index 000000000..30c07ef58
+index 000000000..579abb438
 --- /dev/null
 +++ b/VEX/priv/host_amd64_maddf.c
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,35 @@
 +
 +/*---------------------------------------------------------------*/
 +/*--- begin                                host_amd64_maddf.c ---*/
@@ -354,9 +354,8 @@ index 000000000..30c07ef58
 +
 +#include "libvex_basictypes.h"
 +#include "host_amd64_maddf.h"
-+#include  <immintrin.h>
 +
-+#if !defined(VGA_x86)
++#if defined(VGA_amd64)
 +void VEX_REGPARM(3)
 +     h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float* res,
 +                            Float* argX, Float* argY, Float* argZ )
@@ -380,7 +379,7 @@ index 000000000..30c07ef58
 +/*---------------------------------------------------------------*/
 diff --git a/VEX/priv/host_amd64_maddf.h b/VEX/priv/host_amd64_maddf.h
 new file mode 100644
-index 000000000..76dd3f0a7
+index 000000000..b592a44e1
 --- /dev/null
 +++ b/VEX/priv/host_amd64_maddf.h
 @@ -0,0 +1,32 @@
@@ -403,7 +402,7 @@ index 000000000..76dd3f0a7
 +
 +#include "libvex_basictypes.h"
 +
-+#if !defined(VGA_x86)
++#if defined(VGA_amd64)
 +extern VEX_REGPARM(3)
 +       void h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float*, Float*, Float*, Float* );
 +
