@@ -26,8 +26,212 @@ index 98d848359..c2e7034da 100644
  LIBVEXMULTIARCH_SOURCES = priv/multiarch_main_main.c
  
  LIBVEX_CFLAGS_NO_LTO = \
+diff --git a/VEX/priv/host_amd64_defs.c b/VEX/priv/host_amd64_defs.c
+index 69afab739..253ed6515 100644
+--- a/VEX/priv/host_amd64_defs.c
++++ b/VEX/priv/host_amd64_defs.c
+@@ -590,6 +590,7 @@ const HChar* showAMD64SseOp ( AMD64SseOp op ) {
+       case Asse_PMADDUBSW: return "pmaddubsw";
+       case Asse_F32toF16: return "vcvtps2ph(rm_field=$0x4).";
+       case Asse_F16toF32: return "vcvtph2ps.";
++      case Asse_VFMADD213: return "vfmadd213";
+       default: vpanic("showAMD64SseOp");
+    }
+ }
+@@ -1056,6 +1057,28 @@ AMD64Instr* AMD64Instr_SseMOVQ ( HReg gpr, HReg xmm, Bool toXMM ) {
+ //uu    i->Ain.AvxReRg.dst = rg;
+ //uu    return i;
+ //uu }
++AMD64Instr* AMD64Instr_Avx32FLo ( AMD64SseOp op, HReg src1, HReg src2, HReg dst ) {
++   AMD64Instr* i        = LibVEX_Alloc_inline(sizeof(AMD64Instr));
++   i->tag               = Ain_Avx32FLo;
++   i->Ain.Avx32FLo.op   = op;
++   i->Ain.Avx32FLo.src1 = src1;
++   i->Ain.Avx32FLo.src2 = src2;
++   i->Ain.Avx32FLo.dst  = dst;
++   vassert(op != Asse_MOV);
++   return i;
++}
++
++AMD64Instr* AMD64Instr_Avx64FLo ( AMD64SseOp op, HReg src1, HReg src2, HReg dst ) {
++   AMD64Instr* i        = LibVEX_Alloc_inline(sizeof(AMD64Instr));
++   i->tag               = Ain_Avx64FLo;
++   i->Ain.Avx64FLo.op   = op;
++   i->Ain.Avx64FLo.src1 = src1;
++   i->Ain.Avx64FLo.src2 = src2;
++   i->Ain.Avx64FLo.dst  = dst;
++   vassert(op != Asse_MOV);
++   return i;
++}
++
+ AMD64Instr* AMD64Instr_EvCheck ( AMD64AMode* amCounter,
+                                  AMD64AMode* amFailAddr ) {
+    AMD64Instr* i             = LibVEX_Alloc_inline(sizeof(AMD64Instr));
+@@ -1434,6 +1457,22 @@ void ppAMD64Instr ( const AMD64Instr* i, Bool mode64 )
+       //uu    vex_printf(",");
+       //uu    ppHRegAMD64(i->Ain.AvxReRg.dst);
+       //uu    return;
++      case Ain_Avx32FLo:
++         vex_printf("%sss ", showAMD64SseOp(i->Ain.Avx32FLo.op));
++         ppHRegAMD64(i->Ain.Avx32FLo.src2);
++         vex_printf(",");
++         ppHRegAMD64(i->Ain.Avx32FLo.src1);
++         vex_printf(",");
++         ppHRegAMD64(i->Ain.Avx32FLo.dst);
++         return;
++      case Ain_Avx64FLo:
++         vex_printf("%ssd ", showAMD64SseOp(i->Ain.Avx64FLo.op));
++         ppHRegAMD64(i->Ain.Avx64FLo.src2);
++         vex_printf(",");
++         ppHRegAMD64(i->Ain.Avx64FLo.src1);
++         vex_printf(",");
++         ppHRegAMD64(i->Ain.Avx64FLo.dst);
++         return;
+       case Ain_EvCheck:
+          vex_printf("(evCheck) decl ");
+          ppAMD64AMode(i->Ain.EvCheck.amCounter);
+@@ -1790,6 +1829,18 @@ void getRegUsage_AMD64Instr ( HRegUsage* u, const AMD64Instr* i, Bool mode64 )
+       //uu       }
+       //uu    }
+       //uu    return;
++      case Ain_Avx32FLo:
++         vassert(i->Ain.Avx32FLo.op != Asse_MOV);
++         addHRegUse(u, HRmRead, i->Ain.Avx32FLo.src1);
++         addHRegUse(u, HRmRead, i->Ain.Avx32FLo.src2);
++         addHRegUse(u, HRmModify, i->Ain.Avx32FLo.dst);
++         return;
++      case Ain_Avx64FLo:
++         vassert(i->Ain.Avx64FLo.op != Asse_MOV);
++         addHRegUse(u, HRmRead, i->Ain.Avx64FLo.src1);
++         addHRegUse(u, HRmRead, i->Ain.Avx64FLo.src2);
++         addHRegUse(u, HRmModify, i->Ain.Avx64FLo.dst);
++         return;
+       case Ain_EvCheck:
+          /* We expect both amodes only to mention %rbp, so this is in
+             fact pointless, since %rbp isn't allocatable, but anyway.. */
+@@ -1999,6 +2050,16 @@ void mapRegs_AMD64Instr ( HRegRemap* m, AMD64Instr* i, Bool mode64 )
+       //uu    mapReg(m, &i->Ain.AvxReRg.src);
+       //uu    mapReg(m, &i->Ain.AvxReRg.dst);
+       //uu    return;
++      case Ain_Avx32FLo:
++         mapReg(m, &i->Ain.Avx32FLo.src1);
++         mapReg(m, &i->Ain.Avx32FLo.src2);
++         mapReg(m, &i->Ain.Avx32FLo.dst);
++         return;
++      case Ain_Avx64FLo:
++         mapReg(m, &i->Ain.Avx64FLo.src1);
++         mapReg(m, &i->Ain.Avx64FLo.src2);
++         mapReg(m, &i->Ain.Avx64FLo.dst);
++         return;
+       case Ain_EvCheck:
+          /* We expect both amodes only to mention %rbp, so this is in
+             fact pointless, since %rbp isn't allocatable, but anyway.. */
+@@ -4061,6 +4122,53 @@ Int emit_AMD64Instr ( /*MB_MOD*/Bool* is_profInc,
+    //uu      goto done;
+    //uu }
+ 
++   case Ain_Avx32FLo: {
++      UInt d = vregEnc3210(i->Ain.Avx32FLo.dst);
++      UInt v = vregEnc3210(i->Ain.Avx32FLo.src1);
++      UInt s = vregEnc3210(i->Ain.Avx32FLo.src2);
++      UInt m = 2, pp = 1;
++      UInt opcode;
++      switch (i->Ain.Avx32FLo.op) {
++         case Asse_VFMADD213:
++            // VFMADD213SS %xmmS2, %xmmS1, %xmmD (xmm regs range 0 .. 15)
++            opcode = 0xa9;
++            break;
++         default:
++            goto bad;
++      }
++      // 0xC4 : ~d3 1 ~s3 o4 o3 o2 o1 o0 : 0 ~v3 ~v2 ~v1 ~v0 0 p1 p0 : opcode_byte
++      //      :   1 1  d2 d1 d0 s2 s1 s0
++      *p++ = 0xC4; // 3-byte VEX
++      *p++ = ((((~d)>>3)&1)<<7) | (1<<6) | ((((~s)>>3)&1)<<5) | m;
++      *p++ = ((~v&0x0f) << 3) | pp;
++      *p++ = opcode;
++      *p++ = (1<<7) | (1<<6) | ((d&7) << 3) | ((s&7) << 0);
++      goto done;
++   }
++   case Ain_Avx64FLo: {
++      UInt d = vregEnc3210(i->Ain.Avx64FLo.dst);
++      UInt v = vregEnc3210(i->Ain.Avx64FLo.src1);
++      UInt s = vregEnc3210(i->Ain.Avx64FLo.src2);
++      UInt m = 2, pp = 1;
++      UInt opcode;
++      switch (i->Ain.Avx64FLo.op) {
++         case Asse_VFMADD213:
++            // VFMADD213SD %xmmS2, %xmmS1, %xmmD (xmm regs range 0 .. 15)
++            opcode = 0xa9;
++            break;
++         default:
++            goto bad;
++      }
++      // 0xC4 : ~d3 1 ~s3 o4 o3 o2 o1 o0 : 1 ~v3 ~v2 ~v1 ~v0 0 p1 p0 : opcode_byte
++      //      :   1 1  d2 d1 d0 s2 s1 s0
++      *p++ = 0xC4; // 3-byte VEX
++      *p++ = ((((~d)>>3)&1)<<7) | (1<<6) | ((((~s)>>3)&1)<<5) | m;
++      *p++ = (1<<7)|((~v&0x0f) << 3) | pp;
++      *p++ = opcode;
++      *p++ = (1<<7) | (1<<6) | ((d&7) << 3) | ((s&7) << 0);
++      goto done;
++   }
++
+    case Ain_EvCheck: {
+       /* We generate:
+             (3 bytes)  decl 8(%rbp)    8 == offsetof(host_EvC_COUNTER)
+diff --git a/VEX/priv/host_amd64_defs.h b/VEX/priv/host_amd64_defs.h
+index e2ed2613b..eae878e31 100644
+--- a/VEX/priv/host_amd64_defs.h
++++ b/VEX/priv/host_amd64_defs.h
+@@ -347,6 +347,8 @@ typedef
+       // Only for F16C capable hosts:
+       Asse_F32toF16, // F32 to F16 conversion, aka vcvtps2ph
+       Asse_F16toF32, // F16 to F32 conversion, aka vcvtph2ps
++      // Only for FMA (FMA3) capable hosts:
++      Asse_VFMADD213, // Fused Multiply-Add, aka vfmadd213ss
+    }
+    AMD64SseOp;
+ 
+@@ -412,6 +414,8 @@ typedef
+       //uu Ain_AvxLdSt,     /* AVX load/store 256 bits,
+       //uu                     no alignment constraints */
+       //uu Ain_AvxReRg,     /* AVX binary general reg-reg, Re, Rg */
++      Ain_Avx32FLo,    /* AVX binary 3 operand, 32F in lowest lane only */
++      Ain_Avx64FLo,    /* AVX binary 3 operand, 64F in lowest lane only */
+       Ain_EvCheck,     /* Event check */
+       Ain_ProfInc      /* 64-bit profile counter increment */
+    }
+@@ -729,6 +733,18 @@ typedef
+          //uu    HReg       src;
+          //uu    HReg       dst;
+          //uu } AvxReRg;
++         struct {
++            AMD64SseOp op;
++            HReg       src1;
++            HReg       src2;
++            HReg       dst;
++         } Avx32FLo;
++         struct {
++            AMD64SseOp op;
++            HReg       src1;
++            HReg       src2;
++            HReg       dst;
++         } Avx64FLo;
+          struct {
+             AMD64AMode* amCounter;
+             AMD64AMode* amFailAddr;
+@@ -803,6 +819,8 @@ extern AMD64Instr* AMD64Instr_SseShiftN  ( AMD64SseOp,
+ extern AMD64Instr* AMD64Instr_SseMOVQ    ( HReg gpr, HReg xmm, Bool toXMM );
+ //uu extern AMD64Instr* AMD64Instr_AvxLdSt    ( Bool isLoad, HReg, AMD64AMode* );
+ //uu extern AMD64Instr* AMD64Instr_AvxReRg    ( AMD64SseOp, HReg, HReg );
++extern AMD64Instr* AMD64Instr_Avx32FLo   ( AMD64SseOp, HReg, HReg, HReg );
++extern AMD64Instr* AMD64Instr_Avx64FLo   ( AMD64SseOp, HReg, HReg, HReg );
+ extern AMD64Instr* AMD64Instr_EvCheck    ( AMD64AMode* amCounter,
+                                            AMD64AMode* amFailAddr );
+ extern AMD64Instr* AMD64Instr_ProfInc    ( void );
 diff --git a/VEX/priv/host_amd64_isel.c b/VEX/priv/host_amd64_isel.c
-index e15e1e60f..b0bd7a1a9 100644
+index e15e1e60f..1fd613ccc 100644
 --- a/VEX/priv/host_amd64_isel.c
 +++ b/VEX/priv/host_amd64_isel.c
 @@ -42,6 +42,7 @@
@@ -38,7 +242,21 @@ index e15e1e60f..b0bd7a1a9 100644
  #include "host_generic_maddf.h"
  #include "host_amd64_defs.h"
  
-@@ -2861,10 +2862,22 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, const IRExpr* e )
+@@ -2832,6 +2833,13 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, const IRExpr* e )
+       HReg argX = iselFltExpr(env, qop->arg2);
+       HReg argY = iselFltExpr(env, qop->arg3);
+       HReg argZ = iselFltExpr(env, qop->arg4);
++      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3) {
++         vassert(dst.u32 != argY.u32 && dst.u32 != argZ.u32);
++         if (dst.u32 != argX.u32)
++            addInstr(env, AMD64Instr_SseReRg(Asse_MOV, argX, dst));
++         addInstr(env, AMD64Instr_Avx32FLo(Asse_VFMADD213, argY, argZ, dst));
++         return dst;
++      }
+       /* XXXROUNDINGFIXME */
+       /* set roundingmode here */
+       /* subq $16, %rsp         -- make a space*/
+@@ -2861,10 +2869,22 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, const IRExpr* e )
                                         AMD64AMode_IR(0, hregAMD64_RDX())));
        addInstr(env, AMD64Instr_SseLdSt(False/*!isLoad*/, 4, argZ,
                                         AMD64AMode_IR(0, hregAMD64_RCX())));
@@ -47,16 +265,16 @@ index e15e1e60f..b0bd7a1a9 100644
 -                                     (ULong)(HWord)h_generic_calc_MAddF32,
 -                                     4, mk_RetLoc_simple(RLPri_None) ));
 +
-+      /* call the helper with priority order : fma4 -> fma3 -> fallback generic */
++      /* call the helper with priority order : fma4 -> fallback generic
++         remark: the fma3 case is handled before without helper*/
++#if !defined(VGA_x86)
 +      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_amd64_calc_MAddF32_fma4,
 +                                        4, mk_RetLoc_simple(RLPri_None) ));
-+      }else if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3){
-+         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
-+                                        (ULong)(HWord)h_amd64_calc_MAddF32_fma3,
-+                                        4, mk_RetLoc_simple(RLPri_None) ));
-+      }else{
++      }else
++#endif
++      {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_generic_calc_MAddF32,
 +                                        4, mk_RetLoc_simple(RLPri_None) ));
@@ -65,7 +283,22 @@ index e15e1e60f..b0bd7a1a9 100644
        /* fetch the result from memory, using %r_argp, which the
           register allocator will keep alive across the call. */
        addInstr(env, AMD64Instr_SseLdSt(True/*isLoad*/, 4, dst,
-@@ -3053,10 +3066,21 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, const IRExpr* e )
+@@ -3024,6 +3044,14 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, const IRExpr* e )
+       HReg argX = iselDblExpr(env, qop->arg2);
+       HReg argY = iselDblExpr(env, qop->arg3);
+       HReg argZ = iselDblExpr(env, qop->arg4);
++      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3) {
++         vassert(dst.u32 != argY.u32 && dst.u32 != argZ.u32);
++         if (dst.u32 != argX.u32)
++            addInstr(env, AMD64Instr_SseReRg(Asse_MOV, argX, dst));
++         addInstr(env, AMD64Instr_Avx64FLo(Asse_VFMADD213, argY, argZ, dst));
++         return dst;
++      }
++
+       /* XXXROUNDINGFIXME */
+       /* set roundingmode here */
+       /* subq $32, %rsp         -- make a space*/
+@@ -3053,10 +3081,22 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, const IRExpr* e )
                                         AMD64AMode_IR(0, hregAMD64_RDX())));
        addInstr(env, AMD64Instr_SseLdSt(False/*!isLoad*/, 8, argZ,
                                         AMD64AMode_IR(0, hregAMD64_RCX())));
@@ -73,16 +306,17 @@ index e15e1e60f..b0bd7a1a9 100644
 -      addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 -                                     (ULong)(HWord)h_generic_calc_MAddF64,
 -                                     4, mk_RetLoc_simple(RLPri_None) ));
-+      /* call the helper with priority order fma4 -> fma3 -> fallback generic */
++
++      /* call the helper with priority order : fma4 -> fallback generic
++         remark: the fma3 case is handled before without helper*/
++#if !defined(VGA_x86)
 +      if (env->hwcaps & VEX_HWCAPS_AMD64_FMA4) {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_amd64_calc_MAddF64_fma4,
 +                                        4, mk_RetLoc_simple(RLPri_None) ));
-+      }else if (env->hwcaps & VEX_HWCAPS_AMD64_FMA3){
-+         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
-+                                        (ULong)(HWord)h_amd64_calc_MAddF64_fma3,
-+                                        4, mk_RetLoc_simple(RLPri_None) ));
-+      }else{
++      }else
++#endif
++      {
 +         addInstr(env, AMD64Instr_Call( Acc_ALWAYS,
 +                                        (ULong)(HWord)h_generic_calc_MAddF64,
 +                                        4, mk_RetLoc_simple(RLPri_None) ));
@@ -91,7 +325,7 @@ index e15e1e60f..b0bd7a1a9 100644
        /* fetch the result from memory, using %r_argp, which the
           register allocator will keep alive across the call. */
        addInstr(env, AMD64Instr_SseLdSt(True/*isLoad*/, 8, dst,
-@@ -5372,7 +5396,9 @@ HInstrArray* iselSB_AMD64 ( const IRSB* bb,
+@@ -5372,7 +5412,9 @@ HInstrArray* iselSB_AMD64 ( const IRSB* bb,
                       | VEX_HWCAPS_AMD64_AVX2
                       | VEX_HWCAPS_AMD64_F16C
                       | VEX_HWCAPS_AMD64_RDRAND
@@ -104,10 +338,10 @@ index e15e1e60f..b0bd7a1a9 100644
     vassert(archinfo_host->endness == VexEndnessLE);
 diff --git a/VEX/priv/host_amd64_maddf.c b/VEX/priv/host_amd64_maddf.c
 new file mode 100644
-index 000000000..8a6fe87b5
+index 000000000..30c07ef58
 --- /dev/null
 +++ b/VEX/priv/host_amd64_maddf.c
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,36 @@
 +
 +/*---------------------------------------------------------------*/
 +/*--- begin                                host_amd64_maddf.c ---*/
@@ -122,15 +356,7 @@ index 000000000..8a6fe87b5
 +#include "host_amd64_maddf.h"
 +#include  <immintrin.h>
 +
-+void VEX_REGPARM(3)
-+     h_amd64_calc_MAddF32_fma3 ( /*OUT*/Float* res,
-+                            Float* argX, Float* argY, Float* argZ )
-+{
-+   __asm__ ("vfmadd132ss %2,%3,%0;" :
-+            "=x"(*res): "0"(*argX),"x"(*argY), "x"(*argZ));
-+   return ;
-+}
-+
++#if !defined(VGA_x86)
 +void VEX_REGPARM(3)
 +     h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float* res,
 +                            Float* argX, Float* argY, Float* argZ )
@@ -138,16 +364,6 @@ index 000000000..8a6fe87b5
 +   __asm__ ("vfmaddss %3,%2,%1,%0;" :
 +            "=x"(*res): "x"(*argX),"x"(*argY), "x"(*argZ));
 +   return ;
-+}
-+
-+
-+void VEX_REGPARM(3)
-+     h_amd64_calc_MAddF64_fma3 ( /*OUT*/Double* res,
-+                            Double* argX, Double* argY, Double* argZ )
-+{
-+   __asm__ ("vfmadd132sd %2,%3,%0;" :
-+            "=x"(*res): "0"(*argX),"x"(*argY), "x"(*argZ));
-+   return;
 +}
 +
 +void VEX_REGPARM(3)
@@ -158,22 +374,22 @@ index 000000000..8a6fe87b5
 +            "=x"(*res): "x"(*argX),"x"(*argY), "x"(*argZ));
 +   return;
 +}
-+
++#endif
 +/*---------------------------------------------------------------*/
 +/*--- end                                   host_amd64_maddf.c --*/
 +/*---------------------------------------------------------------*/
 diff --git a/VEX/priv/host_amd64_maddf.h b/VEX/priv/host_amd64_maddf.h
 new file mode 100644
-index 000000000..8ce15048c
+index 000000000..76dd3f0a7
 --- /dev/null
 +++ b/VEX/priv/host_amd64_maddf.h
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,32 @@
 +
 +/*---------------------------------------------------------------*/
 +/*--- begin                                host_amd64_maddf.h ---*/
 +/*---------------------------------------------------------------*/
 +
-+/* 
++/*
 +   Compute x * y + z as ternary operation with intrinsics
 +*/
 +
@@ -187,19 +403,14 @@ index 000000000..8ce15048c
 +
 +#include "libvex_basictypes.h"
 +
-+extern VEX_REGPARM(3)
-+       void h_amd64_calc_MAddF32_fma3 ( /*OUT*/Float*, Float*, Float*, Float* );
++#if !defined(VGA_x86)
 +extern VEX_REGPARM(3)
 +       void h_amd64_calc_MAddF32_fma4 ( /*OUT*/Float*, Float*, Float*, Float* );
 +
-+
-+extern VEX_REGPARM(3)
-+       void h_amd64_calc_MAddF64_fma3 ( /*OUT*/Double*, Double*, Double*,
-+                                        Double* );
 +extern VEX_REGPARM(3)
 +       void h_amd64_calc_MAddF64_fma4 ( /*OUT*/Double*, Double*, Double*,
 +                                        Double* );
-+
++#endif
 +#endif /* ndef __VEX_HOST_AMD64_MADDF_H */
 +
 +/*---------------------------------------------------------------*/
@@ -232,7 +443,7 @@ index 27bb6e0f4..0d09e40fa 100644
  /* ppc32: baseline capability is integer only */
  #define VEX_HWCAPS_PPC32_F     (1<<8)  /* basic (non-optional) FP */
 diff --git a/coregrind/m_machine.c b/coregrind/m_machine.c
-index a4c2218bf..84294c587 100644
+index a4c2218bf..809a61a94 100644
 --- a/coregrind/m_machine.c
 +++ b/coregrind/m_machine.c
 @@ -984,6 +984,7 @@ Bool VG_(machine_get_hwcaps)( void )
@@ -243,7 +454,17 @@ index a4c2218bf..84294c587 100644
       Bool have_rdtscp, have_rdrand, have_f16c, have_rdseed;
       UInt eax, ebx, ecx, edx, max_basic, max_extended;
       ULong xgetbv_0 = 0;
-@@ -1022,7 +1023,7 @@ Bool VG_(machine_get_hwcaps)( void )
+@@ -992,7 +993,8 @@ Bool VG_(machine_get_hwcaps)( void )
+ 
+      have_sse3 = have_ssse3 = have_cx8 = have_cx16
+                = have_lzcnt = have_avx = have_bmi = have_avx2
+-               = have_rdtscp = have_rdrand = have_f16c = have_rdseed = False;
++               = have_rdtscp = have_rdrand = have_f16c = have_rdseed
++               = have_fma3 = have_fma4 = False;
+ 
+      eax = ebx = ecx = edx = max_basic = max_extended = 0;
+ 
+@@ -1022,7 +1024,7 @@ Bool VG_(machine_get_hwcaps)( void )
       // we assume that SSE1 and SSE2 are available by default
       have_sse3  = (ecx & (1<<0)) != 0;  /* True => have sse3 insns */
       have_ssse3 = (ecx & (1<<9)) != 0;  /* True => have Sup SSE3 insns */
@@ -252,7 +473,7 @@ index a4c2218bf..84294c587 100644
       // sse41   is ecx:19
       // sse42   is ecx:20
       // xsave   is ecx:26
-@@ -1032,7 +1033,7 @@ Bool VG_(machine_get_hwcaps)( void )
+@@ -1032,7 +1034,7 @@ Bool VG_(machine_get_hwcaps)( void )
       have_rdrand = (ecx & (1<<30)) != 0; /* True => have RDRAND insns */
  
       have_avx = False;
@@ -261,7 +482,7 @@ index a4c2218bf..84294c587 100644
       if ( (ecx & ((1<<28)|(1<<27)|(1<<26))) == ((1<<28)|(1<<27)|(1<<26)) ) {
          /* Processor supports AVX instructions and XGETBV is enabled
             by OS and AVX instructions are enabled by the OS. */
-@@ -1059,9 +1060,6 @@ Bool VG_(machine_get_hwcaps)( void )
+@@ -1059,9 +1061,6 @@ Bool VG_(machine_get_hwcaps)( void )
             if (ebx2 == 576 && eax2 == 256) {
                have_avx = True;
             }
@@ -271,11 +492,10 @@ index a4c2218bf..84294c587 100644
          }
       }
  
-@@ -1089,6 +1087,12 @@ Bool VG_(machine_get_hwcaps)( void )
+@@ -1089,6 +1088,11 @@ Bool VG_(machine_get_hwcaps)( void )
          have_rdtscp = (edx & (1<<27)) != 0; /* True => have RDTSVCP */
       }
  
-+     have_fma4 =False;
 +     if (max_extended >= 0x80000001) {
 +        VG_(cpuid)(0x80000001, 0, &eax, &ebx, &ecx, &edx);
 +        have_fma4= (ecx & (1<<16)) != 0; /* True => have fma4 */
