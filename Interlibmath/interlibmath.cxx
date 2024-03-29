@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include <iomanip>
 
 #include <float.h>
 
@@ -29,6 +30,22 @@
 #include "../interflop_backends/interflop_verrou/interflop_verrou.h"
 #include "../interflop_backends/interflop_verrou/vr_rand.h"
 #include "../interflop_backends/interflop_verrou/vr_roundingOp.hxx"
+
+void print_libm_debug(int nbArg, const char * op,const  double* a, const double* res){
+  std::cout << std::setprecision(18);
+  if(nbArg==1){
+    std::cout << op << " : "<< a[0] << "->"<<res << "(" <<*res<<")"<<std::endl;
+  }
+
+  if(nbArg==2){
+    std::cout << op << " : "<< a[0] << "," << a[1]<< "->"<<res << "(" <<*res<<")"<<std::endl;
+  }
+
+  if(nbArg==3){
+    std::cout << op << " : "<< a[0] << "," << a[1]<< "," << a[2]<< "->"<<res << "(" <<*res<<")"<<std::endl;
+  }
+  std::cout << std::endl;
+} ;
 
 unsigned int my_pid;
 
@@ -1677,6 +1694,8 @@ void __attribute__((constructor)) init_interlibmath(){
   gettimeofday(&now, NULL);
   uint64_t vr_seed=  now.tv_usec + my_pid;
   vr_rand_setSeed(&vr_rand, vr_seed);
+
+  verrou_set_debug_print_op(&print_libm_debug);
 
   char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
   if(vrm==NULL){

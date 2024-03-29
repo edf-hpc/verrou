@@ -4,7 +4,7 @@ SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest chec
 
 all:
 	for i in $(SUBREPLIST) ; do \
-		make -C "./$$i" ; \
+		make -C "./$$i" || exit 42; \
 	done
 
 
