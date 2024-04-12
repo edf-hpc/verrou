@@ -732,4 +732,4 @@ if __name__=='__main__':
                                     ("testFmaMixSseLlo", "testFmaMixSseLlom",True  ),("testFmaMixAvxLlo", "testFmaMixAvxLlom",True  )])
 
     eCount.printSummary()
-    sys.exit(eCount.ko)
+    sys.exit(eCount.ko+eCount.warn)
