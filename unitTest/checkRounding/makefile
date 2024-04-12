@@ -11,7 +11,7 @@ FLAGS += -O1 #required to get hardware sqrt with builtin_sqrt
 FMA_FLAG=
 HAS_FMA = $(shell grep VERROU_COMPILED_WITH_FMA= $(INSTALLPATH)/env.sh)
 ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=yes)
-	FMA_FLAG=-DTEST_FMA
+	FMA_FLAG=-DTEST_FMA -DTEST_AVX
 endif
 ifeq ($(HAS_FMA), export VERROU_COMPILED_WITH_FMA=no)
 	FMA_FLAG=-DTEST_NOFMA
