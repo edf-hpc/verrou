@@ -6,6 +6,9 @@
 void c_verrou_start_instrumentation();
 void c_verrou_stop_instrumentation();
 
+void c_verrou_start_soft_instrumentation();
+void c_verrou_stop_soft_instrumentation();
+
 // define derteministic section
 void c_verrou_start_determinitic(int level);
 void c_verrou_stop_determinitic(int level);

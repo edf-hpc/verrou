@@ -37,6 +37,15 @@ void c_verrou_stop_instrumentation(){
    VERROU_STOP_INSTRUMENTATION;
 }
 
+void c_verrou_start_soft_instrumentation(){
+   VERROU_START_SOFT_INSTRUMENTATION;
+}
+
+void c_verrou_stop_soft_instrumentation(){
+   VERROU_STOP_SOFT_INSTRUMENTATION;
+}
+
+
 void c_verrou_start_determinitic(int level){
    VERROU_START_DETERMINISTIC(level);
 }

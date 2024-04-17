@@ -174,10 +174,10 @@ void vr_resetCount(void){
 };
 
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, SizeT increment) {
-  counter[vr.instrument] += increment;
+   counter[(vr.instrument_hard && vr.instrument_soft)] += increment;
 }
 
-static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT increment) {
+static VG_REGPARM(2) void vr_incUninstrumentedOpCount (ULong* counter, SizeT increment) {
   counter[VR_INSTR_OFF] += increment;
 }
 
@@ -215,8 +215,8 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr
 			  mkIRExpr_HWord (increment));
 
     di = unsafeIRDirty_0_N( 2,
-			    "vr_incUnstrumentedOpCount",
-			    VG_(fnptr_to_fnentry)( &vr_incUnstrumentedOpCount ),
+			    "vr_incUninstrumentedOpCount",
+			    VG_(fnptr_to_fnentry)( &vr_incUninstrumentedOpCount ),
 			    argv);
 
   }
@@ -518,10 +518,10 @@ static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
 }
 
 
-static Bool vr_isInstrumented(Vr_Op op,
+static Bool vr_isInstrumented_hard(Vr_Op op,
 			      Vr_Prec prec,
 			      Vr_Vec vec){
-  return vr.instr_op[op] && vr.instr_vec[vec]&&vr.instr_prec[prec] && vr.instrument;
+  return vr.instr_op[op] && vr.instr_vec[vec]&&vr.instr_prec[prec] && vr.instrument_hard;
 }
 
 /* Replace a given binary operation by a call to a function
@@ -533,7 +533,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Vec vec,
 				   Bool countOnly) {
   // un-instrumented cases :
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
@@ -614,7 +614,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					 Vr_Vec vec,
 					 Bool countOnly) {
   // un-instrumented cases :
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
@@ -691,7 +691,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Vr_Vec vec,
 					    Bool countOnly){
   //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -751,7 +751,7 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 						  Vr_Vec vec,
 						  Bool countOnly){
   //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -817,7 +817,7 @@ static Bool vr_replaceBinFpOpLLO_fast_unsafe (IRSB* sb, IRStmt* stmt, IRExpr* ex
 					      Vr_Vec vec,
 					      Bool countOnly){
   //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -889,7 +889,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -942,7 +942,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -993,7 +993,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1078,7 +1078,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1127,7 +1127,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   Vr_Op   op,
 			   Vr_Prec prec,
 			   Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1190,7 +1190,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    Vr_Op   op,
 			    Vr_Prec prec,
 			    Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1923,11 +1923,6 @@ static void vr_post_clo_init(void)
       VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
       if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
       else VG_(umsg)("no\n");
-   }
-
-   if(!vr.instrument){
-     vr.instrument = True;
-     vr_set_instrument_state ("Program start", False, False);
    }
 
    if(vr.backend==vr_verrou){

@@ -80,7 +80,10 @@ void vr_clo_defaults (void) {
   vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
   vr.prandomFixedInitialValue=-1.;
   vr.count = True;
-  vr.instrument = VR_INSTR_ON;
+  vr.instrument_hard = VR_INSTR_ON;
+  vr.instrument_soft = VR_INSTR_ON;
+  vr.instrument_soft_used = False;
+
   vr.verbose = False;
   vr.unsafe_llo_optim = False;
 
@@ -115,7 +118,7 @@ void vr_clo_defaults (void) {
   vr.instr_vec[VR_VEC_SCAL]=False;
 #if defined(VGA_arm64)
   vr.instr_vec[VR_VEC_SCAL]=True;
-#endif 
+#endif
   vr.instr_prec[VR_PREC_FLT]=True;
   vr.instr_prec[VR_PREC_DBL]=True;
   vr.instr_prec[VR_PREC_LDBL]=False;
@@ -334,7 +337,10 @@ Bool vr_process_clo (const HChar *arg) {
 
   // Instrumentation at start
   else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart", bool_val)) {
-    vr.instrument = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+    vr.instrument_hard = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart-soft", bool_val)) {
+    vr.instrument_soft = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
   }
 
   // Exclusion of specified symbols
