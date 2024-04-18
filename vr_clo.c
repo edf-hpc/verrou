@@ -341,6 +341,7 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart-soft", bool_val)) {
     vr.instrument_soft = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+    vr.instrument_soft_used= True;
   }
 
   // Exclusion of specified symbols

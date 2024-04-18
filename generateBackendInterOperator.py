@@ -27,14 +27,45 @@
 import sys
 import re
 
+def treatBackend(tab, soft):
+    if soft==False:
+        return tab
+    else:
+        res=["if(vr.instrument_soft){\n"]
+        res+=tab
+        res+=["}else{\n"]
+        res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC") for line in tab]
+        res+=["}\n"]
+        return res
+
+def transformTemplateForSoftStopStart(lineTab, soft=False):
+    res=[]
+    back=[]
+    status="pre"
+    for line in lineTab:
+        if "PREBACKEND" in line:
+            status="back"
+            continue
+        if "POSTBACKEND" in line:
+            res+=treatBackend(back,soft)
+            back=[]
+            status="pre"
+            continue
+        if status=="pre":
+            res+=[line]
+        if status=="back":
+            back+=[line]
+    return res
 
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None]):
+def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False):
 
     templateStr=open(fileNameTemplate, "r").readlines()
+    templateStr=transformTemplateForSoftStopStart(templateStr, soft)
 
     FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
     BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
+    BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
 
 
     for backend in listOfBackend:
@@ -43,24 +74,29 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
         for op in listOfOp:
             for rounding in roundingTab:
                 if nargs in [1,2]:
-                    applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, backend,op, post, sign=None, rounding=rounding)
+                    applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, BckNameNearestRegExp, backend,op, post, sign=None, rounding=rounding, soft=soft)
                 if nargs==3:
                     sign=""
                     if "msub" in op:
                         sign="-"
-                    applyTemplate(fileOut, templateStr,FctNameRegExp,BckNameRegExp, backend, op, post, sign, rounding=rounding)
+                    applyTemplate(fileOut, templateStr, FctNameRegExp,BckNameRegExp,BckNameNearestRegExp, backend, op, post, sign, rounding=rounding, soft=soft)
         if backend=="mcaquad":
             fileOut.write("#endif //USE_VERROU_QUAD\n")
 
 
-def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post, sign=None, rounding=None):
+def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False):
+    if soft and rounding=="NEAREST":
+        return;
     fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
     backendFunc=backend
     if rounding!=None:
         backendFunc=backend+"_"+rounding
 
     def fctName(typeVal,opt):
-        return "vr_"+backendFunc+post+op+typeVal+opt
+        if soft:
+            return "vr_"+backendFunc+post+"_soft"+op+typeVal+opt
+        else:
+            return "vr_"+backendFunc+post+op+typeVal+opt
     def bckName(typeVal):
         if sign!="-":
             if rounding!=None:
@@ -70,6 +106,8 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post,
             if rounding!=None:
                 return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal+"_"+rounding
             return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal
+    def bckNearestName(typeVal):
+        return (bckName(typeVal)).replace(rounding,"NEAREST")
 
     def bckNamePost(typeVal):
         if sign!="-":
@@ -105,6 +143,16 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post,
                 fileOut.write(res+"\n")
             continue
 
+        result=BckNearestRegExp.match(line)
+        if result!=None:
+            res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
+            fileOut.write(res+"\n")
+            if post!="":
+                res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
+                res=res.replace(contextName, contextNamePost)
+                fileOut.write(res+"\n")
+            continue
+
         fileOut.write(line)
 
 
@@ -125,6 +173,7 @@ if __name__=="__main__":
     generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
 
     template1Args="vr_interp_operator_template_1args.h"
     listOfOp1Args=["sqrt"]
@@ -132,6 +181,7 @@ if __name__=="__main__":
     generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
     fileOut.write("#endif\n")
 
     template2Args="vr_interp_operator_template_2args.h"
@@ -139,6 +189,8 @@ if __name__=="__main__":
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab)
+    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab, soft=True)
+
 
     listOfOp2Args=["add","sub"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
@@ -150,4 +202,5 @@ if __name__=="__main__":
     generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab)
+    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab,soft=True)
     fileOut.close()

@@ -1,4 +1,4 @@
 prog: accuClreq
-args: hard
+args: soft
 vgopts: --rounding-mode=upward
 stderr_filter_args: -seed -cnt-cmp-conv -backend-version -copyright -exclude -scal-llo
