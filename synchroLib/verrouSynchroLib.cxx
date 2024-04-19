@@ -54,6 +54,7 @@ typedef std::vector< std::pair<std::string , int> >  storeSynchroType;
 storeSynchroType activeTrace;
 storeSynchroType inactiveTrace;
 
+bool stopStart_hard=true;
 
 
 /*Private function prototype*/
@@ -221,6 +222,21 @@ void fileToActiveInactiveStore(std::ifstream& input, storeSynchroType& store){
 }
 
 void verrou_synchro_activation_init(){
+  char* stopOrStart;
+  stopOrStart = getenv ("SYNCHRO_STOP_START");
+  if(stopOrStart!=NULL){
+    if(std::string(stopOrStart) == std::string("hard") ){
+      stopStart_hard=true;
+    }else{
+      if(std::string(stopOrStart) == std::string("soft") ){
+	stopStart_hard=false;
+      }else{
+	std::cerr << "SYNCHRO_STOP_START=" << stopOrStart << " not taken into account"<< std::endl;
+      }
+    }
+  }
+
+
   char* fileNameList;
   fileNameList = getenv ("SYNCHRO_LIST");
   if (fileNameList==NULL){
@@ -273,13 +289,21 @@ void verrou_synchro_activation(const std::string& strName, int index){
 
     }
     if(isActivePair){
-      VERROU_START_INSTRUMENTATION;
+      if(stopStart_hard){
+	VERROU_START_INSTRUMENTATION;
+      }else{
+	VERROU_START_SOFT_INSTRUMENTATION;
+      }
       if(synchroDebug){
 	std::cerr << outputPrefix<< strName << " " << index << " : activated" << std::endl;
       }
     }
     if((!inactiveSynchro&&(!isActivePair)) || (inactiveSynchro&&isActivePair)){
-      VERROU_STOP_INSTRUMENTATION;
+      if(stopStart_hard){
+	VERROU_STOP_INSTRUMENTATION;
+      }else{
+	VERROU_STOP_SOFT_INSTRUMENTATION;
+      }
       if(synchroDebug){
 	std::cerr << outputPrefix<< strName << " " << index << " : deactivated" << std::endl;
       }
@@ -288,7 +312,11 @@ void verrou_synchro_activation(const std::string& strName, int index){
 }
 
 void verrou_synchro_activation_finalyze(){
-  VERROU_STOP_INSTRUMENTATION;
+  if(stopStart_hard){
+    VERROU_STOP_INSTRUMENTATION;
+  }else{
+    VERROU_STOP_SOFT_INSTRUMENTATION;
+  }
   if(synchroDebug){
     std::cerr << outputPrefix<< "Finalyse : deactivated" << std::endl;
   }

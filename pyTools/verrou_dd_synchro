@@ -35,6 +35,7 @@ class DDSynchro(DD_stoch.DDStoch):
     def __init__(self, config):
         DD_stoch.DDStoch.__init__(self, config)
 
+
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_MCA_MODE": "ieee",
@@ -52,6 +53,7 @@ class DDSynchro(DD_stoch.DDStoch):
     def sampleRunEnv(self,dirName):
         return {"SYNCHRO_LIST": os.path.join(dirName,self.getDeltaFileName() +".include"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+                "SYNCHRO_STOP_START": self.config_.hardOrSoft
                 #               "DEBUG_PRINT_SYNCHRO": "yes",
         }
 
@@ -69,7 +71,7 @@ class ddSynchroConfig(dd_config.ddConfig):
     def registerOptions(self):
         super().registerOptions()
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
-
+        self.addRegistry("hardOrSoft", "string", "STOP_START",["--stop_start="],"hard",["hard","soft"] )
 
 if __name__ == "__main__":
     config=ddSynchroConfig(sys.argv,os.environ)
