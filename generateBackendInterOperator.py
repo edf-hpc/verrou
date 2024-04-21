@@ -34,7 +34,7 @@ def treatBackend(tab, soft):
         res=["if(vr.instrument_soft){\n"]
         res+=tab
         res+=["}else{\n"]
-        res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC") for line in tab]
+        res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for line in tab]
         res+=["}\n"]
         return res
 
@@ -107,7 +107,12 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
                 return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal+"_"+rounding
             return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal
     def bckNearestName(typeVal):
-        return (bckName(typeVal)).replace(rounding,"NEAREST")
+        if rounding!=None:
+            return (bckName(typeVal)).replace(rounding,"NEAREST")
+        if sign!="-":
+            return "interflop_verrou_"+op+"_"+typeVal+"_NEAREST"
+        else:
+            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+"_NEAREST"
 
     def bckNamePost(typeVal):
         if sign!="-":
@@ -118,8 +123,11 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
 
     contextName="backend_"+backend+"_context"
     contextNamePost="backend_"+post+"_context"
+    contextNearestName="backend_verrou_null_context"
 
     for line in templateStr:
+        if "BACKEND_NEAREST_CONTEXT" in line:
+            line=line.replace("BACKEND_NEAREST_CONTEXT", contextNearestName)
         if "CONTEXT" in line:
             line=line.replace("CONTEXT", contextName)
         if "SIGN" in line:
@@ -147,10 +155,6 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
         if result!=None:
             res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
             fileOut.write(res+"\n")
-            if post!="":
-                res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
-                res=res.replace(contextName, contextNamePost)
-                fileOut.write(res+"\n")
             continue
 
         fileOut.write(line)
@@ -171,7 +175,9 @@ if __name__=="__main__":
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
     generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1,soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
 
@@ -179,7 +185,9 @@ if __name__=="__main__":
     listOfOp1Args=["sqrt"]
     fileOut.write("#ifdef USE_VERROU_SQRT\n")
     generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1,soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
+    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
     fileOut.write("#endif\n")
@@ -187,20 +195,25 @@ if __name__=="__main__":
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, soft=True)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
+    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max", soft=True)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab, soft=True)
 
 
     listOfOp2Args=["add","sub"]
     generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation",soft=True)
 
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
     generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
-
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, soft=True)
     generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation",soft=True)
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
+    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max",soft=True)
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab)
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab,soft=True)
     fileOut.close()
