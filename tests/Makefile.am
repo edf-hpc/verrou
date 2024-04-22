@@ -27,7 +27,7 @@ EXTRA_DIST = \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
 	test_det_random_det.stderr.exp  test_det_random_det.stdout.exp  test_det_random_det.vgtest
 
-check_PROGRAMS = clreq accuClreq sum libmtest
+check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
