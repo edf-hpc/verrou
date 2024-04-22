@@ -61,7 +61,11 @@ inline double vr_sqrt<double>(const double& a){
 #if defined(VGA_arm64)
 template<>
 inline double vr_sqrt<double>(const double& a){
-  return vrsqrted_f64(a);
+  const float64x1_t ap=vld1_f64(&a);
+  const float64x1_t res_p=vsqrt_f64(ap);
+  double res;
+  vst1_f64(&res,res_p);
+  return res;
 }
 #endif
 
@@ -80,7 +84,13 @@ inline float vr_sqrt<float>(const float& a){
 #if defined(VGA_arm64)
 template<>
 inline float vr_sqrt<float>(const float& a){
-  return vrsqrtes_f32(a);
+
+  float av[2]={a,0};
+  float32x2_t ap=vld1_f32(av);
+  float32x2_t resp= vsqrt_f32(ap);
+  float res[2];
+  vst1_f32(res, resp);
+  return res[0];
 }
 #endif
 

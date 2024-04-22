@@ -1,6 +1,6 @@
 #pragma once
 
-#if !defined(VGA_arm64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 #define USE_XXH3
 #endif
 

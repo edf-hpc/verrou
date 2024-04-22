@@ -1033,7 +1033,7 @@ class DDStoch(DD.DD):
 
         print("Suggestions:")
         cmpScript=os.path.relpath(self.compare_, os.getcwd())
-        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%cmpScript)
+        print("\t1) check if reproducibility discrepancies are larger than the failure criteria of the script %s"%cmpScript)
         print("\t2) check the libm library is not instrumented")
         print("Directory to analyze: NoPerturbation")
         failure()

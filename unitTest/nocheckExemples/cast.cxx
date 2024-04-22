@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 
-#include  <immintrin.h>
+//#include  <immintrin.h>
 //#include <avxintrin_emu.h>
 int main(int argc, char** argv){
   double a;

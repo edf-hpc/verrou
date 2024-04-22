@@ -463,7 +463,8 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
     return errorCounter(ok, ko, warn)
 
-def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
+def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"], statNumber="good"):
+    assert(statNumber in ["good","low"])
     ok=0
     warn=0
     ko=0
@@ -482,12 +483,19 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
 
 
         for rnd in [ "upward", "prandom_half", "sr_monotonic", "sr_smonotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-            testCheck.assertLess("downward", rnd)
+            if statNumber=="low":
+                testCheck.assertLeq("downward", rnd)
+            else:
+                testCheck.assertLess("downward", rnd)
         for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
             testCheck.assertLeq("downward", rnd)
 
+
         for rnd in [ "prandom_half", "sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-            testCheck.assertLess(rnd, "upward")
+            if statNumber=="low":
+                testCheck.assertLeq(rnd, "upward")
+            else:
+                testCheck.assertLess(rnd, "upward")
         for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
             testCheck.assertLeq(rnd,"upward")
 
@@ -497,7 +505,8 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
 
     return errorCounter(ok, ko, warn)
 
-def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
+def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"],statNumber="good"):
+    assert(statNumber in ["good","low"])
     ok=0
     warn=0
     ko=0
@@ -518,12 +527,18 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
 
 
             for rnd in [ "upward", "prandom_half","sr_monotonic","sr_smonotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-                testCheck.assertLess("downward", rnd)
+                if statNumber=="low":
+                    testCheck.assertLeq("downward", rnd)
+                else:
+                    testCheck.assertLess("downward", rnd)
             for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
                 testCheck.assertLeq("downward", rnd)
 
             for rnd in [ "prandom_half","sr_monotonic","sr_smonotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-                testCheck.assertLess(rnd, "upward")
+                if statNumber=="low":
+                    testCheck.assertLeq(rnd, "upward")
+                else:
+                    testCheck.assertLess(rnd, "upward")
             for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
                 testCheck.assertLeq(rnd,"upward")
 
@@ -701,7 +716,8 @@ if __name__=='__main__':
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>", "<float>"])
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>", "<float>"])
 
-    eCount+=checkExact(allResult, testList=["testMixSseLlo"], typeTab=["<double>", "<float>"])
+    eCount+=checkTestPositive(allResult, testList=["testMixSseLlo", "testMixAvxLlo", "testFmaMixSseLlo", "testFmaMixAvxLlo"],  typeTab=["<double>", "<float>"], statNumber="low")
+    eCount+=checkTestNegative(allResult, testList=["testMixSseLlom", "testMixAvxLlom", "testFmaMixSseLlom", "testFmaMixAvxLlom"], typeTab=["<double>", "<float>"], statNumber="low")
 
     eCount+=checkExact(allResult, testList=["testCast", "testCastm"], typeTab=["<double>"])
     eCount+=checkTestPositiveBetweenTwoValues(allResult, testList=["testCast"], typeTab=["<float>"])
@@ -709,9 +725,11 @@ if __name__=='__main__':
 
     eCount+=checkExactDetAndOptimistAverage(allResult, testList=["testDiffSqrt"],typeTab=["<double>", "<float>"])
 
-    eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam", "testMixSseLlo"])
+    eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam"])
 
-    eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True)])
+    eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True),
+                                    ("testMixSseLlo", "testMixSseLlom",True  ),("testMixAvxLlo", "testMixAvxLlom",True  ),
+                                    ("testFmaMixSseLlo", "testFmaMixSseLlom",True  ),("testFmaMixAvxLlo", "testFmaMixAvxLlom",True  )])
 
     eCount.printSummary()
-    sys.exit(eCount.ko)
+    sys.exit(eCount.ko+eCount.warn)

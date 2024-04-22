@@ -35,18 +35,21 @@
 
 #include "verrou.h"
 
-#ifdef  TEST_FMA
-#include  <immintrin.h>
-#include  <fmaintrin.h>
+#if defined(__aarch64) && defined(TEST_FMA)
+#include <arm_neon.h>
 #endif
-#ifdef TEST_SSE
+
+#if defined(TEST_SSE) || defined(TEST_AVX) || defined(TEST_FMA)
+#ifdef __x86_64__
 #include  <immintrin.h>
 #endif
+#endif
+
 
 void usage(char** argv){
   std::cout << "usage : "<< argv[0]<< " ENV ROUNDING_MODE  avec "<<std::endl;
   std::cout << "ROUNDING_MODE in [upward, toward_zero, downward, nearest]  random, average are not valid"<<std::endl;
-  std::cout << "ENV in [valgrind fenv]"<<std::endl;  
+  std::cout << "ENV in [valgrind fenv]"<<std::endl;
 }
 int roundingMode=-2;
 bool fenv;
@@ -93,7 +96,7 @@ class test{
 public:
   test(REALTYPEREF a):expectedResult(a){
   }
-  
+
   REALTYPEREF res;
   REALTYPEREF expectedResult;
   void check(){
@@ -101,11 +104,10 @@ public:
     std::cout << name()<<"<"<< typeName<REALTYPE>()<<">" <<":\tres: " << res
 	      << "\ttheo: "<< expectedResult
 	      << "\tdiff: "<<  res-expectedResult<<std::endl;
-    
   }
 
   void run(){
-    startInst(fenv,roundingMode);    
+    startInst(fenv,roundingMode);
     res=(REALTYPEREF)compute();
     stopInst(fenv,roundingMode);
     check();
@@ -132,7 +134,7 @@ class testInc0d1: public test<REALTYPE>{
     return std::string("testInc0d1");
   }
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=step;
@@ -140,7 +142,6 @@ class testInc0d1: public test<REALTYPE>{
     return acc;
   }
 
-  
  private:
   const int size;
   const REALTYPE step;
@@ -162,7 +163,7 @@ class testInc0d1m: public test<REALTYPE>{
     return std::string("testInc0d1m");
   }
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=step;
@@ -170,7 +171,6 @@ class testInc0d1m: public test<REALTYPE>{
     return acc;
   }
 
-  
  private:
   const int size;
   const REALTYPE step;
@@ -195,14 +195,14 @@ class testIncSquare0d1: public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=step*step;
-    }  
+    }
     return acc;
   }
-  
+
  private:
   const int size;
   const REALTYPE step;
@@ -226,14 +226,14 @@ class testIncSquare0d1m: public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=(-(REALTYPE)1.0*step)*step;
-    }  
+    }
     return acc;
   }
-  
+
  private:
   const int size;
   const REALTYPE step;
@@ -257,15 +257,14 @@ class testIncDiv10:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=(1/stepDiv);
-    }  
+    }
     return acc;
   }
 
-  
  private:
   const int size;
   const REALTYPE stepDiv;
@@ -288,15 +287,14 @@ class testIncDiv10m:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
     for(int i=0; i<size; i++){
       acc+=(1/stepDiv);
-    }  
+    }
     return acc;
   }
 
-  
  private:
   const int size;
   const REALTYPE stepDiv;
@@ -316,7 +314,7 @@ class testInvariantProdDiv:public test<REALTYPE>{
   static int getSize(double a){ return 150;};
   static int getSize(float a){ return 34;} ;
   static int getSize(){return getSize((REALTYPE)0.);};
-  
+
   testInvariantProdDiv():test<REALTYPE>(1.),
 	  size(getSize()),
 	  init(1.){}
@@ -326,18 +324,17 @@ class testInvariantProdDiv:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE prod=init;
     for(int i=1; i<size; i++){
-      prod=prod*i;    
-    } 
+      prod=prod*i;
+    }
     for(int i=1; i<size; i++){
       prod=prod/i;
-    }  
+    }
 
     return prod;
   }
-  
  private:
   const int size;
 
@@ -355,7 +352,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
   static int getSize(double a){ return 150;};
   static int getSize(float a){ return 34;} ;
   static int getSize(){return getSize((REALTYPE)0.);};
-  
+
   testInvariantProdDivm():test<REALTYPE>(-1.),
 	  size(getSize()),
 	  init(-1.){}
@@ -365,18 +362,18 @@ class testInvariantProdDivm:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE prod=init;
     for(int i=1; i<size; i++){
-      prod=prod*i;    
-    } 
+      prod=prod*i;
+    }
     for(int i=1; i<size; i++){
       prod=prod/i;
-    }  
+    }
 
     return prod;
   }
-  
+
  private:
   const int size;
 
@@ -390,12 +387,23 @@ class testInvariantProdDivm:public test<REALTYPE>{
   inline double myFma(const double& a, const double& b, const double& c){
     double d;
 #ifdef TEST_FMA
+#if defined(__x86_64__)
     __m128d ai, bi,ci,di;
     ai = _mm_load_sd(&a);
     bi = _mm_load_sd(&b);
     ci = _mm_load_sd(&c);
     di=_mm_fmadd_sd(ai,bi,ci);
     d=_mm_cvtsd_f64(di);
+#elif  defined(__aarch64__)
+  const float64x1_t ai=vld1_f64(&a);
+  const float64x1_t bi=vld1_f64(&b);
+  const float64x1_t ci=vld1_f64(&c);
+  const float64x1_t di=vfma_f64(ci,ai,bi);// warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  vst1_f64(&d, di);
+#else
+#error "not yet implemented for this architecture"
+#endif
 #else
     d=a*b+c;
 #endif
@@ -406,12 +414,30 @@ class testInvariantProdDivm:public test<REALTYPE>{
   inline float myFma(const float& a, const float& b, const float& c){
     float d;
 #ifdef TEST_FMA
+#if defined(__x86_64__)
     __m128 ai, bi,ci,di;
     ai = _mm_load_ss(&a);
     bi = _mm_load_ss(&b);
     ci = _mm_load_ss(&c);
     di=_mm_fmadd_ss(ai,bi,ci);
     d=_mm_cvtss_f32(di);
+#elif  defined(__aarch64__)
+  float av[2]={a,0};
+  float bv[2]={b,0};
+  float cv[2]={c,0};
+
+  float32x2_t ap=vld1_f32(av);
+  float32x2_t bp=vld1_f32(bv);
+  float32x2_t cp=vld1_f32(cv);
+
+  float32x2_t resp= vfma_f32(cp,ap,bp); // warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  float res[2];
+  vst1_f32(res, resp);
+  d=res[0];
+#else
+#error "not yet implemented for this architecture"
+#endif
 #else
     d=a*b+c;
 #endif
@@ -423,7 +449,7 @@ class testInvariantProdDivm:public test<REALTYPE>{
 template<class REALTYPE>
 class testFma:public test<REALTYPE>{
  public:
-  
+
   testFma():test<REALTYPE>(10000),
     size(1000000),
     value(0.1),
@@ -434,18 +460,18 @@ class testFma:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
 
     for(int i=0; i<size; i++){
       acc=myFma(value,value,acc);
-    } 
+    }
     return acc;
   }
-  
+
  private:
   const int size;
-  const REALTYPE value;  
+  const REALTYPE value;
   const REALTYPE init;
 
 };
@@ -454,7 +480,7 @@ class testFma:public test<REALTYPE>{
 template<class REALTYPE>
 class testFmam:public test<REALTYPE>{
  public:
-  
+
   testFmam():test<REALTYPE>(-10000),
     size(1000000),
     value(-0.1),
@@ -465,174 +491,505 @@ class testFmam:public test<REALTYPE>{
   }
 
 
-  REALTYPE compute(){    
+  REALTYPE compute(){
     REALTYPE acc=init;
 
     for(int i=0; i<size; i++){
       acc=myFma(-value,value,acc);
-    } 
+    }
     return acc;
   }
-  
+
  private:
   const int size;
-  const REALTYPE value;  
+  const REALTYPE value;
   const REALTYPE init;
 
 };
 
 
-
 template<class REALTYPE>
-class testMixSseLlo:public test<REALTYPE>{
-public:
-  testMixSseLlo():test<REALTYPE>(1/0.){
-  }
+class testMixVectorLlo;
 
-};
+typedef enum  {seq,sse,avx} VectorType_t;
 
 template<>
-class testMixSseLlo<double>:public test<double>{
- public:
+class testMixVectorLlo<double>:public test<double>{
+public:
+  double a[4],b[4],c[4];
+  __m128d ai_sse,bi_sse,ci_sse;
+#ifdef TEST_AVX
+  __m256d ai_avx,bi_avx,ci_avx;
+#endif
 
-  testMixSseLlo():test<double>(17){
+  VectorType_t vectorType_;
+
+  testMixVectorLlo(double expectedResult, VectorType_t vectorType):
+    test<double>(expectedResult),
+    vectorType_(vectorType){
+    double aTmp[]= {1.1  , 2.1  , 3.1  , 4.1 } ;
+    double bTmp[]= {5.01 , 6.01 , 7.01 , 8.01} ;
+    double cTmp[]= {9    , 10   , 11   , 12  } ;  //sum42
+    memcpy(a, aTmp, 4*sizeof(double));
+    memcpy(b, bTmp, 4*sizeof(double));
+    memcpy(c, cTmp, 4*sizeof(double));
+}
+
+  void minusA(){
+    for(int i=0; i<4;i++) a[i]*=-1;
+  }
+  void minusB(){
+    for(int i=0; i<4;i++) b[i]*=-1;
+  }
+  void minusC(){
+    for(int i=0; i<4;i++) c[i]*=-1;
   }
 
-  std::string name(){
-    return std::string("testMixSseLlo");
+  void load(){
+    switch(vectorType_){
+    case seq: return;
+    case sse: loadSSE(); return;
+    case avx: loadAVX(); return;
+    default: std::cerr << "invalid type"<<std::endl;
+    }
+  }
+  void store(){
+    switch(vectorType_){
+    case seq: return;
+    case sse: storeSSE(); return;
+    case avx: storeAVX(); return;
+    default: std::cerr << "invalid type"<<std::endl;
+    }
   }
 
-
-  double compute(){
-    const double a[]={1,2};
-    const double b[]={3,4};
-    const double c[]={5,6};
-#ifndef TEST_SSE
-    return a[0]+a[1]+b[0]+c[0]+c[1];
-#else
-    double res[2];
-    __m128d bi,ci,ri;
-    ri = _mm_loadu_pd(a);
-    bi = _mm_loadu_pd(b);
-    ri = _mm_add_sd(ri,bi);
-    ci = _mm_loadu_pd(c);
-    ri = _mm_add_pd(ri,ci);
-    _mm_storeu_pd(res,ri);
-    return res[0]+res[1];
+  void loadSSE(){
+#ifdef TEST_SSE
+    ai_sse = _mm_loadu_pd(a);
+    bi_sse = _mm_loadu_pd(b);
+    ci_sse = _mm_loadu_pd(c);
 #endif
   }
+  void storeSSE(){
+#ifdef TEST_SSE
+    _mm_storeu_pd(c,ci_sse);
+#endif
+  }
+
+  void loadAVX(){
+#ifdef TEST_AVX
+    ai_avx = _mm256_loadu_pd(&(a[0]));
+    bi_avx = _mm256_loadu_pd(&(b[0]));
+    ci_avx = _mm256_loadu_pd(&(c[0]));
+#endif
+  }
+  void storeAVX(){
+#ifdef TEST_AVX
+    _mm256_storeu_pd(c,ci_avx);
+#endif
+  }
+
+  virtual void applyOPs()=0;
+
+  double compute(){
+    load();
+    applyOPs();
+    store();
+    return accResult();
+  }
+
+  double accResult(){
+    //    std::cout << c[0] <<"\t"<< c[1] <<"\t"<<  c[2]<<"\t"<< c[3]<<std::endl;
+    return c[0]+c[1]+c[2]+c[3];
+  }
 };
 
-
 template<>
-class testMixSseLlo<float>:public test<float>{
- public:
+class testMixVectorLlo<float>:public test<float>{
+public:
 
-  testMixSseLlo():test<float>(57){
+  float a[8], b[8], c[8];
+
+  __m128 ai_sse,bi_sse,ci_sse;
+  __m256 ai_avx,bi_avx,ci_avx;
+
+
+  VectorType_t vectorType_;
+
+  testMixVectorLlo(float expectedResult, VectorType_t vectorType):
+    test<float>(expectedResult),
+    vectorType_(vectorType){
+
+    float aTmp[]={1.1 , 2.1 , 3.1 , 4.1 , 5.1 , 6.1  , 7.1  , 8.1   };
+    float bTmp[]={5.01, 6.01, 7.01, 8.01, 9.01, 10.01, 11.01, 12.01 };
+    float cTmp[]={9   , 10  , 11  , 12  , 13  , 14   , 15   ,16     }; //sum 100
+    memcpy(a, aTmp, 8*sizeof(float));
+    memcpy(b, bTmp, 8*sizeof(float));
+    memcpy(c, cTmp, 8*sizeof(float));
+  }
+  void minusA(){
+    for(int i=0; i<8;i++) a[i]*=-1;
+  }
+  void minusB(){
+    for(int i=0; i<8;i++) b[i]*=-1;
+  }
+  void minusC(){
+    for(int i=0; i<8;i++) c[i]*=-1;
   }
 
-  std::string name(){
-    return std::string("testMixSseLlo");
+  void load(){
+    switch(vectorType_){
+    case seq: return;
+    case sse: loadSSE(); return;
+    case avx: loadAVX(); return;
+    default: std::cerr << "invalid type"<<std::endl;
+    }
+  }
+  void store(){
+    switch(vectorType_){
+    case seq: return;
+    case sse: storeSSE(); return;
+    case avx: storeAVX(); return;
+    default: std::cerr << "invalid type"<<std::endl;
+    }
   }
 
+  void loadSSE(){
+#ifdef TEST_SSE
+    ai_sse = _mm_loadu_ps(a);
+    bi_sse = _mm_loadu_ps(b);
+    ci_sse = _mm_loadu_ps(c);
+#endif
+  }
+  void storeSSE(){
+    _mm_storeu_ps(c,ci_sse);
+  }
 
+  void loadAVX(){
+#ifdef TEST_AVX
+    ai_avx = _mm256_loadu_ps(a);
+    bi_avx = _mm256_loadu_ps(b);
+    ci_avx = _mm256_loadu_ps(c);
+#endif
+  }
+  void storeAVX(){
+#ifdef TEST_AVX
+    _mm256_storeu_ps(c,ci_avx);
+#endif
+  }
+
+  float accResult(){
+    return c[0]+c[1]+c[2]+c[3]+c[4]+c[5]+c[6]+c[7];
+  }
+
+  virtual void applyOPs()=0;
   float compute(){
-    const float a[]={1,2,3,4};//Sum 10
-    const float b[]={5,6,7,8};//Sum 5 beacause 6 7 8 will be ignored
-    const float c[]={9,10,11,12};//Sum 42
-#ifndef TEST_SSE
-    float res;
-    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
-#else
-    float res[4];
-    __m128 bi,ci,ri;
-    ri = _mm_loadu_ps(a);
-    bi = _mm_loadu_ps(b);
-    ri=_mm_add_ss(ri,bi);
-    ci = _mm_loadu_ps(c);
-    ri=_mm_add_ps(ri,ci);
-    _mm_storeu_ps(res,ri);
-    return res[0]+res[1]+res[2]+res[3];
-#endif
+    load();
+    applyOPs();
+    store();
+    return accResult();
   }
+
 };
+
+
+
 
 template<class REALTYPE>
-class testMixSseLlom:public test<REALTYPE>{
-public:
-  testMixSseLlom():test<REALTYPE>(1/0.){
-  }
-
-};
+class testMixSseLlo;
 
 template<>
-class testMixSseLlom<double>:public test<double>{
+class testMixSseLlo<double>:public testMixVectorLlo<double>{
  public:
 
-  testMixSseLlom():test<double>(-17){
+  testMixSseLlo():testMixVectorLlo<double>(31.21,sse){//42-9+6.11 -10 +2.1
   }
 
   std::string name(){
     return std::string("testMixSseLlo");
   }
 
-
-  double compute(){
-    const double a[]={-1,-2};
-    const double b[]={-3,-4};
-    const double c[]={-5,-6};
-#ifndef TEST_SSE
-    return a[0]+a[1]+b[0]+c[0]+c[1];
+  void applyOPs(){
+#if defined(TEST_SSE) && defined(__x86_64__)
+    ci_sse = _mm_add_sd(ai_sse,bi_sse);
 #else
-    double res[2];
-    __m128d bi,ci,ri;
-    ri = _mm_loadu_pd(a);
-    bi = _mm_loadu_pd(b);
-    ri = _mm_add_sd(ri,bi);
-    ci = _mm_loadu_pd(c);
-    ri = _mm_add_pd(ri,ci);
-    _mm_storeu_pd(res,ri);
-    return res[0]+res[1];
+    c[0]=a[0]+b[0];
+    c[1]=a[1];
+#endif
+  }
+};
+
+template<>
+class testMixSseLlo<float>:public testMixVectorLlo<float>{
+ public:
+
+  testMixSseLlo():testMixVectorLlo<float>(73.41, sse){//100-9+6.11 -10 +2.1 -11 +3.1 -12+4.1
+  }
+
+  std::string name(){
+    return std::string("testMixSseLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_SSE) && defined(__x86_64__)
+    ci_sse = _mm_add_ss(ai_sse,bi_sse);
+#else
+    c[0]=a[0]+b[0];
 #endif
   }
 };
 
 
 
-template<>
-class testMixSseLlom<float>:public test<float>{
- public:
-
-  testMixSseLlom():test<float>(-57){
+template<class REALTYPE>
+class testMixSseLlom:public testMixSseLlo<REALTYPE>{
+public:
+  testMixSseLlom():testMixSseLlo<REALTYPE>(){
+    testMixSseLlo<REALTYPE>::minusA();
+    testMixSseLlo<REALTYPE>::minusB();
+    testMixSseLlo<REALTYPE>::minusC();
+    testMixSseLlo<REALTYPE>::expectedResult *=-1;
   }
-
   std::string name(){
     return std::string("testMixSseLlom");
   }
+};
 
 
-  float compute(){
-    const float a[]={-1,-2,-3,-4};//Sum 10
-    const float b[]={-5,-6,-7,-8};//Sum 5 beacause 6 7 8 will be ignored
-    const float c[]={-9,-10,-11,-12};//Sum 42
-#ifndef TEST_SSE
-    float res;
-    return a[0]+a[1]+ a[2]+a[3]+ b[0] + c[0]+c[1]+ c[2]+c[3];
+
+template<class REALTYPE>
+class testMixAvxLlo;
+
+template<>
+class testMixAvxLlo<double>:public testMixVectorLlo<double>{
+ public:
+
+  testMixAvxLlo():testMixVectorLlo<double>(12.12,seq){
+    // seq because llo avx intrinsics do not exist
+  }
+
+  std::string name(){
+    return std::string("testMixAvxLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_AVX) && defined(__x86_64__)
+    __asm__("vmovupd %0,%%ymm0\n"
+	    "vmovupd %1,%%ymm1\n"
+	    "vmovupd %2,%%ymm2\n"
+	    "vaddsd  %%xmm1,%%xmm2,%%xmm0;"
+	    "vmovupd %%ymm0, %0\n"
+            : "=m" (c) : "m" (a), "m" (b));
 #else
-    float res[4];
-    __m128 bi,ci,ri;
-    ri = _mm_loadu_ps(a);
-    bi = _mm_loadu_ps(b);
-    ri=_mm_add_ss(ri,bi);
-    ci = _mm_loadu_ps(c);
-    ri=_mm_add_ps(ri,ci);
-    _mm_storeu_ps(res,ri);
-    return res[0]+res[1]+res[2]+res[3];
+    c[0]=a[0]+b[0];
+    c[1]=b[1];
+    c[2]=0.;
+    c[3]=0.;
+#endif
+  }
+};
+
+template<>
+class testMixAvxLlo<float>:public testMixVectorLlo<float>{
+ public:
+
+  testMixAvxLlo():testMixVectorLlo<float>(27.14,seq){
+    // seq because llo avx intrinsics do not exist
+  }
+
+  std::string name(){
+    return std::string("testMixAvxLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_AVX) && defined(__x86_64__)
+    __asm__("vmovups %0,%%ymm0\n"
+	    "vmovups %1,%%ymm1\n"
+	    "vmovups %2,%%ymm2\n"
+	    "vaddss  %%xmm1,%%xmm2,%%xmm0;"
+	    "vmovups %%ymm0, %0\n"
+            : "=m" (c) : "m" (a), "m" (b));
+#else
+    c[0]=a[0]+b[0];
+    c[1]=b[1];
+    c[2]=b[2];
+    c[3]=b[3];
+    c[4]=0.0;
+    c[5]=0.0;
+    c[6]=0.0;
+    c[7]=0.0;
 #endif
   }
 };
 
 
+template<class REALTYPE>
+class testMixAvxLlom:public testMixAvxLlo<REALTYPE>{
+public:
+  testMixAvxLlom():testMixAvxLlo<REALTYPE>(){
+    testMixAvxLlo<REALTYPE>::minusA();
+    testMixAvxLlo<REALTYPE>::minusB();
+    testMixAvxLlo<REALTYPE>::minusC();
+    testMixAvxLlo<REALTYPE>::expectedResult *=-1;
+  }
+  std::string name(){
+    return std::string("testMixAvxLlom");
+  }
+};
+
+
+template<class REALTYPE>
+class testFmaMixAvxLlo;
+
+template<>
+class testFmaMixAvxLlo<double>:public testMixVectorLlo<double>{
+ public:
+
+  testFmaMixAvxLlo():testMixVectorLlo<double>(16.611,seq){
+    // seq because llo avx intrinsics do not exist
+  }
+
+  std::string name(){
+    return std::string("testFmaMixAvxLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_AVX) && defined(TEST_FMA) && defined(__x86_64__)
+    __asm__("vmovupd %0,%%ymm0\n"
+	    "vmovupd %1,%%ymm1\n"
+	    "vmovupd %2,%%ymm2\n"
+	    "vfmadd213sd  %%xmm0,%%xmm2,%%xmm1;"
+	    "vmovupd %%ymm1, %0\n"
+            : "=m" (c) : "m" (a), "m" (b));
+#else
+    c[0]+=a[0]*b[0];
+    c[1]=a[1];
+    c[2]=0.;
+    c[3]=0.;
+#endif
+  }
+};
+
+
+
+template<>
+class testFmaMixAvxLlo<float>:public testMixVectorLlo<float>{
+ public:
+
+  testFmaMixAvxLlo():testMixVectorLlo<float>(23.811, seq){//100-9+6.11 -10 +2.1 -11 +3.1 -12+4.1 -13 -14 -15-16
+  }
+  //seq because asm is required
+
+  std::string name(){
+    return std::string("testFmaMixAvxLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_AVX) && defined(TEST_FMA) && defined(__x86_64__)
+	__asm__("vmovups %0,%%ymm0\n"
+	    "vmovups %1,%%ymm1\n"
+	    "vmovups %2,%%ymm2\n"
+	    "vfmadd213ss  %%xmm0,%%xmm2,%%xmm1\n"
+	    "vmovups %%ymm1, %0;"
+            : "=m" (c) : "m" (a), "m" (b));
+#else
+    c[0]+=a[0]*b[0];
+    c[1]=a[1];
+    c[2]=a[2];
+    c[3]=a[3];
+    c[4]=0.;
+    c[5]=0.;
+    c[6]=0.;
+    c[7]=0.;
+#endif
+  }
+};
+
+template<class REALTYPE>
+class testFmaMixAvxLlom:public testFmaMixAvxLlo<REALTYPE>{
+public:
+  testFmaMixAvxLlom():testFmaMixAvxLlo<REALTYPE>(){
+    testFmaMixAvxLlo<REALTYPE>::minusA();
+    testFmaMixAvxLlo<REALTYPE>::minusC();
+    testFmaMixAvxLlo<REALTYPE>::expectedResult *=-1;
+  }
+  std::string name(){
+    return std::string("testFmaMixAvxLlom");
+  }
+};
+
+template<class REALTYPE>
+class testFmaMixSseLlo;
+
+template<>
+class testFmaMixSseLlo<double>:public testMixVectorLlo<double>{
+ public:
+
+  testFmaMixSseLlo():testMixVectorLlo<double>(39.611,seq){
+    // seq because llo avx intrinsics do not exist
+  }
+
+  std::string name(){
+    return std::string("testFmaMixSseLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_SSE) && defined(TEST_FMA) && defined(__x86_64__)
+    __asm__("vmovupd %0,%%xmm0\n"
+	    "vmovupd %1,%%xmm1\n"
+	    "vmovupd %2,%%xmm2\n"
+	    "vfmadd213sd  %%xmm0,%%xmm2,%%xmm1;"
+	    "vmovupd %%xmm1, %0\n"
+            : "=m" (c) : "m" (a), "m" (b));
+#else
+    c[0]+=a[0]*b[0];
+    c[1]=a[1];
+#endif
+  }
+};
+
+
+
+template<>
+class testFmaMixSseLlo<float>:public testMixVectorLlo<float>{
+ public:
+
+  testFmaMixSseLlo():testMixVectorLlo<float>(81.811, seq){
+  }
+  //seq because asm is required
+
+  std::string name(){
+    return std::string("testFmaMixSseLlo");
+  }
+
+  void applyOPs(){
+#if defined(TEST_SSE) && defined(TEST_FMA) && defined(__x86_64__)
+	__asm__("vmovups %0,%%xmm0\n"
+	    "vmovups %1,%%xmm1\n"
+	    "vmovups %2,%%xmm2\n"
+	    "vfmadd213ss  %%xmm0,%%xmm2,%%xmm1\n"
+	    "vmovups %%xmm1, %0;"
+            : "=m" (c) : "m" (a), "m" (b));
+#else
+    c[0]+=a[0]*b[0];
+    c[1]=a[1];
+    c[2]=a[2];
+    c[3]=a[3];
+#endif
+  }
+};
+
+template<class REALTYPE>
+class testFmaMixSseLlom:public testFmaMixSseLlo<REALTYPE>{
+public:
+  testFmaMixSseLlom():testFmaMixSseLlo<REALTYPE>(){
+    testFmaMixSseLlo<REALTYPE>::minusA();
+    testFmaMixSseLlo<REALTYPE>::minusC();
+    testFmaMixSseLlo<REALTYPE>::expectedResult *=-1;
+  }
+  std::string name(){
+    return std::string("testFmaMixSseLlom");
+  }
+};
 
 
 template<class REALTYPE,class REALTYPEREF>
@@ -646,7 +1003,7 @@ public:
   }
 
   REALTYPE compute(){
-    REALTYPEREF ref=0.1;
+    volatile REALTYPEREF ref=0.1;
     return ((REALTYPE)ref);
   }
 };
@@ -662,16 +1019,14 @@ public:
   }
 
   REALTYPE compute(){
-    REALTYPEREF ref=-0.1;
+    volatile REALTYPEREF ref=-0.1;
     return ((REALTYPE)ref);
   }
 };
 
 
 
-
-
-#ifdef TEST_SSE
+#if defined(TEST_SSE) && defined(__x86_64__)
   inline double mySqrt(const double& a){
     double d;
     __m128d ai,di;
@@ -693,9 +1048,16 @@ public:
   }
 #else
 template<class REALTYPE>
-inline REALTYPE mySqrt(REALTYPE a){
-  return std::sqrt(a);
-  }
+inline REALTYPE mySqrt(REALTYPE a);
+
+template<>
+inline double mySqrt<double>(double a){
+  return __builtin_sqrt(a);
+}
+template<>
+inline float mySqrt<float>(float a){
+  return __builtin_sqrtf(a);
+}
 #endif
 
 template<class REALTYPE>
@@ -791,6 +1153,14 @@ int main(int argc, char** argv){
     testCast<RealType,double> t7; t7.run();
     testCastm<RealType,double> t7m; t7m.run();
     testDiffSqrt<RealType> t8; t8.run();
+
+    testFmaMixSseLlo<RealType> t9; t9.run();
+    testFmaMixSseLlom<RealType> t9m; t9m.run();
+    testFmaMixAvxLlo<RealType> t10; t10.run();
+    testFmaMixAvxLlom<RealType> t10m; t10m.run();
+
+    testMixAvxLlo<RealType> t11; t11.run();
+    testMixAvxLlom<RealType> t11m; t11m.run();
   }
 
   {
@@ -810,16 +1180,15 @@ int main(int argc, char** argv){
     testCast<RealType,double> t7; t7.run();
     testCastm<RealType,double> t7m; t7m.run();
     testDiffSqrt<RealType> t8; t8.run();
-  }
 
-  /*    {
-    typedef long double RealType;
-    test1<RealType> t1; t1.run();
-    test2<RealType> t2; t2.run();
-    test3<RealType> t3; t3.run();
-    test4<RealType> t4; t4.run();
-    //test5<RealType> t5; t5.run();
-    }*/
+    testFmaMixSseLlo<RealType> t9; t9.run();
+    testFmaMixSseLlom<RealType> t9m; t9m.run();
+    testFmaMixAvxLlo<RealType> t10; t10.run();
+    testFmaMixAvxLlom<RealType> t10m; t10m.run();
+
+    testMixAvxLlo<RealType> t11; t11.run();
+    testMixAvxLlom<RealType> t11m; t11m.run();
+  }
 
   return EXIT_SUCCESS;
 }

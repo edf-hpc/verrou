@@ -657,6 +657,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 						 mkIRExprVec_1 (arg1))));
 
   //conversion after call
+#if defined(VGA_amd64)
   if(prec==VR_PREC_FLT){
       IRExpr* conv=vr_I64toI32(sb, IRExpr_RdTmp(res ));
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
@@ -666,6 +667,18 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
 				       IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
   }
+#elif defined(VGA_arm64)
+  if(prec==VR_PREC_FLT){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI32asF32, IRExpr_RdTmp(res ))));
+  }
+  if(prec==VR_PREC_DBL){
+    addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp,
+				     IRExpr_Unop (Iop_ReinterpI64asF64, IRExpr_RdTmp(res))));
+  }
+#else
+#error "not yet implemented"
+#endif
   return True;
 }
 
@@ -1221,6 +1234,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #define IGNORESQRT
 #endif
 
+#ifndef DEBUG_PRINT_OP //the switch case with rounding mode during instrumentation is incompatible with DEBUG_PRINT_OP (to make it compatible python code generation need to be adapted)
      if(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -1354,6 +1368,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #undef bcName
 #undef bcNameWithCC
      }
+#endif // end of DEBUG_PRINT_OP
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"

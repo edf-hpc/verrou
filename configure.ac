@@ -245,6 +245,25 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 AC_LANG_POP(C++)
 AC_SUBST(vg_test_no_avx512f_flag)
 
+# mfpmath=sse
+vg_test_mfpmath_sse_flag="-mfpmath=sse"
+AC_LANG_PUSH(C++)
+CXXFLAGS="$safe_CXXFLAGS $vg_test_mfpmath_sse_flag"
+AC_MSG_CHECKING([for -mfpmath=sse compil option])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <stdlib.h>
+      ]], [[return EXIT_SUCCESS;]])],
+    [
+      CXXFLAGS="$safe_CXXFLAGS"
+      AC_MSG_RESULT([yes])
+    ],[
+    CXXFLAGS="$safe_CXXFLAGS"
+     vg_test_mfpmath_sse_flag=
+      AC_MSG_RESULT([no])
+  ])
+AC_LANG_POP(C++)
+AC_SUBST(vg_test_mfpmath_sse_flag)
+
 # mfma
 vg_test_mfma_flag=-mfma
 AC_LANG_PUSH(C++)
@@ -263,6 +282,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
   ])
 AC_LANG_POP(C++)
 AC_SUBST(vg_test_mfma_flag)
+
+AC_SUBST(ac_have_as_avx)
 
 
 AC_CONFIG_FILES([verrou/env.sh])

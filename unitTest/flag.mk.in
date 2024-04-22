@@ -1,6 +1,14 @@
 # @configure_input@
 
 AVX512FLAG=@vg_test_no_avx512f_flag@
+MFPMATHFLAG=@vg_test_mfpmath_sse_flag@
+FMAFLAG=@vg_test_mfma_flag@
+AVX_CONFIG=@ac_have_as_avx@
 
-DEBUGFLAGS = -mfpmath=sse $(AVX512FLAG)
-NATIVEFLAGS= -mfpmath=sse -march=native -mfma $(AVX512FLAG)
+FLAG_TEST_AVX=
+ifeq ($(AVX_CONFIG) , yes)
+FLAG_TEST_AVX=-DHAVE_AVX
+endif
+
+DEBUGFLAGS = $(MFPMATHFLAG) -g $(AVX512FLAG) $(FLAG_TEST_AVX)
+NATIVEFLAGS= $(MFPMATHFLAG) -march=native $(FMAFLAG) $(AVX512FLAG) $(FLAG_TEST_AVX)

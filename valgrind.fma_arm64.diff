@@ -1,0 +1,206 @@
+diff --git a/VEX/priv/guest_arm64_toIR.c b/VEX/priv/guest_arm64_toIR.c
+index 97b094175..c4490c3fa 100644
+--- a/VEX/priv/guest_arm64_toIR.c
++++ b/VEX/priv/guest_arm64_toIR.c
+@@ -39,11 +39,6 @@
+ 
+      FMULX is treated the same as FMUL.  That's also not correct.
+ 
+-   * Floating multiply-add (etc) insns.  Are split into a multiply and 
+-     an add, and so suffer double rounding and hence sometimes the
+-     least significant mantissa bit is incorrect.  Fix: use the IR
+-     multiply-add IROps instead.
+-
+    * FRINTA, FRINTN are kludged .. they just round to nearest.  No special
+      handling for the "ties" case.  FRINTX might be dubious too.
+ 
+@@ -2225,6 +2220,108 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
+    return math_MAYBE_ZERO_HI64(bitQ, fullWidthT);
+ }
+ 
++/* Helper to unroll FMA*/
++static void unroll2_V128(IRExpr* aExpr,  IRTemp* ai_F64){
++   IRTemp ai_I64[2];
++   for(int i=0; i<2; i++) ai_I64[i]= newTemp(Ity_I64);
++
++   assign(ai_I64[0], unop(Iop_V128to64,   aExpr ));
++   assign(ai_I64[1], unop(Iop_V128HIto64, aExpr ));
++
++   for(int i=0; i<2; i++){
++      ai_F64[i]= newTemp(Ity_F64);
++      assign(ai_F64[i], unop(Iop_ReinterpI64asF64, mkexpr(ai_I64[i]) ));
++   }
++}
++
++static void unroll4_V128(IRExpr* aExpr,  IRTemp* ai_F32){
++   IRTemp a64_LO = newTemp(Ity_I64);
++   IRTemp a64_HI = newTemp(Ity_I64);
++   assign(a64_LO, unop(Iop_V128to64,   aExpr ));
++   assign(a64_HI, unop(Iop_V128HIto64, aExpr ));
++
++   IRTemp ai_I32[4];
++   for(int i=0; i<4 ; i++) ai_I32[i]=newTemp(Ity_I32);
++
++   assign(ai_I32[0], unop(Iop_64to32,   mkexpr(a64_LO) ));
++   assign(ai_I32[1], unop(Iop_64HIto32, mkexpr(a64_LO) ));
++   assign(ai_I32[2], unop(Iop_64to32,   mkexpr(a64_HI) ));
++   assign(ai_I32[3], unop(Iop_64HIto32, mkexpr(a64_HI) ));
++
++   for(int i=0; i<4 ; i++){
++      ai_F32[i]=newTemp(Ity_F32);
++      assign(ai_F32[i], unop(Iop_ReinterpI32asF32, mkexpr(ai_I32[i]) ));
++   }
++}
++
++static IRTemp unroll_vectorized2_fma(Bool isSub, IRExpr* rm, IRExpr* aExpr, IRExpr* bExpr, IRExpr* cExpr){
++   //a*b+c
++   //rm : rounding mode
++
++   // unroll arguments
++   IRTemp ai_F64[2], bi_F64[2], ci_F64[2];
++   unroll2_V128(aExpr,ai_F64);
++   unroll2_V128(bExpr,bi_F64);
++   unroll2_V128(cExpr,ci_F64);
++
++   // fma loop with type conversion (I32->F32 and F32->I32 )
++   IRTemp ri_F64[2],ri_I64[2];
++   IROp   opMaddOrSub = isSub ? Iop_MSubF64 : Iop_MAddF64;
++   for(int i=0; i<2; i++){
++      ri_F64[i]= newTemp(Ity_F64);
++      //apply fma or fms
++      assign(ri_F64[i], qop( opMaddOrSub, rm,
++			     mkexpr(ai_F64[i]), mkexpr(bi_F64[i]), mkexpr(ci_F64[i])));
++      ri_I64[i]=newTemp(Ity_I64);
++      assign(ri_I64[i], unop(Iop_ReinterpF64asI64, mkexpr(ri_F64[i])));
++   }
++
++   //roll up the results
++   IRTemp res = newTempV128();
++   assign(res, binop(Iop_64HLtoV128, mkexpr(ri_I64[1]), mkexpr(ri_I64[0])));
++   return res;
++}
++
++
++static IRTemp unroll_vectorized4_fma(Bool isSub, IRExpr* rm, IRExpr* aExpr, IRExpr* bExpr, IRExpr* cExpr){
++   //a*b+c rm : rounding mode
++
++   // unroll arguments
++   IRTemp ai_F32[4],bi_F32[4],ci_F32[4];
++   unroll4_V128(aExpr, ai_F32);
++   unroll4_V128(bExpr, bi_F32);
++   unroll4_V128(cExpr, ci_F32);
++
++   // fma loop with type conversion (I32->F32 and F32->I32 )
++   IRTemp ri_F32[4],ri_I32[4];
++   IROp   opMaddOrSub = isSub ? Iop_MSubF32 : Iop_MAddF32;
++   for(int i=0; i<4 ; i++){
++      ri_F32[i]=newTemp(Ity_F32);
++      //apply fma or fms
++      assign(ri_F32[i], qop( opMaddOrSub, rm,
++			     mkexpr(ai_F32[i]),mkexpr(bi_F32[i]),mkexpr(ci_F32[i])));
++      ri_I32[i]=newTemp(Ity_I32);
++      assign(ri_I32[i], unop(Iop_ReinterpF32asI32, mkexpr(ri_F32[i])));
++   }
++
++   //roll up the results
++   IRTemp resLo = newTemp(Ity_I64);
++   IRTemp resHi = newTemp(Ity_I64);
++   assign(resLo, binop(Iop_32HLto64, mkexpr(ri_I32[1]), mkexpr(ri_I32[0])));
++   assign(resHi, binop(Iop_32HLto64, mkexpr(ri_I32[3]), mkexpr(ri_I32[2])));
++   IRTemp res    = newTempV128();
++   assign(res, binop(Iop_64HLtoV128, mkexpr(resHi), mkexpr(resLo)));
++   return res;
++}
++
++static IRTemp unroll_vectorized_fma(UInt unrollSize, Bool isSub, IRExpr* rm,
++				    IRExpr* aExpr, IRExpr* bExpr, IRExpr* cExpr){
++   vassert(unrollSize == 2 || unrollSize == 4 );
++   if(unrollSize==2){
++      return unroll_vectorized2_fma(isSub, rm, aExpr, bExpr,cExpr);
++   }
++   return unroll_vectorized4_fma(isSub, rm, aExpr, bExpr,cExpr);
++}
+ 
+ /*------------------------------------------------------------*/
+ /*--- FP comparison helpers                                ---*/
+@@ -11467,19 +11564,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
+       UInt   mm    = (bitM << 4) | mmLO4;
+       assign(elem, getQRegLane(mm, index, ity));
+       IRTemp dupd  = math_DUP_TO_V128(elem, ity);
+-      IROp   opADD = isD ? Iop_Add64Fx2 : Iop_Add32Fx4;
+-      IROp   opSUB = isD ? Iop_Sub64Fx2 : Iop_Sub32Fx4;
+-      IROp   opMUL = isD ? Iop_Mul64Fx2 : Iop_Mul32Fx4;
+       IRTemp rm    = mk_get_IR_rounding_mode();
+-      IRTemp t1    = newTempV128();
+-      IRTemp t2    = newTempV128();
+-      // FIXME: double rounding; use FMA primops instead
+-      assign(t1, triop(opMUL, mkexpr(rm), getQReg128(nn), mkexpr(dupd)));
+-      assign(t2, triop(isSUB ? opSUB : opADD,
+-                       mkexpr(rm), getQReg128(dd), mkexpr(t1)));
++
++      UInt unrollSize= (isD ? 2 : 4);
++      IRTemp res=unroll_vectorized_fma(unrollSize, isSUB, mkexpr(rm),
++				       getQReg128(nn),
++				       mkexpr(dupd),
++				       getQReg128(dd));
++
+       putQReg128(dd,
+                  mkexpr(math_ZERO_ALL_EXCEPT_LOWEST_LANE(isD ? 3 : 2,
+-                                                         mkexpr(t2))));
++                                                         mkexpr(res))));
+       const HChar c = isD ? 'd' : 's';
+       DIP("%s %c%u, %c%u, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
+           c, dd, c, nn, nameQReg128(mm), c, index);
+@@ -12924,18 +13019,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
+       Bool isD   = (size & 1) == 1;
+       Bool isSUB = (size & 2) == 2;
+       if (bitQ == 0 && isD) return False; // implied 1d case
+-      IROp opADD = isD ? Iop_Add64Fx2 : Iop_Add32Fx4;
+-      IROp opSUB = isD ? Iop_Sub64Fx2 : Iop_Sub32Fx4;
+-      IROp opMUL = isD ? Iop_Mul64Fx2 : Iop_Mul32Fx4;
+       IRTemp rm = mk_get_IR_rounding_mode();
+-      IRTemp t1 = newTempV128();
+-      IRTemp t2 = newTempV128();
+-      // FIXME: double rounding; use FMA primops instead
+-      assign(t1, triop(opMUL,
+-                       mkexpr(rm), getQReg128(nn), getQReg128(mm)));
+-      assign(t2, triop(isSUB ? opSUB : opADD,
+-                       mkexpr(rm), getQReg128(dd), mkexpr(t1)));
+-      putQReg128(dd, math_MAYBE_ZERO_HI64(bitQ, t2));
++
++      UInt unrollSize= (isD ? 2 : 4);
++      IRTemp res= unroll_vectorized_fma(unrollSize, isSUB, mkexpr(rm),
++					getQReg128(nn),
++					getQReg128(mm),
++					getQReg128(dd));
++
++      putQReg128(dd, math_MAYBE_ZERO_HI64(bitQ, res));
+       const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
+       DIP("%s %s.%s, %s.%s, %s.%s\n", isSUB ? "fmls" : "fmla",
+           nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm), arr);
+@@ -14143,17 +14235,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
+       UInt   mm    = (bitM << 4) | mmLO4;
+       assign(elem, getQRegLane(mm, index, ity));
+       IRTemp dupd  = math_DUP_TO_V128(elem, ity);
+-      IROp   opADD = isD ? Iop_Add64Fx2 : Iop_Add32Fx4;
+-      IROp   opSUB = isD ? Iop_Sub64Fx2 : Iop_Sub32Fx4;
+-      IROp   opMUL = isD ? Iop_Mul64Fx2 : Iop_Mul32Fx4;
+       IRTemp rm    = mk_get_IR_rounding_mode();
+-      IRTemp t1    = newTempV128();
+-      IRTemp t2    = newTempV128();
+-      // FIXME: double rounding; use FMA primops instead
+-      assign(t1, triop(opMUL, mkexpr(rm), getQReg128(nn), mkexpr(dupd)));
+-      assign(t2, triop(isSUB ? opSUB : opADD,
+-                       mkexpr(rm), getQReg128(dd), mkexpr(t1)));
+-      putQReg128(dd, math_MAYBE_ZERO_HI64(bitQ, t2));
++
++      UInt unrollSize= (isD ? 2 : 4);
++      IRTemp res=unroll_vectorized_fma(unrollSize, isSUB, mkexpr(rm),
++				       getQReg128(nn),
++				       mkexpr(dupd),
++				       getQReg128(dd));
++
++      putQReg128(dd, math_MAYBE_ZERO_HI64(bitQ, res));
+       const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
+       DIP("%s %s.%s, %s.%s, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
+           nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm),

@@ -56,7 +56,7 @@ Add verrou's sources to it:
     cd valgrind-3.22.0+verrou-dev
     git clone https://github.com/edf-hpc/verrou.git verrou
 
-    patch -p1 <verrou/valgrind.diff
+    cat verrou/valgrind.*diff | patch -p1
 
 
 ### Configure and build
