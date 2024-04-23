@@ -481,7 +481,7 @@ VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpec
 
   const HChar * strFilenameExpanded=   VG_(expand_file_name)(strPost,  strFilename);
 
-  VG_(umsg)("Open expect clr ouptut file : `%s'... \n", strFilenameExpanded);
+  VG_(umsg)("Open expect clr output file : `%s'... \n", strFilenameExpanded);
   VgFile* vr_expectCLRFile = VG_(fopen)(strFilenameExpanded,
 					   VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 					   VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);
