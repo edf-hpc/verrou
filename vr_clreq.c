@@ -55,6 +55,12 @@ void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool isHard) 
       VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
       vr_clean_cache();
 
+      if(vr.instrument_soft_used){
+         if(vr.instrument_hard && vr.instrument_soft){
+            vr.instrument_soft_used=False;
+         }
+      }
+
       if(vr.verbose){
          VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
                       reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
