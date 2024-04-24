@@ -20,6 +20,7 @@ install-exec-local:
 	mkdir -p ${pkgpythondir}
 	touch ${pkgpythondir}/__init__.py
 	install -t ${prefix} -m 644 env.sh
+	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
@@ -211,3 +212,18 @@ vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
 	-static-libstdc++ -lm \
 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDADD  =  -ldl $(VERROU_LD)
+
+#----------------------------------------------------------------------------
+# verrouUnbuffered-<platform>.so
+#----------------------------------------------------------------------------
+verrouUnbuffereddir = $(pkglibdir)
+noinst_PROGRAMS += verrouUnbuffered.so
+
+VERROUUNBUFFERED_SOURCES_COMMON = unbufferPrintf.c
+
+verrouUnbuffered_so_SOURCES      = \
+	$(VERROUUNBUFFERED_SOURCES_COMMON)
+verrouUnbuffered_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouUnbuffered_so_LDFLAGS      = \
+	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)

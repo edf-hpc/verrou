@@ -1691,7 +1691,7 @@ static void vr_post_clo_init(void)
      s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_core");
      tl_assert(s1);
 
-     // Now find the vgpreload_massif-$PLATFORM entry.
+     // Now find the vgpreload_verrou-$PLATFORM entry.
      s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_verrou");
      tl_assert(s1);
      s2 = s1;

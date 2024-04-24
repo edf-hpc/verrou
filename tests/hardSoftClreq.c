@@ -17,9 +17,9 @@ float compute () {
 void detect(int index, float* res, float res_init){
    printf("res[%d] ",index);
    if((res[index] - res_init) ==0){
-      printf("==\n"); fflush(stdout);
+      printf("==\n"); //fflush(stdout);
    }else{
-      printf("!=\n"); fflush(stdout);
+      printf("!=\n"); //fflush(stdout);
    }
 }
 
