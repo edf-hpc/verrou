@@ -65,6 +65,12 @@ class DDstdout(DD_stoch.DDStoch):
             self.startCmd="start_soft"
             self.stopCmd="stop_soft"
 
+    def newLdPreload(self):
+        res="verrouUnbuffered.so"
+        if "LD_PRELOAD" in os.environ:
+            res+=(":"+os.environ["LD_PRELOAD"])
+        return res
+
     def filePathReplace(self,strLine):
         cachePath=self.config_.get_cacheRep()
         return strLine.replace(os.path.join(cachePath, "ref"),os.path.join(cachePath, "*"))
@@ -131,7 +137,7 @@ class DDstdout(DD_stoch.DDStoch):
         refFile.write("begin:\n")
         refFile.close()
         res= {"PYTHONUNBUFFERED": "x",
-              "LD_PRELOAD": "verrouUnbuffered.so:"+os.environ["LD_PRELOAD"],
+              "LD_PRELOAD": self.newLdPreload(),
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
               "VERROU_EXPECT_CLR":refPath,
@@ -210,7 +216,7 @@ class DDstdout(DD_stoch.DDStoch):
 
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
-             "LD_PRELOAD": "verrouUnbuffered.so:"+os.environ["LD_PRELOAD"],
+             "LD_PRELOAD": self.newLdPreload(),
              "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
              "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%"),
              "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
