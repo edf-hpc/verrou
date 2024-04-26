@@ -35,8 +35,10 @@
 #include <iostream>
 
 
+#define outputPrefix "==verrouSynchroLib.so== "
+
 bool synchroDebug=false;
-std::string outputPrefix("==verrouSynchroLib.so== ");
+
 
 
 bool generateTrace;

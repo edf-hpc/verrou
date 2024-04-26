@@ -1,4 +1,4 @@
-#! /usr/bin/python3.5
+#! /usr/bin/python3
 
 # portions copyright 2001, Autonomous Zones Industries, Inc., all rights...
 # err...  reserved and offered to the public under the terms of the
@@ -60,8 +60,7 @@ import dis
 import pickle
 from warnings import warn as _warn
 from time import monotonic as _time
-from verrouPyBinding import bindingSynchroLib
-
+import valgrind.verrouPyBinding as verrou
 try:
     import threading
 except ImportError:
@@ -212,24 +211,6 @@ def _fullmodname(path):
         base = base.replace(os.altsep, ".")
     filename, ext = os.path.splitext(base)
     return filename.lstrip(".")
-
-
-class synchro_lib:
-    def __init__(self):
-        print("Debug trace_verrou_init")
-        print("os.environ: ", os.environ)
-#        self.lib=bindingSynchroLib("./verrouSynchroLib.so")
-        self.lib=bindingSynchroLib()
-        self.lib.verrou_synchro_init()
-
-    def finalyze(self):
-        print("Debug trace_verrou_finalize")
-        self.lib.verrou_synchro_finalyze()
-
-
-    def synchro(self,bname,lineno):
-        print("Debug trace_verrou_synchro %s %i"%(bname,lineno))
-        self.lib.verrou_synchro(bname,lineno)
 
 
 
@@ -496,7 +477,7 @@ class Trace:
         self._callers = {}
         self._caller_cache = {}
         self.start_time = None
-        self.synchroLib= synchro_lib()
+#        self.synchroLib= synchro_lib()
         if timing:
             self.start_time = _time()
         if countcallers:
@@ -530,12 +511,11 @@ class Trace:
         if not self.donothing:
             _settrace(self.globaltrace)
         try:
-            self.synchroLib.synchro("runctx",0)
+            verrou.synchro("runctx",0)
             exec(cmd, globals, locals)
         finally:
             if not self.donothing:
                 _unsettrace()
-        self.synchroLib.finalyze()
 
     def runfunc(self, func, *args, **kw):
         result = None
@@ -616,7 +596,7 @@ class Trace:
         else returns self.localtrace.
         """
         if why == 'call':
-            self.synchroLib.synchro("globaltrace_lt",0)
+            verrou.synchro("globaltrace_lt",0)
             code = frame.f_code
             filename = frame.f_globals.get('__file__', None)
             if filename:
@@ -646,7 +626,7 @@ class Trace:
             bname = os.path.basename(filename)
             print("%s(%d): %s" % (bname, lineno,
                                   linecache.getline(filename, lineno)), end='')
-            self.synchroLib.synchro(bname,lineno)
+            verrou.synchro(bname,lineno)
         return self.localtrace
 
     def localtrace_trace(self, frame, why, arg):
@@ -660,7 +640,7 @@ class Trace:
             bname = os.path.basename(filename)
             print("%s(%d): %s" % (bname, lineno,
                                   linecache.getline(filename, lineno)), end='')
-            self.synchroLib.synchro(bname,lineno)
+            verrou.synchro(bname,lineno)
         return self.localtrace
 
     def localtrace_count(self, frame, why, arg):
@@ -669,14 +649,14 @@ class Trace:
             lineno = frame.f_lineno
             key = filename, lineno
             self.counts[key] = self.counts.get(key, 0) + 1
-            self.synchroLib.synchro(filename,lineno)
+            verrou.synchro(filename,lineno)
         return self.localtrace
 
     def localtrace_verrou(self, frame, why, arg):
         if why == "line":
             filename = frame.f_code.co_filename
             lineno = frame.f_lineno
-            self.synchroLib.synchro(filename,lineno)
+            verrou.synchro(filename,lineno)
         return self.localtrace
 
     def results(self):
@@ -713,7 +693,7 @@ def main(argv=None):
     count = 0
     report = 0
     no_report = 0
-    verrou = 1
+    verrou_mode = 1
     counts_file = None
     missing = 0
     ignore_modules = []
@@ -802,7 +782,7 @@ def main(argv=None):
     if listfuncs and (count or trace):
         _err_exit("cannot specify both --listfuncs and (--trace or --count)")
 
-    if not (count or trace or report or listfuncs or countcallers or verrou):
+    if not (count or trace or report or listfuncs or countcallers or verrou_mode):
         _err_exit("must specify one of --trace, --count, --report, "
                   "--listfuncs, or --trackcalls")
 
@@ -830,7 +810,7 @@ def main(argv=None):
                   ignoredirs=ignore_dirs, infile=counts_file,
                   outfile=counts_file, timing=timing)
         try:
-            t.synchroLib.synchro("compile",0)
+            verrou.synchro("compile",0)
             with open(progname) as fp:
                 code = compile(fp.read(), progname, 'exec')
             # try to emulate __main__ namespace as much as possible

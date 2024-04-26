@@ -131,11 +131,12 @@ class DDstdout(DD_stoch.DDStoch):
         refFile.write("begin:\n")
         refFile.close()
         res= {"PYTHONUNBUFFERED": "x",
-                "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
-                "VERROU_MCA_MODE": "ieee",
-                "VERROU_EXPECT_CLR":refPath,
-                "VERROU_OUTPUT_EXPECT_REP":self.ref_
-                }
+              "LD_PRELOAD": "verrouUnbuffered.so:"+os.environ["LD_PRELOAD"],
+              "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
+              "VERROU_MCA_MODE": "ieee",
+              "VERROU_EXPECT_CLR":refPath,
+              "VERROU_OUTPUT_EXPECT_REP":self.ref_
+              }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:
             res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
@@ -209,6 +210,7 @@ class DDstdout(DD_stoch.DDStoch):
 
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
+             "LD_PRELOAD": "verrouUnbuffered.so:"+os.environ["LD_PRELOAD"],
              "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
              "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%"),
              "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,

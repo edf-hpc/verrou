@@ -29,19 +29,19 @@
 
 #include <stdio.h>
 
-void c_verrou_start_instrumentation(){
+void c_verrou_start_instrumentation(void){
    VERROU_START_INSTRUMENTATION;
 }
 
-void c_verrou_stop_instrumentation(){
+void c_verrou_stop_instrumentation(void){
    VERROU_STOP_INSTRUMENTATION;
 }
 
-void c_verrou_start_soft_instrumentation(){
+void c_verrou_start_soft_instrumentation(void){
    VERROU_START_SOFT_INSTRUMENTATION;
 }
 
-void c_verrou_stop_soft_instrumentation(){
+void c_verrou_stop_soft_instrumentation(void){
    VERROU_STOP_SOFT_INSTRUMENTATION;
 }
 
@@ -55,21 +55,21 @@ void c_verrou_stop_determinitic(int level){
 }
 
 
-void c_verrou_display_counters(){
+void c_verrou_display_counters(void){
    VERROU_DISPLAY_COUNTERS;
 }
 
-unsigned int c_verrou_dump_cover(){
+unsigned int c_verrou_dump_cover(void){
    return VERROU_DUMP_COVER;
 }
 
 
-unsigned int c_verrou_count_fp_instrumented(){
+unsigned int c_verrou_count_fp_instrumented(void){
    unsigned int res=VERROU_COUNT_FP_INSTRUMENTED;
    return res;
 }
 
-unsigned int c_verrou_count_fp_not_instrumented(){
+unsigned int c_verrou_count_fp_not_instrumented(void){
    unsigned int res=VERROU_COUNT_FP_NOT_INSTRUMENTED;
    return res;
 }
