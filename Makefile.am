@@ -22,7 +22,7 @@ install-exec-local:
 	install -t ${prefix} -m 644 env.sh
 	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
 	install -t ${verrouCbindingDir} verrouCBinding.so
-
+	install -t ${verrouTaskDir} libverrouTask.so
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
@@ -225,19 +225,19 @@ verrouCBinding_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
 
 
 #----------------------------------------------------------------------------
-# verrouSynchro.so
+# libverrouTask.so
 #----------------------------------------------------------------------------
-noinst_PROGRAMS += verrouSynchro.so
+verrouTaskDir = $(pkglibdir)
+noinst_PROGRAMS += libverrouTask.so
 if VGCONF_HAVE_PLATFORM_SEC
-noinst_PROGRAMS += verrouSynchro.so
+noinst_PROGRAMS += libverrouTask.so
 endif
 
 PRELOADSYNCHRO1 = $(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
 PRELOADSYNCHRO = $(subst -m64,,$(PRELOADSYNCHRO1))
 
-VERROUSYNCHRO_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
-verrouSynchro_so_SOURCES      = $(VERROUSYNCHRO_SOURCES_COMMON)
-verrouSynchro_so_CPPFLAGS     = \
+VERROUTASK_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
+libverrouTask_so_SOURCES      = $(VERROUTASK_SOURCES_COMMON)
+libverrouTask_so_CPPFLAGS     = \
 	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
-verrouSynchro_so_LDFLAGS      = -static-libstdc++ \
-	$(PRELOADSYNCHRO)
+libverrouTask_so_LDFLAGS      = -static-libstdc++ $(PRELOADSYNCHRO)

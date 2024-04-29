@@ -27,7 +27,7 @@ class bindingSynchroLib:
         if(pathLib!=None):
             self.lib=ctypes.CDLL(pathLib)
         else:
-            self.lib=ctypes.CDLL(searchDefaultPath("verrouSynchro.so"), ctypes.RTLD_GLOBAL )
+            self.lib=ctypes.CDLL(searchDefaultPath("libverrouTask.so"), ctypes.RTLD_GLOBAL )
         self.lib.verrou_synchro.argtypes = [ ctypes.c_char_p, ctypes.c_int]
         self.lib.verrou_synchro_init()
     def __del__(self):
