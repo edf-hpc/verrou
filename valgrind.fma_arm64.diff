@@ -11,10 +11,10 @@ index 97b094175..c4490c3fa 100644
 -     least significant mantissa bit is incorrect.  Fix: use the IR
 -     multiply-add IROps instead.
 -
-    * FRINTA, FRINTN are kludged .. they just round to nearest.  No special
-      handling for the "ties" case.  FRINTX might be dubious too.
+    * FRINTX might be need updating to set the inexact computation FPSR flag
  
-@@ -2225,6 +2220,108 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
+    * Ditto FCVTXN.  No idea what "round to odd" means.  This implementation
+@@ -2224,6 +2219,108 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
     return math_MAYBE_ZERO_HI64(bitQ, fullWidthT);
  }
  
@@ -123,7 +123,7 @@ index 97b094175..c4490c3fa 100644
  
  /*------------------------------------------------------------*/
  /*--- FP comparison helpers                                ---*/
-@@ -11467,19 +11564,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -11488,19 +11585,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -151,7 +151,7 @@ index 97b094175..c4490c3fa 100644
        const HChar c = isD ? 'd' : 's';
        DIP("%s %c%u, %c%u, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            c, dd, c, nn, nameQReg128(mm), c, index);
-@@ -12924,18 +13019,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -12945,18 +13040,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
        Bool isD   = (size & 1) == 1;
        Bool isSUB = (size & 2) == 2;
        if (bitQ == 0 && isD) return False; // implied 1d case
@@ -178,7 +178,7 @@ index 97b094175..c4490c3fa 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%s\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm), arr);
-@@ -14143,17 +14235,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -14159,17 +14251,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
