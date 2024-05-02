@@ -61,7 +61,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("rddminHeuristicsFile" , "string",     "RDDMIN_HEURISTICS_FILE",  ["--rddmin-heuristics-file="],   [] ,       "file_exists", True)
         self.addRegistry("rddminHeuristicsLineConv" , "bool",   "RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None)
         self.addRegistry("resWithAllSamples"    , "bool",       "RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
-
+        self.addRegistry("ddSeed"               ,  int,         "DD_SEED",                 ["--dd-seed="],                 None,      None)
 
     def normalizeOptions(self):
         if self.rddminVariant=="stoch":
@@ -70,6 +70,10 @@ class ddConfig(gen_config.gen_config):
             self.rddminVariant="d"
         if self.rddminVariant=="strict":
             self.rddminVariant=""
+            self.failure()
+
+    def get_ddSeed(self):
+        return self.ddSeed
 
     def get_cacheRep(self):
         return self.cacheRep

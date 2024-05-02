@@ -48,13 +48,18 @@ roundingDetTab=rounding_tool.roundingDetTab
 roundingNonDetTab=rounding_tool.roundingNonDetTab
 
 
-def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None, fullAsync=True):
+def verrou_run_stat(conf, fullAsync=True):
+
+    maxNbPROC=conf.num_threads()
     if maxNbPROC in [None,1]:
         fullAsync=False
 
+    rep=conf.repName()
     if not os.path.exists(rep):
         os.mkdir(rep)
+    listOfConfigStat=conf.getSampleConfig()
     listOfStat=copy.deepcopy(listOfConfigStat)
+    ref=conf.ref()
     if not ref in listOfConfigStat and rounding_tool.isValidRounding(ref):
         listOfStat[ref]=1
 
@@ -62,9 +67,9 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed
     for roundingMode in listOfStat:
         nbSample=listOfStat[roundingMode]
         seedTab=None
-        if seed!=None:
+        if conf.seed()!=None:
             import random
-            random.seed(seed)
+            random.seed(conf.seed())
             seedTab=random.sample(range(0,2**32-1), nbSample)
         if nbSample==0:
             continue
@@ -82,8 +87,7 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed
 
         refDir=None
         script_cmp=None
-
-        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab)
+        task=DD_stoch.verrouTask(repName, refDir, conf.runScript(), script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
         if fullAsync:
             taskTab+=[task]
         else:
@@ -756,7 +760,7 @@ if __name__=="__main__":
     nbSamples=conf.getSampleConfig()
 
     if conf.runScript()!=None:
-        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.ref(),conf.num_threads(), conf.seed())
+        verrou_run_stat(conf)
     if conf.run_only():
         sys.exit(0)
 
