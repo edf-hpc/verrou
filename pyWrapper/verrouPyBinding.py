@@ -22,21 +22,21 @@ def searchDefaultPath(fileName):
     print("FileName %s not found"%(fileName),file=sys.stderr)
     sys.exit(42)
 
-class bindingSynchroLib:
+class bindingTaskLib:
     def __init__(self, pathLib=None):
         if(pathLib!=None):
             self.lib=ctypes.CDLL(pathLib)
         else:
             self.lib=ctypes.CDLL(searchDefaultPath("libverrouTask.so"), ctypes.RTLD_GLOBAL )
-        self.lib.verrou_synchro.argtypes = [ ctypes.c_char_p, ctypes.c_int]
-        self.lib.verrou_synchro_init()
+        self.lib.verrou_task.argtypes = [ ctypes.c_char_p, ctypes.c_int]
+        self.lib.verrou_task_init()
     def __del__(self):
-        self.lib.verrou_synchro_finalyze()
+        self.lib.verrou_task_finalyze()
 
-bindSynchro=bindingSynchroLib()
+bindTask=bindingTaskLib()
 
-def synchro(string, index):
-    bindSynchro.lib.verrou_synchro(string.encode('utf-8'), index)
+def task(string, index):
+    bindTask.lib.verrou_task(string.encode('utf-8'), index)
 
 class bindingVerrouCLib:
     def __init__(self, pathLib=None):
@@ -107,19 +107,19 @@ if __name__=="__main__":
     print("apres a binding not fp: ", count_fp_not_instrumented())
 
 
-    synchro("toto",10)
+    task("toto",10)
 
     display_counters()
     start_instrumentation()
     a=3.*4
     stop_instrumentation()
 
-    synchro("toto",10)
+    task("toto",10)
     start_instrumentation()
 
     a*=5
     stop_instrumentation()
 
     print(a)
-    synchro("toto",10)
+    task("toto",10)
 

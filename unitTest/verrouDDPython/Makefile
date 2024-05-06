@@ -5,7 +5,7 @@ export SHELL=bash
 all: dd.synchro
 
 dd.synchro: clean
-	verrou_dd_synchro --num-threads=4 --nrun=1 ddRun.sh extractOrCmp.py
+	verrou_dd_task --num-threads=4 --nrun=1 ddRun.sh extractOrCmp.py
 
 clean:
-	rm -rf exclude.ex dd.synchro
+	rm -rf dd.task

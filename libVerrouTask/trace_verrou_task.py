@@ -477,7 +477,7 @@ class Trace:
         self._callers = {}
         self._caller_cache = {}
         self.start_time = None
-#        self.synchroLib= synchro_lib()
+
         if timing:
             self.start_time = _time()
         if countcallers:
@@ -511,7 +511,7 @@ class Trace:
         if not self.donothing:
             _settrace(self.globaltrace)
         try:
-            verrou.synchro("runctx",0)
+            verrou.task("runctx",0)
             exec(cmd, globals, locals)
         finally:
             if not self.donothing:
@@ -596,7 +596,7 @@ class Trace:
         else returns self.localtrace.
         """
         if why == 'call':
-            verrou.synchro("globaltrace_lt",0)
+            verrou.task("globaltrace_lt",0)
             code = frame.f_code
             filename = frame.f_globals.get('__file__', None)
             if filename:
@@ -626,7 +626,7 @@ class Trace:
             bname = os.path.basename(filename)
             print("%s(%d): %s" % (bname, lineno,
                                   linecache.getline(filename, lineno)), end='')
-            verrou.synchro(bname,lineno)
+            verrou.task(bname,lineno)
         return self.localtrace
 
     def localtrace_trace(self, frame, why, arg):
@@ -640,7 +640,7 @@ class Trace:
             bname = os.path.basename(filename)
             print("%s(%d): %s" % (bname, lineno,
                                   linecache.getline(filename, lineno)), end='')
-            verrou.synchro(bname,lineno)
+            verrou.task(bname,lineno)
         return self.localtrace
 
     def localtrace_count(self, frame, why, arg):
@@ -649,14 +649,14 @@ class Trace:
             lineno = frame.f_lineno
             key = filename, lineno
             self.counts[key] = self.counts.get(key, 0) + 1
-            verrou.synchro(filename,lineno)
+            verrou.task(filename,lineno)
         return self.localtrace
 
     def localtrace_verrou(self, frame, why, arg):
         if why == "line":
             filename = frame.f_code.co_filename
             lineno = frame.f_lineno
-            verrou.synchro(filename,lineno)
+            verrou.task(filename,lineno)
         return self.localtrace
 
     def results(self):
@@ -810,7 +810,7 @@ def main(argv=None):
                   ignoredirs=ignore_dirs, infile=counts_file,
                   outfile=counts_file, timing=timing)
         try:
-            verrou.synchro("compile",0)
+            verrou.task("compile",0)
             with open(progname) as fp:
                 code = compile(fp.read(), progname, 'exec')
             # try to emulate __main__ namespace as much as possible

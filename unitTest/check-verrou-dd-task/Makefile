@@ -3,7 +3,7 @@ export INSTALLPATH = $(shell bash ../installpath)
 export BASH_ENV=$(INSTALLPATH)/env.sh
 export SHELL=bash
 
-FLAGS=-O0 -g -Wall -std=c++11 -DUSE_VERROU_SYNCHRO
+FLAGS=-O0 -g -Wall -std=c++11 -DUSE_VERROU_TASK
 VERROU_TASK_SO=-lverrouTask
 CPP=g++
 
@@ -19,12 +19,12 @@ mainTime: mainTime.o
 
 
 run: mainTime run.sh cmp.py
-	$(INSTALLPATH)/bin/verrou_dd_synchro run.sh cmp.py
+	$(INSTALLPATH)/bin/verrou_dd_task run.sh cmp.py
 
 
 clean:
-	rm -rf dd.synchro mainTime.o mainTime resDDsynchro
+	rm -rf dd.task mainTime.o mainTime resDDtask
 
 check: run
-	cat dd.synchro/ddmin*/dd.synchro.include > resDDsynchro
-	diff refNonReg resDDsynchro
+	cat dd.task/ddmin*/dd.task.include > resDDtask
+	diff refNonReg resDDtask

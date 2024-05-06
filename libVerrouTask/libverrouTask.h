@@ -26,24 +26,24 @@
 
 /*
 List of env variable :
-DEBUG_PRINT_SYNCHRO
-SYNCHRO_LIST
-GENERATE_SYNCHRO_LIST
-GENERATE_SYNCHRO_FP_LIST
+DEBUG_PRINT_TASK
+TASK_LIST
+GENERATE_TASK_LIST
+GENERATE_TASK_FP_LIST
  */
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void verrou_synchro_init();
-  void verrou_synchro(char const*const key, int index);
-  void verrou_synchro_finalyze();
+  void verrou_task_init();
+  void verrou_task(char const*const key, int index);
+  void verrou_task_finalyze();
 #ifdef __cplusplus
 };
 #endif
 
 
-#define VERROU_SYNCHRO_INIT verrou_synchro_init();
-#define VERROU_SYNCHRO(a,b) verrou_synchro(a,b);
-#define VERROU_SYNCHRO_FINALIZE verrou_synchro_finalyze();
+#define VERROU_TASK_INIT verrou_task_init();
+#define VERROU_TASK(a,b) verrou_task(a,b);
+#define VERROU_TASK_FINALIZE verrou_task_finalyze();

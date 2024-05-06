@@ -31,7 +31,7 @@ from valgrind import DD_stoch
 from valgrind import DD_exec_stat
 
 
-class DDSynchro(DD_stoch.DDStoch):
+class DDTask(DD_stoch.DDStoch):
     def __init__(self, config):
         DD_stoch.DDStoch.__init__(self, config)
 
@@ -39,22 +39,20 @@ class DDSynchro(DD_stoch.DDStoch):
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_MCA_MODE": "ieee",
-                "GENERATE_SYNCHRO_LIST":   os.path.join(self.ref_,"dd.synchro.gen"),
-                "GENERATE_SYNCHRO_FP_LIST":   os.path.join(self.ref_,"dd.synchroFP.gen"),
-#                "DEBUG_PRINT_SYNCHRO": "yes",
+                "GENERATE_TASK_LIST":   os.path.join(self.ref_,"dd.task.gen"),
+                "GENERATE_TASK_FP_LIST":   os.path.join(self.ref_,"dd.taskFP.gen"),
         }
 
     def isFileValidToMerge(self, name):
-        return name.startswith("dd.synchroFP.")
+        return name.startswith("dd.taskFP.")
 
     def getDeltaFileName(self):
-        return "dd.synchro"
+        return "dd.task"
 
     def sampleRunEnv(self,dirName):
-        return {"SYNCHRO_LIST": os.path.join(dirName,self.getDeltaFileName() +".include"),
+        return {"TASK_LIST": os.path.join(dirName,self.getDeltaFileName() +".include"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
-                "SYNCHRO_STOP_START": self.config_.hardOrSoft
-                #               "DEBUG_PRINT_SYNCHRO": "yes",
+                "TASK_STOP_START": self.config_.hardOrSoft
         }
 
     def coerce(self, delta_config):
@@ -62,10 +60,10 @@ class DDSynchro(DD_stoch.DDStoch):
                                       [(col[0], int(col[1])) for col in
                                        [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
 
-class ddSynchroConfig(dd_config.ddConfig):
+class ddTaskConfig(dd_config.ddConfig):
 
     def __init__(self, argv, environ):
-        super().__init__(argv,environ,["DD_INTERFLOP","DD_VERROU"],prefix="dd.synchro")
+        super().__init__(argv,environ,["DD_INTERFLOP","DD_VERROU"],prefix="dd.task")
         self.instr_prefix="VERROU"
 
     def registerOptions(self):
@@ -74,8 +72,8 @@ class ddSynchroConfig(dd_config.ddConfig):
         self.addRegistry("hardOrSoft", "string", "STOP_START",["--stop_start="],"hard",["hard","soft"] )
 
 if __name__ == "__main__":
-    config=ddSynchroConfig(sys.argv,os.environ)
+    config=ddTaskConfig(sys.argv,os.environ)
     et=DD_exec_stat.exec_stat(config.get_cacheRep())
-    dd = DDSynchro(config)
+    dd = DDTask(config)
     dd.run()
     et.terminate()
