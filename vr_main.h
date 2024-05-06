@@ -135,7 +135,11 @@ typedef struct {
   Bool instr_vec[VR_VEC];
   Bool instr_prec[VR_PREC];
 
-  Vr_Instr instrument;
+//  Vr_Instr instrument;
+  Vr_Instr instrument_hard;
+  Vr_Instr instrument_soft;
+  Bool instrument_soft_used;
+
   Bool verbose;
   Bool unsafe_llo_optim;
 

@@ -8,6 +8,8 @@ dist_noinst_SCRIPTS = filter_stderr
 
 EXTRA_DIST = \
 	clreq.vgtest      clreq.stderr.exp      clreq.stdout.exp \
+	clreq_both.vgtest clreq_both.stderr.exp clreq_both.stdout.exp \
+	clreq_soft.vgtest clreq_soft.stderr.exp clreq_soft.stdout.exp \
 	sum1.vgtest       sum1.stderr.exp       sum1.stdout.exp  \
 	sum2.vgtest       sum2.stderr.exp       sum2.stdout.exp  \
 	sum3.vgtest       sum3.stderr.exp       sum3.stdout.exp  \
@@ -15,6 +17,9 @@ EXTRA_DIST = \
 	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp  \
 	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
 	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp \
+	accuClreq3.vgtest accuClreq3.stderr.exp accuClreq3.stdout.exp  \
+	accuClreq4.vgtest accuClreq4.stderr.exp accuClreq4.stdout.exp \
+	accuClreq5.vgtest accuClreq5.stderr.exp accuClreq5.stdout.exp \
 	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
 	test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
@@ -22,7 +27,7 @@ EXTRA_DIST = \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
 	test_det_random_det.stderr.exp  test_det_random_det.stdout.exp  test_det_random_det.vgtest
 
-check_PROGRAMS = clreq accuClreq sum libmtest
+check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx

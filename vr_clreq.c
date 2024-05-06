@@ -40,32 +40,52 @@
 #include "interflop_backends/interflop_verrou/interflop_verrou.h"
 #endif
 
-void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool discard) {
-  if (vr.instrument == state) {
-    if(vr.verbose){
-      VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
-		   reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
-    }
+void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool isHard) {
+   if(isHard){
+      if (vr.instrument_hard == state) {
+         if(vr.verbose){
+            VG_(message)(Vg_DebugMsg,"%s: instrumentation already %s\n",
+                         reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
+         }
+         return;
+      }
 
-    return;
-  }
+      vr.instrument_hard = state;
 
-  vr.instrument = state;
+      VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+      vr_clean_cache();
 
-  if(discard){
-     VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
-     vr_clean_cache();
-  }
-     /* if(vr.instrument == VR_INSTR_ON){ */
-  /*   verrou_begin_instr(); */
-  /* }else{ */
-  /*   verrou_end_instr(); */
-  /* } */
+      if(vr.instrument_soft_used){
+         if(vr.instrument_hard && vr.instrument_soft){
+            vr.instrument_soft_used=False;
+         }
+      }
 
-  if(vr.verbose){
-    VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
-		 reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
-  }
+      if(vr.verbose){
+         VG_(message)(Vg_DebugMsg, "%s: instrumentation switched %s\n",
+                      reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
+      }
+   }else{//soft
+      if(vr.instrument_soft_used==False && vr.instrument_hard==VR_INSTR_ON ){
+         VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+      }
+
+      vr.instrument_soft_used= True;
+      if (vr.instrument_soft == state) {
+         if(vr.verbose){
+            VG_(message)(Vg_DebugMsg,"%s: instrumentation (soft) already %s\n",
+                         reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
+         }
+         return;
+      }
+      vr.instrument_soft = state;
+      vr_clean_cache();
+
+      if(vr.verbose){
+         VG_(message)(Vg_DebugMsg, "%s: instrumentation (soft) switched %s\n",
+                      reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
+      }
+   }
 }
 
 // * Enter/leave deterministic section
@@ -154,7 +174,7 @@ static void vr_print_profiling_exact(void){
 
 static void vr_handle_monitor_instrumentation_print (void) {
   VG_(gdb_printf) ("instrumentation: %s\n",
-                   vr.instrument==VR_INSTR_ON ? "on" : "off");
+                   (vr.instrument_hard && vr.instrument_soft) ==VR_INSTR_ON ? "on" : "off");
 }
 
 static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
@@ -171,11 +191,11 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
   case -1: /* not found */
     return False;
   case 0: /* on */
-     vr_set_instrument_state("Monitor", VR_INSTR_ON, True);
+     vr_set_instrument_state("Monitor", VR_INSTR_ON, False);
     vr_handle_monitor_instrumentation_print();
     return True;
   case 1: /* off */
-     vr_set_instrument_state("Monitor", VR_INSTR_OFF, True);
+     vr_set_instrument_state("Monitor", VR_INSTR_OFF, False);
     vr_handle_monitor_instrumentation_print();
     return True;
   }
@@ -234,6 +254,14 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
      vr_set_instrument_state ("Client Request", False, True);
     *ret = 0; /* meaningless */
     break;
+  case VR_USERREQ__START_SOFT_INSTRUMENTATION:
+     vr_set_instrument_state ("Client Request", True, False);
+     *ret = 0; /* meaningless */
+     break;
+  case VR_USERREQ__STOP_SOFT_INSTRUMENTATION:
+     vr_set_instrument_state ("Client Request", False, False);
+     *ret = 0; /* meaningless */
+     break;
   case VR_USERREQ__START_DETERMINISTIC:
     vr_start_deterministic_section (args[1]);
     *ret = 0; /* meaningless */
@@ -321,13 +349,13 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
      vr_handle_Inf();
      break;
   case VR_USERREQ__IS_INSTRUMENTED_FLOAT:
-    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_FLT] );
+    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_FLT] );
     break;
   case VR_USERREQ__IS_INSTRUMENTED_DOUBLE:
-    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_DBL] );
+    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_DBL] );
     break;
   case VR_USERREQ__IS_INSTRUMENTED_LDOUBLE:
-    *ret=(UWord)( (Bool)(vr.instrument == VR_INSTR_ON) && vr.instr_prec[VR_PREC_LDBL] );
+    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_LDBL] );
     break;
   case VR_USERREQ__COUNT_OP:
     *ret=(UWord)( (Bool)(vr.count) );
@@ -347,6 +375,6 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__REGISTER_CACHE_SEED:
      vr_register_cache_seed((unsigned int*) args[1]);
      break;
-}
+  }
   return True;
 }
