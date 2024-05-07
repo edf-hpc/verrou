@@ -28,7 +28,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False)
         self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)
-
+        self.addRegistry("seed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
 
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
