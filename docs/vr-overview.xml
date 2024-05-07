@@ -153,7 +153,7 @@ Type "help", "copyright", "credits" or "license" for more information.
     <para>
       This is for example the case of the douple-precision cosine implementation of the Gnu
       mathematical library (<literal>libm</literal>). By default the libm is not instrumented, so to illustrate
-      the problem we add use the option <option><xref linkend="vr-opt.libm"/>=--libm=manual_exclude</option>.
+      the problem we add use the option <option><xref linkend="vr-opt.libm"/>=manual_exclude</option>.
 
       Getting back to the previous python example:
     </para>
@@ -215,7 +215,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 											  linkend="vr-manual.feat.exclude"/> for more details about exclusion lists.
 
       But by doing this you are no able to measure the floating point error implied by <literal>libm</literal>. To pertub
-      libm we need to use the option <option><xref linkend="vr-opt.libm"/>=--libm=instrumentation</option>, which replace the dynamically loaded <literal>libm</literal> by your own
+      libm we need to use the option <option><xref linkend="vr-opt.libm"/>=instrumentation</option>, which replace the dynamically loaded <literal>libm</literal> by your own
       stochastic implementation. If libm is statically linked with your application (Please don't do it), you will need to exclude yourself each <literal>libm</literal> symbol and it is not possible to measure floating point error implied by <literal>libm</literal>.
     </para>
   </section>

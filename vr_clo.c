@@ -50,6 +50,7 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_PRANDOM_UPDATE", "--prandom-update");
    vr_env_clo_one_option("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
    vr_env_clo_one_option("VERROU_INSTR_ATSTART", "--instr-atstart");
+   vr_env_clo_one_option("VERROU_INSTR_ATSTART_SOFT", "--instr-atstart-soft");
    vr_env_clo_one_option("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo_one_option("VERROU_GEN_EXCLUDE",   "--gen-exclude");
 
