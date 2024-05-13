@@ -38,7 +38,6 @@ from valgrind import convNumLineTool
 from valgrind import DD
 
 
-
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
     and error outputs to FNAME.out and FNAME.err respectively.
@@ -71,7 +70,7 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None):
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None, seedEnvVar=None):
         self.dirname=dirname
         self.refDir=refDir
         self.runCmd=runCmd
@@ -91,6 +90,8 @@ class verrouTask:
         self.seedTab=seedTab
         self.bufferizedPrint=False
         self.bufferPrint=""
+        self.seedEnvVar_=seedEnvVar
+
     def printProgress(self,string, end="\n", flush=None):
         if not self.bufferizedPrint:
             if flush==True:
@@ -131,7 +132,7 @@ class verrouTask:
         rundir= self.nameDir(i)
         env={key:self.replacePattern(self.runEnv[key],i) for key in self.runEnv}
         if self.seedTab!=None:
-            env["VERROU_SEED"]=str(self.seedTab[i])
+            env[self.seedEnvVar_]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
@@ -399,6 +400,15 @@ class DDStoch(DD.DD):
         self.mergeList(parseRef) #generate the search space
         self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space
 
+        self.initSeed()
+
+    def initSeed(self):
+        if self.config_.ddSeed!=None:
+            import random
+            random.seed(self.config_.ddSeed)
+            self.seedTab=random.sample(range(0,2**32-1), self.config_.get_nbRUN())
+        else:
+            self.seedTab=None
 
     def symlink(self,src, dst):
         """Create a relative symlink"""
@@ -1106,7 +1116,7 @@ class DDStoch(DD.DD):
             os.makedirs(dirname)
             self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
-        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
+        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
         return vT.run(earlyExit=earlyExit)
 
     def _getSampleNumberToExpectFail(self, deltas):
@@ -1148,7 +1158,7 @@ class DDStoch(DD.DD):
                 os.makedirs(dirname)
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
             #the node is there to avoid inner/outer parallelism
-            taskTab[i]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[i], None , self.sampleRunEnv(dirname),verbose=False)
+            taskTab[i]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[i], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             workToDo=taskTab[i].sampleToCompute(nbRunTab[i], earlyExit=True)
             workToDoTab[i]=workToDo
             if workToDo==None:

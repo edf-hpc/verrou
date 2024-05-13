@@ -56,7 +56,8 @@
         When verrou finds a block of instructions (an IRSB, Intermediate Representation SuperBlock
         in valgrind terminology) whose address matches the
         <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-        specification, the whole chunk is left uninstrumented.
+        specification, the whole chunk is left uninstrumented (we may still instrument IRSB to count
+	uninstrumented operations).
       </para>
 
       <warning>
@@ -319,6 +320,28 @@ int main () {
       linkend="vr.monitor_instrumentation"/></computeroutput> monitor command.
     </para>
 
+
+    <para>
+      As the <computeroutput>VERROU_START_INSTRUMENTATION</computeroutput> and <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput> client requests (usually called hard stop/start) imply to flush the valgrind instrumentation cache, it can be expective for very frequent calls, we also propose an other couple of client requests (usually called soft sotp/start):
+      <computeroutput>VERROU_START_SOFT_INSTRUMENTATION</computeroutput> and <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput>. The idea behind is to instrument only once, but with a function which dynamically select between the instrumented backend and the nearest backend. As the instruemented code is less efficient, this approach designed only for frequent stop/start. The both approach are compatible : if <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput> or <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput> are activated, the instrumentation is stopped.
+    </para>
+    <para>
+      The hard and soft stop/start can also be called (without recompilation) thanks the an expect script (See <option> <xref linkend="vr-opt.expect-clr"/></option>).
+      </para>
+      <para>
+	For python program it is possible to use python bindings:
+	<programlisting>
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.start_instrumentation()
+verrou.stop_instrumentation()
+verrou.start_soft_instrumentation()
+verrou.stop_soft_instrumentation()</programlisting>
+      </para>
+    <para>
+      As <computeroutput>verrou_dd_stdout</computeroutput> and <computeroutput>verrou_dd_task</computeroutput> use a stop/start mecanism (hard or soft), you can use the other mecanism to manually instrument your code, without unwanted side-effect.
+    </para>
   </section>
 </section>
 

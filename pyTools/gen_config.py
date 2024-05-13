@@ -28,6 +28,12 @@ class gen_config:
         self.instr_ignore=[]
         self.instr_prefix=None
 
+    def get_envVarSeed(self):
+        if self.instr_prefix!=None:
+            return self.instr_prefix+"_SEED"
+        else:
+            "INTERFLOP_SEED"
+
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
             attribut=registry["attribut"]

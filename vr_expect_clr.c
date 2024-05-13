@@ -150,6 +150,8 @@ const HChar initStr[]="init";
 const HChar postinitStr[]="post-init";
 const HChar stopStr[]="stop";
 const HChar startStr[]="start";
+const HChar stopSoftStr[]="stop_soft";
+const HChar startSoftStr[]="start_soft";
 const HChar displayCounterStr[]="display_counter";
 const HChar nbInstrStr[]="nb_instr";
 const HChar resetCounterStr[]="reset_counter";
@@ -159,10 +161,10 @@ const HChar exitStr[]="exit";
 
 
 
-typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
+typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
 static const SizeT actionNumber=13;
-const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
+const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
@@ -318,7 +320,7 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     return;
   case stopKey:
     if(noIntrusiveOnly){
-      vr.instrument = False;
+      vr.instrument_hard = False;
     }else{
       vr_set_instrument_state ("Expect CLR", False, True);
     }
@@ -326,11 +328,19 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     return;
   case startKey:
     if(noIntrusiveOnly){
-      vr.instrument = True;
+      vr.instrument_hard = True;
     }else{
       vr_set_instrument_state ("Expect CLR", True, True);
     }
     VG_(fprintf)(vr_expectCLRFileLog,"apply: start\n");
+    return;
+  case stopSoftKey:
+    vr_set_instrument_state ("Expect CLR", False, False);
+    VG_(fprintf)(vr_expectCLRFileLog,"apply: stop soft\n");
+    return;
+  case startSoftKey:
+    vr_set_instrument_state ("Expect CLR", True, False);
+    VG_(fprintf)(vr_expectCLRFileLog,"apply: start soft\n");
     return;
   case displayCounterKey:
     vr_ppOpCount();
@@ -471,7 +481,7 @@ VgFile* openOutputExpectFile(const HChar * fileName, const HChar * fileNameExpec
 
   const HChar * strFilenameExpanded=   VG_(expand_file_name)(strPost,  strFilename);
 
-  VG_(umsg)("Open expect clr ouptut file : `%s'... \n", strFilenameExpanded);
+  VG_(umsg)("Open expect clr output file : `%s'... \n", strFilenameExpanded);
   VgFile* vr_expectCLRFile = VG_(fopen)(strFilenameExpanded,
 					   VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC,
 					   VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IROTH);

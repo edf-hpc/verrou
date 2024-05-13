@@ -15,7 +15,7 @@ diff --git a/README b/README
 index 511027ae9..0f32e73ea 100644
 --- a/README
 +++ b/README
-@@ 0,3 +0,26 @@
+@@ -1,3 +1,25 @@
 +Specific instructions for Verrou
 +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 +
@@ -47,15 +47,15 @@ index b86e80220..f67bafdf1 100755
 +++ b/configure.ac
 @@ -17,7 +17,7 @@
  m4_define([v_major_ver], [3])
- m4_define([v_minor_ver], [22])
+ m4_define([v_minor_ver], [23])
  m4_define([v_micro_ver], [0])
 -m4_define([v_suffix_ver], [])
 +m4_define([v_suffix_ver], [verrou-dev])
- m4_define([v_rel_date], ["31 Oct 2023"])
+ m4_define([v_rel_date], ["26 Apr 2024"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
-@@ -5359,6 +5359,10 @@ AM_CONDITIONAL([HAVE_SHARED_POINTER_ANNOTATION],
-                [test x$ac_have_shared_pointer_annotation = xyes])
+@@ -5604,6 +5604,10 @@ AM_CONDITIONAL(HAVE_THRD_CREATE, test x$ac_cxx_have_thrd_create = xyes)
+ 
  
  
 +# Verrou
@@ -65,7 +65,7 @@ index b86e80220..f67bafdf1 100755
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -5385,6 +5385,8 @@ AC_CONFIG_FILES([
+@@ -5630,6 +5634,8 @@ AC_CONFIG_FILES([
     auxprogs/Makefile
     mpi/Makefile
     coregrind/Makefile 
@@ -122,7 +122,7 @@ diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
 index 17a81c99f..2086f49eb 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
-@@ -78,6 +78,27 @@
+@@ -78,6 +78,34 @@
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  </chapter>
  
@@ -147,6 +147,13 @@ index 17a81c99f..2086f49eb 100644
 +    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 +</chapter>
 +
++<!-- verrou_dd_clean -->
++<chapter>
++<title>verrou_dd_clean</title>
++<xi:include href="../../verrou/docs/verrou_dd_clean-manpage.xml"
++    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++</chapter>
++
  </book>
  </set>
  
@@ -164,10 +171,10 @@ index 518be2964..5929b16a5 100644
        xmlns:xi="http://www.w3.org/2001/XInclude" />
    <xi:include href="../../exp-bbv/docs/bbv-manual.xml" parse="xml"  
 diff --git a/docs/xml/valgrind-manpage.xml b/docs/xml/valgrind-manpage.xml
-index 3c893c680..d36eadec3 100644
+index 5c16c6eb3..4e2f1bb52 100644
 --- a/docs/xml/valgrind-manpage.xml
 +++ b/docs/xml/valgrind-manpage.xml
-@@ -235,6 +235,9 @@
+@@ -235,6 +235,9 @@ system: <filename>&vg-docs-path;</filename>, or online:
              xmlns:xi="http://www.w3.org/2001/XInclude" />
  </refsect1>
  
@@ -177,4 +184,3 @@ index 3c893c680..d36eadec3 100644
  <refsect1 id="see_also">
  <title>See Also</title>
  
-

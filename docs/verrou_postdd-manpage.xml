@@ -40,8 +40,7 @@
       valgrind(1),
       verrou_dd(1),
       verrou_plot_stat(1),
-      <filename>&vg-docs-path;</filename> or
-      <filename>&vg-docs-url;</filename>.
+      <filename>&vg-docs-path;</filename>.
     </para>
   </refsect1>
 

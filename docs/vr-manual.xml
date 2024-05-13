@@ -319,12 +319,12 @@ det2
                   <command>manual_exclude</command> : The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is useful if the pattern detection detect object you need to perturb.
                 </para></listitem>
 		<listitem><para>
-                  <command>instrumented</command> : the interposition library Interlibmath is loaded. This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
+                  <command>instrumented</command> : the interposition library Interlibmath is loaded (The complex libm function are not yet instrumented). This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
                 </para></listitem>
               </itemizedlist>
 
 	      <para>
-		The option <command>instrumented</command> is not yet compatible with verrou_dd_sym and verrou_dd_line. When it will be the case, the default will switch from <command>auto_exclude</command>  to <command>instrumented</command>
+		The option <command>instrumented</command> is quite new. In a near future, the default will switch from <command>auto_exclude</command> to <command>instrumented</command>
 	      </para>
             </listitem>
 	  </varlistentry>
@@ -446,6 +446,7 @@ det2
             <term><option><![CDATA[--vr-instr-scalar=<yes|no> [default=no]]]></option></term>
             <listitem><para>
                 Toggle instrumentation of x387 scalar instructions.
+		On arm64 architecture, this option is set by default to yes, as scalar instructions respect the IEEE standard.
             </para></listitem>
           </varlistentry>
 
@@ -469,8 +470,7 @@ det2
             </para></listitem>
           </varlistentry>
 
-	      
-	      <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
+	    <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
             <term><option><![CDATA[--vr-instr-[flt|dbl]=<yes|no> [default=yes]]]></option></term>
             <listitem><para>
                 Toggle instrumentation of float (or double) instructions.
@@ -487,14 +487,25 @@ det2
 
           <varlistentry id="vr-opt.instr-atstart" xreflabel="--instr-atstart">
             <term><option><![CDATA[--instr-atstart=<yes|no> [default=yes]]]></option></term>
-            <listitem><para>Toggle <link linkend="vr-manual.feat.instr">instrumentation
-                  state</link> on or off at program start. Useful in combination
+              <listitem><para>Toggle <link linkend="vr-manual.feat.instr">hard instrumentation
+                    state</link> on or off at program start. Useful in combination
                   with <link linkend="vr-cr.start-instrumentation">client
-                  requests</link>.
-              </para>
-	      <para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART</command>.</para>
-	    </listitem>
-          </varlistentry>
+                    requests</link>.
+		</para>
+		<para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART</command>.</para>
+	      </listitem>
+            </varlistentry>
+
+	    <varlistentry id="vr-opt.instr-atstart-soft" xreflabel="--instr-atstart-soft">
+              <term><option><![CDATA[--instr-atstart-soft=<yes|no> [default=yes]]]></option></term>
+		<listitem><para>Toggle <link linkend="vr-manual.feat.instr">soft instrumentation
+                      state</link> on or off at program start. Useful in combination
+                    with <link linkend="vr-cr.start-instrumentation">client
+                      requests</link>.
+		  </para>
+		  <para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART_SOFT</command>.</para>
+		</listitem>
+              </varlistentry>
 
           <varlistentry id="vr-opt.exclude" xreflabel="--exclude">
             <term><option><![CDATA[--exclude=FILE]]></option></term>
@@ -571,6 +582,8 @@ det2
               <para> When this option is present the expect script is read. This file
 		defines the interaction between verrou and the stdout (<link linkend= "id.expect.format">See expect format</link>). The main idea behind this format is to apply client request action when a line match a MATCH or EXPECT line. A MATCH line can be match anytime, whereas the EXPECT lines are matched sequentially.</para>
 
+	      <para> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED env variable. In C we proposed the library <computeroutput>verrouUnbuffered.so</computeroutput> (Loadable with LD_PRELOAD), to deactivate bufferization of stdout (For other file descriptors you have to flush manually, as it require more complex development). <computeroutput> verrou_dd_task</computeroutput> automatically use this two tricks.
+	      </para>
 	      <para>This option can be activated with the env variable <command>VERROU_EXPECT_CLR</command>.</para>
 	    </listitem>
           </varlistentry>
@@ -596,14 +609,18 @@ det2
             <term><option><![CDATA[--trace=FILE]]></option></term>
             <listitem><para>
 		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_TRACE</command>.</para>
+	    </listitem>
           </varlistentry>
 
 	<varlistentry id="vr.opt.output-trace-rep" xreflabel="--output-trace-rep">
             <term><option><![CDATA[--output-trace-rep=REP]]></option></term>
             <listitem><para>
 		Specify the <computeroutput>REP</computeroutput> directory for the trace output files.
-            </para></listitem>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_TRACE_REP</command>.</para>
+	    </listitem>
           </varlistentry>
 	</variablelist>
 
@@ -730,8 +747,8 @@ det2
         <varlistentry id="vr-cr.start-instrumentation"
                       xreflabel="VERROU_START_INSTRUMENTATION">
           <term><computeroutput>VERROU_START_INSTRUMENTATION</computeroutput></term>
-          <listitem><para>Start full
-              Verrou <link linkend="vr-manual.feat.instr">instrumentation</link>
+          <listitem><para>Start
+              Verrou <link linkend="vr-manual.feat.instr">hard instrumentation</link>
               (including rounding mode switching) if not already
               enabled.</para></listitem>
         </varlistentry>
@@ -739,8 +756,25 @@ det2
         <varlistentry id="vr-cr.stop-instrumentation"
                       xreflabel="VERROU_STOP_INSTRUMENTATION">
           <term><computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput></term>
+          <listitem><para>Stop
+              Verrou <link linkend="vr-manual.feat.instr">hard instrumentation</link>
+              (don't switch rounding modes) if not already disabled.</para></listitem>
+        </varlistentry>
+
+        <varlistentry id="vr-cr.start-soft-instrumentation"
+                      xreflabel="VERROU_START_SOFT_INSTRUMENTATION">
+          <term><computeroutput>VERROU_START_SOFT_INSTRUMENTATION</computeroutput></term>
+          <listitem><para>Start full
+              Verrou <link linkend="vr-manual.feat.instr">soft instrumentation</link>
+              (including rounding mode switching) if not already
+              enabled.</para></listitem>
+        </varlistentry>
+
+        <varlistentry id="vr-cr.stop-soft-instrumentation"
+                      xreflabel="VERROU_STOP_SOFT_INSTRUMENTATION">
+          <term><computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput></term>
           <listitem><para>Stop full
-              Verrou <link linkend="vr-manual.feat.instr">instrumentation</link>
+              Verrou <link linkend="vr-manual.feat.instr">soft instrumentation</link>
               (don't switch rounding modes) if not already disabled.</para></listitem>
         </varlistentry>
 
@@ -819,7 +853,7 @@ det2
 	  </listitem>
 
 	  <para>
-	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.	  </para>
+	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
 
 	   <para>
 	     If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>--20481-- warning: Unable to record PID of internal process (pipe)</programlisting>
@@ -838,14 +872,14 @@ det2
 	  <term><computeroutput>dump-filtered-stdout: [FILENAME]</computeroutput></term>
 	  <listitem>
 	    Dump the stdout file after application of <computeroutput>filter_line_exec CMD</computeroutput> to each line.
-	     If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.filtered.stdout-PID</computeroutput> or <computeroutput>EXPECT_OUTPUT_REP/expect.filtered.stdout-PID</computeroutput> (if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
+	     If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.filtered.stdout-PID</computeroutput> (or <computeroutput>EXPECT_OUTPUT_REP/expect.filtered.stdout-PID</computeroutput> if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
 	  </listitem>
 	</varlistentry>
       </variablelist>
 
       </para>
       <para>
-	In the <replaceable>header part</replaceable> we can also set up action to each section.
+	In the <replaceable>header part</replaceable> we can also set up action for each section.
 	<variablelist>
 	<varlistentry>
 	  <term><computeroutput>default: ACTION</computeroutput></term>
@@ -911,6 +945,18 @@ The different possible actions are :
 	    Stop instrumentation.
 	  </listitem>
 	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>start_soft</computeroutput></term>
+	  <listitem> Start soft instrumentation.
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>stop_soft</computeroutput></term>
+	  <listitem>
+	    Stop soft instrumentation.
+	  </listitem>
+	</varlistentry>
+
 	<varlistentry>
 	  <term><computeroutput>nop</computeroutput></term>
 	  <listitem>
@@ -998,6 +1044,16 @@ The different possible actions are :
 	  <varlistentry>
 	    <listitem>
 	      3) It is not possible to define <computeroutput>post-apply</computeroutput> action with <computeroutput>expect:</computeroutput>.
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <listitem>
+	      4) The use of <computeroutput>match:</computeroutput> and <computeroutput>expect:</computeroutput> with expressions which match the same line is not well defined.
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <listitem>
+	      5) This functionality is still experimental: naming may change and temporal part may be removed in a near future.
 	    </listitem>
 	  </varlistentry>
 	</variablelist>

@@ -39,6 +39,10 @@ while [ ! -z "$1" ]; do
             cmd="${cmd} | perl -pne 's/^(EXCLUDE DETECTED: )[^\s]*/\$1XXXXX/;'"
 	    cmd="${cmd} | perl -pne 's/^(Using exclusion rule: \*\s)[^\s]*/\$1XXXXX/;'"
             ;;
+	"-expect")
+	    cmd="${cmd} | perl -pne 's/Open expect clr file : ([^\s]*)/Open expect clr file : PATH/;'"
+	    cmd="${cmd} | perl -pne 's/Open expect clr output file : ([^\s]*)/Open expect clr output file : PATH/;'"
+	    ;;
     esac
     shift
 done

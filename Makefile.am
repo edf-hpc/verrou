@@ -2,9 +2,12 @@ include $(top_srcdir)/Makefile.tool.am
 
 EXTRA_DIST = \
 	docs/vr-manual.xml \
-	docs/verrou_dd-manpage.xml
+	docs/verrou_dd-manpage.xml \
+	docs/verrou_dd_clean.xml \
+	docs/verrou_postdd-manpage.xml \
+	docs/verrou_plotstat-manpage.xml
 
-pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
+pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
 #----------------------------------------------------------------------------
 # verrou-<platform>
@@ -12,14 +15,17 @@ pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
 
 PYTHON_REP=pyTools
 
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py
 
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py pyWrapper/verrouPyBinding.py
 
 install-exec-local:
 	mkdir -p ${pkgpythondir}
 	touch ${pkgpythondir}/__init__.py
 	install -t ${prefix} -m 644 env.sh
+	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
+	install -t ${verrouCbindingDir} verrouCBinding.so
+	install -t ${verrouTaskDir} libverrouTask.so
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
@@ -167,27 +173,6 @@ endif
 
 
 
-
-
-#----------------------------------------------------------------------------
-# verrouSynchroLib-<platform>.so
-#----------------------------------------------------------------------------
-
-noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
-if VGCONF_HAVE_PLATFORM_SEC
-noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
-endif
-
-VERROUSYNCHROLIB_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
-
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
-	$(VERROUSYNCHROLIB_SOURCES_COMMON)
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
-	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
-	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
-
-
 #----------------------------------------------------------------------------
 # vgpreload_verrou-<platform>.so
 #----------------------------------------------------------------------------
@@ -211,3 +196,51 @@ vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
 	-static-libstdc++ -lm \
 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDADD  =  -ldl $(VERROU_LD)
+
+#----------------------------------------------------------------------------
+# verrouUnbuffered.so
+#----------------------------------------------------------------------------
+verrouUnbuffereddir = $(pkglibdir)
+noinst_PROGRAMS += verrouUnbuffered.so
+
+VERROUUNBUFFERED_SOURCES_COMMON = unbufferPrintf.c
+
+verrouUnbuffered_so_SOURCES      = \
+	$(VERROUUNBUFFERED_SOURCES_COMMON)
+verrouUnbuffered_so_CPPFLAGS     = \
+	$(subst -Wstrict-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@)) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouUnbuffered_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+
+#----------------------------------------------------------------------------
+# verrouCBinding.so
+#----------------------------------------------------------------------------
+verrouCbindingDir = $(pkglibdir)
+noinst_PROGRAMS += verrouCBinding.so
+
+
+VERROUCBINDING_SOURCES_COMMON = pyWrapper/verrouCBinding.c
+
+verrouCBinding_so_SOURCES      = $(VERROUCBINDING_SOURCES_COMMON)
+verrouCBinding_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouCBinding_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+
+#----------------------------------------------------------------------------
+# libverrouTask.so
+#----------------------------------------------------------------------------
+verrouTaskDir = $(pkglibdir)
+noinst_PROGRAMS += libverrouTask.so
+if VGCONF_HAVE_PLATFORM_SEC
+noinst_PROGRAMS += libverrouTask.so
+endif
+
+PRELOADTASK1 = $(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+PRELOADTASK = $(subst -m64,,$(PRELOADTASK1))
+
+VERROUTASK_SOURCES_COMMON = libVerrouTask/libverrouTask.cxx
+libverrouTask_so_SOURCES      = $(VERROUTASK_SOURCES_COMMON)
+libverrouTask_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@) -I../include
+libverrouTask_so_LDFLAGS      = -static-libstdc++ $(PRELOADTASK)

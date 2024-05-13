@@ -1,0 +1,5 @@
+match: res[5] ==
+apply: start_soft
+match: res[8] !=
+apply: stop
+begin:

@@ -58,6 +58,18 @@ def addrReplace(lineStr):
 class DDstdout(DD_stoch.DDStoch):
     def __init__(self, config):
         DD_stoch.DDStoch.__init__(self, config, parseRef=self.selectFloatTask)
+        if config.hardOrSoft=="hard":
+            self.startCmd="start"
+            self.stopCmd="stop"
+        else:
+            self.startCmd="start_soft"
+            self.stopCmd="stop_soft"
+
+    def newLdPreload(self):
+        res="verrouUnbuffered.so"
+        if "LD_PRELOAD" in os.environ:
+            res+=(":"+os.environ["LD_PRELOAD"])
+        return res
 
     def filePathReplace(self,strLine):
         cachePath=self.config_.get_cacheRep()
@@ -125,11 +137,12 @@ class DDstdout(DD_stoch.DDStoch):
         refFile.write("begin:\n")
         refFile.close()
         res= {"PYTHONUNBUFFERED": "x",
-                "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
-                "VERROU_MCA_MODE": "ieee",
-                "VERROU_EXPECT_CLR":refPath,
-                "VERROU_OUTPUT_EXPECT_REP":self.ref_
-                }
+              "LD_PRELOAD": self.newLdPreload(),
+              "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
+              "VERROU_MCA_MODE": "ieee",
+              "VERROU_EXPECT_CLR":refPath,
+              "VERROU_OUTPUT_EXPECT_REP":self.ref_
+              }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:
             res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
@@ -167,25 +180,25 @@ class DDstdout(DD_stoch.DDStoch):
                 f.write("ignore-empty-line: false\n")
             if "__verrou__stdout__init__" in excludes:
                 if "__verrou__stdout__init__" in deltas:
-                    f.write("init: start\n")
+                    f.write("init: %s\n"%(self.startCmd))
                     if unknownTask in ["stop"]:
-                        f.write("post-init: stop\n")
+                        f.write("post-init: %s\n"%(self.stopCmd))
                 else:
                     f.write("init: stop\n" )
                     if unknownTask in ["start"]:
-                        f.write("post-init: start\n")
+                        f.write("post-init: %s\n"%(self.startCmd))
             for line in excludes:
                 if line=="__verrou__stdout__init__":
                     continue
                 f.write("match: "+ line+"\n")
                 if line in deltas:
-                    f.write("apply: start\n")
+                    f.write("apply: %s\n"%(self.startCmd))
                     if unknownTask in ["stop"]:
-                        f.write("post-apply: stop\n")
+                        f.write("post-apply: %s\n"%(self.stopCmd))
                 else:
-                    f.write("apply: stop\n")
+                    f.write("apply: %s\n"%(self.stopCmd))
                     if unknownTask in ["start"]:
-                        f.write("post-apply: start\n")
+                        f.write("post-apply: %s\n"%(self.startCmd))
             f.write("begin:\n")
 
         if include:
@@ -203,6 +216,7 @@ class DDstdout(DD_stoch.DDStoch):
 
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
+             "LD_PRELOAD": self.newLdPreload(),
              "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
              "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%"),
              "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
@@ -223,6 +237,7 @@ class stdoutConfig(dd_config.ddConfig):
 
     def __init__(self, argv, environ,config_keys=["INTERFLOP_DD","VERROU_DD"]):
         super().__init__(argv,environ,config_keys,prefix="dd.stdout")
+        self.instr_prefix="VERROU"
 
     def registerOptions(self):
         super().registerOptions()
@@ -233,6 +248,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("customSearchSpace", "string", "CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
         self.addRegistry("filePattern", "string", "FILE_PATTERN",["--file-pattern="], None, None)
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("hardOrSoft", "string", "STOP_START",["--stop_start="],"hard",["hard","soft"] )
 
     def normalizeOptions(self):
         super().normalizeOptions()

@@ -55,6 +55,9 @@ typedef struct {
 struct interflop_backend_interface_t backend_verrou;
 void* backend_verrou_context;
 
+struct interflop_backend_interface_t backend_verrou_null;//used for soft stop/start
+void* backend_verrou_null_context;
+
 struct interflop_backend_interface_t backend_mcaquad;
 void* backend_mcaquad_context;
 
@@ -182,10 +185,10 @@ void vr_resetCount(void){
 };
 
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, SizeT increment) {
-  counter[vr.instrument] += increment;
+   counter[(vr.instrument_hard && vr.instrument_soft)] += increment;
 }
 
-static VG_REGPARM(2) void vr_incUnstrumentedOpCount (ULong* counter, SizeT increment) {
+static VG_REGPARM(2) void vr_incUninstrumentedOpCount (ULong* counter, SizeT increment) {
   counter[VR_INSTR_OFF] += increment;
 }
 
@@ -223,8 +226,8 @@ static void vr_countOp (IRSB* sb, Vr_Op op, Vr_Prec prec, Vr_Vec vec, Bool instr
 			  mkIRExpr_HWord (increment));
 
     di = unsafeIRDirty_0_N( 2,
-			    "vr_incUnstrumentedOpCount",
-			    VG_(fnptr_to_fnentry)( &vr_incUnstrumentedOpCount ),
+			    "vr_incUninstrumentedOpCount",
+			    VG_(fnptr_to_fnentry)( &vr_incUninstrumentedOpCount ),
 			    argv);
 
   }
@@ -476,10 +479,10 @@ static Bool vr_getOp (const IRExpr * expr, /*OUT*/ IROp * op) {
 }
 
 
-static Bool vr_isInstrumented(Vr_Op op,
+static Bool vr_isInstrumented_hard(Vr_Op op,
 			      Vr_Prec prec,
 			      Vr_Vec vec){
-  return vr.instr_op[op] && vr.instr_vec[vec]&&vr.instr_prec[prec] && vr.instrument;
+  return vr.instr_op[op] && vr.instr_vec[vec]&&vr.instr_prec[prec] && vr.instrument_hard;
 }
 
 /* Replace a given binary operation by a call to a function
@@ -491,7 +494,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Vec vec,
 				   Bool countOnly) {
   // un-instrumented cases :
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
@@ -572,7 +575,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					 Vr_Vec vec,
 					 Bool countOnly) {
   // un-instrumented cases :
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
@@ -649,7 +652,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Vr_Vec vec,
 					    Bool countOnly){
   //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -700,7 +703,7 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 						  Vr_Vec vec,
 						  Bool countOnly){
   //instrumentation to count operation
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -751,7 +754,6 @@ static Bool vr_replaceBinFpOpLLO_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					       countOnly);
 }
 
-
 static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				 const HChar* functionName, void* function,
 				 Vr_Op op,
@@ -770,7 +772,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -821,7 +823,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -872,7 +874,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -923,7 +925,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -972,7 +974,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   Vr_Op   op,
 			   Vr_Prec prec,
 			   Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1035,7 +1037,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    Vr_Op   op,
 			    Vr_Prec prec,
 			    Bool countOnly) {
-  if(!(vr_isInstrumented(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
@@ -1079,194 +1081,120 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #endif
 
 #ifndef DEBUG_PRINT_OP //the switch case with rounding mode during instrumentation is incompatible with DEBUG_PRINT_OP (to make it compatible python code generation need to be adapted)
-     if(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE){
-#define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
-#define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_RANDOM){
-#define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
-#define bcNameWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_AVERAGE){
-#define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
-#define bcNameWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_RANDOM_DET){
-#define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
-#define bcNameWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_AVERAGE_DET){
-#define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
-#define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_RANDOM_COMDET){
-#define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
-#define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_AVERAGE_COMDET){
-#define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
-#define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_RANDOM_SCOMDET){
-#define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
-#define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_SR_MONOTONIC){
-#define bcName(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
-#define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_SR_SMONOTONIC){
-#define bcName(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
-#define bcNameWithCC(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_AVERAGE_SCOMDET){
-#define bcName(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
-#define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_PRANDOM){
-#define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
-#define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_PRANDOM_DET){
-#define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
-#define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_PRANDOM_COMDET){
-#define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
-#define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_UPWARD){
-#define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
-#define bcNameWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_DOWNWARD){
-#define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
-#define bcNameWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_ZERO){
-#define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
-#define bcNameWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_AWAY_ZERO){
-#define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
-#define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
-     if(vr.roundingMode==VR_FARTHEST){
-#define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
-#define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-     }
+#include "vr_instrumentOp_impl_generated.h"
 #endif // end of DEBUG_PRINT_OP
+
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+	}else{
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+	}
    }
+
    if(vr.backend==vr_verrou && checkCancellation && ! vr.checkFloatMax){
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCC(OP) "vr_verroucheckcancellation_soft"#OP, vr_verroucheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
    }
 
    if(vr.backend==vr_verrou && !checkCancellation && vr.checkFloatMax){
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
+#define bcNameWithCC(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
 #define bcNameWithCC(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
    }
 
    if(vr.backend==vr_checkdenorm && !checkCancellation){
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameWithCC(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
    }
    if(vr.backend==vr_checkdenorm && checkCancellation){
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameWithCC(OP) "vr_checkdenormcheckcancellation_soft"#OP, vr_checkdenormcheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
    }
 
 #ifdef USE_VERROU_QUAD
    if(vr.backend==vr_mcaquad && !checkCancellation){
 #define IGNORESQRT
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameWithCC(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
 #undef IGNORESQRT
    }
    if(vr.backend==vr_mcaquad && checkCancellation){
 #define IGNORESQRT
+      if(vr.instrument_soft_used){
+#define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameWithCC(OP) "vr_mcaquadcheckcancellation_soft"#OP, vr_mcaquadcheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+      }else{
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+      }
 #undef IGNORESQRT
    }
 #else
@@ -1518,6 +1446,7 @@ static void vr_fini(Int exitcode)
 
   vr_ppOpCount ();
   interflop_verrou_finalize(backend_verrou_context);
+  interflop_verrou_finalize(backend_verrou_null_context);
 #ifdef USE_VERROU_QUAD
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
@@ -1605,7 +1534,7 @@ static void vr_post_clo_init(void)
      s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_core");
      tl_assert(s1);
 
-     // Now find the vgpreload_massif-$PLATFORM entry.
+     // Now find the vgpreload_verrou-$PLATFORM entry.
      s1 = VG_(strstr)(LD_PRELOAD_val, "vgpreload_verrou");
      tl_assert(s1);
      s2 = s1;
@@ -1633,6 +1562,7 @@ static void vr_post_clo_init(void)
 
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
+   backend_verrou_null=interflop_verrou_init(&backend_verrou_null_context);
    verrou_set_panic_handler(&VG_(tool_panic));
 
    verrou_set_nan_handler(&vr_handle_NaN);
@@ -1767,11 +1697,6 @@ static void vr_post_clo_init(void)
       VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
       if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
       else VG_(umsg)("no\n");
-   }
-
-   if(!vr.instrument){
-     vr.instrument = True;
-     vr_set_instrument_state ("Program start", False, False);
    }
 
    if(vr.backend==vr_verrou){
