@@ -5,11 +5,11 @@ import re
 import sys
 import subprocess
 
-gitRepositoty="origin/"
-gitRepositoty=""
+gitRepository="origin/"
+gitRepository=""
 
 branch="master"
-valgrind_version="valgrind-3.22.0"
+valgrind_version="valgrind-3.23.0"
 
 verrouConfigList={
     "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma"},
@@ -28,6 +28,13 @@ verrouConfigList={
 #    "last_stable":       { "tag":"v2.5.0" ,"flags":""},
 #}
 
+verrouConfigList={
+    "current":          { "valgrind":"valgrind-3.23.0", "branch_verrou":"master" ,            "flags":""},
+    "seed":             { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/ddSeed" , "flags":""},
+ #   "llo":              { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/newllo" ,         "flags":""},
+}
+
+
 
 valgrindConfigList={
     "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
@@ -35,6 +42,7 @@ valgrindConfigList={
     "valgrind-3.20.0": {"file": "valgrind-3.20.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2"},
     "valgrind-3.21.0": {"file": "valgrind-3.21.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.21.0.tar.bz2"},
     "valgrind-3.22.0": {"file": "valgrind-3.22.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.22.0.tar.bz2"},
+    "valgrind-3.23.0": {"file": "valgrind-3.23.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.23.0.tar.bz2"},
     "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"},
     "v2.4.0":          {"file": "v2.4.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.4.0/valgrind-3.20.0_verrou-2.4.0.tar.gz"},
     "v2.5.0":          {"file": "v2.5.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.5.0/valgrind-3.21.0_verrou-2.5.0.tar.gz"},
@@ -70,10 +78,10 @@ def buildConfig(name):
     if not os.path.exists(buildRep):
         if "valgrind" in verrouConfigParam:
             branch=verrouConfigParam["branch_verrou"]
-            if "gitRepositoty" in verrouConfigParam:
-                branch=verrouConfigParam["gitRepositoty"]+branch
+            if "gitRepository" in verrouConfigParam:
+                branch=verrouConfigParam["gitRepository"]+branch
             else:
-                branch=gitRepositoty+branch
+                branch=gitRepository+branch
             runCmd("./buildConfig.sh %s %s %s \"%s\""%(
                 buildRep,
                 valgrindConfigList[verrouConfigParam["valgrind"]]["file"],

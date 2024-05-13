@@ -13,8 +13,18 @@ detRounding=["random_det","average_det", "random_comdet","average_comdet","rando
 buildConfigList=["stable","current", "current_fast"]
 buildSpecialConfigList=["dietzfelbinger", "multiply_shift","tabulation","double_tabulation", "xxhash","mersenne_twister"]
 
+buildConfigList=["current","seed"]#, "llo"]
+buildSpecialConfigList=[]
+detRounding=[]
+
+drop=10
 nbRunTuple=(5,10) #inner outer
-ref_name="current_fast"
+
+drop=0
+nbRunTuple=(2,1) #inner outer
+
+#ref_name="current_fast"
+ref_name="current"
 slowDown=True
 
 minTime=True
@@ -40,6 +50,7 @@ verrouOptionsList=[("","")]
 
 postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
 #postFixTab=["O3-DOUBLE-FMA"]
+postFixTab=["O3-FLOAT-FMA","O3-DOUBLE-FMA"]
 
 
 pathPerfBin="../unitTest/testPerf"
@@ -162,9 +173,11 @@ def extractTime(data):
     if minTime==True:
         return data["min"]
     else:
+        if drop==0:
+            return meanTab(data["tab"])
         tab=data["tab"]
         tab.sort()
-        filterTab=tab[10:-10]
+        filterTab=tab[drop:-drop]
         return meanTab(filterTab)
 
 
