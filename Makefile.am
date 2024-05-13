@@ -2,7 +2,10 @@ include $(top_srcdir)/Makefile.tool.am
 
 EXTRA_DIST = \
 	docs/vr-manual.xml \
-	docs/verrou_dd-manpage.xml
+	docs/verrou_dd-manpage.xml \
+	docs/verrou_dd_clean.xml \
+	docs/verrou_postdd-manpage.xml \
+	docs/verrou_plotstat-manpage.xml
 
 pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 

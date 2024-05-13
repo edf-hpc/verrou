@@ -774,6 +774,50 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
       </variablelist>
     </simplesect>
 
+    <simplesect  id="vr-manual.verrou_dd_clean">
+      <title> verrou_dd_clean</title>
+      <simplesect>
+	<simplesect id="vr-manual.verrou_dd_clean.description">
+      <para>The tool <command>verrou_dd_clean</command> enables to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
+	 and the default value is <command>./</command>).
+	In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
+      </para>
+      </simplesect>
+	</simplesect>
+      <simplesect>
+	  <title>Synopsis</title>
+	  <screen><cmdsynopsis id="vr-manual.verrou_dd_clean.synopsis">
+              <command>verrou_dd_clean [options]</command>
+              <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
+	</simplesect>
+
+
+    <simplesect>
+      <title>Options</title>
+
+      <variablelist id="vr-manual.verrou_dd_clean.envvars">
+        <varlistentry>
+          <term>
+            <computeroutput>--help</computeroutput>
+          </term>
+          <listitem>
+            <para> Print help</para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+             <computeroutput>--dry-run</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Only print what will do the command. Useful if you need to check carefuly what will be deleted.
+	    </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </simplesect>
+    </simplesect>
   </section>
 
     <section id="vr-manual.localization.coverage" xreflabel="Coverage">

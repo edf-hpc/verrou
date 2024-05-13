@@ -122,7 +122,7 @@ diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
 index 17a81c99f..2086f49eb 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
-@@ -78,6 +78,27 @@
+@@ -78,6 +78,34 @@
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  </chapter>
  
@@ -144,6 +144,13 @@ index 17a81c99f..2086f49eb 100644
 +<chapter>
 +<title>verrou_plot_stat</title>
 +<xi:include href="../../verrou/docs/verrou_plotstat-manpage.xml"
++    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++</chapter>
++
++<!-- verrou_dd_clean -->
++<chapter>
++<title>verrou_dd_clean</title>
++<xi:include href="../../verrou/docs/verrou_dd_clean-manpage.xml"
 +    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 +</chapter>
 +
