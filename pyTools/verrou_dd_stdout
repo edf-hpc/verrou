@@ -237,6 +237,7 @@ class stdoutConfig(dd_config.ddConfig):
 
     def __init__(self, argv, environ,config_keys=["INTERFLOP_DD","VERROU_DD"]):
         super().__init__(argv,environ,config_keys,prefix="dd.stdout")
+        self.instr_prefix="VERROU"
 
     def registerOptions(self):
         super().registerOptions()
