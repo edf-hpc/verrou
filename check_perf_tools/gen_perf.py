@@ -7,7 +7,7 @@ import subprocess
 from tabular import *
 
 
-roundingListPerf=["random", "average","nearest"]
+roundingListPerf=["random", "average","nearest","tool_none"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
 
 buildConfigList=["stable","current", "current_fast"]
@@ -80,6 +80,13 @@ def runPerfConfig(name):
             roundingTab=get_rounding_tab(name)
             for rounding in roundingTab:
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin+"/"+binName,perfCmdParam)
+                if rounding=="exclude_all":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                if rounding=="tool_none":
+                    cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                if rounding=="fma_only":
+                    cmd="valgrind --tool=verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+
                 toPrint=True
                 for i in range(nbRunTuple[1]):
                     outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
@@ -215,7 +222,7 @@ def slowDownAnalyze(data):
                     refTime=extractTime(refData[binName])
                     print("\t\t\t%s  slowDown: x%.1f "%(binName, minTimeNew/refTime))
 
-def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr=""):
+def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr="", withExclude=False, withFmaOnly=False, withToolNone=False):
 
 
 #    codeTabName=[x.replace("FLOAT","float").replace("DOUBLE","double")for x in postFixTab]
@@ -232,7 +239,16 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
     tab.endLine()
     tab.lineSep()
 
-    roundingTab=[("nearest", "nearest", "current"),"SEPARATOR"]
+    roundingTab=[("nearest", "nearest", "current")]
+    if withExclude:
+        roundingTab+=[("exclude_all", "exclude_all", "current")]
+    if withToolNone:
+        roundingTab+=[("tool_none", "tool_none", "current")]
+    if withFmaOnly:
+        roundingTab+=[("fma_only", "fma_only", "current")]
+
+    roundingTab+=["SEPARATOR"]
+
     for rd in ["random","average"]:
         roundingTab+=[(rd, rd,"current")]
 
@@ -305,7 +321,7 @@ if __name__=="__main__":
         feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
-        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
+        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"], withToolNone=True)
 
         tab=tabularLatex("lcccc", output="slowDown_all.tex")
         feedPerfTab(resAll,["dietzfelbinger", "multiply_shift", "tabulation","double_tabulation", "xxhash","mersenne_twister"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
