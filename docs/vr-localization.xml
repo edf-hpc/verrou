@@ -447,7 +447,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--dd-seed</computeroutput> or <computeroutput>VERROU_DD_SEED</computeroutput>
+	    <computeroutput>--seed</computeroutput> or <computeroutput>VERROU_DD_SEED</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1271,7 +1271,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           </term>
 	  <listitem>
 	    <para>
-	      Option to specify the seed used by <command>verrou_plot_stat</command> tool to setup the <computeroutput>VERROU_SEED</computeroutput>. This option is similar to <option>--dd-seed</option> of <command>verrou_dd_*</command>.
+	      Option to specify the seed used by <command>verrou_plot_stat</command> tool to setup the <computeroutput>VERROU_SEED</computeroutput>. This option is similar to <option>--seed</option> of <command>verrou_dd_*</command>.
 	    </para>
 	  </listitem>
 

@@ -20,7 +20,7 @@ main_libm: main_libm.cpp
 	g++ -O2 -g -fno-builtin main_libm.cpp -o main_libm
 
 dd.sym.random: ./main_libm 
-	verrou_dd_sym --cache=clean --rep=$@ --num-threads=5 --nruns=$(NBRUN) --dd-seed=42 ddRun.sh cmp.sh
+	verrou_dd_sym --cache=clean --rep=$@ --num-threads=5 --nruns=$(NBRUN) --seed=42 ddRun.sh cmp.sh
 	./assert.py $@ ${LIST_UNSTABLE}
 
 dd.sym.nearest: ./main_libm 
@@ -32,7 +32,7 @@ dd.sym.native: ./main_libm
 	./assert.py $@ ${LIST_NATIVE_UNSTABLE}
 
 dd.line.random: ./main_libm 
-	verrou_dd_line --cache=clean --rep=$@ --num-threads=5 --nruns=$(NBRUN) --dd-seed=42 ddRun.sh cmp.sh
+	verrou_dd_line --cache=clean --rep=$@ --num-threads=5 --nruns=$(NBRUN) --seed=42 ddRun.sh cmp.sh
 	./assert.py $@ ${LIST_UNSTABLE}
 
 dd.line.nearest: ./main_libm 
