@@ -5,6 +5,8 @@ import re
 import sys
 import subprocess
 
+workDirectory="../../perfWorkDir/"
+
 gitRepository="origin/"
 gitRepository=""
 
@@ -31,7 +33,7 @@ verrouConfigList={
 verrouConfigList={
     "current":          { "valgrind":"valgrind-3.23.0", "branch_verrou":"master" ,            "flags":""},
     "seed":             { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/ddSeed" , "flags":""},
- #   "llo":              { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/newllo" ,         "flags":""},
+    "llo":              { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/newllo" ,         "flags":""},
 }
 
 
@@ -54,7 +56,10 @@ def runCmd(cmd):
     subprocess.call(cmd, shell=True)
 
 def buildConfig(name):
-    buildRep="buildRep-"+name
+    if not os.path.exists(workDirectory):
+        os.mkdir(workDirectory)
+
+    buildRep=os.path.join(workDirectory,"buildRep-"+name)
     if name=="local":
         if not os.path.exists(buildRep):
             os.mkdir(buildRep)
@@ -70,7 +75,7 @@ def buildConfig(name):
         print("Error valgrind key needed")
         sys.exit(42)
 
-    valgrindArchive=valgrindConfigList[valgrindKey]["file"]
+    valgrindArchive=os.path.join(workDirectory,valgrindConfigList[valgrindKey]["file"])
     if not os.path.exists(valgrindArchive):
         valgrindUrl=valgrindConfigList[valgrindKey]["url"]
         runCmd("wget --output-document=%s %s"%(valgrindArchive,valgrindUrl))

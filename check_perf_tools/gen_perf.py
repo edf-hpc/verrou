@@ -6,6 +6,7 @@ import sys
 import subprocess
 from tabular import *
 
+from gen_build import workDirectory
 
 roundingListPerf=["random", "average","nearest","tool_none"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
@@ -71,7 +72,7 @@ def runCmd(cmd):
     subprocess.call(cmd, shell=True)
 
 def runPerfConfig(name):
-    repMeasure="buildRep-%s/measure"%(name)
+    repMeasure=os.path.join(workDirectory,"buildRep-%s"%(name),"measure")
     print("working in %s"%(repMeasure))
     if not os.path.exists(repMeasure):
         os.mkdir(repMeasure)
@@ -89,25 +90,26 @@ def runPerfConfig(name):
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
-                    outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
+                    outputName=os.path.join(workDirectory,"buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i))
                     if not os.path.exists(outputName):
                         if toPrint:
                             print(cmd)
                             toPrint=False
                         if name!="local":
-                            runCmd(". ./buildRep-%s/install/env.sh ; %s > %s 2> %s"%(name,cmd,outputName, outputName+".err"))
+                            envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+                            runCmd(". %s ; %s > %s 2> %s"%(envFile,cmd,outputName, outputName+".err"))
                         else:
                             runCmd("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
 
 def runPerfRef():
-    repMeasure="measureRef"
+    repMeasure=os.path.join(workDirectory,"measureRef")
     if not os.path.exists(repMeasure):
         os.mkdir(repMeasure)
     for binName in perfBinNameList:
         cmd="%s %s "%(pathPerfBin+"/"+binName,perfCmdParam)
         toPrint=True
         for i in range(nbRunTuple[1]):
-            outputName="measureRef/%s.%i"%(binName, i)
+            outputName=os.path.join(repMeasure ,"%s.%i"%(binName, i))
             if not os.path.exists(outputName):
                 if toPrint:
                     print(cmd)
@@ -149,7 +151,7 @@ def extractPerf(name):
             for rounding in get_rounding_tab(name):
                 resPerf=None
                 for i in range(nbRunTuple[1]):
-                    outputName="buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i)
+                    outputName=os.path.join(workDirectory,"buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i))
                     if resPerf==None:
                         resPerf=extractPerfMeasure(outputName)
                     else:
@@ -164,7 +166,7 @@ def extractPerfRef():
 
         resPerf=None
         for i in range(nbRunTuple[1]):
-            outputName="measureRef/%s.%i"%( binName, i)
+            outputName=os.path.join(workDirectory , "measureRef/%s.%i"%( binName, i))
             if resPerf==None:
                 resPerf=extractPerfMeasure(outputName)
             else:

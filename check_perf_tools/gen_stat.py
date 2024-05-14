@@ -7,11 +7,16 @@ import subprocess
 import math
 from tabular import *
 
+from gen_build import workDirectory
+
+
 detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
 buildConfList=[ "current","dietzfelbinger","multiply_shift","tabulation","double_tabulation", "xxhash","mersenne_twister"]
 #buildConfList=["double_tabulation"]#,"mersenne_twister"]
 buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
+
+buildConfList=[ "current","seed","llo"]
 
 pathNumBin="../unitTest/checkStatRounding"
 runNum="run.sh"
@@ -69,7 +74,7 @@ def extractStat():
     res={}
     for name in buildConfList+buildConfListXoshiro:
         resName={}
-        repNum="buildRep-%s/num"%(name)
+        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
         roundingTab=roundingListNum + detRounding
         roundingStr=",".join(roundingTab)
         for envConfig in numEnvConfigTab:
@@ -80,7 +85,8 @@ def extractStat():
                 concatStr+=envConfig[key]
             cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot --mca-estimator %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
-            lineTab=runCmdToLines(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
+            envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+            lineTab=runCmdToLines(". %s ; %s %s "%(envFile,envStr,cmd))
             resName[concatStr]=parsePlotStat(lineTab)
         res[name]=resName
     return res
@@ -105,7 +111,7 @@ def checkCoherence(stat):
                     return False
         resTab =[stat[conf][code]["nearest"] for conf in buildConfList]
         if len(set(resTab))>1:
-            print("resTab Neaerest", resTab)
+            print("resTab Nearest ", resTab)
             return False
     return True
 
@@ -179,7 +185,7 @@ def plotNumConfig():
         os.mkdir(histRep)
 
     for name in buildConfList:
-        repNum="buildRep-%s/num"%(name)
+        repNum=os.join.path(workDirectory,"buildRep-%s"%(name), "num")
         if not os.path.exists(repNum):
             os.mkdir(repNum)
 
@@ -194,7 +200,8 @@ def plotNumConfig():
             cmd="verrou_plot_stat --rep=%s --num-threads=5 --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
-                runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
+                envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+                runCmd(". %s ; %s %s "%(envFile,envStr,cmd))
             else:
                 runCmd("%s %s "%(envStr,cmd))
 
