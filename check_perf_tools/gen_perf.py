@@ -8,55 +8,61 @@ from tabular import *
 
 from gen_build import workDirectory
 
-roundingListPerf=["random", "average","nearest","tool_none"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
+fastAnalyze=False
+#fastAnalyze=True
 
-buildConfigList=["stable","current", "current_fast"]
-buildSpecialConfigList=["dietzfelbinger", "multiply_shift","tabulation","double_tabulation", "xxhash","mersenne_twister"]
+what="cmpBranch"
+if len(sys.argv)==2:
+    if sys.argv[1]=="cmpBranch":
+        what="cmpBranch"
+    elif sys.argv[1]=="cmpHash":
+        what="cmpHash"
+    elif sys.argv[1]=="cmpStable":
+        what="cmpStable"
+    else:
+        print("invalid cmd")
+        sys.exit(42)
+if not len(sys.argv) in [1,2]:
+    print("invalid cmd")
+    sys.exit(42)
 
-buildConfigList=["current","seed"]#, "llo"]
-buildSpecialConfigList=[]
+#if what=="cmpBranch":
+roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
+buildConfigList=["current","seed", "llo"]
+ref_name="current"
 detRounding=[]
+buildSpecialConfigList=[]
+if what=="cmpStable":
+    buildConfigList=["stable","current", "current_fast"]
+    ref_name="stable"
+
+if what=="cmpHash":
+    buildConfigList=["current", "current_fast"]
+    buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
+    detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
+    ref_name="current_fast"
+
 
 drop=10
 nbRunTuple=(5,10) #inner outer
-
-drop=0
-nbRunTuple=(2,1) #inner outer
-
-#ref_name="current_fast"
-ref_name="current"
-slowDown=True
-
-minTime=True
 minTime=False
 
+if fastAnalyze:
+    drop=0
+    nbRunTuple=(2,1) #inner outer
+    minTime=True
 
-# buildConfigList=["current", "current-upgrade"]
-# ref_name="current"
-# buildSpecialConfigList=[]
-# detRounding=[]
-# nbRunTuple=(5,20) #inner outer
-# slowDown=False
-
-# buildConfigList=["current", "last_stable"]
-# ref_name="current"
-# buildSpecialConfigList=[]
-# detRounding=[]
-# nbRunTuple=(5,2) inner outer
-# slowDown=True
+slowDown=True
 
 
 verrouOptionsList=[("","")]
-
 postFixTab=["O0-DOUBLE-FMA", "O3-DOUBLE-FMA", "O0-FLOAT-FMA", "O3-FLOAT-FMA"]
-#postFixTab=["O3-DOUBLE-FMA"]
-postFixTab=["O3-FLOAT-FMA","O3-DOUBLE-FMA"]
-
+if fastAnalyze:
+    postFixTab=["O3-DOUBLE-FMA","O3-FLOAT-FMA"]
+    #postFixTab=["O3-DOUBLE-FMA"]
 
 pathPerfBin="../unitTest/testPerf"
 perfBinNameList=["stencil-"+i for i in  postFixTab]
-#perfBinNameList=["stencil-"+i for i in ["O3-DOUBLE"] ]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
 def get_rounding_tab(name):
@@ -83,6 +89,10 @@ def runPerfConfig(name):
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin+"/"+binName,perfCmdParam)
                 if rounding=="exclude_all":
                     cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                if rounding=="exclude_all-nc":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex --count-op=no %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                if rounding=="nearest-nc":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
                 if rounding=="tool_none":
                     cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
                 if rounding=="fma_only":
@@ -224,54 +234,50 @@ def slowDownAnalyze(data):
                     refTime=extractTime(refData[binName])
                     print("\t\t\t%s  slowDown: x%.1f "%(binName, minTimeNew/refTime))
 
-def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], optionStr="", withExclude=False, withFmaOnly=False, withToolNone=False):
-
-
-#    codeTabName=[x.replace("FLOAT","float").replace("DOUBLE","double")for x in postFixTab]
+def headerTab(tab):
     tab.begin()
     if len(postFixTab)==4:
         tab.lineMultiple([(1,"type"), (2,"double"),(2,"float") ])
+    if len(postFixTab)==2:
+        tab.lineMultiple([(1,"type"), (1,"double"), (1,"float")])
     if len(postFixTab)==1:
         tab.lineMultiple([(1,"type"), (1,"double")])
     tab.endLine()
     if len(postFixTab)==4:
         tab.line(["compilation option", "O0", "O3","O0", "O3"])
+    if len(postFixTab)==2:
+        tab.line(["compilation option", "O3","O3"])
     if len(postFixTab)==1:
         tab.line(["compilation option", "O3"])
     tab.endLine()
     tab.lineSep()
 
-    roundingTab=[("nearest", "nearest", "current")]
+def addRefDet(roundingTab, build, branchName, withNearestNc=False, withExclude=False, withExcludeNc=False, withFmaOnly=False, withToolNone=False):
+    versionStr=""
+    if branchName:
+        versionStr="("+ build +")"
+
+    roundingTab+=[("nearest"+versionStr, "nearest",build)]
+    if withNearestNc:
+        roundingTab+=[("nearest-nc"+versionStr, "nearest-nc", build)]
     if withExclude:
-        roundingTab+=[("exclude_all", "exclude_all", "current")]
+        roundingTab+=[("exclude_all"+versionStr, "exclude_all", build)]
+    if withExcludeNc:
+        roundingTab+=[("exclude_all-nc"+versionStr, "exclude_all-nc", build)]
     if withToolNone:
-        roundingTab+=[("tool_none", "tool_none", "current")]
+        roundingTab+=[("tool_none"+versionStr, "tool_none", build)]
     if withFmaOnly:
-        roundingTab+=[("fma_only", "fma_only", "current")]
+        roundingTab+=[("fma_only"+versionStr, "fma_only", build)]
+    return roundingTab
 
-    roundingTab+=["SEPARATOR"]
-
-    for rd in ["random","average"]:
-        roundingTab+=[(rd, rd,"current")]
-
-        for detType in detTab:
-            for gen in buildList:#on supprime master
-                roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
-        roundingTab+=["SEPARATOR"]
-    roundingTab=roundingTab[0:-1]
-    if extraRounding != []:
-        roundingTab+=["SEPARATOR"]
-        for rd in extraRounding:
-            for gen in buildList:#on supprime master
-                roundingTab+=[(rd+"("+gen+")",rd,gen)]
-
+def generateTab( tab, data, roundingTab, optionStr):
+    headerTab(tab)
     refData=extractPerfRef()
 
     for confLine in roundingTab:
         if confLine=="SEPARATOR":
             tab.lineSep()
             continue
-
         head= [confLine[0]]
         def content(post, rounding, configure):
             binName="stencil-"+post
@@ -289,41 +295,78 @@ def feedPerfTab(data, buildList, detTab=["_det","_comdet"], extraRounding=[], op
     tab.end()
 
 
+def feedPerfTab(tab, data, buildList, detTab=["_det","_comdet"], branchTab=False, extraRounding=[], optionStr="", withNearestNc=False,withExclude=False, withExcludeNc=False, withFmaOnly=False, withToolNone=False):
+
+    roundingTab=[]
+    if branchTab:
+        assert(len(detTab)==0)
+        for branch in buildList:
+            for rounding in roundingListPerf:
+                roundingTab+=[(rounding+"("+branch+")", rounding, branch)]
+            roundingTab+=["SEPARATOR"]
+    else:
+        addRefDet(roundingTab, "current", False, withNearestNc, withExclude, withExcludeNc, withFmaOnly, withToolNone)
+        roundingTab+=["SEPARATOR"]
+        for rd in ["random","average"]:
+            roundingTab+=[(rd, rd,"current")]
+
+            for detType in detTab:
+                for gen in buildList:#on supprime master
+                    roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
+            roundingTab+=["SEPARATOR"]
+        roundingTab=roundingTab[0:-1]
+        if extraRounding != []:
+            roundingTab+=["SEPARATOR"]
+            for rd in extraRounding:
+                for gen in buildList:#on supprime master
+                 roundingTab+=[(rd+"("+gen+")",rd,gen)]
+
+    generateTab(tab,data,roundingTab, optionStr)
+
+
 
 if __name__=="__main__":
-
 
     runCmd("make -C ../unitTest/testPerf/")
 
     for name in buildConfigList+buildSpecialConfigList:
         runPerfConfig(name)
-    if slowDown:
-        runPerfRef()
+    runPerfRef()
 
     resAll={}
     for name in buildConfigList+buildSpecialConfigList:
         resAll[name]=extractPerf(name)
 
-    print(resAll)
-    print("ref_name:",ref_name)
-    nonPerfRegressionAnalyze(resAll, ref_name)
-    print("")
-    if slowDown:
+    #print(resAll)
+    if what=="cmpBranch":
+        print("ref_name:",ref_name)
+        nonPerfRegressionAnalyze(resAll, ref_name)
+
+        tab=tabularLatex("lcccc", output="slowDown.tex")
+        feedPerfTab(tab,resAll,buildConfigList, detTab=[], branchTab=True)
+    if what=="cmpStable":
+        print("ref_name:",ref_name)
+        nonPerfRegressionAnalyze(resAll, ref_name)
+
+    if what=="cmpHash":
+        tab=tabularLatex("lcccc", output="slowDown.tex")
+        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=[""])
 
         tab=tabularLatex("lcccc", output="slowDown_det.tex")
-        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_det"])
+        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_det"])
 
         tab=tabularLatex("lcccc", output="slowDown_comdet.tex")
-        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_comdet"])
+        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_comdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_scomdet.tex")
-        feedPerfTab(resAll,buildSpecialConfigList, detTab=["_scomdet"])
+        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
-        feedPerfTab(resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
+        feedPerfTab(tab,resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
         tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
-        feedPerfTab(resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"], withToolNone=True)
+        feedPerfTab(tab,resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"], withToolNone=True, withExcludeNc=True, withExclude=True, withNearestNc=True)
 
         tab=tabularLatex("lcccc", output="slowDown_all.tex")
-        feedPerfTab(resAll,["dietzfelbinger", "multiply_shift", "tabulation","double_tabulation", "xxhash","mersenne_twister"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
+        feedPerfTab(tab, resAll,["dietzfelbinger", "multiply_shift", "double_tabulation", "xxhash","mersenne_twister"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
+

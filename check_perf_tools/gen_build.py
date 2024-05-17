@@ -13,29 +13,32 @@ gitRepository=""
 branch="master"
 valgrind_version="valgrind-3.23.0"
 
-verrouConfigList={
-    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma"},
-    "current":           { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":""},
-    "current_fast":      { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
+verrouConfigListHash={
+    #good idea to keep the same definition of "current" and "current_fast" (see bellow)
+    "current":          { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":""},
+    "current_fast":     { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
     "dietzfelbinger":   { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=dietzfelbinger --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
     "multiply_shift":   { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=multiply_shift --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
-    "double_tabulation":{ "valgrind":valgrind_version, "branch_verrou":"bl/tabulation" ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
-    "tabulation":{ "valgrind":valgrind_version, "branch_verrou":"bl/tabulation" ,"flags":"--with-verrou-det-hash=tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "double_tabulation":{ "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=double_tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "tabulation":       { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=tabulation --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
     "mersenne_twister": { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=mersenne_twister --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
-    "xxhash": { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
+    "xxhash":           { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--with-verrou-det-hash=xxhash --enable-verrou-check-naninf=no  --with-verrou-denorm-hack=none"},
 }
 
-#verrouConfigList={
-#    "current":           { "valgrind":"valgrind-3.22.0", "branch_verrou":"bl/checkperf" ,"flags":""},
-#    "last_stable":       { "tag":"v2.5.0" ,"flags":""},
-#}
-
-verrouConfigList={
-    "current":          { "valgrind":"valgrind-3.23.0", "branch_verrou":"master" ,            "flags":""},
-    "seed":             { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/ddSeed" , "flags":""},
-    "llo":              { "valgrind":"valgrind-3.23.0", "branch_verrou":"bl/newllo" ,         "flags":""},
+verrouConfigListCmpToStable={
+    #good idea to keep the same definition of "current" and "current_fast" (see above)
+    "stable":       { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma"},
+    "current":      { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":""},
+    "current_fast": { "valgrind":valgrind_version, "branch_verrou":branch ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
 }
 
+verrouConfigListCmpBranch={
+#    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma" },
+    "master_fast":{ "valgrind":valgrind_version, "branch_verrou":"master" ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
+    "master":     { "valgrind":valgrind_version, "branch_verrou":"master" ,   "flags":""},
+    "seed":       { "valgrind":valgrind_version, "branch_verrou":"bl/ddSeed", "flags":""},
+    "llo":        { "valgrind":valgrind_version, "branch_verrou":"bl/newllo", "flags":""},
+}
 
 
 valgrindConfigList={
@@ -89,19 +92,35 @@ def buildConfig(name):
                 branch=gitRepository+branch
             runCmd("./buildConfig.sh %s %s %s \"%s\""%(
                 buildRep,
-                valgrindConfigList[verrouConfigParam["valgrind"]]["file"],
+                valgrindArchive,
                 branch,
                 verrouConfigParam["flags"])
             )
         if "tag" in verrouConfigParam:
             runCmd("./buildTag.sh %s %s \"%s\""%(
                 buildRep,
-                valgrindConfigList[verrouConfigParam["tag"]]["file"],
+                valgrindArchive,
                 verrouConfigParam["flags"])
             )
 
 
 if __name__=="__main__":
+
+    verrouConfigList=verrouConfigListCmpBranch
+
+    if len(sys.argv)==2:
+        if sys.argv[1]=="cmpBranch":
+            verrouConfigList=verrouConfigListCmpBranch
+        elif sys.argv[1]=="cmpHash":
+            verrouConfigList=verrouConfigListHash
+        elif sys.argv[1]=="cmpStable":
+            verrouConfigList=verrouConfigListCmpToStable
+        else:
+            print("invalid cmd")
+            sys.exit(42)
+    if not len(sys.argv) in [1,2]:
+        print("invalid cmd")
+        sys.exit(42)
 
     for name in verrouConfigList:
         buildConfig(name)
