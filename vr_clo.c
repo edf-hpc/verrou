@@ -72,6 +72,8 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_EXPECT_CLR","--expect-clr");
    vr_env_clo_one_option("VERROU_OUTPUT_EXPECT_REP","--output-expect-rep");
    vr_env_clo_one_option("VERROU_EXPECT_FILE_PATTERN","--expect-file-pattern");
+
+   vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
 }
 
 void vr_clo_defaults (void) {

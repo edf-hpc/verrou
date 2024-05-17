@@ -141,7 +141,8 @@ class DDstdout(DD_stoch.DDStoch):
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
               "VERROU_EXPECT_CLR":refPath,
-              "VERROU_OUTPUT_EXPECT_REP":self.ref_
+              "VERROU_OUTPUT_EXPECT_REP":self.ref_,
+              "VERROU_COUNT_OP":"yes",
               }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:

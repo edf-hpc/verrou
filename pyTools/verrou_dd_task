@@ -41,7 +41,8 @@ class DDTask(DD_stoch.DDStoch):
                 "VERROU_MCA_MODE": "ieee",
                 "GENERATE_TASK_LIST":   os.path.join(self.ref_,"dd.task.gen"),
                 "GENERATE_TASK_FP_LIST":   os.path.join(self.ref_,"dd.taskFP.gen"),
-        }
+                "VERROU_COUNT_OP":"yes",
+                }
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.taskFP.")
