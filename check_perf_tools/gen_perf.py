@@ -28,8 +28,8 @@ if not len(sys.argv) in [1,2]:
 
 #if what=="cmpBranch":
 roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
-buildConfigList=["current","seed", "llo"]
-ref_name="current"
+buildConfigList=["master","seed", "llo"]
+ref_name="master"
 detRounding=[]
 buildSpecialConfigList=[]
 if what=="cmpStable":
