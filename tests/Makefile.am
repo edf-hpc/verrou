@@ -35,7 +35,11 @@ EXTRA_DIST = \
 	seed_random_det.stderr.exp seed_random_det.stdout.exp seed_random_det.vgtest \
 	test_libm_random.stderr.exp test_libm_random.stdout.exp test_libm_random.vgtest \
 	test_libm_random_det.stderr.exp test_libm_random_det.stdout.exp test_libm_random_det.vgtest \
-	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest
+	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest \
+	hardSoftClreq1.stderr.exp hardSoftClreq1.stdout.exp hardSoftClreq1.vgtest \
+	hardSoftClreq2.stderr.exp hardSoftClreq2.stdout.exp hardSoftClreq2.vgtest \
+	hardSoftClreq3.stderr.exp hardSoftClreq3.stdout.exp hardSoftClreq3.vgtest
+
 
 check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq
 
