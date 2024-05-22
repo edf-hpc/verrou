@@ -17,7 +17,7 @@ configure:
 	cd ../valgrind+verrou && ./autogen.sh
 
 	@echo "*** CONFIGURE ***"
-	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/install
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/../install
 
 build:
 	@echo "*** MAKE ***"
@@ -28,10 +28,10 @@ build:
 
 check-install:
 	@echo "*** CHECK VERSION ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --version
+	source ../install/env.sh && valgrind --version
 
 	@echo "*** CHECK HELP ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --tool=verrou --help
+	source ../install/env.sh && valgrind --tool=verrou --help
 
 check:
 	@echo "*** BUILD TESTS ***"
