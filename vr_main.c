@@ -29,12 +29,23 @@
 
 #include "vr_main.h"
 #include "float.h"
-#include "pub_tool_libcfile.h"
-#include "coregrind/pub_core_transtab.h"
-#include "coregrind/pub_core_debuginfo.h"
-#include "coregrind/pub_core_libcfile.h"
 #include "pub_tool_seqmatch.h"
-//#pragma STDC FENV_ACCESS ON
+
+
+//#include "coregrind/pub_core_transtab.h"
+#include "pub_tool_transtab.h"
+extern Bool  VG_(ok_to_discard_translations);
+
+//#include "coregrind/pub_core_debuginfo.h"
+#include "pub_tool_debuginfo.h"
+extern Bool VG_(get_fnname_raw) ( DiEpoch ep, Addr a, const HChar** buf );
+
+//#include "coregrind/pub_core_libcfile.h"
+#include "pub_tool_libcfile.h"
+extern Bool VG_(resolve_filename) ( Int fd, const HChar** buf );
+
+
+
 Vr_State vr;
 
 

@@ -1,3 +1,16 @@
+diff --git a/tests/check_headers_and_includes b/tests/check_headers_and_includes
+index 70e134896..3dd1ecc64 100755
+--- a/tests/check_headers_and_includes
++++ b/tests/check_headers_and_includes
+@@ -51,6 +51,7 @@ my %tool_dirs = (
+     "dhat" => 1,
+     "lackey" => 1,
+     "none" => 1,
++    "verrou" => 1,
+     "exp-bbv" => 1,
+     "shared" => 1,
+     );
+
 diff --git a/Makefile.am b/Makefile.am
 index 08db83401..cfcd7679f 100644
 --- a/Makefile.am
