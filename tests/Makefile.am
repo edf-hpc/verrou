@@ -4,7 +4,7 @@ include $(top_srcdir)/Makefile.tool-tests.am
 SUBDIRS = .
 DIST_SUBDIRS = .
 
-dist_noinst_SCRIPTS = filter_stderr
+dist_noinst_SCRIPTS = filter_stderr filter_stdout
 
 EXTRA_DIST = \
 	clreq.vgtest      clreq.stderr.exp      clreq.stdout.exp \
@@ -18,9 +18,19 @@ EXTRA_DIST = \
 	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
 	test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
+	test_det_average_scomdet.stderr.exp test_det_average_scomdet.stdout.exp  test_det_average_scomdet.vgtest \
 	test_det_average_det.stderr.exp test_det_average_det.stdout.exp test_det_average_det.vgtest \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
-	test_det_random_det.stderr.exp  test_det_random_det.stdout.exp  test_det_random_det.vgtest
+	test_det_random_scomdet.stderr.exp test_det_random_scomdet.stdout.exp  test_det_random_scomdet.vgtest \
+	test_det_random_det.stderr.exp test_det_random_det.stdout.exp  test_det_random_det.vgtest \
+	test_det_sr_monotonic.stderr.exp test_det_sr_monotonic.stdout.exp  test_det_sr_monotonic.vgtest \
+	test_det_sr_smonotonic.stderr.exp test_det_sr_smonotonic.stdout.exp  test_det_sr_smonotonic.vgtest \
+	libmtest-withlibm.stderr.exp libmtest-withlibm.stdout.exp libmtest-withlibm.vgtest \
+	libmtest-withoutlibm.stderr.exp libmtest-withoutlibm.stdout.exp libmtest-withoutlibm.vgtest \
+	seed_random_det.stderr.exp seed_random_det.stdout.exp seed_random_det.vgtest \
+	test_libm_random.stderr.exp test_libm_random.stdout.exp test_libm_random.vgtest \
+	test_libm_random_det.stderr.exp test_libm_random_det.stdout.exp test_libm_random_det.vgtest \
+	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest
 
 check_PROGRAMS = clreq accuClreq sum libmtest
 
