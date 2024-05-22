@@ -52,3 +52,8 @@ unit-test:
 post-regtest-checks:
 	@echo "*** POST_REGTEST_CHECKS ***"
 	cd ../valgrind+verrou/ && make post-regtest-checks
+
+gitignore-checks:
+	@echo "*** GITIGNORE_CHECKS ***"
+	cd ../valgrind+verrou/verrou && git status --porcelain | grep '^??' | cut -c4- |tee /tmp/tracked_file.tmp
+	cat /tmp/tracked_file.tmp | wc -l |xargs test 0 -eq

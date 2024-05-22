@@ -51,3 +51,6 @@ jobs:
       - name: Check Verrou post-regtest-checks
         run: make -f travis.mk post-regtest-checks
 
+      - name: Check Verrou gitignore
+        run: make -f travis.mk gitignore-checks
+
