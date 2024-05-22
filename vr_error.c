@@ -31,7 +31,12 @@
 */
 
 #include "vr_main.h"
-#include "coregrind/pub_core_debuginfo.h"
+
+//#include "coregrind/pub_core_debuginfo.h"
+#include "pub_tool_debuginfo.h"
+extern Bool VG_(get_fnname_raw) ( DiEpoch ep, Addr a, const HChar** buf );
+
+
 
 typedef struct Vr_InstrError_ Vr_InstrError;
 struct Vr_InstrError_ {

@@ -36,7 +36,7 @@
 #ifdef VERROU_SYNCHRO_INCLUDE
 #include "../include/valgrind.h"
 #else
-#include "valgrind.h"
+#include "pub_tool_clreq.h"
 #endif
 /* !! ABIWARNING !! ABIWARNING !! ABIWARNING !! ABIWARNING !!
    This enum comprises an ABI exported by Valgrind to programs
