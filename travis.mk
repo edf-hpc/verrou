@@ -48,3 +48,7 @@ check-error:
 unit-test:
 	@echo "*** UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
+
+post-regtest-checks:
+	@echo "*** POST_REGTEST_CHECKS ***"
+	cd ../valgrind+verrou/ && make post-regtest-checks

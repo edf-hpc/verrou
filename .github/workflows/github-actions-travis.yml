@@ -47,3 +47,7 @@ jobs:
 
       - name: Check Verrou Unit-test
         run: make -f travis.mk unit-test
+
+      - name: Check Verrou post-regtest-checks
+        run: make -f travis.mk post-regtest-checks
+
