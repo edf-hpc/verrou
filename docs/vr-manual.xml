@@ -231,6 +231,7 @@ det2
                 Toggle <link linkend="vr-manual.feat.count">floating-point
                   operations counting</link>.
             </para></listitem>
+	    <para>This option can be activated with the env variable <command>VERROU_COUNT_OP</command></para>
           </varlistentry>
 
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">

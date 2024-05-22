@@ -6,11 +6,13 @@
       --count-op=<yes|no> [default=yes]\n\
           Toggle floating-point operations counting.\n\
 \n\
+          This option can be activated with the env variable VERROU_COUNT_OP\n\
+\n\
       --backend=<verrou|mcaquad|checkdenorm> [default=verrou]\n\
           Select the verrou, mcaquad or checkdenorm backend.  verrou enables\n\
           to perform several rounding mode (See --rounding-mode option).\n\
           mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on\n\
-          extented precision in quad (See --mca-mode, --mca-precision-double\n\
+          extended precision in quad (See --mca-mode, --mca-precision-double\n\
           and --mca-precision-float options). The integration of mcaquad\n\
           backend in the frontend verrou is still considered as experimental.\n\
           checkdenorm enables the ftz rounding-mode and the --check-denorm\n\
@@ -44,23 +46,23 @@
       [default=auto_exclude]\n\
           Define the behavior of verrou with libm.\n\
 \n\
-          •   auto_exclude : The libm exclusion is automaticaly detected\n\
+          •   auto_exclude : The libm exclusion is automatically detected\n\
               thanks pattern detection. The library detected are libm,\n\
               vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If\n\
               you need to perturb libgcc_s, we will need to use libgcc_s.\n\
 \n\
           •   manual_exclude : The automatic detection is ignored and the\n\
               user has to define manually the exclusion thanks --exclude\n\
-              option. This option is usefull if the pattern detection detect\n\
+              option. This option is useful if the pattern detection detect\n\
               object you need to perturb.\n\
 \n\
-          •   instrumented : the interposition library Interlibmath is\n\
-              loaded. This option is valid only with verrou backend. This\n\
-              option imply implicitly the libm exclusion.\n\
+          •   instrumented : the interposition library Interlibmath is loaded\n\
+              (The complex libm function are not yet instrumented). This\n\
+              option is valid only with verrou backend. This option imply\n\
+              implicitly the libm exclusion.\n\
 \n\
-          The option instrumented is not yet compatible with verrou_dd_sym\n\
-          and verrou_dd_line. When it will be the case, the default will\n\
-          switch from auto_exclude to instrumented\n\
+          The option instrumented is quite new. In a near future, the default\n\
+          will switch from auto_exclude to instrumented\n\
 \n\
       --libm-noinst-rounding-mode==<native|nearest> [default=native]\n\
 \n\
@@ -149,7 +151,9 @@
           This option can be activated with the env variable VERROU_INSTR.\n\
 \n\
       --vr-instr-scalar=<yes|no> [default=no]\n\
-          Toggle instrumentation of x387 scalar instructions.\n\
+          Toggle instrumentation of x387 scalar instructions. On arm64\n\
+          architecture, this option is set by default to yes, as scalar\n\
+          instructions respect the IEEE standard.\n\
 \n\
       --vr-instr-llo=<yes|no> [default=yes]\n\
           Toggle instrumentation of llo scalar instructions (cast and all fma\n\
@@ -168,11 +172,18 @@
 \n\
     Instrumentation scope\n\
       --instr-atstart=<yes|no> [default=yes]\n\
-          Toggle instrumentation state on or off at program start. Useful in\n\
-          combination with client requests.\n\
+          Toggle hard instrumentation state on or off at program start.\n\
+          Useful in combination with client requests.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_INSTR_ATSTART.\n\
+\n\
+      --instr-atstart-soft=<yes|no> [default=yes]\n\
+          Toggle soft instrumentation state on or off at program start.\n\
+          Useful in combination with client requests.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_INSTR_ATSTART_SOFT.\n\
 \n\
       --exclude=FILE\n\
           Symbols listed in FILE will be left uninstrumented.\n\
@@ -180,7 +191,7 @@
           This option can be activated with the env variable VERROU_EXCLUDE.\n\
 \n\
       --gen-exclude=FILE\n\
-          Generate in FILE a list of all symbols (which contain perturbated\n\
+          Generate in FILE a list of all symbols (which contain perturbed\n\
           floating point instruction) encountered during program execution.\n\
           This is useful to build an exclusion list.\n\
 \n\
@@ -190,8 +201,8 @@
           WARNING: in order to generate a correct list, the whole binary\n\
           (including symbols listed in the list provided using --exclude)\n\
           must be instrumented. When using both --gen-exclude and --exclude,\n\
-          it is advised to avoid perturbating rounding-modes using\n\
-          --rounding-mode=nearest.\n\
+          it is advised to avoid perturbing rounding-modes using --rounding-\n\
+          mode=nearest.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_GEN_EXCLUDE.\n\
@@ -213,7 +224,7 @@
 \n\
       --gen-source=FILE\n\
           Generate in FILE the list of all source code lines (which contain\n\
-          perturbated floating point instruction) encountered during program\n\
+          perturbed floating point instruction) encountered during program\n\
           execution.\n\
 \n\
           In combination with --source, only list source code lines which\n\
@@ -229,6 +240,14 @@
           request action when a line match a MATCH or EXPECT line. A MATCH\n\
           line can be match anytime, whereas the EXPECT lines are matched\n\
           sequentially.\n\
+\n\
+          The use of this option, may be sensitive to the bufferization of\n\
+          the program. In C++ std::endl flush the output, so we usually avoid\n\
+          the problem. In python, you can use PYTHONUNBUFFERED env variable.\n\
+          In C we proposed the library verrouUnbuffered.so (Loadable with\n\
+          LD_PRELOAD), to deactivate bufferization of stdout (For other file\n\
+          descriptors you have to flush manually, as it require more complex\n\
+          development).  verrou_dd_task automatically use this two tricks.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_EXPECT_CLR.\n\
@@ -247,8 +266,13 @@
           Activate the Basic Blocks Coverage for the symbols specified in\n\
           FILE.\n\
 \n\
+          This option can be activated with the env variable VERROU_TRACE.\n\
+\n\
       --output-trace-rep=REP\n\
           Specify the REP directory for the trace output files.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_OUTPUT_TRACE_REP.\n\
 \n\
     Detection options\n\
       --check-nan=<yes|no> [default=yes]\n\

@@ -1,0 +1,12 @@
+*.std*.out
+*.std*.diff
+expect.script.log-*
+accuClreq
+denorm
+hardSoftClreq
+libmtest
+naninf
+test_det
+test_libm
+clreq
+sum

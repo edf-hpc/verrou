@@ -2,11 +2,12 @@ Makefile
 Makefile.in
 *amd64-linux*
 *.o
+*.so
 *~
 .deps
 .idea/
 env.sh
-tests/*.std*.out
-tests/*.std*.diff
-tests/clreq
-tests/sum
+unitTest/flag.mk
+*/.dirstamp
+*/*/.dirstamp
+*/*/*/.dirstamp
