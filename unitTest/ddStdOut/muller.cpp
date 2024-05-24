@@ -1,5 +1,8 @@
 #include <iostream>
 
+#ifdef WITH_VERROU_TASK
+#include "valgrind/libverrouTask.h"
+#endif
 
 typedef double Realtype;
 
@@ -9,6 +12,10 @@ Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false, bool deb
 
     std::cout << "begin iter"<<std::endl;
     for(size_t it=0; it < nt ; it++){
+#ifdef WITH_VERROU_TASK
+        verrou_task("muller_iter",it);
+#endif
+
         Realtype temp0 = 3000./x0;
         Realtype temp1 = 1130. - temp0;
         Realtype temp2 = temp1 /x1 ;
@@ -42,6 +49,9 @@ Realtype muller(size_t nt,bool verbose=false, bool withEmptyLine=false, bool deb
 }
 
 int main(int argc, char** argv){
+#ifdef WITH_VERROU_TASK
+  verrou_task_init();
+#endif
 
   bool withEmptyLine(false);
   bool debugPrev(false);
@@ -62,5 +72,8 @@ int main(int argc, char** argv){
   }
   muller(12,true,withEmptyLine, debugPrev, debugPost);
   //  muller(3000,true,withEmptyLine, debugPrev, debugPost);
+#ifdef WITH_VERROU_TASK
+  verrou_task_finalyze();
+#endif
 
 }
