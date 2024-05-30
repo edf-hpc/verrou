@@ -35,7 +35,7 @@
 
 #include "verrou.h"
 
-#if defined(__aarch64) && defined(TEST_FMA)
+#if defined(__aarch64__) && defined(TEST_FMA)
 #include <arm_neon.h>
 #endif
 
@@ -517,8 +517,10 @@ template<>
 class testMixVectorLlo<double>:public test<double>{
 public:
   double a[4],b[4],c[4];
+#if defined(TEST_SSE) && defined(__x86_64__)
   __m128d ai_sse,bi_sse,ci_sse;
-#ifdef TEST_AVX
+#endif
+#if defined(TEST_AVX) && defined(__x86_64__)
   __m256d ai_avx,bi_avx,ci_avx;
 #endif
 
@@ -563,27 +565,27 @@ public:
   }
 
   void loadSSE(){
-#ifdef TEST_SSE
+#if  defined(TEST_SSE) && defined(__x86_64__)
     ai_sse = _mm_loadu_pd(a);
     bi_sse = _mm_loadu_pd(b);
     ci_sse = _mm_loadu_pd(c);
 #endif
   }
   void storeSSE(){
-#ifdef TEST_SSE
+#if defined(TEST_SSE) && defined(__x86_64__)
     _mm_storeu_pd(c,ci_sse);
 #endif
   }
 
   void loadAVX(){
-#ifdef TEST_AVX
+#if defined(TEST_AVX)  && defined(__x86_64__)
     ai_avx = _mm256_loadu_pd(&(a[0]));
     bi_avx = _mm256_loadu_pd(&(b[0]));
     ci_avx = _mm256_loadu_pd(&(c[0]));
 #endif
   }
   void storeAVX(){
-#ifdef TEST_AVX
+#if defined(TEST_AVX)  && defined(__x86_64__)
     _mm256_storeu_pd(c,ci_avx);
 #endif
   }
@@ -609,9 +611,12 @@ public:
 
   float a[8], b[8], c[8];
 
+#if defined(TEST_SSE)  && defined(__x86_64__)
   __m128 ai_sse,bi_sse,ci_sse;
+#endif
+#if defined(TEST_AVX)  && defined(__x86_64__)
   __m256 ai_avx,bi_avx,ci_avx;
-
+#endif
 
   VectorType_t vectorType_;
 
@@ -654,25 +659,27 @@ public:
   }
 
   void loadSSE(){
-#ifdef TEST_SSE
+#if defined(TEST_SSE)  && defined(__x86_64__)
     ai_sse = _mm_loadu_ps(a);
     bi_sse = _mm_loadu_ps(b);
     ci_sse = _mm_loadu_ps(c);
 #endif
   }
   void storeSSE(){
+#if defined(TEST_SSE)  && defined(__x86_64__)
     _mm_storeu_ps(c,ci_sse);
+#endif
   }
 
   void loadAVX(){
-#ifdef TEST_AVX
+#if defined(TEST_AVX)  && defined(__x86_64__)
     ai_avx = _mm256_loadu_ps(a);
     bi_avx = _mm256_loadu_ps(b);
     ci_avx = _mm256_loadu_ps(c);
 #endif
   }
   void storeAVX(){
-#ifdef TEST_AVX
+#if defined(TEST_AVX)  && defined(__x86_64__)
     _mm256_storeu_ps(c,ci_avx);
 #endif
   }
