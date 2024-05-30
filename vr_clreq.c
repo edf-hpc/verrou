@@ -140,7 +140,7 @@ static void vr_start_deterministic_section (unsigned int level) {
   hash = vr_deterministic_section_hash (name);
   verrou_seed_save_state ();
   verrou_set_seed (hash);
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
   mcaquad_set_seed (hash);
 #endif
   VG_(message)(Vg_DebugMsg, "Entering deterministic section %llu: %s\n",
@@ -154,7 +154,7 @@ static void vr_stop_deterministic_section (unsigned int level) {
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
                name);
   verrou_seed_restore_state ();
-#ifdef USE_VERROU_QUAD 
+#ifdef USE_VERROU_QUADMATH 
   mcaquad_set_random_seed ();
 #endif
 }
@@ -306,7 +306,7 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     VG_(umsg)("New seed : %llu\n", vr.firstSeed);
     verrou_set_seed (vr.firstSeed);
     vr_clean_cache_seed();
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
     mcaquad_set_seed(vr.firstSeed);
 #endif
     *ret = 0; /* meaningless */

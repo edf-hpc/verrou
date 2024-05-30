@@ -120,16 +120,48 @@ AM_CONDITIONAL([HAVE_VERROU_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
 AC_SUBST(vg_cv_verrou_sqrt)
 
 
-#--enable-verrou-quad
-AC_CACHE_CHECK([verrou quad], vg_cv_verrou_quad,
-  [AC_ARG_ENABLE(verrou-quad,
-    [  --enable-verrou-quad          enables verrou to use quad],
-    [vg_cv_verrou_quad=$enableval],
-    [vg_cv_verrou_quad=yes])])
+#--enable-verrou-quadmath
+AC_CACHE_CHECK([verrou quadmath], vg_cv_verrou_quadmath,
+  [AC_ARG_ENABLE(verrou-quadmath,
+    [  --enable-verrou-quadmath          enables verrou to use __float128 and quadmath],
+    [vg_cv_verrou_quadmath=$enableval],
+    [vg_cv_verrou_quadmath=yes])])
 
-AM_CONDITIONAL([USE_QUAD], test x$vg_cv_verrou_quad = xyes,[])
+if test "$vg_cv_verrou_quadmath" = yes; then
+  # Check for quadmath.h
+  AC_LANG_PUSH(C++)
+    CXXFLAGS="$safe_CXXFLAGS -lquadmath"
+  AC_MSG_CHECKING([for quadmath])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include  <quadmath.h>
+      #include <stdlib.h>
+]], [[
+       __float128 a=0.1,b=0.1,c;
+       c=a+b;
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with quadmath.h is required for --enable-verrou-quadmath ])
+  ]) ;;
+  arm64-linux)
+     AC_MSG_RESULT([no])
+     vg_cv_verrou_quadmath=no
+  ;;
+  *)
+  vg_cv_verrou_quadmath=no
+  ;;
+  esac
+  AC_LANG_POP(C++)
+fi
 
-AC_SUBST(vg_cv_verrou_quad)
+AM_CONDITIONAL([HAVE_VERROU_QUADMATH], test x$vg_cv_verrou_quadmath = xyes,[])
+AC_SUBST(vg_cv_verrou_quadmath)
+
 
 #--enable-profiling for exact operation
 AC_CACHE_CHECK([verrou profiling exact], vg_cv_verrou_profiling_exact,

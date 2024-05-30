@@ -9,7 +9,7 @@ static VG_REGPARM(3) Int vr_verroucast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation cast backend mcaquad
 
 
@@ -20,7 +20,7 @@ static VG_REGPARM(3) Int vr_mcaquadcast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation cast backend checkdenorm
 
 
@@ -45,7 +45,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation cast backend mcaquad
 
 
@@ -60,7 +60,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation cast backend checkdenorm
 
 
@@ -4277,7 +4277,7 @@ static VG_REGPARM(1) void vr_verroudiv32Fx4 (/*OUT*/V128* output){
 }
 
 
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation add backend mcaquad
 
 static VG_REGPARM(2) Long vr_mcaquadadd64F (Long a, Long b) {
@@ -4550,7 +4550,7 @@ static VG_REGPARM(1) void vr_mcaquaddiv32Fx4 (/*OUT*/V128* output){
 }
 
 
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation add backend checkdenorm
 
 static VG_REGPARM(2) Long vr_checkdenormadd64F (Long a, Long b) {
@@ -5251,7 +5251,7 @@ if(vr.instrument_soft){
 }
 
 
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation add backend mcaquad
 
 static VG_REGPARM(2) Long vr_mcaquad_softadd64F (Long a, Long b) {
@@ -5680,7 +5680,7 @@ if(vr.instrument_soft){
 }
 
 
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation add backend checkdenorm
 
 static VG_REGPARM(2) Long vr_checkdenorm_softadd64F (Long a, Long b) {
@@ -19907,7 +19907,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellationsub32Fx4 (/*OUT*/V128* outpu
 }
 
 
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation add backend mcaquad
 
 static VG_REGPARM(2) Long vr_mcaquadcheckcancellationadd64F (Long a, Long b) {
@@ -20062,7 +20062,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellationsub32Fx4 (/*OUT*/V128* outp
 }
 
 
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation add backend checkdenorm
 
 static VG_REGPARM(2) Long vr_checkdenormcheckcancellationadd64F (Long a, Long b) {
@@ -20449,7 +20449,7 @@ if(vr.instrument_soft){
 }
 
 
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation add backend mcaquad
 
 static VG_REGPARM(2) Long vr_mcaquadcheckcancellation_softadd64F (Long a, Long b) {
@@ -20682,7 +20682,7 @@ if(vr.instrument_soft){
 }
 
 
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation add backend checkdenorm
 
 static VG_REGPARM(2) Long vr_checkdenormcheckcancellation_softadd64F (Long a, Long b) {
@@ -20977,7 +20977,7 @@ static VG_REGPARM(3) Int vr_verroumsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquadmadd64F (Long a, Long b, Long c) {
@@ -21040,7 +21040,7 @@ static VG_REGPARM(3) Int vr_mcaquadmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenormmadd64F (Long a, Long b, Long c) {
@@ -21181,7 +21181,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquad_softmadd64F (Long a, Long b, Long c) {
@@ -21260,7 +21260,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenorm_softmadd64F (Long a, Long b, Long c) {
@@ -21405,7 +21405,7 @@ static VG_REGPARM(3) Int vr_verroucheckcancellationmsub32F (Long a, Long b, Long
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquadcheckcancellationmadd64F (Long a, Long b, Long c) {
@@ -21472,7 +21472,7 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellationmsub32F (Long a, Long b, Lon
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenormcheckcancellationmadd64F (Long a, Long b, Long c) {
@@ -21621,7 +21621,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 // generation of operation madd backend mcaquad
 //FMA Operator
 static VG_REGPARM(3) Long vr_mcaquadcheckcancellation_softmadd64F (Long a, Long b, Long c) {
@@ -21704,7 +21704,7 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
-#endif //USE_VERROU_QUAD
+#endif //USE_VERROU_QUADMATH
 // generation of operation madd backend checkdenorm
 //FMA Operator
 static VG_REGPARM(3) Long vr_checkdenormcheckcancellation_softmadd64F (Long a, Long b, Long c) {

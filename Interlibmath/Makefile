@@ -1,12 +1,23 @@
 
 
 SRC=interlibmath.cxx ../interflop_backends/backend_mcaquad/common/tinymt64.c
-FLAGS= -std=c++11 -DUSE_VERROU_QUAD -DLIBMATHINTERP -DINTERLIBM_STAND_ALONE -I../backend_verrou -Wall -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash  -DUSE_VERROU_SQRT  -DUSE_VERROU_FMA -fno-builtin -Wno-strict-aliasing
+FLAGS= -std=c++11 -DLIBMATHINTERP -DINTERLIBM_STAND_ALONE -I../backend_verrou -Wall -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash  -DUSE_VERROU_SQRT  -DUSE_VERROU_FMA -fno-builtin -Wno-strict-aliasing
 
 CXX=g++
 
+FLAGQUADMATH=
+PLATFORM = $(shell uname -p)
+ifeq ($(PLATFORM),aarch64)
+	FLAGQUADMATH=
+endif
+ifeq ($(PLATFORM),x86_64)
+	FLAGQUADMATH=-lquadmath
+	FLAGS=$(FLAGS) -DUSE_VERROU_QUADMATH
+endif
+
+
 interlibmath.so: $(SRC) stacktrace.cxx
-	$(CXX) $(FLAGS) $(SRC) -lquadmath -lm -ldl -shared -fPIC   -o interlibmath.so
+	$(CXX) $(FLAGS) $(SRC) $(FLAGQUADMATH) -lm -ldl -shared -fPIC   -o interlibmath.so
 
 
 testCos: testCos.cxx

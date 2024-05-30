@@ -71,14 +71,14 @@ VERROU_FLAG_CXX += -DUSE_VERROU_SQRT
 VERROU_FLAG_C   += -DUSE_VERROU_SQRT
 endif
 
-
-if USE_QUAD
+if HAVE_VERROU_QUADMATH
 VERROU_SOURCES_COMMON+= \
 	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
 	interflop_backends/backend_mcaquad/common/fmaqApprox.c
-VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
-VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
 VERROU_LD       += -lquadmath
+VERROU_FLAG_CXX +=  -DUSE_VERROU_QUADMATH
+VERROU_FLAG_C   +=  -DUSE_VERROU_QUADMATH
+
 endif
 
 if USE_PROFILING_EXACT

@@ -70,7 +70,7 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
 
     for backend in listOfBackend:
         if backend=="mcaquad":
-            fileOut.write("#ifdef USE_VERROU_QUAD\n")
+            fileOut.write("#ifdef USE_VERROU_QUADMATH\n")
         for op in listOfOp:
             for rounding in roundingTab:
                 if nargs in [1,2]:
@@ -81,7 +81,7 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
                         sign="-"
                     applyTemplate(fileOut, templateStr, FctNameRegExp,BckNameRegExp,BckNameNearestRegExp, backend, op, post, sign, rounding=rounding, soft=soft)
         if backend=="mcaquad":
-            fileOut.write("#endif //USE_VERROU_QUAD\n")
+            fileOut.write("#endif //USE_VERROU_QUADMATH\n")
 
 
 def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False):
