@@ -100,22 +100,43 @@ stencil_step(int x0, int x1,
 #endif
 
 #ifdef STENCIL_WITH_FMA
+
+#if defined(__x86_64__)
 #include  <immintrin.h>
 #include  <fmaintrin.h>
+#elif defined(__aarch64__)
+#include "arm_neon.h"
+#else
+#error "fma undef"
+#endif
 
   inline double myFma(const double& a, const double& b, const double& c){
     double d;
+#if defined(__x86_64__)
     __m128d ai, bi,ci,di;
     ai = _mm_load_sd(&a);
     bi = _mm_load_sd(&b);
     ci = _mm_load_sd(&c);
     di=_mm_fmadd_sd(ai,bi,ci);
     d=_mm_cvtsd_f64(di);
+
+#elif defined(__aarch64__)
+  const float64x1_t ai=vld1_f64(&a);
+  const float64x1_t bi=vld1_f64(&b);
+  const float64x1_t ci=vld1_f64(&c);
+
+  const float64x1_t di=vfma_f64(ci,ai,bi);// warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  vst1_f64(&d, di);
+#else
+#error "fma undef"
+#endif
     return d;
   }
 
 
   inline float myFma(const float& a, const float& b, const float& c){
+#if defined(__x86_64__)
     float d;
     __m128 ai, bi,ci,di;
     ai = _mm_load_ss(&a);
@@ -124,6 +145,23 @@ stencil_step(int x0, int x1,
     di=_mm_fmadd_ss(ai,bi,ci);
     d=_mm_cvtss_f32(di);
     return d;
+#elif defined(__aarch64__)
+  float av[2]={a,0};
+  float bv[2]={b,0};
+  float cv[2]={c,0};
+
+  float32x2_t ap=vld1_f32(av);
+  float32x2_t bp=vld1_f32(bv);
+  float32x2_t cp=vld1_f32(cv);
+
+  float32x2_t resp= vfma_f32(cp,ap,bp); // warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  float res[2];
+  vst1_f32(res, resp);
+  return res[0];
+#else
+#error "fma undef"
+#endif
   }
 
 
