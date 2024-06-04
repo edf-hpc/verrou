@@ -14,13 +14,13 @@ EXTRA_DIST = \
 	sum2.vgtest       sum2.stderr.exp       sum2.stdout.exp  \
 	sum3.vgtest       sum3.stderr.exp       sum3.stdout.exp  \
 	seed.vgtest       seed.stderr.exp       seed.stdout.exp  \
-	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp  \
+	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp naninf-rnd.stdout.exp.aarch64 \
 	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
 	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp \
 	accuClreq3.vgtest accuClreq3.stderr.exp accuClreq3.stdout.exp  \
 	accuClreq4.vgtest accuClreq4.stderr.exp accuClreq4.stdout.exp \
 	accuClreq5.vgtest accuClreq5.stderr.exp accuClreq5.stdout.exp \
-	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp \
+	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp denorm1.stderr.exp.aarch64 \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
 	test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
 	test_det_average_scomdet.stderr.exp test_det_average_scomdet.stdout.exp  test_det_average_scomdet.vgtest \
@@ -30,7 +30,7 @@ EXTRA_DIST = \
 	test_det_random_det.stderr.exp test_det_random_det.stdout.exp  test_det_random_det.vgtest \
 	test_det_sr_monotonic.stderr.exp test_det_sr_monotonic.stdout.exp  test_det_sr_monotonic.vgtest \
 	test_det_sr_smonotonic.stderr.exp test_det_sr_smonotonic.stdout.exp  test_det_sr_smonotonic.vgtest \
-	libmtest-withlibm.stderr.exp libmtest-withlibm.stdout.exp libmtest-withlibm.vgtest \
+	libmtest-withlibm.stderr.exp libmtest-withlibm.stdout.exp libmtest-withlibm.vgtest libmtest-withlibm.stderr.exp.aarch64 \
 	libmtest-withoutlibm.stderr.exp libmtest-withoutlibm.stdout.exp libmtest-withoutlibm.vgtest \
 	seed_random_det.stderr.exp seed_random_det.stdout.exp seed_random_det.vgtest \
 	test_libm_random.stderr.exp test_libm_random.stdout.exp test_libm_random.vgtest \

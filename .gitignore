@@ -1,6 +1,7 @@
 Makefile
 Makefile.in
 *amd64-linux*
+*arm64-linux*
 *.o
 *.so
 *~
