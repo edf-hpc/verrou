@@ -6,18 +6,21 @@ FLAGS= -std=c++11 -DLIBMATHINTERP -DINTERLIBM_STAND_ALONE -I../backend_verrou -W
 CXX=g++
 
 FLAGQUADMATH=
-PLATFORM = $(shell uname -p)
+LDFLAGQUADMATH=
+
+PLATFORM = $(shell uname -m)
 ifeq ($(PLATFORM),aarch64)
 	FLAGQUADMATH=
+	LDFLAGQUADMATH=
 endif
 ifeq ($(PLATFORM),x86_64)
-	FLAGQUADMATH=-lquadmath
-	FLAGS=$(FLAGS) -DUSE_VERROU_QUADMATH
+	LDFLAGQUADMATH=-lquadmath
+	FLAGQUADMATH=-DUSE_VERROU_QUADMATH
 endif
 
 
 interlibmath.so: $(SRC) stacktrace.cxx
-	$(CXX) $(FLAGS) $(SRC) $(FLAGQUADMATH) -lm -ldl -shared -fPIC   -o interlibmath.so
+	$(CXX) $(FLAGS) $(SRC) $(FLAGQUADMATH) -lm $(LDFLAGQUADMATH) -ldl  -shared -fPIC   -o interlibmath.so
 
 
 testCos: testCos.cxx

@@ -12,7 +12,7 @@
 
 #include <float.h>
 
-#if defined(USE_VERROU_QUADMATH) && defined(__x86_64__)
+#if defined(USE_VERROU_QUADMATH)
 #include <quadmath.h>
 #endif
 
@@ -26,7 +26,7 @@
 
 
 #if defined(USE_VERROU_QUADMATH) || defined(__aarch64__)
-#define INST_VERROU_QUADMATH
+#define INST_VERROU_LIBM
 #endif
 
 
@@ -89,6 +89,7 @@ void printInf(){
 
 void (*vr_nanHandler)()=printNan;
 void (*vr_infHandler)()=printInf;
+void (*vr_debug_print_op)(int,const char*, const double*, const double*)=NULL;
 
 #define VERROU_IS_INSTRUMENTED_FLOAT true
 #define VERROU_IS_INSTRUMENTED_DOUBLE true
@@ -183,11 +184,6 @@ public:
     load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_float),       name, "f");
     load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_double),      name, "" );
     load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_long_double), name, "l");
-#if defined(USE_VERROU_QUADMATH)
-    load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_quad), name, "q");
-#else
-    static_cast<DERIVED*>(this)->real_name_quad=static_cast<DERIVED*>(this)->real_name_long_double;
-#endif
     strncat_redefined(name_,name, NAME_FUNCTION_SIZE);
   }
 
@@ -223,9 +219,7 @@ public:
     myLibMathGen<myLibMathFunction1>(rhs),
     real_name_float(rhs.real_name_float),
     real_name_double(rhs.real_name_double),
-    real_name_long_double(rhs.real_name_long_double),
-    real_name_quad(rhs.real_name_quad)
-  {
+    real_name_long_double(rhs.real_name_long_double){
   }
 
   ~myLibMathFunction1(){}
@@ -238,10 +232,6 @@ public:
   inline long double apply(long double a)const{ return real_name_long_double(a);}
   inline float apply(float a)const{ return real_name_float(a); }
 
-#if defined(USE_VERROU_QUADMATH)
-  inline myFloat128 apply(myFloat128 a)const { return real_name_quad(a); }
-#endif
-
   inline void setParity(libMparity_t p){parity_=p;}
   inline libMparity_t getParity(){return parity_;}
 
@@ -249,8 +239,6 @@ public:
   float (*real_name_float)(float) ;
   double (*real_name_double)(double) ;
   long double (*real_name_long_double)(long double) ;
-  myFloat128 (*real_name_quad)(myFloat128) ;
-
 private:
   libMparity_t parity_;
 };
@@ -265,9 +253,7 @@ public:
   myLibMathFunction1Complex(const myLibMathFunction1Complex& rhs):myLibMathGen<myLibMathFunction1Complex>(rhs),
 						    real_name_float(rhs.real_name_float),
 						    real_name_double(rhs.real_name_double),
-						    real_name_long_double(rhs.real_name_long_double),
-						    real_name_quad(rhs.real_name_quad)
-  {
+						    real_name_long_double(rhs.real_name_long_double){
   }
 
   ~myLibMathFunction1Complex(){}
@@ -279,14 +265,11 @@ public:
   double _Complex apply(double _Complex a)const{ return real_name_double(a);}
   long double _Complex apply(long double _Complex a)const{return real_name_long_double(a);}
   float _Complex apply(float _Complex a)const{return real_name_float(a);}
-#if defined(USE_VERROU_QUADMATH)
-  myFloat128 _Complex apply(myFloat128 _Complex a)const{ return real_name_quad(a);}
-#endif
+
   //Attributs
   float _Complex(*real_name_float)(float _Complex) ;
   double _Complex(*real_name_double)(double _Complex) ;
-  long double _Complex(*real_name_long_double)(long double _Complex) ;
-  myFloat128 _Complex (*real_name_quad)(myFloat128 _Complex) ;
+  long double (*real_name_long_double)(long double _Complex) ;
 private:
 
 };
@@ -300,9 +283,7 @@ public:
   myLibMathFunction2(const myLibMathFunction2& rhs):myLibMathGen<myLibMathFunction2>(rhs),
 						    real_name_float(rhs.real_name_float),
 						    real_name_double(rhs.real_name_double),
-						    real_name_long_double(rhs.real_name_long_double),
-						    real_name_quad(rhs.real_name_quad)
-  {
+						    real_name_long_double(rhs.real_name_long_double){
   }
 
   ~myLibMathFunction2(){}
@@ -314,9 +295,8 @@ public:
   inline float apply(float a, float b)const{ return real_name_float(a,b);}
   inline double apply(double a, double b)const{ return real_name_double(a,b);}
   inline long double apply(long double a, long double b)const{ return real_name_long_double(a,b);}
-#if defined(USE_VERROU_QUADMATH)
-  inline myFloat128 apply(myFloat128 a, myFloat128 b)const{ return real_name_quad(a,b);}
-#endif
+
+
   inline void setCommutativity(bool value){
     commutativity_=value;
   }
@@ -336,7 +316,6 @@ public:
   float (*real_name_float)(float,float) ;
   double (*real_name_double)(double,double) ;
   long double (*real_name_long_double)(long double, long double) ;
-  myFloat128 (*real_name_quad)(myFloat128, myFloat128) ;
 private:
   bool commutativity_;
   libM2parity_t parity2_;
@@ -355,9 +334,7 @@ public:
   myLibMathFunction2IntFP(const myLibMathFunction2IntFP& rhs):myLibMathGen(rhs),
 							      real_name_float(rhs.real_name_float),
 							      real_name_double(rhs.real_name_double),
-							      real_name_long_double(rhs.real_name_long_double),
-							      real_name_quad(rhs.real_name_quad)
-  {
+							      real_name_long_double(rhs.real_name_long_double){
   }
   ~myLibMathFunction2IntFP(){}
 
@@ -368,14 +345,11 @@ public:
   inline float apply(int a, float b)const            { return real_name_float(a,b);}
   inline double apply(int a, double b)const          { return real_name_double(a,b);}
   inline long double apply(int a, long double b)const{ return real_name_long_double(a,b);}
-#if defined(USE_VERROU_QUADMATH)
-  inline myFloat128 apply(int a, myFloat128 b)  const{ return real_name_quad(a,b);}
-#endif
+
   //attribute
   float (*real_name_float)(int, float) ;
   double (*real_name_double)(int, double) ;
   long double (*real_name_long_double)(int, long double) ;
-  myFloat128 (*real_name_quad)(int, myFloat128) ;
 };
 
 
@@ -387,9 +361,7 @@ public:
   myLibMathFunction3(const myLibMathFunction3& rhs):myLibMathGen(rhs),
 						    real_name_float(rhs.real_name_float),
 						    real_name_double(rhs.real_name_double),
-						    real_name_long_double(rhs.real_name_long_double),
-						    real_name_quad(rhs.real_name_quad)
-  {}
+						    real_name_long_double(rhs.real_name_long_double){}
   ~myLibMathFunction3(){}
 
   template<class REALTYPE>
@@ -399,14 +371,11 @@ public:
   inline float apply(float a, float b, float c)const{return real_name_float(a,b,c);}
   inline double apply(double a, double b, double c)const{ return real_name_double(a,b,c);}
   inline long double apply(long double a, long double b, long double c)const{return real_name_long_double(a,b,c);}
-#if defined(USE_VERROU_QUADMATH)
-  inline myFloat128 apply(myFloat128 a, myFloat128 b, myFloat128 c)const{return real_name_quad(a,b,c);}
-#endif
+
   //Attributs
   float (*real_name_float)(float,float,float) ;
   double (*real_name_double)(double,double,double) ;
   long double (*real_name_long_double)(long double, long double, long double) ;
-  myFloat128 (*real_name_quad)(myFloat128,myFloat128,myFloat128) ;
 };
 
 //Remarks:
@@ -795,7 +764,7 @@ void printCounter(){
   }
 }
 
-#ifdef INST_VERROU_QUADMATH
+#ifdef INST_VERROU_LIBM
 
 #ifndef INTERLIBM_STAND_ALONE
 static myFloat128 verrou_libm_res_ref=0.;
@@ -1078,7 +1047,7 @@ public:
 };
 
 
-#endif //INST_VERROU_QUADMATH
+#endif //INST_VERROU_LIBM
 
 
 #ifdef INTERLIBM_STAND_ALONE
@@ -1205,9 +1174,26 @@ public:
 
 #define STRINGIFY(A) #A
 
-#define DEFINE_INTERP_LIBM1_C_IMPL_POST(FCT, POST)				\
+
+
+#if defined(__x86_64__)
+#define APPLY_LIBM1_CODE(FCT) return FCT##q(a);
+#define APPLY_LIBM2_CODE(FCT) return FCT##q(a,b);
+#define APPLY_LIBM2INTFP_CODE(FCT) return FCT##q(a,b);
+#define APPLY_LIBM3_CODE(FCT) return FCT##q(a,b,c);
+#elif defined(__aarch64__)
+#define APPLY_LIBM1_CODE(FCT) return function1NameTab[enum##FCT].apply(a);
+#define APPLY_LIBM2_CODE(FCT) return function2NameTab[enum##FCT].apply(a,b);
+#define APPLY_LIBM2INTFP_CODE(FCT) return function2IntFPNameTab[enum##FCT].apply(a,b);
+#define APPLY_LIBM3_CODE(FCT) return function3NameTab[enum##FCT].apply(a,b,c);
+#else
+#error("arch not defined")
+#endif
+
+
+#define DEFINE_INTERP_LIBM1_C_IMPL(FCT)				\
   struct libmq##FCT{							\
-    static myFloat128 apply(myFloat128 a){return function1NameTab[enum##FCT].apply(a);}		\
+    static myFloat128 apply(myFloat128 a) {APPLY_LIBM1_CODE(FCT) }      \
     static __uint64_t getHash(){return enum##FCT; }                     \
     static libMparity_t getParity(){return function1NameTab[enum##FCT].getParity();}; \
 };									\
@@ -1215,7 +1201,7 @@ public:
   double FCT (double a){						\
     const char fctStr[]=STRINGIFY(FCT);					\
     const vr_packArg<double,1> p(a);					\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,realTypeIndex<double>::index); \
+    const bool isInstrumented=(VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,realTypeIndex<double>::index)); \
     typedef instrumentFunction<double,oneReal, libMathFunction1<libmq##FCT,double>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
@@ -1223,7 +1209,7 @@ public:
   float FCT##f (float a){						\
     char fctStr[]=STRINGIFY(FCT##f);					\
     const vr_packArg<float,1> p(a);					\
-    const bool isInstrumented=VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,realTypeIndex<float>::index); \
+    const bool isInstrumented=(VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,realTypeIndex<float>::index)); \
     typedef instrumentFunction<float,oneReal, libMathFunction1<libmq##FCT,float>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
@@ -1234,13 +1220,6 @@ public:
   }									\
 };
 
-#if defined(__x86_64__)
-#define DEFINE_INTERP_LIBM1_C_IMPL(FCT)  DEFINE_INTERP_LIBM1_C_IMPL_POST(FCT,q)
-#elif defined(__aarch64__)
-#define DEFINE_INTERP_LIBM1_C_IMPL(FCT)  DEFINE_INTERP_LIBM1_C_IMPL_POST(FCT,l)
-#else
-#error("arch not defined")
-#endif
 
 #define DEFINE_INTERP_LIBM1_C_IMPL_UNINST(FCT)				\
   extern "C"{								\
@@ -1275,9 +1254,10 @@ public:
   };
 
 
-#define DEFINE_INTERP_LIBM2_C_IMPL_POST(FCT,POST)				\
+
+#define DEFINE_INTERP_LIBM2_C_IMPL(FCT)				\
   struct libmq##FCT{							\
-    static myFloat128 apply(myFloat128 a,myFloat128 b){return function2NameTab[enum##FCT].apply(a,b);} \
+    static myFloat128 apply(myFloat128 a,myFloat128 b){ APPLY_LIBM2_CODE(FCT)} \
     static __uint64_t getHash(){return enum##FCT; }			\
     static bool isCommutative(){return function2NameTab[enum##FCT].getCommutativity();}\
     static libM2parity_t getParity2(){return function2NameTab[enum##FCT].getParity2();}; \
@@ -1304,13 +1284,6 @@ public:
       return function2NameTab[enum##FCT].apply(a,b);			\
     }									\
   };
-#if defined(__x86_64__)
-#define DEFINE_INTERP_LIBM2_C_IMPL(FCT)  DEFINE_INTERP_LIBM2_C_IMPL_POST(FCT,q)
-#elif defined(__aarch64__)
-#define DEFINE_INTERP_LIBM2_C_IMPL(FCT)  DEFINE_INTERP_LIBM2_C_IMPL_POST(FCT,l)
-#else
-#error("arch not defined")
-#endif
 
 
 #define DEFINE_INTERP_LIBM2_C_IMPL_UNINST(FCT)				\
@@ -1330,11 +1303,9 @@ public:
   };
 
 
-#define DEFINE_INTERP_LIBM2INTFP_C_IMPL_POST(FCT,POST)			\
-  struct libmq##FCT{							\
-    static myFloat128 apply(int a,myFloat128 b){			\
-      return function2IntFPNameTab[enum##FCT].apply(a,b);		\
-    }									\
+#define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)			\
+  struct libmq##FCT{						      	\
+    static myFloat128 apply(int a,myFloat128 b){ APPLY_LIBM2INTFP_CODE(FCT)} \
     static __uint64_t getHash(){return enum##FCT; }			\
   };									\
   extern "C"{								\
@@ -1359,14 +1330,6 @@ float FCT##f (int a, float b){						\
    }									\
   };
 
-#if defined(__x86_64__)
-#define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)  DEFINE_INTERP_LIBM2INTFP_C_IMPL_POST(FCT,q)
-#elif defined(__aarch64__)
-#define DEFINE_INTERP_LIBM2INTFP_C_IMPL(FCT)  DEFINE_INTERP_LIBM2INTFP_C_IMPL_POST(FCT,l)
-#else
-#error("arch not defined")
-#endif
-
 
 #define DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(FCT)				\
   extern "C"{								\
@@ -1387,10 +1350,10 @@ float FCT##f (int a, float b){						\
 
 
 
-#define DEFINE_INTERP_LIBM3_FMA_C_IMPL_POST(FCT,POST)			\
+#define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)			\
     struct libmq##FCT{							\
       static myFloat128 apply(myFloat128 a,myFloat128 b, myFloat128 c){	\
-	return function3NameTab[enum##FCT].apply(a,b,c);		\
+       APPLY_LIBM3_CODE(FCT)                                            \
     }									\
     static __uint64_t getHash(){return enum##FCT; }			\
     };									\
@@ -1417,13 +1380,6 @@ extern "C"{								\
   }									\
 };
 
-#if defined(__x86_64__)
-#define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)  DEFINE_INTERP_LIBM3_FMA_C_IMPL_POST(FCT,q)
-#elif defined(__aarch64__)
-#define DEFINE_INTERP_LIBM3_FMA_C_IMPL(FCT)  DEFINE_INTERP_LIBM3_FMA_C_IMPL_POST(FCT,l)
-#else
-#error("arch not defined")
-#endif
 
 #define DEFINE_INTERP_LIBM3_C_IMPL_UNINST(FCT)				\
   extern "C"{								\
@@ -1447,7 +1403,7 @@ extern "C"{								\
 
 
 //shell for i in $LIST1 ; do  echo " DEFINE_INTERP_LIBM1_C_IMPL($i);"; done;
-#ifdef INST_VERROU_QUADMATH
+#ifdef INST_VERROU_LIBM
  DEFINE_INTERP_LIBM1_C_IMPL(acos);
  DEFINE_INTERP_LIBM1_C_IMPL(acosh);
  DEFINE_INTERP_LIBM1_C_IMPL(asin);
@@ -1531,7 +1487,7 @@ extern "C"{								\
 #undef DEFINE_INTERP_LIBM1_C_IMPL_UNINST_COMPLEX
 
 
-#ifdef INST_VERROU_QUADMATH
+#ifdef INST_VERROU_LIBM
 DEFINE_INTERP_LIBM2_C_IMPL(atan2);
 DEFINE_INTERP_LIBM2_C_IMPL(hypot);
 DEFINE_INTERP_LIBM2_C_IMPL(pow);
@@ -1547,7 +1503,7 @@ DEFINE_INTERP_LIBM2_C_IMPL_UNINST(fdim);
 #undef DEFINE_INTERP_LIBM2_C_POST
 #undef DEFINE_INTERP_LIBM2_C_IMPL_UNINST
 
-#ifdef INST_VERROU_QUADMATH
+#ifdef INST_VERROU_LIBM
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(yn);
 DEFINE_INTERP_LIBM2INTFP_C_IMPL(jn);
 #else
@@ -1559,7 +1515,7 @@ DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST(jn);
 #undef DEFINE_INTERP_LIBM2INTFP_C_IMPL_POST
 #undef DEFINE_INTERP_LIBM2INTFP_C_IMPL_UNINST
 
-#ifdef INST_VERROU_QUADMATH
+#ifdef INST_VERROU_LIBM
 DEFINE_INTERP_LIBM3_FMA_C_IMPL(fma);
 #else
 DEFINE_INTERP_LIBM3_C_IMPL_UNINST(fma)
@@ -1778,8 +1734,7 @@ void __attribute__((constructor)) init_interlibmath(){
   gettimeofday(&now, NULL);
   uint64_t vr_seed=  now.tv_usec + my_pid;
   vr_rand_setSeed(&vr_rand, vr_seed);
-
-  verrou_set_debug_print_op(&print_libm_debug);
+  vr_debug_print_op=&print_libm_debug;
 
   char* vrm=std::getenv("VERROU_LIBM_ROUNDING_MODE");
   if(vrm==NULL){

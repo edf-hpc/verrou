@@ -1173,7 +1173,7 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
       }
    }
 
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
    if(vr.backend==vr_mcaquad && !checkCancellation){
 #define IGNORESQRT
       if(vr.instrument_soft_used){
@@ -1458,7 +1458,7 @@ static void vr_fini(Int exitcode)
   vr_ppOpCount ();
   interflop_verrou_finalize(backend_verrou_context);
   interflop_verrou_finalize(backend_verrou_null_context);
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
@@ -1596,7 +1596,7 @@ static void vr_post_clo_init(void)
 
 
    /*configuration of MCA backend*/
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
    backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
    mcaquad_set_panic_handler(&VG_(tool_panic));
 
@@ -1717,7 +1717,7 @@ static void vr_post_clo_init(void)
       }
    }
    if(vr.backend==vr_mcaquad){
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
      VG_(umsg)("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
 #else
      VG_(tool_panic)("Verrou compiled without quad support");

@@ -4,7 +4,7 @@
 #error "INTERFLOP_STATIC_INTERFACE_ENABLED should be defined"
 #endif
 #include "interflop_verrou/interflop_verrou.h"
-#ifdef USE_VERROU_QUAD
+#ifdef USE_VERROU_QUADMATH
 #include "backend_mcaquad/interflop_mcaquad.h"
 #else
 #define MCAMODE_IEEE 0

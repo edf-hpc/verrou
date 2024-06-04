@@ -35,11 +35,11 @@
 
 #ifdef    USE_VERROU_FMA
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 #include  <immintrin.h>
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 #include "arm_neon.h"
 #endif
 
@@ -48,7 +48,7 @@ template<class REALTYPE>
 inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&);
 
 
-#if defined(VGA_amd64)
+#if defined(__x86_64__)
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
   double d;
@@ -62,7 +62,7 @@ inline double vr_fma<double>(const double& a, const double& b, const double& c){
 }
 #endif
 
-#if defined(VGA_arm64)
+#if defined(__aarch64__)
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
   double d;
@@ -79,7 +79,7 @@ inline double vr_fma<double>(const double& a, const double& b, const double& c){
 
 
 
-#if defined(VGA_amd64)
+#if defined(__x86_64__)
 template<>
 inline float vr_fma<float>(const float& a, const float& b, const float& c){
   float d;
@@ -94,7 +94,7 @@ inline float vr_fma<float>(const float& a, const float& b, const float& c){
 #endif
 
 
-#if defined(VGA_arm64)
+#if defined(__aarch64__)
 template<>
 inline float vr_fma<float>(const float& a, const float& b, const float& c){
   float av[2]={a,0};
