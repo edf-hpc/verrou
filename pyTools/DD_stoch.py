@@ -664,6 +664,8 @@ class DDStoch(DD.DD):
         #select the right variant of algo and apply it
         algo=self.config_.get_ddAlgo()
         resConf=None
+        if algo=="ddmax":
+            return  self.DDMax(deltas)
 
         def rddminAlgo(localDeltas):
             if algo=="rddmin":
@@ -682,13 +684,10 @@ class DDStoch(DD.DD):
         else:
             resConf=rddminAlgo(deltas)
 
-        if algo=="ddmax":
-            resConf= self.DDMax(deltas)
-        else:
-            if resConf!=None:
-                flatRes=[c  for conf in resConf for c in conf]
-                cmp= [delta for delta in deltas if  delta not in flatRes ]
-                self.configuration_found("rddmin-cmp", cmp)
+        if resConf!=None:
+            flatRes=[c  for conf in resConf for c in conf]
+            cmp= [delta for delta in deltas if  delta not in flatRes ]
+            self.configuration_found("rddmin-cmp", cmp)
 
         return resConf
 
