@@ -1,0 +1,48 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : 42
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend verrou simulating RANDOM_DET rounding mode
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                   100001                   100000          (100%)
+  `- flt                   100001                   100000      (100%)
+      `- llo                   100001                   100000  (100%)
+ ---------------------------------------------------------------------
+ mul                        1                        0          (  0%)
+  `- flt                        1                        0      (  0%)
+      `- llo                        1                        0  (  0%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

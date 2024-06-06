@@ -32,10 +32,11 @@ EXTRA_DIST = \
 	test_det_sr_smonotonic.stderr.exp test_det_sr_smonotonic.stdout.exp  test_det_sr_smonotonic.vgtest \
 	libmtest-withlibm.stderr.exp libmtest-withlibm.stdout.exp libmtest-withlibm.vgtest libmtest-withlibm.stderr.exp.aarch64 \
 	libmtest-withoutlibm.stderr.exp libmtest-withoutlibm.stdout.exp libmtest-withoutlibm.vgtest \
-	seed_random_det.stderr.exp seed_random_det.stdout.exp seed_random_det.vgtest \
-	test_libm_random.stderr.exp test_libm_random.stdout.exp test_libm_random.vgtest \
-	test_libm_random_det.stderr.exp test_libm_random_det.stdout.exp test_libm_random_det.vgtest \
-	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest \
+	seed_random_det.aarch64.stderr.exp seed_random_det.aarch64.stdout.exp seed_random_det.aarch64.vgtest \
+	seed_random_det.x86_64.stderr.exp seed_random_det.x86_64.stdout.exp seed_random_det.x86_64.vgtest \
+	test_libm_random.stderr.exp test_libm_random.stderr.exp.aarch64 test_libm_random.stdout.exp test_libm_random.vgtest \
+	test_libm_random_det.stderr.exp test_libm_random_det.stderr.exp.aarch64 test_libm_random_det.stdout.exp test_libm_random_det.stdout.exp.aarch64 test_libm_random_det.vgtest \
+	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stderr.exp.aarch64 test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest \
 	hardSoftClreq1.stderr.exp hardSoftClreq1.stdout.exp hardSoftClreq1.vgtest \
 	hardSoftClreq2.stderr.exp hardSoftClreq2.stdout.exp hardSoftClreq2.vgtest \
 	hardSoftClreq3.stderr.exp hardSoftClreq3.stdout.exp hardSoftClreq3.vgtest
