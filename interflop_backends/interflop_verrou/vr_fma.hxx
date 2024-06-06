@@ -97,19 +97,12 @@ inline float vr_fma<float>(const float& a, const float& b, const float& c){
 #if defined(__aarch64__)
 template<>
 inline float vr_fma<float>(const float& a, const float& b, const float& c){
-  float av[2]={a,0};
-  float bv[2]={b,0};
-  float cv[2]={c,0};
-
-  float32x2_t ap=vld1_f32(av);
-  float32x2_t bp=vld1_f32(bv);
-  float32x2_t cp=vld1_f32(cv);
-
-  float32x2_t resp= vfma_f32(cp,ap,bp); // warning strange argument order
-  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
-  float res[2];
-  vst1_f32(res, resp);
-  return res[0];
+  float res;
+  __asm__(
+	  "fmadd %s0, %s1, %s2, %s3":
+	  "=x"(res): "x"(a),"x"(b),"x"(c)
+	  );
+  return res;
 }
 #endif
 
