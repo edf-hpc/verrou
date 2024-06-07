@@ -305,10 +305,10 @@ def feedPerfTab(tab, data, buildList, detTab=["_det","_comdet"], branchTab=False
                 roundingTab+=[(rounding+"("+branch+")", rounding, branch)]
             roundingTab+=["SEPARATOR"]
     else:
-        addRefDet(roundingTab, "current", False, withNearestNc, withExclude, withExcludeNc, withFmaOnly, withToolNone)
+        addRefDet(roundingTab,  ref_name, False, withNearestNc, withExclude, withExcludeNc, withFmaOnly, withToolNone)
         roundingTab+=["SEPARATOR"]
         for rd in ["random","average"]:
-            roundingTab+=[(rd, rd,"current")]
+            roundingTab+=[(rd, rd, ref_name)]
 
             for detType in detTab:
                 for gen in buildList:#on supprime master
@@ -319,8 +319,7 @@ def feedPerfTab(tab, data, buildList, detTab=["_det","_comdet"], branchTab=False
             roundingTab+=["SEPARATOR"]
             for rd in extraRounding:
                 for gen in buildList:#on supprime master
-                 roundingTab+=[(rd+"("+gen+")",rd,gen)]
-
+                    roundingTab+=[(rd+"("+gen+")",rd,gen)]
     generateTab(tab,data,roundingTab, optionStr)
 
 
@@ -342,31 +341,31 @@ if __name__=="__main__":
         print("ref_name:",ref_name)
         nonPerfRegressionAnalyze(resAll, ref_name)
 
-        tab=tabularLatex("lcccc", output="slowDown.tex")
+        tab=tabularLatex("lcccc", output="slowDownBranch.tex")
         feedPerfTab(tab,resAll,buildConfigList, detTab=[], branchTab=True)
     if what=="cmpStable":
         print("ref_name:",ref_name)
         nonPerfRegressionAnalyze(resAll, ref_name)
 
     if what=="cmpHash":
-        tab=tabularLatex("lcccc", output="slowDown.tex")
-        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=[""])
+        tab=tabularLatex("lcccc", output="slowDownHash.tex")
+        feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=[])
 
-        tab=tabularLatex("lcccc", output="slowDown_det.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_det.tex")
         feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_det"])
 
-        tab=tabularLatex("lcccc", output="slowDown_comdet.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_comdet.tex")
         feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_comdet"])
 
-        tab=tabularLatex("lcccc", output="slowDown_scomdet.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_scomdet.tex")
         feedPerfTab(tab,resAll,buildSpecialConfigList, detTab=["_scomdet"])
 
-        tab=tabularLatex("lcccc", output="slowDown_doubleTab.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_doubleTab.tex")
         feedPerfTab(tab,resAll,["double_tabulation"], detTab=["_det","_comdet","_scomdet"])
 
-        tab=tabularLatex("lcccc", output="slowDown_xxhash.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_xxhash.tex")
         feedPerfTab(tab,resAll,["xxhash"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"], withToolNone=True, withExcludeNc=True, withExclude=True, withNearestNc=True)
 
-        tab=tabularLatex("lcccc", output="slowDown_all.tex")
+        tab=tabularLatex("lcccc", output="slowDownHash_all.tex")
         feedPerfTab(tab, resAll,["dietzfelbinger", "multiply_shift", "double_tabulation", "xxhash","mersenne_twister"], detTab=["_det","_comdet","_scomdet"], extraRounding=["sr_monotonic","sr_smonotonic"])
 
