@@ -254,13 +254,15 @@ if __name__=="__main__":
     feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")
 
     if what=="cmpHash":
-        cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        name="mersenne_twister"
+        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
+        cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)
 
-        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloatmersenne_twisterDetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep="+ repNum +" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloat"+name+"DetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)
-        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)
