@@ -1,2 +1,2 @@
-match: xn[10]=*
+bmatch: xn[10]=*
 apply: exit

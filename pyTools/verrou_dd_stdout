@@ -129,9 +129,9 @@ class DDstdout(DD_stoch.DDStoch):
 
         refFile.write("post-init: nb_instr\n")
         if self.config_.get_ignoreEmptyLine():
-            refFile.write("match: ?*\n")
+            refFile.write("bmatch: ?*\n")
         else:
-            refFile.write("match: *\n")
+            refFile.write("bmatch: *\n")
         refFile.write("apply: reset_counter\n")
         refFile.write("post-apply: nb_instr\n")
         refFile.write("begin:\n")
@@ -191,7 +191,7 @@ class DDstdout(DD_stoch.DDStoch):
             for line in excludes:
                 if line=="__verrou__stdout__init__":
                     continue
-                f.write("match: "+ line+"\n")
+                f.write("bmatch: "+ line+"\n")
                 if line in deltas:
                     f.write("apply: %s\n"%(self.startCmd))
                     if unknownTask in ["stop"]:
@@ -267,7 +267,9 @@ class stdoutConfig(dd_config.ddConfig):
                     print("expect header need a : separator")
                     error=True
                     break
-                if line.startswith("match:"):
+                if line.startswith("bmatch:"):
+                    continue
+                if line.startswith("cmatch:"):
                     continue
                 if line.startswith("apply: ") or line.startswith("post-apply: ") or line.startswith("default"):
                     value=line.split(" ")[1].replace("\n","")
