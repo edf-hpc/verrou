@@ -106,9 +106,9 @@ void vr_clo_defaults (void) {
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
-  vr.outputExpectRep = NULL;
-  vr.outputExpectFilePattern= NULL;
-  vr.ExpectFileDescriptor=1;//stdout
+  vr.outputIOMatchRep = NULL;
+  vr.outputIOMatchFilePattern= NULL;
+  vr.IOMatchFileDescriptor=1;//stdout
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
@@ -142,8 +142,8 @@ void vr_clo_defaults (void) {
   vr.dumpCancellation=False;
   vr.cancellationSource=NULL;
 
-  vr.useExpectCLR=False;
-  vr.expectCLRFileInput=-1;
+  vr.useIOMatchCLR=False;
+  vr.IOMatchCLRFileInput=-1;
 
   vr.checkDenorm=False;
   vr.ftz=False;
@@ -413,15 +413,15 @@ Bool vr_process_clo (const HChar *arg) {
     }
   }
   else if (VG_STR_CLOM(cloPD, arg, "--expect-clr",str)){
-     vr.expectScript = VG_(expand_file_name)("vr.process_clo.expect-clr", str);
-     vr.useExpectCLR=True;
+     vr.IOMatchScript = VG_(expand_file_name)("vr.process_clo.IOMatch-clr", str);
+     vr.useIOMatchCLR=True;
   }
   else if (VG_STR_CLOM (cloPD, arg, "--output-expect-rep", str)) {
-    vr.outputExpectRep = VG_(expand_file_name)("vr.process_clo.expect-rep", str);
+    vr.outputIOMatchRep = VG_(expand_file_name)("vr.process_clo.IOMatch-rep", str);
   }
   else if (VG_STR_CLOM (cloPD, arg, "--expect-file-pattern", str)) {
-    vr.ExpectFileDescriptor=-1;
-    vr.outputExpectFilePattern = VG_(strdup)("vr.process_clo.expect-file-pattern", str);
+    vr.IOMatchFileDescriptor=-1;
+    vr.outputIOMatchFilePattern = VG_(strdup)("vr.process_clo.IOMatch-file-pattern", str);
   }
   // Unknown option
   else {

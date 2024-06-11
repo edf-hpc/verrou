@@ -189,14 +189,14 @@ typedef struct {
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
 
-  Bool useExpectCLR;
-  HChar* expectScript;
-  Int expectCLRFileInput;
+  Bool useIOMatchCLR;
+  HChar* IOMatchScript;
+  Int IOMatchCLRFileInput;
 
-  HChar* outputExpectFilePattern;
-  Int ExpectFileDescriptor;
+  HChar* outputIOMatchFilePattern;
+  Int IOMatchFileDescriptor;
 
-  HChar* outputExpectRep;
+  HChar* outputIOMatchRep;
   HChar* outputTraceRep;
 
 } Vr_State;

@@ -1451,8 +1451,8 @@ static void vr_fini(Int exitcode)
   VG_(umsg)("%s #total: %u #exact: %u\n","Profiling exact - last -", num, numExact);
 #endif
 
-  if(vr.useExpectCLR){
-      vr_expect_clr_finalize();
+  if(vr.useIOMatchCLR){
+      vr_IOmatch_clr_finalize();
    }
 
   vr_ppOpCount ();
@@ -1512,8 +1512,8 @@ static void vr_post_clo_init(void)
    // Values coming from the environment take precedence over CLOs
    vr_env_clo();
 
-   if(vr.useExpectCLR){
-      vr_expect_clr_init(vr.expectScript);
+   if(vr.useIOMatchCLR){
+      vr_IOmatch_clr_init(vr.IOMatchScript);
    }
    vr_resetCount();
 
@@ -1769,20 +1769,19 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
      }
    }
 
-   if(vr.useExpectCLR){
-      if((syscallno==VR_WRITE_SYSCALLNO) && (vr.ExpectFileDescriptor !=-1)){//syscall write
+   if(vr.useIOMatchCLR){
+      if((syscallno==VR_WRITE_SYSCALLNO) && (vr.IOMatchFileDescriptor !=-1)){//syscall write
          int fd=(int)args[0];
-	 //	 VG_(umsg)("fd write %d, %d\n",fd, fdExpec);
-         if(fd==vr.ExpectFileDescriptor){//sortie standard
+         if(fd==vr.IOMatchFileDescriptor){//sortie standard
             const HChar* buf=(HChar*)args[1];
 
             int size=(int)args[2];
             VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-            vr_expect_clr_checkmatch(buf,size);
+            vr_IOmatch_clr_checkmatch(buf,size);
             VG_(ok_to_discard_translations)=False;
          }
       }
-      if(vr.outputExpectFilePattern!=NULL){
+      if(vr.outputIOMatchFilePattern!=NULL){
          if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO)){//syscall openat open creat
 	  SizeT fd= sr_Res(res);;
 	  char* filenameParam=NULL;
@@ -1793,28 +1792,28 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	    filenameParam=(char*) args[0];
 	  }
 
-	  if(VG_(string_match)(vr.outputExpectFilePattern,filenameParam)){
-	    if(vr.ExpectFileDescriptor==-1){
-	      vr.ExpectFileDescriptor=fd;
+	  if(VG_(string_match)(vr.outputIOMatchFilePattern,filenameParam)){
+	    if(vr.IOMatchFileDescriptor==-1){
+	      vr.IOMatchFileDescriptor=fd;
 	      HChar openMsg[512];
-	      UInt size=VG_(snprintf)(openMsg,512, "expect open filename: %s\n", filenameParam);
+	      UInt size=VG_(snprintf)(openMsg,512, "IOMatch open filename: %s\n", filenameParam);
 	      VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-	      vr_expect_clr_checkmatch(openMsg, size+1);
+	      vr_IOmatch_clr_checkmatch(openMsg, size+1);
 	      VG_(ok_to_discard_translations)=False;
 	    }else{
-	      VG_(umsg)("%s match several opened files : %s\n", vr.outputExpectFilePattern, filenameParam);
+	      VG_(umsg)("%s match several opened files : %s\n", vr.outputIOMatchFilePattern, filenameParam);
 	      VG_(tool_panic)("match several opened files");
 	    }
 	  }
-	  //VG_(umsg)("%s do not match %s\n", filename, vr.outputExpectFilePattern );
+	  //VG_(umsg)("%s do not match %s\n", filename, vr.outputIOMatchFilePattern );
 	}
 
 	if(syscallno==VR_CLOSE_SYSCALLNO){//syscall close
 	  int fd=(int)args[0];
-	  if(fd==vr.ExpectFileDescriptor ){
-	    vr.ExpectFileDescriptor=-1;//retour à la sortie standard.
-	    HChar openMsg[]="expect close\n";
-	    vr_expect_clr_checkmatch(openMsg, sizeof(openMsg));
+	  if(fd==vr.IOMatchFileDescriptor ){
+	    vr.IOMatchFileDescriptor=-1;//retour à la sortie standard.
+	    HChar openMsg[]="IOMatch close\n";
+	    vr_IOmatch_clr_checkmatch(openMsg, sizeof(openMsg));
 	  }
 	}
       }

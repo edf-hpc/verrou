@@ -1,8 +1,8 @@
 Verrou, Check floating-point rounding errors
 Copyright (C) XXXXX 
 
-Open expect clr file : PATH 
-Open expect clr output file : PATH 
+Open IOMatchClr file : PATH 
+Open IOMatchClr output file : PATH 
 First seed : XXX
 Backend verrou : test-version
 Backend checkcancellation : test-version

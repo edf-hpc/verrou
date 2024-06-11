@@ -151,7 +151,7 @@ class DDstdout(DD_stoch.DDStoch):
 
 
     def isFileValidToMerge(self, name):
-        return name.startswith("expect.log-")
+        return name.startswith("IOMatch.log-")
 
     def getDeltaFileName(self):
         return "dd.expect"
