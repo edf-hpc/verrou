@@ -233,13 +233,13 @@
           This option can be activated with the env variable\n\
           VERROU_GEN_SOURCE.\n\
 \n\
-      --expect-clr=EXPECT_FILE\n\
-          When this option is present the expect script is read. This file\n\
-          defines the interaction between verrou and the stdout (See expect\n\
+      --IOmatch-clr=IOMATCH_FILE\n\
+          When this option is present the IOMatch script is read. This file\n\
+          defines the interaction between verrou and the stdout (See IOMatch\n\
           format). The main idea behind this format is to apply client\n\
-          request action when a line match a MATCH or EXPECT line. A MATCH\n\
-          line can be match anytime, whereas the EXPECT lines are matched\n\
-          sequentially.\n\
+          request action when a line match a bmatch: (b for break) or cmatch:\n\
+          (c for continue) line. If a line match a bmatch the following match\n\
+          (b or c) are not tried. With a cmatch: the folling match are tried.\n\
 \n\
           The use of this option, may be sensitive to the bufferization of\n\
           the program. In C++ std::endl flush the output, so we usually avoid\n\
@@ -247,19 +247,20 @@
           In C we proposed the library verrouUnbuffered.so (Loadable with\n\
           LD_PRELOAD), to deactivate bufferization of stdout (For other file\n\
           descriptors you have to flush manually, as it require more complex\n\
-          development).  verrou_dd_task automatically use this two tricks.\n\
+          development).\n\
+           verrou_dd_task automatically use this two tricks.\n\
 \n\
           This option can be activated with the env variable\n\
-          VERROU_EXPECT_CLR.\n\
+          VERROU_IOMATCH_CLR.\n\
 \n\
-      --output-expect-rep=REP\n\
-          Specify the repository of expect log file. By default the log file\n\
-          is EXPECT_FILE.log-PID. With this option it is REP/expect.log-PID.\n\
-          This option as also influence on the keys dump-stdout: and\n\
-          dump-filtered-stdout:of the expect format).\n\
+      --output-IOmatch-rep=REP\n\
+          Specify the repository of IOmatch log file. By default the log file\n\
+          is IOMATCH_FILE.log-PID. With this option it is\n\
+          REP/IOMatch.log-PID. This option as also influence on the keys\n\
+          dump-stdout: and dump-filtered-stdout:of the IOMatch format).\n\
 \n\
           This option can be activated with the env variable\n\
-          VERROU_OUTPUT_EXPECT_REP.\n\
+          VERROU_OUTPUT_IOMATCH_REP.\n\
 \n\
     Coverage generation\n\
       --trace=FILE\n\

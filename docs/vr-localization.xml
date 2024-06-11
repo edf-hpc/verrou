@@ -561,15 +561,18 @@ if __name__=="__main__":
 
 	    <varlistentry>
 	      <term>
-		<computeroutput>--expect-header=FILE</computeroutput> or <computeroutput>VERROU_DD_EXPECT_HEADER</computeroutput>
+		<computeroutput>--IOmatch-header=FILE</computeroutput> or <computeroutput>VERROU_DD_IOMATCH_HEADER</computeroutput>
               </term>
               <listitem>
 		<para>
-This option allow to add the content of FILE in the expect script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iterations (especially when the additional iterations recover the poor precision of the first ones)  with this kind of FILE:
+This option allow to add the content of FILE in the IOMatch script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iterations (especially when the additional iterations recover the poor precision of the first ones)  with this kind of <computeroutput>FILE</computeroutput>:
 <programlisting>
-match: IT=42 *
+cmatch: IT=42 *
 apply: exit</programlisting>
 Be careful the match expression should not match any line of the reference computation.
+		</para>
+		<para>
+		  <command>verrou_dd_stdout</command> tool performs few <computeroutput>FILE</computeroutput> verification, to let the user the full power of the functionalities. But you should keep in mind the use of <computeroutput>bmatch</computeroutput> and <computeroutput>stop/start</computeroutput> actions is really tricky and need a deep understanding of IOMatch and <command>verrou_dd_stdout</command>.
 		</para>
               </listitem>
             </varlistentry>
@@ -631,7 +634,7 @@ To avoid problem with bufferization, we need to write your own <computeroutput>r
               </term>
               <listitem>
 		<para>
-		  The default search space generated may suffer of default. By default all floating point are replace by *. But if floating point are printed as int, there are missing. To bypass the issue it is possible to recover the file <computeroutput>dd.stdout/ref/dd.expect</computeroutput> and perform manually the correction. Usually we only add * but it is also possible to do more complex modification:
+		  The default search space generated may suffer of default. By default all floating point are replace by *. But if floating point are printed as int, there are missing. To bypass the issue it is possible to recover the file <computeroutput>dd.stdout/ref/dd.IOMatch</computeroutput> and perform manually the correction. Usually we only add * but it is also possible to do more complex modification:
 		  <itemizedlist>
               <listitem><para>The line order can be modified. Indeed if a line matches two wildcard expressions, the first one is taken into account. So if one expression is more specific than an other one, we should place it first.</para></listitem>
 

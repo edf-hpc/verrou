@@ -577,26 +577,26 @@ det2
             </listitem>
           </varlistentry>
 
-	  <varlistentry id="vr-opt.expect-clr" xreflabel="--expect-clr">
-            <term><option><![CDATA[--expect-clr=EXPECT_FILE]]></option></term>
+	  <varlistentry id="vr-opt.iomatch-clr" xreflabel="--IOmatch-clr">
+            <term><option><![CDATA[--IOmatch-clr=IOMATCH_FILE]]></option></term>
             <listitem>
-              <para> When this option is present the expect script is read. This file
-		defines the interaction between verrou and the stdout (<link linkend= "id.expect.format">See expect format</link>). The main idea behind this format is to apply client request action when a line match a MATCH or EXPECT line. A MATCH line can be match anytime, whereas the EXPECT lines are matched sequentially.</para>
+              <para> When this option is present the IOMatch script is read. This file
+		defines the interaction between verrou and the stdout (<link linkend= "id.iomatch.format">See IOMatch format</link>). The main idea behind this format is to apply client request action when a line match a <computeroutput>bmatch:</computeroutput> (b for break) or <computeroutput>cmatch:</computeroutput> (c for continue) line. If a line match a bmatch the following match (b or c) are not tried. With a <computeroutput>cmatch:</computeroutput> the following match are tried.</para>
 
-	      <para> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED env variable. In C we proposed the library <computeroutput>verrouUnbuffered.so</computeroutput> (Loadable with LD_PRELOAD), to deactivate bufferization of stdout (For other file descriptors you have to flush manually, as it require more complex development). <computeroutput> verrou_dd_task</computeroutput> automatically use this two tricks.
+	      <para> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED env variable. In C we proposed the library <computeroutput>verrouUnbuffered.so</computeroutput> (Loadable with LD_PRELOAD), to deactivate bufferization of stdout (For other file descriptors you have to flush manually, as it require more complex development). <command> verrou_dd_task</command> automatically use this two tricks.
 	      </para>
-	      <para>This option can be activated with the env variable <command>VERROU_EXPECT_CLR</command>.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_IOMATCH_CLR</command>.</para>
 	    </listitem>
           </varlistentry>
 
-	  <varlistentry id="vr-opt.output-expect-rep" xreflabel="--output-expect-rep">
-            <term><option><![CDATA[--output-expect-rep=REP]]></option></term>
+	  <varlistentry id="vr-opt.output-iomatch-rep" xreflabel="--output-IOmatch-rep">
+            <term><option><![CDATA[--output-IOmatch-rep=REP]]></option></term>
             <listitem>
-              <para> Specify the repository of expect log file. By default the log file is
-		<computeroutput>EXPECT_FILE.log-PID</computeroutput>. With this option it is <computeroutput>REP/expect.log-PID</computeroutput>. This option as also influence on the keys <computeroutput> dump-stdout:</computeroutput> and <computeroutput> dump-filtered-stdout:</computeroutput>of the <link linkend= "id.expect.format">expect format</link>).
+              <para> Specify the repository of IOmatch log file. By default the log file is
+		<computeroutput>IOMATCH_FILE.log-PID</computeroutput>. With this option it is <computeroutput>REP/IOMatch.log-PID</computeroutput>. This option as also influence on the keys <computeroutput> dump-stdout:</computeroutput> and <computeroutput> dump-filtered-stdout:</computeroutput>of the <link linkend= "id.iomatch.format">IOMatch format</link>).
 	      </para>
 
-	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_EXPECT_REP</command>.</para>
+	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_IOMATCH_REP</command>.</para>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -820,18 +820,14 @@ det2
       </variablelist>
     </section>
 
-    <section id="id.expect.format" xreflabel="expect format">
-      <title>Expect script</title>
+    <section id="id.iomatch.format" xreflabel="IOMatch format">
+      <title>IOMatch script</title>
       <para>
-	The expect script is activated thanks the option <option><xref linkend="vr-opt.expect-clr"/>=EXPECT_FILE</option>.
+	The IOMatch script is activated thanks the option <option><xref linkend="vr-opt.iomatch-clr"/>=IOMATCH_FILE</option>.
 	The comment symbol is <computeroutput>#</computeroutput>.
-	The format is divided in two parts. The first one is called <replaceable>headers</replaceable> and the second one <replaceable>temporal part</replaceable>.
-	The two parts are separated by a key <computeroutput>begin:</computeroutput>.
-
-
       </para>
       <para>
-      The <replaceable>header part</replaceable> can contain the configuration keys :
+      The file can contain the configuration keys :
       <variablelist>
 	<varlistentry>
 	  <term><computeroutput>verbose: LEVEL</computeroutput></term>
@@ -856,16 +852,12 @@ det2
 	  <para>
 	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
 
-	   <para>
-	     If there are two many calls to this command (ie. too many line in stdout), there are a known bug. You can detected with the valgrind Warning like this one:<programlisting>--20481-- warning: Unable to record PID of internal process (pipe)</programlisting>
-</para>
-
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>dump-stdout: [FILENAME]</computeroutput></term>
 	  <listitem>
-	    Dump the stdout file. If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.stdout-PID</computeroutput> or <computeroutput>EXPECT_OUTPUT_REP/expect.stdout-PID</computeroutput> (if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
+	    Dump the stdout file. If FILENAME is not set the default name is <computeroutput>IOMATCH_FILE.stdout-PID</computeroutput> or <computeroutput>IOMATCH_OUTPUT_REP/iomatch.stdout-PID</computeroutput> (if option <option>--output-IOmatch-rep=IOMATCH_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-IOmatch-rep=</option> are incompatible.
 	  </listitem>
 	</varlistentry>
 
@@ -873,14 +865,14 @@ det2
 	  <term><computeroutput>dump-filtered-stdout: [FILENAME]</computeroutput></term>
 	  <listitem>
 	    Dump the stdout file after application of <computeroutput>filter_line_exec CMD</computeroutput> to each line.
-	     If FILENAME is not set the default name is <computeroutput>EXPECT_FILE.filtered.stdout-PID</computeroutput> (or <computeroutput>EXPECT_OUTPUT_REP/expect.filtered.stdout-PID</computeroutput> if option <option>--output-expect-rep=EXPECT_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-expect-rep=</option> are incompatible.
+	     If FILENAME is not set the default name is <computeroutput>IOMATCH_FILE.filtered.stdout-PID</computeroutput> (or <computeroutput>IOMATCH_OUTPUT_REP/iomatch.filtered.stdout-PID</computeroutput> if option <option>--output-IOmatch-rep=IOMATCH_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-IOmatch-rep=</option> are incompatible.
 	  </listitem>
 	</varlistentry>
       </variablelist>
 
       </para>
       <para>
-	In the <replaceable>header part</replaceable> we can also set up action for each section.
+	We can also set up action for each section.
 	<variablelist>
 	<varlistentry>
 	  <term><computeroutput>default: ACTION</computeroutput></term>
@@ -902,14 +894,27 @@ det2
 	    Add ACTION to the post-init section. This action will be executed when the first stdout line appears.
 	  </listitem>
 	</varlistentry>
-
+	</variablelist>
+      </para>
+      <para>
+	Lastly match section with associated actions can be defined:
+	<variablelist>
 	<varlistentry>
-	  <term><computeroutput>match: PATTERN</computeroutput></term>
+	  <term><computeroutput>bmatch: PATTERN</computeroutput></term>
 	  <listitem>
-	    Setup a  match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after :
+	    Setup a break match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after :
 	    is a part of the format. Every space after this one is meaningful. The order of match section is important.
 	    If the first match is *. All following match section are ignored. The action associated to the section are
-	    defined in the following lines by <computeroutput>apply:</computeroutput> and <computeroutput>post-apply:</computeroutput>
+	    defined in the following lines by <computeroutput>apply:</computeroutput> and <computeroutput>post-apply:</computeroutput>.
+	    A break match (in contrast to continue match) mean that after a match the following match (continue or break) are ignored.
+	  </listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>cmatch: PATTERN</computeroutput></term>
+	  <listitem>
+	    Setup a  continue match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?.
+	    In contrast to break match, if a line match the following match are tried. It is not possible to define <computeroutput>post-apply</computeroutput> action with <computeroutput>cmatch:</computeroutput>.
 	  </listitem>
 	</varlistentry>
 
@@ -1010,55 +1015,6 @@ The different possible actions are :
 	</varlistentry>
 
       </variablelist>
-
-      </para>
-      In the <replaceable>temporal part</replaceable> (after <computeroutput>begin:</computeroutput> key) the following keys can be defined:
-      <variablelist>
-	<varlistentry>
-	  <term><computeroutput>except: PATTERN</computeroutput></term>
-	  <listitem>
-	    Define the pattern of the except line. As for <computeroutput>match: </computeroutput>,  <computeroutput>PATTERN</computeroutput> is a wildcard expression (with * and ?).
-	    The actions associated are defined by the <computeroutput>apply:</computeroutput> key.
-	  </listitem>
-	</varlistentry>
-	  <varlistentry>
-	  <term><computeroutput>apply: ACTION</computeroutput></term>
-	  <listitem>
-	    Add the ACTION to current <computeroutput>expect</computeroutput> section. If no <computeroutput>apply:</computeroutput> key is defined, the default actions are executed.
-	  </listitem>
-	</varlistentry>
-    </variablelist>
-
-      <para>
-	Remarks:
-	<variablelist>
-	  <varlistentry>
-	    <listitem>
-	     1) <computeroutput>expect:</computeroutput>key are more difficult to use than <computeroutput>match:</computeroutput>. Indeed if a pattern is not found, we will wait the end of the program without taking into account any following <computeroutput>expect:</computeroutput> key. But the temporal aspect of expect, allows sometimes to apply action by taking into account a context (by example the content of the previous line).
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <listitem>
-	      2) If a line match the current expect, the match actions won't be applied.
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <listitem>
-	      3) It is not possible to define <computeroutput>post-apply</computeroutput> action with <computeroutput>expect:</computeroutput>.
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <listitem>
-	      4) The use of <computeroutput>match:</computeroutput> and <computeroutput>expect:</computeroutput> with expressions which match the same line is not well defined.
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <listitem>
-	      5) This functionality is still experimental: naming may change and temporal part may be removed in a near future.
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-
       </para>
     </section>
 
