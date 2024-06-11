@@ -273,7 +273,11 @@ class stdoutConfig(dd_config.ddConfig):
                     continue
                 if line.startswith("apply: ") or line.startswith("post-apply: ") or line.startswith("default"):
                     value=line.split(" ")[1].replace("\n","")
-                    correctValueTab=["nop","default","stop","start","panic","exit","display_counter"]
+                    correctValueTab=["nop","default",
+                                     "stop","start","stop_stop","start_stop",
+                                     "init","post_init",
+                                     "panic","exit", "nb_instr",
+                                     "display_counter","dump_cover"]
                     if value in correctValueTab:
                         continue
                     else:
