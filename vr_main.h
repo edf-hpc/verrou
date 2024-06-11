@@ -222,7 +222,7 @@ void vr_traceBB_resetCov(void);
 UInt vr_traceBB_dumpCov(void);
 
 #include "vr_clo.h"
-#include "vr_expect_clr.h"
+#include "vr_IOMatch_clr.h"
 
 
 #endif /*ndef __VR_MAIN_H*/

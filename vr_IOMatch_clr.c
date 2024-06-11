@@ -2,7 +2,7 @@
 /*--- Verrou: a FPU instrumentation tool.                          ---*/
 /*--- This file contains code allowing to apply client request     ---*/
 /*--- from an expect script.                                       ---*/
-/*---                                              vr_expect_clr.c ---*/
+/*---                                             vr_IOMatch_clr.c ---*/
 /*--------------------------------------------------------------------*/
 
 /*
@@ -30,7 +30,7 @@
 */
 
 #include "vr_main.h"
-#include "vr_expect_clr.h"
+#include "vr_IOMatch_clr.h"
 
 #include "pub_tool_seqmatch.h"
 #include "pub_tool_libcfile.h"

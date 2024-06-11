@@ -38,7 +38,7 @@ VERROU_SOURCES_COMMON = \
 	vr_clreq.c	\
 	vr_clo.c	\
 	vr_include_trace.c \
-	vr_expect_clr.c\
+	vr_IOMatch_clr.c\
 	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
