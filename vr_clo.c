@@ -44,6 +44,7 @@ void vr_env_clo_one_option (const HChar* env, const HChar *clo) {
   }
 }
 
+
 void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_ROUNDING_MODE", "--rounding-mode");
    vr_env_clo_one_option("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
@@ -69,9 +70,9 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
    vr_env_clo_one_option("VERROU_SEED","--vr-seed");
 
-   vr_env_clo_one_option("VERROU_EXPECT_CLR","--expect-clr");
-   vr_env_clo_one_option("VERROU_OUTPUT_EXPECT_REP","--output-expect-rep");
-   vr_env_clo_one_option("VERROU_EXPECT_FILE_PATTERN","--expect-file-pattern");
+   vr_env_clo_one_option("VERROU_IOMATCH_CLR","--IOmatch-clr");
+   vr_env_clo_one_option("VERROU_OUTPUT_IOMATCH_REP","--output-IOmatch-rep");
+   vr_env_clo_one_option("VERROU_IOMATCH_FILE_PATTERN","--IOmatch-file-pattern");
 
    vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
 }
@@ -324,17 +325,12 @@ Bool vr_process_clo (const HChar *arg) {
   /* } */
 
   //Option --vr-verbose (to avoid verbose of valgrind)
-  else if (VG_BOOL_CLO (arg, "--vr-verbose", bool_val)) {
+  else if (VG_BOOL_CLOM (cloPD, arg, "--vr-verbose", bool_val)) {
     vr.verbose = bool_val;
   }
 
-  //Option --vr-unsafe-llo-optim (performance optimization)
-  else if (VG_BOOL_CLO (arg, "--vr-unsafe-llo-optim", bool_val)) {
-    vr.unsafe_llo_optim = bool_val;
-  }
-
   //Option --count-op
-  else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
+  else if (VG_BOOL_CLOM (cloPD, arg, "--count-op", bool_val)) {
     vr.count = bool_val;
   }
 
@@ -412,14 +408,14 @@ Bool vr_process_clo (const HChar *arg) {
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }
-  else if (VG_STR_CLOM(cloPD, arg, "--expect-clr",str)){
+  else if (VG_STR_CLOM(cloPD, arg, "--IOmatch-clr",str)){
      vr.IOMatchScript = VG_(expand_file_name)("vr.process_clo.IOMatch-clr", str);
      vr.useIOMatchCLR=True;
   }
-  else if (VG_STR_CLOM (cloPD, arg, "--output-expect-rep", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--output-IOmatch-rep", str)) {
     vr.outputIOMatchRep = VG_(expand_file_name)("vr.process_clo.IOMatch-rep", str);
   }
-  else if (VG_STR_CLOM (cloPD, arg, "--expect-file-pattern", str)) {
+  else if (VG_STR_CLOM (cloPD, arg, "--IOmatch-file-pattern", str)) {
     vr.IOMatchFileDescriptor=-1;
     vr.outputIOMatchFilePattern = VG_(strdup)("vr.process_clo.IOMatch-file-pattern", str);
   }

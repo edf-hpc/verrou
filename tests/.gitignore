@@ -1,6 +1,6 @@
 *.std*.out
 *.std*.diff
-expect.script.log-*
+iomatch.script.log-*
 accuClreq
 denorm
 hardSoftClreq

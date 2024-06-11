@@ -113,9 +113,9 @@ class DDstdout(DD_stoch.DDStoch):
 
 
     def referenceRunEnv(self):
-        refPath=os.path.join(self.ref_, "vr_expect_ref.txt")
+        refPath=os.path.join(self.ref_, "vr_iomatch_ref.txt")
         refFile=open(refPath,"w")
-#        refFile.write(self.config_.get_expectHeader()+"\n")
+
         refFile.write("verbose: 2\n")
         refFile.write("dump-stdout: \n")
         if not self.config_.get_filterCmd() in [None,""]:
@@ -140,13 +140,13 @@ class DDstdout(DD_stoch.DDStoch):
               "LD_PRELOAD": self.newLdPreload(),
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
-              "VERROU_EXPECT_CLR":refPath,
-              "VERROU_OUTPUT_EXPECT_REP":self.ref_,
+              "VERROU_IOMATCH_CLR":refPath,
+              "VERROU_OUTPUT_IOMATCH_REP":self.ref_,
               "VERROU_COUNT_OP":"yes",
               }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:
-            res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
+            res["VERROU_IOMATCH_FILE_PATTERN"]=filePattern
         return res
 
 
@@ -154,7 +154,7 @@ class DDstdout(DD_stoch.DDStoch):
         return name.startswith("IOMatch.log-")
 
     def getDeltaFileName(self):
-        return "dd.expect"
+        return "dd.IOMatch"
 
 
     def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
@@ -167,8 +167,8 @@ class DDstdout(DD_stoch.DDStoch):
         if not unknownTask in ["stop","start","previous"]:
             print("error unknownTask:", unknownTask)
 
-        with open(os.path.join(dirname,"vr_expect.txt"), "w") as f:
-            f.write(self.config_.get_expectHeader()+"\n")
+        with open(os.path.join(dirname,"vr_iomatch.txt"), "w") as f:
+            f.write(self.config_.get_ioMatchHeader()+"\n")
 
             f.write("verbose: 2\n")
             f.write("dump-stdout: \n" )
@@ -218,13 +218,13 @@ class DDstdout(DD_stoch.DDStoch):
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
              "LD_PRELOAD": self.newLdPreload(),
-             "VERROU_EXPECT_CLR": os.path.join(dirName, "vr_expect.txt"),
-             "VERROU_OUTPUT_EXPECT_REP":os.path.join(dirName,"%DDRUN%"),
+             "VERROU_IOMATCH_CLR": os.path.join(dirName, "vr_iomatch.txt"),
+             "VERROU_OUTPUT_IOMATCH_REP":os.path.join(dirName,"%DDRUN%"),
              "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
         }
         filePattern=self.config_.get_file_pattern()
         if filePattern!=None:
-            res["VERROU_EXPECT_FILE_PATTERN"]=filePattern
+            res["VERROU_IOMATCH_FILE_PATTERN"]=filePattern
         return res
 
     def coerce(self, delta_config):
@@ -245,7 +245,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("unknownTask", "string", "UNKNOWN_TASK",["--unknown-task="],"previous",["previous","stop","start"] )
         self.addRegistry("ignoreEmptyLine", "bool", "IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
         self.addRegistry("filterCmd", "string", "FILTER_CMD",["--filter-cmd="],None, None )
-        self.addRegistry("expectHeaderFile", "string", "EXPECT_HEADER",["--expect-header="], None, "file_exists")
+        self.addRegistry("ioMatchHeaderFile", "string", "IOMATCH_HEADER",["--IOmatch-header="], None, "file_exists")
         self.addRegistry("customSearchSpace", "string", "CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
         self.addRegistry("filePattern", "string", "FILE_PATTERN",["--file-pattern="], None, None)
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
@@ -253,18 +253,18 @@ class stdoutConfig(dd_config.ddConfig):
 
     def normalizeOptions(self):
         super().normalizeOptions()
-        self.normalizeExpectHeader()
+        self.normalizeIOMatchHeader()
 
-    def normalizeExpectHeader(self):
-        if self.expectHeaderFile==None:
-            self.expectHeader=""
+    def normalizeIOMatchHeader(self):
+        if self.ioMatchHeaderFile==None:
+            self.ioMatchHeader=""
         else:
-            lines=(open(self.expectHeaderFile)).readlines()
+            lines=(open(self.ioMatchHeaderFile)).readlines()
             lines=[line.replace("\n","") for line in lines]
             error=False
             for line in lines:
                 if not ":" in line:
-                    print("expect header need a : separator")
+                    print("IOMatch header need a : separator")
                     error=True
                     break
                 if line.startswith("bmatch:"):
@@ -282,7 +282,7 @@ class stdoutConfig(dd_config.ddConfig):
                         continue
                     else:
                         error=True
-                        print("expect header : invalid value : ", value )
+                        print("IOMatch header : invalid value : ", value )
                         print("value need to be in ", correctValueTab)
 
                         break
@@ -291,10 +291,10 @@ class stdoutConfig(dd_config.ddConfig):
 
             if error:
                 print("invalid line: ", line)
-                print("%s should be a correct expect header file"%self.expectHeaderFile )
+                print("%s should be a correct expect header file"%self.iomatchHeaderFile )
                 sys.exit(42)
 
-            self.expectHeader="\n".join(lines)
+            self.ioMatchHeader="\n".join(lines)
 
     def get_unknownTask(self):
         return self.unknownTask
@@ -305,8 +305,8 @@ class stdoutConfig(dd_config.ddConfig):
     def get_filterCmd(self):
         return self.filterCmd
 
-    def get_expectHeader(self):
-        return self.expectHeader
+    def get_ioMatchHeader(self):
+        return self.ioMatchHeader
 
     def get_file_pattern(self):
         return self.filePattern

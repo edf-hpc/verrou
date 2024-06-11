@@ -25,7 +25,7 @@ def filterInit(line):
         return line
 
 def checkDDcmp(rep):
-    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.expect.include")
+    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.IOMatch.include")
     if os.path.exists(ddminCmp):
         lines=[filterInit(line) for line in open(ddminCmp).readlines()]
         for expectedLine in cmpExpected:

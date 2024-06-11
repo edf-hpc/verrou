@@ -53,11 +53,11 @@ dd.stdout.fusion: ./muller exclude.ex
 	./assertDDFusion.py dd.stdout.regroup
 
 dd.stdout.sqrt: ./sqrt exclude.ex
-	verrou_dd_stdout --rep=dd.stdout.sqrt --num-threads=5 --nruns=$(NBRUN) --seed=123 --expect-header=expect.header --custom-search-space=expect.custom ddRunSqrt.sh extractOrCmpSqrt.py
+	verrou_dd_stdout --rep=dd.stdout.sqrt --num-threads=5 --nruns=$(NBRUN) --seed=123 --IOmatch-header=iomatch.header --custom-search-space=iomatch.custom ddRunSqrt.sh extractOrCmpSqrt.py
 	./assertSqrt.py dd.stdout.sqrt
 
 dd.stdout.sqrt.listing: ./sqrt exclude.ex
-	PARAM=listing verrou_dd_stdout --rep=dd.stdout.sqrt.listing --num-threads=5 --nruns=$(NBRUN) --seed=123 --expect-header=expect.header --custom-search-space=expect.custom.listing --file-pattern=*listing  ddRunSqrt.sh extractOrCmpSqrt.py
+	PARAM=listing verrou_dd_stdout --rep=dd.stdout.sqrt.listing --num-threads=5 --nruns=$(NBRUN) --seed=123 --IOmatch-header=iomatch.header --custom-search-space=iomatch.custom.listing --file-pattern=*listing  ddRunSqrt.sh extractOrCmpSqrt.py
 	./assertSqrt.py dd.stdout.sqrt.listing
 
 dd.task: ./muller-task

@@ -4,7 +4,7 @@ import os
 import sys
 
 def checkDDmin0(rep):
-    ddmin0=os.path.join(rep, "ddmin0", "dd.expect.include")
+    ddmin0=os.path.join(rep, "ddmin0", "dd.IOMatch.include")
     if os.path.exists(ddmin0):
         lines=open(ddmin0).readlines()
         if len(lines)!=1:
@@ -18,7 +18,7 @@ def checkDDmin0(rep):
         return False
 
 def checkDDmin1(rep, withEmptyLine=False):
-    ddmin1=os.path.join(rep, "ddmin1", "dd.expect.include")
+    ddmin1=os.path.join(rep, "ddmin1", "dd.IOMatch.include")
     if os.path.exists(ddmin1):
         lines=open(ddmin1).readlines()
         if len(lines)!=1:
@@ -35,7 +35,7 @@ def checkDDmin1(rep, withEmptyLine=False):
 
 
 def checkDDcmp(rep, withEmptyLine=False):
-    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.expect.include")
+    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.IOMatch.include")
     if os.path.exists(ddminCmp):
         lines=open(ddminCmp).readlines()
         if len(lines)!=2:
