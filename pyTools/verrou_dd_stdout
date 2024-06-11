@@ -81,7 +81,8 @@ class DDstdout(DD_stoch.DDStoch):
         if self.config_.customSearchSpace!=None:
             return [task.replace("\n","") for task in (open(self.config_.customSearchSpace)).readlines()]
 
-        taskPattern="match [0]: "
+        shift=self.config_.get_ioMatchHeaderShift()
+        taskPattern="match ["+str(shift)+"]: "
         fpInstrPattern="fp_instr: "
         taskName=None
         for line in open(logFile).readlines():
@@ -118,6 +119,8 @@ class DDstdout(DD_stoch.DDStoch):
 
         refFile.write("verbose: 2\n")
         refFile.write("dump-stdout: \n")
+        refFile.write(self.config_.get_ioMatchHeader()+"\n")
+
         if not self.config_.get_filterCmd() in [None,""]:
             refFile.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
             refFile.write("dump-filtered-stdout: \n")
@@ -134,7 +137,6 @@ class DDstdout(DD_stoch.DDStoch):
             refFile.write("bmatch: *\n")
         refFile.write("apply: reset_counter\n")
         refFile.write("post-apply: nb_instr\n")
-        refFile.write("begin:\n")
         refFile.close()
         res= {"PYTHONUNBUFFERED": "x",
               "LD_PRELOAD": self.newLdPreload(),
@@ -200,7 +202,6 @@ class DDstdout(DD_stoch.DDStoch):
                     f.write("apply: %s\n"%(self.stopCmd))
                     if unknownTask in ["start"]:
                         f.write("post-apply: %s\n"%(self.startCmd))
-            f.write("begin:\n")
 
         if include:
             with open(os.path.join(dirname,dd+".include"), "w") as f:
@@ -256,6 +257,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.normalizeIOMatchHeader()
 
     def normalizeIOMatchHeader(self):
+        self.shiftMatch=0
         if self.ioMatchHeaderFile==None:
             self.ioMatchHeader=""
         else:
@@ -268,8 +270,10 @@ class stdoutConfig(dd_config.ddConfig):
                     error=True
                     break
                 if line.startswith("bmatch:"):
+                    self.shiftMatch+=1
                     continue
                 if line.startswith("cmatch:"):
+                    self.shiftMatch+=1
                     continue
                 if line.startswith("apply: ") or line.startswith("post-apply: ") or line.startswith("default"):
                     value=line.split(" ")[1].replace("\n","")
@@ -307,6 +311,9 @@ class stdoutConfig(dd_config.ddConfig):
 
     def get_ioMatchHeader(self):
         return self.ioMatchHeader
+
+    def get_ioMatchHeaderShift(self):
+        return self.shiftMatch
 
     def get_file_pattern(self):
         return self.filePattern
