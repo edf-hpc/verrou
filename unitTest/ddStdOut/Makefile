@@ -5,7 +5,7 @@ export SHELL=bash
 
 PYTHON=/usr/bin/python3
 
-REP_LIST=dd.stdout dd.stdout.cpp dd.stdout.empty dd.stdout.debug dd.stdout.debug2 dd.stdout.sqrt dd.stdout.sqrt.listing dd.stdout.regroup dd.task
+REP_LIST=dd.stdout dd.stdout.cpp dd.stdout.empty dd.stdout.debug dd.stdout.debug2 dd.stdout.sqrt dd.stdout.sqrt.listing dd.stdout.regroup dd.task time.png	
 #dd.stdout.emptyBis 
 NBRUN=5
 
@@ -64,6 +64,8 @@ dd.task: ./muller-task
 	CMD="./muller-task" verrou_dd_task --rep=dd.task --num-threads=6 --nruns=$(NBRUN) --seed=42  ddRun.sh extractOrCmp.py
 	./assertTask.py dd.task
 
+time.png: muller
+	CMD="./muller" verrou_plot_stat --cache=clean  -s 4 --num-threads=4 --rounding=nearest,random -p time.png --time ddRun.sh extractTime.py
 
 clean:
-	rm -rf exclude.ex $(REP_LIST)  muller sqrt muller-task
+	rm -rf exclude.ex $(REP_LIST)  muller sqrt muller-task time.png
