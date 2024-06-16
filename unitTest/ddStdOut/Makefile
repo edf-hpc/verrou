@@ -65,7 +65,7 @@ dd.task: ./muller-task
 	./assertTask.py dd.task
 
 time.png: muller
-	CMD="./muller" verrou_plot_stat --cache=clean  -s 4 --num-threads=4 --rounding=nearest,random -p time.png --time ddRun.sh extractTime.py
+	LD_PRELOAD=verrouExtendStdoutPrecision.so CMD="./muller" verrou_plot_stat --cache=clean  -s 4 --num-threads=4 --rounding=nearest,random -p time.png --time ddRun.sh extractTime.py
 
 clean:
 	rm -rf exclude.ex $(REP_LIST)  muller sqrt muller-task time.png

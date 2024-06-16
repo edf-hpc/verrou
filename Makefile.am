@@ -25,6 +25,7 @@ install-exec-local:
 	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
 	install -t ${verrouCbindingDir} verrouCBinding.so
 	install -t ${verrouTaskDir} libverrouTask.so
+	install -t ${verrouExtendStdoutPrecisionDir} verrouExtendStdoutPrecision.so
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
@@ -212,6 +213,26 @@ verrouUnbuffered_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
 
 
 #----------------------------------------------------------------------------
+# verrouExtendStdoutPrecision.so
+#----------------------------------------------------------------------------
+verrouExtendStdoutPrecisionDir = $(pkglibdir)
+noinst_PROGRAMS += verrouExtendStdoutPrecision.so
+
+VERROUEXTENDSTDOUPRECISION_SOURCES_COMMON = extendStdoutPrecision.cxx
+
+verrouExtendStdoutPrecision_so_SOURCES      = \
+	$(VERROUEXTENDSTDOUPRECISION_SOURCES_COMMON)
+verrouExtendStdoutPrecision_so_CPPFLAGS     = \
+	$(subst -Wstrict-prototypes,,\
+	$(subst -Wmissing-declarations,,\
+	$(subst -Wmissing-parameter-type,,\
+	$(subst -Wold-style-declaration,,\
+	$(subst -Wmissing-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@))))))
+verrouExtendStdoutPrecision_so_LDFLAGS      = 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+#Suppression of -nodefaultlibs is required to avoid error with program written without C++
+
+
+#----------------------------------------------------------------------------
 # verrouCBinding.so
 #----------------------------------------------------------------------------
 verrouCbindingDir = $(pkglibdir)
@@ -241,5 +262,10 @@ PRELOADTASK = $(subst -m64,,$(PRELOADTASK1))
 VERROUTASK_SOURCES_COMMON = libVerrouTask/libverrouTask.cxx
 libverrouTask_so_SOURCES      = $(VERROUTASK_SOURCES_COMMON)
 libverrouTask_so_CPPFLAGS     = \
-	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@) -I../include
+	$(subst -Wstrict-prototypes,,\
+	$(subst -Wmissing-declarations,,\
+	$(subst -Wmissing-parameter-type,,\
+	$(subst -Wold-style-declaration,,\
+	$(subst -Wmissing-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@))))))\
+	-I../include
 libverrouTask_so_LDFLAGS      = -static-libstdc++ $(PRELOADTASK)
