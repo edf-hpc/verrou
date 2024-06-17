@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 
-/*extern "C" {
+extern "C" {
   int __libc_start_main(
 			int (*main)(int, char **, char **),
 			int argc, char **argv,
@@ -17,9 +17,9 @@
     typeof(&__libc_start_main)  startMainPtr = (typeof(&__libc_start_main))dlsym(RTLD_NEXT, "__libc_start_main");
     return startMainPtr(main, argc, argv, init, fini, rtld_fini, stack_end);
   }
-  }*/
+}
 
-
+/*
 extern "C" {
   typedef void(*VoidFuncPtr)();
   void _ZNSt8ios_base4InitC1Ev(void){
@@ -29,4 +29,4 @@ extern "C" {
      std::cout << std::setprecision(17);
    }
   }
-}
+  }*/
