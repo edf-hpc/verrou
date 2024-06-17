@@ -220,13 +220,24 @@ def verrou_extract_paraview_time(extract_time, rep, listOfStat):
 def verrou_extract_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
         res=[x for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
+        name=None
+        if res[0].startswith("#"):
+            name=(res[i].replace("#","")).strip()
+            res=res[1:]
         if len(res[0].split(" "))==1:
-            return [(i,float(res[i]))  for i in range(len(res))]
+            res=[(i,float(res[i])) for i in range(len(res))]
+            if name==None:
+                name=("index","value")
+            else:
+                name=("index",name)
+            return (name,res)
         if len(res[0].split(" "))==2:
             for i in range(len(res)):
                 tupleXY=res[i].split(" ")
                 res[i]=(float(tupleXY[0]), float(tupleXY[1]))
-            return res
+            if name==None:
+                name="index\tvalue"
+            return (name.split("\t"),res)
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
 
@@ -439,38 +450,18 @@ def plot_time(data, conf):
         if len(data[roundingMode])>1:
             listOfTab+=[roundingMode]
 
-    legend= "time index"
-
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
   #  lineColor=["C"+str(i) for i in range(40) ]
-    index=len(listOfScalar)
-    for roundingMode in listOfTab:
-        resTab=data[roundingMode]
-        first=True
-        for res in resTab:
-            resX=[x[0] for x in res]
-            resY=[x[1] for x in res]
-            if first:
-                ax.plot(resX, resY, linewidth=1, color=lineColor[index],label=roundingMode)
-                first=False
-            else:
-                ax.plot(resX, resY, linewidth=1, color=lineColor[index])
-        index+=1
 
-    index=0
-    for roundingMode in listOfScalar:
-        res=data[roundingMode][0]
-        resX=[x[0] for x in res]
-        resY=[x[1] for x in res]
-        ax.plot(resX, resY, linewidth=3, color=lineColor[index], label=roundingMode)
-        index+=1
-    ax.set_xlabel(legend)
-    ax.set_ylabel("X")
-    ax.legend()
-    ax2=ax.twinx()
-    nearestX=[x[0] for x in data["nearest"][0]]
-    nearestY=[x[1] for x in data["nearest"][0]]
+
+    if conf._logScalX:
+        ax.set_xscale("log",base=10)
+
+    labelX=data["nearest"][0][0][0]
+    labelY=data["nearest"][0][0][1]
+    nearestX=[x[0] for x in data["nearest"][0][1]]
+    nearestY=[x[1] for x in data["nearest"][0][1]]
 
     nbTimeIndex=len(nearestX)
 
@@ -480,8 +471,8 @@ def plot_time(data, conf):
         resYTab=[]
         nbSample=len(resTab)
         for res in resTab:
-            resX=[x[0] for x in res]
-            resY=[x[1] for x in res]
+            resX=[x[0] for x in res[1]]
+            resY=[x[1] for x in res[1]]
             resYInter=np.interp(nearestX,resX, resY)
             resYTab+=[resYInter]
         errorTab=[]
@@ -489,15 +480,44 @@ def plot_time(data, conf):
             error=max([ abs(resYTab[jSample][iTime] - nearestY[iTime])   for jSample in range(nbSample) ])
             errorTab+=[error/ abs(nearestY[iTime])]
 
-        ax2.plot(nearestX, errorTab, "o", color=lineColor[index], label=roundingMode)
+        ax.plot(nearestX, errorTab, "o", color=lineColor[index], label=roundingMode)
         index+=1
 
-    ax2.set_yscale("log",base=10)
-    ax2.set_ylabel("verrou error estimation")
+    ax.set_yscale("log",base=10)
+    ax.set_ylabel("verrou error estimation")
+    ax.set_xlabel(labelX)
+    ax.legend()
+
+    if conf._timeVal:
+        ax2=ax.twinx()
+        index=len(listOfScalar)
+        for roundingMode in listOfTab:
+            resTab=data[roundingMode]
+            first=True
+            for res in resTab:
+                resX=[x[0] for x in res[1]]
+                resY=[x[1] for x in res[1]]
+                if first:
+                    ax2.plot(resX, resY, linewidth=1, color=lineColor[index],label=roundingMode)
+                    first=False
+                else:
+                    ax2.plot(resX, resY, linewidth=1, color=lineColor[index])
+            index+=1
+
+        index=0
+        for roundingMode in listOfScalar:
+            res=data[roundingMode][0]
+            resX=[x[0] for x in res[1]]
+            resY=[x[1] for x in res[1]]
+            ax2.plot(resX, resY, linewidth=3, color=lineColor[index], label=roundingMode)
+            index+=1
+        ax2.set_ylabel(labelY)
+        #ax2.legend()
+
 
     plt.grid()
 
-    plt.xlabel(legend)
+    plt.xlabel(labelX)
     fig.tight_layout()
 
     if conf.png()!=False:
@@ -665,6 +685,9 @@ class config_stat(gen_config.gen_config):
         self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest", docStr="reference for error estimator : rounding mode or value [default nearest]")
         self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False, docStr="if used configure plot with relative abscissa (same parameter as --ref)")
         self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
+        self.addRegistry("_logScalX", "bool",   "LOGSCALX", ["--log-scalx"],         False)
+        self.addRegistry("_timeVal",  "bool",   "TIMEVAL",  ["--time-val"],          False)
+
         self.addRegistry("_timeParaview",     "bool",   "TIME_PARAVIEW",     ["--paraview_time"],         False)
         self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
         self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False)
