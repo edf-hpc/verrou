@@ -153,17 +153,20 @@ class gen_config:
     def md5Param(self):
         return self._md5Param
 
-    def checkScriptPath(self,fpath):
+    def checkScriptPath(self,fpath,hardFailure=True):
         if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
             return os.path.abspath(fpath)
         else:
-            print("Invalid Cmd:"+str(sys.argv))
-            if os.path.isfile(fpath) and not os.access(fpath, os.X_OK):
-                print(fpath + " should be executable")
-            if not os.path.isfile(fpath):
-                print(fpath + " is not a file")
-            self.usageCmd()
-            self.failure()
+            if hardFailure:
+                print("Invalid Cmd:"+str(sys.argv))
+                if os.path.isfile(fpath) and not os.access(fpath, os.X_OK):
+                    print(fpath + " should be executable")
+                if not os.path.isfile(fpath):
+                    print(fpath + " is not a file")
+                self.usageCmd()
+                self.failure()
+            else:
+                return None
 
     def readOneOption(self,strOption, attribut,conv_type ,key_name, argv_name, acceptedValue, addAttributTab, parse):
         value=False

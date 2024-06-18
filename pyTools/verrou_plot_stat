@@ -217,27 +217,31 @@ def verrou_extract_paraview_time(extract_time, rep, listOfStat):
         return [float(x) for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
+def getExtractTimeData(extract_time,repName):
+    res=[x for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
+    name=None
+    if res[0].startswith("#"):
+        name=(res[0].replace("#","")).strip()
+        res=res[1:]
+    if len(res[0].split(" "))==1:
+        res=[(i,float(res[i])) for i in range(len(res))]
+        if name==None:
+            name=("index","value")
+        else:
+            name=("index",name)
+        return (name,res)
+    if len(res[0].split(" "))==2:
+        for i in range(len(res)):
+            tupleXY=res[i].split(" ")
+            res[i]=(float(tupleXY[0]), float(tupleXY[1]))
+        if name==None:
+            name="index\tvalue"
+        return (name.split("\t"),res)
+    print("debug getExtractTimeData: ",res)
+
 def verrou_extract_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
-        res=[x for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
-        name=None
-        if res[0].startswith("#"):
-            name=(res[i].replace("#","")).strip()
-            res=res[1:]
-        if len(res[0].split(" "))==1:
-            res=[(i,float(res[i])) for i in range(len(res))]
-            if name==None:
-                name=("index","value")
-            else:
-                name=("index",name)
-            return (name,res)
-        if len(res[0].split(" "))==2:
-            for i in range(len(res)):
-                tupleXY=res[i].split(" ")
-                res[i]=(float(tupleXY[0]), float(tupleXY[1]))
-            if name==None:
-                name="index\tvalue"
-            return (name.split("\t"),res)
+        return getExtractTimeData(extract_time,repName)
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
 
@@ -482,6 +486,20 @@ def plot_time(data, conf):
 
         ax.plot(nearestX, errorTab, "o", color=lineColor[index], label=roundingMode)
         index+=1
+    if conf._timeRef!=None:
+        refError=None
+        labelRef="ref"
+        if conf.lambdaTimeRef!=None:
+            refError=[abs((nearestY[i]- conf.lambdaTimeRef(nearestX[i]))/conf.lambdaTimeRef(nearestX[i]))  for i in range(nbTimeIndex)  ]
+        if conf.time_ref_script!=None:
+            (nameRef,tabRef)=getExtractTimeData(conf.time_ref_script, os.path.join(conf.repName(), "det", "nearest","dd.run0"))
+            if nameRef!=None:
+                labelRef=nameRef[1]
+            refX=[x[0] for x in tabRef]
+            refY=[x[1] for x in tabRef]
+            refError=[abs(refY[iTime] - nearestY[iTime])/ abs(refY[iTime]) for iTime in range(len(refX))]
+
+        ax.plot(nearestX, refError, "+", color=lineColor[index], label=labelRef)
 
     ax.set_yscale("log",base=10)
     ax.set_ylabel("verrou error estimation")
@@ -687,6 +705,7 @@ class config_stat(gen_config.gen_config):
         self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
         self.addRegistry("_logScalX", "bool",   "LOGSCALX", ["--log-scalx"],         False)
         self.addRegistry("_timeVal",  "bool",   "TIMEVAL",  ["--time-val"],          False)
+        self.addRegistry("_timeRef",  "string", "TIMEREF",  ["--time-ref="],         None)
 
         self.addRegistry("_timeParaview",     "bool",   "TIME_PARAVIEW",     ["--paraview_time"],         False)
         self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
@@ -759,8 +778,20 @@ class config_stat(gen_config.gen_config):
                 self.failure()
             self._runScript=self.exec_arg[0]
             self._extractTimeScript=self.exec_arg[1]
-
-
+            if self._timeRef!=None:
+                time_ref_script=self.checkScriptPath(self._timeRef,False)
+                if time_ref_script!=None:
+                    self.time_ref_script=time_ref_script
+                    self.lambdaTimeRef=None
+                else:
+                    lambdaTimeRef=eval("lambda x: "+self._timeRef)
+                    try:
+                        test=float(lambdaTimeRef(1))
+                        self.lambdaTimeRef=lambdaTimeRef
+                        self.time_ref_script=None
+                    except:
+                        print(self._timeRef+ "should be a valid executable or x lambda expression")
+                        self.failure()
 
     def check(self):
         if len(self._pattern)!=0 and (self._isMontecarlo==True or self._nbSample!=None or self._time==True):
