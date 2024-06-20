@@ -97,7 +97,6 @@ def verrou_run_stat(conf, fullAsync=True):
         DD_stoch.runMultipleVerrouTask(taskTab,  maxNbPROC)
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
-
     resDict={}
 
     for roundingMode in listOfStat:
@@ -151,7 +150,6 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
             else:
                 print("debug:", resProcess)
                 sys.exit(42)
-
 
     res=extractLoopOverComputation(rep,listOfStat, getValueData)
     if rounding_tool.isValidRounding(ref):
@@ -245,7 +243,105 @@ def verrou_extract_time(extract_time, rep, listOfStat):
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
 
+class verrou_extract_time_data:
+    def __init__(self,resultOfVerrouExtractTime, conf):
+        self.conf=conf
+        self.dataParsed=resultOfVerrouExtractTime
+        self.initRounding()
+        self.parseRef()
+        self.parseAllRounding()
+        self.parseErrorRef()
 
+    def initRounding(self):
+        self.listOfScalar=[]
+        self.listOfTab=[]
+        for roundingMode in sorted([x for x in self.dataParsed.keys()]):
+            if self.dataParsed[roundingMode]==None:
+                continue
+            if len(self.dataParsed[roundingMode])==1:
+                self.listOfScalar+=[roundingMode]
+            if len(self.dataParsed[roundingMode])>1:
+                self.listOfTab+=[roundingMode]
+        self.refRounding=self.conf.ref()
+        if self.refRounding not in self.listOfScalar:
+            print("Stochastic reference (not yet implemented) and  value reference are not accepted with time plot")
+            sys.exit(42)
+
+    def parseRef(self):
+        if self.refRounding in self.listOfScalar:
+            brutData=self.dataParsed[self.refRounding]
+            sampleIndex=0
+            nameIndex=0
+            tabIndex=1
+            self.labelX=brutData[sampleIndex][nameIndex][0]
+            self.labelY=brutData[sampleIndex][nameIndex][1]
+            self.refX=[x[0] for x in brutData[sampleIndex][tabIndex]]
+            self.refY=[x[1] for x in brutData[sampleIndex][tabIndex]]
+
+        if self.refRounding in self.listOfTab:
+            print("Not yet implemented")
+
+    def parseAllRounding(self):
+        self.data={}
+        for rounding in self.listOfScalar + self.listOfTab:
+            tabIndex=1
+            nbSample=len(self.dataParsed[rounding])
+            valueXSampleTab=[]
+            valueYSampleTab=[]
+            valueYInterpSampleTab=[]
+            for sampleIndex in range(nbSample):
+                valueX=[x[0] for x in self.dataParsed[rounding][sampleIndex][tabIndex]]
+                valueY=[x[1] for x in self.dataParsed[rounding][sampleIndex][tabIndex]]
+                valueYInterp= np.interp(self.refX, valueX, valueY)
+
+                valueXSampleTab+=[valueX]
+                valueYSampleTab+=[valueY]
+                valueYInterpSampleTab+=[valueYInterp]
+
+            nbTimeIndex=len(valueXSampleTab[0])
+            def computeError(ref, valueTab):
+                return max([abs(value-ref) for value in valueTab])/abs(ref)
+
+            errorTab=[ computeError(self.refY[time], [ valueYInterpSampleTab[sample][time] for sample in range(nbSample)])   for time in range(nbTimeIndex)]
+
+            self.data[rounding]={
+                "XSampleTab":valueXSampleTab, "YSampleTab":valueYSampleTab, "YInterpSampleTab":valueYInterpSampleTab, "ErrorEstimation": errorTab
+            }
+
+    def parseErrorRef(self):
+        self.refError=None
+        self.labelRef="mathematical reference"
+        nbTimeIndex=len(self.refX)
+        if self.conf.lambdaTimeRef!=None:
+            self.refError=[abs((self.refY[i]- self.conf.lambdaTimeRef(self.refX[i]))/conf.lambdaTimeRef(self.refX[i]))  for i in range(nbTimeIndex)  ]
+        if self.conf.time_ref_script!=None:
+            (nameRef,tabRef)=getExtractTimeData(self.conf.time_ref_script, os.path.join(self.conf.repName(), "det", self.refRounding,"dd.run0"))
+            if nameRef!=None:
+                self.labelRef=nameRef[1]
+            mathRefX=[x[0] for x in tabRef]
+            mathRefY=[x[1] for x in tabRef]
+            self.refError=[abs(mathRefY[iTime] - self.refY[iTime])/ abs(mathRefY[iTime]) for iTime in range(len(mathRefX))]
+
+    def getLabelX(self):
+        return self.labelX
+    def getLabelY(self):
+        return self.labelY
+    def getListOfRoundingScalar(self):
+        return self.listOfScalar
+    def getListOfRoundingTab(self):
+        return self.listOfTab
+    def getXSampleTab(self,rounding):
+        return self.data[rounding]["XSampleTab"]
+    def getYSampleTab(self,rounding):
+        return self.data[rounding]["YSampleTab"]
+    def getYInterpSampleTab(self,rounding):
+        return self.data[rounding]["YInterpSampleTab"]
+    def getErrorEstimation(self, rounding):
+        return self.data[rounding]["ErrorEstimation"]
+    def getRefError(self):
+        return self.refError
+    def getLabelRefError(self):
+        return self.labelRef
 
 def verrou_extract_paraview_var(extract_var, rep, listOfStat):
     def getVarData(repName):
@@ -440,66 +536,28 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     else:
         plt.show()
 
-def plot_time(data, conf):
+def plot_time(dataBrut, conf):
+    data=verrou_extract_time_data(dataBrut, conf)
+
     fig, ax = plt.subplots()
-
-    #selection of plot
-    listOfScalar=[]
-    listOfTab=[]
-    for roundingMode in sorted([x for x in data.keys() if x!="ref"]):
-        if data[roundingMode]==None:
-            continue
-        if len(data[roundingMode])==1:
-            listOfScalar+=[roundingMode]
-        if len(data[roundingMode])>1:
-            listOfTab+=[roundingMode]
-
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
-  #  lineColor=["C"+str(i) for i in range(40) ]
-
-
     if conf._logScalX:
         ax.set_xscale("log",base=10)
+    labelX=data.getLabelX()
+    labelY=data.getLabelY()
 
-    labelX=data["nearest"][0][0][0]
-    labelY=data["nearest"][0][0][1]
-    nearestX=[x[0] for x in data["nearest"][0][1]]
-    nearestY=[x[1] for x in data["nearest"][0][1]]
+    nbTimeIndex=len(data.refX)
 
-    nbTimeIndex=len(nearestX)
-
+    listOfScalar=data.getListOfRoundingScalar()
     index=len(listOfScalar)
-    for roundingMode in listOfTab:
-        resTab=data[roundingMode]
-        resYTab=[]
-        nbSample=len(resTab)
-        for res in resTab:
-            resX=[x[0] for x in res[1]]
-            resY=[x[1] for x in res[1]]
-            resYInter=np.interp(nearestX,resX, resY)
-            resYTab+=[resYInter]
-        errorTab=[]
-        for iTime in range(nbTimeIndex):
-            error=max([ abs(resYTab[jSample][iTime] - nearestY[iTime])   for jSample in range(nbSample) ])
-            errorTab+=[error/ abs(nearestY[iTime])]
-
-        ax.plot(nearestX, errorTab, "o", color=lineColor[index], label=roundingMode)
+    for roundingMode in data.getListOfRoundingTab():
+        errorTab=data.getErrorEstimation(roundingMode)
+        ax.plot(data.refX, errorTab, "o", color=lineColor[index], label=roundingMode)
         index+=1
-    if conf._timeRef!=None:
-        refError=None
-        labelRef="ref"
-        if conf.lambdaTimeRef!=None:
-            refError=[abs((nearestY[i]- conf.lambdaTimeRef(nearestX[i]))/conf.lambdaTimeRef(nearestX[i]))  for i in range(nbTimeIndex)  ]
-        if conf.time_ref_script!=None:
-            (nameRef,tabRef)=getExtractTimeData(conf.time_ref_script, os.path.join(conf.repName(), "det", "nearest","dd.run0"))
-            if nameRef!=None:
-                labelRef=nameRef[1]
-            refX=[x[0] for x in tabRef]
-            refY=[x[1] for x in tabRef]
-            refError=[abs(refY[iTime] - nearestY[iTime])/ abs(refY[iTime]) for iTime in range(len(refX))]
 
-        ax.plot(nearestX, refError, "+", color=lineColor[index], label=labelRef)
+    if conf._timeRef!=None:
+        ax.plot(data.refX, data.getRefError(), "+", color=lineColor[index], label=data.getLabelRefError())
 
     ax.set_yscale("log",base=10)
     ax.set_ylabel("verrou error estimation")
@@ -509,29 +567,23 @@ def plot_time(data, conf):
     if conf._timeVal:
         ax2=ax.twinx()
         index=len(listOfScalar)
-        for roundingMode in listOfTab:
-            resTab=data[roundingMode]
-            first=True
-            for res in resTab:
-                resX=[x[0] for x in res[1]]
-                resY=[x[1] for x in res[1]]
-                if first:
-                    ax2.plot(resX, resY, linewidth=1, color=lineColor[index],label=roundingMode)
-                    first=False
-                else:
-                    ax2.plot(resX, resY, linewidth=1, color=lineColor[index])
+        for roundingMode in data.getListOfRoundingTab():
+            XSampleTab=data.getXSampleTab(roundingMode)
+            YSampleTab=data.getYSampleTab(roundingMode)
+
+            ax2.plot(XSampleTab[0], YSampleTab[0], linewidth=1, color=lineColor[index],label=roundingMode)
+            for sample in range(1, len(XSampleTab)):
+                ax2.plot(XSampleTab[sample], YSampleTab[sample], linewidth=1, color=lineColor[index])
             index+=1
 
         index=0
         for roundingMode in listOfScalar:
-            res=data[roundingMode][0]
-            resX=[x[0] for x in res[1]]
-            resY=[x[1] for x in res[1]]
-            ax2.plot(resX, resY, linewidth=3, color=lineColor[index], label=roundingMode)
+            XSampleTab=data.getXSampleTab(roundingMode)
+            YSampleTab=data.getYSampleTab(roundingMode)
+
+            ax2.plot(XSampleTab[0], YSampleTab[0], linewidth=3, color=lineColor[index], label=roundingMode)
             index+=1
         ax2.set_ylabel(labelY)
-        #ax2.legend()
-
 
     plt.grid()
 
