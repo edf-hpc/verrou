@@ -123,7 +123,6 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
         for i in range(nbSample):
             nameSample=os.path.join(rep,name, "dd.run%i"%(i))
-
             value=extractFunc(nameSample)
             resTab+=[value]
 
@@ -245,103 +244,101 @@ def verrou_extract_time(extract_time, rep, listOfStat):
 
 class verrou_extract_time_data:
     def __init__(self,resultOfVerrouExtractTime, conf):
-        self.conf=conf
-        self.dataParsed=resultOfVerrouExtractTime
+        self._conf=conf
+        self._dataParsed=resultOfVerrouExtractTime
         self.initRounding()
         self.parseRef()
         self.parseAllRounding()
         self.parseErrorRef()
 
     def initRounding(self):
-        self.listOfScalar=[]
-        self.listOfTab=[]
-        for roundingMode in sorted([x for x in self.dataParsed.keys()]):
-            if self.dataParsed[roundingMode]==None:
+        self._listOfScalar=[]
+        self._listOfTab=[]
+        for roundingMode in sorted([x for x in self._dataParsed.keys()]):
+            if self._dataParsed[roundingMode]==None:
                 continue
-            if len(self.dataParsed[roundingMode])==1:
-                self.listOfScalar+=[roundingMode]
-            if len(self.dataParsed[roundingMode])>1:
-                self.listOfTab+=[roundingMode]
-        self.refRounding=self.conf.ref()
-        if self.refRounding not in self.listOfScalar:
+            if len(self._dataParsed[roundingMode])==1:
+                self._listOfScalar+=[roundingMode]
+            if len(self._dataParsed[roundingMode])>1:
+                self._listOfTab+=[roundingMode]
+        self._refRounding=self._conf.ref()
+        if self._refRounding not in self._listOfScalar:
             print("Stochastic reference (not yet implemented) and  value reference are not accepted with time plot")
             sys.exit(42)
 
     def parseRef(self):
-        if self.refRounding in self.listOfScalar:
-            brutData=self.dataParsed[self.refRounding]
+        if self._refRounding in self._listOfScalar:
+            brutData=self._dataParsed[self._refRounding]
             sampleIndex=0
             nameIndex=0
             tabIndex=1
-            self.labelX=brutData[sampleIndex][nameIndex][0]
-            self.labelY=brutData[sampleIndex][nameIndex][1]
-            self.refX=[x[0] for x in brutData[sampleIndex][tabIndex]]
-            self.refY=[x[1] for x in brutData[sampleIndex][tabIndex]]
+            self._labelX=brutData[sampleIndex][nameIndex][0]
+            self._labelY=brutData[sampleIndex][nameIndex][1]
+            self._refX=[x[0] for x in brutData[sampleIndex][tabIndex]]
+            self._refY=[x[1] for x in brutData[sampleIndex][tabIndex]]
 
-        if self.refRounding in self.listOfTab:
+        if self._refRounding in self._listOfTab:
             print("Not yet implemented")
 
     def parseAllRounding(self):
-        self.data={}
-        for rounding in self.listOfScalar + self.listOfTab:
+        self._data={}
+        for rounding in self._listOfScalar + self._listOfTab:
             tabIndex=1
-            nbSample=len(self.dataParsed[rounding])
+            nbSample=len(self._dataParsed[rounding])
             valueXSampleTab=[]
             valueYSampleTab=[]
             valueYInterpSampleTab=[]
             for sampleIndex in range(nbSample):
-                valueX=[x[0] for x in self.dataParsed[rounding][sampleIndex][tabIndex]]
-                valueY=[x[1] for x in self.dataParsed[rounding][sampleIndex][tabIndex]]
-                valueYInterp= np.interp(self.refX, valueX, valueY)
+                valueX=[x[0] for x in self._dataParsed[rounding][sampleIndex][tabIndex]]
+                valueY=[x[1] for x in self._dataParsed[rounding][sampleIndex][tabIndex]]
 
                 valueXSampleTab+=[valueX]
                 valueYSampleTab+=[valueY]
-                valueYInterpSampleTab+=[valueYInterp]
+                valueYInterpSampleTab+=[np.interp(self._refX, valueX, valueY)]
 
             nbTimeIndex=len(valueXSampleTab[0])
             def computeError(ref, valueTab):
                 return max([abs(value-ref) for value in valueTab])/abs(ref)
 
-            errorTab=[ computeError(self.refY[time], [ valueYInterpSampleTab[sample][time] for sample in range(nbSample)])   for time in range(nbTimeIndex)]
+            errorTab=[ computeError(self._refY[time],
+                                    [ valueYInterpSampleTab[sample][time] for sample in range(nbSample)])
+                       for time in range(nbTimeIndex)]
 
-            self.data[rounding]={
-                "XSampleTab":valueXSampleTab, "YSampleTab":valueYSampleTab, "YInterpSampleTab":valueYInterpSampleTab, "ErrorEstimation": errorTab
+            self._data[rounding]={
+                "XSampleTab":valueXSampleTab, "YSampleTab":valueYSampleTab,
+                "YInterpSampleTab":valueYInterpSampleTab,
+                "ErrorEstimation": errorTab
             }
 
     def parseErrorRef(self):
-        self.refError=None
-        self.labelRef="mathematical reference"
-        nbTimeIndex=len(self.refX)
-        if self.conf.lambdaTimeRef!=None:
-            self.refError=[abs((self.refY[i]- self.conf.lambdaTimeRef(self.refX[i]))/conf.lambdaTimeRef(self.refX[i]))  for i in range(nbTimeIndex)  ]
-        if self.conf.time_ref_script!=None:
-            (nameRef,tabRef)=getExtractTimeData(self.conf.time_ref_script, os.path.join(self.conf.repName(), "det", self.refRounding,"dd.run0"))
+        self._refError=None
+        self._labelRef="mathematical reference"
+        nbTimeIndex=len(self._refX)
+        if self._conf.lambdaTimeRef()!=None:
+            lambdaRef=self._conf.lambdaTimeRef()
+            self._refError=[abs((self._refY[i]- lambdaRef(self._refX[i]))/lambdaRef(self._refX[i])) for i in range(nbTimeIndex)]
+        if self._conf.scriptTimeRef()!=None:
+            (nameRef,tabRef)=getExtractTimeData(self._conf.scriptTimeRef(), os.path.join(self._conf.repName(), "det", self._refRounding,"dd.run0"))
             if nameRef!=None:
-                self.labelRef=nameRef[1]
+                self._labelRef=nameRef[1]
             mathRefX=[x[0] for x in tabRef]
             mathRefY=[x[1] for x in tabRef]
-            self.refError=[abs(mathRefY[iTime] - self.refY[iTime])/ abs(mathRefY[iTime]) for iTime in range(len(mathRefX))]
+            self._refError=[abs(mathRefY[iTime] - self._refY[iTime])/ abs(mathRefY[iTime]) for iTime in range(len(mathRefX))]
 
-    def getLabelX(self):
-        return self.labelX
-    def getLabelY(self):
-        return self.labelY
-    def getListOfRoundingScalar(self):
-        return self.listOfScalar
-    def getListOfRoundingTab(self):
-        return self.listOfTab
-    def getXSampleTab(self,rounding):
-        return self.data[rounding]["XSampleTab"]
-    def getYSampleTab(self,rounding):
-        return self.data[rounding]["YSampleTab"]
+    def getLabelX(self): return self._labelX
+    def getLabelY(self): return self._labelY
+    def getRefX(self): return self._refX
+    def getRefY(self): return self._refY
+    def getListOfRoundingScalar(self): return self._listOfScalar
+    def getListOfRoundingTab(self): return self._listOfTab
+    def getXSampleTab(self,rounding): return self._data[rounding]["XSampleTab"]
+    def getYSampleTab(self,rounding): return self._data[rounding]["YSampleTab"]
     def getYInterpSampleTab(self,rounding):
-        return self.data[rounding]["YInterpSampleTab"]
+        return self._data[rounding]["YInterpSampleTab"]
     def getErrorEstimation(self, rounding):
-        return self.data[rounding]["ErrorEstimation"]
-    def getRefError(self):
-        return self.refError
-    def getLabelRefError(self):
-        return self.labelRef
+        return self._data[rounding]["ErrorEstimation"]
+    def getRefError(self): return self._refError
+    def getLabelRefError(self): return self._labelRef
 
 def verrou_extract_paraview_var(extract_var, rep, listOfStat):
     def getVarData(repName):
@@ -542,46 +539,48 @@ def plot_time(dataBrut, conf):
     fig, ax = plt.subplots()
     lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
     lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
-    if conf._logScalX:
+    if conf.logScalX():
         ax.set_xscale("log",base=10)
     labelX=data.getLabelX()
     labelY=data.getLabelY()
 
-    nbTimeIndex=len(data.refX)
+    nbTimeIndex=len(data.getRefX())
 
     listOfScalar=data.getListOfRoundingScalar()
     index=len(listOfScalar)
     for roundingMode in data.getListOfRoundingTab():
-        errorTab=data.getErrorEstimation(roundingMode)
-        ax.plot(data.refX, errorTab, "o", color=lineColor[index], label=roundingMode)
+        ax.plot(data.getRefX(), data.getErrorEstimation(roundingMode),
+                "o", color=lineColor[index], label=roundingMode)
         index+=1
 
-    if conf._timeRef!=None:
-        ax.plot(data.refX, data.getRefError(), "+", color=lineColor[index], label=data.getLabelRefError())
+    if conf.timeRef()!=None:
+        ax.plot(data.getRefX(), data.getRefError(),
+                "+", color=lineColor[index], label=data.getLabelRefError())
 
     ax.set_yscale("log",base=10)
     ax.set_ylabel("verrou error estimation")
     ax.set_xlabel(labelX)
     ax.legend()
 
-    if conf._timeVal:
+    if conf.timeVal():
         ax2=ax.twinx()
         index=len(listOfScalar)
         for roundingMode in data.getListOfRoundingTab():
             XSampleTab=data.getXSampleTab(roundingMode)
             YSampleTab=data.getYSampleTab(roundingMode)
-
-            ax2.plot(XSampleTab[0], YSampleTab[0], linewidth=1, color=lineColor[index],label=roundingMode)
+            ax2.plot(XSampleTab[0], YSampleTab[0],
+                     linewidth=1, color=lineColor[index],label=roundingMode)
             for sample in range(1, len(XSampleTab)):
-                ax2.plot(XSampleTab[sample], YSampleTab[sample], linewidth=1, color=lineColor[index])
+                ax2.plot(XSampleTab[sample], YSampleTab[sample],
+                         linewidth=1, color=lineColor[index])
             index+=1
 
         index=0
         for roundingMode in listOfScalar:
             XSampleTab=data.getXSampleTab(roundingMode)
             YSampleTab=data.getYSampleTab(roundingMode)
-
-            ax2.plot(XSampleTab[0], YSampleTab[0], linewidth=3, color=lineColor[index], label=roundingMode)
+            ax2.plot(XSampleTab[0], YSampleTab[0],
+                     linewidth=3, color=lineColor[index], label=roundingMode)
             index+=1
         ax2.set_ylabel(labelY)
 
@@ -833,14 +832,14 @@ class config_stat(gen_config.gen_config):
             if self._timeRef!=None:
                 time_ref_script=self.checkScriptPath(self._timeRef,False)
                 if time_ref_script!=None:
-                    self.time_ref_script=time_ref_script
-                    self.lambdaTimeRef=None
+                    self._time_ref_script=time_ref_script
+                    self._lambdaTimeRef=None
                 else:
                     lambdaTimeRef=eval("lambda x: "+self._timeRef)
                     try:
                         test=float(lambdaTimeRef(1))
-                        self.lambdaTimeRef=lambdaTimeRef
-                        self.time_ref_script=None
+                        self._lambdaTimeRef=lambdaTimeRef
+                        self._time_ref_script=None
                     except:
                         print(self._timeRef+ "should be a valid executable or x lambda expression")
                         self.failure()
@@ -880,7 +879,6 @@ class config_stat(gen_config.gen_config):
         else:
             self.oldRepName=None
 
-
     def usageCmd(self):
         name=sys.argv[0]
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
@@ -894,38 +892,47 @@ class config_stat(gen_config.gen_config):
     def help(self):
         self.usageCmd()
 
-    def getCache(self):
-        return self._cache
+    def repName(self): return self._rep
+    def ref(self): return self._ref
+    def png(self): return self._png
+    def seed(self): return self._seed
 
-    def nbBin(self):
-        return self._nbBin
+    def num_threads(self): return self._num_threads
 
-    def runScript(self):
-        return self._runScript
+    def run_only(self): return self._runOnly
+    def no_plot(self): return self._noPlot
+    def getCache(self):return self._cache
 
-    def extractScript(self):
-        return self._extractScript
+    def runScript(self): return self._runScript
+    def extractScript(self): return self._extractScript
+    def extractTimeScript(self): return self._extractTimeScript
+    def extractVarScript(self): return self._extractVarScript
+    def continueOnExtractError(self): return self._continueOnExtractError
 
-    def extractTimeScript(self):
-        return self._extractTimeScript
+    def isHist(self): return self._hist
+    def nbBin(self): return self._nbBin
+    def relative(self): return self._relative
+    def mca_estimator(self): return self._mca_estimator
+    def useSpecificPattern(self): return len(self._pattern)!=0
+    def pattern(self): return self._pattern
 
-    def extractVarScript(self):
-        return self._extractVarScript
+    def isParaviewTime(self): return self._timeParaview
 
-    def continueOnExtractError(self):
-        return self._continueOnExtractError
+    def isTime(self): return self._time
+    def timeVal(self): return self._timeVal
+    def timeRef(self): return self._timeRef
+    def logScalX(self): return self._logScalX
 
-    def isHist(self):
-        return self._hist
-
-    def isTime(self):
-        return self._time
-
-    def isParaviewTime(self):
-        return self._timeParaview
-
-    def repName(self):
-        return self._rep
+    def lambdaTimeRef(self):
+        if self._timeRef!=None:
+            return self._lambdaTimeRef
+        else:
+            return None
+    def scriptTimeRef(self):
+        if self._timeRef:
+            return self._time_ref_script
+        else:
+            return None
 
     def getSampleConfig(self):
         nbDet=1
@@ -939,35 +946,7 @@ class config_stat(gen_config.gen_config):
                 nbSamples[key]=self._nbSample
         return nbSamples
 
-    def num_threads(self):
-        return self._num_threads
 
-    def relative(self):
-        return self._relative
-
-    def run_only(self):
-        return self._runOnly
-
-    def no_plot(self):
-        return self._noPlot
-
-    def useSpecificPattern(self):
-        return len(self._pattern)!=0
-
-    def pattern(self):
-        return self._pattern
-
-    def ref(self):
-        return self._ref
-
-    def png(self):
-        return self._png
-
-    def seed(self):
-        return self._seed
-
-    def mca_estimator(self):
-        return self._mca_estimator
 
 if __name__=="__main__":
     conf=config_stat(sys.argv,os.environ)
