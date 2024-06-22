@@ -296,7 +296,7 @@ class verrou_extract_time_data:
                 valueYSampleTab+=[valueY]
                 valueYInterpSampleTab+=[np.interp(self._refX, valueX, valueY)]
 
-            nbTimeIndex=len(valueXSampleTab[0])
+            nbTimeIndex=len(self._refX)
             def computeError(ref, valueTab):
                 return max([abs(value-ref) for value in valueTab])/abs(ref)
 
