@@ -228,9 +228,9 @@ verrouExtendStdoutPrecision_so_CPPFLAGS     = \
 	$(subst -Wmissing-parameter-type,,\
 	$(subst -Wold-style-declaration,,\
 	$(subst -Wmissing-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@))))))
-verrouExtendStdoutPrecision_so_LDFLAGS      = 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+verrouExtendStdoutPrecision_so_LDFLAGS      =  $(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
 #Suppression of -nodefaultlibs is required to avoid error with program written without C++
-
+verrouExtendStdoutPrecision_so_LDADD      = -ldl
 
 #----------------------------------------------------------------------------
 # verrouCBinding.so
