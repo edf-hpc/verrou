@@ -69,7 +69,7 @@ class DDsym(DD_stoch.DDStoch):
 class ddSymConfig(dd_config.ddConfig):
 
     def __init__(self, argv, environ):
-        super().__init__(argv,environ,config_keys=["DD_INTERFLOP","DD_VERROU"],prefix="dd.sym")
+        super().__init__(argv,environ,config_keys=["INTERFLOP_DD","VERROU_DD"],prefix="dd.sym")
         self.instr_prefix="VERROU"
 
     def registerOptions(self):

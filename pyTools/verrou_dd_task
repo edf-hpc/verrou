@@ -64,7 +64,7 @@ class DDTask(DD_stoch.DDStoch):
 class ddTaskConfig(dd_config.ddConfig):
 
     def __init__(self, argv, environ):
-        super().__init__(argv,environ,["DD_INTERFLOP","DD_VERROU"],prefix="dd.task")
+        super().__init__(argv,environ,["INTERFLOP_DD","VERROU_DD"],prefix="dd.task")
         self.instr_prefix="VERROU"
 
     def registerOptions(self):
