@@ -259,7 +259,12 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp)
          n = my_get_char(fd, &ch);
 
          if (n <= 0){
-            return True;//False; /* the next call will return True */
+            if(i==0 || buf[0]=='#' || isBlank){
+               return True;
+            }else{
+               buf[i] = 0;
+               return False;
+            }
          }
          if (i > 0 && i == LINE_SIZEMAX-1) {
             VG_(umsg)("too large line\n");
@@ -487,6 +492,7 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
   /*Loop over input line until first expect key*/
 
   while (! get_fullnc_line(vr.IOMatchCLRFileInput, &vr_IOmatch_CmdLine)) {
+
      if(IOMatch_verbose>3){
         VG_(umsg)("debug line : %s\n", vr_IOmatch_CmdLine);
      }
@@ -715,11 +721,11 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
        // Run the filterCMD
        if( VG_(pipe)(filter_fdin)!=0){
-	 VG_(umsg)("vr_IOmatchCLR : problem with PIPE fdin\n");
+	 VG_(umsg)("vr_IOmatchCLR: problem with PIPE fdin\n");
 	 VG_(tool_panic)("Pipe error");
        }
        if( VG_(pipe)(filter_fdout)!=0){
-	 VG_(umsg)("vr_IOmatchCLR : problem with PIPE fdout\n");
+	 VG_(umsg)("vr_IOmatchCLR: problem with PIPE fdout\n");
 	 VG_(tool_panic)("Pipe error");
        }
        filter_pid= VG_(fork)();
@@ -727,20 +733,20 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 	 VG_(close)(filter_fdin[1]);
 	 SysRes res = VG_(dup2)(filter_fdin[0], STDIN_FILENO);
 	 if (sr_Res(res) < 0){
-	   VG_(umsg)("vr_IOmatchCLR : problem with DUP2 in pipe 0\n");
+	   VG_(umsg)("vr_IOmatchCLR: problem with DUP2 in pipe 0\n");
 	   VG_(exit)(1);
 	 }
 	 VG_(close)(filter_fdout[0]);
 	 SysRes res2 = VG_(dup2)(filter_fdout[1], STDOUT_FILENO );
 	 if (sr_Res(res2) < 0){
-	   VG_(umsg)("vr_IOmatchCLR : problem with DUP2 out pipe 1\n");
+	   VG_(umsg)("vr_IOmatchCLR: problem with DUP2 out pipe 1\n");
 	   VG_(exit)(1);
 	 }
 
 	 VG_(execv)(argvFiltered[0], argvFiltered);
 
 	 /* If we are still alive here, execv failed. */
-	 VG_(umsg)("vr_IOmatchCLR : problem with EXECV\n");
+	 VG_(umsg)("vr_IOmatchCLR: problem with EXECV\n");
 	 VG_(umsg)("ARGV[0] %s\n", argvFiltered[0]);
 	 Int indexArg=1;
 	 while(True){
@@ -754,7 +760,7 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
        }
 
        if (filter_pid < 0) {
-	 VG_(umsg)("vr_IOmatchCLR : problem with fork\n");
+	 VG_(umsg)("vr_IOmatchCLR: problem with fork\n");
        }
 
        VG_(close)(filter_fdin[0]);
@@ -767,6 +773,7 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
     if(IOMatch_verbose>0){
        VG_(umsg)("Unused line : %s\n", vr_IOmatch_CmdLine);
+       VG_(tool_panic)("vr_IOmatchCLR: bad IOMatch script\n");
     }
   }//End while loop over line
 
@@ -836,10 +843,10 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 	   Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 
 	   if(sizeRead <0){
-	     VG_(umsg)("vr_IOmatchCLR : read error\n");
+	     VG_(umsg)("vr_IOmatchCLR: read error\n");
 	   }
 	   if(sizeRead >=LINE_SIZEMAX){
-	     VG_(umsg)("vr_IOmatchCLR : read error sizemax\n");
+	     VG_(umsg)("vr_IOmatchCLR: read error sizemax\n");
 	   }
 
 	   filteredBuf=vr_filtered_buff;
