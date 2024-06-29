@@ -1,9 +1,9 @@
 "    General options\n\
-      --vr-verbose=<yes|no> [default=no]\n\
+      --vr-verbose=yes|no [default=no]\n\
           Toggle verbosity: prints messages for x387 instructions and client\n\
           requests.\n\
 \n\
-      --count-op=<yes|no> [default=yes]\n\
+      --count-op=yes|no [default=yes]\n\
           Toggle floating-point operations counting.\n\
 \n\
           This option can be activated with the env variable VERROU_COUNT_OP\n\
@@ -150,35 +150,35 @@
 \n\
           This option can be activated with the env variable VERROU_INSTR.\n\
 \n\
-      --vr-instr-scalar=<yes|no> [default=no]\n\
+      --vr-instr-scalar=yes|no [default=no]\n\
           Toggle instrumentation of x387 scalar instructions. On arm64\n\
           architecture, this option is set by default to yes, as scalar\n\
           instructions respect the IEEE standard.\n\
 \n\
-      --vr-instr-llo=<yes|no> [default=yes]\n\
+      --vr-instr-llo=yes|no [default=yes]\n\
           Toggle instrumentation of llo scalar instructions (cast and all fma\n\
           instructions are considered as llo).\n\
 \n\
-      --vr-instr-vec<2,4,8>=<yes|no> [default=yes]\n\
+      --vr-instr-vec<2,4,8>=yes|no [default=yes]\n\
           Toggle instrumentation of vectorized instructions (number\n\
           corresponds to the pack size)\n\
 \n\
-      --vr-instr-unk=<yes|no> [default=yes]\n\
+      --vr-instr-unk=yes|no [default=yes]\n\
           Toggle instrumentation of instructions with unknown vectorized\n\
           status (fma is unvectorized in valgrind IR).\n\
 \n\
-      --vr-instr-[flt|dbl]=<yes|no> [default=yes]\n\
+      --vr-instr-[flt|dbl]=yes|no [default=yes]\n\
           Toggle instrumentation of float (or double) instructions.\n\
 \n\
     Instrumentation scope\n\
-      --instr-atstart=<yes|no> [default=yes]\n\
+      --instr-atstart=yes|no [default=yes]\n\
           Toggle hard instrumentation state on or off at program start.\n\
           Useful in combination with client requests.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_INSTR_ATSTART.\n\
 \n\
-      --instr-atstart-soft=<yes|no> [default=yes]\n\
+      --instr-atstart-soft=yes|no [default=yes]\n\
           Toggle soft instrumentation state on or off at program start.\n\
           Useful in combination with client requests.\n\
 \n\
@@ -239,7 +239,8 @@
           format). The main idea behind this format is to apply client\n\
           request action when a line match a bmatch: (b for break) or cmatch:\n\
           (c for continue) line. If a line match a bmatch the following match\n\
-          (b or c) are not tried. With a cmatch: the folling match are tried.\n\
+          (b or c) are not tried. With a cmatch: the following match are\n\
+          tried.\n\
 \n\
           The use of this option, may be sensitive to the bufferization of\n\
           the program. In C++ std::endl flush the output, so we usually avoid\n\
@@ -276,15 +277,15 @@
           VERROU_OUTPUT_TRACE_REP.\n\
 \n\
     Detection options\n\
-      --check-nan=<yes|no> [default=yes]\n\
+      --check-nan=yes|no [default=yes]\n\
           Activate NaN detection. NaN produces a valgrind error. This\n\
           functionality requires the verrou backend.\n\
 \n\
-      --check-inf=<yes|no> [default=yes]\n\
+      --check-inf=yes|no [default=yes]\n\
           Activate Inf detection. +/-Inf produces a valgrind error. This\n\
           functionality requires the verrou backend.\n\
 \n\
-      --check-cancellation=<yes|no> [default=no]\n\
+      --check-cancellation=yes|no [default=no]\n\
           Activate cancellation detection. Cancellation produces a valgrind\n\
           error. This functionality is available for the verrou, mcaquad and\n\
           checkdenorm backends. The level of detected cancellations can be\n\
@@ -307,7 +308,7 @@
           operations. Default value is still experimental and could have to\n\
           change.\n\
 \n\
-      --check-denorm=<yes|no> [default=no]\n\
+      --check-denorm=yes|no [default=no]\n\
           Activate denormal number detection. Denormal number produced by\n\
           floating point operation produces a valgrind error. This\n\
           functionality is available for the checkdenorm backend.\n\
@@ -317,12 +318,12 @@
           which produces at least one denormal number. This functionality is\n\
           available for checkdenorm backend.\n\
 \n\
-      --check-max-float=<yes|no> [default=no]\n\
+      --check-max-float=yes|no [default=no]\n\
           Activate max float detection. This functionality is compatible only\n\
           with verrou backend.\n\
 \n\
     Performance optimization\n\
-      --vr-unsafe-llo-optim=<yes|no> [default=no]\n\
+      --vr-unsafe-llo-optim=yes|no [default=no]\n\
           Activate faster instrumentation process but unsafe when binary\n\
           mixes llo and vect instructions.\n\
 "

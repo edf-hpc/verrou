@@ -1,0 +1,15 @@
+#bash completion for verrou_dd_clean  -*- shell-script -*-
+
+
+_verrou_dd_clean()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+    
+    COMPREPLY=($(compgen -W '--help --dry-run' -- "$cur"))
+    _filedir -d
+
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+
+} &&
+    complete -F _verrou_dd_clean verrou_dd_clean

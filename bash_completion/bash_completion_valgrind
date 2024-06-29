@@ -1,0 +1,172 @@
+# valgrind(1) completion                                   -*- shell-script -*-
+# adapation from a debian distribution file : /usr/share/bash-completion/completions/valgrind
+
+_valgrind()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i
+    # Note: intentionally using COMP_WORDS and COMP_CWORD instead of
+    # words and cword here due to splitting on = causing index differences
+    # (_command_offset assumes the former).
+    for ((i = 1; i <= COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i - 1]} != = ]]; then
+            _command_offset $i
+            return
+        fi
+    done
+
+    local word tool
+    for word in "${words[@]:1}"; do
+        if [[ $word == --tool=?* ]]; then
+            tool=$word
+            break
+        fi
+    done
+
+    case $prev in
+        -h | --help | --help-debug | --version)
+            return
+            ;;
+        --tool)
+            # Tools seem to be named e.g. like memcheck-amd64-linux from which
+            # we want to grab memcheck.
+	    # modification to use valgrind in PATH
+	    valgrind_path=$(which valgrind)
+            COMPREPLY=($(compgen -W '$(
+                for f in ${valgrind_path%/*/*}/lib{,64,exec}{/*-linux-gnu,}/valgrind/*
+                do
+                    [[ $f != *.so && -x $f && $f =~ ^.*/(.*)-[^-]+-[^-]+ ]] &&
+                        printf "%s\n" "${BASH_REMATCH[1]}"
+                done)' -- "$cur"))
+            return
+            ;;
+        --sim-hints)
+            COMPREPLY=($(compgen -W 'lax-ioctls enable-outer' -- "$cur"))
+            return
+            ;;
+        --soname-synonyms)
+            COMPREPLY=($(compgen -W 'somalloc' -S = -- "$cur"))
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            return
+            ;;
+        --kernel-variant)
+            COMPREPLY=($(compgen -W 'bproc' -- "$cur"))
+            return
+            ;;
+        # callgrind:
+        --callgrind-out-file)
+            _filedir
+            return
+            ;;
+        # exp-dhat:
+        --sort-by)
+            COMPREPLY=($(compgen -W 'max-bytes-live tot-bytes-allocd
+                max-blocks-live' -- "$cur"))
+            return
+            ;;
+        # massif:
+        --time-unit)
+            COMPREPLY=($(compgen -W 'i ms B' -- "$cur"))
+            return
+            ;;
+	# modification to take into account verrou tool
+	# verrou:
+	--libm)
+	    COMPREPLY=($(compgen -W 'instrumented manual_exclude auto_exclude' -- "$cur"))
+            return
+	    ;;
+	--rounding-mode)
+	    COMPREPLY=($(compgen -W 'nearest upward downward toward_zero farthest away_zero random random_det random_comdet random_scomdet average average_det average_comdet average_scomdet prandom prandom_det prandom_comdet sr_monotonic sr_smonotonic ftz float native' -- "$cur"))
+            return
+	    ;;
+	 --libm-noinst-rounding-mode)
+	     COMPREPLY=($(compgen -W 'nearest native' -- "$cur"))
+             return
+	     ;;
+	 #treat failing help parsing
+	 --vr-instr-flt|--vr-instr-dbl|--vr-instr-vec2|--vr-instr-vec4|--vr-instr-vec8) 
+	     COMPREPLY=($(compgen -W 'yes no' -- "$cur"))
+             return
+	     ;;
+	 --vr-instr)
+	     COMPREPLY=($(compgen -W 'add sub mul div mAdd mSub sqrt conv' -- "$cur"))
+	     return
+	     ;;
+	 --mca-mode)
+	     COMPREPLY=($(compgen -W 'mca rr pb ieee' -- "$cur"))
+             return
+	     ;;
+	 --backend)
+	     COMPREPLY=($(compgen -W 'verrou mcaquad checkdenorm' -- "$cur"))
+             return
+	     ;;
+	 --output-trace-rep)
+	     _filedir -d
+	     return
+	     ;;
+	 --output-IOmatch-rep)
+	     _filedir -d
+	     return
+	     ;;
+	 --warn-unknown-source)
+	     _filedir
+	     return
+	     ;;
+	 --source)
+	     _filedir
+	     return
+	     ;;
+	 --exclude)
+	     _filedir
+	     return
+	     ;;
+         # generic cases parsed from --help output
+        --+([-A-Za-z0-9_]))
+            local value=$($1 --help-debug ${tool-} 2>/dev/null |
+                command sed -ne "s|^[[:blank:]]*$prev=\([^[:blank:]]\{1,\}\).*|\1|p" | command uniq)
+	    #Modification : do not understand why but I need to add uniq
+            case $value in
+                \<file*\>)
+                    _filedir
+                    return
+                    ;;
+                \<command\>)
+                    compopt -o filenames
+                    COMPREPLY=($(compgen -c -- "$cur"))
+                    return
+                    ;;
+                \<+([0-9])..+([0-9])\>)
+                    COMPREPLY=($(compgen -W "{${value:1:${#value}-2}}" \
+                        -- "$cur"))
+                    return
+                    ;;
+                # "yes", "yes|no", etc (but not "string", "STR",
+                # "hint1,hint2,...")
+                yes | +([-a-z0-9])\|+([-a-z0-9\|]))
+                    COMPREPLY=($(IFS='|' compgen -W '$value' -- "$cur"))
+                    return
+                    ;;
+            esac
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+	#modification filter bad verrou parsing
+	OPTION_LIST=$(_parse_help "$1" "--help ${tool-}")
+	OPTION_LIST=${OPTION_LIST/--vr-instr-vec?--/--}
+	OPTION_LIST=${OPTION_LIST/--source?--/--}
+	OPTION_LIST=${OPTION_LIST//--vr-instr-?--/--}
+        COMPREPLY=($(compgen -W "${OPTION_LIST}" -- "$cur"))
+	#modification : add option not take into account by parsing
+	COMPREPLY+=($(compgen -W '--vr-instr-flt= --vr-instr-dbl= --vr-instr-vec2= --vr-instr-vec4= --vr-instr-vec8=' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+    complete -F _valgrind valgrind
+
+# ex: filetype=sh
