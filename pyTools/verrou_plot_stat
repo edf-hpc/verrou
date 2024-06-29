@@ -730,6 +730,9 @@ class config_stat(gen_config.gen_config):
         self._hist=True
         self.defaultRoundingTab=["det","random","average"]
         super().__init__(argv,environ, config_keys,[1,2,3])
+        if sys.argv[1]=="bash_completion":
+            self.write_bashCompletion_script()
+            sys.exit(0)
         self.normalize()
         self.check()
         self.cachePrepare()
@@ -737,8 +740,9 @@ class config_stat(gen_config.gen_config):
         self.saveParam(os.path.join(self._rep,"cmd.last"))
 
     def registerOptions(self):
-        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
-                         docStr="rounding mode list (coma separated) [default random,average,det]")
+        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default random,average,det]",
+                         suggestionForComaList= rounding_tool.roundingDetTab +rounding_tool.roundingNonDetTab + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
         self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")

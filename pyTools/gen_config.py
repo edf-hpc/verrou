@@ -14,16 +14,24 @@ class gen_config:
         self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
+        if sys.argv[1]=="bash_completion":
+            self.write_bashCompletion_script()
+            sys.exit(0)
         self.argv=argv
         self.parseArgv(argv, lengthValidTab)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
-    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam=None, additive=False, docStr=None ):
-        registry={"attribut":attribut, "type": optionType, "ENV":ENV, "tabOption":tabOption,
+    def addRegistry(self,attribut, optionType, ENV, tabOption, default, checkParam=None, additive=False, docStr=None,suggestionForComaList=None ):
+        registry={"attribut":attribut, "type": optionType, "ENV":ENV,
+                  "tabOptionBrut":tabOption,
+                  "tabOptionAll":[option.replace("#","") for option in tabOption],
+                  "tabOptionVisible":[option for option in tabOption if not option.startswith("#")],
                   "default":default, "checkParam":checkParam,
                   "additive":additive,
-                  "docStr":docStr}
+                  "docStr":docStr,
+                  "suggestionForComaList":suggestionForComaList,
+                  }
         self.registryTab+=[registry]
         self.instr_ignore=[]
         self.instr_prefix=None
@@ -48,8 +56,8 @@ class gen_config:
         return strOption
 
     def parseArgv(self,argv, lengthValidTab):
-        shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x["tabOption"] if y.startswith("-") and y[1]!="-"])
-        longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x["tabOption"] if y.startswith("--")]
+        shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x["tabOptionAll"] if y.startswith("-") and y[1]!="-"])
+        longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x["tabOptionAll"] if y.startswith("--")]
         try:
             opts,args=getopt.getopt(argv[1:], shortOptionsForGetOpt, longOptionsForGetOpt)
         except getopt.GetoptError:
@@ -61,7 +69,7 @@ class gen_config:
                 self.usageCmd()
                 self.failure()
             for registry in self.registryTab:
-                for registryName in registry["tabOption"]:
+                for registryName in registry["tabOptionAll"]:
                     fromRegistryName=registryName.replace("=","")
                     fromRegistryName=fromRegistryName.replace(":","")
                     if opt==fromRegistryName:
@@ -81,7 +89,7 @@ class gen_config:
         for registry in self.registryTab:
             try:
                 strValue=self.environ[self.PREFIX+"_"+registry["ENV"]]
-                param=[registry["attribut"], registry["type"], registry["ENV"], registry["tabOption"][0],registry["checkParam"], registry["additive"]]
+                param=[registry["attribut"], registry["type"], registry["ENV"], registry["tabOptionAll"][0],registry["checkParam"], registry["additive"]]
                 self.readOneOption(strValue,*param, parse="environ")
             except KeyError:
                 pass
@@ -245,17 +253,52 @@ _%s()
 {
     local cur prev words cword
     _init_completion -n = || return
-
-    case $cur in
+    local value prefix localCmd
 """%(cmdName)
         handler.write(begin)
-        strOptionTab=""
+
+        handler.write(" "*4+ "case $cur in\n")
         for registry in  self.registryTab:
-            optionTab=registry["tabOption"]
-            strOptionTab+=" "+" ".join(optionTab)
+            if registry["suggestionForComaList"]==None:
+                continue
+            optionTab=registry["tabOptionVisible"]
+            caseMatchComa="|".join([option+"*,*" for option in optionTab if option.endswith("=")  ])
+            caseMatchStar="|".join([option+"*" for option in optionTab if option.endswith("=")  ])
+            if caseMatchComa!="" and caseMatchStar!="" :
+                handler.write(" "*8+caseMatchComa+")\n")
+                handler.write(" "*12+"value=${cur#*=}\n")
+                handler.write(" "*12+"cur=${value}\n")
+                handler.write(" "*12+"prefix=${value%,*},\n")
+                handler.write(" "*12+"localCmd=${cur}\n")
+                handler.write(" "*12+"if (( COMP_TYPE == 63 )); then\n")
+                handler.write(" "*16+"prefix=\"\"\n")
+                handler.write(" "*16+"localCmd=${cur##*,}\n")
+                handler.write(" "*12+"fi\n")
+                prefixSuggest=["${prefix}"+suggest for suggest in registry["suggestionForComaList"]]
+                cmpReply=" "*12+ "COMPREPLY=($(compgen -W \"%s\" -- \"$localCmd\"))\n"%(" ".join(prefixSuggest))
+                handler.write(cmpReply)
+                handler.write(" "*12+"compopt -o nospace\n")
+                handler.write(" "*12+"return\n")
+                handler.write(" "*12+";;\n")
 
+                handler.write(" "*8+caseMatchStar+")\n")
+                handler.write(" "*12+"cur=${cur#*=}\n")
+                cmpReply=" "*12+ "COMPREPLY=($(compgen -W '%s' -- \"$cur\"))\n"%(" ".join(registry["suggestionForComaList"]))
+                handler.write(cmpReply)
+                handler.write(" "*12+"compopt -o nospace\n")
+                handler.write(" "*12+"return\n")
+                handler.write(" "*12+";;\n")
+
+        handler.write(" "*4+ "esac\n")
+        strOptionTab=""
+        handler.write(" "*4+ "case $cur in\n")
+        for registry in  self.registryTab:
+            optionTab=registry["tabOptionVisible"]
+            strOptionTab+=" "+" ".join([option.replace(":","") for option in optionTab])
+
+            if registry["suggestionForComaList"]!=None:
+                continue
             expectedValue=registry["checkParam"]
-
             caseMatch="|".join([option+"*" for option in optionTab if option.endswith("=")  ])
             if caseMatch!="":
                 handler.write(" "*8+caseMatch+")\n")
@@ -271,7 +314,28 @@ _%s()
                 handler.write(cmpReply)
                 handler.write(" "*12+"return\n")
                 handler.write(" "*12+";;\n")
+        handler.write("\n"+" "*4+"esac\n")
 
+        handler.write("\n"+ " "*4+"case $prev in\n")
+        for registry in self.registryTab:
+            optionTab=registry["tabOptionVisible"]
+            caseMatch="|".join([option.replace(":","") for option in optionTab if option.endswith(":") ])
+            if caseMatch!="":
+                handler.write(" "*8+caseMatch+")\n")
+                cmpReply=""
+                if str(type(expectedValue))=="<class 'list'>":
+                    if None not in expectedValue and len(expectedValue)>0:
+                        cmpReply=" "*12+ "COMPREPLY=($(compgen -W '%s' -- \"$cur\"))\n"%(" ".join(expectedValue))
+                if expectedValue=="rep_exists":
+                    cmpReply=" "*12+ "_filedir -d\n"
+                if expectedValue=="file_exists":
+                    cmpReply=" "*12+ "_filedir\n"
+                if cmpReply=="":
+                    cmpReply=" "*12+"COMPREPLY=\n"
+                    cmpReply+=" "*12+"compopt -o nospace\n"
+                handler.write(cmpReply)
+                handler.write(" "*12+"return\n")
+                handler.write(" "*12+";;\n")
         handler.write("\n"+" "*4+"esac\n")
 
         handler.write("\n"+" "*4+"COMPREPLY=($(compgen -W '%s' -- \"$cur\"))\n"%(strOptionTab))
@@ -291,7 +355,7 @@ _%s()
         for registry in self.registryTab:
 #            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
 
-            optionTab=registry["tabOption"]
+            optionTab=registry["tabOptionBrut"]
             if len(optionTab)==1:
                 optionStr=str(optionTab[0])
             else:
