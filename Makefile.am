@@ -9,7 +9,7 @@ EXTRA_DIST = \
 pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
 #----------------------------------------------------------------------------
-# verrou-<platform>
+# python tools
 #----------------------------------------------------------------------------
 
 PYTHON_REP=pyTools
@@ -17,6 +17,19 @@ PYTHON_REP=pyTools
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py
 
 pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py pyWrapper/verrouPyBinding.py
+
+#----------------------------------------------------------------------------
+# bash completion script
+#----------------------------------------------------------------------------
+completion_dir= bash_completion
+completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${completion_dir}/bash_completion_verrou_dd_clean\
+		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
+		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
+		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat
+completion_install_dir=${prefix}/usr/share/completions
+#----------------------------------------------------------------------------
+# install
+#----------------------------------------------------------------------------
 
 install-exec-local:
 	mkdir -p ${pkgpythondir}
@@ -26,6 +39,12 @@ install-exec-local:
 	install -t ${verrouCbindingDir} verrouCBinding.so
 	install -t ${verrouTaskDir} libverrouTask.so
 	install -t ${verrouExtendStdoutPrecisionDir} verrouExtendStdoutPrecision.so
+	mkdir -p ${completion_install_dir}
+	install -m 644 -t ${completion_install_dir} ${completion_scripts}
+
+#----------------------------------------------------------------------------
+# verrou-<platform>
+#----------------------------------------------------------------------------
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
