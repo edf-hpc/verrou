@@ -91,8 +91,24 @@ _valgrind()
              return
 	     ;;
 	 --vr-instr)
-	     COMPREPLY=($(compgen -W 'add sub mul div mAdd mSub sqrt conv' -- "$cur"))
-	     return
+	     case $cur in
+		 *,*)
+		     prefixArg=${cur%,*},
+		     localCur=${cur}
+		     if (( COMP_TYPE == 63 )); then
+			 prefixArg=""
+			 localCur=${cur##*,}
+		     fi
+		     COMPREPLY=($(compgen -W "${prefixArg}add ${prefixArg}sub ${prefixArg}mul ${prefixArg}div ${prefixArg}mAdd ${prefixArg}mSub ${prefixArg}sqrt ${prefixArg}conv" -- "$localCur"))
+		     compopt -o nospace
+		     return
+		     ;;
+		 *)
+		     COMPREPLY=($(compgen -W 'add sub mul div mAdd mSub sqrt conv' -- "$cur"))
+		     compopt -o nospace
+		     return
+		     ;;
+	     esac
 	     ;;
 	 --mca-mode)
 	     COMPREPLY=($(compgen -W 'mca rr pb ieee' -- "$cur"))
