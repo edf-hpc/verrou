@@ -76,6 +76,7 @@ class DDstdout(DD_stoch.DDStoch):
         return strLine.replace(os.path.join(cachePath, "ref"),os.path.join(cachePath, "*"))
 
     def selectFloatTask(self,logFile):
+        filterResPattern="match(filtered): "
         currentTask=None
         taskRes=[]
         if self.config_.customSearchSpace!=None:
@@ -85,9 +86,16 @@ class DDstdout(DD_stoch.DDStoch):
         taskPattern="match ["+str(shift)+"]: "
         fpInstrPattern="fp_instr: "
         taskName=None
-        for line in open(logFile).readlines():
+        fileHandler= open(logFile)
+        line=fileHandler.readline()
+        while line!="":
             if line.startswith(taskPattern):
-                taskName=line[len(taskPattern):]
+                if not self.config_.get_filterCmd() in [None,""]:
+                    newLine=fileHandler.readline()
+                    taskName=newLine[len(filterResPattern):]
+                else:
+                    taskName=line[len(taskPattern):]
+
                 if taskName.endswith("\n"):
                     taskName=taskName[0:-1]
             if line.startswith(fpInstrPattern):
@@ -102,6 +110,7 @@ class DDstdout(DD_stoch.DDStoch):
                     taskName=self.filePathReplace(addrReplace(floatReplace(taskName)))
                     if not (taskName in taskRes):
                         taskRes+=[taskName]
+            line=fileHandler.readline()
 
         #move to the end several expr which match almost evrything
         taskEnd=[" *","\t*","?*","*?","*"]
