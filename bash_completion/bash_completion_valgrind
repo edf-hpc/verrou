@@ -1,6 +1,9 @@
 # valgrind(1) completion                                   -*- shell-script -*-
 # adapation from a debian distribution file : /usr/share/bash-completion/completions/valgrind
 
+#modification
+shopt -s extglob || return
+
 _valgrind()
 {
     local cur prev words cword split
