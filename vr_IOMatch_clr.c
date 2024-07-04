@@ -157,7 +157,7 @@ const HChar exitStr[]="exit";
 
 
 typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
-static const SizeT actionNumber=13;
+static const SizeT actionNumber=15;
 const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
 SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
 
@@ -367,6 +367,17 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
   case exitKey:
     {
       VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: exit\n");
+      if(vr_filter){
+         char msgEnd[]="";
+         VG_(write)(filter_fdin[1], msgEnd, 1);
+
+         VG_(close)(filter_fdout[0]);
+         VG_(close)(filter_fdin[1]);
+         VG_(waitpid)(filter_pid, NULL, 0);
+
+         VG_(free)(vr_filtered_buff);
+      }
+
       VG_(exit)(1);
     }
   }
