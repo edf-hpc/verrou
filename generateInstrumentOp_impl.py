@@ -49,7 +49,7 @@ if __name__=="__main__":
                   ["RANDOM_SCOMDET"],["AVERAGE_SCOMDET"],
                   ["SR_MONOTONIC"],["SR_SMONOTONIC"],
                   ["UPWARD"],["DOWNWARD"],["ZERO"],
-                  ["AWAY_ZERO"],["FARTHEST"],
+                  ["AWAY_ZERO"],["FARTHEST"],["FLOAT"],
                   ["PRANDOM"], ["PRANDOM_DET"], ["PRANDOM_COMDET"]
                   ]    
     fileName="vr_instrumentOp_impl_generated.h"

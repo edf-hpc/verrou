@@ -231,6 +231,21 @@ if(vr.roundingMode==VR_FARTHEST){
 #undef bcNameWithCC
 	}
 }
+if(vr.roundingMode==VR_FLOAT){
+	if(vr.instrument_soft_used){
+#define bcName(OP) "vr_verrou_FLOAT_soft"#OP, vr_verrou_FLOAT_soft##OP
+#define bcNameWithCC(OP) "vr_verrou_FLOAT_soft"#OP, vr_verrou_FLOAT_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+	}else{
+#define bcName(OP) "vr_verrou_FLOAT"#OP, vr_verrou_FLOAT##OP
+#define bcNameWithCC(OP) "vr_verrou_FLOAT"#OP, vr_verrou_FLOAT##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+	}
+}
 if(vr.roundingMode==VR_PRANDOM){
 	if(vr.instrument_soft_used){
 #define bcName(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP

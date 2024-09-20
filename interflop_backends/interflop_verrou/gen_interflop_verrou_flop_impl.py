@@ -114,6 +114,8 @@ def getOpClass(op):
 def getRoundingClass(rounding):
     if rounding=="NEAREST":
         return "RoundingNearest"
+    if rounding=="FLOAT":
+        return "RoundingFloat"
     if rounding=="UPWARD":
         return "RoundingUpward"
     if rounding=="DOWNWARD":
@@ -216,7 +218,7 @@ def genFlopImpl(handler, roundingmode="dyn"):
 
 
 if __name__=="__main__":
-    roundingTab =["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO", "AWAY_ZERO"]
+    roundingTab =["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO", "AWAY_ZERO", "FLOAT"]
     roundingTab+=[rnd + det for rnd in ["RANDOM", "AVERAGE"] for det in ["","_DET","_COMDET","_SCOMDET" ]]
     roundingTab+=[rnd + det for rnd in ["PRANDOM"] for det in ["","_DET","_COMDET" ]]
     roundingTab+=["SR_MONOTONIC","SR_SMONOTONIC"]
