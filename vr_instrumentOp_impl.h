@@ -7,14 +7,14 @@
       // Addition
       // - Double precision
     case Iop_AddF64: // Scalar
-      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameConvWithCC(add64F), VR_OP_ADD, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
       break;
 
     case Iop_Add64F0x2: // 128b vector, lowest-lane-only
-       res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(add64FLLO), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameConvWithCC(add64FLLO), VR_OP_ADD, VR_PREC_DBL, VR_VEC_LLO, countOnly);
       break;
     case Iop_Add64Fx2: // 128b vector, 2 lanes
-      res.containFloatModOp=vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp=vr_replaceBinFullSSE (sb, stmt, expr, bcNameConvWithCC(add64Fx2), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
       break;
 
     case Iop_AddF32: // Scalar
@@ -30,7 +30,7 @@
       break;
 
     case Iop_Add64Fx4: //AVX double
-      res.containFloatModOp=vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp=vr_replaceBinFullAVX(sb, stmt, expr, bcNameConvWithCC(add64Fx4), VR_OP_ADD, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
       break;
 
     case Iop_Add32Fx8: //AVX Float
@@ -41,15 +41,15 @@
 
       // - Double precision
     case Iop_SubF64: // Scalar
-      res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcNameWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpScal (sb, stmt, expr, bcNameConvWithCC(sub64F), VR_OP_SUB, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
       break;
 
     case Iop_Sub64F0x2: // 128b vector, lowest-lane only
-       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameWithCC(sub64FLLO), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameConvWithCC(sub64FLLO), VR_OP_SUB, VR_PREC_DBL, VR_VEC_LLO, countOnly);
       break;
 
     case Iop_Sub64Fx2:
-      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcNameWithCC(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcNameConvWithCC(sub64Fx2), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
       break;
 
     case Iop_SubF32: // Scalar
@@ -65,7 +65,7 @@
       break;
 
     case Iop_Sub64Fx4: //AVX double
-      res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcNameWithCC(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcNameConvWithCC(sub64Fx4), VR_OP_SUB, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
       break;
 
     case Iop_Sub32Fx8: //AVX Float
@@ -75,15 +75,15 @@
 
       // - Double precision
     case Iop_MulF64: // Scalar
-      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcName(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameConv(mul64F), VR_OP_MUL, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
       break;
 
     case Iop_Mul64F0x2: // 128b vector, lowest-lane-only
-       res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(mul64FLLO), VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameConv(mul64FLLO), VR_OP_MUL, VR_PREC_DBL, VR_VEC_LLO, countOnly);
       break;
 
     case Iop_Mul64Fx2: // 128b vector, 2 lanes
-      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcName(mul64Fx2), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE (sb, stmt, expr, bcNameConv(mul64Fx2), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
       break;
 
     case Iop_MulF32: // Scalar
@@ -99,7 +99,7 @@
        break;
 
     case Iop_Mul64Fx4: //AVX double
-       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(mul64Fx4), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcNameConv(mul64Fx4), VR_OP_MUL, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
        break;
 
     case Iop_Mul32Fx8: //AVX Float
@@ -119,19 +119,19 @@
        break;
 
     case Iop_DivF64: // Scalar
-       res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcName(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+       res.containFloatModOp=vr_replaceBinFpOpScal (sb, stmt, expr, bcNameConv(div64F), VR_OP_DIV, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
        break;
 
     case Iop_Div64F0x2: // 128b vector, lowest-lane-only
-       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcName(div64FLLO), VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+       res.containFloatModOp= vr_replaceBinFpOpLLO (sb, stmt, expr, bcNameConv(div64FLLO), VR_OP_DIV, VR_PREC_DBL, VR_VEC_LLO, countOnly);
        break;
 
     case Iop_Div64Fx2: // 128b vector, 2 lanes
-       res.containFloatModOp= vr_replaceBinFullSSE(sb, stmt, expr, bcName(div64Fx2), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+       res.containFloatModOp= vr_replaceBinFullSSE(sb, stmt, expr, bcNameConv(div64Fx2), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
        break;
 
     case Iop_Div64Fx4: //AVX double
-       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcName(div64Fx4), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+       res.containFloatModOp= vr_replaceBinFullAVX(sb, stmt, expr, bcNameConv(div64Fx4), VR_OP_DIV, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
        break;
 
     case Iop_Div32Fx8: //AVX Float
@@ -161,7 +161,7 @@
 #endif
     case Iop_MAddF64:
 #ifndef IGNOREFMA
-      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
       break;
 #else
       res.containFloatModOp=False;
@@ -171,7 +171,7 @@
 #endif
     case Iop_MSubF64:
 #ifndef IGNOREFMA
-      res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+      res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
       break;
 #else
       res.containFloatModOp=False;
@@ -304,7 +304,7 @@
       break;
     case Iop_SqrtF64:
 #ifndef IGNORESQRT
-      res.containFloatModOp=vr_replaceBinFpOpScal_unary (sb, stmt, expr, bcName(sqrt64F), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
+      res.containFloatModOp=vr_replaceBinFpOpScal_unary (sb, stmt, expr, bcNameConv(sqrt64F), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_SCAL, countOnly);
 #else
       res.containFloatModOp=False;
       vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_SCAL,False);
@@ -313,7 +313,7 @@
       break;
     case Iop_Sqrt64F0x2:
 #ifndef IGNORESQRT
-      res.containFloatModOp= vr_replaceBinFpOpLLO_unary (sb, stmt, expr, bcName(sqrt64FLLO), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_LLO, countOnly);
+      res.containFloatModOp= vr_replaceBinFpOpLLO_unary (sb, stmt, expr, bcNameConv(sqrt64FLLO), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_LLO, countOnly);
 #else
       res.containFloatModOp=False;
       vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_LLO,False);
@@ -322,7 +322,7 @@
       break;
     case Iop_Sqrt64Fx2:
 #ifndef IGNORESQRT
-      res.containFloatModOp= vr_replaceBinFullSSE_unary(sb, stmt, expr, bcName(sqrt64Fx2), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
+      res.containFloatModOp= vr_replaceBinFullSSE_unary(sb, stmt, expr, bcNameConv(sqrt64Fx2), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL2, countOnly);
 #else
       res.containFloatModOp=False;
       vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL2,False);
@@ -331,7 +331,7 @@
       break;
     case Iop_Sqrt64Fx4:
 #ifndef IGNORESQRT
-      res.containFloatModOp= vr_replaceBinFullAVX_unary(sb, stmt, expr, bcName(sqrt64Fx4), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
+      res.containFloatModOp= vr_replaceBinFullAVX_unary(sb, stmt, expr, bcNameConv(sqrt64Fx4), VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL4, countOnly);
 #else
       res.containFloatModOp=False;
       vr_countOp (sb, VR_OP_SQRT, VR_PREC_DBL, VR_VEC_FULL4,False);

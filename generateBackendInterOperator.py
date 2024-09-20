@@ -58,33 +58,37 @@ def transformTemplateForSoftStopStart(lineTab, soft=False):
     return res
 
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False):
+def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False, commentConv=False):
 
     templateStr=open(fileNameTemplate, "r").readlines()
     templateStr=transformTemplateForSoftStopStart(templateStr, soft)
 
     FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+    FctConvNameRegExp=re.compile("(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
     BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
     BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
 
+    if post in ["check_float_max"]:
+        commentConv=True
 
     for backend in listOfBackend:
         if backend=="mcaquad":
             fileOut.write("#ifdef USE_VERROU_QUADMATH\n")
+
         for op in listOfOp:
             for rounding in roundingTab:
                 if nargs in [1,2]:
-                    applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, BckNameNearestRegExp, backend,op, post, sign=None, rounding=rounding, soft=soft)
+                    applyTemplate(fileOut, templateStr, FctNameRegExp, FctConvNameRegExp, BckNameRegExp, BckNameNearestRegExp, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv)
                 if nargs==3:
                     sign=""
                     if "msub" in op:
                         sign="-"
-                    applyTemplate(fileOut, templateStr, FctNameRegExp,BckNameRegExp,BckNameNearestRegExp, backend, op, post, sign, rounding=rounding, soft=soft)
+                    applyTemplate(fileOut, templateStr, FctNameRegExp, FctConvNameRegExp, BckNameRegExp,BckNameNearestRegExp, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv)
         if backend=="mcaquad":
             fileOut.write("#endif //USE_VERROU_QUADMATH\n")
 
 
-def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False):
+def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):
     if soft and rounding=="NEAREST":
         return;
     fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
@@ -92,11 +96,15 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
     if rounding!=None:
         backendFunc=backend+"_"+rounding
 
-    def fctName(typeVal,opt):
+    def fctName(conv,typeVal,opt):
+        vrPrefix="vr_"
+        if conv:
+            vrPrefix="vr_conv_"
         if soft:
-            return "vr_"+backendFunc+post+"_soft"+op+typeVal+opt
+            return vrPrefix+backendFunc+post+"_soft"+op+typeVal+opt
         else:
-            return "vr_"+backendFunc+post+op+typeVal+opt
+            return vrPrefix+backendFunc+post+op+typeVal+opt
+
     def bckName(typeVal):
         if sign!="-":
             if rounding!=None:
@@ -125,6 +133,22 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
     contextNamePost="backend_"+post+"_context"
     contextNearestName="backend_verrou_null_context"
 
+    comment=False
+
+    def outputRes(res,comment):
+        line=None
+        if comment:
+            if res in ["","//"]:
+                line=res+"\n"
+            else:
+                if "/*" in res:
+                    line="/*"+ res.replace("/*", "%%").replace("*/","%%")+"*/"
+                else:
+                    line="/*"+ res+"*/\n"
+        else:
+            line=res+"\n"
+        fileOut.write(line)
+
     for line in templateStr:
         if "BACKEND_NEAREST_CONTEXT" in line:
             line=line.replace("BACKEND_NEAREST_CONTEXT", contextNearestName)
@@ -138,27 +162,36 @@ def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, BckNearestRegExp, 
                 sys.exit()
         result=FctRegExp.match(line)
         if result!=None:
-            res=result.group(1) + fctName(result.group(2), result.group(3)) + result.group(4)
-            fileOut.write(res+"\n")
+            if commentConv:
+                comment=False
+            res=result.group(1) + fctName(False,result.group(2), result.group(3)) + result.group(4)
+            outputRes(res,comment)
+            continue
+        result=FctConvRegExp.match(line)
+        if result!=None:
+            if commentConv:
+                comment=True
+            res=result.group(1) + fctName(True,result.group(2), result.group(3)) + result.group(4)
+            outputRes(res,comment)
             continue
         result=BckRegExp.match(line)
         if result!=None:
             res=result.group(1) + bckName(result.group(2)) + result.group(3)
-            fileOut.write(res+"\n")
+            outputRes(res,comment)
             if post!="":
                 res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
                 res=res.replace(contextName, contextNamePost)
-                fileOut.write(res+"\n")
+                outputRes(res,comment)
             continue
 
         result=BckNearestRegExp.match(line)
         if result!=None:
             res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
-            fileOut.write(res+"\n")
+            outputRes(res,comment)
             continue
-
-        fileOut.write(line)
-
+        if line.endswith("\n"):
+            line=line[0:-1]
+        outputRes(line,comment)
 
 
 

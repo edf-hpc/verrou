@@ -1096,33 +1096,97 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 #endif // end of DEBUG_PRINT_OP
 
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameConv(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameConvWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
-	}else{
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameConv(OP) "vr_conv_verrou_soft"#OP, vr_conv_verrou_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_verrou_soft"#OP, vr_conv_verrou_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
+      }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameConv(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameConvWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
-	}
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameConv(OP) "vr_conv_verrou"#OP, vr_conv_verrou##OP
+#define bcNameConvWithCC(OP) "vr_conv_verrou"#OP, vr_conv_verrou##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
+      }
    }
 
    if(vr.backend==vr_verrou && checkCancellation && ! vr.checkFloatMax){
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation_soft"#OP, vr_verroucheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameConvWithCC(OP) "vr_verroucheckcancellation_soft"#OP, vr_verroucheckcancellation_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCC(OP) "vr_verroucheckcancellation_soft"#OP, vr_verroucheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_conv_verrou_soft"#OP, vr_conv_verrou_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_verroucheckcancellation_soft"#OP, vr_conv_verroucheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
+#define bcNameConv(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameConvWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
+#define bcNameConv(OP) "vr_conv_verrou"#OP, vr_conv_verrou##OP
+#define bcNameConvWithCC(OP) "vr_conv_verroucheckcancellation"#OP, vr_conv_verroucheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }
    }
 
@@ -1130,46 +1194,118 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
       if(vr.instrument_soft_used){
 #define bcName(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
 #define bcNameWithCC(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
+#define bcNameConv(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
+#define bcNameConvWithCC(OP) "vr_verroucheck_float_max_soft"#OP, vr_verroucheck_float_max_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
       }else{
 #define bcName(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
 #define bcNameWithCC(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
+#define bcNameConv(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
+#define bcNameConvWithCC(OP) "vr_verroucheck_float_max"#OP, vr_verroucheck_float_max##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
       }
    }
 
    if(vr.backend==vr_checkdenorm && !checkCancellation){
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
 #define bcNameWithCC(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameConv(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameConvWithCC(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameWithCC(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameConv(OP) "vr_conv_checkdenorm_soft"#OP, vr_conv_checkdenorm_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_checkdenorm_soft"#OP, vr_conv_checkdenorm_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameConv(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameConvWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameConv(OP) "vr_conv_checkdenorm"#OP, vr_conv_checkdenorm##OP
+#define bcNameConvWithCC(OP) "vr_conv_checkdenorm"#OP, vr_conv_checkdenorm##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }
    }
    if(vr.backend==vr_checkdenorm && checkCancellation){
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
 #define bcNameWithCC(OP) "vr_checkdenormcheckcancellation_soft"#OP, vr_checkdenormcheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameConvWithCC(OP) "vr_checkdenormcheckcancellation_soft"#OP, vr_checkdenormcheckcancellation_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_checkdenorm_soft"#OP, vr_checkdenorm_soft##OP
+#define bcNameWithCC(OP) "vr_checkdenormcheckcancellation_soft"#OP, vr_checkdenormcheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_conv_checkdenorm_soft"#OP, vr_conv_checkdenorm_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_checkdenormcheckcancellation_soft"#OP, vr_conv_checkdenormcheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
+#define bcNameConv(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameConvWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
+#define bcNameWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
+#define bcNameConv(OP) "vr_conv_checkdenorm"#OP, vr_conv_checkdenorm##OP
+#define bcNameConvWithCC(OP) "vr_conv_checkdenormcheckcancellation"#OP, vr_conv_checkdenormcheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }
    }
 
@@ -1177,34 +1313,98 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
    if(vr.backend==vr_mcaquad && !checkCancellation){
 #define IGNORESQRT
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
 #define bcNameWithCC(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameConv(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameConvWithCC(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameWithCC(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameConv(OP) "vr_conv_mcaquad_soft"#OP, vr_conv_mcaquad_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_mcaquad_soft"#OP, vr_conv_mcaquad_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameConv(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameConvWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameConv(OP) "vr_conv_mcaquad"#OP, vr_conv_mcaquad##OP
+#define bcNameConvWithCC(OP) "vr_conv_mcaquad"#OP, vr_conv_mcaquad##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }
 #undef IGNORESQRT
    }
    if(vr.backend==vr_mcaquad && checkCancellation){
 #define IGNORESQRT
       if(vr.instrument_soft_used){
+         if(!vr.float_conv){
 #define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation_soft"#OP, vr_mcaquadcheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameConvWithCC(OP) "vr_mcaquadcheckcancellation_soft"#OP, vr_mcaquadcheckcancellation_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_mcaquad_soft"#OP, vr_mcaquad_soft##OP
+#define bcNameWithCC(OP) "vr_mcaquadcheckcancellation_soft"#OP, vr_mcaquadcheckcancellation_soft##OP
+#define bcNameConv(OP) "vr_conv_mcaquad_soft"#OP, vr_conv_mcaquad_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_mcaquadcheckcancellation_soft"#OP, vr_conv_mcaquadcheckcancellation_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }else{
+         if(!vr.float_conv){
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
+#define bcNameConv(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameConvWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }else{
+#define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
+#define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP
+#define bcNameConv(OP) "vr_conv_mcaquad"#OP, vr_conv_mcaquad##OP
+#define bcNameConvWithCC(OP) "vr_conv_mcaquadcheckcancellation"#OP, vr_conv_mcaquadcheckcancellation##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+         }
       }
 #undef IGNORESQRT
    }
@@ -1656,6 +1856,11 @@ static void vr_post_clo_init(void)
   if(vr.checkFloatMax && vr.backend!=vr_verrou){
     VG_(tool_panic)("backend check_float_max is only compatible with verrou backend");
   }
+
+  if(vr.checkFloatMax && vr.float_conv){
+    VG_(tool_panic)("--float and --checkFloatMax are incompatible");
+  }
+
 
   if( vr.loadInterLibm && (vr.backend!=vr_verrou) ){
     VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");

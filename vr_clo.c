@@ -84,6 +84,8 @@ void vr_clo_defaults (void) {
   vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
   vr.prandomFixedInitialValue=-1.;
   vr.count = True;
+
+  vr.float_conv=False;
   vr.instrument_hard = VR_INSTR_ON;
   vr.instrument_soft = VR_INSTR_ON;
   vr.instrument_soft_used = False;
@@ -230,6 +232,9 @@ Bool vr_process_clo (const HChar *arg) {
     if(vr.prandomFixedInitialValue<0 ||  vr.prandomFixedInitialValue>1){
       VG_(tool_panic) ( "\tpvalue has to be between 0 and 1\n");
     }
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--float", bool_val)) {
+    vr.float_conv = bool_val;
   }
 
   //Option mcaquad

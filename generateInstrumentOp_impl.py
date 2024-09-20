@@ -3,19 +3,51 @@
 import sys
 
 includePatternHard="""
+            if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+            }else{
+#define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConv(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
+#define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+           }
 """
 
 includePatternSoft="""
+            if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameConv(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+           }else{
+#define bcName(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+           }
 """
 
 
