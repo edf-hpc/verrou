@@ -4,6 +4,7 @@ iomatch.script.log-*
 accuClreq
 denorm
 hardSoftClreq
+hardSoftClreqDouble
 libmtest
 naninf
 test_det
