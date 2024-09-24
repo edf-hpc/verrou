@@ -50,6 +50,31 @@ includePatternSoft="""
            }
 """
 
+includePatternSoftNearest="""
+            if(!vr.float_conv){
+#define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+           }else{
+#define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+           }
+"""
+
+
 
 def generate(fileName,roundingList):
     handler=open(fileName,"w")
@@ -59,16 +84,19 @@ def generate(fileName,roundingList):
         roundingMode=rounding[0]
         checkStr="if(vr.roundingMode==VR_"+roundingMode
         for checkRounding in rounding[1:]:
-            checkStr+= " ||  vr.roundingMode==VR_" +checkRounding        
+            checkStr+= " ||  vr.roundingMode==VR_" +checkRounding
         checkStr+="){"
 
         includeMacroHard=includePatternHard.replace("ROUNDING",roundingMode)
         includeMacroSoft=includePatternSoft.replace("ROUNDING",roundingMode)
+        if roundingMode=="NEAREST":
+            includeMacroSoft=includePatternSoftNearest.replace("ROUNDING",roundingMode)
+
         includeMacro="""
 \tif(vr.instrument_soft_used){""" + includeMacroSoft+"\t}else{"+includeMacroHard+"\t}\n"       
         strWrite=checkStr + includeMacro+ "}\n"
-        if roundingMode=="NEAREST":
-            strWrite=checkStr + includePatternHard.replace("ROUNDING",roundingMode)+"}\n"
+#        if roundingMode=="NEAREST":
+#            strWrite=checkStr + includePatternHard.replace("ROUNDING",roundingMode)+"}\n"
 #        print(strWrite)
         handler.write(strWrite)
 
@@ -83,6 +111,6 @@ if __name__=="__main__":
                   ["UPWARD"],["DOWNWARD"],["ZERO"],
                   ["AWAY_ZERO"],["FARTHEST"],["FLOAT"],
                   ["PRANDOM"], ["PRANDOM_DET"], ["PRANDOM_COMDET"]
-                  ]    
+                  ]
     fileName="vr_instrumentOp_impl_generated.h"
     generate(fileName,roundingList)

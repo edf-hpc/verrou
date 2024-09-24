@@ -39,10 +39,12 @@ EXTRA_DIST = \
 	test_libm_random_scomdet.stderr.exp test_libm_random_scomdet.stderr.exp.aarch64 test_libm_random_scomdet.stdout.exp test_libm_random_scomdet.vgtest \
 	hardSoftClreq1.stderr.exp hardSoftClreq1.stdout.exp hardSoftClreq1.vgtest \
 	hardSoftClreq2.stderr.exp hardSoftClreq2.stdout.exp hardSoftClreq2.vgtest \
-	hardSoftClreq3.stderr.exp hardSoftClreq3.stdout.exp hardSoftClreq3.vgtest iomatch.script
+	hardSoftClreq3.stderr.exp hardSoftClreq3.stdout.exp hardSoftClreq3.vgtest iomatch.script \
+	hardSoftClreqDouble1.stderr.exp hardSoftClreqDouble1.stdout.exp hardSoftClreqDouble1.vgtest \
+	hardSoftClreqDouble2.stderr.exp hardSoftClreqDouble2.stdout.exp hardSoftClreqDouble2.vgtest
 
 
-check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq
+check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq hardSoftClreqDouble
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx

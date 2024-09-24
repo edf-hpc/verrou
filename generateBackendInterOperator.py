@@ -38,7 +38,56 @@ def treatBackend(tab, soft):
         res+=["}\n"]
         return res
 
-def transformTemplateForSoftStopStart(lineTab, soft=False):
+
+def transformTemplateForSoftStopStart(nameRegExp,convNameRegExp,
+                                      lineTab, soft=False):
+    func=[]
+    dicOfFunc={}
+
+    splitActive=False
+    tab=[]
+    for line in lineTab:
+        result=nameRegExp.match(line)  #"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+        if result!=None:
+            typeVal=result.group(2)
+            opt=result.group(3)
+            newName="FCTNAME("+typeVal+","+opt+")"
+            if splitActive:
+                dicOfFunc[currentName]=tab
+                currentName=newName
+                tab=[line]
+                continue
+            else:
+                splitActive=True
+                currentName=newName
+
+        result=convNameRegExp.match(line)  #"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
+        if result!=None:
+            typeVal=result.group(2)
+            opt=result.group(3)
+            newName="FCTCONVNAME("+typeVal+","+opt+")"
+            if splitActive:
+                dicOfFunc[currentName]=tab
+                currentName=newName
+                tab=[line]
+                continue
+            else:
+                splitActive=True
+                currentName=newName
+        if splitActive:
+            tab+=[line]
+    dicOfFunc[currentName]=tab
+    #end of split
+    res=[]
+
+    for name in dicOfFunc:
+        if "CONV" in name:
+            res+=transformTemplateForSoftStopStartOneConvFunction(dicOfFunc[name], dicOfFunc[name.replace("CONV","")],  soft)
+        else:
+            res+=transformTemplateForSoftStopStartOneFunction(dicOfFunc[name], soft)
+    return res
+
+def transformTemplateForSoftStopStartOneFunction(lineTab, soft):
     res=[]
     back=[]
     status="pre"
@@ -57,14 +106,46 @@ def transformTemplateForSoftStopStart(lineTab, soft=False):
             back+=[line]
     return res
 
+def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft):
+    if soft==False:
+        return transformTemplateForSoftStopStartOneFunction(lineTabConv,soft)
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False, commentConv=False):
+    res=[lineTabConv[0]]
+    remain=lineTabConv[1:]
+    while remain[-1].strip()!="}":
+        remain=remain[0:-1]
 
+    res+=["if(vr.instrument_soft){\n"]
+    for x in remain[0:-1]:
+        if ("PREBACKEND" in x) or ("POSTBACKEND" in x):
+            continue
+        res+=[x]
+
+    res+=["}else{\n"]
+
+    remain=lineTab[1:]
+    while remain[-1].strip()!="}":
+        remain=remain[0:-1]
+
+    for x in remain[0:-1]:
+        if ("PREBACKEND" in x) or ("POSTBACKEND" in x):
+            continue
+        res+=[x.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT")]
+
+    res+=["}\n}\n\n"]
+    return res
+
+
+
+
+def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False):
+    commentConv=False
     templateStr=open(fileNameTemplate, "r").readlines()
-    templateStr=transformTemplateForSoftStopStart(templateStr, soft)
 
     FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
     FctConvNameRegExp=re.compile("(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
+    templateStr=transformTemplateForSoftStopStart(FctNameRegExp, FctConvNameRegExp,  templateStr, soft)
+
     BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
     BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
 
@@ -89,8 +170,6 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
 
 
 def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):
-    if soft and rounding=="NEAREST":
-        return;
     fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
     backendFunc=backend
     if rounding!=None:
@@ -133,11 +212,11 @@ def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, Bck
     contextNamePost="backend_"+post+"_context"
     contextNearestName="backend_verrou_null_context"
 
-    comment=False
+    comment=None
 
-    def outputRes(res,comment):
+    def outputRes(res,localComment):
         line=None
-        if comment:
+        if localComment:
             if res in ["","//"]:
                 line=res+"\n"
             else:
@@ -162,16 +241,24 @@ def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, Bck
                 sys.exit()
         result=FctRegExp.match(line)
         if result!=None:
-            if commentConv:
-                comment=False
-            res=result.group(1) + fctName(False,result.group(2), result.group(3)) + result.group(4)
+            comment=False
+
+            typeVal=result.group(2)
+            opt=result.group(3)
+            if rounding=="NEAREST" and soft:
+                comment=True
+            res=result.group(1) + fctName(False,typeVal, opt) + result.group(4)
             outputRes(res,comment)
             continue
         result=FctConvRegExp.match(line)
         if result!=None:
             if commentConv:
                 comment=True
-            res=result.group(1) + fctName(True,result.group(2), result.group(3)) + result.group(4)
+            else:
+                comment=False
+            typeVal=result.group(2)
+            opt=result.group(3)
+            res=result.group(1) + fctName(True, typeVal, opt) + result.group(4)
             outputRes(res,comment)
             continue
         result=BckRegExp.match(line)

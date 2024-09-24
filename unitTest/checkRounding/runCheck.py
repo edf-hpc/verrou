@@ -32,7 +32,8 @@ import re
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
 valgrindRounding=stdRounding + ["random", "random_det", "random_comdet", "random_scomdet", "sr_monotonic", "sr_smonotonic",
                                 "average", "average_det", "average_comdet","average_scomdet",
-                                "float", "farthest", "memcheck" ,"ftz", "away_zero", "prandom", "prandom_0.5", "prandom_det", "prandom_comdet" ]
+                                "float", "float_nearest",
+                                "farthest", "memcheck" ,"ftz", "away_zero", "prandom", "prandom_0.5", "prandom_det", "prandom_comdet" ]
 
 
 def printRes(res):
@@ -93,6 +94,10 @@ class cmdPrepare:
                 cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
             else:
                 roundingStr=rounding
+
+                if rounding.startswith("float_"):
+                    roundingStr=rounding.split("_")[1]+ " --float=yes"
+
                 for prand in ["prandom_det_", "prandom_comdet_", "prandom_"]:
                     if rounding in ["prandom_det", "prandom_comdet", "prandom"]:
                         break
@@ -257,6 +262,7 @@ class assertRounding:
         self.diff_downward     =getDiff(allResult[("valgrind", "downward")], testName)
         self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
         self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
+        self.diff_float_nearest=getDiff(allResult[("valgrind", "float_nearest")], testName)
         self.diff_farthest     =getDiff(allResult[("valgrind", "farthest")], testName)
         self.diff_ftz          =getDiff(allResult[("valgrind", "ftz")], testName)
 
@@ -376,6 +382,7 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
             testCheck.assertEqual("toward_zero", "downward")
             testCheck.assertEqual("away_zero", "upward")
             testCheck.assertLeq("downward", "nearest")
@@ -412,7 +419,9 @@ def checkFloat(allResult, testList):
         testCheckFloat=assertRounding(test+"<float>")
         testCheckDouble=assertRounding(test+"<double>")
         testCheckFloat.assertEqual("nearest", "float")
+        testCheckFloat.assertEqual("nearest", "float_nearest")
         testCheckDouble.assertEqValue("float", testCheckFloat.getValue("nearest"))
+        testCheckDouble.assertEqValue("float_nearest", testCheckFloat.getValue("nearest"))
         ok+=testCheckFloat.ok
         ko+=testCheckFloat.ko
         warn+=testCheckFloat.warn
@@ -432,6 +441,7 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertLeq("downward", "nearest")
             testCheck.assertLeq("nearest", "upward")
@@ -474,6 +484,7 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"], statN
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+        testCheck.assertEqual("float","float_nearest")
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertEqual("away_zero", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -517,6 +528,7 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"],statNum
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertEqual("away_zero", "downward")
 
@@ -558,6 +570,7 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+        testCheck.assertEqual("float","float_nearest")
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertEqual("away_zero", "upward")
         testCheck.assertDiff("nearest", "farthest")
@@ -589,6 +602,7 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+        testCheck.assertEqual("float","float_nearest")
         testCheck.assertEqual("toward_zero", "upward")
         testCheck.assertEqual("away_zero", "downward")
         testCheck.assertLess("downward", "upward")
@@ -624,6 +638,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
 
             for rnd in ["downward", "prandom_half", "farthest", "nearest", "toward_zero", "away_zero","sr_monotonic","sr_smonotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
                 testCheck.assertEqual(rnd,"upward")
@@ -645,6 +660,7 @@ def checkExactDetAndOptimistAverage(allResult,testList,typeTab=["<double>", "<fl
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
 
             for rnd in ["downward","farthest", "nearest", "toward_zero", "away_zero","sr_monotonic","sr_smonotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
                 testCheck.assertEqual(rnd,"upward")
