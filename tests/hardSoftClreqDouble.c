@@ -43,7 +43,10 @@ int main (int argc, char** argv) {
 
   double res[10];
   double res_init=compute();
-  double res_float=computeFloat();
+  float res_float=computeFloat();
+  if(res_init == res_float){
+     printf("res_init == res_float\n");
+  }
   
   VERROU_STOP_SOFT_INSTRUMENTATION;
   VERROU_START_INSTRUMENTATION;
