@@ -89,6 +89,23 @@ roundingList=[["NEAREST","NATIVE"],
               ["PRANDOM"], ["PRANDOM_DET"], ["PRANDOM_COMDET"]
               ]
 
+def replaceCC(lines, patternWithCC, replaceWithCC, patternWithoutCC, replaceWithoutCC):
+    res=""
+    for line in lines.split("\n"):
+        if "WithCC" in line:
+            res+=line.replace(patternWithCC, replaceWithCC)+"\n"
+        else:
+            res+=line.replace(patternWithoutCC, replaceWithoutCC)+"\n"
+    return res+"\n"
+
+def replaceConv(lines, patternWithConv, replaceWithConv, patternWithoutConv, replaceWithoutConv):
+    res=""
+    for line in lines.split("\n"):
+        if "Conv" in line:
+            res+=line.replace(patternWithConv, replaceWithConv)+"\n"
+        else:
+            res+=line.replace(patternWithoutConv, replaceWithoutConv)+"\n"
+    return res+"\n"
 
 
 def generateVerrouRounding(handler,roundingList):
@@ -97,14 +114,17 @@ def generateVerrouRounding(handler,roundingList):
         checkStr="if(vr.roundingMode==VR_"+roundingMode
         for checkRounding in rounding[1:]:
             checkStr+= " ||  vr.roundingMode==VR_" +checkRounding
-        checkStr+="){"
+        checkStr+="){\n"
 
         includeMacroHard=includePatternHard.replace("ROUNDING",roundingMode)
         includeMacroSoft=includePatternSoft.replace("ROUNDING",roundingMode)
         if roundingMode=="NEAREST":
             includeMacroSoft=includePatternSoftNearest.replace("ROUNDING",roundingMode)
+        if roundingMode=="FLOAT":
+            includeMacroHard=replaceConv(includePatternHard, "ROUNDING", roundingMode, "ROUNDING", "NEAREST")
+            includeMacroSoft=replaceConv(includePatternSoft, "ROUNDING", roundingMode, "ROUNDING_soft", "NEAREST")
 
-        includeMacro="""\tif(vr.instrument_soft_used){\n""" + includeMacroSoft+"\t}else{"+includeMacroHard+"\t}\n"
+        includeMacro="""\tif(vr.instrument_soft_used){\n""" + includeMacroSoft+"\t}else{//instrument hard\n"+includeMacroHard+"\t}\n"
         strWrite=checkStr + includeMacro+ "}\n"
         handler.write(strWrite)
 
@@ -122,14 +142,6 @@ def checkPostbackend(backendName, postBackendList, postBackendName):
     return res
 
 
-def replaceCC(lines, patternWithCC, replaceWithCC, patternWithoutCC, replaceWithoutCC):
-    res=""
-    for line in lines.split("\n"):
-        if "WithCC" in line:
-            res+=line.replace(patternWithCC, replaceWithCC)+"\n"
-        else:
-            res+=line.replace(patternWithoutCC, replaceWithoutCC)+"\n"
-    return res+"\n"
 
 
 def generateVerrouGeneric(handler, backendEnum="vr_verrou", backendName="verrou", postBackendList=None):
