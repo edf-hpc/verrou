@@ -144,6 +144,8 @@ def verrouCerrFilter(res):
             continue
         if (newLine.strip()).startswith("PRANDOM: pvalue="):
             continue
+        if (newLine.strip()).startswith("Frontend: double -> float"):
+            continue
         newRes+=[newLine]
     return newRes
 

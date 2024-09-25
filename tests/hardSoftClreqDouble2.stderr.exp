@@ -28,6 +28,7 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
+Frontend: double -> float
 Backend verrou simulating NEAREST rounding mode
 EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX

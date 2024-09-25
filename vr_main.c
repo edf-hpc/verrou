@@ -1585,6 +1585,9 @@ static void vr_post_clo_init(void)
       if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
       else VG_(umsg)("no\n");
    }
+   if(vr.float_conv){
+      VG_(umsg)("Frontend: double -> float\n");
+   }
 
    if(vr.backend==vr_verrou){
       VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));

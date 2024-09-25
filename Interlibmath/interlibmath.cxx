@@ -97,6 +97,7 @@ void (*vr_debug_print_op)(int,const char*, const double*, const double*)=NULL;
 #define VERROU_GET_LIBM_ROUNDING VR_NATIVE
 #define VERROU_GET_LIBM_ROUNDING_NO_INST VR_NATIVE
 #define VERROU_COUNT_OP true
+#define VERROU_FLOAT_CONV false
 
 #else
 
@@ -277,6 +278,7 @@ private:
 
 class myLibMathFunction2: public myLibMathGen<myLibMathFunction2> {
 public:
+
   myLibMathFunction2(const char* name, size_t enumName, uint64_t line):myLibMathGen<myLibMathFunction2>(name,enumName,line){
   }
 
@@ -714,7 +716,11 @@ void generateExcludeSource(){
 #endif
 
 void printCounter(){
-  std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE)<<" )"<<std::endl;
+  std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE);
+  if( VERROU_FLOAT_CONV){
+      std::cerr << " double=>float";
+  }
+  std::cerr <<" )"<<std::endl;
   std::cerr << "=="<<my_pid<<"== " << "\t\t Total \tInstrumented" <<std::endl;
 
   for(size_t nbParam=0; nbParam <=enum_function_param_size; nbParam++){
@@ -776,6 +782,9 @@ class libMathFunction1{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,1> PackArgs;
+  typedef libMathFunction1<LIBMQ,float> FloatOp;
+  typedef vr_packArg<float,1> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath 1 param";}
@@ -850,6 +859,9 @@ class libMathFunction2{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  typedef libMathFunction2<LIBMQ,float> FloatOp;
+  typedef vr_packArg<float,2> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath 2 param";}
@@ -937,6 +949,9 @@ class libMathFunction2IntFP{
 public:
   typedef REALTYPE RealType;
   typedef packargsIntReal<REALTYPE> PackArgs;
+  typedef libMathFunction2IntFP<LIBMQ,float> FloatOp;
+  typedef packargsIntReal<float> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath Int+Fp param";}
@@ -994,6 +1009,9 @@ class libMathFunction3Fma{
 public:
   typedef REALTYPE RealType;
   typedef vr_packArg<RealType,3> PackArgs;
+  typedef libMathFunction3Fma<LIBMQ,float> FloatOp;
+  typedef vr_packArg<float,3> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "libmath 3 param";}
@@ -1161,12 +1179,27 @@ public:
       return std::nan("");
     }else{
       if(ROUNDINGMODE==VR_NATIVE){
-	return functionNameTab[ENUM_LIBM].apply(p);
+	if( ! VERROU_FLOAT_CONV){
+	  return functionNameTab[ENUM_LIBM].apply(p);
+	}else{
+	  printf("test\n");
+	  vr_storeFloat<PACKARGS> sFloat(p);
+	  return (REALTYPE)functionNameTab[ENUM_LIBM].apply(sFloat.getPack());
+	}
       }
       typedef OpWithDynSelectedRoundingMode<LIBMQ > Op;
-      REALTYPE res;
-      Op::apply(p,&res,NULL);
-      return res;
+
+      if( ! VERROU_FLOAT_CONV){
+	REALTYPE res;
+	Op::apply(p,&res,NULL);
+	return res;
+      }else{
+	float resFloat;
+	typedef OpWithDynSelectedRoundingMode<typename LIBMQ::FloatOp > OpFloat;
+	vr_storeFloat<PACKARGS> sFloat(p);
+	OpFloat::apply(sFloat.getPack(),&resFloat,NULL);
+	return (REALTYPE)resFloat;
+      }
     }
   }
 };

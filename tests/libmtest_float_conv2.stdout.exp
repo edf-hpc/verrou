@@ -1,0 +1,9 @@
+a: 0.11100000000000000
+af: 0.11100000143051147
+cosf uninst: 0.99384582042694092
+cos  uninst: 0.99384582269614852
+cosf   inst: 0.99384588003158569
+cos    inst: 0.99384588003158569
+cosf impacted by instrumentation
+cos impacted by instrumentation
+instrumented cos and cosf are equal

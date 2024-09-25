@@ -375,6 +375,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__REGISTER_CACHE_SEED:
      vr_register_cache_seed((unsigned int*) args[1]);
      break;
+  case VR_USERREQ__FLOAT_CONV:
+    *ret=(UWord)( vr.float_conv );
+    break;
   }
   return True;
 }

@@ -73,7 +73,8 @@ enum {
   VR_USERREQ__REGISTER_CACHE_SEED,
   VR_USERREQ__GET_LIBM_ROUNDING_NO_INST,
   VR_USERREQ__START_SOFT_INSTRUMENTATION,
-  VR_USERREQ__STOP_SOFT_INSTRUMENTATION
+  VR_USERREQ__STOP_SOFT_INSTRUMENTATION,
+  VR_USERREQ__FLOAT_CONV
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -191,5 +192,10 @@ enum {
 #define VERROU_REGISTER_CACHE_SEED(CACHEPTR)			\
    VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__REGISTER_CACHE_SEED,\
                                    CACHEPTR,0, 0, 0, 0)
+
+#define VERROU_FLOAT_CONV \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                        VR_USERREQ__FLOAT_CONV,       \
+                                        0, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

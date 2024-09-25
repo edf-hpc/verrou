@@ -198,8 +198,6 @@ struct vr_packArg<REALTYPE,3>{
 template<class PACKARGS>
 struct vr_roundFloat;
 
-
-
 template<class REALTYPE>
 struct vr_roundFloat<vr_packArg<REALTYPE,1> >{
   vr_roundFloat(const vr_packArg<REALTYPE,1>& p): arg1(REALTYPE(float(p.arg1))){
@@ -241,7 +239,7 @@ struct vr_roundFloat<vr_packArg<REALTYPE, 3> >{
 
 template<class REALTYPE>
 struct vr_roundFloat<packargsIntReal<REALTYPE> >{
-  vr_roundFloat(const packargsIntReal<REALTYPE>& p):arg1(REALTYPE(p.arg1)),
+  vr_roundFloat(const packargsIntReal<REALTYPE>& p):arg1(p.arg1),
 						    arg2(REALTYPE(float(p.arg2))){
   }
   inline packargsIntReal<REALTYPE> getPack()const{
@@ -254,6 +252,62 @@ struct vr_roundFloat<packargsIntReal<REALTYPE> >{
 
 
 
+template<class PACKARGS>
+struct vr_storeFloat;
+
+template<class REALTYPE>
+struct vr_storeFloat<vr_packArg<REALTYPE,1> >{
+  vr_storeFloat(const vr_packArg<REALTYPE,1>& p): arg1(p.arg1){
+  }
+  inline vr_packArg<float,1> getPack()const{
+    return vr_packArg<float,1>(arg1);
+  }
+
+  const float arg1;
+};
+
+
+template<class REALTYPE>
+struct vr_storeFloat<vr_packArg<REALTYPE, 2> >{
+  vr_storeFloat(const vr_packArg<REALTYPE,2>& p): arg1(p.arg1 ),
+						  arg2(p.arg2 ){
+  }
+  inline vr_packArg<float,2> getPack()const{
+    return vr_packArg<float,2>(arg1,arg2);
+  }
+  const float arg1;
+  const float arg2;
+};
+
+template<class REALTYPE>
+struct vr_storeFloat<vr_packArg<REALTYPE, 3> >{
+  vr_storeFloat(const vr_packArg<REALTYPE,3>& p): arg1(p.arg1 ),
+						  arg2(p.arg2 ),
+						  arg3(p.arg3 ){
+  }
+  inline vr_packArg<float,3> getPack()const{
+    return vr_packArg<float,3>(arg1,arg2,arg3);
+  }
+  const float arg1;
+  const float arg2;
+  const float arg3;
+};
+
+
+template<class REALTYPE>
+struct vr_storeFloat<packargsIntReal<REALTYPE> >{
+  vr_storeFloat(const packargsIntReal<REALTYPE>& p):arg1(p.arg1),
+						    arg2(p.arg2){
+  }
+  inline packargsIntReal<float> getPack()const{
+    return packargsIntReal<float>(arg1,arg2);
+  }
+
+  const int arg1;
+  const float arg2;
+};
+
+
 
 template<typename REAL> class SubOp;
 
@@ -262,6 +316,8 @@ class AddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  typedef AddOp<float> FloatOp;
+  typedef vr_packArg<float,2> FloatPackArgs;
 
   static const bool sign_denorm_hack_needed=false;
 
@@ -351,6 +407,9 @@ class SubOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  typedef SubOp<float> FloatOp;
+  typedef vr_packArg<float,2> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "sub";}
@@ -507,6 +566,9 @@ class MulOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  typedef MulOp<float> FloatOp;
+  typedef vr_packArg<float,2> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "mul";}
@@ -666,6 +728,9 @@ class DivOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,2> PackArgs;
+  typedef DivOp<float> FloatOp;
+  typedef vr_packArg<float,2> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "div";}
@@ -743,6 +808,9 @@ class MAddOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,3> PackArgs;
+  typedef MAddOp<float> FloatOp;
+  typedef vr_packArg<float,3> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "madd";}
@@ -1010,6 +1078,9 @@ class SqrtOp{
 public:
   typedef REAL RealType;
   typedef vr_packArg<RealType,1> PackArgs;
+  typedef SqrtOp<float> FloatOp;
+  typedef vr_packArg<float,1> FloatPackArgs;
+
   static const bool sign_denorm_hack_needed=true;
 
   static const char* OpName(){return "sqrt";}

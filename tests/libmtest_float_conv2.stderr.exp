@@ -28,26 +28,27 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
+	ldbl : no
 Frontend: double -> float
 Backend verrou simulating UPWARD rounding mode
 EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+Interlibm counter ( ROUNDINGMODE=UPWARD double=>float )
+		 Total 	Instrumented
+---------------------------------------------------
+cos		4	2
+ `- flt 	2	1
+ `- dbl 	2	1
 
  ---------------------------------------------------------------------
  Operation                            Instruction count
   `- Precision
       `- Vectorization          Total             Instrumented
- ---------------------------------------------------------------------
- add                    12000                     6000          ( 50%)
-  `- flt                     1000                     1000      (100%)
-      `- llo                     1000                     1000  (100%)
-  `- dbl                    11000                     5000      ( 45%)
-      `- llo                    11000                     5000  ( 45%)
- ---------------------------------------------------------------------
- sub                       32                       14          ( 44%)
-  `- flt                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
-  `- dbl                       31                       13      ( 42%)
-      `- llo                       31                       13  ( 42%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
