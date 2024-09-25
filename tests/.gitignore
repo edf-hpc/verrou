@@ -11,3 +11,4 @@ test_det
 test_libm
 clreq
 sum
+libmtest_float_conv
