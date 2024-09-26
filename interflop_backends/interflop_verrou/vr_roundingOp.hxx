@@ -79,8 +79,8 @@ public:
   typedef typename OP::PackArgs PackArgs;
 
   static inline RealType apply(const PackArgs& p){
-    vr_roundFloat<PackArgs> roundedArgs (p);
-    const float res=(float) OP::nearestOp(roundedArgs.getPack()) ;
+    vr_storeFloat<PackArgs> roundedArgs (p);
+    const float res=OP::FloatOp::nearestOp(roundedArgs.getPack()) ;
     return RealType(res);
   } ;
 

@@ -195,62 +195,6 @@ struct vr_packArg<REALTYPE,3>{
 
 #include <algorithm>
 
-template<class PACKARGS>
-struct vr_roundFloat;
-
-template<class REALTYPE>
-struct vr_roundFloat<vr_packArg<REALTYPE,1> >{
-  vr_roundFloat(const vr_packArg<REALTYPE,1>& p): arg1(REALTYPE(float(p.arg1))){
-  }
-  inline vr_packArg<REALTYPE,1> getPack()const{
-    return vr_packArg<REALTYPE,1>(arg1);
-  }
-
-  const REALTYPE arg1;
-};
-
-
-template<class REALTYPE>
-struct vr_roundFloat<vr_packArg<REALTYPE, 2> >{
-  vr_roundFloat(const vr_packArg<REALTYPE,2>& p): arg1(REALTYPE(float(p.arg1 ))),
-						  arg2(REALTYPE(float(p.arg2 ))){
-  }
-  inline vr_packArg<REALTYPE,2> getPack()const{
-    return vr_packArg<REALTYPE,2>(arg1,arg2);
-  }
-  const REALTYPE arg1;
-  const REALTYPE arg2;
-};
-
-template<class REALTYPE>
-struct vr_roundFloat<vr_packArg<REALTYPE, 3> >{
-  vr_roundFloat(const vr_packArg<REALTYPE,3>& p): arg1(REALTYPE(float(p.arg1 ))),
-						  arg2(REALTYPE(float(p.arg2 ))),
-						  arg3(REALTYPE(float(p.arg3 ))){
-  }
-  inline vr_packArg<REALTYPE,3> getPack()const{
-    return vr_packArg<REALTYPE,3>(arg1,arg2,arg3);
-  }
-  const REALTYPE arg1;
-  const REALTYPE arg2;
-  const REALTYPE arg3;
-};
-
-
-template<class REALTYPE>
-struct vr_roundFloat<packargsIntReal<REALTYPE> >{
-  vr_roundFloat(const packargsIntReal<REALTYPE>& p):arg1(p.arg1),
-						    arg2(REALTYPE(float(p.arg2))){
-  }
-  inline packargsIntReal<REALTYPE> getPack()const{
-    return packargsIntReal<REALTYPE>(arg1,arg2);
-  }
-
-  const int arg1;
-  const REALTYPE arg2;
-};
-
-
 
 template<class PACKARGS>
 struct vr_storeFloat;
@@ -956,6 +900,7 @@ public:
   typedef REALOUTPUT RealTypeOut;
   typedef RealTypeOut RealType;
   typedef vr_packArg<RealTypeIn,1> PackArgs;
+  typedef CastOp<float,float> FloatOp;
   static const bool sign_denorm_hack_needed=false;
 
   static const char* OpName(){return "cast";}
