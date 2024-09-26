@@ -45,8 +45,9 @@ from valgrind import DD_stoch
 from valgrind import rounding_tool
 from valgrind import gen_config
 
-roundingDetTab=rounding_tool.roundingDetTab
-roundingNonDetTab=rounding_tool.roundingNonDetTab
+roundingDetTabWithoutFloatPrefix=rounding_tool.roundingDetTabWithoutFloatPrefix
+roundingDetTabWithFloatPrefix=rounding_tool.roundingDetTabWithFloatPrefix
+roundingNonDetTabWithoutFloatPrefix=rounding_tool.roundingNonDetTabWithoutFloatPrefix
 
 
 def verrou_run_stat(conf, fullAsync=True):
@@ -76,7 +77,7 @@ def verrou_run_stat(conf, fullAsync=True):
             continue
         name=("%s")%(roundingMode)
         envvars=rounding_tool.roundingToEnvVar(roundingMode)
-        if roundingMode in roundingDetTab:
+        if roundingMode in roundingDetTabWithFloatPrefix:
             detName=os.path.join(rep,"det")
             if not os.path.exists(detName):
                 os.mkdir(detName)
@@ -101,7 +102,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
     for roundingMode in listOfStat:
         name=("%s")%(roundingMode)
-        if roundingMode in roundingDetTab:
+        if roundingMode in roundingDetTabWithFloatPrefix:
             name=("det/%s")%(roundingMode)
 
         resTab=[]
@@ -460,7 +461,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     convert= lambda x :x
     legend= "X"
     if relative!=False:
-        if relative in roundingDetTab:
+        if relative in roundingDetTabWithFloatPrefix:
             valueRef=data[relative][0]
             latexName=relative.replace("_","\_")
             legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(latexName,latexName)
@@ -742,7 +743,7 @@ class config_stat(gen_config.gen_config):
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
                          docStr="rounding mode list (coma separated) [default random,average,det]",
-                         suggestionForComaList= rounding_tool.roundingDetTab +rounding_tool.roundingNonDetTab + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
         self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
@@ -786,7 +787,7 @@ class config_stat(gen_config.gen_config):
 
         if "det" in self._roundingTab:
             self._roundingTab.remove("det")
-            self._roundingTab=[x for x in roundingDetTab if x not in ["float","ftz"]]+self._roundingTab
+            self._roundingTab=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz"]]+self._roundingTab
 
         self._roundingTab=list(dict.fromkeys(self._roundingTab)) #uniq
 
@@ -888,10 +889,11 @@ class config_stat(gen_config.gen_config):
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
         print(self.get_EnvDoc(self.config_keys[-1]))
         print("Valid rounding modes are:")
-        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
-        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
-        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTab))
+        print("\t rounding mode can be prefixed by \"float_\"")
+        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTabWithoutFloatPrefix))
 
     def help(self):
         self.usageCmd()
@@ -944,7 +946,7 @@ class config_stat(gen_config.gen_config):
             nbDet=self._nbSample
         nbSamples={}
         for key in self._roundingTab:
-            if key in roundingDetTab:
+            if key in roundingDetTabWithFloatPrefix:
                 nbSamples[key]=nbDet
             else:
                 nbSamples[key]=self._nbSample

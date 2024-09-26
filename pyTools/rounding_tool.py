@@ -2,19 +2,20 @@
 
 import sys
 
-roundingDetTab=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "native"]
-roundingNonDetTab=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
+roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "native"]
+roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
 
-allRoundingTab=roundingDetTab+roundingNonDetTab
 
+roundingDetTabWithFloatPrefix=roundingDetTabWithoutFloatPrefix+["float_"+x for x in roundingDetTabWithoutFloatPrefix]
+roundingNonDetTabWithFloatPrefix=roundingNonDetTabWithoutFloatPrefix+["float_"+x for x in roundingNonDetTabWithoutFloatPrefix]
 
 
 def filterNonDetTab(roundingTab):
     validTab=list(filter(isValidRounding, roundingTab ))
-    return list(filter(lambda x: not (x in roundingDetTab), validTab ))
+    return list(filter(lambda x: not (x in roundingDetTabWithFloatPrefix), validTab ))
 
 def filterDetRoundingTab(roundingTab):
-    return list(filter(lambda x: x in roundingDetTab, roundingTab ))
+    return list(filter(lambda x: x in roundingDetTabWithFloatPrefix, roundingTab ))
 
 def isValidRounding(rounding):
     return roundingToEnvVar(rounding,failure=False)!=None
@@ -32,7 +33,13 @@ def isValidRef(strRounding):
     return isStrFloat(strRounding)
 
 
-def roundingToEnvVar(rounding, res={}, failure=True):
+def roundingToEnvVar(roundingCmd, res={}, failure=True):
+    rounding=roundingCmd
+    res.update({"VERROU_FLOAT":"no"})
+    if roundingCmd.startswith("float_"):
+        rounding=roundingCmd.replace("float_","")
+        res.update({"VERROU_FLOAT":"yes"})
+
     for prand in ["prandom_det", "prandom_comdet", "prandom"]:
         if rounding.startswith(prand):
             if rounding in ["prandom_det", "prandom_comdet", "prandom"]:
@@ -73,7 +80,7 @@ def roundingToEnvVar(rounding, res={}, failure=True):
                  "VERROU_MCA_PRECISION_FLOAT": floatPrec}
         res.update(envvars)
         return res
-    if rounding in roundingDetTab + roundingNonDetTab:
+    if rounding in roundingDetTabWithoutFloatPrefix + roundingNonDetTabWithoutFloatPrefix:
         res.update({"VERROU_ROUNDING_MODE":rounding })
         return res
     if failure:
