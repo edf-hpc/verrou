@@ -138,7 +138,8 @@
         in the opposite way to IEEE-754 <command>toward zero</command> rounding mode.</para></listitem>
 
 	<listitem><para><command>float</command>: in this mode, all double precision floating-point
-	operations are replaced by simple precision equivalent. Float operations remain unchanged.
+	operations are replaced by simple precision equivalent. Float operations remain unchanged. (See also <link linkend="vr-opt.float">
+      <option>--float=yes</option></link>).
 	</para></listitem>
 
 	<listitem><para><command>ftz</command>: in this mode, denormal floating-point operations are flushed to zero.

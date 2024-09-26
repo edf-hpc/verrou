@@ -306,8 +306,31 @@ det2
             </listitem>
           </varlistentry>
 
-	  <varlistentry id="vr-opt.libm" xreflabel="--libm">
-	                  <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
+	  <varlistentry id="vr-opt.float" xreflabel="--float">
+	    <term><option><![CDATA[--float=<yes|no> [default=no]]]></option></term>
+	      <listitem>
+		<para>
+		  With this option, all double precision floating-point
+		  operations are replaced by simple precision equivalent
+		  in the frontend. Hence this option is compatible with all <option>--rounding-mode</option> options and with all other backends.
+		</para>
+		<itemizedlist>
+		  <listitem><para>
+		      Numerically, option <option>--rounding-mode=float</option> is equivalent to  <option>--rounding-mode=nearest --float=yes</option>.
+		  </para></listitem>
+
+		  <listitem><para>
+		      Options <option>--rounding-mode=nearest --float=yes</option> instrument float operations by nearest wrapper function. So if your code contains float operations, it can be
+		      useful to use <link linkend="vr-opt.instr-[flt|dbl]"><option>--vr-instr-float=no</option></link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over float operations.
+		  </para></listitem>
+
+		</itemizedlist>
+		<para>This option can be activated with the env variable <command>VERROU_FLOAT</command>.</para>
+
+	      </listitem>
+	      </varlistentry>
+	      <varlistentry id="vr-opt.libm" xreflabel="--libm">
+	        <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
             <listitem>
               <para>
 		Define the behavior of verrou with libm.
