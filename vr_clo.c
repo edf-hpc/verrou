@@ -47,6 +47,7 @@ void vr_env_clo_one_option (const HChar* env, const HChar *clo) {
 
 void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo_one_option("VERROU_FLOAT", "--float");
    vr_env_clo_one_option("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
    vr_env_clo_one_option("VERROU_PRANDOM_UPDATE", "--prandom-update");
    vr_env_clo_one_option("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
