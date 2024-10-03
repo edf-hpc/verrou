@@ -421,10 +421,11 @@ public:
 	}else{
 	  resm=nextAwayFromZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  //	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType x=RAND::randRatioFromResult(&vr_rand, &resHash);
 	  const RealType u(resp-resm);
-	  const RealType errorTh(u+error);
-	  down =( errorTh <= (limit * u));
+	  //	  const RealType errorTh(u+error);
+	  down =( error <= (-x) * u);
 	}
 
       }
