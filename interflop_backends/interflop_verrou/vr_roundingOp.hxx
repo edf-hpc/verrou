@@ -405,9 +405,10 @@ public:
 	}else{//res <0 : res==0 => error=>0
 	  resp=nextTowardZero<RealType>(res);
 	  const RealType resHash(-resp);
-	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
+	  const RealType x=RAND::randRatioFromResult(&vr_rand, &resHash);
+	  //	  const RealType limit=1.-RAND::randRatioFromResult(&vr_rand, &resHash);
 	  const RealType u(resp-resm);
-	  down =( error <= (limit * u));
+	  down =( error -u <= (-x * u));
 	}
 
       }else{
