@@ -44,15 +44,12 @@ class gen_config:
 
     def readDefaultValueFromRegister(self):
         for registry in self.registryTab:
-            attribut=registry["attribut"]
-            default=registry["default"]
-            exec("self."+attribut+"= copy.deepcopy(default)")
+            setattr(self,registry["attribut"], copy.deepcopy(registry["default"]))
 
     def optionToStr(self):
         strOption=""
         for registry in self.registryTab:
-            attribut=registry["attribut"]
-            strOption+="\t%s : %s\n"%(attribut,eval("str(self."+attribut+")"))
+            strOption+="\t%s : %s\n"%(registry["attribut"], getattr(self, registry["attribut"]))
         return strOption
 
     def parseArgv(self,argv, lengthValidTab):
