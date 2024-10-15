@@ -1,12 +1,27 @@
-## [UNRELEASED]
+## v2.6.0 - 2024-10-15
 
-This version is based on Valgrind-3.21.0.
+This version is based on Valgrind-3.23.0.
 
 ### Added
-
+	- aarch64 support
+	- option --float=yes
+	- soft and hard stop/start client request
+	- performance optimization (direct call to backend with rounding postfix)
+	- performance optimization (new llo instrumentation)
+	- verrou_dd_stdout
+	- verrou_dd_clean
+	- bash_completion scripts
+	- various options for verrou_plot_stat
+	- extendStdoutPrecision: library loadable by LD_PRELOAD to force std::cout<< std:precision(17) at initialization
+	- Option --seed for verrou_dd_*, verrou_plot_stat and post_verrou_dd tools
+	- Interlibm extension (all rounding modes and almost all libm functions)
+	- Interlibm integration (--libm=instrumented)
+	- Distinction between sr_smonotonic and sr_monotonic
 
 ### Changed
-
+	- sr_monotonic rounding mode is now named sr_smonotonic
+	- vr_expect format is renamed iomatch
+	- verrouSynchro.so is renamed libverrouTask.so (synchro is renamed task in the API)
 
 ---
 
