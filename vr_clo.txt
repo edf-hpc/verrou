@@ -42,6 +42,24 @@
           This option can be activated with the env variable\n\
           VERROU_ROUNDING_MODE.\n\
 \n\
+      --float=yes|no [default=no]\n\
+          With this option, all double precision floating-point operations\n\
+          are replaced by simple precision equivalent in the frontend. Hence\n\
+          this option is compatible with all --rounding-mode options and with\n\
+          all other backends.\n\
+\n\
+          •   Numerically, option --rounding-mode=float is equivalent to\n\
+              --rounding-mode=nearest --float=yes.\n\
+\n\
+          •   Options --rounding-mode=nearest --float=yes instrument float\n\
+              operations by nearest wrapper function. So if your code\n\
+              contains float operations, it can be useful to use\n\
+              --vr-instr-float=no to speed up the instrumentation. The only\n\
+              drawback of this approach, is the deactivation of checks (such\n\
+              as Nan and Inf checks) over float operations.\n\
+\n\
+          This option can be activated with the env variable VERROU_FLOAT.\n\
+\n\
       --libm=<auto_exclude|manual_exclude|instrumented>\n\
       [default=auto_exclude]\n\
           Define the behavior of verrou with libm.\n\

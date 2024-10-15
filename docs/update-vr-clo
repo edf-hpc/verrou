@@ -13,7 +13,7 @@ installConfig= subprocess.Popen(["./config.status", "--config"],
                        env = env,
                        stdout = subprocess.PIPE)
 
-line = (installConfig.stdout.readline()).decode("utf8")
+line = (installConfig.stdout.readline()).decode("utf8").replace("'","")
 spline=(line.strip()).split()
 pathInstall="./install"
 for conf in spline:
