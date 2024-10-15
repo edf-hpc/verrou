@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>13. README.freebsd</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
 <link rel="prev" href="dist.readme-solaris.html" title="12. README.solaris">
@@ -24,8 +24,7 @@
       Installing from ports or via pkg<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 <br>
-If you are using FreeBSD 11.3 or later, then you should be able to install<br>
-Valgrind using either<br>
+You can install Valgrind using either<br>
 <br>
 pkg install devel/valgrind<br>
 <br>
@@ -33,16 +32,28 @@ or alternatively from ports (if installed)<br>
 <br>
 cd /usr/ports/devel/valgrind &amp;&amp; make install clean<br>
 <br>
+devel/valgrind is updated with official releases of Valgrind, normally<br>
+in April and October each year. There is an alternative port,<br>
+devel/valgrind-devel which occasionally gets updated from the latest<br>
+Valgrind source. If you want to have the latest port, check on<br>
+https://www.freshports.org/ to see which is the most recent. If you<br>
+want to have the very latest version, you will need to build a copy<br>
+from source. See README for instructions on getting the source with git.<br>
+<br>
 <br>
 Building Valgrind<br>
 ~~~~~~~~~~~~~~~~~<br>
 <br>
-Install ports for autoconf, automake, libtool and gmake.<br>
+Install ports for autotools, gmake and python.<br>
 <br>
 $ sh autogen.sh<br>
 $ ./configure --prefix=/where/ever<br>
 $ gmake<br>
 $ gmake install<br>
+<br>
+If you are using a jail for building, make sure that it is configured so that<br>
+"uname -r" returns a string that matches the pattern "XX.Y-*" where XX is the<br>
+major version (12, 13, 14 ...) and Y is the minor version (0, 1, 2, 3).<br>
 <br>
 Known Limitations (June 2022)<br>
 <br>
@@ -149,20 +160,33 @@ These are much easier.<br>
 <br>
 They just contain a POST_MEM_WRITE macro for each output argument.<br>
 <br>
-1. Running regression tests<br>
+1. Frequent causes of problems<br>
+<br>
+- New _umtx_op codes. Valgrind will print "WARNING: _umtx_op unsupported value".<br>
+  See syswrap-freebsd.c and add new cases for the new codes.<br>
+- Additions to auxv. Depending on the entry it may need to be simply copied<br>
+  from the host to the guest, it may need to be modified for the guest or<br>
+  it may need to be ignored. See initimg-freebsd.c.<br>
+- ELF PT_LOAD mappings. Either Valgrind will assert or there will be no source<br>
+  information in error reports. See VG_(di_notify_mmap) in debuginfo.c<br>
+- Because they contain many deliberate errors the regression tests are prone<br>
+  to change with changes of compiler. Liberal use of 'volatile' and<br>
+  '-Wno-warning-flag' can help - see configure.ac<br>
+<br>
+2. Running regression tests<br>
 <br>
 In order to run all of the regression tests you will need to install<br>
 the following packages<br>
 gdb<br>
 gsed<br>
 <br>
-In addition to running "make" you will need to run<br>
-"make check" to build the regression test exectutables<br>
-and "make regtest".  Again, more details can be seen in<br>
+In addition to running "gmake" you will need to run<br>
+"gmake check" to build the regression test exectutables<br>
+and "gmake regtest".  Again, more details can be seen in<br>
 README_DEVELOPERS.<br>
 <br>
 If you want to run the 'nightly' script (see nightly/README.txt)<br>
-you will need to install coreutils and modify the<br>
+you will need to install coreutils (for GNU cp) and modify the<br>
 nightly/conf/freebsd.* files. The default configuration<br>
 sends an e-mail to the valgrind-testresults mailing list.<br>
 <br>

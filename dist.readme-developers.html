@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>6. README_DEVELOPERS</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
 <link rel="prev" href="dist.readme-missing.html" title="5. README_MISSING_SYSCALL_OR_IOCTL">
@@ -195,6 +195,13 @@ A different and possibly easier way is as follows:<br>
     will continue as normal.  Note that comment (3) above re passing<br>
     signals applies here too.<br>
 <br>
+The default build of Valgrind uses "-g -O2". This is OK most of the<br>
+time, but with sophisticated optimization it can be difficult to<br>
+see the contents of variables. A quick way to get to see function<br>
+variables is to temporarily add "__attribute__((optnone))" before<br>
+the function definition and rebuild. Alternatively modify<br>
+Makefile.all.am and remove -O2 from AM_CFLAGS_BASE. That will<br>
+require you to reconfigure and rebuild Valgrind.<br>
 <br>
 Self-hosting<br>
 ~~~~~~~~~~~~<br>

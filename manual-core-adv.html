@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>3. Using and understanding the Valgrind core: Advanced Topics</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="manual-core.html" title="2. Using and understanding the Valgrind core">
@@ -1335,8 +1335,12 @@ client request.
       provided by the GDB front end command.
       </p>
 </li>
-<li class="listitem"><p><code class="varname">v.info all_errors</code> shows all errors found
-    so far.</p></li>
+<li class="listitem">
+<p><code class="varname">v.info all_errors [also_suppressed]</code> shows all errors found
+      so far.</p>
+<p> The optional "also_suppressed" argument indicates to also output
+      the suppressed errors.</p>
+</li>
 <li class="listitem"><p><code class="varname">v.info last_error</code> shows the last error
     found.</p></li>
 <li class="listitem">

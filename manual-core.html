@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>2. Using and understanding the Valgrind core</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="manual-intro.html" title="1. Introduction">
@@ -1092,13 +1092,14 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
 </dd>
 <dt>
 <a name="opt.show-error-list"></a><span class="term">
-      <code class="option">--show-error-list=no|yes [default: no]</code>
+      <code class="option">--show-error-list=no|yes|all [default: no]</code>
     </span>
 </dt>
 <dd>
-<p>If this option is enabled, for tools that report errors, valgrind
+<p>If this option is yes, for tools that report errors, valgrind
         will show the list of detected errors and the list of used suppressions
-        at exit.
+        at exit. The value all indicates to also show the list of suppressed
+        errors.
       </p>
 <p>Note that at verbosity 2 and above, valgrind automatically shows
         the list of detected errors and the list of used suppressions
@@ -1535,11 +1536,15 @@ that can report errors, e.g. Memcheck, but not Cachegrind.</p>
 <p>The behaviour of <code class="computeroutput">realloc()</code> is
       implementation defined (in C17, in C23 it is likely to become
       undefined). Valgrind tries to work in the same way as the
-      underlying OS and C runtime library. However, if you use a
-      different C runtime library then this default may be wrong.
-      For instance, if you use Valgrind on Linux installed via a package
-      and use the musl C runtime or the JEMalloc library then
-      consider using
+      underlying system and C runtime library that it was configured and built on.
+      However, if you use a different C runtime library then this default may be wrong.
+      If the value is <code class="option">yes</code> then <code class="varname">realloc</code> will
+      deallocate the memory and return NULL. If the value is <code class="option">no</code> then
+      <code class="varname">realloc</code> will not deallocate the memory and
+      the size will be handled as though it were one byte.</p>
+<p>As an example, if you use Valgrind installed via a package on a
+      Linux distro using GNU libc but link your test executable with musl libc or
+      the JEMalloc library then consider using
       <code class="computeroutput">--realloc-zero-bytes-frees=no</code>.
       </p>
 <p>Address Sanitizer has a similar and even wordier option
@@ -1728,7 +1733,7 @@ need to use them.</p>
       startup and makes it use more memory (typically for each inlined
       piece of code, 6 words and space for the function name), but it
       results in more descriptive stacktraces.  Currently,
-      this functionality is enabled by default only for Linux,
+      this functionality is enabled by default only for Linux, FreeBSD,
       Android and Solaris targets and only for the tools Memcheck, Massif,
       Helgrind and DRD.  Here is an example of some stacktraces with
       <code class="option">--read-inline-info=no</code>:
@@ -1845,7 +1850,8 @@ need to use them.</p>
     </span>
 </dt>
 <dd>
-<p>This option is only relevant when running Valgrind on Linux.</p>
+<p>This option is only relevant when running Valgrind on Linux with
+      GNU libc.</p>
 <p>The GNU C library (<code class="function">libc.so</code>), which is
       used by all programs, may allocate memory for its own uses.
       Usually it doesn't bother to free that memory when the program
@@ -1875,8 +1881,8 @@ need to use them.</p>
     </span>
 </dt>
 <dd>
-<p>This option is only relevant when running Valgrind on Linux
-            or Solaris C++ programs.</p>
+<p>This option is only relevant when running Valgrind on Linux,
+      FreeBSD or Solaris C++ programs using libstdc++.</p>
 <p>The GNU Standard C++ library (<code class="function">libstdc++.so</code>),
       which is used by all C++ programs compiled with g++, may allocate memory
       for its own uses. Usually it doesn't bother to free that memory when
@@ -2328,10 +2334,6 @@ need to use them.</p>
           option <code class="option">--soname-synonyms=somalloc=NONE</code>.
           Note that a NONE pattern will match the main executable and
           any shared library having no soname. </p></li>
-<li class="listitem"><p>To run a "default" Firefox build for Linux, in which
-          JEMalloc is linked in to the main executable,
-          use <code class="option">--soname-synonyms=somalloc=NONE</code>.
-          </p></li>
 <li class="listitem"><p>To only intercept allocation symbols in the default
 	  system libraries, but not in any other shared library or the
 	  executable defining public malloc or operator new related

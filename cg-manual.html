@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>5. Cachegrind: a high-precision tracing profiler</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="mc-manual.html" title="4. Memcheck: a memory error detector">
@@ -42,16 +42,17 @@
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.annopts">5.4. cg_annotate Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.mergeopts">5.5. cg_merge Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.diffopts">5.6. cg_diff Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.7. Simulation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.clientrequests">5.7. Cachegrind Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.8. Simulation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.7.1. Cache Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.7.2. Branch Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.7.3. Accuracy</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.8.1. Cache Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.8.2. Branch Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.8.3. Accuracy</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.8. Implementation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.9. Implementation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.8.1. How Cachegrind Works</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.8.2. Cachegrind Output File Format</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.9.1. How Cachegrind Works</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.9.2. Cachegrind Output File Format</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -758,6 +759,18 @@ Cachegrind-specific options are:
       misprediction counts.
       </p></dd>
 <dt>
+<a name="opt.instr-at-start"></a><span class="term">
+      <code class="option">--instr-at-start=no|yes [yes] </code>
+    </span>
+</dt>
+<dd><p>
+      Enables or disables instrumentation at the start of execution.
+      Use this in combination with
+      <code class="computeroutput">CACHEGRIND_START_INSTRUMENTATION</code> and
+      <code class="computeroutput">CACHEGRIND_STOP_INSTRUMENTATION</code> to
+      measure only part of a client program's execution.
+      </p></dd>
+<dt>
 <a name="cg.opt.I1"></a><span class="term">
       <code class="option">--I1=&lt;size&gt;,&lt;associativity&gt;,&lt;line size&gt; </code>
     </span>
@@ -917,14 +930,47 @@ Cachegrind-specific options are:
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.sim-details"></a>5.7. Simulation Details</h2></div></div></div>
+<a name="cg-manual.clientrequests"></a>5.7. Cachegrind Client Requests</h2></div></div></div>
+<p>Cachegrind provides the following client requests in
+<code class="filename">cachegrind.h</code>.
+</p>
+<div class="variablelist">
+<a name="cg.clientrequests.list"></a><dl class="variablelist">
+<dt>
+<a name="cg.cr.start-instr"></a><span class="term">
+      <code class="computeroutput">CACHEGRIND_START_INSTRUMENTATION</code>
+    </span>
+</dt>
+<dd><p>Start Cachegrind instrumentation if not already enabled. Use this
+      in combination with
+      <code class="computeroutput">CACHEGRIND_STOP_INSTRUMENTATION</code> and
+      <code class="option"><a class="link" href="cg-manual.html#opt.instr-at-start">--instr-at-start</a></code>
+      to measure only part of a client program's execution.
+      </p></dd>
+<dt>
+<a name="cg.cr.stop-instr"></a><span class="term">
+      <code class="computeroutput">CACHEGRIND_STOP_INSTRUMENTATION</code>
+    </span>
+</dt>
+<dd><p>Stop Cachegrind instrumentation if not already disabled. Use this
+      in combination with
+      <code class="computeroutput">CACHEGRIND_START_INSTRUMENTATION</code> and
+      <code class="option"><a class="link" href="cg-manual.html#opt.instr-at-start">--instr-at-start</a></code>
+      to measure only part of a client program's execution.
+      </p></dd>
+</dl>
+</div>
+</div>
+<div class="sect1">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="cg-manual.sim-details"></a>5.8. Simulation Details</h2></div></div></div>
 <p>
 This section talks about details you don't need to know about in order to
 use Cachegrind, but may be of interest to some people.
 </p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cache-sim"></a>5.7.1. Cache Simulation Specifics</h3></div></div></div>
+<a name="cache-sim"></a>5.8.1. Cache Simulation Specifics</h3></div></div></div>
 <p>
 The cache simulation approximates the hardware of an AMD Athlon CPU circa 2002.
 Its specific characteristics are as follows:</p>
@@ -1005,7 +1051,7 @@ existing ones in <code class="computeroutput">cg_sim.c</code>.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="branch-sim"></a>5.7.2. Branch Simulation Specifics</h3></div></div></div>
+<a name="branch-sim"></a>5.8.2. Branch Simulation Specifics</h3></div></div></div>
 <p>Cachegrind simulates branch predictors intended to be
 typical of mainstream desktop/server processors of around 2004.</p>
 <p>Conditional branches are predicted using an array of 16384 2-bit
@@ -1039,7 +1085,7 @@ Architecture: A Quantitative Approach", 4th edition (2007), Section
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.annopts.accuracy"></a>5.7.3. Accuracy</h3></div></div></div>
+<a name="cg-manual.annopts.accuracy"></a>5.8.3. Accuracy</h3></div></div></div>
 <p>
 Cachegrind's instruction counting has one shortcoming on x86/amd64:
 </p>
@@ -1106,14 +1152,14 @@ results.
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="cg-manual.impl-details"></a>5.8. Implementation Details</h2></div></div></div>
+<a name="cg-manual.impl-details"></a>5.9. Implementation Details</h2></div></div></div>
 <p>
 This section talks about details you don't need to know about in order to
 use Cachegrind, but may be of interest to some people.
 </p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.impl-details.how-cg-works"></a>5.8.1. How Cachegrind Works</h3></div></div></div>
+<a name="cg-manual.impl-details.how-cg-works"></a>5.9.1. How Cachegrind Works</h3></div></div></div>
 <p>The best reference for understanding how Cachegrind works is chapter 3 of
 "Dynamic Binary Analysis and Instrumentation", by Nicholas Nethercote.  It
 is available on the <a class="ulink" href="http://www.valgrind.org/docs/pubs.html" target="_top">Valgrind publications
@@ -1121,7 +1167,7 @@ page</a>.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="cg-manual.impl-details.file-format"></a>5.8.2. Cachegrind Output File Format</h3></div></div></div>
+<a name="cg-manual.impl-details.file-format"></a>5.9.2. Cachegrind Output File Format</h3></div></div></div>
 <p>The file format is fairly straightforward, basically giving the
 cost centre for every line, grouped by files and
 functions.  It's also totally generic and self-describing, in the sense that

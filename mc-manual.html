@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>4. Memcheck: a memory error detector</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="manual-core-adv.html" title="3. Using and understanding the Valgrind core: Advanced Topics">
@@ -36,7 +36,8 @@ function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.realocsizezero">4.2.8. Realloc size zero</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.9. Memory leak detection</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.alignment">4.2.9. Alignment Errors</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.10. Memory leak detection</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.options">4.3. Memcheck Command-Line Options</a></span></dt>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.suppfiles">4.4. Writing suppression files</a></span></dt>
@@ -75,11 +76,16 @@ problems that are common in C and C++ programs.</p>
     it has been freed.</p></li>
 <li class="listitem"><p>Using undefined values, i.e. values that have not been initialised,
     or that have been derived from other undefined values.</p></li>
-<li class="listitem"><p>Incorrect freeing of heap memory, such as double-freeing heap
+<li class="listitem">
+<p>Incorrect freeing of heap memory, such as double-freeing heap
     blocks, or mismatched use of
     <code class="function">malloc</code>/<code class="computeroutput">new</code>/<code class="computeroutput">new[]</code>
     versus
-    <code class="function">free</code>/<code class="computeroutput">delete</code>/<code class="computeroutput">delete[]</code></p></li>
+    <code class="function">free</code>/<code class="computeroutput">delete</code>/<code class="computeroutput">delete[]</code></p>
+<p>Mismatches will also be reported for <code class="computeroutput">sized</code> and <code class="computeroutput">aligned</code>
+    allocation and deallocation functions if the deallocation value
+    does not match the allocation value.</p>
+</li>
 <li class="listitem"><p>Overlapping <code class="computeroutput">src</code> and
     <code class="computeroutput">dst</code> pointers in
     <code class="computeroutput">memcpy</code> and related
@@ -89,6 +95,8 @@ problems that are common in C and C++ programs.</p>
     allocation function.</p></li>
 <li class="listitem"><p>Using a <code class="computeroutput">size</code> value of 0
     with realloc.</p></li>
+<li class="listitem"><p>Using an <code class="computeroutput">alignment</code> value that
+    is not a power of two.</p></li>
 <li class="listitem"><p>Memory leaks.</p></li>
 </ul></div>
 <p>Problems like these can be difficult to find by other means,
@@ -373,11 +381,13 @@ is checked for being fishy:
 <code class="function">calloc</code>,
 <code class="function">realloc</code>,
 <code class="function">memalign</code>,
+<code class="function">posix_memalign</code>,
+<code class="function">aligned_alloc</code>,
 <code class="function">new</code>,
 <code class="function">new []</code>. 
 <code class="function">__builtin_new</code>,
 <code class="function">__builtin_vec_new</code>,
-For <code class="function">calloc</code> both arguments are being checked.
+For <code class="function">calloc</code> both arguments are checked.
 </p>
 <p>For example:</p>
 <pre class="programlisting">
@@ -410,7 +420,42 @@ the non-portable use or realloc.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.leaks"></a>4.2.9. Memory leak detection</h3></div></div></div>
+<a name="mc-manual.alignment"></a>4.2.9. Alignment Errors</h3></div></div></div>
+<p>C and C++ have several functions that allow the user to obtain aligned memory.
+Typically this is done for performance reasons so that the memory will be cache line
+or memory page aligned. C has the functions <code class="computeroutput">memalign</code>,
+<code class="computeroutput">posix_memalign</code> and <code class="computeroutput">aligned_alloc</code>.
+C++ has numerous overloads of <code class="computeroutput">operator new</code> and <code class="computeroutput">
+operator delete</code>. Of these, posix_memalign is quite clearly
+specified, the others vary quite widely between implementations. Valgrind will generate
+errors for values of alignment that are invalid on any platform.</p>
+<p><code class="computeroutput">memalign</code> will produce errors if the alignment
+is zero or not a multiple of two.</p>
+<p><code class="computeroutput">posix_memalign</code> will produce errors if the alignment
+is less than sizeof(size_t), not a multiple of two or if the size is zero.</p>
+<p><code class="computeroutput">aligned_alloc</code> will produce errors if the alignment
+is not a multiple of two , if the size is zero or if the size is not an integral
+multiple of the alignment.</p>
+<p><code class="computeroutput">aligned new</code> will produce errors if the alignment
+is zero or not a multiple of two. The <code class="computeroutput">nothrow</code> overloads
+will return a NULL pointer. The non-nothrow overloads will abort Valgrind.</p>
+<p><code class="computeroutput">aligned delete</code> will produce errors if the alignment
+is zero or not a multiple of two or if the alignment is not the same as that used by
+<code class="computeroutput">aligned new</code>.</p>
+<p><code class="computeroutput">sized delete</code> will produce errors if the size
+is not the same as that used by <code class="computeroutput">new</code>.</p>
+<p><code class="computeroutput">sized aligned delete</code> combines the error conditions
+of the individual sized and aligned delete operators.</p>
+<p>Example output:</p>
+<pre class="programlisting">
+==65825== Invalid alignment value: 3 (should be power of 2)
+==65825==    at 0x485197E: memalign (vg_replace_malloc.c:1740)
+==65825==    by 0x201CD2: main (memalign.c:39)
+</pre>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="mc-manual.leaks"></a>4.2.10. Memory leak detection</h3></div></div></div>
 <p>Memcheck keeps track of all heap blocks issued in response to
 calls to
 <code class="function">malloc</code>/<code class="function">new</code> et al.
@@ -1108,6 +1153,16 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       these checks.  It is not generally advisable to disable them,
       though, because you may miss real errors as a result.</p>
 </dd>
+<dt>
+<a name="opt.show-realloc-size-zero"></a><span class="term">
+      <code class="option">--show-realloc-size-zero=&lt;yes|no&gt; [default: yes] </code>
+    </span>
+</dt>
+<dd><p>When enabled, Memcheck checks for uses of <code class="varname">realloc</code> with a size of zero.
+      This usage of <code class="varname">realloc</code> is unsafe since it is not portable. On some systems it
+      will behave like <code class="varname">free</code>. On other systems it will either do nothing or else
+      behave like a call to <code class="varname">free</code> followed by a call to <code class="varname">malloc</code>
+      with a size of zero.</p></dd>
 <dt>
 <a name="opt.ignore-ranges"></a><span class="term">
       <code class="option">--ignore-ranges=0xPP-0xQQ[,0xRR-0xSS] </code>

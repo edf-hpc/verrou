@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>7. README_PACKAGERS</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
 <link rel="prev" href="dist.readme-developers.html" title="6. README_DEVELOPERS">
@@ -100,11 +100,25 @@ Valgrind.  The following notes may save you some trouble.<br>
    from valgrind.<br>
 <br>
 <br>
--- Don't strip symbols from lib/valgrind/* in the installation tree.<br>
+-- Don't strip symbols from libexec/valgrind/* in the installation tree.<br>
    Doing so will likely cause problems.  Removing the line number info is<br>
    probably OK (at least for some of the files in that directory), although<br>
    that has not been tested by the Valgrind developers.<br>
 <br>
+   One consequence of stripping these binaries is that if Valgrind crashes<br>
+   it won't be able to print out a useful callstack. Here is an example<br>
+   posted on Stack Overflow<br>
+<br>
+      valgrind: the 'impossible' happened: Killed by fatal signal<br>
+<br>
+      host stacktrace:<br>
+      ==7732== at 0x38091C12: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)<br>
+      ==7732== by 0x38050E84: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)<br>
+      ==7732== by 0x380510A9: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)<br>
+      ==7732== by 0x380D4F7B: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)<br>
+      ==7732== by 0x380E3946: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)<br>
+<br>
+  Bug reports like this are less likely to be resolved.<br>
 <br>
 -- Please test the final installation works by running it on something<br>
    huge.  I suggest checking that it can start and exit successfully<br>

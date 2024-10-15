@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>4. README</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
 <link rel="prev" href="dist.news.old.html" title="3. OLDER NEWS">
@@ -21,7 +21,29 @@
 <div class="titlepage"><div><div><h1 class="title">
 <a name="dist.readme"></a>4. README</h1></div></div></div>
 <div class="literallayout"><p><br>
-      Release notes for Valgrind<br>
+      Specific instructions for Verrou<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+You are currently looking at a version of valgrind which has been patched to<br>
+contain the verrou tool. Please look at specific instructions contained in the file:<br>
+<br>
+    verrou/README.md<br>
+<br>
+or the verrou github page:<br>
+<br>
+    https://github.com/edf-hpc/verrou<br>
+<br>
+<br>
+For the very impatient, you should probably run the following commands:<br>
+<br>
+    ./autogen.sh<br>
+    ./configure --enable-only64bit --prefix=PREFIX<br>
+    make<br>
+    make install<br>
+    source PREFIX/env.sh<br>
+<br>
+<br>
+Release notes for Valgrind<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
 If you are building a binary package of Valgrind for distribution,<br>
 please read README_PACKAGERS.  It contains some important information.<br>
@@ -58,7 +80,7 @@ platforms: <br>
 - PPC64/Linux<br>
 - ARM/Linux<br>
 - ARM64/Linux<br>
-- x86/macOS<br>
+- X86/macOS<br>
 - AMD64/macOS<br>
 - S390X/Linux<br>
 - MIPS32/Linux<br>
@@ -68,6 +90,7 @@ platforms: <br>
 - AMD64/Solaris<br>
 - X86/FreeBSD<br>
 - AMD64/FreeBSD<br>
+- ARM64/FreeBSD<br>
 <br>
 Note that AMD64 is just another name for x86_64, and Valgrind runs fine<br>
 on Intel processors.  Also note that the core of macOS is called<br>

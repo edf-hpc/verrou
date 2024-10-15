@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Valgrind User Manual</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="index.html" title="Valgrind Documentation">
 <link rel="prev" href="quick-start.html" title="The Valgrind Quick Start Guide">
@@ -22,7 +22,7 @@
 <div>
 <div><h1 class="title">
 <a name="manual"></a>Valgrind User Manual</h1></div>
-<div><p class="releaseinfo">Release 3.21.0.verrou-2.5.0 28 Apr 2023</p></div>
+<div><p class="releaseinfo">Release 3.23.0.verrou-dev 26 Apr 2024</p></div>
 <div><p class="copyright">Copyright © 2000-2022 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
 <div><div class="legalnotice">
 <a name="manual-legal"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
@@ -110,7 +110,8 @@ function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.realocsizezero">4.2.8. Realloc size zero</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.9. Memory leak detection</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.alignment">4.2.9. Alignment Errors</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.10. Memory leak detection</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.options">4.3. Memcheck Command-Line Options</a></span></dt>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.suppfiles">4.4. Writing suppression files</a></span></dt>
@@ -155,16 +156,17 @@ function</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.annopts">5.4. cg_annotate Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.mergeopts">5.5. cg_merge Command-line Options</a></span></dt>
 <dt><span class="sect1"><a href="cg-manual.html#cg-manual.diffopts">5.6. cg_diff Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.7. Simulation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.clientrequests">5.7. Cachegrind Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.sim-details">5.8. Simulation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.7.1. Cache Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.7.2. Branch Simulation Specifics</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.7.3. Accuracy</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cache-sim">5.8.1. Cache Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#branch-sim">5.8.2. Branch Simulation Specifics</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.annopts.accuracy">5.8.3. Accuracy</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.8. Implementation Details</a></span></dt>
+<dt><span class="sect1"><a href="cg-manual.html#cg-manual.impl-details">5.9. Implementation Details</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.8.1. How Cachegrind Works</a></span></dt>
-<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.8.2. Cachegrind Output File Format</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.how-cg-works">5.9.1. How Cachegrind Works</a></span></dt>
+<dt><span class="sect2"><a href="cg-manual.html#cg-manual.impl-details.file-format">5.9.2. Cachegrind Output File Format</a></span></dt>
 </dl></dd>
 </dl></dd>
 <dt><span class="chapter"><a href="cl-manual.html">6. Callgrind: a call-graph generating cache and branch prediction profiler</a></span></dt>
@@ -298,7 +300,7 @@ function</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview">12.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6616">12.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6699">12.1.1. Basic usage</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">12.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat">12.2. Standard features</a></span></dt>
@@ -313,7 +315,7 @@ function</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization">12.4. Debugging and error localization</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span>, <span class="command"><strong>verrou_dd_line</strong></span>, <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> commands</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.coverage">12.4.2. Code coverage comparison</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.CovBB">12.4.3. Basic Block coverage comparison</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.post">12.4.4.  post_verrou_dd</a></span></dt>
@@ -325,7 +327,8 @@ function</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">12.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">12.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm8024">12.6.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#id.iomatch.format">12.6.3. IOMatch script</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm8672">12.6.4. Monitor commands</a></span></dt>
 </dl></dd>
 </dl></dd>
 <dt><span class="chapter"><a href="nl-manual.html">13. Nulgrind: the minimal Valgrind tool</a></span></dt>

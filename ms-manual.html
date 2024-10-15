@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>9. Massif: a heap profiler</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="drd-manual.html" title="8. DRD: a thread error detector">
@@ -686,6 +686,15 @@ various places online.
 --alloc-fn='operator new(unsigned, std::nothrow_t const&amp;)'
 </pre>
 <p>
+      Arguments of type <code class="computeroutput">size_t</code> need to be replaced
+      with <code class="computeroutput">unsigned long</code> on 64bit platforms and <code class="computeroutput">unsigned</code>
+      on 32bit platforms.
+      </p>
+<p><code class="option">--alloc-fn</code> will work with inline functions.
+      Inline function names are not mangled, which means that you only need
+      to provide the function name and not the argument list.
+      </p>
+<p><code class="option">--alloc-fn</code> does not support wildcards.
       </p>
 </dd>
 <dt>

@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>12. Verrou: a floating-point rounding errors checker</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
-<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="manual.html" title="Valgrind User Manual">
 <link rel="prev" href="lk-manual.html" title="11. Lackey: an example tool">
@@ -25,7 +25,7 @@
 <dl class="toc">
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview">12.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6616">12.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm6699">12.1.1. Basic usage</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">12.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat">12.2. Standard features</a></span></dt>
@@ -40,7 +40,7 @@
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization">12.4. Debugging and error localization</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span>, <span class="command"><strong>verrou_dd_line</strong></span>, <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> commands</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.coverage">12.4.2. Code coverage comparison</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.CovBB">12.4.3. Basic Block coverage comparison</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization.post">12.4.4.  post_verrou_dd</a></span></dt>
@@ -52,7 +52,8 @@
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">12.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">12.6.2. Client requests</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm8024">12.6.3. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#id.iomatch.format">12.6.3. IOMatch script</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#idm8672">12.6.4. Monitor commands</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -65,7 +66,7 @@
 <a name="vr-manual.overview"></a>12.1. Overview</h2></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm6616"></a>12.1.1. Basic usage</h3></div></div></div>
+<a name="idm6699"></a>12.1.1. Basic usage</h3></div></div></div>
 <p>
       Verrou helps you look for floating-point round-off errors in programs. It implements a
       stochastic floating-point arithmetic based on random rounding: all floating-point operations
@@ -206,9 +207,14 @@ Type "help", "copyright", "credits" or "license" for more information.
     </p>
 <p>
       This is for example the case of the douple-precision cosine implementation of the Gnu
-      mathematical library (<code class="literal">libm</code>). Getting back to the previous python example:
+      mathematical library (<code class="literal">libm</code>). By default the libm is not instrumented, so to illustrate
+      the problem we add use the option <code class="option"><a class="xref" href="vr-manual.html#vr-opt.libm">--libm</a>=manual_exclude</code>.
+
+      Getting back to the previous python example:
     </p>
 <pre class="screen">
+<code class="prompt">$</code>  valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude python3
+[VERROU INIT]
 Python 3.7.3 (default, Oct 31 2022, 14:04:00) 
 [GCC 8.3.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
@@ -233,7 +239,7 @@ Type "help", "copyright", "credits" or "license" for more information.
       known to be correct. This can be performed by adding a <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a>=<em class="replaceable"><code>LIST</code></em></code> command-line switch in the
       following way:
     </p>
-<pre class="screen">valgrind --tool=verrou --rounding-mode=random --exclude=libm.ex python3</pre>
+<pre class="screen">valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude --exclude=libm.ex python3</pre>
 <p>
       where the file <code class="filename">libm.ex</code> contains a list of functions to be left
       unperturbed. For example, in order to disable random rounding modes in the whole
@@ -257,6 +263,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 <p>
       When the <code class="literal">libm</code> is excluded from perturbations in such a way, the python
       example above works as expected: the cosine is accurately computed, as usual. See <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="12.3.1. Excluded symbols">Excluded symbols</a> for more details about exclusion lists.
+
+      But by doing this you are no able to measure the floating point error implied by <code class="literal">libm</code>. To pertub
+      libm we need to use the option <code class="option"><a class="xref" href="vr-manual.html#vr-opt.libm">--libm</a>=instrumentation</code>, which replace the dynamically loaded <code class="literal">libm</code> by your own
+      stochastic implementation. If libm is statically linked with your application (Please don't do it), you will need to exclude yourself each <code class="literal">libm</code> symbol and it is not possible to measure floating point error implied by <code class="literal">libm</code>.
     </p>
 </div>
 </div>
@@ -417,7 +427,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"><p><span class="command"><strong>away zero</strong></span>: in this mode, all non-exact results are rounded
         in the opposite way to IEEE-754 <span class="command"><strong>toward zero</strong></span> rounding mode.</p></li>
 <li class="listitem"><p><span class="command"><strong>float</strong></span>: in this mode, all double precision floating-point
-	operations are replaced by simple precision equivalent. Float operations remain unchanged.
+	operations are replaced by simple precision equivalent. Float operations remain unchanged. (See also <a class="link" href="vr-manual.html#vr-opt.float">
+      <code class="option">--float=yes</code></a>).
 	</p></li>
 <li class="listitem"><p><span class="command"><strong>ftz</strong></span>: in this mode, denormal floating-point operations are flushed to zero.
 	</p></li>
@@ -427,7 +438,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 <p>
       Finally, the main use for Verrou is to randomly switch rounding mode at each floating-point
       operation, in order to implement the "random rounding" variant of Monte Carlo Arithmetic
-      (MCA). Three strategies can be used to choose the rounding mode for a given operation:
+      (MCA). Several strategies can be used to choose the rounding mode for a given operation:
       </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p><span class="command"><strong>random:</strong></span> Randomly pick one among upward and downward
@@ -459,7 +470,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 	If the p is modified dynamically, determinism is no longer assured.
 	</p></li>
 <li class="listitem"><p><span class="command"><strong>average_det:</strong></span> Randomly choose between upward and downward
-        rounding mode, with the same probabilitie law as <span class="command"><strong>average</strong></span> but insuring that, for a given seed, the same computation
+        rounding mode, with the same probability law as <span class="command"><strong>average</strong></span> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <span class="command"><strong>average</strong></span> rounding mode that improves determinism and
         removes the need to use <code class="option"><a class="xref" href="vr-manual.html#vr-manual.feat.deterministic" title="12.5.1. Deterministic sections">Deterministic sections</a></code>.</p></li>
@@ -485,14 +496,19 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"> fma(x,y,z) == fma(-x,-y,z)</li>
 <li class="listitem"> fma(-x,y,-z) == -fma(x,y,z)</li>
 <li class="listitem"> fma(x,-y,-z) == -fma(x,y,z)</li>
+<li class="listitem"> fma(x,y,0) == (x*y) </li>
 <li class="listitem"> cast(-x) == -cast(x)</li>
+<li class="listitem"> With <code class="option"><a class="xref" href="vr-manual.html#vr-opt.libm">--libm</a>=instrumented</code> the odd/even properties of libm instrumented functions are fullfilled. </li>
 </ul></div>
 <p>
 	  </p>
 </li>
 <li class="listitem"><p><span class="command"><strong>average_scomdet:</strong></span> variant of <span class="command"><strong>average_det</strong></span> which respects the same constraints as <span class="command"><strong>random_scomdet</strong></span></p></li>
 <li class="listitem"><p><span class="command"><strong>sr_monotonic:</strong></span>  Choose between downward and upward
-            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <span class="command"><strong>random_scomdet</strong></span> constraints as the limits are designed to be symetric.
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. 
+	  </p></li>
+<li class="listitem"><p><span class="command"><strong>sr_smonotonic:</strong></span>  Choose between downward and upward
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <span class="command"><strong>random_scomdet</strong></span> constraints as the limits are designed to be symmetric.
 	  </p></li>
 </ul></div>
 <p>
@@ -500,7 +516,7 @@ Type "help", "copyright", "credits" or "license" for more information.
       modes <span class="command"><strong>average</strong></span> and <span class="command"><strong>random</strong></span>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.seed">--vr-seed</a></code>
-      command-line option. For the modes <span class="command"><strong>average_[[s]com]det</strong></span> and <span class="command"><strong>random_[[s]com]det</strong></span>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <span class="command"><strong>average_[[s]com]det</strong></span>, <span class="command"><strong>random_[[s]com]det</strong></span>  and <span class="command"><strong>sr_[s]monotonic</strong></span>, the pRNG seed is used as a parameter of hash functions.
 
 
     </p>
@@ -518,7 +534,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 <li class="listitem"><p>to save time by avoiding costly perturbations in places which are known to be
       particularly stable; </p></li>
 <li class="listitem"><p>to help locating the origin of numerical instabilities by studying the overall
-      impact of localized perturbation; see the <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym and verrou_dd_line commands">Delta-Debugging</a> section
+      impact of localized perturbation; see the <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym, verrou_dd_line, verrou_dd_task and verrou_dd_stdout commands">Delta-Debugging</a> section
       for an instability localization method that build upon this idea.</p></li>
 </ul></div>
 <p>
@@ -535,7 +551,7 @@ Type "help", "copyright", "credits" or "license" for more information.
     </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6906"></a>12.3.1.1. Exclusion files</h4></div></div></div>
+<a name="idm7008"></a>12.3.1.1. Exclusion files</h4></div></div></div>
 <p>
         This can be done by providing an exclusion file via the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code> command-line option. The file should follow the
         following format:
@@ -557,7 +573,8 @@ Type "help", "copyright", "credits" or "license" for more information.
         When verrou finds a block of instructions (an IRSB, Intermediate Representation SuperBlock
         in valgrind terminology) whose address matches the
         <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
-        specification, the whole chunk is left uninstrumented.
+        specification, the whole chunk is left uninstrumented (we may still instrument IRSB to count
+	uninstrumented operations).
       </p>
 <div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Warning</h3>
@@ -566,7 +583,7 @@ Type "help", "copyright", "credits" or "license" for more information.
           fully canonical path, as produced by <span class="command"><strong>readlink -f</strong></span>.
         </p>
 </div>
-<p>A recommanded procedure to find the correct library path is the following: </p>
+<p>A recommenced procedure to find the correct library path is the following: </p>
 <pre class="screen">
 <code class="prompt">$</code> ldd <em class="replaceable"><code>program</code></em>
         linux-vdso.so.1 (0x00007fffebbc6000)
@@ -623,7 +640,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm6948"></a>12.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
+<a name="idm7050"></a>12.3.1.2. Automatic generation of exclusion lists</h4></div></div></div>
 <p>
         Instead of manually establishing an exclusion list, using the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code> command-line option can help producing the complete
         list of <code class="computeroutput">FNNAME</code>/<code class="computeroutput">OBJNAME</code>
@@ -787,7 +804,7 @@ s_sin.c         12       cos</pre>
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>This fine-grained selection of code parts to instrument is primarily meant to be used
-        by automatic debugging tools (see <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym and verrou_dd_line commands">Delta-Debugging</a>), not directly
+        by automatic debugging tools (see <a class="xref" href="vr-manual.html#vr-manual.localization.dd" title="12.4.1. Delta-debugging with the verrou_dd_sym, verrou_dd_line, verrou_dd_task and verrou_dd_stdout commands">Delta-Debugging</a>), not directly
         by humans.</p>
 </div>
 </div>
@@ -801,7 +818,7 @@ s_sin.c         12       cos</pre>
     </p>
 <p>
       Instrumentation can be toggled off at program start using the <code class="option"><a class="xref" href="vr-manual.html#vr-opt.instr-atstart">--instr-atstart</a></code> command-line option. Furthermore, it can be
-      (de)activated programatically using the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code> and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code> client requests. This feature is
+      (de)activated programmatically using the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.start-instrumentation">VERROU_START_INSTRUMENTATION</a></code> and <code class="computeroutput"><a class="xref" href="vr-manual.html#vr-cr.stop-instrumentation">VERROU_STOP_INSTRUMENTATION</a></code> client requests. This feature is
       greatly inspired by Callgrind (see <a class="xref" href="cl-manual.html#cl-manual.limits" title="6.2.2. Limiting the range of collected events">Limiting range of event collection</a> in the Callgrind
       manual). Below is an example use:
     </p>
@@ -829,6 +846,29 @@ int main () {
       The same thing can be achieved interactively (and without the need for a recompilation of the
       program) using the <code class="computeroutput"><a class="xref" href="vr-manual.html#vr.monitor_instrumentation">instrumentation</a></code> monitor command.
     </p>
+<p>
+      As the <code class="computeroutput">VERROU_START_INSTRUMENTATION</code> and <code class="computeroutput">VERROU_STOP_INSTRUMENTATION</code> client requests (usually called hard stop/start) imply to flush the valgrind instrumentation cache, it can be expensive for very frequent calls, we also propose an other couple of client requests (usually called soft sotp/start):
+      <code class="computeroutput">VERROU_START_SOFT_INSTRUMENTATION</code> and <code class="computeroutput">VERROU_STOP_SOFT_INSTRUMENTATION</code>. The idea behind is to instrument only once, but with a function which dynamically select between the instrumented backend and the nearest backend. As the instruemented code is less efficient, this approach designed only for frequent stop/start. The both approach are compatible : if <code class="computeroutput">VERROU_STOP_SOFT_INSTRUMENTATION</code> or <code class="computeroutput">VERROU_STOP_INSTRUMENTATION</code> are activated, the instrumentation is stopped.
+    </p>
+<p>
+      The hard and soft stop/start can also be called (without recompilation) thanks the an IOMatch script (See <code class="option"> <a class="xref" href="vr-manual.html#vr-opt.iomatch-clr">--IOmatch-clr</a></code>).
+      </p>
+<p>
+	For python program it is possible to use python bindings:
+	</p>
+<pre class="programlisting">
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.start_instrumentation()
+verrou.stop_instrumentation()
+verrou.start_soft_instrumentation()
+verrou.stop_soft_instrumentation()</pre>
+<p>
+      </p>
+<p>
+      As <code class="computeroutput">verrou_dd_stdout</code> and <code class="computeroutput">verrou_dd_task</code> use a stop/start mechanism (hard or soft), you can use the other mechanism to manually instrument your code, without unwanted side-effect.
+    </p>
 </div>
 </div>
 <div class="section">
@@ -840,51 +880,79 @@ int main () {
   </p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="vr-manual.localization.dd"></a>12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> commands</h3></div></div></div>
+<a name="vr-manual.localization.dd"></a>12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span>, <span class="command"><strong>verrou_dd_line</strong></span>, <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> commands</h3></div></div></div>
+<div class="simplesect">
+<div class="titlepage"></div>
 <p>
-      The first technique builds upon Verrou's <a class="xref" href="vr-manual.html#vr-manual.feat.exclude" title="12.3.1. Excluded symbols">Excluded symbols</a> feature in
-      order to perform a search of functions and source code lines whose perturbation produces the
+      The first technique builds upon Verrou's <a class="link" href="vr-manual.html#vr-manual.feat.scope" title="12.3. Restriction of the perturbations scope">Instrumentation scope</a> features in
+      order to perform a search of functions (or source code lines / verrou task / stdout task) whose perturbation produces the
       most important errors in final results. The idea is the following:
       </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">First, a complete list of all symbols (which contain perturbated
-	floating point instructions) is generated. It is expected that
+<li class="listitem">First, a complete list of all symbols (or line / task / stdout task) which contain perturbed
+	floating point instructions is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
-        results.</li>
-<li class="listitem">By splitting the symbols list in two parts, and perturbing each half
+        results. This list is called the search space.</li>
+<li class="listitem">By splitting the search space in two parts, and perturbing each half
         separately, it is possible to determine whether each perturbed half produces inexact
         results.</li>
-<li class="listitem">Going on like this and performing a bisection of the list of symbols, the
+<li class="listitem">Going on like this and performing a bisection of the search space, the
         algorithm eventually finds a subset of functions whose only perturbation is enough to
-        produce inexact results.</li>
-<li class="listitem">The same process can be iterated over all source code lines belonging to
-        the identified unstable symbols (provided that the binary embeds debugging
-        information).</li>
+            produce inexact results. This Trial and Error algorithm is called <span class="emphasis"><em>Delta-Debugging</em></span>.
+	 Each trial (which corresponds to a subset of the search space) is called a configuration. As the evaluation of error is based on a stochastic evaluation there are several runs per configuration.</li>
 </ul></div>
 <p>
     </p>
 <p>
-      This algorithm is called <span class="emphasis"><em>Delta-Debugging</em></span>.
-      
-      It is automated by the <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span> command,
-      which can be used in the following way:
+      Depending on the search space there are four different commands:
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<span class="command"><strong>verrou_dd_sym</strong></span> uses the symbol search space and uses <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="12.3.1. Excluded symbols">Excluded Symbols</a> to select parts of the program which are instrumented or not.</li>
+<li class="listitem">
+	<span class="command"><strong>verrou_dd_line</strong></span> uses the code line search space and uses <a class="link" href="vr-manual.html#vr-manual.feat.source" title="12.3.1.3. Source code lines selection"> Source instrumentation</a> to select parts of the program which are instrumented or not. The results of this command are more useful if the code is compiled with debug option (<span class="command"><strong>-g</strong></span>).
+	</li>
+<li class="listitem">
+	  <span class="command"><strong>verrou_dd_task</strong></span> uses verrou task search space (<a class="link" href="vr-manual.html#vr-manual.verrou_task" title="Definition of verrou task"> See how to perform instrumentation</a>). This search space enable temporal localization. The task instrumentation can be automatic with python code but is intrusive for compiled codes. <span class="command"><strong>verrou_dd_task</strong></span> has <a class="link" href="vr-manual.html#verrou_dd_task_stdout.specific.option"> one specific option</a>.
+	</li>
+<li class="listitem">
+<p>
+	  <span class="command"><strong>verrou_dd_stdout</strong></span> performs localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the float are replace by * and address by ?).</p>
+<p>
+	  </p>
+<p>
+	    The user do not need to instrument the code but may need to modify the dataset to increase the verbosity. As the command works without code recompilation, it is possible to work from one result of an other <span class="command"><strong>verrou_dd_*</strong></span> commands, without rerunning the previous search.
+	  </p>
+<p>
+	  </p>
+<p>
+	    The user has to pay attention to bufferization. <span class="command"><strong>verrou_dd_stdout</strong></span> automatically setup the PYTHONUNBUFFERED env variable and deactivate the c bufferization of stdout (not FILE*) but it not always sufficient.
+	  </p>
+<p>
+	  </p>
+<p>
+	  As there are more corner cases, there are specific options to tackle it (cf.  Specific options of <a class="link" href="vr-manual.html#verrou_dd_task_stdout.specific.option">verrou_dd_task/stdout</a> and <a class="link" href="vr-manual.html#verrou_dd_stdout.specific.option">verrou_dd_stdout</a>)</p>
+<p>
+	  </p>
+</li>
+</ul></div>
+<p>
     </p>
-<div class="simplesect">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm7035"></a>Synopsis</h4></div></div></div>
-<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_sym.synopsis"></a><code class="command">verrou_dd_sym [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
-<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_line.synopsis"></a><code class="command">verrou_dd_line [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7051"></a>Description</h4></div></div></div>
-<p>
-	<span class="command"><strong> verrou_dd_sym </strong></span> is dedicated to search instable symbols (it corresponds more or less to code function).
-	Whereas <span class="command"><strong> verrou_dd_sym </strong></span> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
-      </p>
+<a name="idm7178"></a>Synopsis</h4></div></div></div>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_sym.synopsis"></a><code class="command">verrou_dd_sym [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_line.synopsis"></a><code class="command">verrou_dd_line [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_task.synopsis"></a><code class="command">verrou_dd_task [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_stdout.synopsis"></a><code class="command">verrou_dd_stdout [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm7208"></a>Description</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.desc"></a>
-        Arguments passed to <span class="command"><strong>verrou_dd_sym</strong></span> or <span class="command"><strong>verrou_dd_line</strong></span> are scripts.
+        Arguments passed to <span class="command"><strong>verrou_dd_*</strong></span> are scripts.
 	These scripts will be called during the delta-debugging process to automate
         the tasks of running your program under Verrou, and verifying the results. The scripts will
         be called with the following arguments:
@@ -929,6 +997,33 @@ valgrind --tool=verrou --rounding-mode=random <em class="replaceable"><code>prog
 REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</pre>
+<p class="simpara">
+	      A classical python script looks like this :
+	      </p>
+<pre class="programlisting">
+import sys
+import os
+def extractValue(rep):
+    """This parse function has to be adapted to each case"""
+    lines=(open(os.path.join(rep,"results.dat")).readlines())
+    for line in lines:
+        if line.startswith("res="):
+            return float(line.partition("=")[2])
+    return None
+if __name__=="__main__":
+    if len(sys.argv)==2:
+        #this case is to be compatible with the extract script of verrou_plot_stat
+        print(extractValue(sys.argv[1]))
+    if len(sys.argv)==3:
+        valueRef=extractValue(sys.argv[1])
+        value=extractValue(sys.argv[2])
+
+        relDiff=abs((value-valueRef)/valueRef)
+	#the tolerance has to be adapted
+        if relDiff &lt; 1.e-6:
+	    sys.exit(0)
+        else:
+            sys.exit(1)</pre>
 </dd>
 </dl></div>
 <p>
@@ -936,9 +1031,9 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7089"></a>Options and environment variables</h4></div></div></div>
+<a name="idm7244"></a>Options and environment variables</h4></div></div></div>
 <p>
-        The following options or environment variables affect the behaviour of <span class="command"><strong>verrou_dd_sym</strong></span> and <span class="command"><strong>verrou_dd_line</strong></span>:
+        The following options or environment variables affect the behavior of <span class="command"><strong>verrou_dd_sym</strong></span>,  <span class="command"><strong>verrou_dd_line</strong></span>,  <span class="command"><strong>verrou_dd_task</strong></span>  and  <span class="command"><strong>verrou_dd_stdout</strong></span>:
       </p>
 <div class="variablelist">
 <a name="vr-manual.verrou_dd.envvars"></a><dl class="variablelist">
@@ -954,6 +1049,13 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 <dd><p> Allows to perform <code class="computeroutput">VERROU_DD_NUM_THREADS</code> runs in parallel.
 	     If this environment variable is not set, the parallelism is not activated.
 	    </p></dd>
+<dt><span class="term">
+            <code class="computeroutput">--reference-rounding</code> or <code class="computeroutput">VERROU_REFERENCE_ROUNDING</code> [default native].
+	  </span></dt>
+<dd><p>
+	    Select the reference rounding mode between native and nearest. The nearest and native rounding mode are different only when
+	    the verrou option <code class="option">--libm=instrumented</code> is used.
+	  </p></dd>
 <dt><span class="term">
              <code class="computeroutput">--res-with-all-samples </code> or <code class="computeroutput">VERROU_DD_RES_WITH_ALL_SAMPLES</code>
           </span></dt>
@@ -1070,14 +1172,14 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
             <code class="computeroutput">--quiet</code> or <code class="computeroutput">VERROU_DD_QUIET</code>
           </span></dt>
 <dd><p>
-	      Option to reduce the verbosity of <span class="command"><strong>verrou_dd_sym</strong></span> or <span class="command"><strong>verrou_dd_line</strong></span>.
+	      Option to reduce the verbosity of <span class="command"><strong>verrou_dd_*</strong></span>.
 	    </p></dd>
 <dt><span class="term">
 	    <code class="computeroutput">--cache=</code> or <code class="computeroutput">VERROU_DD_CACHE</code>
           </span></dt>
 <dd>
 <p>
-	      Option to choose the policy with the existing cache <code class="computeroutput">dd.sym</code> or <code class="computeroutput">dd.line</code>
+	      Option to choose the policy with the existing cache <code class="computeroutput">dd.sym</code>, <code class="computeroutput">dd.line</code>, <code class="computeroutput">dd.task</code> or <code class="computeroutput">dd.stdout</code>
 	    </p>
 <p>
 	      <code class="computeroutput">clean</code>: the previous cache is removed (after reading required information for <code class="computeroutput">--rddmin-heuristics-cache</code>).
@@ -1133,21 +1235,30 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
           </span></dt>
 <dd><p>
 	      Option to shift line numbers of line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
-	      for a new delta debug with the same test case and few code modifications.
+	      for a new delta debug with the same test case and few code modifications. This option can be applied for all tools but is only pertinent for <span class="command"><strong>verrou_dd_line</strong></span>.
+	    </p></dd>
+<dt><span class="term">
+	    <code class="computeroutput">--seed</code> or <code class="computeroutput">VERROU_DD_SEED</code>
+          </span></dt>
+<dd><p>
+	      Option to specify the seed used by <span class="command"><strong>verrou_dd_*</strong></span> tools to setup the <code class="computeroutput">VERROU_SEED</code>. Each sample of a configuration receive a different seed (<code class="computeroutput">VERROU_SEED</code> read by verrou tool) generated by a pseudo random generator initialized with <code class="computeroutput">VERROU_DD_SEED</code>.
+	      The %i% sample (<code class="computeroutput">dd.run%i%</code>) of each configuration receive the same seed (<code class="computeroutput">VERROU_SEED</code>).
+	      By default <code class="computeroutput">VERROU_SEED</code> is not set (ie each verrou run set is own seed).
+	      This option is useful for be more reproductible (You have to take care of parallelism, use of <span class="command"><strong>verrou_dd_*</strong></span> cache, and reproducibility of run script).
 	    </p></dd>
 </dl>
 </div>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7255"></a>Results *rddmin </h4></div></div></div>
+<a name="idm7435"></a>Results rddmin </h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.results-rddmin"></a>
-        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>) stores many intermediate results within the
-        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code>) directory. Synthetic results are present in the form
+        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>/<span class="command"><strong>verrou_dd_task</strong></span>/<span class="command"><strong>verrou_dd_stdout</strong></span>) stores many intermediate results within the
+        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code>/<code class="computeroutput">dd.task</code>/<code class="computeroutput">dd.stdout</code>) directory. Synthetic results are present in the form
         of symbolic links named after the pattern: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code>.
       </p>
 <p>
-	The list of all symbols (resp. lines) found to be unstable in the
+	The list of all symbols (resp. lines/verrou tasks/stdout tasks) found to be unstable in the
 	<code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em></code> set can be retrieved in
 	the file: <code class="computeroutput">ddmin-<em class="replaceable"><code>N</code></em>/dd.include</code>.
       </p>
@@ -1156,39 +1267,332 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 	configuration terminates the rddmin algorithm.
       </p>
 <p>
-	For debug purpose there are one symbolic link (<code class="computeroutput">FullPerturbation</code>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<code class="computeroutput">NoPerturbation</code>) to pinpoint the configuration without any perturbation (should be a successful configuration).
+	For debug purpose there is one symbolic link (<code class="computeroutput">FullPerturbation</code>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<code class="computeroutput">NoPerturbation</code>) to pinpoint the configuration without any perturbation (should be a successful configuration).
       </p>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7274"></a>Results ddmax</h4></div></div></div>
+<a name="idm7458"></a>Results ddmax</h4></div></div></div>
 <p><a name="vr-manual.verrou_dd.results"></a>
-        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>) stores many intermediate results within the
-        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code>)
+        <span class="command"><strong>verrou_dd_sym</strong></span> (resp. <span class="command"><strong>verrou_dd_line</strong></span>/<span class="command"><strong>verrou_dd_task</strong></span>/<span class="command"><strong>verrou_dd_stdout</strong></span>) stores many intermediate results within
+        <code class="computeroutput">dd.sym</code> (resp. <code class="computeroutput">dd.line</code> / <code class="computeroutput">dd.task</code> / <code class="computeroutput">dd.stdout</code>)
         directories. The ddmax configuration is pinpointed by a symbolic link (<code class="computeroutput">ddmax</code>).	
-
-	
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
       </p>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm7470"></a>Specific option of <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> </h4></div></div></div>
+<div class="simplesect">
+<div class="titlepage"></div>
+<p><a name="verrou_dd_task_stdout.specific.option"></a>
+	  </p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term">
+		<code class="computeroutput">--stop_start=</code> or <code class="computeroutput">VERROU_DD_STOP_START</code>
+              </span></dt>
+<dd>
+<p>
+		  <code class="computeroutput">hard</code>[default] use the hard stop/start client requests
+		</p>
+<p>
+		  <code class="computeroutput">soft</code> use the soft stop/start client requests. It should be used if the code use manual hard stop/start client requests or if the size of tasks is small (typically with python localization).
+		</p>
+</dd>
+</dl></div>
+<p>
+	</p>
+</div>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm7487"></a>Specific options of <span class="command"><strong>verrou_dd_stdout</strong></span> </h4></div></div></div>
+<div class="simplesect">
+<div class="titlepage"></div>
+<p><a name="verrou_dd_stdout.specific.option"></a>
+        </p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term">
+	      <code class="computeroutput">--unknown-task=</code> or <code class="computeroutput">VERROU_DD_UNKNOWN_TASK</code>
+            </span></dt>
+<dd>
+<p>
+		Option to choose the policy of task which are not in the search space.
+	      </p>
+<p>
+		<code class="computeroutput">previous</code>: the status of the previous task is kept
+	      </p>
+<p>
+		<code class="computeroutput">stop</code>: the task is uninstrumented.
+	      </p>
+<p>
+		<code class="computeroutput">start</code>: the task is instrumented.
+	      </p>
+<p>
+		The default value is set to <code class="computeroutput">previous</code>.
+	      </p>
+</dd>
+<dt><span class="term">
+		<code class="computeroutput">--ignore-empty-line=[true[default]|false]</code> or <code class="computeroutput">VERROU_DD_IGNORE_EMPTY_LINE</code>
+              </span></dt>
+<dd><p>
+		  Option to define the status of empty-line. If set (by default) the task defined by an empty line is merged with the previous task.
+		</p></dd>
+<dt><span class="term">
+		<code class="computeroutput">--IOmatch-header=FILE</code> or <code class="computeroutput">VERROU_DD_IOMATCH_HEADER</code>
+              </span></dt>
+<dd>
+<p>
+This option allow to add the content of FILE in the IOMatch script used by <span class="command"><strong>verrou_dd_stdout</strong></span>. In practice it is useful to prevent excessive number of iterations (especially when the additional iterations recover the poor precision of the first ones)  with this kind of <code class="computeroutput">FILE</code>:
+</p>
+<pre class="programlisting">
+cmatch: IT=42 *
+apply: exit</pre>
+<p>
+Be careful the match expression should not match any line of the reference computation.
+		</p>
+<p>
+		  <span class="command"><strong>verrou_dd_stdout</strong></span> tool performs few <code class="computeroutput">FILE</code> verification, to let the user the full power of the functionalities. But you should keep in mind the use of <code class="computeroutput">bmatch</code> and <code class="computeroutput">stop/start</code> actions is really tricky and need a deep understanding of IOMatch and <span class="command"><strong>verrou_dd_stdout</strong></span>.
+		</p>
+</dd>
+<dt><span class="term">
+		<code class="computeroutput">--filter-cmd=CMD</code> or <code class="computeroutput">VERROU_DD_FILTER_CMD</code>
+              </span></dt>
+<dd>
+<p>
+	      The command <code class="computeroutput">CMD</code> is used by verrou to replace the stdout lines by the result of the command. CMD reads lines from stdin and write his result to stdout for each line. The command is run only once, so it mean we have to pay attention to bufferization (We may need to use the option <code class="computeroutput">-u</code> of <code class="computeroutput">sed</code> or <code class="computeroutput">python3</code>). The command  <code class="computeroutput">"/usr/bin/sed -u s/debug:.*//"</code> used together with <code class="computeroutput">--ignore-empty-line=true</code> may be a way to ignore debug message.
+	      If you want to write your own python script, these is an example:
+	 </p>
+<pre class="programlisting">
+#!/usr/bin/python3 -u
+import sys
+
+def applyFilter(strLine,filterList):
+    res=strLine
+    for filterFnc in filterList:
+        res=filterFnc(res)
+    return res
+
+def deleteDebug(strLine):
+    if "debug" in strLine:
+        return ""
+    else:
+        return strLine
+
+def getLineCharByChar():
+    line=""
+    while True:
+        c=sys.stdin.read(1)
+        if line== "\x00": #EOF detected
+            return None
+        if c=='\n':
+            return line
+        line+=c
+
+if __name__=="__main__":
+    while True:
+        line=getLineCharByChar()
+        if line==None:
+            sys.exit(0)
+        print(applyFilter(line, [deleteDebug]))
+	 </pre>
+<p>
+To avoid problem with bufferization, we need to write your own <code class="computeroutput">readline</code> function (cf. <code class="computeroutput">getLineCharByChar</code>) and to use <code class="computeroutput">-u</code> <code class="computeroutput">python3</code> option.
+
+	    </p>
+<p>
+	      The first argument of <code class="computeroutput">CMD</code> has to be an absolute path (or relative if there is no CWD change in <em class="replaceable"><code>run_script</code></em>). This option is not (yet) able to read the <code class="computeroutput">$PATH</code> env variable. All the spaces are used to separate command arguments. To prevent this behaviour, the only way is to escape the spaces by backslash.
+	    </p>
+</dd>
+<dt><span class="term">
+		<code class="computeroutput">--custom-search-space=FILE</code> or <code class="computeroutput">VERROU_DD_CUSTOM_SEARCH_SPACE</code>
+              </span></dt>
+<dd>
+<p>
+		  The default search space generated may suffer of default. By default all floating point are replace by *. But if floating point are printed as int, there are missing. To bypass the issue it is possible to recover the file <code class="computeroutput">dd.stdout/ref/dd.IOMatch</code> and perform manually the correction. Usually we only add * but it is also possible to do more complex modification:
+		  </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>The line order can be modified. Indeed if a line matches two wildcard expressions, the first one is taken into account. So if one expression is more specific than an other one, we should place it first.</p></li>
+<li class="listitem">
+<p>By default the float are wildcarded by * and integer kept. But if we want specified iteration by the error order it is possible to rewrite the following example:
+		  </p>
+<pre class="programlisting">
+		    IT=0 ERRS=*
+		    IT=1 ERRS=*
+		    IT=2 ERRS=*
+		    IT=3 ERRS=*</pre>
+<p>
+		  by this search space :
+		  </p>
+<pre class="programlisting">
+		    IT=* ERRS=*e-01
+		    IT=* ERRS=*e-02
+		    IT=* ERRS=*e-03
+		    IT=* ERRS=*e-04
+		    IT=* ERRS=*e-*
+		    IT=* ERRS=*</pre>
+<p>
+	      </p>
+</li>
+</ul></div>
+<p>
+		</p>
+</dd>
+<dt><span class="term">
+		<code class="computeroutput">--file-pattern=FILE_PATTERN</code> or <code class="computeroutput">VERROU_DD_FILE_PATTERN</code>
+              </span></dt>
+<dd>
+<p>
+		  The stdout file can be replaced by the first file which matches the <code class="computeroutput">FILE_PATTERN</code>. The <code class="computeroutput">FILE_PATTERN</code> has to match only one opened file.
+		  To avoid difficulties with the absolute and relative path, the easiest way is to use a wildcard * for the path. If you want to be more precise,
+		  you could use a <code class="computeroutput">strace</code> command to know how a file is opened:
+		  </p>
+<pre class="programlisting">
+strace -e openat,open,creat -f -ff -o strace_verrou MYPROG MYARGS
+cat strace_verrou.*</pre>
+<p>
+		</p>
+</dd>
+</dl></div>
+<p>
+      </p>
+</div>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.verrou_task"></a>Definition of verrou task</h4></div></div></div>
+
+      A verrou task is defined by a key string and an index integer. The integer is usually used to specify a line of code or an iteration number. If you want to use both, you have to build a string post-fixed by one of both integers. If you need neither of both, 0 is fine.
+
+      The task represents the code between the verrou task call and the next one (or finalyze call).
+      <div class="variablelist"><dl class="variablelist">
+<dt><span class="term">C API</span></dt>
+<dd>
+<p>
+	    </p>
+<pre class="programlisting">#include "libverrouTask.h"</pre>
+<p>
+	    </p>
+<pre class="programlisting">
+void verrou_task_init();
+void verrou_task(char const*const key, int index);
+void verrou_task_finalyze();</pre>
+<p>
+	    To link you need to use the following link flag : <code class="computeroutput">-lverrouTask</code>
+	  </p>
+</dd>
+<dt><span class="term">Python API</span></dt>
+<dd>
+<p>
+	    The python API does not contain init and finalyze as it is done automatically by the module import.
+	    </p>
+<pre class="programlisting">
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.task("taskString", taskInt)</pre>
+<p>
+</p>
+
+
+	  You can notice  that verrouPyBinding can also provide binding to <a class="link" href="vr-manual.html#vr-manual.client-requests" title="12.6.2. Client requests">other client requests</a>:
+	  <pre class="programlisting">
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.start_instrumentation()
+verrou.stop_instrumentation()
+verrou.start_soft_instrumentation()
+verrou.stop_soft_instrumentation()
+index=verrou.dump_cover()
+verrou.display_counters()
+nbInst=verrou.count_fp_instrumented()
+nbNotInst=verrou.count_fp_not_instrumented()</pre>
+</dd>
+<dt><span class="term">Python module instrumentation</span></dt>
+<dd>
+<p>
+	    The <code class="computeroutput">trace_verrou_task.py</code> is a fork of trace.py (provided by cpython distribution) which add verrou task for each python line. The key is the filename and the index the line number.
+
+	    To use it with <code class="computeroutput">verrou_dd_task</code> it imply to modify the run script following the example:
+	    </p>
+<pre class="programlisting">
+#!/bin/bash
+DIR=$1
+valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonProg.py &gt; $DIR/res.dat</pre>
+<p>
+	    </p>
+</dd>
+<dt><span class="term">Remarks:</span></dt>
+<dd>
+<p>
+	    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+		    The APIs are not thread safe. As valgrind sequentialize threads, it is usually not an issue. But if due to parallelism, it is not clear which code is contained in the task, the user may have to modify his own code to suppress ambiguities.
+		  </p></li>
+<li class="listitem">
+<p>
+		    Internal use of environnement variables:
+		    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
+<li class="listitem">
+<code class="computeroutput">DEBUG_PRINT_TASK</code>: configure the debug status
+		      </li>
+<li class="listitem">
+<code class="computeroutput">TASK_LIST</code>: read the file to setup which tasks are instrumented.
+		      </li>
+<li class="listitem">
+<code class="computeroutput">GENERATE_TASK_LIST</code>: generate the file containing the list of tasks.
+		      </li>
+<li class="listitem">
+<code class="computeroutput">GENERATE_TASK_FP_LIST</code>: generate the file containing the list of tasks containing instrumented floating point operation.
+		      </li>
+</ul></div>
+<p>
+		  </p>
+</li>
+</ul></div>
+<p>
+	  </p>
+</dd>
+</dl></div>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="vr-manual.verrou_dd_clean"></a> verrou_dd_clean</h4></div></div></div>
+<div class="simplesect">
+<div class="titlepage"></div>
+<div class="simplesect">
+<div class="titlepage"></div>
+<p>The tool <span class="command"><strong>verrou_dd_clean</strong></span> enables to clean the cache repository produced by <span class="command"><strong>verrou_dd_*</strong></span> commands (The cache directory is the first argument,
+	 and the default value is <span class="command"><strong>./</strong></span>).
+	In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
+      </p>
+</div>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm7623"></a>Synopsis</h2></div></div></div>
+<pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.verrou_dd_clean.synopsis"></a><code class="command">verrou_dd_clean [options]</code>  {<em class="replaceable"><code>/path/to/cache</code></em>}</p></div></pre>
+</div>
+<div class="simplesect">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm7630"></a>Options</h2></div></div></div>
+<div class="variablelist">
+<a name="vr-manual.verrou_dd_clean.envvars"></a><dl class="variablelist">
+<dt><span class="term">
+            <code class="computeroutput">--help</code>
+          </span></dt>
+<dd><p> Print help</p></dd>
+<dt><span class="term">
+             <code class="computeroutput">--dry-run</code>
+          </span></dt>
+<dd><p>
+	      Only print what will do the command. Useful if you need to check carefuly what will be deleted.
+	    </p></dd>
+</dl>
+</div>
+</div>
 </div>
 </div>
 <div class="section">
@@ -1198,7 +1602,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
       The first technique to localize unstable tests, is based on the compatibility with instrumentation provided by the compilers.
       The idea is to produce with compiler tools (option <code class="computeroutput">--coverage</code> and tool <code class="computeroutput">gcov</code> for <code class="computeroutput">gcc</code>) two code coverage for the analyzed test case.
       The first one can be generate without verrou or with <code class="computeroutput">nearest</code> rounding mode and the second one with <code class="computeroutput">random</code> rounding mode. The second one can be produced several time, to
-      get a coverage with sufficient discrepancie compared to the one with  <code class="computeroutput">nearest</code> rounding mode. Once both code coverage generated, simple graphical tools
+      get a coverage with sufficient discrepancies compared to the one with  <code class="computeroutput">nearest</code> rounding mode. Once both code coverage generated, simple graphical tools
       as <code class="computeroutput">meld</code> or <code class="computeroutput">kompare</code> can be used to pinpoint potential unstable test.
     </p>
 </div>
@@ -1207,18 +1611,16 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 <a name="vr-manual.localization.CovBB"></a>12.4.3. Basic Block coverage comparison</h3></div></div></div>
 <p>
 	The second technique to localize unstable tests, is based on Basic Block (BB) Coverage provided by verrou. The idea behind this technique is the same as behind code coverage comparison except in the way to produce the coverage.
-	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without library the following script can be used :
+	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without libraries the following script can be used:
 	</p>
 <pre class="programlisting">
-	 echo "*" ‘readlink -f <em class="replaceable"><code>program</code></em>‘ &gt; trace.inc
-	</pre>
+echo "*" ‘readlink -f <em class="replaceable"><code>program</code></em>‘ &gt; trace.inc</pre>
 <p>
 
-	With the <code class="computeroutput"> trace.inc</code> the BB coverage instrumenttion can be activated with the <code class="computeroutput">--trace=</code> option :
+	With the <code class="computeroutput"> trace.inc</code> the BB coverage instrumentation can be activated with the <code class="computeroutput">--trace=</code> option:
 	</p>
 <pre class="programlisting">
-	  valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <em class="replaceable"><code>program args</code></em>
-	</pre>
+valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <em class="replaceable"><code>program args</code></em></pre>
 <p>
 
 	Hence two files <code class="computeroutput">trace_bb_cov.log-PID</code> and <code class="computeroutput">trace_bb_info.log-PID</code> are generated.
@@ -1226,14 +1628,16 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 	can be post-treated to be as readable as possible with the <code class="computeroutput">genCovBB</code> command.
 	</p>
 <pre class="programlisting">
-	genCovBB trace_bb_cov.log-*
-	</pre>
+genCovBB trace_bb_cov.log-*
+</pre>
 <p>
 
 	The differences between generated coverage  are more difficult to analyze compared to the ones generated by code coverage tools, because the code structure is lost. Nevertheless
 	it is easier to generate  and can produced really powerful
 	information if used with the client request <code class="computeroutput">VERROU_DUMP_COVER</code> to recover partially time information lost by coverage techniques.
-
+      </p>
+<p>
+	The BB coverage generation can be simplified by <span class="command"><strong>post_verrou_dd</strong></span>.
       </p>
 </div>
 <div class="section">
@@ -1241,14 +1645,14 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 <a name="vr-manual.localization.post"></a>12.4.4.  post_verrou_dd</h3></div></div></div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7309"></a>Synopsis</h4></div></div></div>
+<a name="idm7672"></a>Synopsis</h4></div></div></div>
 <pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.post_verrou_dd.synopsis"></a><code class="command">post_verrou_dd [options]</code>  {<em class="replaceable"><code>/path/to/run_script</code></em>} {<em class="replaceable"><code>/path/to/cmp_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7318"></a>Description</h4></div></div></div>
+<a name="vr-manual.post_verrou_dd.description"></a>Description</h4></div></div></div>
 <p>
-	The tool <span class="command"><strong>post_verrou_dd</strong></span> enables to post-treat the result repository obtained by <span class="command"><strong>verrou_dd_*</strong></span> commands.
+	The tool <span class="command"><strong>post_verrou_dd</strong></span> enables to post-treat the result repository obtained by <span class="command"><strong>verrou_dd_line</strong></span> command.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
       </p>
@@ -1258,7 +1662,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7327"></a>Options and environment variables</h4></div></div></div>
+<a name="idm7690"></a>Options and environment variables</h4></div></div></div>
 <div class="variablelist">
 <a name="vr-manual.post_verrou_dd.envvars"></a><dl class="variablelist">
 <dt><span class="term">
@@ -1309,6 +1713,9 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 	     <code class="computeroutput">random[_[[s]com]det]</code>,
 	     <code class="computeroutput">prandom[_[com]det]</code>,
 	     <code class="computeroutput">average[_[[s]com]det]</code>,
+	     <code class="computeroutput">sr_[s]monotonic</code>,
+	     <code class="computeroutput">nearest</code>,
+	     <code class="computeroutput">native</code>,
 	     <code class="computeroutput">upward</code>,
 	     <code class="computeroutput">downward</code>,
 	     <code class="computeroutput">farthest</code>,
@@ -1337,7 +1744,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
           </span></dt>
 <dd><p>
 	      Activate the BB coverage trace generation. The verrou trace file is automatically generated with the binary
-	      object (without library). If the trace file
+	      object (without libraries). If the trace file
 	      is not the one expected, the option <code class="computeroutput">--trace-file=</code> has to be used.
 	    </p></dd>
 <dt><span class="term">
@@ -1365,15 +1772,15 @@ diff ${REF}/results.dat ${RUN}/results.dat</pre>
 <a name="vr-manual.plotstat"></a>12.4.5.  verrou_plot_stat</h3></div></div></div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7428"></a>Synopsis</h4></div></div></div>
+<a name="idm7794"></a>Synopsis</h4></div></div></div>
 <pre class="screen"><div class="cmdsynopsis"><p><a name="vr-manual.plotstat.synopsis"></a><code class="command">verrou_plot_stat [options] [/path/to/run_script]</code>  {<em class="replaceable"><code>/path/to/extract_script</code></em>}</p></div></pre>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7435"></a>Description</h4></div></div></div>
+<a name="vr-manual.plotstat.description"></a>Description</h4></div></div></div>
 <p>
 	The tool <span class="command"><strong>verrou_plot_stat</strong></span> enables to visualize the histogram
-	of the result (extracted with <span class="command"><strong> extract_script</strong></span>) of a code run under verrou and to compute the non-gaussian error estimator.
+	of the result (extracted with <span class="command"><strong> extract_script</strong></span>) of a code run under verrou and to compute the non-gaussian error estimator (results are printed in <span class="command"><strong>stdout</strong></span> and in a file <span class="command"><strong>stat.last</strong></span>).
       </p>
 <pre class="screen">
 refValue[nearest] : 1.05891843750000000e+05
@@ -1392,23 +1799,23 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 <li class="listitem"> The rel estimator is <span class="mathphrase">max<sub>i</sub>(|X<sub>i</sub>-X<sub>ref</sub>|)/|X<sub>ref</sub>|</span> </li>
 <li class="listitem"> The binary rel estimator is <span class="mathphrase">-log2(max<sub>i</sub>(|X<sub>i</sub>-X<sub>ref</sub>|)/|X<sub>ref</sub>|)</span>
 </li>
-<li class="listitem">  <code class="computeroutput">all </code> means the i samples take into account all the sample of previous rounding mode and all determinist computed rounding mode</li>
+<li class="listitem">  <code class="computeroutput">all </code> means the i samples take into account all the sample of previous rounding mode and all deterministic computed rounding mode</li>
 </ul></div>
 <p>
       </p>
 <p>
-	The scripts <span class="command"><strong> run_script </strong></span> is similar to the one of <span class="command"><strong>verrou_dd_line</strong></span> command. This script is optional if the computation are already done (by exemple with
+	The scripts <span class="command"><strong>run_script</strong></span> is similar to the one of <span class="command"><strong>verrou_dd_line</strong></span> command. This script is optional if the computation are already done (by example with
 	a previous call to <span class="command"><strong>verrou_plot_stat</strong></span> or <span class="command"><strong>post_verrou_dd</strong></span>).
 
-	The script <span class="command"><strong> extract_script </strong></span> has only one parameter (the repository of computation : the same parameter of <span class="command"><strong>run_script</strong></span>). It has to print
+	The script <span class="command"><strong>extract_script</strong></span> has only one parameter (the repository of computation: the same parameter of <span class="command"><strong>run_script</strong></span>). It has to print
 	the extracted value on the first line of the standard output.
 
-	To study several output variables the command can be called several time the command with different <span class="command"><strong>extract_script </strong></span>. Thanks the cache repository (by default <code class="computeroutput">verrou.stat</code>) the run commands won't be rerun.
+	To study several output variables the command can be called several times the command with different <span class="command"><strong>extract_script</strong></span>. Thanks the cache repository (by default <code class="computeroutput">verrou.stat</code>) the run commands won't be rerun. There is no guarantee in case of concurrent run of the command verrou_plot_stat and the <span class="command"><strong>run_script</strong></span> and <span class="command"><strong>extract_script </strong></span> should not be modify during a <span class="command"><strong>verrou_plot_stat</strong></span> call.
       </p>
 </div>
 <div class="simplesect">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7475"></a>Options</h4></div></div></div>
+<a name="idm7846"></a>Options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr-manual.plotStat.envvars"></a><dl class="variablelist">
 <dt><span class="term">
@@ -1426,7 +1833,24 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	      the default is set to <code class="computeroutput">./</code>.
 	    </p></dd>
 <dt><span class="term">
-            <code class="computeroutput">--samples=</code> or <code class="computeroutput">-s</code>
+          <code class="computeroutput">--cache=continue[default]|clean|rename</code>
+          </span></dt>
+<dd>
+<p>
+	      Option to choose the policy with the existing cache defined by <code class="computeroutput">--rep</code> option.
+	    </p>
+<p>
+	      <code class="computeroutput">clean</code>: the previous cache is removed.
+	    </p>
+<p>
+	      <code class="computeroutput">rename</code>: the previous cache is renamed with time information (time of last file modification).
+	    </p>
+<p>
+	      <code class="computeroutput">continue</code>: the previous cache is kept for all computation.
+	    </p>
+</dd>
+<dt><span class="term">
+            <code class="computeroutput">--samples=</code> or <code class="computeroutput">--nruns=</code>  or <code class="computeroutput">-s</code>
           </span></dt>
 <dd><p>An integer setting the run number of random and average distribution. If this variable is not set, the default value is
               100. -1 means the highest number without running additional computation.</p></dd>
@@ -1437,13 +1861,16 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	      To use this option <span class="command"><strong> run_script </strong></span> has to be thread safe.
 	    </p></dd>
 <dt><span class="term">
-            <code class="computeroutput">--rounding-list=</code>
+            <code class="computeroutput">--rounding-list=</code> or  <code class="computeroutput">--rounding-mode=</code> or  <code class="computeroutput">--rounding=</code>
           </span></dt>
 <dd>
 <p> A coma separated list of rounding mode. The list can contain
 	     <code class="computeroutput">random[_[[s]com]det]</code>,
 	     <code class="computeroutput">prandom[_[com]det]</code>,
 	     <code class="computeroutput">average[_[[s]com]det]</code>,
+	     <code class="computeroutput">sr_[s]monotonic</code>,
+	     <code class="computeroutput">nearest</code>,
+	     <code class="computeroutput">native</code>,
 	     <code class="computeroutput">upward</code>,
 	     <code class="computeroutput">downward</code>,
 	     <code class="computeroutput">farthest</code>,
@@ -1457,6 +1884,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 <p> The list can also contain <code class="computeroutput">prandom_fun</code>. This rounding mode corresponds to <code class="computeroutput">prandom</code> with the <a class="xref" href="vr-manual.html#vr-manual.feat.updatepfunc">--prandom-update</a> set to <code class="computeroutput">func</code>.
 	    </p>
 <p> The list can also contain <code class="computeroutput">prandom_FLOAT</code> with <code class="computeroutput">FLOAT</code> a floating point number between 0 and 1. This rounding mode corresponds to <code class="computeroutput">prandom</code> with the  <a class="xref" href="vr-manual.html#vr-manual.feat.updatepvalue">--prandom-pvalue</a>  set to <code class="computeroutput">FLOAT</code>.
+	    </p>
+<p>
+	    If the option is set multiple times, the list will be append to the current list.
 	    </p>
 </dd>
 <dt><span class="term">
@@ -1496,7 +1926,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 <dt><span class="term">
             <code class="computeroutput">--ref=VALUE</code>
           </span></dt>
-<dd><p> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not determinist, the average value is taken.
+<dd><p> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not deterministic, the average value is taken.
 	    </p></dd>
 <dt><span class="term">
             <code class="computeroutput">--continue-on-extract-value-error</code>
@@ -1514,7 +1944,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           </span></dt>
 <dd>
 <p> This option enables to plot histogram for computation run without the framework or after files renaming.
-	      Typical calls  are :
+	      Typical calls are:
 	    </p>
 <p>
 	      <code class="computeroutput">--rep="." --specific-pattern=verrou.stat/random/dd.run* </code>
@@ -1523,6 +1953,12 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	      <code class="computeroutput">--rep="verrou.stat" --specific-pattern=random/dd.run* </code>
 	    </p>
 </dd>
+<dt><span class="term">
+	    <code class="computeroutput">--seed=</code>
+          </span></dt>
+<dd><p>
+	      Option to specify the seed used by <span class="command"><strong>verrou_plot_stat</strong></span> tool to setup the <code class="computeroutput">VERROU_SEED</code>. This option is similar to <code class="option">--seed</code> of <span class="command"><strong>verrou_dd_*</strong></span>.
+	    </p></dd>
 </dl>
 </div>
 </div>
@@ -1575,7 +2011,7 @@ int main () {
       </p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7618"></a>12.5.1.1. Basic usage</h4></div></div></div>
+<a name="idm8018"></a>12.5.1.1. Basic usage</h4></div></div></div>
 <p>
           Use the <code class="computeroutput">VERROU_START_DETERMINISTIC(0)</code> client
           request to mark the beginning of a deterministic section. Similarly, put
@@ -1618,7 +2054,7 @@ int main () {
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7627"></a>12.5.1.2. Advanced usage</h4></div></div></div>
+<a name="idm8027"></a>12.5.1.2. Advanced usage</h4></div></div></div>
 <p>
           Assume the following program, in which two distinct deterministic sections are
           instrumented, but the client requests have been abstracted out in separate
@@ -1727,7 +2163,7 @@ det2
 <a name="vr-manual.clo"></a>12.6.1. Command-line options</h3></div></div></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7644"></a>12.6.1.1. General options</h4></div></div></div>
+<a name="idm8044"></a>12.6.1.1. General options</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.general.list"></a><dl class="variablelist">
 <dt>
@@ -1753,7 +2189,7 @@ det2
 		backend. <code class="computeroutput">verrou</code>
 		enables to perform several rounding mode (See <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a></code> option).
 		<code class="computeroutput">mcaquad</code> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extented precision in quad (See  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-mode">--mca-mode</a></code>,
+		based on extended precision in quad (See  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-mode">--mca-mode</a></code>,
 		<code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-precision-double">--mca-precision-double</a></code> and  <code class="option"><a class="xref" href="vr-manual.html#vr-opt.mca-precision-float">--mca-precision-float</a></code>  options).
 		The integration of <code class="computeroutput">mcaquad</code> backend in the frontend verrou
 		is still considered as experimental. <code class="computeroutput">checkdenorm</code> enables
@@ -1766,11 +2202,11 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7683"></a>12.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
+<a name="idm8085"></a>12.6.1.2. Perturbation of floating-point operations</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.instr.list"></a><dl class="variablelist">
 <dt>
-<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|upward|downward|toward_zero|away_zero|farthest|float|ftz&gt; [default=nearest]</code></span>
+<a name="vr-opt.rounding-mode"></a><span class="term"><code class="option">--rounding-mode=&lt;random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|ftz&gt; [default=native]</code></span>
 </dt>
 <dd>
 <p>
@@ -1793,17 +2229,19 @@ det2
 		    <code class="computeroutput">prandom_comdet</code>,
 		    <code class="computeroutput">random_scomdet</code>,
                     <code class="computeroutput">average_scomdet</code>,
-		    <code class="computeroutput">sr_monotonic</code>.
+		    <code class="computeroutput">sr_monotonic</code>,
+		    <code class="computeroutput">sr_smonotonic</code>.
                 </p></li>
 <li class="listitem"><p>
                   <span class="command"><strong>IEEE-754 rounding modes:</strong></span>
-                  <code class="computeroutput">nearest</code> (default),
+                  <code class="computeroutput">nearest</code>,
                   <code class="computeroutput">upward</code>,
                   <code class="computeroutput">downward</code>,
                   <code class="computeroutput">toward_zero</code>.
                 </p></li>
 <li class="listitem"><p>
                     <span class="command"><strong>Other:</strong></span>
+		    <code class="computeroutput">native</code>[default] (similar to nearest (maybe different with <code class="option">--libm=instrumented</code>),
 		    <code class="computeroutput">away_zero</code>,
 		    <code class="computeroutput">farthest</code>,
 		    <code class="computeroutput">float</code>,
@@ -1812,6 +2250,52 @@ det2
 </ul></div>
 <p>This option can be activated with the env variable <span class="command"><strong>VERROU_ROUNDING_MODE</strong></span>.</p>
 </dd>
+<dt>
+<a name="vr-opt.float"></a><span class="term"><code class="option">--float=&lt;yes|no&gt; [default=no]</code></span>
+</dt>
+<dd>
+<p>
+		  With this option, all double precision floating-point
+		  operations are replaced by simple precision equivalent
+		  in the frontend. Hence this option is compatible with all <code class="option">--rounding-mode</code> options and with all other backends.
+		</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+		      Numerically, option <code class="option">--rounding-mode=float</code> is equivalent to  <code class="option">--rounding-mode=nearest --float=yes</code>.
+		  </p></li>
+<li class="listitem"><p>
+		      Options <code class="option">--rounding-mode=nearest --float=yes</code> instrument float operations by nearest wrapper function. So if your code contains float operations, it can be
+		      useful to use <a class="link" href="vr-manual.html#vr-opt.instr-%5Bflt%7Cdbl%5D"><code class="option">--vr-instr-float=no</code></a> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over float operations.
+		  </p></li>
+</ul></div>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_FLOAT</strong></span>.</p>
+</dd>
+<dt>
+<a name="vr-opt.libm"></a><span class="term"><code class="option">--libm=&lt;auto_exclude|manual_exclude|instrumented&gt; [default=auto_exclude]</code></span>
+</dt>
+<dd>
+<p>
+		Define the behavior of verrou with libm.
+              </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+                  <span class="command"><strong>auto_exclude</strong></span> : The libm exclusion is automatically detected thanks pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
+                </p></li>
+<li class="listitem"><p>
+                  <span class="command"><strong>manual_exclude</strong></span> : The automatic detection is ignored and the user has to define manually the exclusion thanks <span class="command"><strong>--exclude</strong></span> option. This option is useful if the pattern detection detect object you need to perturb.
+                </p></li>
+<li class="listitem"><p>
+                  <span class="command"><strong>instrumented</strong></span> : the interposition library Interlibmath is loaded (The complex libm function are not yet instrumented). This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
+                </p></li>
+</ul></div>
+<p>
+		The option <span class="command"><strong>instrumented</strong></span> is quite new. In a near future, the default will switch from <span class="command"><strong>auto_exclude</strong></span> to <span class="command"><strong>instrumented</strong></span>
+	      </p>
+</dd>
+<dt>
+<a name="vr-opt.libm-noinst-rounding-mode"></a><span class="term"><code class="option">--libm-noinst-rounding-mode==&lt;native|nearest&gt; [default=native]</code></span>
+</dt>
+<dd></dd>
 <dt>
 <a name="vr-opt.mca-mode"></a><span class="term"><code class="option">--mca-mode=&lt;mca|rr|pb|ieee&gt; [default=mca]</code></span>
 </dt>
@@ -1864,7 +2348,7 @@ det2
 		<span class="command"><strong>average </strong></span> <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="12.2.2. Rounding-mode switching">rounding modes</a>.
 		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and average_[com]det
 		rounding mode.
-		This helps reproducing the behaviour of a program under Verrou.
+		This helps reproducing the behavior of a program under Verrou.
               </p>
 <p>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
@@ -1876,7 +2360,7 @@ det2
 </dt>
 <dd>
 <p>If present, this option the p-value of the prandom[|det|comdet] rounding mode is
-		updated (with an uniform random selection between 0 and 1) at the begining of each function call.
+		updated (with an uniform random selection between 0 and 1) at the beginning of each function call.
 		Be careful the option is highly sensitive
 		to the program compilation option. If each the update is inserted between each floating point
 		operations the  <a class="link" href="vr-manual.html#vr-manual.feat.rounding-mode" title="12.2.2. Rounding-mode switching">prandom and random modes</a> are equivalent.
@@ -1913,6 +2397,7 @@ det2
 </dt>
 <dd><p>
                 Toggle instrumentation of x387 scalar instructions.
+		On arm64 architecture, this option is set by default to yes, as scalar instructions respect the IEEE standard.
             </p></dd>
 <dt>
 <a name="vr-opt.instr-llo"></a><span class="term"><code class="option">--vr-instr-llo=&lt;yes|no&gt; [default=yes]</code></span>
@@ -1927,6 +2412,12 @@ det2
                 Toggle instrumentation of vectorized instructions (number corresponds to the pack size)
             </p></dd>
 <dt>
+<a name="vr-opt.instr-unk"></a><span class="term"><code class="option">--vr-instr-unk=&lt;yes|no&gt; [default=yes]</code></span>
+</dt>
+<dd><p>
+                Toggle instrumentation of instructions with unknown vectorized status (fma is unvectorized in valgrind IR).
+            </p></dd>
+<dt>
 <a name="vr-opt.instr-%5Bflt%7Cdbl%5D"></a><span class="term"><code class="option">--vr-instr-[flt|dbl]=&lt;yes|no&gt; [default=yes]</code></span>
 </dt>
 <dd><p>
@@ -1937,19 +2428,30 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7816"></a>12.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
+<a name="idm8275"></a>12.6.1.3. Restriction of instrumentation scope</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.scope.list"></a><dl class="variablelist">
 <dt>
 <a name="vr-opt.instr-atstart"></a><span class="term"><code class="option">--instr-atstart=&lt;yes|no&gt; [default=yes]</code></span>
 </dt>
 <dd>
-<p>Toggle <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">instrumentation
-                  state</a> on or off at program start. Useful in combination
+<p>Toggle <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">hard instrumentation
+                    state</a> on or off at program start. Useful in combination
                   with <a class="link" href="vr-manual.html#vr-cr.start-instrumentation">client
-                  requests</a>.
-              </p>
+                    requests</a>.
+		</p>
 <p>This option can be activated with the env variable <span class="command"><strong>VERROU_INSTR_ATSTART</strong></span>.</p>
+</dd>
+<dt>
+<a name="vr-opt.instr-atstart-soft"></a><span class="term"><code class="option">--instr-atstart-soft=&lt;yes|no&gt; [default=yes]</code></span>
+</dt>
+<dd>
+<p>Toggle <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">soft instrumentation
+                      state</a> on or off at program start. Useful in combination
+                    with <a class="link" href="vr-manual.html#vr-cr.start-instrumentation">client
+                      requests</a>.
+		  </p>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_INSTR_ATSTART_SOFT</strong></span>.</p>
 </dd>
 <dt>
 <a name="vr-opt.exclude"></a><span class="term"><code class="option">--exclude=FILE</code></span>
@@ -1966,7 +2468,7 @@ det2
 </dt>
 <dd>
 <p>Generate in <code class="computeroutput">FILE</code> a list of
-                all symbols (which contain perturbated floating point instruction)
+                all symbols (which contain perturbed floating point instruction)
 		encountered during program execution. This is useful
                 to build an <a class="link" href="vr-manual.html#vr-manual.feat.exclude" title="12.3.1. Excluded symbols">exclusion
                 list</a>.</p>
@@ -1981,7 +2483,7 @@ det2
                 instrumented. When using
                 both <code class="option"><a class="xref" href="vr-manual.html#vr-opt.gen-exclude">--gen-exclude</a></code>
                 and <code class="option"><a class="xref" href="vr-manual.html#vr-opt.exclude">--exclude</a></code>, it is
-                advised to avoid perturbating rounding-modes
+                advised to avoid perturbing rounding-modes
                 using <code class="option"><a class="xref" href="vr-manual.html#vr-opt.rounding-mode">--rounding-mode</a>=nearest</code>.
               </p>
 <p>This option can be activated with the env variable <span class="command"><strong>VERROU_GEN_EXCLUDE</strong></span>.</p>
@@ -2010,7 +2512,7 @@ det2
 <dd>
 <p>Generate in <code class="computeroutput">FILE</code> the list
                 of all <a class="link" href="vr-manual.html#vr-manual.feat.source" title="12.3.1.3. Source code lines selection">source code
-                  lines</a> (which contain perturbated floating point instruction)
+                  lines</a> (which contain perturbed floating point instruction)
 		encountered during program execution.</p>
 <p>In combination with
                 <code class="option"><a class="xref" href="vr-manual.html#vr-opt.source">--source</a></code>, only list
@@ -2018,32 +2520,57 @@ det2
                 list.</p>
 <p>This option can be activated with the env variable <span class="command"><strong>VERROU_GEN_SOURCE</strong></span>.</p>
 </dd>
+<dt>
+<a name="vr-opt.iomatch-clr"></a><span class="term"><code class="option">--IOmatch-clr=IOMATCH_FILE</code></span>
+</dt>
+<dd>
+<p> When this option is present the IOMatch script is read. This file
+		defines the interaction between verrou and the stdout (<a class="link" href="vr-manual.html#id.iomatch.format" title="12.6.3. IOMatch script">See IOMatch format</a>). The main idea behind this format is to apply client request action when a line match a <code class="computeroutput">bmatch:</code> (b for break) or <code class="computeroutput">cmatch:</code> (c for continue) line. If a line match a bmatch the following match (b or c) are not tried. With a <code class="computeroutput">cmatch:</code> the following match are tried.</p>
+<p> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED env variable. In C we proposed the library <code class="computeroutput">verrouUnbuffered.so</code> (Loadable with LD_PRELOAD), to deactivate bufferization of stdout (For other file descriptors you have to flush manually, as it require more complex development). <span class="command"><strong> verrou_dd_task</strong></span> automatically use this two tricks.
+	      </p>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_IOMATCH_CLR</strong></span>.</p>
+</dd>
+<dt>
+<a name="vr-opt.output-iomatch-rep"></a><span class="term"><code class="option">--output-IOmatch-rep=REP</code></span>
+</dt>
+<dd>
+<p> Specify the repository of IOmatch log file. By default the log file is
+		<code class="computeroutput">IOMATCH_FILE.log-PID</code>. With this option it is <code class="computeroutput">REP/IOMatch.log-PID</code>. This option as also influence on the keys <code class="computeroutput"> dump-stdout:</code> and <code class="computeroutput"> dump-filtered-stdout:</code>of the <a class="link" href="vr-manual.html#id.iomatch.format" title="12.6.3. IOMatch script">IOMatch format</a>).
+	      </p>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_OUTPUT_IOMATCH_REP</strong></span>.</p>
+</dd>
 </dl>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7889"></a>12.6.1.4. Coverage generation </h4></div></div></div>
+<a name="idm8383"></a>12.6.1.4. Coverage generation </h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.coverage.list"></a><dl class="variablelist">
 <dt>
 <a name="vr.opt.trace"></a><span class="term"><code class="option">--trace=FILE</code></span>
 </dt>
-<dd><p>
+<dd>
+<p>
 		Activate the <a class="link" href="vr-manual.html#vr-manual.localization.CovBB" title="12.4.3. Basic Block coverage comparison">Basic Blocks Coverage</a> for the symbols specified in <code class="computeroutput"> FILE</code>.
-            </p></dd>
+              </p>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_TRACE</strong></span>.</p>
+</dd>
 <dt>
 <a name="vr.opt.output-trace-rep"></a><span class="term"><code class="option">--output-trace-rep=REP</code></span>
 </dt>
-<dd><p>
+<dd>
+<p>
 		Specify the <code class="computeroutput">REP</code> directory for the trace output files.
-            </p></dd>
+              </p>
+<p>This option can be activated with the env variable <span class="command"><strong>VERROU_OUTPUT_TRACE_REP</strong></span>.</p>
+</dd>
 </dl>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7905"></a>12.6.1.5. Detection</h4></div></div></div>
+<a name="idm8403"></a>12.6.1.5. Detection</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.detection.list"></a><dl class="variablelist">
 <dt>
@@ -2051,21 +2578,21 @@ det2
 </dt>
 <dd><p>
 		  Activate NaN detection. NaN produces a valgrind error.
-		  This functionnality requires the verrou backend.
+		  This functionality requires the verrou backend.
               </p></dd>
 <dt>
 <a name="vr.opt.check-inf"></a><span class="term"><code class="option">--check-inf=&lt;yes|no&gt; [default=yes]</code></span>
 </dt>
 <dd><p>
 		    Activate Inf detection. +/-Inf produces a valgrind error.
-		    This functionnality requires the verrou backend.
+		    This functionality requires the verrou backend.
 		</p></dd>
 <dt>
 <a name="vr.opt.check-cancellation"></a><span class="term"><code class="option">--check-cancellation=&lt;yes|no&gt; [default=no]</code></span>
 </dt>
 <dd><p>
 		Activate cancellation detection. Cancellation produces a valgrind error.
-		This functionnality is available for the verrou, mcaquad  and checkdenorm backends. The level
+		This functionality is available for the verrou, mcaquad  and checkdenorm backends. The level
 		of detected cancellations can be configured with  <code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-float">--cc-threshold-float</a></code> and
 		<code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-double">--cc-threshold-double</a></code>.
             </p></dd>
@@ -2074,7 +2601,7 @@ det2
 </dt>
 <dd><p>
 		Generate in <code class="computeroutput">FILE </code> with the source format for each code source line which produces at least one cancellation.
-		This functionnality is available for verrou, mcaquad and checkdenorm backends. The level
+		This functionality is available for verrou, mcaquad and checkdenorm backends. The level
 		of detected cancellations can be configured with  <code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-float">--cc-threshold-float</a></code> and
 		<code class="option"><a class="xref" href="vr-manual.html#vr.opt.cc-threshold-double">--cc-threshold-double</a></code>.
             </p></dd>
@@ -2082,14 +2609,14 @@ det2
 <a name="vr.opt.cc-threshold-float"></a><span class="term"><code class="option">--cc-threshold-float=&lt;integer&gt; [default=24]</code></span>
 </dt>
 <dd><p>
-		Configure the cancellation  dectection threshold for float operations.
+		Configure the cancellation detection threshold for float operations.
 		Default value is still experimental and could have to change.
             </p></dd>
 <dt>
 <a name="vr.opt.cc-threshold-double"></a><span class="term"><code class="option">--cc-threshold-double=&lt;integer&gt; [default=40]</code></span>
 </dt>
 <dd><p>
-		Configure the cancellation  dectection threshold for double operations.
+		Configure the cancellation  detection threshold for double operations.
 		Default value is still experimental and could have to change.
             </p></dd>
 <dt>
@@ -2097,27 +2624,27 @@ det2
 </dt>
 <dd><p>
 		Activate denormal number detection. Denormal number produced by floating point operation produces a valgrind error.
-		This functionnality is available for the checkdenorm backend.
+		This functionality is available for the checkdenorm backend.
             </p></dd>
 <dt>
 <a name="vr.opt.cd-gen-file"></a><span class="term"><code class="option">--cd-gen-file=&lt;FILE&gt;</code></span>
 </dt>
 <dd><p>
 		Generate in <code class="computeroutput">FILE </code> with the source format for each code source line which produces at least one denormal number.
-		This functionnality is available for checkdenorm backend.
+		This functionality is available for checkdenorm backend.
             </p></dd>
 <dt>
 <a name="vr.opt.float_max"></a><span class="term"><code class="option">--check-max-float=&lt;yes|no&gt; [default=no]</code></span>
 </dt>
 <dd><p>
-		Activate max float detection. This functionnality is compatible only with verrou backend.
+		Activate max float detection. This functionality is compatible only with verrou backend.
             </p></dd>
 </dl>
 </div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm7963"></a>12.6.1.6. Performance optimization</h4></div></div></div>
+<a name="idm8461"></a>12.6.1.6. Performance optimization</h4></div></div></div>
 <div class="variablelist">
 <a name="vr.opts.optim.list"></a><dl class="variablelist">
 <dt>
@@ -2149,15 +2676,28 @@ det2
 <dt>
 <a name="vr-cr.start-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_START_INSTRUMENTATION</code></span>
 </dt>
-<dd><p>Start full
-              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">instrumentation</a>
+<dd><p>Start
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">hard instrumentation</a>
               (including rounding mode switching) if not already
               enabled.</p></dd>
 <dt>
 <a name="vr-cr.stop-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_STOP_INSTRUMENTATION</code></span>
 </dt>
+<dd><p>Stop
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">hard instrumentation</a>
+              (don't switch rounding modes) if not already disabled.</p></dd>
+<dt>
+<a name="vr-cr.start-soft-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_START_SOFT_INSTRUMENTATION</code></span>
+</dt>
+<dd><p>Start full
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">soft instrumentation</a>
+              (including rounding mode switching) if not already
+              enabled.</p></dd>
+<dt>
+<a name="vr-cr.stop-soft-instrumentation"></a><span class="term"><code class="computeroutput">VERROU_STOP_SOFT_INSTRUMENTATION</code></span>
+</dt>
 <dd><p>Stop full
-              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">instrumentation</a>
+              Verrou <a class="link" href="vr-manual.html#vr-manual.feat.instr" title="12.3.2. Instrumented sections">soft instrumentation</a>
               (don't switch rounding modes) if not already disabled.</p></dd>
 <dt>
 <a name="vr-cr.start-deterministic"></a><span class="term"><code class="computeroutput">VERROU_START_DETERMINISTIC(LEVEL)</code></span>
@@ -2189,7 +2729,147 @@ det2
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm8024"></a>12.6.3. Monitor commands</h3></div></div></div>
+<a name="id.iomatch.format"></a>12.6.3. IOMatch script</h3></div></div></div>
+<p>
+	The IOMatch script is activated thanks the option <code class="option"><a class="xref" href="vr-manual.html#vr-opt.iomatch-clr">--IOmatch-clr</a>=IOMATCH_FILE</code>.
+	The comment symbol is <code class="computeroutput">#</code>.
+      </p>
+<p>
+      The file can contain the configuration keys :
+      </p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term"><code class="computeroutput">verbose: LEVEL</code></span></dt>
+<dd>
+	    Configure the verbosity level (default 1)
+	  </dd>
+<dt><span class="term"><code class="computeroutput">ignore-empty-line:</code></span></dt>
+<dd>
+	    If this key is present, the empty lines are ignored.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">filter_line_exec: CMD</code></span></dt>
+<dd>
+	    Activate the line replacement with CMD.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">dump-stdout: [FILENAME]</code></span></dt>
+<dd>
+	    Dump the stdout file. If FILENAME is not set the default name is <code class="computeroutput">IOMATCH_FILE.stdout-PID</code> or <code class="computeroutput">IOMATCH_OUTPUT_REP/iomatch.stdout-PID</code> (if option <code class="option">--output-IOmatch-rep=IOMATCH_OUTPUT_REP</code> is used). Remark: <code class="computeroutput">FILENAME</code> absolute path and <code class="option">--output-IOmatch-rep=</code> are incompatible.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">dump-filtered-stdout: [FILENAME]</code></span></dt>
+<dd>
+	    Dump the stdout file after application of <code class="computeroutput">filter_line_exec CMD</code> to each line.
+	     If FILENAME is not set the default name is <code class="computeroutput">IOMATCH_FILE.filtered.stdout-PID</code> (or <code class="computeroutput">IOMATCH_OUTPUT_REP/iomatch.filtered.stdout-PID</code> if option <code class="option">--output-IOmatch-rep=IOMATCH_OUTPUT_REP</code> is used). Remark: <code class="computeroutput">FILENAME</code> absolute path and <code class="option">--output-IOmatch-rep=</code> are incompatible.
+	  </dd>
+</dl></div>
+<p>
+
+      </p>
+<p>
+	We can also set up action for each section.
+	</p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term"><code class="computeroutput">default: ACTION</code></span></dt>
+<dd>
+	    Add ACTION to the default section.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">init: ACTION</code></span></dt>
+<dd>
+	    Add ACTION to the init section. This action will be executed during the verrou initialization.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">post-init: ACTION</code></span></dt>
+<dd>
+	    Add ACTION to the post-init section. This action will be executed when the first stdout line appears.
+	  </dd>
+</dl></div>
+<p>
+      </p>
+<p>
+	Lastly match section with associated actions can be defined:
+	</p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term"><code class="computeroutput">bmatch: PATTERN</code></span></dt>
+<dd>
+	    Setup a break match section. <code class="computeroutput">PATTERN</code> is a wildcard expression with * and ?. The first space after :
+	    is a part of the format. Every space after this one is meaningful. The order of match section is important.
+	    If the first match is *. All following match section are ignored. The action associated to the section are
+	    defined in the following lines by <code class="computeroutput">apply:</code> and <code class="computeroutput">post-apply:</code>.
+	    A break match (in contrast to continue match) mean that after a match the following match (continue or break) are ignored.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">cmatch: PATTERN</code></span></dt>
+<dd>
+	    Setup a  continue match section. <code class="computeroutput">PATTERN</code> is a wildcard expression with * and ?.
+	    In contrast to break match, if a line match the following match are tried. It is not possible to define <code class="computeroutput">post-apply</code> action with <code class="computeroutput">cmatch:</code>.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">apply: ACTION</code></span></dt>
+<dd>
+	    Add the ACTION to current <code class="computeroutput">match</code> section. This action will be applied to the beginning of the match section.
+	    If no action is set for a match section, the default group of action will be executed. To avoid the default action, you can use a
+	    <code class="computeroutput">nop</code> action.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">post-apply: ACTION</code></span></dt>
+<dd>
+	    Add the ACTION to current <code class="computeroutput">match</code> section. This action will be applied to the end of the match section.
+	    If no post-action is defined, nothing is done (ie. no <code class="computeroutput">default</code> action).
+	  </dd>
+</dl></div>
+<p>
+      </p>
+<p>
+The different possible actions are :
+      </p>
+<div class="variablelist"><dl class="variablelist">
+<dt><span class="term"><code class="computeroutput">start</code></span></dt>
+<dd> Start instrumentation.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">stop</code></span></dt>
+<dd>
+	    Stop instrumentation.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">start_soft</code></span></dt>
+<dd> Start soft instrumentation.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">stop_soft</code></span></dt>
+<dd>
+	    Stop soft instrumentation.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">nop</code></span></dt>
+<dd>
+	    do nothing (useful to avoid default action)
+	  </dd>
+<dt><span class="term"><code class="computeroutput">display_counter</code></span></dt>
+<dd>
+	    display counters
+	  </dd>
+<dt><span class="term"><code class="computeroutput">nb_instr</code></span></dt>
+<dd>
+	    Display the number of instrumented floating point operation in the log file.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">reset_counter</code></span></dt>
+<dd>
+	    Set all floating point counters to zero.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">dump_cover</code></span></dt>
+<dd>
+	    Apply <code class="computeroutput">DUMP_COVER</code> client request.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">panic</code></span></dt>
+<dd>
+	    Stop program with panic.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">exit</code></span></dt>
+<dd>
+	    Stop program with exit.
+	  </dd>
+<dt><span class="term"><code class="computeroutput">default,init,post-init</code></span></dt>
+<dd>
+	    Apply the same group of actions defined for the section <code class="computeroutput">default</code>, <code class="computeroutput">init</code> and <code class="computeroutput">post-init</code>.
+	  </dd>
+</dl></div>
+<p>
+      </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm8672"></a>12.6.4. Monitor commands</h3></div></div></div>
 
       See <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver" title="3.2. Debugging your program using Valgrind gdbserver and GDB">Debugging your program using Valgrind's gdbserver and GDB</a> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
