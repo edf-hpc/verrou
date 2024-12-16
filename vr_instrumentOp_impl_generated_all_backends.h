@@ -44,8 +44,8 @@ if(vr.backend==vr_verrou && checkCancellation&& ! vr.checkFloatMax){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verroucheckcancellation"#OP, vr_verroucheckcancellation##OP
@@ -91,8 +91,8 @@ if(vr.backend==vr_verrou && ! checkCancellation&& vr.checkFloatMax){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}//end vr.instrument_soft_used)
 }
 
@@ -140,8 +140,8 @@ if(vr.backend==vr_checkdenorm && ! checkCancellation){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
@@ -204,8 +204,8 @@ if(vr.backend==vr_checkdenorm && checkCancellation){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_checkdenorm"#OP, vr_checkdenorm##OP
 #define bcNameWithCC(OP) "vr_checkdenormcheckcancellation"#OP, vr_checkdenormcheckcancellation##OP
@@ -270,8 +270,8 @@ if(vr.backend==vr_mcaquad && ! checkCancellation){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
@@ -334,8 +334,8 @@ if(vr.backend==vr_mcaquad && checkCancellation){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_mcaquad"#OP, vr_mcaquad##OP
 #define bcNameWithCC(OP) "vr_mcaquadcheckcancellation"#OP, vr_mcaquadcheckcancellation##OP

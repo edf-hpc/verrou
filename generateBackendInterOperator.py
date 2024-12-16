@@ -141,27 +141,21 @@ def transformTemplateForSoftStopStartOneFunction(lineTab, soft):
 def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft):
     if soft==False:
         return transformTemplateForSoftStopStartOneFunction(lineTabConv,soft)
-    res=[lineTabConv[0]]
-    remain=lineTabConv[1:]
-    while remain[-1].strip()!="}":
-        remain=remain[0:-1]
+    #utility function to parse function with linetab format
+    def getFunctionName(lineFunctionTab):
+        return lineFunctionTab[0]
+    def getFunctionBloc(lineFunctionTab):
+        remain=lineFunctionTab[1:]
+        while remain[-1].strip()!="}":
+            remain=remain[0:-1]
+        return remain[0:-1]
 
+    res=[getFunctionName(lineTabConv)]
     res+=["if(vr.instrument_soft){\n"]
-    for x in remain[0:-1]:
-        if ("PREBACKEND" in x) or ("POSTBACKEND" in x):
-            continue
-        res+=[x]
-
+    res+= [x for x in  getFunctionBloc(lineTabConv) if not (("PREBACKEND" in x) or ("POSTBACKEND" in x )) ]
     res+=["}else{\n"]
 
-    remain=lineTab[1:]
-    while remain[-1].strip()!="}":
-        remain=remain[0:-1]
-    elseInstrumentBock=[]
-    for x in remain[0:-1]:
-        if ("PREBACKEND" in x) or ("POSTBACKEND" in x):
-            continue
-        elseInstrumentBock+=[x]
+    elseInstrumentBock=[x for x in  getFunctionBloc(lineTab) if not (("PREBACKEND" in x) or ("POSTBACKEND" in x )) ]
     if any(["BACKEND_FIRST" in line for line in elseInstrumentBock]):
         elseInstrumentBock=mergeFused(elseInstrumentBock)
     res+=[x.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for x in elseInstrumentBock]

@@ -2,6 +2,15 @@
 
 import sys
 
+includeAndUndef="""#include "vr_instrumentOp_impl.h"
+#undef bcName
+#undef bcNameWithCC
+#undef bcNameConv
+#undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+"""
+
 includePatternHardWithoutConv="""
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
@@ -9,14 +18,7 @@ includePatternHardWithoutConv="""
 #define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING"#OP, vr_unfused_verrou_ROUNDING##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
-#undef bcNameWithCCUnfused
-"""
+"""+includeAndUndef
 
 includePatternHardWithConv="""
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
@@ -25,14 +27,7 @@ includePatternHardWithConv="""
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING"#OP, vr_unfused_conv_verrou_ROUNDING##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameWithCCUnfused
-#undef bcNameConvWithCCUnfused
-"""
+"""+includeAndUndef
 
 floatConvPattern="""\tif(!vr.float_conv){%s\n\t}else{//vr.float_conv%s\n\t}//end float_conv\n"""
 
@@ -45,14 +40,7 @@ includePatternSoftWithoutConv="""
 #define bcNameConv(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameWithCCUnfused
-#undef bcNameConvWithCCUnfused
-"""
+"""+includeAndUndef
 
 includePatternSoftWithConv="""
 #define bcName(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
@@ -61,14 +49,7 @@ includePatternSoftWithConv="""
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING_soft"#OP, vr_unfused_conv_verrou_ROUNDING_soft##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameWithCCUnfused
-#undef bcNameConvWithCCUnfused
-"""
+"""+includeAndUndef
 
 includePatternSoft=floatConvPattern%(includePatternSoftWithoutConv, includePatternSoftWithConv)
 
@@ -79,13 +60,7 @@ includePatternSoftNearest="""\tif(!vr.float_conv){
 #define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameWithCCUnfused
-#undef bcNameConvWithCCUnfused
+"""+includeAndUndef+"""
 \t}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
@@ -93,17 +68,9 @@ includePatternSoftNearest="""\tif(!vr.float_conv){
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING_soft"#OP, vr_unfused_conv_verrou_ROUNDING_soft##OP
-#include "vr_instrumentOp_impl.h"
-#undef bcName
-#undef bcNameWithCC
-#undef bcNameConv
-#undef bcNameConvWithCC
-#undef bcNameWithCCUnfused
-#undef bcNameConvWithCCUnfused
+"""+includeAndUndef+"""
 \t}//end float_conv
 """
-
-
 
 
 roundingList=[["NEAREST","NATIVE"],

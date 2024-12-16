@@ -16,6 +16,7 @@ if(vr.roundingMode==VR_NEAREST ||  vr.roundingMode==VR_NATIVE){
 #undef bcNameConvWithCC
 #undef bcNameWithCCUnfused
 #undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -30,6 +31,7 @@ if(vr.roundingMode==VR_NEAREST ||  vr.roundingMode==VR_NATIVE){
 #undef bcNameConvWithCC
 #undef bcNameWithCCUnfused
 #undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
@@ -44,8 +46,8 @@ if(vr.roundingMode==VR_NEAREST ||  vr.roundingMode==VR_NATIVE){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -111,8 +113,8 @@ if(vr.roundingMode==VR_RANDOM){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
@@ -178,8 +180,8 @@ if(vr.roundingMode==VR_AVERAGE){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
@@ -245,8 +247,8 @@ if(vr.roundingMode==VR_RANDOM_DET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
@@ -312,8 +314,8 @@ if(vr.roundingMode==VR_AVERAGE_DET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
@@ -379,8 +381,8 @@ if(vr.roundingMode==VR_RANDOM_COMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
@@ -446,8 +448,8 @@ if(vr.roundingMode==VR_AVERAGE_COMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
@@ -513,8 +515,8 @@ if(vr.roundingMode==VR_RANDOM_SCOMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
@@ -580,8 +582,8 @@ if(vr.roundingMode==VR_AVERAGE_SCOMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
@@ -647,8 +649,8 @@ if(vr.roundingMode==VR_SR_MONOTONIC){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
@@ -714,8 +716,8 @@ if(vr.roundingMode==VR_SR_SMONOTONIC){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
@@ -781,8 +783,8 @@ if(vr.roundingMode==VR_UPWARD){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
@@ -848,8 +850,8 @@ if(vr.roundingMode==VR_DOWNWARD){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
@@ -915,8 +917,8 @@ if(vr.roundingMode==VR_ZERO){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
@@ -982,8 +984,8 @@ if(vr.roundingMode==VR_AWAY_ZERO){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
@@ -1049,8 +1051,8 @@ if(vr.roundingMode==VR_FARTHEST){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
@@ -1118,8 +1120,8 @@ if(vr.roundingMode==VR_FLOAT){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
@@ -1187,8 +1189,8 @@ if(vr.roundingMode==VR_PRANDOM){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
@@ -1254,8 +1256,8 @@ if(vr.roundingMode==VR_PRANDOM_DET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
@@ -1321,8 +1323,8 @@ if(vr.roundingMode==VR_PRANDOM_COMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
@@ -1389,8 +1391,8 @@ if(vr.roundingMode==VR_PRANDOM_COMDET){
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
-#undef bcNameConvWithCCUnfused
 #undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
