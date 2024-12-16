@@ -143,7 +143,6 @@ typedef struct {
   Bool instrument_soft_used;
 
   Bool verbose;
-  Bool unsafe_llo_optim;
 
   ULong firstSeed;
 
