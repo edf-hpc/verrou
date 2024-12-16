@@ -135,6 +135,7 @@ typedef struct {
   Bool instr_vec[VR_VEC];
   Bool instr_prec[VR_PREC];
   Bool float_conv;
+  Bool unfused;
 
 //  Vr_Instr instrument;
   Vr_Instr instrument_hard;

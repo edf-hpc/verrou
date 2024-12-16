@@ -48,6 +48,7 @@ void vr_env_clo_one_option (const HChar* env, const HChar *clo) {
 void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_ROUNDING_MODE", "--rounding-mode");
    vr_env_clo_one_option("VERROU_FLOAT", "--float");
+   vr_env_clo_one_option("VERROU_UNFUSED", "--unfused");
    vr_env_clo_one_option("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
    vr_env_clo_one_option("VERROU_PRANDOM_UPDATE", "--prandom-update");
    vr_env_clo_one_option("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
@@ -87,6 +88,7 @@ void vr_clo_defaults (void) {
   vr.count = True;
 
   vr.float_conv=False;
+  vr.unfused=False;
   vr.instrument_hard = VR_INSTR_ON;
   vr.instrument_soft = VR_INSTR_ON;
   vr.instrument_soft_used = False;
@@ -236,6 +238,9 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_BOOL_CLOM (cloPD, arg, "--float", bool_val)) {
     vr.float_conv = bool_val;
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--unfused", bool_val)) {
+    vr.unfused = bool_val;
   }
 
   //Option mcaquad

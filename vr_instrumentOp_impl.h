@@ -141,7 +141,11 @@
 
     case Iop_MAddF32:
 #ifndef IGNOREFMA
-       res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT, countOnly);
+       if(vr.unfused){
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCCUnfused(madd32F), VR_OP_MADD, VR_PREC_FLT, countOnly);
+       }else{
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(madd32F), VR_OP_MADD, VR_PREC_FLT, countOnly);
+       }
        break;
 #else
        vr_countOp (sb, VR_OP_MADD, VR_PREC_FLT, VR_VEC_UNK,False);
@@ -151,7 +155,11 @@
 #endif
     case Iop_MSubF32:
 #ifndef IGNOREFMA
-      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT, countOnly);
+       if(vr.unfused){
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCCUnfused(msub32F), VR_OP_MSUB, VR_PREC_FLT, countOnly);
+       }else{
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameWithCC(msub32F), VR_OP_MSUB, VR_PREC_FLT, countOnly);
+       }
       break;
 #else
       res.containFloatModOp=False;
@@ -161,7 +169,11 @@
 #endif
     case Iop_MAddF64:
 #ifndef IGNOREFMA
-      res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+       if(vr.unfused){
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameConvWithCCUnfused(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+       }else{
+          res.containFloatModOp=vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(madd64F), VR_OP_MADD, VR_PREC_DBL, countOnly);
+       }
       break;
 #else
       res.containFloatModOp=False;
@@ -171,7 +183,11 @@
 #endif
     case Iop_MSubF64:
 #ifndef IGNOREFMA
-      res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+       if(vr.unfused){
+          res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameConvWithCCUnfused(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+       }else{
+          res.containFloatModOp= vr_replaceFMA (sb, stmt, expr, bcNameConvWithCC(msub64F), VR_OP_MSUB,  VR_PREC_DBL, countOnly);
+       }
       break;
 #else
       res.containFloatModOp=False;

@@ -44,7 +44,11 @@ EXTRA_DIST = \
 	hardSoftClreqDouble2.stderr.exp hardSoftClreqDouble2.stdout.exp hardSoftClreqDouble2.vgtest \
 	hardSoftClreqDouble3.stderr.exp hardSoftClreqDouble3.stdout.exp hardSoftClreqDouble3.vgtest \
 	libmtest_float_conv1.stderr.exp libmtest_float_conv1.stdout.exp libmtest_float_conv1.vgtest libmtest_float_conv1.stderr.exp.aarch64 \
-	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64
+	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64 \
+	test_unfusedfma1.stderr.exp test_unfusedfma1.stdout.exp test_unfusedfma1.vgtest \
+	test_unfusedfma2.stderr.exp test_unfusedfma2.stdout.exp test_unfusedfma2.vgtest \
+	test_unfusedfma3.stderr.exp test_unfusedfma3.stdout.exp test_unfusedfma3.vgtest \
+	test_unfusedfma4.stderr.exp test_unfusedfma4.stdout.exp test_unfusedfma4.vgtest
 
 check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq hardSoftClreqDouble libmtest_float_conv
 
@@ -54,10 +58,10 @@ naninf_SOURCES = naninf.cxx
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx
 
-check_PROGRAMS += test_det test_libm
+check_PROGRAMS += test_det test_libm test_unfusedfma
 test_det_SOURCES = test_det.cxx
 test_libm_SOURCES = test_libm.cxx
-
+test_unfusedfma_SOURCES = test_unfusedfma.cxx
 
 VERROU_FLAG = -O0 -g3 -fno-builtin @vg_test_no_avx512f_flag@
 if HAVE_VERROU_FMA_INTRIN

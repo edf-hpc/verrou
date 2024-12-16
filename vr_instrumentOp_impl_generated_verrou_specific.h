@@ -5,45 +5,63 @@ if(vr.roundingMode==VR_NEAREST ||  vr.roundingMode==VR_NATIVE){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST_soft"#OP, vr_unfused_verrou_NEAREST_soft##OP
 #define bcNameConv(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameConvWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_NEAREST_soft"#OP, vr_unfused_verrou_NEAREST_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST_soft"#OP, vr_unfused_verrou_NEAREST_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_NEAREST_soft"#OP, vr_conv_verrou_NEAREST_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_NEAREST_soft"#OP, vr_conv_verrou_NEAREST_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_NEAREST_soft"#OP, vr_unfused_conv_verrou_NEAREST_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameConvWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_conv_verrou_NEAREST"#OP, vr_conv_verrou_NEAREST##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_NEAREST"#OP, vr_conv_verrou_NEAREST##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_NEAREST"#OP, vr_unfused_conv_verrou_NEAREST##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -52,45 +70,65 @@ if(vr.roundingMode==VR_RANDOM){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_soft"#OP, vr_unfused_verrou_RANDOM_soft##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_soft"#OP, vr_unfused_verrou_RANDOM_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_soft"#OP, vr_verrou_RANDOM_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_soft"#OP, vr_unfused_verrou_RANDOM_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_soft"#OP, vr_conv_verrou_RANDOM_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_soft"#OP, vr_conv_verrou_RANDOM_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_soft"#OP, vr_unfused_conv_verrou_RANDOM_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM"#OP, vr_unfused_verrou_RANDOM##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM"#OP, vr_unfused_verrou_RANDOM##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM"#OP, vr_verrou_RANDOM##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM"#OP, vr_unfused_verrou_RANDOM##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM"#OP, vr_conv_verrou_RANDOM##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM"#OP, vr_conv_verrou_RANDOM##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM"#OP, vr_unfused_conv_verrou_RANDOM##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -99,45 +137,65 @@ if(vr.roundingMode==VR_AVERAGE){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_soft"#OP, vr_unfused_verrou_AVERAGE_soft##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_soft"#OP, vr_unfused_verrou_AVERAGE_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_soft"#OP, vr_verrou_AVERAGE_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_soft"#OP, vr_unfused_verrou_AVERAGE_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_soft"#OP, vr_conv_verrou_AVERAGE_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_soft"#OP, vr_conv_verrou_AVERAGE_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_soft"#OP, vr_unfused_conv_verrou_AVERAGE_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE"#OP, vr_unfused_verrou_AVERAGE##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE"#OP, vr_unfused_verrou_AVERAGE##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE"#OP, vr_verrou_AVERAGE##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE"#OP, vr_unfused_verrou_AVERAGE##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE"#OP, vr_conv_verrou_AVERAGE##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE"#OP, vr_conv_verrou_AVERAGE##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE"#OP, vr_unfused_conv_verrou_AVERAGE##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -146,45 +204,65 @@ if(vr.roundingMode==VR_RANDOM_DET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET_soft"#OP, vr_unfused_verrou_RANDOM_DET_soft##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET_soft"#OP, vr_unfused_verrou_RANDOM_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_DET_soft"#OP, vr_verrou_RANDOM_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET_soft"#OP, vr_unfused_verrou_RANDOM_DET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_DET_soft"#OP, vr_conv_verrou_RANDOM_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_DET_soft"#OP, vr_conv_verrou_RANDOM_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_DET_soft"#OP, vr_unfused_conv_verrou_RANDOM_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET"#OP, vr_unfused_verrou_RANDOM_DET##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET"#OP, vr_unfused_verrou_RANDOM_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_DET"#OP, vr_verrou_RANDOM_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_DET"#OP, vr_unfused_verrou_RANDOM_DET##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_DET"#OP, vr_conv_verrou_RANDOM_DET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_DET"#OP, vr_conv_verrou_RANDOM_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_DET"#OP, vr_unfused_conv_verrou_RANDOM_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -193,45 +271,65 @@ if(vr.roundingMode==VR_AVERAGE_DET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET_soft"#OP, vr_unfused_verrou_AVERAGE_DET_soft##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET_soft"#OP, vr_unfused_verrou_AVERAGE_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET_soft"#OP, vr_verrou_AVERAGE_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET_soft"#OP, vr_unfused_verrou_AVERAGE_DET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_DET_soft"#OP, vr_conv_verrou_AVERAGE_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_DET_soft"#OP, vr_conv_verrou_AVERAGE_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_DET_soft"#OP, vr_unfused_conv_verrou_AVERAGE_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET"#OP, vr_unfused_verrou_AVERAGE_DET##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET"#OP, vr_unfused_verrou_AVERAGE_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_DET"#OP, vr_verrou_AVERAGE_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_DET"#OP, vr_unfused_verrou_AVERAGE_DET##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_DET"#OP, vr_conv_verrou_AVERAGE_DET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_DET"#OP, vr_conv_verrou_AVERAGE_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_DET"#OP, vr_unfused_conv_verrou_AVERAGE_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -240,45 +338,65 @@ if(vr.roundingMode==VR_RANDOM_COMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET_soft"#OP, vr_unfused_verrou_RANDOM_COMDET_soft##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET_soft"#OP, vr_unfused_verrou_RANDOM_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET_soft"#OP, vr_verrou_RANDOM_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET_soft"#OP, vr_unfused_verrou_RANDOM_COMDET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_COMDET_soft"#OP, vr_conv_verrou_RANDOM_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_COMDET_soft"#OP, vr_conv_verrou_RANDOM_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_COMDET_soft"#OP, vr_unfused_conv_verrou_RANDOM_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET"#OP, vr_unfused_verrou_RANDOM_COMDET##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET"#OP, vr_unfused_verrou_RANDOM_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_COMDET"#OP, vr_verrou_RANDOM_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_COMDET"#OP, vr_unfused_verrou_RANDOM_COMDET##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_COMDET"#OP, vr_conv_verrou_RANDOM_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_COMDET"#OP, vr_conv_verrou_RANDOM_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_COMDET"#OP, vr_unfused_conv_verrou_RANDOM_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -287,45 +405,65 @@ if(vr.roundingMode==VR_AVERAGE_COMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET_soft"#OP, vr_unfused_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET_soft"#OP, vr_unfused_verrou_AVERAGE_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET_soft"#OP, vr_verrou_AVERAGE_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET_soft"#OP, vr_unfused_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_COMDET_soft"#OP, vr_conv_verrou_AVERAGE_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_COMDET_soft"#OP, vr_conv_verrou_AVERAGE_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_COMDET_soft"#OP, vr_unfused_conv_verrou_AVERAGE_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET"#OP, vr_unfused_verrou_AVERAGE_COMDET##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET"#OP, vr_unfused_verrou_AVERAGE_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_COMDET"#OP, vr_verrou_AVERAGE_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_COMDET"#OP, vr_unfused_verrou_AVERAGE_COMDET##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_COMDET"#OP, vr_conv_verrou_AVERAGE_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_COMDET"#OP, vr_conv_verrou_AVERAGE_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_COMDET"#OP, vr_unfused_conv_verrou_AVERAGE_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -334,45 +472,65 @@ if(vr.roundingMode==VR_RANDOM_SCOMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET_soft"#OP, vr_unfused_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET_soft"#OP, vr_unfused_verrou_RANDOM_SCOMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET_soft"#OP, vr_verrou_RANDOM_SCOMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET_soft"#OP, vr_unfused_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_SCOMDET_soft"#OP, vr_conv_verrou_RANDOM_SCOMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_SCOMDET_soft"#OP, vr_conv_verrou_RANDOM_SCOMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_SCOMDET_soft"#OP, vr_unfused_conv_verrou_RANDOM_SCOMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET"#OP, vr_unfused_verrou_RANDOM_SCOMDET##OP
 #define bcNameConv(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET"#OP, vr_unfused_verrou_RANDOM_SCOMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_RANDOM_SCOMDET"#OP, vr_verrou_RANDOM_SCOMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_RANDOM_SCOMDET"#OP, vr_unfused_verrou_RANDOM_SCOMDET##OP
 #define bcNameConv(OP) "vr_conv_verrou_RANDOM_SCOMDET"#OP, vr_conv_verrou_RANDOM_SCOMDET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_RANDOM_SCOMDET"#OP, vr_conv_verrou_RANDOM_SCOMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_RANDOM_SCOMDET"#OP, vr_unfused_conv_verrou_RANDOM_SCOMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -381,45 +539,65 @@ if(vr.roundingMode==VR_AVERAGE_SCOMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET_soft"#OP, vr_unfused_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET_soft"#OP, vr_unfused_verrou_AVERAGE_SCOMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET_soft"#OP, vr_verrou_AVERAGE_SCOMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET_soft"#OP, vr_unfused_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_SCOMDET_soft"#OP, vr_conv_verrou_AVERAGE_SCOMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_SCOMDET_soft"#OP, vr_conv_verrou_AVERAGE_SCOMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_SCOMDET_soft"#OP, vr_unfused_conv_verrou_AVERAGE_SCOMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET"#OP, vr_unfused_verrou_AVERAGE_SCOMDET##OP
 #define bcNameConv(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET"#OP, vr_unfused_verrou_AVERAGE_SCOMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_AVERAGE_SCOMDET"#OP, vr_verrou_AVERAGE_SCOMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AVERAGE_SCOMDET"#OP, vr_unfused_verrou_AVERAGE_SCOMDET##OP
 #define bcNameConv(OP) "vr_conv_verrou_AVERAGE_SCOMDET"#OP, vr_conv_verrou_AVERAGE_SCOMDET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AVERAGE_SCOMDET"#OP, vr_conv_verrou_AVERAGE_SCOMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AVERAGE_SCOMDET"#OP, vr_unfused_conv_verrou_AVERAGE_SCOMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -428,45 +606,65 @@ if(vr.roundingMode==VR_SR_MONOTONIC){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC_soft"#OP, vr_unfused_verrou_SR_MONOTONIC_soft##OP
 #define bcNameConv(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC_soft"#OP, vr_unfused_verrou_SR_MONOTONIC_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC_soft"#OP, vr_verrou_SR_MONOTONIC_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC_soft"#OP, vr_unfused_verrou_SR_MONOTONIC_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_SR_MONOTONIC_soft"#OP, vr_conv_verrou_SR_MONOTONIC_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_SR_MONOTONIC_soft"#OP, vr_conv_verrou_SR_MONOTONIC_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_SR_MONOTONIC_soft"#OP, vr_unfused_conv_verrou_SR_MONOTONIC_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC"#OP, vr_unfused_verrou_SR_MONOTONIC##OP
 #define bcNameConv(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
 #define bcNameConvWithCC(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC"#OP, vr_unfused_verrou_SR_MONOTONIC##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_MONOTONIC"#OP, vr_verrou_SR_MONOTONIC##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_MONOTONIC"#OP, vr_unfused_verrou_SR_MONOTONIC##OP
 #define bcNameConv(OP) "vr_conv_verrou_SR_MONOTONIC"#OP, vr_conv_verrou_SR_MONOTONIC##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_SR_MONOTONIC"#OP, vr_conv_verrou_SR_MONOTONIC##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_SR_MONOTONIC"#OP, vr_unfused_conv_verrou_SR_MONOTONIC##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -475,45 +673,65 @@ if(vr.roundingMode==VR_SR_SMONOTONIC){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC_soft"#OP, vr_unfused_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameConv(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC_soft"#OP, vr_unfused_verrou_SR_SMONOTONIC_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_SMONOTONIC_soft"#OP, vr_verrou_SR_SMONOTONIC_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC_soft"#OP, vr_unfused_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_SR_SMONOTONIC_soft"#OP, vr_conv_verrou_SR_SMONOTONIC_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_SR_SMONOTONIC_soft"#OP, vr_conv_verrou_SR_SMONOTONIC_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_SR_SMONOTONIC_soft"#OP, vr_unfused_conv_verrou_SR_SMONOTONIC_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC"#OP, vr_unfused_verrou_SR_SMONOTONIC##OP
 #define bcNameConv(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
 #define bcNameConvWithCC(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC"#OP, vr_unfused_verrou_SR_SMONOTONIC##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
 #define bcNameWithCC(OP) "vr_verrou_SR_SMONOTONIC"#OP, vr_verrou_SR_SMONOTONIC##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_SR_SMONOTONIC"#OP, vr_unfused_verrou_SR_SMONOTONIC##OP
 #define bcNameConv(OP) "vr_conv_verrou_SR_SMONOTONIC"#OP, vr_conv_verrou_SR_SMONOTONIC##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_SR_SMONOTONIC"#OP, vr_conv_verrou_SR_SMONOTONIC##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_SR_SMONOTONIC"#OP, vr_unfused_conv_verrou_SR_SMONOTONIC##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -522,45 +740,65 @@ if(vr.roundingMode==VR_UPWARD){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_UPWARD_soft"#OP, vr_unfused_verrou_UPWARD_soft##OP
 #define bcNameConv(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_UPWARD_soft"#OP, vr_unfused_verrou_UPWARD_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_UPWARD_soft"#OP, vr_verrou_UPWARD_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_UPWARD_soft"#OP, vr_unfused_verrou_UPWARD_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_UPWARD_soft"#OP, vr_conv_verrou_UPWARD_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_UPWARD_soft"#OP, vr_conv_verrou_UPWARD_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_UPWARD_soft"#OP, vr_unfused_conv_verrou_UPWARD_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
 #define bcNameWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_UPWARD"#OP, vr_unfused_verrou_UPWARD##OP
 #define bcNameConv(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
 #define bcNameConvWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_UPWARD"#OP, vr_unfused_verrou_UPWARD##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
 #define bcNameWithCC(OP) "vr_verrou_UPWARD"#OP, vr_verrou_UPWARD##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_UPWARD"#OP, vr_unfused_verrou_UPWARD##OP
 #define bcNameConv(OP) "vr_conv_verrou_UPWARD"#OP, vr_conv_verrou_UPWARD##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_UPWARD"#OP, vr_conv_verrou_UPWARD##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_UPWARD"#OP, vr_unfused_conv_verrou_UPWARD##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -569,45 +807,65 @@ if(vr.roundingMode==VR_DOWNWARD){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD_soft"#OP, vr_unfused_verrou_DOWNWARD_soft##OP
 #define bcNameConv(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD_soft"#OP, vr_unfused_verrou_DOWNWARD_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_DOWNWARD_soft"#OP, vr_verrou_DOWNWARD_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD_soft"#OP, vr_unfused_verrou_DOWNWARD_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_DOWNWARD_soft"#OP, vr_conv_verrou_DOWNWARD_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_DOWNWARD_soft"#OP, vr_conv_verrou_DOWNWARD_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_DOWNWARD_soft"#OP, vr_unfused_conv_verrou_DOWNWARD_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
 #define bcNameWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD"#OP, vr_unfused_verrou_DOWNWARD##OP
 #define bcNameConv(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
 #define bcNameConvWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD"#OP, vr_unfused_verrou_DOWNWARD##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
 #define bcNameWithCC(OP) "vr_verrou_DOWNWARD"#OP, vr_verrou_DOWNWARD##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_DOWNWARD"#OP, vr_unfused_verrou_DOWNWARD##OP
 #define bcNameConv(OP) "vr_conv_verrou_DOWNWARD"#OP, vr_conv_verrou_DOWNWARD##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_DOWNWARD"#OP, vr_conv_verrou_DOWNWARD##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_DOWNWARD"#OP, vr_unfused_conv_verrou_DOWNWARD##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -616,45 +874,65 @@ if(vr.roundingMode==VR_ZERO){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ZERO_soft"#OP, vr_unfused_verrou_ZERO_soft##OP
 #define bcNameConv(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ZERO_soft"#OP, vr_unfused_verrou_ZERO_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_ZERO_soft"#OP, vr_verrou_ZERO_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ZERO_soft"#OP, vr_unfused_verrou_ZERO_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_ZERO_soft"#OP, vr_conv_verrou_ZERO_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ZERO_soft"#OP, vr_conv_verrou_ZERO_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ZERO_soft"#OP, vr_unfused_conv_verrou_ZERO_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
 #define bcNameWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ZERO"#OP, vr_unfused_verrou_ZERO##OP
 #define bcNameConv(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ZERO"#OP, vr_unfused_verrou_ZERO##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
 #define bcNameWithCC(OP) "vr_verrou_ZERO"#OP, vr_verrou_ZERO##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ZERO"#OP, vr_unfused_verrou_ZERO##OP
 #define bcNameConv(OP) "vr_conv_verrou_ZERO"#OP, vr_conv_verrou_ZERO##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ZERO"#OP, vr_conv_verrou_ZERO##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ZERO"#OP, vr_unfused_conv_verrou_ZERO##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -663,45 +941,65 @@ if(vr.roundingMode==VR_AWAY_ZERO){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO_soft"#OP, vr_unfused_verrou_AWAY_ZERO_soft##OP
 #define bcNameConv(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO_soft"#OP, vr_unfused_verrou_AWAY_ZERO_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO_soft"#OP, vr_verrou_AWAY_ZERO_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO_soft"#OP, vr_unfused_verrou_AWAY_ZERO_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_AWAY_ZERO_soft"#OP, vr_conv_verrou_AWAY_ZERO_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AWAY_ZERO_soft"#OP, vr_conv_verrou_AWAY_ZERO_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AWAY_ZERO_soft"#OP, vr_unfused_conv_verrou_AWAY_ZERO_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
 #define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO"#OP, vr_unfused_verrou_AWAY_ZERO##OP
 #define bcNameConv(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
 #define bcNameConvWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO"#OP, vr_unfused_verrou_AWAY_ZERO##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
 #define bcNameWithCC(OP) "vr_verrou_AWAY_ZERO"#OP, vr_verrou_AWAY_ZERO##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_AWAY_ZERO"#OP, vr_unfused_verrou_AWAY_ZERO##OP
 #define bcNameConv(OP) "vr_conv_verrou_AWAY_ZERO"#OP, vr_conv_verrou_AWAY_ZERO##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_AWAY_ZERO"#OP, vr_conv_verrou_AWAY_ZERO##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_AWAY_ZERO"#OP, vr_unfused_conv_verrou_AWAY_ZERO##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -710,45 +1008,65 @@ if(vr.roundingMode==VR_FARTHEST){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST_soft"#OP, vr_unfused_verrou_FARTHEST_soft##OP
 #define bcNameConv(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST_soft"#OP, vr_unfused_verrou_FARTHEST_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST_soft"#OP, vr_verrou_FARTHEST_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST_soft"#OP, vr_unfused_verrou_FARTHEST_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_FARTHEST_soft"#OP, vr_conv_verrou_FARTHEST_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_FARTHEST_soft"#OP, vr_conv_verrou_FARTHEST_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_FARTHEST_soft"#OP, vr_unfused_conv_verrou_FARTHEST_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST"#OP, vr_unfused_verrou_FARTHEST##OP
 #define bcNameConv(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
 #define bcNameConvWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST"#OP, vr_unfused_verrou_FARTHEST##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
 #define bcNameWithCC(OP) "vr_verrou_FARTHEST"#OP, vr_verrou_FARTHEST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_FARTHEST"#OP, vr_unfused_verrou_FARTHEST##OP
 #define bcNameConv(OP) "vr_conv_verrou_FARTHEST"#OP, vr_conv_verrou_FARTHEST##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_FARTHEST"#OP, vr_conv_verrou_FARTHEST##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_FARTHEST"#OP, vr_unfused_conv_verrou_FARTHEST##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -757,23 +1075,33 @@ if(vr.roundingMode==VR_FLOAT){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_verrou_FLOAT_soft"#OP, vr_verrou_FLOAT_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_FLOAT_soft"#OP, vr_verrou_FLOAT_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_FLOAT_soft"#OP, vr_unfused_verrou_FLOAT_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_conv_verrou_FLOAT_soft"#OP, vr_conv_verrou_FLOAT_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_FLOAT_soft"#OP, vr_conv_verrou_FLOAT_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_FLOAT_soft"#OP, vr_unfused_conv_verrou_FLOAT_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 
 
@@ -781,23 +1109,33 @@ if(vr.roundingMode==VR_FLOAT){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_verrou_FLOAT"#OP, vr_verrou_FLOAT##OP
 #define bcNameConvWithCC(OP) "vr_verrou_FLOAT"#OP, vr_verrou_FLOAT##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_FLOAT"#OP, vr_unfused_verrou_FLOAT##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
 #define bcNameWithCC(OP) "vr_verrou_NEAREST"#OP, vr_verrou_NEAREST##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_NEAREST"#OP, vr_unfused_verrou_NEAREST##OP
 #define bcNameConv(OP) "vr_conv_verrou_FLOAT"#OP, vr_conv_verrou_FLOAT##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_FLOAT"#OP, vr_conv_verrou_FLOAT##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_FLOAT"#OP, vr_unfused_conv_verrou_FLOAT##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 
 
@@ -808,45 +1146,65 @@ if(vr.roundingMode==VR_PRANDOM){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_soft"#OP, vr_unfused_verrou_PRANDOM_soft##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_soft"#OP, vr_unfused_verrou_PRANDOM_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_soft"#OP, vr_verrou_PRANDOM_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_soft"#OP, vr_unfused_verrou_PRANDOM_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM_soft"#OP, vr_conv_verrou_PRANDOM_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM_soft"#OP, vr_conv_verrou_PRANDOM_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM_soft"#OP, vr_unfused_conv_verrou_PRANDOM_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM"#OP, vr_unfused_verrou_PRANDOM##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM"#OP, vr_unfused_verrou_PRANDOM##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM"#OP, vr_verrou_PRANDOM##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM"#OP, vr_unfused_verrou_PRANDOM##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM"#OP, vr_conv_verrou_PRANDOM##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM"#OP, vr_conv_verrou_PRANDOM##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM"#OP, vr_unfused_conv_verrou_PRANDOM##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -855,45 +1213,65 @@ if(vr.roundingMode==VR_PRANDOM_DET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET_soft"#OP, vr_unfused_verrou_PRANDOM_DET_soft##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET_soft"#OP, vr_unfused_verrou_PRANDOM_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET_soft"#OP, vr_verrou_PRANDOM_DET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET_soft"#OP, vr_unfused_verrou_PRANDOM_DET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM_DET_soft"#OP, vr_conv_verrou_PRANDOM_DET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM_DET_soft"#OP, vr_conv_verrou_PRANDOM_DET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM_DET_soft"#OP, vr_unfused_conv_verrou_PRANDOM_DET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET"#OP, vr_unfused_verrou_PRANDOM_DET##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET"#OP, vr_unfused_verrou_PRANDOM_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_DET"#OP, vr_verrou_PRANDOM_DET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_DET"#OP, vr_unfused_verrou_PRANDOM_DET##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM_DET"#OP, vr_conv_verrou_PRANDOM_DET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM_DET"#OP, vr_conv_verrou_PRANDOM_DET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM_DET"#OP, vr_unfused_conv_verrou_PRANDOM_DET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -902,45 +1280,65 @@ if(vr.roundingMode==VR_PRANDOM_COMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET_soft"#OP, vr_unfused_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET_soft"#OP, vr_unfused_verrou_PRANDOM_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET_soft"#OP, vr_verrou_PRANDOM_COMDET_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET_soft"#OP, vr_unfused_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM_COMDET_soft"#OP, vr_conv_verrou_PRANDOM_COMDET_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM_COMDET_soft"#OP, vr_conv_verrou_PRANDOM_COMDET_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM_COMDET_soft"#OP, vr_unfused_conv_verrou_PRANDOM_COMDET_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}else{//instrument hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET"#OP, vr_unfused_verrou_PRANDOM_COMDET##OP
 #define bcNameConv(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET"#OP, vr_unfused_verrou_PRANDOM_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
 #define bcNameWithCC(OP) "vr_verrou_PRANDOM_COMDET"#OP, vr_verrou_PRANDOM_COMDET##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_PRANDOM_COMDET"#OP, vr_unfused_verrou_PRANDOM_COMDET##OP
 #define bcNameConv(OP) "vr_conv_verrou_PRANDOM_COMDET"#OP, vr_conv_verrou_PRANDOM_COMDET##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_PRANDOM_COMDET"#OP, vr_conv_verrou_PRANDOM_COMDET##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_PRANDOM_COMDET"#OP, vr_unfused_conv_verrou_PRANDOM_COMDET##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 	}
 }
@@ -949,46 +1347,66 @@ if(vr.roundingMode==VR_PRANDOM_COMDET){
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_soft"#OP, vr_unfused_verrou_soft##OP
 #define bcNameConv(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_soft"#OP, vr_unfused_verrou_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_soft"#OP, vr_verrou_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_soft"#OP, vr_unfused_verrou_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_soft"#OP, vr_conv_verrou_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_soft"#OP, vr_conv_verrou_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_soft"#OP, vr_unfused_conv_verrou_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 
 	}else{//hard
 	if(!vr.float_conv){
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou"#OP, vr_unfused_verrou##OP
 #define bcNameConv(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameConvWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou"#OP, vr_unfused_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+
 	}else{//vr.float_conv
 #define bcName(OP) "vr_verrou"#OP, vr_verrou##OP
 #define bcNameWithCC(OP) "vr_verrou"#OP, vr_verrou##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou"#OP, vr_unfused_verrou##OP
 #define bcNameConv(OP) "vr_conv_verrou"#OP, vr_conv_verrou##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou"#OP, vr_conv_verrou##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou"#OP, vr_unfused_conv_verrou##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+
 	}//end float_conv
 
 	}//end vr.instrument_soft_used)

@@ -5,24 +5,34 @@ import sys
 includePatternHardWithoutConv="""
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING"#OP, vr_unfused_verrou_ROUNDING##OP
 #define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING"#OP, vr_unfused_verrou_ROUNDING##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
-#undef bcNameConvWithCC"""
+#undef bcNameConvWithCC
+#undef bcNameConvWithCCUnfused
+#undef bcNameWithCCUnfused
+"""
 
 includePatternHardWithConv="""
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING"#OP, vr_unfused_verrou_ROUNDING##OP
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING"#OP, vr_conv_verrou_ROUNDING##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING"#OP, vr_unfused_conv_verrou_ROUNDING##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
-#undef bcNameConvWithCC"""
+#undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+"""
 
 floatConvPattern="""\tif(!vr.float_conv){%s\n\t}else{//vr.float_conv%s\n\t}//end float_conv\n"""
 
@@ -31,47 +41,65 @@ includePatternHard=floatConvPattern%(includePatternHardWithoutConv,includePatter
 includePatternSoftWithoutConv="""
 #define bcName(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #define bcNameConv(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
-#undef bcNameConvWithCC"""
+#undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+"""
 
 includePatternSoftWithConv="""
 #define bcName(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING_soft"#OP, vr_verrou_ROUNDING_soft##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING_soft"#OP, vr_unfused_conv_verrou_ROUNDING_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
-#undef bcNameConvWithCC"""
+#undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
+"""
 
 includePatternSoft=floatConvPattern%(includePatternSoftWithoutConv, includePatternSoftWithConv)
 
 includePatternSoftNearest="""\tif(!vr.float_conv){
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #define bcNameConv(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameConvWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 \t}else{//vr.float_conv
 #define bcName(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
 #define bcNameWithCC(OP) "vr_verrou_ROUNDING"#OP, vr_verrou_ROUNDING##OP
+#define bcNameWithCCUnfused(OP) "vr_unfused_verrou_ROUNDING_soft"#OP, vr_unfused_verrou_ROUNDING_soft##OP
 #define bcNameConv(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
 #define bcNameConvWithCC(OP) "vr_conv_verrou_ROUNDING_soft"#OP, vr_conv_verrou_ROUNDING_soft##OP
+#define bcNameConvWithCCUnfused(OP) "vr_unfused_conv_verrou_ROUNDING_soft"#OP, vr_unfused_conv_verrou_ROUNDING_soft##OP
 #include "vr_instrumentOp_impl.h"
 #undef bcName
 #undef bcNameWithCC
 #undef bcNameConv
 #undef bcNameConvWithCC
+#undef bcNameWithCCUnfused
+#undef bcNameConvWithCCUnfused
 \t}//end float_conv
 """
 

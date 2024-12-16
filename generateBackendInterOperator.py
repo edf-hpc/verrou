@@ -27,6 +27,40 @@
 import sys
 import re
 
+FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+FctConvNameRegExp=re.compile("(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
+FctNameUnfusedRegExp=re.compile("(.*)FCTNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
+FctConvNameUnfusedRegExp=re.compile("(.*)FCTCONVNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
+BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
+BckNameFirstRegExp=re.compile("(.*)BACKEND_FIRST_FUNC\(([^)]*)\)(.*)")
+BckNameSecondRegExp=re.compile("(.*)BACKEND_SECOND_FUNC\(([^)]*)\)(.*)")
+BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
+
+
+def mergeFused(tab,tmpVar="res_temp"):
+    fusedTab=[]
+    for i in range(len(tab)):
+        line=tab[i]
+        if tmpVar+";" in line:
+            tab[i]= "//"+line
+
+        if "_FIRST_" in line:
+            prefix=tab[0:max(0,i-1)]
+            first=tab[i]
+            second=tab[i+1]
+            postfix=tab[i+2:]
+            break
+    if not "_SECOND_" in second:
+            print("Generation failure")
+    return [line for line in prefix] + [mergeTwoLines(first,second, tmpVar)] +[line for line in postfix]
+
+def mergeTwoLines(first,second, varInter):
+    first=first.replace("_FIRST_","")
+    second=second.replace("_SECOND_","")
+    res=(first.partition("&"+varInter))[0] + (second.partition(varInter+","))[2]
+    return res
+
+
 def treatBackend(tab, soft):
     if soft==False:
         return tab
@@ -34,24 +68,33 @@ def treatBackend(tab, soft):
         res=["if(vr.instrument_soft){\n"]
         res+=tab
         res+=["}else{\n"]
-        res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for line in tab]
+        if any(["BACKEND_FIRST" in line for line in tab]):
+            res+=mergeFused(tab)
+        else:
+            res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for line in tab]
         res+=["}\n"]
         return res
 
 
-def transformTemplateForSoftStopStart(nameRegExp,convNameRegExp,
-                                      lineTab, soft=False, only64=False):
+def transformTemplateForSoftStopStart(lineTab, soft=False, only64=False):
     func=[]
     dicOfFunc={}
 
     splitActive=False
     tab=[]
     for line in lineTab:
-        result=nameRegExp.match(line)  #"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
-        if result!=None:
-            typeVal=result.group(2)
-            opt=result.group(3)
-            newName="FCTNAME("+typeVal+","+opt+")"
+        resultRegExp=None
+        for (FCTNAME, regExp) in [("FCTNAME", FctNameRegExp),
+                                  ("FCTCONVNAME", FctConvNameRegExp),
+                                  ("FCTNAMEUNFUSED", FctNameUnfusedRegExp),
+                                  ("FCTCONVNAMEUNFUSED", FctConvNameUnfusedRegExp)]:
+            resultRegExp=regExp.match(line)  #"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+            if resultRegExp!=None:
+                break
+        if resultRegExp!=None:
+            typeVal=resultRegExp.group(2)
+            opt=resultRegExp.group(3)
+            newName=FCTNAME+"("+typeVal+","+opt+")"
             if splitActive:
                 dicOfFunc[currentName]=tab
                 currentName=newName
@@ -61,19 +104,6 @@ def transformTemplateForSoftStopStart(nameRegExp,convNameRegExp,
                 splitActive=True
                 currentName=newName
 
-        result=convNameRegExp.match(line)  #"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
-        if result!=None:
-            typeVal=result.group(2)
-            opt=result.group(3)
-            newName="FCTCONVNAME("+typeVal+","+opt+")"
-            if splitActive:
-                dicOfFunc[currentName]=tab
-                currentName=newName
-                tab=[line]
-                continue
-            else:
-                splitActive=True
-                currentName=newName
         if splitActive:
             tab+=[line]
     dicOfFunc[currentName]=tab
@@ -92,7 +122,7 @@ def transformTemplateForSoftStopStart(nameRegExp,convNameRegExp,
 def transformTemplateForSoftStopStartOneFunction(lineTab, soft):
     res=[]
     back=[]
-    status="pre"
+    status="around"
     for line in lineTab:
         if "PREBACKEND" in line:
             status="back"
@@ -100,9 +130,9 @@ def transformTemplateForSoftStopStartOneFunction(lineTab, soft):
         if "POSTBACKEND" in line:
             res+=treatBackend(back,soft)
             back=[]
-            status="pre"
+            status="around"
             continue
-        if status=="pre":
+        if status=="around":
             res+=[line]
         if status=="back":
             back+=[line]
@@ -111,7 +141,6 @@ def transformTemplateForSoftStopStartOneFunction(lineTab, soft):
 def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft):
     if soft==False:
         return transformTemplateForSoftStopStartOneFunction(lineTabConv,soft)
-
     res=[lineTabConv[0]]
     remain=lineTabConv[1:]
     while remain[-1].strip()!="}":
@@ -128,12 +157,14 @@ def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft)
     remain=lineTab[1:]
     while remain[-1].strip()!="}":
         remain=remain[0:-1]
-
+    elseInstrumentBock=[]
     for x in remain[0:-1]:
         if ("PREBACKEND" in x) or ("POSTBACKEND" in x):
             continue
-        res+=[x.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT")]
-
+        elseInstrumentBock+=[x]
+    if any(["BACKEND_FIRST" in line for line in elseInstrumentBock]):
+        elseInstrumentBock=mergeFused(elseInstrumentBock)
+    res+=[x.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for x in elseInstrumentBock]
     res+=["}\n}\n\n"]
     return res
 
@@ -144,13 +175,7 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
     commentConv=False
     templateStr=open(fileNameTemplate, "r").readlines()
 
-    FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
-    FctConvNameRegExp=re.compile("(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
-    templateStr=transformTemplateForSoftStopStart(FctNameRegExp, FctConvNameRegExp,  templateStr, soft, only64)
-
-    BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
-    BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
-
+    templateStr=transformTemplateForSoftStopStart(templateStr, soft, only64)
     if post in ["check_float_max"]:
         commentConv=True
 
@@ -161,40 +186,52 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
         for op in listOfOp:
             for rounding in roundingTab:
                 if nargs in [1,2]:
-                    applyTemplate(fileOut, templateStr, FctNameRegExp, FctConvNameRegExp, BckNameRegExp, BckNameNearestRegExp, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv)
+                    applyTemplate(fileOut, templateStr, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv)
                 if nargs==3:
                     sign=""
                     if "msub" in op:
                         sign="-"
-                    applyTemplate(fileOut, templateStr, FctNameRegExp, FctConvNameRegExp, BckNameRegExp,BckNameNearestRegExp, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv)
+                    applyTemplate(fileOut, templateStr, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv)
         if backend=="mcaquad":
             fileOut.write("#endif //USE_VERROU_QUADMATH\n")
 
 
-def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, BckNearestRegExp, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):
+def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):
     fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
     backendFunc=backend
     if rounding!=None:
         backendFunc=backend+"_"+rounding
 
-    def fctName(conv,typeVal,opt):
+    def fctName(unfused,conv,typeVal,opt):
         vrPrefix="vr_"
+        if unfused:
+            vrPrefix+="unfused_"
         if conv:
-            vrPrefix="vr_conv_"
+            vrPrefix+="conv_"
         if soft:
             return vrPrefix+backendFunc+post+"_soft"+op+typeVal+opt
         else:
             return vrPrefix+backendFunc+post+op+typeVal+opt
 
-    def bckName(typeVal):
-        if sign!="-":
-            if rounding!=None:
-                return "interflop_"+backend+"_"+op+"_"+typeVal+"_"+rounding
-            return "interflop_"+backend+"_"+op+"_"+typeVal
-        else:
-            if rounding!=None:
-                return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal+"_"+rounding
-            return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal
+    def localOp(first):
+        localOp=op
+        if sign=="-":
+            localOp=op.replace("sub","add")
+        if op in ["madd","msub"] and first!=None:
+            if first==True:
+                localOp="mul"
+            if first==False:
+                if op=="madd":
+                    localOp="add"
+                else:
+                    localOp="sub"
+        return localOp
+
+    def bckName(typeVal, first=None):
+        if rounding!=None:
+            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+"_"+rounding
+        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal
+
     def bckNearestName(typeVal):
         if rounding!=None:
             return (bckName(typeVal)).replace(rounding,"NEAREST")
@@ -203,11 +240,11 @@ def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, Bck
         else:
             return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+"_NEAREST"
 
-    def bckNamePost(typeVal):
-        if sign!="-":
-            return "interflop_"+post+"_"+op+"_"+typeVal
-        else:
-            return "interflop_"+post+"_"+op.replace("sub","add")+"_"+typeVal
+    def bckNamePost(typeVal,first=None):
+        bop=localOp(first)
+        if bop in ["mul"] and post=="checkcancellation":
+            return None
+        return "interflop_"+post+"_"+bop+"_"+typeVal
 
 
     contextName="backend_"+backend+"_context"
@@ -241,18 +278,13 @@ def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, Bck
             else:
                 print("Generation failed")
                 sys.exit()
-        result=FctRegExp.match(line)
-        if result!=None:
-            comment=False
 
-            typeVal=result.group(2)
-            opt=result.group(3)
-            if rounding=="NEAREST" and soft:
-                comment=True
-            res=result.group(1) + fctName(False,typeVal, opt) + result.group(4)
-            outputRes(res,comment)
-            continue
-        result=FctConvRegExp.match(line)
+
+        result=FctConvNameRegExp.match(line)
+        fused=False
+        if result==None:
+            result=FctConvNameUnfusedRegExp.match(line)
+            fused=True
         if result!=None:
             if commentConv:
                 comment=True
@@ -260,20 +292,47 @@ def applyTemplate(fileOut, templateStr, FctRegExp, FctConvRegExp, BckRegExp, Bck
                 comment=False
             typeVal=result.group(2)
             opt=result.group(3)
-            res=result.group(1) + fctName(True, typeVal, opt) + result.group(4)
+            res=result.group(1) + fctName(fused,True, typeVal, opt) + result.group(4)
             outputRes(res,comment)
-            continue
-        result=BckRegExp.match(line)
-        if result!=None:
-            res=result.group(1) + bckName(result.group(2)) + result.group(3)
-            outputRes(res,comment)
-            if post!="":
-                res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
-                res=res.replace(contextName, contextNamePost)
-                outputRes(res,comment)
             continue
 
-        result=BckNearestRegExp.match(line)
+        result=FctNameRegExp.match(line)
+        unfused=False
+        if result==None:
+            result=FctNameUnfusedRegExp.match(line)
+            unfused=True
+        if result!=None:
+            comment=False
+            typeVal=result.group(2)
+            opt=result.group(3)
+            if rounding=="NEAREST" and soft and (not unfused):
+                comment=True
+            res=result.group(1) + fctName(unfused,False,typeVal, opt) + result.group(4)
+            outputRes(res,comment)
+            continue
+
+        result=None
+        first=None
+        for (rgExp,firstVar) in [(BckNameFirstRegExp, True), (BckNameSecondRegExp,False) , (BckNameRegExp,None)]:
+            result=rgExp.match(line)
+            if result!=None:
+                first=firstVar
+                break
+        if result!=None:
+            group3=result.group(3)
+            if first==False:
+                group3=group3.replace(" - "," ")
+            res=result.group(1) + bckName(result.group(2),first) + group3
+            outputRes(res,comment)
+            if post!="":
+                bnPost=bckNamePost(result.group(2),first)
+                if bnPost!=None:
+                    res=result.group(1) + bnPost+ group3
+                    res=res.replace(contextName, contextNamePost)
+                    outputRes(res,comment)
+            continue
+
+        result=BckNameNearestRegExp.match(line)
         if result!=None:
             res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
             outputRes(res,comment)

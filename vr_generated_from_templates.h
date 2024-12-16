@@ -36952,6 +36952,65 @@ static VG_REGPARM(3) Int vr_verroumadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroumadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroumadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroumadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verroumsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -36997,6 +37056,65 @@ static VG_REGPARM(3) Int vr_verroumsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroumsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroumsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroumsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -37057,6 +37175,65 @@ static VG_REGPARM(3) Int vr_mcaquadmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  arg3f, &resf, backend_mcaquad_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend mcaquad
 static VG_REGPARM(3) Long vr_mcaquadmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37102,6 +37279,65 @@ static VG_REGPARM(3) Int vr_mcaquadmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, arg3f, &resf, backend_mcaquad_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -37162,6 +37398,65 @@ static VG_REGPARM(3) Int vr_checkdenormmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  arg3f, &resf, backend_checkdenorm_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend checkdenorm
 static VG_REGPARM(3) Long vr_checkdenormmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37207,6 +37502,65 @@ static VG_REGPARM(3) Int vr_checkdenormmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, arg3f, &resf, backend_checkdenorm_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -37288,6 +37642,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37354,6 +37790,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -37437,6 +37955,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquad_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
+}else{
+  interflop_mcaquad_madd_double(*arg1, *arg2,   *arg3, &res, backend_mcaquad_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquad_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  arg3f, &resf, backend_mcaquad_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquad_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
+}else{
+  interflop_mcaquad_madd_float(*arg1, *arg2,   *arg3, &res, backend_mcaquad_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend mcaquad
 static VG_REGPARM(3) Long vr_mcaquad_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37503,6 +38103,88 @@ if(vr.instrument_soft){
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquad_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
+}else{
+  interflop_mcaquad_madd_double(*arg1, *arg2,  - *arg3, &res, backend_mcaquad_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquad_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, arg3f, &resf, backend_mcaquad_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquad_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
+}else{
+  interflop_mcaquad_madd_float(*arg1, *arg2,  - *arg3, &res, backend_mcaquad_context);
 }
 #else
   float res=0.;
@@ -37586,6 +38268,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenorm_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
+}else{
+  interflop_checkdenorm_madd_double(*arg1, *arg2,   *arg3, &res, backend_checkdenorm_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenorm_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  arg3f, &resf, backend_checkdenorm_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenorm_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
+}else{
+  interflop_checkdenorm_madd_float(*arg1, *arg2,   *arg3, &res, backend_checkdenorm_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend checkdenorm
 static VG_REGPARM(3) Long vr_checkdenorm_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37660,6 +38424,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenorm_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
+}else{
+  interflop_checkdenorm_madd_double(*arg1, *arg2,  - *arg3, &res, backend_checkdenorm_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenorm_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, arg3f, &resf, backend_checkdenorm_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenorm_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
+}else{
+  interflop_checkdenorm_madd_float(*arg1, *arg2,  - *arg3, &res, backend_checkdenorm_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verroucheckcancellationmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37715,6 +38561,68 @@ static VG_REGPARM(3) Int vr_verroucheckcancellationmadd32F (Long a, Long b, Long
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroucheckcancellationmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verroucheckcancellationmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37763,6 +38671,68 @@ static VG_REGPARM(3) Int vr_verroucheckcancellationmsub32F (Long a, Long b, Long
   float res;
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroucheckcancellationmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -37826,6 +38796,68 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellationmadd32F (Long a, Long b, Lon
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  arg3f, &resf, backend_mcaquad_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellationmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend mcaquad
 static VG_REGPARM(3) Long vr_mcaquadcheckcancellationmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37874,6 +38906,68 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellationmsub32F (Long a, Long b, Lon
   float res;
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, arg3f, &resf, backend_mcaquad_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellationmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -37937,6 +39031,68 @@ static VG_REGPARM(3) Int vr_checkdenormcheckcancellationmadd32F (Long a, Long b,
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  arg3f, &resf, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellationmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend checkdenorm
 static VG_REGPARM(3) Long vr_checkdenormcheckcancellationmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -37985,6 +39141,68 @@ static VG_REGPARM(3) Int vr_checkdenormcheckcancellationmsub32F (Long a, Long b,
   float res;
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, arg3f, &resf, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellationmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -38069,6 +39287,93 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheckcancellation_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellation_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroucheckcancellation_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verroucheckcancellation_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38138,6 +39443,93 @@ if(vr.instrument_soft){
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheckcancellation_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellation_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verroucheckcancellation_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
 }
 #else
   float res=0.;
@@ -38224,6 +39616,93 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellation_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_mcaquad_madd_double(*arg1, *arg2,   *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellation_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  arg3f, &resf, backend_mcaquad_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellation_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_mcaquad_madd_float(*arg1, *arg2,   *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend mcaquad
 static VG_REGPARM(3) Long vr_mcaquadcheckcancellation_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38293,6 +39772,93 @@ if(vr.instrument_soft){
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellation_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_mcaquad_madd_double(*arg1, *arg2,  - *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellation_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_mcaquad_mul_float(arg1f, arg2f, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, arg3f, &resf, backend_mcaquad_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellation_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
+  interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_mcaquad_madd_float(*arg1, *arg2,  - *arg3, &res, backend_mcaquad_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
 }
 #else
   float res=0.;
@@ -38379,6 +39945,93 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellation_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_checkdenorm_madd_double(*arg1, *arg2,   *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellation_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  arg3f, &resf, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(res_temp,  arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellation_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_checkdenorm_madd_float(*arg1, *arg2,   *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,   *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend checkdenorm
 static VG_REGPARM(3) Long vr_checkdenormcheckcancellation_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38456,6 +40109,93 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellation_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_checkdenorm_madd_double(*arg1, *arg2,  - *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellation_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_checkdenorm_mul_float(arg1f, arg2f, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, arg3f, &resf, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(res_temp, arg3f, &resf, backend_checkcancellation_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellation_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
+  interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
+}else{
+  interflop_checkdenorm_madd_float(*arg1, *arg2,  - *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,  - *arg3, &res, backend_checkcancellation_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verroucheck_float_maxmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38511,6 +40251,71 @@ static VG_REGPARM(3) Int vr_verroucheck_float_maxmadd32F (Long a, Long b, Long c
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheck_float_maxmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_add_double(res_temp,  *arg3, &res, backend_check_float_max_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+/*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_maxmadd64F (Long a, Long b, Long c) {*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  float arg1f=*arg1;*/
+/*  float arg2f=*arg2;*/
+/*  float arg3f=*arg3;*/
+
+/*  double res;*/
+/*  float resf;*/
+/*  float res_temp;*/
+/*  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);*/
+/*  interflop_check_float_max_mul_float(arg1f, arg2f, &res_temp, backend_check_float_max_context);*/
+/*  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);*/
+/*  interflop_check_float_max_add_float(res_temp,  arg3f, &resf, backend_check_float_max_context);*/
+/*  res=resf;*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}*/
+
+static VG_REGPARM(3) Int vr_unfused_verroucheck_float_maxmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_add_float(res_temp,  *arg3, &res, backend_check_float_max_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verroucheck_float_maxmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38559,6 +40364,71 @@ static VG_REGPARM(3) Int vr_verroucheck_float_maxmsub32F (Long a, Long b, Long c
   float res;
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_check_float_max_madd_float(*arg1, *arg2, - *arg3, &res, backend_check_float_max_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheck_float_maxmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_sub_double(res_temp, *arg3, &res, backend_check_float_max_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+/*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_maxmsub64F (Long a, Long b, Long c) {*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  float arg1f=*arg1;*/
+/*  float arg2f=*arg2;*/
+/*  float arg3f=*arg3;*/
+
+/*  double res;*/
+/*  float resf;*/
+/*  float res_temp;*/
+/*  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);*/
+/*  interflop_check_float_max_mul_float(arg1f, arg2f, &res_temp, backend_check_float_max_context);*/
+/*  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);*/
+/*  interflop_check_float_max_sub_float(res_temp, arg3f, &resf, backend_check_float_max_context);*/
+/*  res=resf;*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}*/
+
+static VG_REGPARM(3) Int vr_unfused_verroucheck_float_maxmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_sub_float(res_temp, *arg3, &res, backend_check_float_max_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -38635,6 +40505,96 @@ if(vr.instrument_soft){
   interflop_check_float_max_madd_float(*arg1, *arg2,  *arg3, &res, backend_check_float_max_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheck_float_max_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_add_double(res_temp,  *arg3, &res, backend_check_float_max_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_double(*arg1, *arg2,   *arg3, &res, backend_check_float_max_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+/*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_max_softmadd64F (Long a, Long b, Long c) {*/
+/*if(vr.instrument_soft){*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  float arg1f=*arg1;*/
+/*  float arg2f=*arg2;*/
+/*  float arg3f=*arg3;*/
+
+/*  double res;*/
+/*  float resf;*/
+/*  float res_temp;*/
+/*  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);*/
+/*  interflop_check_float_max_mul_float(arg1f, arg2f, &res_temp, backend_check_float_max_context);*/
+/*  interflop_verrou_add_float(res_temp,  arg3f, &resf, backend_verrou_context);*/
+/*  interflop_check_float_max_add_float(res_temp,  arg3f, &resf, backend_check_float_max_context);*/
+/*  res=resf;*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}else{*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  double res;*/
+/*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}
+}
+*/
+static VG_REGPARM(3) Int vr_unfused_verroucheck_float_max_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_add_float(res_temp,  *arg3, &res, backend_check_float_max_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_float(*arg1, *arg2,   *arg3, &res, backend_check_float_max_context);
 }
 #else
   float res=0.;
@@ -38720,6 +40680,96 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verroucheck_float_max_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_sub_double(res_temp, *arg3, &res, backend_check_float_max_context);
+}else{
+  interflop_verrou_madd_double(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_double(*arg1, *arg2,  - *arg3, &res, backend_check_float_max_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+/*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_max_softmsub64F (Long a, Long b, Long c) {*/
+/*if(vr.instrument_soft){*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  float arg1f=*arg1;*/
+/*  float arg2f=*arg2;*/
+/*  float arg3f=*arg3;*/
+
+/*  double res;*/
+/*  float resf;*/
+/*  float res_temp;*/
+/*  interflop_verrou_mul_float(arg1f, arg2f, &res_temp, backend_verrou_context);*/
+/*  interflop_check_float_max_mul_float(arg1f, arg2f, &res_temp, backend_check_float_max_context);*/
+/*  interflop_verrou_sub_float(res_temp, arg3f, &resf, backend_verrou_context);*/
+/*  interflop_check_float_max_sub_float(res_temp, arg3f, &resf, backend_check_float_max_context);*/
+/*  res=resf;*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}else{*/
+/*#ifdef USE_VERROU_FMA*/
+/*  double *arg1 = (double*)(&a);*/
+/*  double *arg2 = (double*)(&b);*/
+/*  double *arg3 = (double*)(&c);*/
+/*  double res;*/
+/*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);*/
+/*#else*/
+/*  double res=0.;*/
+/*  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");*/
+/*#endif*/
+/*  Long *d = (Long*)(&res);*/
+/*  return *d;*/
+/*}
+}
+*/
+static VG_REGPARM(3) Int vr_unfused_verroucheck_float_max_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
+  interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_sub_float(res_temp, *arg3, &res, backend_check_float_max_context);
+}else{
+  interflop_verrou_madd_float(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+  interflop_check_float_max_madd_float(*arg1, *arg2,  - *arg3, &res, backend_check_float_max_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_NEARESTmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38765,6 +40815,65 @@ static VG_REGPARM(3) Int vr_verrou_NEARESTmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_NEARESTmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEARESTmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_NEAREST(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_NEARESTmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -38824,6 +40933,65 @@ static VG_REGPARM(3) Int vr_verrou_UPWARDmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_UPWARDmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARDmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_UPWARD(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_UPWARDmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_DOWNWARDmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38869,6 +41037,65 @@ static VG_REGPARM(3) Int vr_verrou_DOWNWARDmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_DOWNWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARDmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARDmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_DOWNWARD(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARDmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -38928,6 +41155,65 @@ static VG_REGPARM(3) Int vr_verrou_FARTHESTmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FARTHESTmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHESTmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FARTHEST(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_FARTHESTmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_ZEROmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -38973,6 +41259,65 @@ static VG_REGPARM(3) Int vr_verrou_ZEROmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_ZEROmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZEROmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_ZERO(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_ZEROmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39032,6 +41377,65 @@ static VG_REGPARM(3) Int vr_verrou_AWAY_ZEROmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZEROmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZEROmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AWAY_ZERO(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZEROmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOMmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39077,6 +41481,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOMmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_RANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOMmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOMmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOMmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39136,6 +41599,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_DETmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_COMDETmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39181,6 +41703,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_COMDETmadd32F (Long a, Long b, Long c)
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_RANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39240,6 +41821,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGEmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGEmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGEmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGEmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_DETmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39285,6 +41925,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_DETmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_AVERAGE_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39344,6 +42043,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_COMDETmadd32F (Long a, Long b, Long c
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_PRANDOMmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39389,6 +42147,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOMmadd32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_PRANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOMmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOMmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOMmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39448,6 +42265,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_DETmadd32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_PRANDOM_COMDETmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39493,6 +42369,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_COMDETmadd32F (Long a, Long b, Long c
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_PRANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39552,6 +42487,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_SCOMDETmadd32F (Long a, Long b, Long c
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_SCOMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_SCOMDETmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39597,6 +42591,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_SCOMDETmadd32F (Long a, Long b, Long 
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_AVERAGE_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDETmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_SCOMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDETmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39656,6 +42709,65 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONICmadd32F (Long a, Long b, Long c) 
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONICmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONICmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_MONOTONIC(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONICmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONICmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39701,6 +42813,65 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICmadd32F (Long a, Long b, Long c)
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONICmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONICmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_SMONOTONIC(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONICmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39760,6 +42931,65 @@ static VG_REGPARM(3) Int vr_verrou_NEARESTmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_NEARESTmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEARESTmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_NEAREST(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_NEARESTmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_UPWARDmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39805,6 +43035,65 @@ static VG_REGPARM(3) Int vr_verrou_UPWARDmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_UPWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_UPWARDmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARDmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_UPWARD(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_UPWARDmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39864,6 +43153,65 @@ static VG_REGPARM(3) Int vr_verrou_DOWNWARDmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARDmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARDmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_DOWNWARD(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARDmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_FARTHESTmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -39909,6 +43257,65 @@ static VG_REGPARM(3) Int vr_verrou_FARTHESTmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_FARTHEST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FARTHESTmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHESTmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FARTHEST(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_FARTHESTmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -39968,6 +43375,65 @@ static VG_REGPARM(3) Int vr_verrou_ZEROmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_ZEROmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZEROmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_ZERO(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_ZEROmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AWAY_ZEROmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40013,6 +43479,65 @@ static VG_REGPARM(3) Int vr_verrou_AWAY_ZEROmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZEROmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZEROmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AWAY_ZERO(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZEROmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40072,6 +43597,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOMmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOMmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOMmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOMmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_DETmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40117,6 +43701,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_DETmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40176,6 +43819,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_COMDETmsub32F (Long a, Long b, Long c)
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGEmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40221,6 +43923,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGEmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_AVERAGE(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGEmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGEmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGEmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40280,6 +44041,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_DETmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_COMDETmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40325,6 +44145,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_COMDETmsub32F (Long a, Long b, Long c
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40384,6 +44263,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOMmsub32F (Long a, Long b, Long c) {
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOMmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOMmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOMmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_PRANDOM_DETmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40429,6 +44367,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_DETmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40488,6 +44485,65 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_COMDETmsub32F (Long a, Long b, Long c
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_SCOMDETmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40533,6 +44589,65 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_SCOMDETmsub32F (Long a, Long b, Long c
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_SCOMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40592,6 +44707,65 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_SCOMDETmsub32F (Long a, Long b, Long 
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDETmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_SCOMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDETmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_SR_MONOTONICmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40644,6 +44818,65 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONICmsub32F (Long a, Long b, Long c) 
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONICmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONICmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_MONOTONIC(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONICmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONICmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40689,6 +44922,65 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICmsub32F (Long a, Long b, Long c)
   float *arg3 = (float*)(&c);
   float res;
   interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONICmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONICmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_SMONOTONIC(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONICmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -40770,6 +45062,88 @@ if(vr.instrument_soft){
 /*  Int *d = (Int*)(&res);*/
 /*  return *d;*/
 /*}*/
+
+/*//unFusED vERSION*/
+
+static VG_REGPARM(3) Long vr_unfused_verrou_NEAREST_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEAREST_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_NEAREST(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_NEAREST_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40836,6 +45210,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_UPWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_UPWARD(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_UPWARD(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_UPWARD_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_UPWARD(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -40918,6 +45374,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARD_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_DOWNWARD(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARD_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_DOWNWARD(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARD_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_DOWNWARD(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -40984,6 +45522,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_FARTHEST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_FARTHEST(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FARTHEST(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_FARTHEST_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_FARTHEST(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41066,6 +45686,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_ZERO_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_ZERO(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZERO_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_ZERO(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_ZERO_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_ZERO(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41132,6 +45834,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AWAY_ZERO(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZERO_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41214,6 +45998,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41280,6 +46146,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41362,6 +46310,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41428,6 +46458,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AVERAGE(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41510,6 +46622,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41576,6 +46770,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41658,6 +46934,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41724,6 +47082,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_DET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41806,6 +47246,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_COMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM_COMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -41872,6 +47394,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_SCOMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_SCOMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -41954,6 +47558,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDET_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_SCOMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDET_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_SCOMDET(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDET_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_SCOMDET(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42020,6 +47706,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_SR_MONOTONIC(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_MONOTONIC(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONIC_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42102,6 +47870,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONIC_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONIC_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_SMONOTONIC(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONIC_softmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 /*static VG_REGPARM(3) Long vr_verrou_NEAREST_softmsub64F (Long a, Long b, Long c) {*/
 /*#ifdef USE_VERROU_FMA*/
@@ -42176,6 +48026,88 @@ if(vr.instrument_soft){
 /*  Int *d = (Int*)(&res);*/
 /*  return *d;*/
 /*}*/
+
+/*//unFusED vERSION*/
+
+static VG_REGPARM(3) Long vr_unfused_verrou_NEAREST_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEAREST_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_NEAREST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_NEAREST(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_NEAREST_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42242,6 +48174,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_UPWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_UPWARD(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_UPWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_UPWARD(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_UPWARD_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_UPWARD(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42324,6 +48338,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARD_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_DOWNWARD(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARD_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_DOWNWARD(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_DOWNWARD(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARD_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_DOWNWARD(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42390,6 +48486,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_FARTHEST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_FARTHEST(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FARTHEST(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FARTHEST(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_FARTHEST_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_FARTHEST(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42472,6 +48650,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_ZERO_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_ZERO(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZERO_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_ZERO(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_ZERO_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_ZERO(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42538,6 +48798,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AWAY_ZERO(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AWAY_ZERO(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZERO_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42620,6 +48962,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42686,6 +49110,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42768,6 +49274,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42834,6 +49422,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AVERAGE(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -42916,6 +49586,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -42982,6 +49734,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -43064,6 +49898,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43130,6 +50046,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_DET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_DET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -43212,6 +50210,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_PRANDOM_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_PRANDOM_COMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_COMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_PRANDOM_COMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43278,6 +50358,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_RANDOM_SCOMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_RANDOM_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_SCOMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -43360,6 +50522,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDET_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_AVERAGE_SCOMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDET_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_SCOMDET(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDET_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_AVERAGE_SCOMDET(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43426,6 +50670,88 @@ if(vr.instrument_soft){
   interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_SR_MONOTONIC(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_MONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_MONOTONIC(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONIC_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
 }
 #else
   float res=0.;
@@ -43508,6 +50834,88 @@ if(vr.instrument_soft){
   Int *d = (Int*)(&res);
   return *d;
 }
+
+//unFusED vERSION
+
+static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONIC_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONIC_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_SR_SMONOTONIC(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_SMONOTONIC(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONIC_softmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  float res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_FLOATmadd64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43546,6 +50954,46 @@ static VG_REGPARM(3) Long vr_conv_verrou_FLOATmadd64F (Long a, Long b, Long c) {
 }
 
 
+static VG_REGPARM(3) Long vr_unfused_verrou_FLOATmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_FLOAT(res_temp,  *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOATmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FLOAT(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FLOAT(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_FLOATmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43583,6 +51031,46 @@ static VG_REGPARM(3) Long vr_conv_verrou_FLOATmsub64F (Long a, Long b, Long c) {
   return *d;
 }
 
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FLOATmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+  interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_FLOAT(res_temp, *arg3, &res, backend_verrou_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOATmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FLOAT(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FLOAT(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
 
 // generation of operation madd backend verrou
 static VG_REGPARM(3) Long vr_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
@@ -43640,6 +51128,65 @@ if(vr.instrument_soft){
 }
 }
 
+static VG_REGPARM(3) Long vr_unfused_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_add_double_FLOAT(res_temp,  *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_FLOAT(*arg1, *arg2,   *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FLOAT(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_add_float_FLOAT(res_temp,  arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,   *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
 // generation of operation msub backend verrou
 static VG_REGPARM(3) Long vr_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
 #ifdef USE_VERROU_FMA
@@ -43687,6 +51234,65 @@ if(vr.instrument_soft){
   double *arg3 = (double*)(&c);
   double res;
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+}
+
+static VG_REGPARM(3) Long vr_unfused_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  double res_temp;
+if(vr.instrument_soft){
+  interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_double_FLOAT(res_temp, *arg3, &res, backend_verrou_context);
+}else{
+  interflop_verrou_madd_double_FLOAT(*arg1, *arg2,  - *arg3, &res, backend_verrou_context);
+}
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
+if(vr.instrument_soft){
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  float arg1f=*arg1;
+  float arg2f=*arg2;
+  float arg3f=*arg3;
+
+  double res;
+  float resf;
+  float res_temp;
+  interflop_verrou_mul_float_FLOAT(arg1f, arg2f, &res_temp, backend_verrou_context);
+  interflop_verrou_sub_float_FLOAT(res_temp, arg3f, &resf, backend_verrou_context);
+  res=resf;
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}else{
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  - *arg3, &res, backend_verrou_null_context);
 #else
   double res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");

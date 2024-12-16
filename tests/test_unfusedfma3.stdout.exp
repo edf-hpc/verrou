@@ -1,0 +1,65 @@
+fused!=unfused
+fused_f!=unfused_f
+fused==fused_f
+unfused==unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+inst
+fused!=unfused
+fused_f!=unfused_f
+fused==fused_f
+unfused==unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+inst
+fused!=unfused
+fused_f!=unfused_f
+fused==fused_f
+unfused==unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+non inst
+fused!=unfused
+fused_f!=unfused_f
+fused!=fused_f
+unfused!=unfused_f
+
+inst
+fused!=unfused
+fused_f!=unfused_f
+fused==fused_f
+unfused==unfused_f
+
+inst
+fused!=unfused
+fused_f!=unfused_f
+fused==fused_f
+unfused==unfused_f
+

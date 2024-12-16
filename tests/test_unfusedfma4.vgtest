@@ -1,0 +1,5 @@
+prog: test_unfusedfma
+args:
+vgopts: --float=yes --unfused=yes --rounding-mode=random_det --vr-seed=42 --vr-instr=add,sub,mul,mAdd,mSub,sqrt,div
+#vr-instr is there to avoid randomness in cast used to defined a_f
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude -seed -scal-llo

@@ -12,3 +12,4 @@ test_libm
 clreq
 sum
 libmtest_float_conv
+test_unfusedfma
