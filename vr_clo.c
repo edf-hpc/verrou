@@ -94,7 +94,6 @@ void vr_clo_defaults (void) {
   vr.instrument_soft_used = False;
 
   vr.verbose = False;
-  vr.unsafe_llo_optim = False;
 
   vr.genExcludeBool = False;
   vr.exclude = NULL;

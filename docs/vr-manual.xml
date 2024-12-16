@@ -328,6 +328,26 @@ det2
 		<para>This option can be activated with the env variable <command>VERROU_FLOAT</command>.</para>
 
 	      </listitem>
+	    </varlistentry>
+	    <varlistentry id="vr-opt.unfused" xreflabel="--unfused">
+	      <term><option><![CDATA[--unfused=<yes|no> [default=no]]]></option></term>
+		<listitem>
+		  <para>
+		    With this option, mAdd (mSub resp.) operations are replaced by a Mul and a Add (resp. Sub) 
+		    in the frontend. Hence this option is compatible with all <option>--rounding-mode</option> options and with all other backends.
+		  </para>
+		  <itemizedlist>
+		    <listitem><para>
+			The fma function of libm is not modified.
+		    </para></listitem>
+		    <listitem><para>
+			Used with the nearest rounding mode, it is ofen pertinent to add the option 
+			 <link linkend="vr-opt.instr"><option>--vr-instr=mAdd,mSub</option></link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over other floating point operations.
+		    </para></listitem>
+		  </itemizedlist>
+		  <para>This option can be activated with the env variable <command>VERROU_UNFUSED</command>.</para>
+
+		</listitem>
 	      </varlistentry>
 	      <varlistentry id="vr-opt.libm" xreflabel="--libm">
 	        <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
@@ -384,6 +404,7 @@ det2
 
 	      <para> The mcaquad backend implementation come from Verificarlo : <ulink url="https://github.com/verificarlo/verificarlo"> More information on Verificalo github </ulink>
 	      </para>
+	      <para>This option can be activated with the env variable <command>VERROU_MCA_MODE</command>.</para>
             </listitem>
           </varlistentry>
 	  <varlistentry id="vr-opt.mca-precision-double" xreflabel="--mca-precision-double">
@@ -735,20 +756,7 @@ det2
         </variablelist>
       </section>
 
-      <section>
-        <title>Performance optimization</title>
-        <variablelist id="vr.opts.optim.list">
-          <varlistentry id="vr.opt.unsafe-llo-optim" xreflabel="--vr-unsafe-llo-optim">
-            <term><option><![CDATA[--vr-unsafe-llo-optim=<yes|no> [default=no]]]></option></term>
-            <listitem><para>
-		Activate faster instrumentation process but unsafe when binary mixes
-		llo and vect instructions.
-            </para></listitem>
-          </varlistentry>
-        </variablelist>
-      </section>
     </section>
-
     <section id="vr-manual.client-requests" xreflabel="Verrou specific client requests">
       <title>Client requests</title>
 
