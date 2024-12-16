@@ -1,5 +1,8 @@
 *.std*.out
 *.std*.diff
+*.vgtest.log
+*.vgtest.trs
+test-suite.log
 iomatch.script.log-*
 accuClreq
 denorm

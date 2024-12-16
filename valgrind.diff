@@ -60,14 +60,14 @@ index b86e80220..f67bafdf1 100755
 +++ b/configure.ac
 @@ -17,7 +17,7 @@
  m4_define([v_major_ver], [3])
- m4_define([v_minor_ver], [23])
+ m4_define([v_minor_ver], [24])
  m4_define([v_micro_ver], [0])
 -m4_define([v_suffix_ver], [])
 +m4_define([v_suffix_ver], [verrou-dev])
- m4_define([v_rel_date], ["26 Apr 2024"])
+ m4_define([v_rel_date], ["31 Oct 2024"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
-@@ -5604,6 +5604,10 @@ AM_CONDITIONAL(HAVE_THRD_CREATE, test x$ac_cxx_have_thrd_create = xyes)
+@@ -5611,6 +5611,10 @@ AM_CONDITIONAL(HAVE_THRD_CREATE, test x$ac_cxx_have_thrd_create = xyes)
  
  
  
@@ -78,7 +78,7 @@ index b86e80220..f67bafdf1 100755
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -5630,6 +5634,8 @@ AC_CONFIG_FILES([
+@@ -5637,6 +5641,8 @@ AC_CONFIG_FILES([
     auxprogs/Makefile
     mpi/Makefile
     coregrind/Makefile 
