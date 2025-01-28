@@ -2,24 +2,49 @@ include $(top_srcdir)/Makefile.tool.am
 
 EXTRA_DIST = \
 	docs/vr-manual.xml \
-	docs/verrou_dd-manpage.xml
+	docs/verrou_dd-manpage.xml \
+	docs/verrou_postdd-manpage.xml \
+	docs/verrou_plotstat-manpage.xml
 
-pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
+pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
 #----------------------------------------------------------------------------
-# verrou-<platform>
+# python tools
 #----------------------------------------------------------------------------
 
 PYTHON_REP=pyTools
 
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro ${PYTHON_REP}/post_verrou_dd
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py
 
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py pyWrapper/verrouPyBinding.py
+
+#----------------------------------------------------------------------------
+# bash completion script
+#----------------------------------------------------------------------------
+completion_dir= bash_completion
+completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${completion_dir}/bash_completion_verrou_dd_clean\
+		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
+		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
+		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat
+completion_install_dir=${prefix}/usr/share/completions
+#----------------------------------------------------------------------------
+# install
+#----------------------------------------------------------------------------
 
 install-exec-local:
 	mkdir -p ${pkgpythondir}
 	touch ${pkgpythondir}/__init__.py
 	install -t ${prefix} -m 644 env.sh
+	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
+	install -t ${verrouCbindingDir} verrouCBinding.so
+	install -t ${verrouTaskDir} libverrouTask.so
+	install -t ${verrouExtendStdoutPrecisionDir} verrouExtendStdoutPrecision.so
+	mkdir -p ${completion_install_dir}
+	install -m 644 -t ${completion_install_dir} ${completion_scripts}
+
+#----------------------------------------------------------------------------
+# verrou-<platform>
+#----------------------------------------------------------------------------
 
 noinst_PROGRAMS  = verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
@@ -33,6 +58,7 @@ VERROU_SOURCES_COMMON = \
 	vr_clreq.c	\
 	vr_clo.c	\
 	vr_include_trace.c \
+	vr_IOMatch_clr.c\
 	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
@@ -48,29 +74,31 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C =
+VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
+VERROU_FLAG_CXX += @vg_test_no_avx512f_flag@ -fno-exceptions -fno-rtti -std=c++11 -march=native -ffp-contract=off
+VERROU_LD =
 
 # We use the test of fma normally use to configure check
-if HAVE_FMA_INTRIN
-VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
-VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
+if HAVE_VERROU_FMA_INTRIN
+VERROU_FLAG_CXX += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
+VERROU_FLAG_C   += @vg_test_mfma_flag@ -DUSE_VERROU_FMA
 endif
-if HAVE_SQRT_INTRIN
+if HAVE_VERROU_SQRT_INTRIN
 VERROU_FLAG_CXX += -DUSE_VERROU_SQRT
 VERROU_FLAG_C   += -DUSE_VERROU_SQRT
 endif
 
-
-if USE_QUAD
+if HAVE_VERROU_QUADMATH
 VERROU_SOURCES_COMMON+= \
 	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
 	interflop_backends/backend_mcaquad/common/fmaqApprox.c
-VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
-VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
+VERROU_LD       += -lquadmath
+VERROU_FLAG_CXX +=  -DUSE_VERROU_QUADMATH
+VERROU_FLAG_C   +=  -DUSE_VERROU_QUADMATH
+
 endif
 
 if USE_PROFILING_EXACT
@@ -164,26 +192,99 @@ endif
 
 
 
-
-
 #----------------------------------------------------------------------------
-# verrouSynchroLib-<platform>.so
+# vgpreload_verrou-<platform>.so
 #----------------------------------------------------------------------------
 
-noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
+noinst_PROGRAMS += vgpreload_verrou-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
 if VGCONF_HAVE_PLATFORM_SEC
-noinst_PROGRAMS += verrouSynchroLib-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
+noinst_PROGRAMS += vgpreload_verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
 endif
 
 if VGCONF_OS_IS_DARWIN
 noinst_DSYMS = $(noinst_PROGRAMS)
 endif
 
-VERROUSYNCHROLIB_SOURCES_COMMON = synchroLib/verrouSynchroLib.cxx
+VERROUINTERLIBM_SOURCES_COMMON = Interlibmath/interlibmath.cxx Interlibmath/stacktrace.cxx  interflop_backends/backend_mcaquad/common/tinymt64.c
 
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
-	$(VERROUSYNCHROLIB_SOURCES_COMMON)
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
+	$(VERROUINTERLIBM_SOURCES_COMMON)
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -DVGA_@VGCONF_ARCH_PRI@  -static-libstdc++ -Wno-missing-declarations -I../include -fno-builtin @vg_test_no_avx512f_flag@
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
+	-static-libstdc++ -lm \
+	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDADD  =  -ldl $(VERROU_LD)
+
+#----------------------------------------------------------------------------
+# verrouUnbuffered.so
+#----------------------------------------------------------------------------
+verrouUnbuffereddir = $(pkglibdir)
+noinst_PROGRAMS += verrouUnbuffered.so
+
+VERROUUNBUFFERED_SOURCES_COMMON = unbufferPrintf.c
+
+verrouUnbuffered_so_SOURCES      = \
+	$(VERROUUNBUFFERED_SOURCES_COMMON)
+verrouUnbuffered_so_CPPFLAGS     = \
+	$(subst -Wstrict-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@)) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouUnbuffered_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+
+#----------------------------------------------------------------------------
+# verrouExtendStdoutPrecision.so
+#----------------------------------------------------------------------------
+verrouExtendStdoutPrecisionDir = $(pkglibdir)
+noinst_PROGRAMS += verrouExtendStdoutPrecision.so
+
+VERROUEXTENDSTDOUPRECISION_SOURCES_COMMON = extendStdoutPrecision.cxx
+
+verrouExtendStdoutPrecision_so_SOURCES      = \
+	$(VERROUEXTENDSTDOUPRECISION_SOURCES_COMMON)
+verrouExtendStdoutPrecision_so_CPPFLAGS     = \
+	$(subst -Wstrict-prototypes,,\
+	$(subst -Wmissing-declarations,,\
+	$(subst -Wmissing-parameter-type,,\
+	$(subst -Wold-style-declaration,,\
+	$(subst -Wmissing-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@))))))
+verrouExtendStdoutPrecision_so_LDFLAGS      =  $(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+#Suppression of -nodefaultlibs is required to avoid error with program written without C++
+verrouExtendStdoutPrecision_so_LDADD      = -ldl
+
+#----------------------------------------------------------------------------
+# verrouCBinding.so
+#----------------------------------------------------------------------------
+verrouCbindingDir = $(pkglibdir)
+noinst_PROGRAMS += verrouCBinding.so
+
+
+VERROUCBINDING_SOURCES_COMMON = pyWrapper/verrouCBinding.c
+
+verrouCBinding_so_SOURCES      = $(VERROUCBINDING_SOURCES_COMMON)
+verrouCBinding_so_CPPFLAGS     = \
 	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
-verrouSynchroLib_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
-	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+verrouCBinding_so_LDFLAGS      = $(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+
+#----------------------------------------------------------------------------
+# libverrouTask.so
+#----------------------------------------------------------------------------
+verrouTaskDir = $(pkglibdir)
+noinst_PROGRAMS += libverrouTask.so
+if VGCONF_HAVE_PLATFORM_SEC
+noinst_PROGRAMS += libverrouTask.so
+endif
+
+PRELOADTASK1 = $(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
+PRELOADTASK = $(subst -m64,,$(PRELOADTASK1))
+
+VERROUTASK_SOURCES_COMMON = libVerrouTask/libverrouTask.cxx
+libverrouTask_so_SOURCES      = $(VERROUTASK_SOURCES_COMMON)
+libverrouTask_so_CPPFLAGS     = \
+	$(subst -Wstrict-prototypes,,\
+	$(subst -Wmissing-declarations,,\
+	$(subst -Wmissing-parameter-type,,\
+	$(subst -Wold-style-declaration,,\
+	$(subst -Wmissing-prototypes,,$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) $(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@))))))\
+	-I../include
+libverrouTask_so_LDFLAGS      = -static-libstdc++ $(PRELOADTASK)

@@ -1,5 +1,9 @@
 #include "../verrou.h"
 #include <stdio.h>
+#include <math.h>
+#include <stdbool.h>
+#include <string.h>
+
 
 float compute () {
   float res=0;
@@ -10,13 +14,44 @@ float compute () {
   return res-100 ;
 }
 
-int main () {
+int main (int argc, char** argv) {
+  double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
+
+  bool hard=false;
+  bool soft=false;
+
+  if(argc!=2){
+     return RUNNING_ON_VALGRIND;
+  }else{
+     if(strcmp("hard",argv[1])==0){
+        hard=true;
+     }
+     if(strcmp("soft",argv[1])==0){
+        soft=true;
+     }
+     if(strcmp("both",argv[1])==0){
+        soft=true; hard=true;
+     }
+  }
+  if(soft==false && hard==false){
+     printf ("error invalid data\n");
+  }
 
   float res_init=compute();
+
   // Uninstrumented part
-  VERROU_STOP_INSTRUMENTATION;
+  if(hard && !soft){ VERROU_STOP_INSTRUMENTATION;}
+  if(!hard && soft){ VERROU_STOP_SOFT_INSTRUMENTATION;}
+  if(hard && soft){
+     VERROU_START_INSTRUMENTATION;
+     VERROU_STOP_SOFT_INSTRUMENTATION;
+  }
+
   float res_uninst=compute();
-  VERROU_START_INSTRUMENTATION;
+
+  //Instrumented part
+  if(hard){ VERROU_START_INSTRUMENTATION;}
+  if(soft){ VERROU_START_SOFT_INSTRUMENTATION;}
 
   float res_end=compute();
 

@@ -30,12 +30,10 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "vr_main.h"
-//#include "backend_verrou/vr_rand.h"
-//#include "backend_verrou/interflop_verrou.h"
-//#include "backend_mcaquad/interflop_mcaquad.h"
+#include "vr_clo.h"
 
-void vr_env_clo (const HChar* env, const HChar *clo) {
+
+void vr_env_clo_one_option (const HChar* env, const HChar *clo) {
   HChar* val = VG_(getenv)(env);
   if (val) {
     HChar tmp[256];
@@ -46,19 +44,63 @@ void vr_env_clo (const HChar* env, const HChar *clo) {
   }
 }
 
+
+void vr_env_clo(void){
+   vr_env_clo_one_option("VERROU_ROUNDING_MODE", "--rounding-mode");
+   vr_env_clo_one_option("VERROU_FLOAT", "--float");
+   vr_env_clo_one_option("VERROU_UNFUSED", "--unfused");
+   vr_env_clo_one_option("VERROU_LIBM_NOINST_ROUNDING_MODE", "--libm-noinst-rounding-mode");
+   vr_env_clo_one_option("VERROU_PRANDOM_UPDATE", "--prandom-update");
+   vr_env_clo_one_option("VERROU_PRANDOM_PVALUE", "--prandom-pvalue");
+   vr_env_clo_one_option("VERROU_INSTR_ATSTART", "--instr-atstart");
+   vr_env_clo_one_option("VERROU_INSTR_ATSTART_SOFT", "--instr-atstart-soft");
+   vr_env_clo_one_option("VERROU_EXCLUDE",       "--exclude");
+   vr_env_clo_one_option("VERROU_GEN_EXCLUDE",   "--gen-exclude");
+
+   vr_env_clo_one_option("VERROU_SOURCE",        "--source");
+   vr_env_clo_one_option("VERROU_WARN_UNKNOWN_SOURCE","--warn-unknown-source");
+   vr_env_clo_one_option("VERROU_GEN_SOURCE",    "--gen-source");
+   vr_env_clo_one_option("VERROU_MCA_MODE",      "--mca-mode");
+
+   vr_env_clo_one_option("VERROU_BACKEND", "--backend");
+   vr_env_clo_one_option("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
+   vr_env_clo_one_option("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
+
+   vr_env_clo_one_option("VERROU_INSTR","--vr-instr");
+
+   vr_env_clo_one_option("VERROU_TRACE","--trace");
+   vr_env_clo_one_option("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
+   vr_env_clo_one_option("VERROU_SEED","--vr-seed");
+
+   vr_env_clo_one_option("VERROU_IOMATCH_CLR","--IOmatch-clr");
+   vr_env_clo_one_option("VERROU_OUTPUT_IOMATCH_REP","--output-IOmatch-rep");
+   vr_env_clo_one_option("VERROU_IOMATCH_FILE_PATTERN","--IOmatch-file-pattern");
+
+   vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
+}
+
 void vr_clo_defaults (void) {
   vr.backend = vr_verrou;
   vr.roundingMode = VR_NEAREST;
+  vr.roundingModeNoInst = VR_NATIVE;
   vr.prandomUpdate= VR_PRANDOM_UPDATE_NONE;
   vr.prandomFixedInitialValue=-1.;
   vr.count = True;
-  vr.instrument = VR_INSTR_ON;
+
+  vr.float_conv=False;
+  vr.unfused=False;
+  vr.instrument_hard = VR_INSTR_ON;
+  vr.instrument_soft = VR_INSTR_ON;
+  vr.instrument_soft_used = False;
+
   vr.verbose = False;
-  vr.unsafe_llo_optim = False;
 
   vr.genExcludeBool = False;
   vr.exclude = NULL;
   vr.gen_exclude = NULL;
+
+  vr.excludeDetect = True;
+  vr.loadInterLibm = False;
   //  vr.genAbove = NULL;
 
   vr.genIncludeSource = False;
@@ -69,6 +111,9 @@ void vr_clo_defaults (void) {
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
+  vr.outputIOMatchRep = NULL;
+  vr.outputIOMatchFilePattern= NULL;
+  vr.IOMatchFileDescriptor=1;//stdout
 
   int opIt;
   for(opIt=0 ; opIt<VR_OP ; opIt++){
@@ -79,9 +124,12 @@ void vr_clo_defaults (void) {
     vr.instr_vec[vecIt]=True;
   }
   vr.instr_vec[VR_VEC_SCAL]=False;
-
+#if defined(VGA_arm64)
+  vr.instr_vec[VR_VEC_SCAL]=True;
+#endif
   vr.instr_prec[VR_PREC_FLT]=True;
   vr.instr_prec[VR_PREC_DBL]=True;
+  vr.instr_prec[VR_PREC_LDBL]=False;
   vr.instr_prec[VR_PREC_DBL_TO_FLT]=True;
 
   vr.firstSeed=(ULong)(-1);
@@ -91,7 +139,7 @@ void vr_clo_defaults (void) {
 
   vr.checknan=True;
   vr.checkinf=True;
-  
+
   vr.checkCancellation=False;
   vr.cc_threshold_float=18;
   vr.cc_threshold_double=40;
@@ -99,12 +147,16 @@ void vr_clo_defaults (void) {
   vr.dumpCancellation=False;
   vr.cancellationSource=NULL;
 
+  vr.useIOMatchCLR=False;
+  vr.IOMatchCLRFileInput=-1;
+
   vr.checkDenorm=False;
   vr.ftz=False;
   vr.dumpDenorm=False;
   vr.cancellationSource=NULL;
 
   vr.checkFloatMax=False;
+
 }
 
 
@@ -132,6 +184,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_SCOMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_monotonic",
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",
+                         vr.roundingMode, VR_SR_SMONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
                          vr.roundingMode, VR_AVERAGE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
@@ -165,6 +219,11 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
                          vr.roundingMode, VR_FTZ)) {}
 
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=nearest",
+                         vr.roundingModeNoInst, VR_NEAREST)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=native",
+                         vr.roundingModeNoInst, VR_NATIVE)) {}
+
   else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=func",
                          vr.prandomUpdate, VR_PRANDOM_UPDATE_FUNC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--prandom-update=none",
@@ -175,6 +234,12 @@ Bool vr_process_clo (const HChar *arg) {
     if(vr.prandomFixedInitialValue<0 ||  vr.prandomFixedInitialValue>1){
       VG_(tool_panic) ( "\tpvalue has to be between 0 and 1\n");
     }
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--float", bool_val)) {
+    vr.float_conv = bool_val;
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--unfused", bool_val)) {
+    vr.unfused = bool_val;
   }
 
   //Option mcaquad
@@ -230,7 +295,6 @@ Bool vr_process_clo (const HChar *arg) {
      vr.checkinf= bool_val;
   }
 
-  
   else if (VG_BOOL_CLO (arg, "--check-max-float", bool_val)) {
     vr.checkFloatMax=bool_val;
   }
@@ -255,6 +319,9 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--vr-instr-vec8", bool_val)) {
      vr.instr_vec[VR_VEC_FULL8]= bool_val;
   }
+  else if (VG_BOOL_CLO (arg, "--vr-instr-unk", bool_val)) {
+     vr.instr_vec[VR_VEC_UNK]= bool_val;
+  }
 
   else if (VG_BOOL_CLO (arg, "--vr-instr-flt", bool_val)) {
      vr.instr_prec[VR_PREC_FLT]= bool_val;
@@ -263,25 +330,27 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_BOOL_CLO (arg, "--vr-instr-dbl", bool_val)) {
      vr.instr_prec[VR_PREC_DBL]= bool_val;
   }
+  /* else if (VG_BOOL_CLO (arg, "--vr-instr-ldbl", bool_val)) { */
+  /*    vr.instr_prec[VR_PREC_LDBL]= bool_val; */
+  /* } */
 
   //Option --vr-verbose (to avoid verbose of valgrind)
-  else if (VG_BOOL_CLO (arg, "--vr-verbose", bool_val)) {
+  else if (VG_BOOL_CLOM (cloPD, arg, "--vr-verbose", bool_val)) {
     vr.verbose = bool_val;
   }
 
-  //Option --vr-unsafe-llo-optim (performance optimization)
-  else if (VG_BOOL_CLO (arg, "--vr-unsafe-llo-optim", bool_val)) {
-    vr.unsafe_llo_optim = bool_val;
-  }
-
   //Option --count-op
-  else if (VG_BOOL_CLO (arg, "--count-op", bool_val)) {
+  else if (VG_BOOL_CLOM (cloPD, arg, "--count-op", bool_val)) {
     vr.count = bool_val;
   }
 
   // Instrumentation at start
   else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart", bool_val)) {
-    vr.instrument = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+    vr.instrument_hard = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+  }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--instr-atstart-soft", bool_val)) {
+    vr.instrument_soft = bool_val ? VR_INSTR_ON : VR_INSTR_OFF;
+    vr.instrument_soft_used= True;
   }
 
   // Exclusion of specified symbols
@@ -297,18 +366,26 @@ Bool vr_process_clo (const HChar *arg) {
     vr.exclude = vr_loadExcludeList(vr.exclude, str);
   }
 
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=auto_exclude", vr.excludeDetect,True)) {
+    vr.loadInterLibm = False;
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=manual_exclude", vr.excludeDetect,False)) {
+    vr.loadInterLibm = False;
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--libm=instrumented", vr.excludeDetect,True)) {
+    vr.loadInterLibm = True;
+  }
+
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;
   }
 
   else if (VG_STR_CLOM (cloPD, arg, "--output-trace-rep", str)) {
-    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.outputTraceRep = VG_(expand_file_name)("vr.process_clo.trace-rep", str);
   }
   // Instrumentation of only specified source lines
   else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
-    //vr.includeSourceFile = VG_(strdup)("vr.process_clo.gen-source", str);
     vr.includeSourceFile = VG_(expand_file_name)("vr.process_clo.gen-source", str);
     vr.genIncludeSource = True;
   }
@@ -341,7 +418,17 @@ Bool vr_process_clo (const HChar *arg) {
       VG_(tool_panic) ( "--vr-seed=-1 no taken into account\n");
     }
   }
-
+  else if (VG_STR_CLOM(cloPD, arg, "--IOmatch-clr",str)){
+     vr.IOMatchScript = VG_(expand_file_name)("vr.process_clo.IOMatch-clr", str);
+     vr.useIOMatchCLR=True;
+  }
+  else if (VG_STR_CLOM (cloPD, arg, "--output-IOmatch-rep", str)) {
+    vr.outputIOMatchRep = VG_(expand_file_name)("vr.process_clo.IOMatch-rep", str);
+  }
+  else if (VG_STR_CLOM (cloPD, arg, "--IOmatch-file-pattern", str)) {
+    vr.IOMatchFileDescriptor=-1;
+    vr.outputIOMatchFilePattern = VG_(strdup)("vr.process_clo.IOMatch-file-pattern", str);
+  }
   // Unknown option
   else {
     return False;

@@ -3,7 +3,6 @@ Copyright (C) XXXXX
 
 First seed : XXX
 Backend verrou : test-version
-Backend mcaquad : test-version
 Backend checkcancellation : test-version
 Backend check_float_max : test-version
 Backend checkdenorm : test-version
@@ -30,6 +29,8 @@ Instrumented type :
 	flt : yes
 	dbl : yes
 Backend verrou simulating RANDOM rounding mode
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
 
  ---------------------------------------------------------------------
  Operation                            Instruction count
@@ -47,13 +48,5 @@ Backend verrou simulating RANDOM rounding mode
  mul                        2                        0          (  0%)
   `- flt                        2                        0      (  0%)
       `- llo                        2                        0  (  0%)
- ---------------------------------------------------------------------
- cmp                        1                        0          (  0%)
-  `- dbl                        1                        0      (  0%)
-      `- scal                       1                        0  (  0%)
- ---------------------------------------------------------------------
- conv                       4                        0          (  0%)
-  `- dbl=>flt                   2                        0      (  0%)
-  `- flt=>dbl                   2                        0      (  0%)
  ---------------------------------------------------------------------
 ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

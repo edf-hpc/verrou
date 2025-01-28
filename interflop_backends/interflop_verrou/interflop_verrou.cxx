@@ -121,6 +121,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "RANDOM_SCOMDET";
   case VR_SR_MONOTONIC:
     return "SR_MONOTONIC";
+  case VR_SR_SMONOTONIC:
+    return "SR_SMONOTONIC";
   case VR_AVERAGE:
     return "AVERAGE";
   case VR_AVERAGE_DET:
@@ -177,12 +179,19 @@ void verrou_end_instr(){
 }
 
 void verrou_set_seed (unsigned int seed) {
-  vr_seed = vr_rand_next(&vr_rand);
   vr_rand_setSeed (&vr_rand, seed);
 }
 
-void verrou_set_random_seed () {
-  vr_rand_setSeed(&vr_rand, vr_seed);
+unsigned int verrou_get_seed (void) {
+  return vr_rand_getSeed (&vr_rand);
+}
+
+void verrou_seed_save_state (void) {
+  vr_rand_copy_state(&vr_rand, &vr_rand_save);
+}
+
+void verrou_seed_restore_state (void) {
+  vr_rand_copy_state(&vr_rand_save, &vr_rand);
 }
 
 void verrou_updatep_prandom (void) {
@@ -254,7 +263,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, sr_monotonic,average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, sr_monotonic, sr_smonotonic, average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -284,6 +293,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_RANDOM_SCOMDET;
     } else if (strcasecmp("sr_monotonic", arg) == 0) {
       conf->mode=VR_SR_MONOTONIC;
+    } else if (strcasecmp("sr_smonotonic", arg) == 0) {
+      conf->mode=VR_SR_SMONOTONIC;
     } else if (strcasecmp("average", arg) == 0) {
       conf->mode=VR_AVERAGE;
     } else if (strcasecmp("average_det", arg) == 0) {

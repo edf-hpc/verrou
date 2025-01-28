@@ -11,37 +11,55 @@
   </para>
 
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
-    <title>Delta-debugging with the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> commands</title>
-
+    <title>Delta-debugging with the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command>, <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> commands</title>
+    <simplesect id="vr-manual.dd.principle" xreflabel="Delta-Debugging Principle">
     <para>
-      The first technique builds upon Verrou's <xref linkend="vr-manual.feat.exclude"/> feature in
-      order to perform a search of functions and source code lines whose perturbation produces the
+      The first technique builds upon Verrou's <link linkend="vr-manual.feat.scope">Instrumentation scope</link> features in
+      order to perform a search of functions (or source code lines / verrou task / stdout task) whose perturbation produces the
       most important errors in final results. The idea is the following:
       <itemizedlist>
-        <listitem><simpara>First, a complete list of all symbols (which contain perturbated
-	floating point instructions) is generated. It is expected that
+        <listitem><simpara>First, a complete list of all symbols (or line / task / stdout task) which contain perturbed
+	floating point instructions is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
-        results.</simpara></listitem>
-        <listitem><simpara>By splitting the symbols list in two parts, and perturbing each half
+        results. This list is called the search space.</simpara></listitem>
+        <listitem><simpara>By splitting the search space in two parts, and perturbing each half
         separately, it is possible to determine whether each perturbed half produces inexact
         results.</simpara></listitem>
-        <listitem><simpara>Going on like this and performing a bisection of the list of symbols, the
+        <listitem><simpara>Going on like this and performing a bisection of the search space, the
         algorithm eventually finds a subset of functions whose only perturbation is enough to
-        produce inexact results.</simpara></listitem>
-        <listitem><simpara>The same process can be iterated over all source code lines belonging to
-        the identified unstable symbols (provided that the binary embeds debugging
-        information).</simpara></listitem>
+            produce inexact results. This Trial and Error algorithm is called <emphasis>Delta-Debugging</emphasis>.
+	 Each trial (which corresponds to a subset of the search space) is called a configuration. As the evaluation of error is based on a stochastic evaluation there are several runs per configuration.</simpara>
+	</listitem>
       </itemizedlist>
     </para>
-
     <para>
-      This algorithm is called <emphasis>Delta-Debugging</emphasis>.
-      <!-- , and is for example used in <command>git bisect</command>. -->
-      It is automated by the <command>verrou_dd_sym</command> and <command>verrou_dd_line</command> command,
-      which can be used in the following way:
+      Depending on the search space there are four different commands:
+      <itemizedlist>
+	<listitem>
+	  <simpara><command>verrou_dd_sym</command> uses the symbol search space and uses <link linkend="vr-manual.feat.exclude">Excluded Symbols</link> to select parts of the program which are instrumented or not.</simpara>
+	</listitem>
+	<listitem><simpara>
+	<command>verrou_dd_line</command> uses the code line search space and uses <link linkend="vr-manual.feat.source"> Source instrumentation</link> to select parts of the program which are instrumented or not. The results of this command are more useful if the code is compiled with debug option (<command>-g</command>).
+	</simpara></listitem>
+	<listitem><simpara>
+	  <command>verrou_dd_task</command> uses verrou task search space (<link linkend="vr-manual.verrou_task" > See how to perform instrumentation</link>). This search space enable temporal localization. The task instrumentation can be automatic with python code but is intrusive for compiled codes. <command>verrou_dd_task</command> has <link linkend="verrou_dd_task_stdout.specific.option" > one specific option</link>.
+	</simpara></listitem>
+	<listitem><para><simpara>
+	  <command>verrou_dd_stdout</command> performs localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the float are replace by * and address by ?).</simpara>
+	  <simpara>
+	    The user do not need to instrument the code but may need to modify the dataset to increase the verbosity. As the command works without code recompilation, it is possible to work from one result of an other <command>verrou_dd_*</command> commands, without rerunning the previous search.
+	  </simpara>
+	  <simpara>
+	    The user has to pay attention to bufferization. <command>verrou_dd_stdout</command> automatically setup the PYTHONUNBUFFERED env variable and deactivate the c bufferization of stdout (not FILE*) but it not always sufficient.
+	  </simpara>
+	  <simpara>
+	  As there are more corner cases, there are specific options to tackle it (cf.  Specific options of <link linkend="verrou_dd_task_stdout.specific.option" >verrou_dd_task/stdout</link> and <link linkend="verrou_dd_stdout.specific.option" >verrou_dd_stdout</link>)</simpara>
+	  </para>
+	  </listitem>
+      </itemizedlist>
     </para>
-
+    </simplesect>
     <simplesect>
       <title>Synopsis</title>
 
@@ -57,16 +75,24 @@
         <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
       </cmdsynopsis></screen>
 
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_task.synopsis">
+        <command>verrou_dd_task [options]</command>
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_stdout.synopsis">
+        <command>verrou_dd_stdout [options]</command>
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
     </simplesect>
     <simplesect>
       <title>Description</title>
-      <para>
-	<command> verrou_dd_sym </command> is dedicated to search instable symbols (it corresponds more or less to code function).
-	Whereas <command> verrou_dd_sym </command> is dedicated to search instable lines for code compiled with debugging symbols (with -g option).
-      </para>
 
       <para id="vr-manual.verrou_dd.desc">
-        Arguments passed to <command>verrou_dd_sym</command> or <command>verrou_dd_line</command> are scripts.
+        Arguments passed to <command>verrou_dd_*</command> are scripts.
 	These scripts will be called during the delta-debugging process to automate
         the tasks of running your program under Verrou, and verifying the results. The scripts will
         be called with the following arguments:
@@ -112,6 +138,33 @@ valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replace
 REF="$1"
 RUN="$2"
 diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
+              <simpara>
+	      A classical python script looks like this :
+	      </simpara>
+              <programlisting>
+<![CDATA[import sys
+import os
+def extractValue(rep):
+    """This parse function has to be adapted to each case"""
+    lines=(open(os.path.join(rep,"results.dat")).readlines())
+    for line in lines:
+        if line.startswith("res="):
+            return float(line.partition("=")[2])
+    return None
+if __name__=="__main__":
+    if len(sys.argv)==2:
+        #this case is to be compatible with the extract script of verrou_plot_stat
+        print(extractValue(sys.argv[1]))
+    if len(sys.argv)==3:
+        valueRef=extractValue(sys.argv[1])
+        value=extractValue(sys.argv[2])
+
+        relDiff=abs((value-valueRef)/valueRef)
+	#the tolerance has to be adapted
+        if relDiff < 1.e-6:
+	    sys.exit(0)
+        else:
+            sys.exit(1)]]></programlisting>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -122,7 +175,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       <title>Options and environment variables</title>
 
       <para>
-        The following options or environment variables affect the behaviour of <command>verrou_dd_sym</command> and <command>verrou_dd_line</command>:
+        The following options or environment variables affect the behavior of <command>verrou_dd_sym</command>,  <command>verrou_dd_line</command>,  <command>verrou_dd_task</command>  and  <command>verrou_dd_stdout</command>:
       </para>
 
       <variablelist id="vr-manual.verrou_dd.envvars">
@@ -146,6 +199,18 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
             <para> Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel.
 	     If this environment variable is not set, the parallelism is not activated.
 	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--reference-rounding</computeroutput> or <computeroutput>VERROU_REFERENCE_ROUNDING</computeroutput> [default native].
+	  </term>
+	  <listitem>
+	  <para>
+	    Select the reference rounding mode between native and nearest. The nearest and native rounding mode are different only when
+	    the verrou option <option>--libm=instrumented</option> is used.
+	  </para>
           </listitem>
         </varlistentry>
 
@@ -292,7 +357,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
         <listitem>
             <para>
-	      Option to reduce the verbosity of <command>verrou_dd_sym</command> or <command>verrou_dd_line</command>.
+	      Option to reduce the verbosity of <command>verrou_dd_*</command>.
 	    </para>
           </listitem>
         </varlistentry>
@@ -304,7 +369,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Option to choose the policy with the existing cache <computeroutput>dd.sym</computeroutput> or <computeroutput>dd.line</computeroutput>
+	      Option to choose the policy with the existing cache <computeroutput>dd.sym</computeroutput>, <computeroutput>dd.line</computeroutput>, <computeroutput>dd.task</computeroutput> or <computeroutput>dd.stdout</computeroutput>
 	    </para>
 	    <para>
 	      <computeroutput>clean</computeroutput>: the previous cache is removed (after reading required information for <computeroutput>--rddmin-heuristics-cache</computeroutput>).
@@ -374,25 +439,38 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           </term>
           <listitem>
             <para>
-	      Option to shift the line number of the line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
-	      for a new delta debug with the same test case and few code modifications.
+	      Option to shift line numbers of line heuristics. The shift is computed thanks a diff between reference computations. This option is useful
+	      for a new delta debug with the same test case and few code modifications. This option can be applied for all tools but is only pertinent for <command>verrou_dd_line</command>.
 	    </para>
           </listitem>
         </varlistentry>
 
+	<varlistentry>
+	  <term>
+	    <computeroutput>--seed</computeroutput> or <computeroutput>VERROU_DD_SEED</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Option to specify the seed used by <command>verrou_dd_*</command> tools to setup the <computeroutput>VERROU_SEED</computeroutput>. Each sample of a configuration receive a different seed (<computeroutput>VERROU_SEED</computeroutput> read by verrou tool) generated by a pseudo random generator initialized with <computeroutput>VERROU_DD_SEED</computeroutput>.
+	      The %i% sample (<computeroutput>dd.run%i%</computeroutput>) of each configuration receive the same seed (<computeroutput>VERROU_SEED</computeroutput>).
+	      By default <computeroutput>VERROU_SEED</computeroutput> is not set (ie each verrou run set is own seed).
+	      This option is useful for be more reproductible (You have to take care of parallelism, use of <command>verrou_dd_*</command> cache, and reproducibility of run script).
+	    </para>
+          </listitem>
+        </varlistentry>
 
       </variablelist>
     </simplesect>
 
     <simplesect>
-      <title>Results *rddmin </title>
+      <title>Results rddmin </title>
       <para id="vr-manual.verrou_dd.results-rddmin">
-        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>) directory. Synthetic results are present in the form
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>/<command>verrou_dd_task</command>/<command>verrou_dd_stdout</command>) stores many intermediate results within the
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>/<computeroutput>dd.task</computeroutput>/<computeroutput>dd.stdout</computeroutput>) directory. Synthetic results are present in the form
         of symbolic links named after the pattern: <computeroutput>ddmin-<replaceable>N</replaceable></computeroutput>.
       </para>
       <para>
-	The list of all symbols (resp. lines) found to be unstable in the
+	The list of all symbols (resp. lines/verrou tasks/stdout tasks) found to be unstable in the
 	<computeroutput>ddmin-<replaceable>N</replaceable></computeroutput> set can be retrieved in
 	the file: <computeroutput>ddmin-<replaceable>N</replaceable>/dd.include</computeroutput>.
       </para>
@@ -401,7 +479,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	configuration terminates the rddmin algorithm.
       </para>
       <para>
-	For debug purpose there are one symbolic link (<computeroutput>FullPerturbation</computeroutput>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<computeroutput>NoPerturbation</computeroutput>) to pinpoint the configuration without any perturbation (should be a successful configuration).
+	For debug purpose there is one symbolic link (<computeroutput>FullPerturbation</computeroutput>) to pinpoint the configuration (which should fail) with all symbols (resp. lines) perturbed and another (<computeroutput>NoPerturbation</computeroutput>) to pinpoint the configuration without any perturbation (should be a successful configuration).
       </para>
 
     </simplesect>
@@ -409,34 +487,340 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
     <simplesect>
       <title>Results ddmax</title>
       <para id="vr-manual.verrou_dd.results">
-        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>) stores many intermediate results within the
-        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput>)
+        <command>verrou_dd_sym</command> (resp. <command>verrou_dd_line</command>/<command>verrou_dd_task</command>/<command>verrou_dd_stdout</command>) stores many intermediate results within
+        <computeroutput>dd.sym</computeroutput> (resp. <computeroutput>dd.line</computeroutput> / <computeroutput>dd.task</computeroutput> / <computeroutput>dd.stdout</computeroutput>)
         directories. The ddmax configuration is pinpointed by a symbolic link (<computeroutput>ddmax</computeroutput>).	
-
-	<!-- Synthetic results are present in the form of symbolic links named in the -->
-        <!-- following way: -->
-        <!-- <variablelist> -->
-        <!--   <varlistentry> -->
-        <!--       <term>dd.sym.<replaceable>SYMNAME</replaceable></term> -->
-        <!--       <listitem><simpara>The presence of such a symbolic link indicates that the function -->
-        <!--       associated to symbol <replaceable>SYMNAME</replaceable> has been detected as -->
-        <!--       unstable. When the <option><xref linkend="opt.demangle"/>=no</option> option was -->
-        <!--       provided in the verrou command line in -->
-        <!--       <command><replaceable>run_script</replaceable></command>, -->
-        <!--       <replaceable>SYMNAME</replaceable> is in mangled form. In this case, the -->
-        <!--       human-readable name of the function can be retrieved using -->
-        <!--       <command>c++filt</command>.</simpara></listitem> -->
-        <!--   </varlistentry> -->
-        <!--   <varlistentry> -->
-        <!--     <term>dd.sym.<replaceable>FILENAME</replaceable>:<replaceable>LINENO</replaceable></term> -->
-        <!--     <listitem><simpara>Such a symbolic link indicates that an instability was found in line -->
-        <!--     <replaceable>LINENO</replaceable> of file -->
-        <!--     <replaceable>FILENAME</replaceable>.</simpara></listitem> -->
-        <!--   </varlistentry> -->
-        <!-- </variablelist> -->
       </para>
     </simplesect>
 
+    <simplesect>
+      <title>Specific option of <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> </title>
+      <simplesect>
+	<para id="verrou_dd_task_stdout.specific.option">
+	  <variablelist>
+	    <varlistentry>
+	      <term>
+		<computeroutput>--stop_start=</computeroutput> or <computeroutput>VERROU_DD_STOP_START</computeroutput>
+              </term>
+	      <listitem>
+		<para>
+		  <computeroutput>hard</computeroutput>[default] use the hard stop/start client requests
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  <computeroutput>soft</computeroutput> use the soft stop/start client requests. It should be used if the code use manual hard stop/start client requests or if the size of tasks is small (typically with python localization).
+		</para>
+	      </listitem>
+
+	    </varlistentry>
+	  </variablelist>
+	</para>
+      </simplesect>
+    </simplesect>
+
+    <simplesect>
+      <title>Specific options of <command>verrou_dd_stdout</command> </title>
+      <simplesect>
+      <para id="verrou_dd_stdout.specific.option">
+        <variablelist>
+	  <varlistentry>
+	    <term>
+	      <computeroutput>--unknown-task=</computeroutput> or <computeroutput>VERROU_DD_UNKNOWN_TASK</computeroutput>
+            </term>
+            <listitem>
+              <para>
+		Option to choose the policy of task which are not in the search space.
+	      </para>
+	      <para>
+		<computeroutput>previous</computeroutput>: the status of the previous task is kept
+	      </para>
+	      <para>
+		<computeroutput>stop</computeroutput>: the task is uninstrumented.
+	      </para>
+	      <para>
+		<computeroutput>start</computeroutput>: the task is instrumented.
+	      </para>
+
+	      <para>
+		The default value is set to <computeroutput>previous</computeroutput>.
+	      </para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry>
+	      <term>
+		<computeroutput>--ignore-empty-line=[true[default]|false]</computeroutput> or <computeroutput>VERROU_DD_IGNORE_EMPTY_LINE</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  Option to define the status of empty-line. If set (by default) the task defined by an empty line is merged with the previous task.
+		</para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--IOmatch-header=FILE</computeroutput> or <computeroutput>VERROU_DD_IOMATCH_HEADER</computeroutput>
+              </term>
+              <listitem>
+		<para>
+This option allow to add the content of FILE in the IOMatch script used by <command>verrou_dd_stdout</command>. In practice it is useful to prevent excessive number of iterations (especially when the additional iterations recover the poor precision of the first ones)  with this kind of <computeroutput>FILE</computeroutput>:
+<programlisting>
+cmatch: IT=42 *
+apply: exit</programlisting>
+Be careful the match expression should not match any line of the reference computation.
+		</para>
+		<para>
+		  <command>verrou_dd_stdout</command> tool performs few <computeroutput>FILE</computeroutput> verification, to let the user the full power of the functionalities. But you should keep in mind the use of <computeroutput>bmatch</computeroutput> and <computeroutput>stop/start</computeroutput> actions is really tricky and need a deep understanding of IOMatch and <command>verrou_dd_stdout</command>.
+		</para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--filter-cmd=CMD</computeroutput> or <computeroutput>VERROU_DD_FILTER_CMD</computeroutput>
+              </term>
+              <listitem>
+            <para>
+	      The command <computeroutput>CMD</computeroutput> is used by verrou to replace the stdout lines by the result of the command. CMD reads lines from stdin and write his result to stdout for each line. The command is run only once, so it mean we have to pay attention to bufferization (We may need to use the option <computeroutput>-u</computeroutput> of <computeroutput>sed</computeroutput> or <computeroutput>python3</computeroutput>). The command  <computeroutput>"/usr/bin/sed -u s/debug:.*//"</computeroutput> used together with <computeroutput>--ignore-empty-line=true</computeroutput> may be a way to ignore debug message.
+	      If you want to write your own python script, these is an example:
+	 <programlisting>
+#!/usr/bin/python3 -u
+import sys
+
+def applyFilter(strLine,filterList):
+    res=strLine
+    for filterFnc in filterList:
+        res=filterFnc(res)
+    return res
+
+def deleteDebug(strLine):
+    if "debug" in strLine:
+        return ""
+    else:
+        return strLine
+
+def getLineCharByChar():
+    line=""
+    while True:
+        c=sys.stdin.read(1)
+        if line== "\x00": #EOF detected
+            return None
+        if c=='\n':
+            return line
+        line+=c
+
+if __name__=="__main__":
+    while True:
+        line=getLineCharByChar()
+        if line==None:
+            sys.exit(0)
+        print(applyFilter(line, [deleteDebug]))
+	 </programlisting>
+To avoid problem with bufferization, we need to write your own <computeroutput>readline</computeroutput> function (cf. <computeroutput>getLineCharByChar</computeroutput>) and to use <computeroutput>-u</computeroutput> <computeroutput>python3</computeroutput> option.
+
+	    </para>
+
+	    <para>
+	      The first argument of <computeroutput>CMD</computeroutput> has to be an absolute path (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the spaces are used to separate command arguments. To prevent this behaviour, the only way is to escape the spaces by backslash.
+	    </para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--custom-search-space=FILE</computeroutput> or <computeroutput>VERROU_DD_CUSTOM_SEARCH_SPACE</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  The default search space generated may suffer of default. By default all floating point are replace by *. But if floating point are printed as int, there are missing. To bypass the issue it is possible to recover the file <computeroutput>dd.stdout/ref/dd.IOMatch</computeroutput> and perform manually the correction. Usually we only add * but it is also possible to do more complex modification:
+		  <itemizedlist>
+              <listitem><para>The line order can be modified. Indeed if a line matches two wildcard expressions, the first one is taken into account. So if one expression is more specific than an other one, we should place it first.</para></listitem>
+
+
+	      <listitem><para>By default the float are wildcarded by * and integer kept. But if we want specified iteration by the error order it is possible to rewrite the following example:
+		  <programlisting>
+		    IT=0 ERRS=*
+		    IT=1 ERRS=*
+		    IT=2 ERRS=*
+		    IT=3 ERRS=*</programlisting>
+		  by this search space :
+		  <programlisting>
+		    IT=* ERRS=*e-01
+		    IT=* ERRS=*e-02
+		    IT=* ERRS=*e-03
+		    IT=* ERRS=*e-04
+		    IT=* ERRS=*e-*
+		    IT=* ERRS=*</programlisting>
+	      </para></listitem>
+            </itemizedlist>
+		</para>
+              </listitem>
+            </varlistentry>
+
+	    <varlistentry>
+	      <term>
+		<computeroutput>--file-pattern=FILE_PATTERN</computeroutput> or <computeroutput>VERROU_DD_FILE_PATTERN</computeroutput>
+              </term>
+              <listitem>
+		<para>
+		  The stdout file can be replaced by the first file which matches the <computeroutput>FILE_PATTERN</computeroutput>. The <computeroutput>FILE_PATTERN</computeroutput> has to match only one opened file.
+		  To avoid difficulties with the absolute and relative path, the easiest way is to use a wildcard * for the path. If you want to be more precise,
+		  you could use a <computeroutput>strace</computeroutput> command to know how a file is opened:
+		  <programlisting>
+strace -e openat,open,creat -f -ff -o strace_verrou MYPROG MYARGS
+cat strace_verrou.*</programlisting>
+		</para>
+	      </listitem>
+            </varlistentry>
+        </variablelist>
+      </para>
+      </simplesect>
+    </simplesect>
+
+    <simplesect  id="vr-manual.verrou_task">
+      <title>Definition of verrou task</title>
+
+      A verrou task is defined by a key string and an index integer. The integer is usually used to specify a line of code or an iteration number. If you want to use both, you have to build a string post-fixed by one of both integers. If you need neither of both, 0 is fine.
+
+      The task represents the code between the verrou task call and the next one (or finalyze call).
+      <variablelist>
+      <varlistentry><term>C API</term>
+	<listitem>
+	  <para>
+	    <programlisting>#include "libverrouTask.h"</programlisting>
+	    <programlisting>
+void verrou_task_init();
+void verrou_task(char const*const key, int index);
+void verrou_task_finalyze();</programlisting>
+	    To link you need to use the following link flag : <computeroutput>-lverrouTask</computeroutput>
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry><term>Python API</term>
+	<listitem>
+	  <para>
+	    The python API does not contain init and finalyze as it is done automatically by the module import.
+	    <programlisting>
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.task("taskString", taskInt)</programlisting>
+</para>
+
+
+	  You can notice  that verrouPyBinding can also provide binding to <link linkend="vr-manual.client-requests">other client requests</link>:
+	  <programlisting>
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.start_instrumentation()
+verrou.stop_instrumentation()
+verrou.start_soft_instrumentation()
+verrou.stop_soft_instrumentation()
+index=verrou.dump_cover()
+verrou.display_counters()
+nbInst=verrou.count_fp_instrumented()
+nbNotInst=verrou.count_fp_not_instrumented()</programlisting>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry><term>Python module instrumentation</term>
+	<listitem>
+	  <para>
+	    The <computeroutput>trace_verrou_task.py</computeroutput> is a fork of trace.py (provided by cpython distribution) which add verrou task for each python line. The key is the filename and the index the line number.
+
+	    To use it with <computeroutput>verrou_dd_task</computeroutput> it imply to modify the run script following the example:
+	    <programlisting>
+#!/bin/bash
+DIR=$1
+valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonProg.py > $DIR/res.dat</programlisting>
+	    </para>
+	</listitem>
+	</varlistentry>
+
+
+      <varlistentry><term>Remarks:</term>
+	<listitem>
+	  <para>
+	    <itemizedlist>
+		<listitem>
+		  <para>
+		    The APIs are not thread safe. As valgrind sequentialize threads, it is usually not an issue. But if due to parallelism, it is not clear which code is contained in the task, the user may have to modify his own code to suppress ambiguities.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Internal use of environnement variables:
+		    <itemizedlist>
+		      <listitem>
+			<computeroutput>DEBUG_PRINT_TASK</computeroutput>: configure the debug status
+		      </listitem>
+		      <listitem>
+			<computeroutput>TASK_LIST</computeroutput>: read the file to setup which tasks are instrumented.
+		      </listitem>
+		      <listitem>
+			<computeroutput>GENERATE_TASK_LIST</computeroutput>: generate the file containing the list of tasks.
+		      </listitem>
+		      <listitem>
+			<computeroutput>GENERATE_TASK_FP_LIST</computeroutput>: generate the file containing the list of tasks containing instrumented floating point operation.
+		      </listitem>
+		    </itemizedlist>
+		  </para>
+		</listitem>
+	    </itemizedlist>
+	  </para>
+	</listitem>
+	</varlistentry>
+      </variablelist>
+    </simplesect>
+
+    <simplesect  id="vr-manual.verrou_dd_clean">
+      <title> verrou_dd_clean</title>
+      <simplesect>
+	<simplesect id="vr-manual.verrou_dd_clean.description">
+      <para>The tool <command>verrou_dd_clean</command> enables to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
+	 and the default value is <command>./</command>).
+	In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
+      </para>
+      </simplesect>
+	</simplesect>
+      <simplesect>
+	  <title>Synopsis</title>
+	  <screen><cmdsynopsis id="vr-manual.verrou_dd_clean.synopsis">
+              <command>verrou_dd_clean [options]</command>
+              <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
+	</simplesect>
+
+
+    <simplesect>
+      <title>Options</title>
+
+      <variablelist id="vr-manual.verrou_dd_clean.envvars">
+        <varlistentry>
+          <term>
+            <computeroutput>--help</computeroutput>
+          </term>
+          <listitem>
+            <para> Print help</para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+             <computeroutput>--dry-run</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Only print what will do the command. Useful if you need to check carefuly what will be deleted.
+	    </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </simplesect>
+    </simplesect>
   </section>
 
     <section id="vr-manual.localization.coverage" xreflabel="Coverage">
@@ -445,7 +829,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       The first technique to localize unstable tests, is based on the compatibility with instrumentation provided by the compilers.
       The idea is to produce with compiler tools (option <computeroutput>--coverage</computeroutput> and tool <computeroutput>gcov</computeroutput> for <computeroutput>gcc</computeroutput>) two code coverage for the analyzed test case.
       The first one can be generate without verrou or with <computeroutput>nearest</computeroutput> rounding mode and the second one with <computeroutput>random</computeroutput> rounding mode. The second one can be produced several time, to
-      get a coverage with sufficient discrepancie compared to the one with  <computeroutput>nearest</computeroutput> rounding mode. Once both code coverage generated, simple graphical tools
+      get a coverage with sufficient discrepancies compared to the one with  <computeroutput>nearest</computeroutput> rounding mode. Once both code coverage generated, simple graphical tools
       as <computeroutput>meld</computeroutput> or <computeroutput>kompare</computeroutput> can be used to pinpoint potential unstable test.
     </para>
     </section>
@@ -454,27 +838,27 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
       <title>Basic Block coverage comparison</title>
       <para>
 	The second technique to localize unstable tests, is based on Basic Block (BB) Coverage provided by verrou. The idea behind this technique is the same as behind code coverage comparison except in the way to produce the coverage.
-	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without library the following script can be used :
+	First it is required to specify which part of the code to trace (instrument BB coverage), with a file format similar to symbols exclusion file. To instrument only the binary without libraries the following script can be used:
 	<programlisting>
-	 echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc
-	</programlisting>
+echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc</programlisting>
 
-	With the <computeroutput> trace.inc</computeroutput> the BB coverage instrumenttion can be activated with the <computeroutput>--trace=</computeroutput> option :
+	With the <computeroutput> trace.inc</computeroutput> the BB coverage instrumentation can be activated with the <computeroutput>--trace=</computeroutput> option:
 	<programlisting>
-	  valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <replaceable>program args</replaceable>
-	</programlisting>
+valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <replaceable>program args</replaceable></programlisting>
 
 	Hence two files <computeroutput>trace_bb_cov.log-PID</computeroutput> and <computeroutput>trace_bb_info.log-PID</computeroutput> are generated.
 	The first one contains counter information for each Basic Blocks and the second one contains debug information for each Basic Bloc. These two files (which must be moved together)
 	can be post-treated to be as readable as possible with the <computeroutput>genCovBB</computeroutput> command.
 	<programlisting>
-	genCovBB trace_bb_cov.log-*
-	</programlisting>
+genCovBB trace_bb_cov.log-*
+</programlisting>
 
 	The differences between generated coverage  are more difficult to analyze compared to the ones generated by code coverage tools, because the code structure is lost. Nevertheless
 	it is easier to generate  and can produced really powerful
 	information if used with the client request <computeroutput>VERROU_DUMP_COVER</computeroutput> to recover partially time information lost by coverage techniques.
-
+      </para>
+      <para>
+	The BB coverage generation can be simplified by <command>post_verrou_dd</command>.
       </para>
     </section>
 
@@ -491,10 +875,10 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
     </simplesect>
 
-    <simplesect>
+    <simplesect id="vr-manual.post_verrou_dd.description">
       <title>Description</title>
       <para>
-	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_*</command> commands.
+	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command> command.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
       </para>
@@ -571,6 +955,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	    <computeroutput>div</computeroutput>,
 	    <computeroutput>madd</computeroutput>,
 	    <computeroutput>msub</computeroutput>,
+	    <computeroutput>sqrt</computeroutput>,
 	    <computeroutput>conv</computeroutput>.
 	    </para>
 	    </listitem>
@@ -583,10 +968,14 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>sr_[s]monotonic</computeroutput>,
+	     <computeroutput>nearest</computeroutput>,
+	     <computeroutput>native</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
-	     <computeroutput>toward_zero</computeroutput>
+	     <computeroutput>toward_zero</computeroutput>,
+	     <computeroutput>away_zero</computeroutput>
 	     )
           </term>
           <listitem>
@@ -615,7 +1004,7 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
           <listitem>
             <para>
 	      Activate the BB coverage trace generation. The verrou trace file is automatically generated with the binary
-	      object (without library). If the trace file
+	      object (without libraries). If the trace file
 	      is not the one expected, the option <computeroutput>--trace-file=</computeroutput> has to be used.
 	    </para>
           </listitem>
@@ -664,11 +1053,11 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 
     </simplesect>
 
-    <simplesect>
+    <simplesect id="vr-manual.plotstat.description">
       <title>Description</title>
       <para>
 	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
-	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator.
+	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator (results are printed in <command>stdout</command> and in a file <command>stat.last</command>).
       </para>
 
       <screen>
@@ -687,20 +1076,21 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           <listitem><simpara> The abs estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)</mathphrase> .</simpara></listitem>
 	  <listitem><simpara> The rel estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|</mathphrase> </simpara></listitem>
           <listitem><simpara> The binary rel estimator is <mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|)</mathphrase></simpara></listitem>
-          <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all determinist computed rounding mode</simpara></listitem>
+          <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all deterministic computed rounding mode</simpara></listitem>
 
 	</itemizedlist>
       </para>
 
       <para>
-	The scripts <command> run_script </command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by exemple with
+	The scripts <command>run_script</command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by example with
 	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>).
 
-	The script <command> extract_script </command> has only one parameter (the repository of computation : the same parameter of <command>run_script</command>). It has to print
+	The script <command>extract_script</command> has only one parameter (the repository of computation: the same parameter of <command>run_script</command>). It has to print
 	the extracted value on the first line of the standard output.
 
-	To study several output variables the command can be called several time the command with different <command>extract_script </command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun.
+	To study several output variables the command can be called several times the command with different <command>extract_script</command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun. There is no guarantee in case of concurrent run of the command verrou_plot_stat and the <command>run_script</command> and <command>extract_script </command> should not be modify during a <command>verrou_plot_stat</command> call.
       </para>
+
     </simplesect>
 
     <simplesect>
@@ -733,7 +1123,27 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--samples=</computeroutput> or <computeroutput>-s</computeroutput>
+          <computeroutput>--cache=continue[default]|clean|rename</computeroutput>
+          </term>
+	  <listitem>
+            <para>
+	      Option to choose the policy with the existing cache defined by <computeroutput>--rep</computeroutput> option.
+	    </para>
+	    <para>
+	      <computeroutput>clean</computeroutput>: the previous cache is removed.
+	    </para>
+	    <para>
+	      <computeroutput>rename</computeroutput>: the previous cache is renamed with time information (time of last file modification).
+	    </para>
+	    <para>
+	      <computeroutput>continue</computeroutput>: the previous cache is kept for all computation.
+	    </para>
+	    </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--samples=</computeroutput> or <computeroutput>--nruns=</computeroutput>  or <computeroutput>-s</computeroutput>
           </term>
           <listitem>
             <para>An integer setting the run number of random and average distribution. If this variable is not set, the default value is
@@ -754,13 +1164,16 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--rounding-list=</computeroutput>
+            <computeroutput>--rounding-list=</computeroutput> or  <computeroutput>--rounding-mode=</computeroutput> or  <computeroutput>--rounding=</computeroutput>
           </term>
           <listitem>
             <para> A coma separated list of rounding mode. The list can contain
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
 	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>sr_[s]monotonic</computeroutput>,
+	     <computeroutput>nearest</computeroutput>,
+	     <computeroutput>native</computeroutput>,
 	     <computeroutput>upward</computeroutput>,
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
@@ -780,6 +1193,10 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	  </listitem>
 	  <listitem>
 	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>.
+	    </para>
+	  </listitem>
+	  <listitem><para>
+	    If the option is set multiple times, the list will be append to the current list.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -852,7 +1269,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <computeroutput>--ref=VALUE</computeroutput>
           </term>
           <listitem>
-            <para> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not determinist, the average value is taken.
+            <para> This option is used to defined the reference used to compute accuracy estimator. The VALUE is key to a rounding mode (nearest, upward, ...). If the rounding mode is not deterministic, the average value is taken.
 	    </para>
           </listitem>
 	</varlistentry>
@@ -884,7 +1301,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           </term>
           <listitem>
             <para> This option enables to plot histogram for computation run without the framework or after files renaming.
-	      Typical calls  are :
+	      Typical calls are:
 	    </para>
 	    <para>
 	      <computeroutput>--rep="." --specific-pattern=verrou.stat/random/dd.run* </computeroutput>
@@ -895,6 +1312,17 @@ all:	4.337773e+03	4.0964e-02	4.61bit
           </listitem>
 	</varlistentry>
 
+	<varlistentry>
+	  <term>
+	    <computeroutput>--seed=</computeroutput>
+          </term>
+	  <listitem>
+	    <para>
+	      Option to specify the seed used by <command>verrou_plot_stat</command> tool to setup the <computeroutput>VERROU_SEED</computeroutput>. This option is similar to <option>--seed</option> of <command>verrou_dd_*</command>.
+	    </para>
+	  </listitem>
+
+	</varlistentry>
       </variablelist>
 
     </simplesect>

@@ -4,10 +4,24 @@ class vr_dietzfelbinger_hash{
 public:
   static inline void genTable(tinymt64_t& gen){};
 
-  template<int NB>
+  template<class PACKARGS>
   static inline bool hashBool(const Vr_Rand * r,
-			      const vr_packArg<double,NB>& pack,
+			      const PACKARGS& pack,
 			      uint32_t hashOp){
+    return hashBoolSpecialized(r,pack,hashOp);
+  }
+
+  template<class PACKARGS>
+  static inline double hashRatio(const Vr_Rand * r,
+				 const PACKARGS& pack,
+				 uint32_t hashOp){
+    return hashRatioSpecialized(r,pack, hashOp);
+  }
+
+  template<int NB>
+  static inline bool hashBoolSpecialized(const Vr_Rand * r,
+					 const vr_packArg<double,NB>& pack,
+					 uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
     const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
@@ -19,10 +33,20 @@ public:
     return res;
   }
 
+
+  template<class REALTYPE>
+  static inline bool hashBoolSpecialized(const Vr_Rand * r,
+					 const packargsIntReal<REALTYPE>& pack,
+					 uint32_t hashOp){
+    REALTYPE arg2(pack.arg2);
+    vr_packArg<REALTYPE,1> p(arg2);
+    return hashBoolSpecialized(r,p,hashOp);
+  }
+
   template<int NB>
-  static inline bool hashBool(const Vr_Rand * r,
-			      const vr_packArg<float,NB>& pack,
-			      uint32_t hashOp){
+  static inline bool hashBoolSpecialized(const Vr_Rand * r,
+					 const vr_packArg<float,NB>& pack,
+					 uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
     const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1); //<<1 to avoid conflict with |1
@@ -37,9 +61,9 @@ public:
 
 
   template<int NB>
-  static inline double hashRatio(const Vr_Rand * r,
-			  const vr_packArg<double,NB>& pack,
-			  uint32_t hashOp){
+  static inline double hashRatioSpecialized(const Vr_Rand * r,
+					    const vr_packArg<double,NB>& pack,
+					    uint32_t hashOp){
 
     const uint64_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);
     const uint64_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
@@ -54,9 +78,9 @@ public:
   }
 
   template<int NB>
-  static inline double hashRatio(const Vr_Rand * r,
-			  const vr_packArg<float,NB>& pack,
-			  uint32_t hashOp){
+  static inline double hashRatioSpecialized(const Vr_Rand * r,
+					    const vr_packArg<float,NB>& pack,
+					    uint32_t hashOp){
 
     const uint32_t argsHash =  vr_dietzfelbinger_hash::xorHash(pack);;
     const uint32_t seed = vr_rand_getSeed(r) ^ (hashOp<<1);
@@ -70,8 +94,14 @@ public:
     return ((double)res * invMax ); //2**32 = 4294967296
   }
 
-
-
+  template<class REALTYPE>
+  static inline double hashRatioSpecialized(const Vr_Rand * r,
+					    const packargsIntReal<REALTYPE>& pack,
+					    uint32_t hashOp){
+    REALTYPE arg2(pack.arg2);
+    vr_packArg<REALTYPE,1> p(arg2);
+    return hashRatioSpecialized(r,p,hashOp);
+  }
 
   static inline double hashRatioFromResult(const Vr_Rand * r,
 					   const float* res){

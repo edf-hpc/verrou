@@ -32,17 +32,21 @@
 */
 
 #include "vr_main.h"
+#include "vr_exclude.h"
+
+#include "pub_tool_seqmatch.h"
 
 #define LINE_SIZEMAX VR_FNNAME_BUFSIZE
 
 #define UNAMED_FUNCTION_VERROU "unamed_function_verrou"
 #define UNAMED_OBJECT_VERROU "unamed_object_verrou"
 
-static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname, Bool used) {
+static Vr_Exclude* vr_addExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname, Bool used, Bool counted) {
   Vr_Exclude * cell = VG_(malloc)("vr.addExclude.1", sizeof(Vr_Exclude));
   cell->fnname  = VG_(strdup)("vr.addExclude.2", fnname);
   cell->objname = VG_(strdup)("vr.addExclude.3", objname);
   cell->used    = used;
+  cell->counted = counted;
   cell->next    = list;
   return cell;
 }
@@ -136,7 +140,8 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
     list = vr_addExclude (list,
 			  line, /*fnname=*/
 			  c,/*objname*/
-			  False
+			  False,/*used*/
+			  True /*counted*/
 			  );
   }
 
@@ -148,14 +153,50 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
   return list;
 }
 
-Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr) {
+
+Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName){
+  static const HChar libmPattern1[]="*libm.so*";
+  static const HChar libmPattern2[]="*libm-*.so*";
+  static const HChar libumathPattern[]="*umath.cpython*.so*";
+  static const HChar libinterlibmPattern1[]="*interlibmath.so";
+  static const HChar libinterlibmPattern2[]="*vgpreload_verrou-*.so";
+  static const HChar libquadmathPattern[]="*libquadmath*.so*";
+  static const HChar libgccPattern[]="*libgcc_s*.so*";
+
+
+#define LIB_NB_PATTERN 7
+  const HChar* libPattern[LIB_NB_PATTERN]={libmPattern1, libmPattern2,
+					   libumathPattern,
+					   libinterlibmPattern1, libinterlibmPattern2,
+					   libquadmathPattern,
+					   libgccPattern};
+  const HChar star[]="*";
+  for(int i=0; i< LIB_NB_PATTERN; i++){
+    if( VG_(string_match)(libPattern[i],objName)){
+      VG_(umsg)("EXCLUDE DETECTED: %s\n",objName);
+      return vr_addExclude (list, star, objName,False,False);
+    }
+  }
+  return list;
+}
+
+
+
+
+Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr, Bool* counted) {
 
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.exclude, *fnnamePtr, *objnamePtr);
   if (exclude == NULL) {
+    if(counted !=NULL){
+      *counted=True;
+    }
     return False;
   }
 
+  if(counted !=NULL){
+    *counted=exclude->counted;
+  }
   // Inform the first time a rule is used
   if (!exclude->used) {
     VG_(umsg)("Using exclusion rule: %s\t%s\n", exclude->fnname, exclude->objname);
@@ -172,7 +213,8 @@ vr_excludeIRSB_generate (const HChar** fnnamePtr, const HChar **objnamePtr) {
   // Never exclude functions / objects unless they are explicitly listed
   Vr_Exclude *exclude = vr_findExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr);
   if(exclude==NULL){
-    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr, True);
+    vr.gen_exclude = vr_addExclude (vr.gen_exclude, *fnnamePtr, *objnamePtr,
+				    True , True/* Normally not used */);
   }
 }
 

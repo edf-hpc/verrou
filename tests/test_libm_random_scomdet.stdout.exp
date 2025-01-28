@@ -1,0 +1,18 @@
+float
+cos: max diff=0
+sin: max sum=0
+j0: max diff=0
+j1: max sum=0
+pow: max diff=0
+atan2: max diff=0
+atan2: max diff (nada)=70.302139282226562
+fma: max diff =0
+double
+cos: max diff=0
+sin: max sum=0
+j0: max diff=0
+j1: max sum=0
+pow: max diff=0
+atan2: max diff=0
+atan2: max diff (nada)=70.302138431930487
+fma: max diff =0

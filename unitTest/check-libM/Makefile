@@ -20,31 +20,42 @@ NUMSAMPLEIN=459 #probablility 0.99 and confidence level 1-alpha=0.99
 data=resNative.dat resRandomverrou.dat resRandominterlibm.dat resRandomverrou+interlibm.dat reference.dat
 
 .PHONY: $(data) $(INTERLIBMREP)/interlibmath.so
-all: check
+all:check
+
+
+$(BIN): $(SRC)
+	g++ $(FLAGS) $(LDFLAGS) -o $@  $^ $(MPFILIB)
 
 $(INTERLIBMREP)/interlibmath.so:
 	make -C $(INTERLIBMREP) clean
 	make -C $(INTERLIBMREP)
 
-$(BIN): $(SRC)
-	     g++ $(FLAGS) $(LDFLAGS) -o $@  $^ $(MPFILIB)
-
 resNative.dat: $(BIN)
 	$(BIN) > $@
 
-libm.ex: $(BIN) $(INTERLIBMREP)/interlibmath.so
-	ldd $(BIN)             |grep libm.so     |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" > libm.ex
-	ldd $(INTERLIBMREP)/interlibmath.so |grep libquadmath |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
-	ldd $(INTERLIBMREP)/interlibmath.so |grep libgcc_s    |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
 
-resRandomverrou.dat: $(BIN) libm.ex
-	$(VALGRIND) --rounding-mode=random --exclude=libm.ex $(BIN) $(NUMSAMPLEIN) > $@
+bin.ex: $(BIN)
+	echo "* $(shell readlink -f $(BIN))" > bin.ex
+#libm.ex: $(BIN)
+#	ldd $(BIN)             |grep libm.so     |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" > libm.ex
+#	ldd $(INTERLIBMREP)/interlibmath.so |grep libquadmath |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >>libm.ex
+#	ldd $(INTERLIBMREP)/interlibmath.so |grep libgcc_s    |cut -d " " -f 3 | xargs readlink -f | xargs echo "*" >libm.ex
 
-resRandominterlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so
-	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so VERROU_ROUNDING_MODE=random $(BIN) $(NUMSAMPLEIN) > $@
+resRandomverrou.dat: $(BIN)# libm.ex
+	$(VALGRIND) --rounding-mode=random $(BIN) $(NUMSAMPLEIN) > $@
 
-resRandomverrou+interlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so libm.ex
-	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so VERROU_ROUNDING_MODE=random $(VALGRIND) --exclude=libm.ex $(BIN) $(NUMSAMPLEIN) > $@
+#resRandominterlibm.dat: $(BIN) $(INTERLIBMREP)/interlibmath.so
+#	LD_PRELOAD=$(INTERLIBMREP)/interlibmath.so  VERROU_LIBM_ROUNDING_MODE=random  $(BIN) $(NUMSAMPLEIN) > $@
+
+resRandominterlibm.dat: $(BIN) bin.ex
+	$(VALGRIND) --rounding-mode=random --exclude=bin.ex --libm=instrumented $(BIN) $(NUMSAMPLEIN) > $@
+
+
+
+resRandomverrou+interlibm.dat: $(BIN)
+	VERROU_ROUNDING_MODE=random $(VALGRIND) --libm=instrumented $(BIN) $(NUMSAMPLEIN) > $@
+
+
 
 reference.dat:
 	$(BIN) -1 > $@

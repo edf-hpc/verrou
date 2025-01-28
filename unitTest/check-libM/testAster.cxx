@@ -97,6 +97,9 @@ int main(int argc, char** argv){
 
   double a1double= a, a2double=a+ numberEpsilon* DBL_EPSILON ;
   float a1float= af, a2float=af+ numberEpsilon* FLT_EPSILON ;
+  //a2double= a+10*(nextafter(a, 1.)-a);
+  //a2float= af+10*(nextafterf(af, 1.)-af);
+
   if(!ref){
     std::cout << "BeforeCorrection_Double"
 	      << "\t" << "AfterCorrection_Double"

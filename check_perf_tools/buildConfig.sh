@@ -28,13 +28,13 @@ cd ..
 git archive ${BRANCH_VERROU} | tar -x -C ${VALGRIND_PATH}/verrou ||exit 42
 
 cd ${VALGRIND_PATH} || exit 42
-patch -p1 <verrou/valgrind.diff
+cat verrou/valgrind.*diff |patch -p1 ||exit 42
 
 ./autogen.sh
-./configure --enable-only64bit ${FLAGS} --prefix=${INSTALL_REP}
+./configure --enable-only64bit ${FLAGS} --prefix=${INSTALL_REP} || exit 42
 
-make -j 6
-make install
+make -j 6 || exit 42
+make install || exit 42
 
 
 

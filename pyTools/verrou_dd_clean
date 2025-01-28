@@ -1,0 +1,95 @@
+#!/usr/bin/python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2024 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+
+import sys
+import os
+import shutil
+import copy
+import glob
+
+class DDClean:
+    def __init__(self, prefix):
+        if prefix[0]=='/':
+            self.prefix_=prefix
+        else:
+            self.prefix_=os.path.join(os.getcwd(), prefix)
+
+    def searchSymLink(self):
+        """Return the list of symlink (created by DD_stoch) in the cache"""
+        res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
+        res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
+        res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
+        res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
+        res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
+        return [x for x in res if os.path.islink(x)]
+
+    def clean(self, dryRun):
+        symLinkTab=self.searchSymLink()
+        if len(symLinkTab)==0:
+            print("is %s a verrou_dd rep?"%(self.prefix_))
+            return
+
+        repToKeep=[os.path.basename(os.readlink(x)) for x in symLinkTab]
+
+        for item in os.listdir(self.prefix_):
+            if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
+                itemStd=os.path.abspath(os.path.join(self.prefix_, item ))
+
+                #check md5sum format
+                if not os.path.basename(itemStd) in repToKeep:
+                    if not dryRun:
+                        print("remove: %s"%(itemStd))
+                        shutil.rmtree(itemStd)
+                        pass
+                    else:
+                        print("[dry]remove: %s"%(itemStd))
+                else:
+                    print("keep: %s"%(itemStd))
+
+def help():
+    print(sys.argv[0] +" [rep]" + " [--dry-run,--help]")
+    sys.exit(42)
+
+
+if __name__=="__main__":
+    dryRun=False
+    argv=copy.deepcopy(sys.argv)
+    if "--help" in sys.argv:
+        help()
+    if "--dry-run" in sys.argv:
+        dryRun=True
+        argv.remove("--dry-run")
+
+    path="."
+    if len(argv)==2:
+        path=argv[1]
+    elif len(argv)==1:
+        pass
+    else:
+        help()
+
+    ddCleanTool=DDClean(path)
+    ddCleanTool.clean(dryRun)

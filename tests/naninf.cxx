@@ -13,7 +13,7 @@ void printNaN(double n) {
 }
 
 int main()
-{
+{ double x=cos(42.); if(x!=x) printf ("FAILURE\n");// line to force libm use
   double d = 42.;
   std::cout << "d           = " << d << std::endl;
 

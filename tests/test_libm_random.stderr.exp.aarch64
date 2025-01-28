@@ -1,0 +1,353 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : no
+	sub : no
+	mul : no
+	div : no
+	mAdd : yes
+	mSub : yes
+	sqrt : no
+	cmp : no
+	conv : no
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+	ldbl : no
+Backend verrou simulating RANDOM rounding mode
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+New seed : 0
+New seed : 1
+New seed : 2
+New seed : 3
+New seed : 4
+New seed : 5
+New seed : 6
+New seed : 7
+New seed : 8
+New seed : 9
+New seed : 10
+New seed : 11
+New seed : 12
+New seed : 13
+New seed : 14
+New seed : 15
+Interlibm counter ( ROUNDINGMODE=RANDOM )
+		 Total 	Instrumented
+---------------------------------------------------
+sin		66	66
+ `- flt 	33	33
+ `- dbl 	33	33
+---------------------------------------------------
+cos		66	66
+ `- flt 	33	33
+ `- dbl 	33	33
+---------------------------------------------------
+j0		66	66
+ `- flt 	33	33
+ `- dbl 	33	33
+---------------------------------------------------
+j1		66	66
+ `- flt 	33	33
+ `- dbl 	33	33
+---------------------------------------------------
+atan2		132	132
+ `- flt 	66	66
+ `- dbl 	66	66
+---------------------------------------------------
+pow		66	66
+ `- flt 	33	33
+ `- dbl 	33	33
+---------------------------------------------------
+fma		32	32
+ `- flt 	16	16
+ `- dbl 	16	16
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                      128                        0          (  0%)
+  `- flt                       64                        0      (  0%)
+      `- llo                       64                        0  (  0%)
+  `- dbl                       64                        0      (  0%)
+      `- llo                       64                        0  (  0%)
+ ---------------------------------------------------------------------
+ sub                      128                        0          (  0%)
+  `- flt                       64                        0      (  0%)
+      `- llo                       64                        0  (  0%)
+  `- dbl                       64                        0      (  0%)
+      `- llo                       64                        0  (  0%)
+ ---------------------------------------------------------------------
+ div                       14                        0          (  0%)
+  `- flt                        7                        0      (  0%)
+      `- llo                        7                        0  (  0%)
+  `- dbl                        7                        0      (  0%)
+      `- llo                        7                        0  (  0%)
+ ---------------------------------------------------------------------
+ mAdd                      32                       32          (100%)
+  `- flt                       16                       16      (100%)
+  `- dbl                       16                       16      (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

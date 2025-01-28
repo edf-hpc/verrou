@@ -1,28 +1,21 @@
-.PHONY: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro valgrind-test
+SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython
 
+.PHONY: valgrind-test
 
-all: checkRounding checkStatRounding checkUCB-vecto check-libM check-dd check-verrou-dd-synchro
-checkRounding:
-	make -C ./checkRounding
+all:
+	for i in $(SUBREPLIST) ; do \
+		make -C "./$$i" || exit 42; \
+	done
 
-checkStatRounding:
-	make -C ./checkStatRounding
-
-
-checkUCB-vecto:
-	make -C ./checkUCB-vecto
-
-check-libM:
-	make -C ./check-libM
-
-check-verrou-dd-synchro:
-	make -C ./check-verrou-dd-synchro
-
-check-dd:
-	make -C ./ddTest
 
 #to be able to do valgrind test from this directory
 valgrind-test:
 	make -C ../../tests check
 	make -C ../../verrou check
 	cd ../..; perl ./tests/vg_regtest verrou/tests
+
+
+clean:
+	for i in $(SUBREPLIST) ; do \
+		make -C "./$$i" clean ; \
+	done

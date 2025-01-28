@@ -5,7 +5,8 @@ download-valgrind:
 
 patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
-	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.diff
+	cd ../valgrind+verrou && cat verrou/valgrind.*diff | patch -p1
+
 patch-error:
 	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
 	# try to build verrou anyway if we check the development version of Valgrind
@@ -16,7 +17,7 @@ configure:
 	cd ../valgrind+verrou && ./autogen.sh
 
 	@echo "*** CONFIGURE ***"
-	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/install
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/../install
 
 build:
 	@echo "*** MAKE ***"
@@ -27,10 +28,10 @@ build:
 
 check-install:
 	@echo "*** CHECK VERSION ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --version
+	source ../install/env.sh && valgrind --version
 
 	@echo "*** CHECK HELP ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --tool=verrou --help
+	source ../install/env.sh && valgrind --tool=verrou --help
 
 check:
 	@echo "*** BUILD TESTS ***"
@@ -47,3 +48,12 @@ check-error:
 unit-test:
 	@echo "*** UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
+
+post-regtest-checks:
+	@echo "*** POST_REGTEST_CHECKS ***"
+	cd ../valgrind+verrou/ && make post-regtest-checks
+
+gitignore-checks:
+	@echo "*** GITIGNORE_CHECKS ***"
+	cd ../valgrind+verrou/verrou && git status --porcelain | grep '^??' | cut -c4- |tee /tmp/tracked_file.tmp
+	cat /tmp/tracked_file.tmp | wc -l |xargs test 0 -eq

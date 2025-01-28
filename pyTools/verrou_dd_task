@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+import sys
+import os
+from valgrind import dd_config
+from valgrind import DD_stoch
+from valgrind import DD_exec_stat
+
+
+class DDTask(DD_stoch.DDStoch):
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config)
+
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
+                "VERROU_FLOAT":"no",
+                "VERROU_MCA_MODE": "ieee",
+                "GENERATE_TASK_LIST":   os.path.join(self.ref_,"dd.task.gen"),
+                "GENERATE_TASK_FP_LIST":   os.path.join(self.ref_,"dd.taskFP.gen"),
+                "VERROU_COUNT_OP":"yes",
+                }
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.taskFP.")
+
+    def getDeltaFileName(self):
+        return "dd.task"
+
+    def sampleRunEnv(self,dirName):
+        return {"TASK_LIST": os.path.join(dirName,self.getDeltaFileName() +".include"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+                "TASK_STOP_START": self.config_.hardOrSoft
+        }
+
+    def coerce(self, delta_config):
+        return  "\n  " + "\n  ".join(["%s:%d" % e for e in
+                                      [(col[0], int(col[1])) for col in
+                                       [(l.strip()+"\t\t").split("\t") for l in delta_config]]])
+
+class ddTaskConfig(dd_config.ddConfig):
+
+    def __init__(self, argv, environ):
+        super().__init__(argv,environ,["INTERFLOP_DD","VERROU_DD"],prefix="dd.task")
+        self.instr_prefix="VERROU"
+
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("hardOrSoft", "string", "STOP_START",["--stop_start="],"hard",["hard","soft"] )
+
+if __name__ == "__main__":
+    config=ddTaskConfig(sys.argv,os.environ)
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
+    dd = DDTask(config)
+    dd.run()
+    et.terminate()

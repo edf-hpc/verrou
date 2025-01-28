@@ -7,17 +7,41 @@ import subprocess
 import math
 from tabular import *
 
-detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic"]
+from gen_build import workDirectory
+
+
+what="cmpBranch"
+if len(sys.argv)==2:
+    if sys.argv[1]=="cmpBranch":
+        what="cmpBranch"
+    elif sys.argv[1]=="cmpHash":
+        what="cmpHash"
+    elif sys.argv[1]=="cmpStable":
+        what="cmpStable"
+    else:
+        print("invalid cmd")
+        sys.exit(42)
+if not len(sys.argv) in [1,2]:
+    print("invalid cmd")
+    sys.exit(42)
+
+#cmpBranch
+buildConfList=[ "master", "seed", "llo"]
+detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
-buildConfList=[ "current","dietzfelbinger","multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
-#buildConfList=["double_tabulation"]#,"mersenne_twister"]
-buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
+refName="master"
+
+#cmpHash
+if what=="cmpHash":
+    buildConfList=[ "current","dietzfelbinger","multiply_shift", "double_tabulation", "xxhash","mersenne_twister"]
+    refName="current"
 
 pathNumBin="../unitTest/checkStatRounding"
 runNum="run.sh"
 extractNum="extract.py"
 numEnvConfigTab=[{"ALGO":algo, "ALGO_TYPE":realtype} for realtype in ["double", "float"] for algo in ["Seq", "Rec"]]
 
+buildConfListXoshiro=[]#"xoshiro","xoshiro-2","xoshiro-8"]
 
 def runCmd(cmd):
     subprocess.call(cmd, shell=True)
@@ -69,7 +93,7 @@ def extractStat():
     res={}
     for name in buildConfList+buildConfListXoshiro:
         resName={}
-        repNum="buildRep-%s/num"%(name)
+        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
         roundingTab=roundingListNum + detRounding
         roundingStr=",".join(roundingTab)
         for envConfig in numEnvConfigTab:
@@ -80,7 +104,8 @@ def extractStat():
                 concatStr+=envConfig[key]
             cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot --mca-estimator %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
-            lineTab=runCmdToLines(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
+            envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+            lineTab=runCmdToLines(". %s ; %s %s "%(envFile,envStr,cmd))
             resName[concatStr]=parsePlotStat(lineTab)
         res[name]=resName
     return res
@@ -105,12 +130,12 @@ def checkCoherence(stat):
                     return False
         resTab =[stat[conf][code]["nearest"] for conf in buildConfList]
         if len(set(resTab))>1:
-            print("resTab Neaerest", resTab)
+            print("resTab Nearest ", resTab)
             return False
     return True
 
-def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
-    refName="current"
+def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
+
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
     tab.begin()
@@ -119,12 +144,16 @@ def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","
     tab.line(["","float","double", "float","double"])
     tab.endLine()
     tab.lineSep()
-
-    tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
-    tab.endLine()
-    roundingTab=[("all", "all", "current"),"SEPARATOR"]
+    if precisionVar=="bit":
+        tab.line(["error(nearest)"]+ [ "%.2f"%( -math.log2(abs(float(stat[refName][code]["nearest"])-float(ref)) / float(ref)))  for code in codeTab ])
+        tab.endLine()
+        roundingTab=[("all", "all", refName),"SEPARATOR"]
+    else:
+        roundingTab=[]
     for rd in rndList:
-        if rd!= "sr_monotonic":
+        if rd in ["sr_monotonic", "sr_smonotonic"]:
+            break
+        if not rd in  ["sr_monotonic", "sr_smonotonic"]:
             roundingTab+=[(rd, rd,refName)]
         if rd=="average":
             for gen in buildConfListXoshiro:
@@ -144,7 +173,17 @@ def feedTab(stat, rndList=["random","average","sr_monotonic" ] ,detTab=["_det","
                 roundingTab+=[(rd+"("+gen+")",rd,gen)]
 
         roundingTab+=["SEPARATOR"]
-
+    needNewSep=False
+    for gen in buildConfList:
+        if gen=="current":
+            continue
+        for rd in rndList:
+            if not rd in ["sr_monotonic", "sr_smonotonic"]:
+                continue
+            roundingTab+=[(rd+"("+gen+")",rd,gen)]
+            needNewSep=True
+    if needNewSep:
+        roundingTab+=["SEPARATOR"]
     for confLine in roundingTab[0:-1]:
         if confLine=="SEPARATOR":
             tab.lineSep()
@@ -165,7 +204,7 @@ def plotNumConfig():
         os.mkdir(histRep)
 
     for name in buildConfList:
-        repNum="buildRep-%s/num"%(name)
+        repNum=os.join.path(workDirectory,"buildRep-%s"%(name), "num")
         if not os.path.exists(repNum):
             os.mkdir(repNum)
 
@@ -180,15 +219,16 @@ def plotNumConfig():
             cmd="verrou_plot_stat --rep=%s --num-threads=5 --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
-                runCmd(". ./buildRep-%s/install/env.sh ; %s %s "%(name,envStr,cmd))
+                envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+                runCmd(". %s ; %s %s "%(envFile,envStr,cmd))
             else:
                 runCmd("%s %s "%(envStr,cmd))
 
 
 if __name__=="__main__":
 
+    runCmd("make -C ../unitTest/checkStatRounding/ checkStatRounding")
 #    plotNumConfig()
-
     statRes=extractStat()
     if checkCoherence(statRes):
         print("checkCoherence OK")
@@ -198,7 +238,6 @@ if __name__=="__main__":
     tab=tabularLatex("lcccc", output="tabDet.tex")
     feedTab(statRes,rndList=["random","average"],detTab=["_det"], ref=2**20*0.1)
 
-
     tab=tabularLatex("lcccc", output="tabComDet.tex")
     feedTab(statRes,rndList=["random","average"],detTab=["_comdet"], ref=2**20*0.1)
 
@@ -206,20 +245,24 @@ if __name__=="__main__":
     feedTab(statRes,rndList=["random","average"],detTab=["_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMono.tex")
-    feedTab(statRes,rndList=["average","sr_monotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["average","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+
+    tab=tabularLatex("lcccc", output="tabMaxDiff.tex")
+    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMCA.tex")
-    feedTab(statRes,rndList=["random","average","sr_monotonic"],detTab=["_det","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit", buildConfList=[ "current","double_tabulation", "xxhash","mersenne_twister"])
+    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")
 
+    if what=="cmpHash":
+        name="mersenne_twister"
+        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
+        cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        print(cmd)
+        runCmd(cmd)
 
-    cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
-    print(cmd)
-    runCmd(cmd)
-
-
-    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloatmersenne_twisterDetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
-    print(cmd)
-    runCmd(cmd)
-    cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep=buildRep-mersenne_twister/num  --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloatmersenne_twisterDet.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
-    print(cmd)
-    runCmd(cmd)
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep="+ repNum +" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloat"+name+"DetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        print(cmd)
+        runCmd(cmd)
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        print(cmd)
+        runCmd(cmd)

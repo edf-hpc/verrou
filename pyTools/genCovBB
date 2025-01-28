@@ -237,13 +237,20 @@ class covReader:
 
         return res
 
-    def writePartialCover(self,filenamePrefix=""):
+    def writePartialCover(self,filenamePrefix="", pidMap=None):
+        if pidMap!=None:
+            handler=openGz(os.path.join(self.rep,"pidMap"),"w")
+            for pid in pidMap:
+                handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
 
         for num in range(len(self.cov)):
             resTab=[(index,num,self.bbInfo.getListOfSym(index),self.bbInfo.compressMarksWithoutSym(index)) for index,num in self.cov[num].items() ]
             resTab.sort( key= itemgetter(2,3,0)) # 2 sym  3 compress string 0 index
+            pidStr=str(self.pid)
+            if pidMap!=None:
+                pidStr=pidMap[self.pid]
 
-            handler=openGz(self.rep+"/%scover%05d-%d"%(filenamePrefix ,num,self.pid),"w")
+            handler=openGz(self.rep+"/%scover%05d-%s"%(filenamePrefix ,num, pidStr),"w")
             for (index,count,sym, strBB) in resTab:
                 handler.write("%d\t: %s\n"%(count,strBB))
 
@@ -467,12 +474,12 @@ class cmpToolsCov:
 
 
 
-    def writePartialCover(self,filenamePrefix=""):
+    def writePartialCover(self,filenamePrefix="", pidMap=None):
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
             cov=covReader(pid,rep)
-            cov.writePartialCover(filenamePrefix)
+            cov.writePartialCover(filenamePrefix, pidMap=pidMap)
 
     # def writeStatus(self):
     #     for i in range(len(self.tabPidRep)):
@@ -586,15 +593,21 @@ def extractPidRep(fileName):
         rep="."
     baseFile=os.path.basename(fileName)
     begin="trace_bb_cov.log-"
+    mtime=os.stat(fileName).st_mtime
     if baseFile.startswith(begin):
         pid=int((baseFile.replace(begin,'')).replace(".gz",""))
-        return (pid,rep)
+        return (pid,rep,mtime)
     return None
 
 def selectPidFromFile(fileNameTab):
     """Return a list of pid from a list of file by using extractPidRep"""
-    return [extractPidRep(fileName)  for fileName in fileNameTab]
+    return [extractPidRep(fileName)[0:2]  for fileName in fileNameTab]
 
+def selectSortedPidFromFile(fileNameTab):
+    """Return a list of pid from a list of file by using extractPidRep"""
+    pidList=[extractPidRep(fileName) for fileName in fileNameTab]
+    sortedPidList=sorted(pidList, key=lambda x: x[2])
+    return [x[0:2] for x in sortedPidList ]
 
 
 
@@ -607,16 +620,18 @@ class config_option:
         self.select_default=None
         self.run_cmp=None
         self.run_eval=None
+        self.argv=argv
+        self.pidRename=None
         #parse Argv
         self.parseOpt(argv[1:])
 
     def usage(self):
-        print ("Usage: %s [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] file list of type trace_bb_cov.log* "%(argv[0]) )
+        print ("Usage: %s [--help] [--genCov] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* "%(self.argv[0]) )
         sys.exit(42)
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovCorrelation","select-default=", "run-cmp=", "run-eval="])
+            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovCorrelation", "pidRename", "select-default=","run-cmp=", "run-eval="])
         except getopt.GetoptError:
             self.usage()
 
@@ -627,6 +642,8 @@ class config_option:
                 sys.exit()
             if opt in ["--genCov"]:
                 self.genCov=True
+            if opt in ["--pidRename"]:
+                self.pidRename=True
             if opt in ["--genCovCorrelation"]:
                 self.genCovCorrelation=True
             if opt in ["--run-cmp"]:
@@ -674,10 +691,26 @@ class config_option:
 
 if __name__=="__main__":
     options=config_option(sys.argv)
+    pidList=None
+    pidMap=None
+    if options.pidRename==None:
+        pidList=selectPidFromFile(options.listOfFiles)
+    else:
+        pidList=selectSortedPidFromFile(options.listOfFiles)
+        rank=0
+        pidMap={}
+        for pidRepTuple in pidList:
+            pid=pidRepTuple[0]
+            rep=pidRepTuple[1]
+            pidMap[pid]="rank"+str(rank)
+            rank+=1
 
-    cmp=cmpToolsCov(selectPidFromFile(options.listOfFiles), options.run_cmp, options.run_eval)
+    cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval)
     if options.genCov:
-        cmp.writePartialCover()
+        if options.pidRename:
+            cmp.writePartialCover(pidMap=pidMap)
+        else:
+            cmp.writePartialCover()
     if options.genCovCorrelation:
         cmp.findRefForMerge()
         cmp.writeMergedCov("biased")

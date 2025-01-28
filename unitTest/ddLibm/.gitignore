@@ -1,0 +1,7 @@
+main_libm
+dd.sym.random
+dd.sym.nearest
+dd.sym.native
+dd.line.random
+dd.line.nearest
+dd.line.native

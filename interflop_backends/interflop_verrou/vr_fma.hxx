@@ -34,14 +34,21 @@
 #pragma once
 
 #ifdef    USE_VERROU_FMA
+
+#if defined(VGA_amd64) || defined(__x86_64__)
 #include  <immintrin.h>
-//#include  <fmaintrin.h>
+#endif
+
+#if defined(VGA_arm64) || defined(__aarch64__)
+#include "arm_neon.h"
+#endif
+
 
 template<class REALTYPE>
-inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&){
-  return 0./ 0.; //nan to be sur not used
-}
+inline REALTYPE vr_fma(const REALTYPE&, const REALTYPE&, const REALTYPE&);
 
+
+#if defined(__x86_64__)
 template<>
 inline double vr_fma<double>(const double& a, const double& b, const double& c){
   double d;
@@ -53,8 +60,26 @@ inline double vr_fma<double>(const double& a, const double& b, const double& c){
   d=_mm_cvtsd_f64(di);
   return d;
 }
+#endif
+
+#if defined(__aarch64__)
+template<>
+inline double vr_fma<double>(const double& a, const double& b, const double& c){
+  double d;
+  const float64x1_t ai=vld1_f64(&a);
+  const float64x1_t bi=vld1_f64(&b);
+  const float64x1_t ci=vld1_f64(&c);
+
+  const float64x1_t di=vfma_f64(ci,ai,bi);// warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  vst1_f64(&d, di);
+  return d;
+}
+#endif
 
 
+
+#if defined(__x86_64__)
 template<>
 inline float vr_fma<float>(const float& a, const float& b, const float& c){
   float d;
@@ -66,4 +91,20 @@ inline float vr_fma<float>(const float& a, const float& b, const float& c){
   d=_mm_cvtss_f32(di);
   return d;
 }
+#endif
+
+
+#if defined(__aarch64__)
+template<>
+inline float vr_fma<float>(const float& a, const float& b, const float& c){
+  float res;
+  __asm__(
+	  "fmadd %s0, %s1, %s2, %s3":
+	  "=x"(res): "x"(a),"x"(b),"x"(c)
+	  );
+  return res;
+}
+#endif
+
+
 #endif //USE_VERROU_FMA

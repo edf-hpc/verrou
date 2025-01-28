@@ -33,13 +33,14 @@ from valgrind import DD_exec_stat
 
 
 class DDsym(DD_stoch.DDStoch):
-    def __init__(self, config, prefix="dd.sym"):
-        DD_stoch.DDStoch.__init__(self, config, prefix)
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config)
 
     def referenceRunEnv(self):
-        return {"VERROU_ROUNDING_MODE": "nearest",
-                         "VERROU_MCA_MODE": "ieee",
-                         "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")}
+        return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
+                "VERROU_FLOAT":"no",
+                "VERROU_MCA_MODE": "ieee",
+                "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")}
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.sym.")
@@ -48,7 +49,9 @@ class DDsym(DD_stoch.DDStoch):
         return "dd.sym"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude")}
+        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+        }
 
     def coerce(self, delta_config):
         def transform(line):
@@ -64,14 +67,20 @@ class DDsym(DD_stoch.DDStoch):
         return line
 
 
+class ddSymConfig(dd_config.ddConfig):
 
+    def __init__(self, argv, environ):
+        super().__init__(argv,environ,config_keys=["INTERFLOP_DD","VERROU_DD"],prefix="dd.sym")
+        self.instr_prefix="VERROU"
 
-
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
 
 
 if __name__ == "__main__":
-    et=DD_exec_stat.exec_stat("dd.sym")
-    config=dd_config.ddConfig(sys.argv,os.environ, ["INTERFLOP","VERROU"])
+    config=ddSymConfig(sys.argv,os.environ)
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
     dd = DDsym(config)
     dd.run()
     et.terminate()

@@ -34,6 +34,10 @@ import functools
 import glob
 import math
 from fractions import Fraction
+import shutil
+import datetime
+import numpy as np
+
 
 maxNbPROC=None
 
@@ -41,30 +45,39 @@ from valgrind import DD_stoch
 from valgrind import rounding_tool
 from valgrind import gen_config
 
-roundingDetTab=rounding_tool.roundingDetTab
-roundingNonDetTab=rounding_tool.roundingNonDetTab
+roundingDetTabWithoutFloatPrefix=rounding_tool.roundingDetTabWithoutFloatPrefix
+roundingDetTabWithFloatPrefix=rounding_tool.roundingDetTabWithFloatPrefix
+roundingNonDetTabWithoutFloatPrefix=rounding_tool.roundingNonDetTabWithoutFloatPrefix
 
 
-def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed=None):
+def verrou_run_stat(conf, fullAsync=True):
+
+    maxNbPROC=conf.num_threads()
+    if maxNbPROC in [None,1]:
+        fullAsync=False
+
+    rep=conf.repName()
     if not os.path.exists(rep):
         os.mkdir(rep)
+    listOfConfigStat=conf.getSampleConfig()
     listOfStat=copy.deepcopy(listOfConfigStat)
+    ref=conf.ref()
     if not ref in listOfConfigStat and rounding_tool.isValidRounding(ref):
         listOfStat[ref]=1
 
+    taskTab=[]
     for roundingMode in listOfStat:
         nbSample=listOfStat[roundingMode]
-
         seedTab=None
-        if seed!=None:
+        if conf.seed()!=None:
             import random
-            random.seed(seed)
+            random.seed(conf.seed())
             seedTab=random.sample(range(0,2**32-1), nbSample)
         if nbSample==0:
             continue
         name=("%s")%(roundingMode)
         envvars=rounding_tool.roundingToEnvVar(roundingMode)
-        if roundingMode in roundingDetTab:
+        if roundingMode in roundingDetTabWithFloatPrefix:
             detName=os.path.join(rep,"det")
             if not os.path.exists(detName):
                 os.mkdir(detName)
@@ -76,27 +89,20 @@ def verrou_run_stat(script_run, rep, listOfConfigStat, ref, maxNbPROC=None, seed
 
         refDir=None
         script_cmp=None
-
-        task=DD_stoch.verrouTask(repName, refDir,script_run, script_cmp ,nbSample, maxNbPROC, envvars , verbose=True, seedTab=seedTab)
-        task.run(earlyExit=False)
-
-
-def run(dicParam):
-    print(dicParam["repName"], "begin")
-    subProcessRun=runCmdAsync([dicParam["script_run"], dicParam["repName"]],
-                              dicParam["output_prefix"],
-                              dicParam["env"])
-    getResult(subProcessRun)
-    print(dicParam["repName"],"end")
-
+        task=DD_stoch.verrouTask(repName, refDir, conf.runScript(), script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
+        if fullAsync:
+            taskTab+=[task]
+        else:
+            task.run(earlyExit=False)
+    if fullAsync:
+        DD_stoch.runMultipleVerrouTask(taskTab,  maxNbPROC)
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
-
     resDict={}
 
     for roundingMode in listOfStat:
         name=("%s")%(roundingMode)
-        if roundingMode in roundingDetTab:
+        if roundingMode in roundingDetTabWithFloatPrefix:
             name=("det/%s")%(roundingMode)
 
         resTab=[]
@@ -118,7 +124,6 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
         for i in range(nbSample):
             nameSample=os.path.join(rep,name, "dd.run%i"%(i))
-
             value=extractFunc(nameSample)
             resTab+=[value]
 
@@ -136,14 +141,15 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 
     def getValueData(repName):
         try:
-            return float(subprocess.getoutput(extract_run +" "+ repName))
+            resProcess=subprocess.getoutput(extract_run +" "+ repName+ " 2> "+repName+"/extract.err")
+            return float(resProcess)
         except ValueError as err:
             print("Value Error while extracting value from :"+ extract_run +" "+ repName)
             if continueOnExtractError:
                 return "fail"
             else:
+                print("debug:", resProcess)
                 sys.exit(42)
-
 
     res=extractLoopOverComputation(rep,listOfStat, getValueData)
     if rounding_tool.isValidRounding(ref):
@@ -204,13 +210,138 @@ def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=
     return res
 
 
-def verrou_extract_time(extract_time, rep, listOfStat):
+def verrou_extract_paraview_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
         return [float(x) for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
+def getExtractTimeData(extract_time,repName):
+    res=[x for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
+    name=None
+    if res[0].startswith("#"):
+        name=(res[0].replace("#","")).strip()
+        res=res[1:]
+    if len(res[0].split(" "))==1:
+        res=[(i,float(res[i])) for i in range(len(res))]
+        if name==None:
+            name=("index","value")
+        else:
+            name=("index",name)
+        return (name,res)
+    if len(res[0].split(" "))==2:
+        for i in range(len(res)):
+            tupleXY=res[i].split(" ")
+            res[i]=(float(tupleXY[0]), float(tupleXY[1]))
+        if name==None:
+            name="index\tvalue"
+        return (name.split("\t"),res)
+    print("debug getExtractTimeData: ",res)
 
-def verrou_extract_var(extract_var, rep, listOfStat):
+def verrou_extract_time(extract_time, rep, listOfStat):
+    def getTimeData(repName):
+        return getExtractTimeData(extract_time,repName)
+    return extractLoopOverComputation(rep,listOfStat, getTimeData)
+
+
+class verrou_extract_time_data:
+    def __init__(self,resultOfVerrouExtractTime, conf):
+        self._conf=conf
+        self._dataParsed=resultOfVerrouExtractTime
+        self.initRounding()
+        self.parseRef()
+        self.parseAllRounding()
+        self.parseErrorRef()
+
+    def initRounding(self):
+        self._listOfScalar=[]
+        self._listOfTab=[]
+        for roundingMode in sorted([x for x in self._dataParsed.keys()]):
+            if self._dataParsed[roundingMode]==None:
+                continue
+            if len(self._dataParsed[roundingMode])==1:
+                self._listOfScalar+=[roundingMode]
+            if len(self._dataParsed[roundingMode])>1:
+                self._listOfTab+=[roundingMode]
+        self._refRounding=self._conf.ref()
+        if self._refRounding not in self._listOfScalar:
+            print("Stochastic reference (not yet implemented) and  value reference are not accepted with time plot")
+            sys.exit(42)
+
+    def parseRef(self):
+        if self._refRounding in self._listOfScalar:
+            brutData=self._dataParsed[self._refRounding]
+            sampleIndex=0
+            nameIndex=0
+            tabIndex=1
+            self._labelX=brutData[sampleIndex][nameIndex][0]
+            self._labelY=brutData[sampleIndex][nameIndex][1]
+            self._refX=[x[0] for x in brutData[sampleIndex][tabIndex]]
+            self._refY=[x[1] for x in brutData[sampleIndex][tabIndex]]
+
+        if self._refRounding in self._listOfTab:
+            print("Not yet implemented")
+
+    def parseAllRounding(self):
+        self._data={}
+        for rounding in self._listOfScalar + self._listOfTab:
+            tabIndex=1
+            nbSample=len(self._dataParsed[rounding])
+            valueXSampleTab=[]
+            valueYSampleTab=[]
+            valueYInterpSampleTab=[]
+            for sampleIndex in range(nbSample):
+                valueX=[x[0] for x in self._dataParsed[rounding][sampleIndex][tabIndex]]
+                valueY=[x[1] for x in self._dataParsed[rounding][sampleIndex][tabIndex]]
+
+                valueXSampleTab+=[valueX]
+                valueYSampleTab+=[valueY]
+                valueYInterpSampleTab+=[np.interp(self._refX, valueX, valueY)]
+
+            nbTimeIndex=len(self._refX)
+            def computeError(ref, valueTab):
+                return max([abs(value-ref) for value in valueTab])/abs(ref)
+
+            errorTab=[ computeError(self._refY[time],
+                                    [ valueYInterpSampleTab[sample][time] for sample in range(nbSample)])
+                       for time in range(nbTimeIndex)]
+
+            self._data[rounding]={
+                "XSampleTab":valueXSampleTab, "YSampleTab":valueYSampleTab,
+                "YInterpSampleTab":valueYInterpSampleTab,
+                "ErrorEstimation": errorTab
+            }
+
+    def parseErrorRef(self):
+        self._refError=None
+        self._labelRef="mathematical reference"
+        nbTimeIndex=len(self._refX)
+        if self._conf.lambdaTimeRef()!=None:
+            lambdaRef=self._conf.lambdaTimeRef()
+            self._refError=[abs((self._refY[i]- lambdaRef(self._refX[i]))/lambdaRef(self._refX[i])) for i in range(nbTimeIndex)]
+        if self._conf.scriptTimeRef()!=None:
+            (nameRef,tabRef)=getExtractTimeData(self._conf.scriptTimeRef(), os.path.join(self._conf.repName(), "det", self._refRounding,"dd.run0"))
+            if nameRef!=None:
+                self._labelRef=nameRef[1]
+            mathRefX=[x[0] for x in tabRef]
+            mathRefY=[x[1] for x in tabRef]
+            self._refError=[abs(mathRefY[iTime] - self._refY[iTime])/ abs(mathRefY[iTime]) for iTime in range(len(mathRefX))]
+
+    def getLabelX(self): return self._labelX
+    def getLabelY(self): return self._labelY
+    def getRefX(self): return self._refX
+    def getRefY(self): return self._refY
+    def getListOfRoundingScalar(self): return self._listOfScalar
+    def getListOfRoundingTab(self): return self._listOfTab
+    def getXSampleTab(self,rounding): return self._data[rounding]["XSampleTab"]
+    def getYSampleTab(self,rounding): return self._data[rounding]["YSampleTab"]
+    def getYInterpSampleTab(self,rounding):
+        return self._data[rounding]["YInterpSampleTab"]
+    def getErrorEstimation(self, rounding):
+        return self._data[rounding]["ErrorEstimation"]
+    def getRefError(self): return self._refError
+    def getLabelRefError(self): return self._labelRef
+
+def verrou_extract_paraview_var(extract_var, rep, listOfStat):
     def getVarData(repName):
         lines=(subprocess.getoutput(extract_var +" "+ repName)).split("\n")
         keys=lines[0].split()
@@ -330,9 +461,9 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     convert= lambda x :x
     legend= "X"
     if relative!=False:
-        if relative in roundingDetTab:
+        if relative in roundingDetTabWithFloatPrefix:
             valueRef=data[relative][0]
-            latexName=relative.replace("_","\_")
+            latexName=relative.replace("_",r"\_")
             legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(latexName,latexName)
         else:
             valueRef=float(relative)
@@ -368,7 +499,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
             namei+=" (#Nan/Inf:%i)"%(special)
 
         if plt.rcParams['text.usetex']:
-            namei=namei.replace("_","\_")
+            namei=namei.replace("_",r"\_")
         handle=plt.hist(datas[i],bins=bins, label=namei, linewidth=plotWidth,  alpha=0.6,color=lineColor[lineIndex])#, linestyle="-")
         lineIndex+=1
         plthandle+=[handle[0]]
@@ -382,7 +513,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
 
         modeStr=mode
         if plt.rcParams['text.usetex']:
-            modeStr=mode.replace("_","\_")
+            modeStr=mode.replace("_",r"\_")
         plt.text(value, 1., modeStr ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
 
         lineIndex+=1
@@ -400,6 +531,67 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
 
     if png!=False:
         plt.savefig(png,dpi=300,bbox_inches='tight')
+    else:
+        plt.show()
+
+def plot_time(dataBrut, conf):
+    data=verrou_extract_time_data(dataBrut, conf)
+
+    fig, ax = plt.subplots()
+    lineColor=["orange","sienna","blue","red","green", "black", "purple","yellow"]
+    lineColor+=["orange","blue","red","green", "black", "purple","yellow"]
+    if conf.logScalX():
+        ax.set_xscale("log",base=10)
+    labelX=data.getLabelX()
+    labelY=data.getLabelY()
+
+    nbTimeIndex=len(data.getRefX())
+
+    listOfScalar=data.getListOfRoundingScalar()
+    index=len(listOfScalar)
+    for roundingMode in data.getListOfRoundingTab():
+        ax.plot(data.getRefX(), data.getErrorEstimation(roundingMode),
+                "o", color=lineColor[index], label=roundingMode)
+        index+=1
+
+    if conf.timeRef()!=None:
+        ax.plot(data.getRefX(), data.getRefError(),
+                "+", color=lineColor[index], label=data.getLabelRefError())
+
+    ax.set_yscale("log",base=10)
+    ax.set_ylabel("verrou error estimation")
+    ax.set_xlabel(labelX)
+    ax.legend()
+
+    if conf.timeVal():
+        ax2=ax.twinx()
+        index=len(listOfScalar)
+        for roundingMode in data.getListOfRoundingTab():
+            XSampleTab=data.getXSampleTab(roundingMode)
+            YSampleTab=data.getYSampleTab(roundingMode)
+            ax2.plot(XSampleTab[0], YSampleTab[0],
+                     linewidth=1, color=lineColor[index],label=roundingMode)
+            for sample in range(1, len(XSampleTab)):
+                ax2.plot(XSampleTab[sample], YSampleTab[sample],
+                         linewidth=1, color=lineColor[index])
+            index+=1
+
+        index=0
+        for roundingMode in listOfScalar:
+            XSampleTab=data.getXSampleTab(roundingMode)
+            YSampleTab=data.getYSampleTab(roundingMode)
+            ax2.plot(XSampleTab[0], YSampleTab[0],
+                     linewidth=3, color=lineColor[index], label=roundingMode)
+            index+=1
+        ax2.set_ylabel(labelY)
+
+    plt.grid()
+
+    plt.xlabel(labelX)
+    fig.tight_layout()
+
+    if conf.png()!=False:
+        plt.savefig(conf.png(),dpi=300,bbox_inches='tight')
     else:
         plt.show()
 
@@ -433,7 +625,23 @@ def estimMca(tab):
         bit=float("Inf")
     return (ratio, bit)
 
-def print_stat(data, ref,  mca_estimator=False):
+def print_stat(data, conf):
+    ref=conf.ref()
+    mca_estimator=conf.mca_estimator()
+
+    pathName=os.path.join(conf.repName(),"stat.last")
+    if os.path.exists(pathName):
+        timeValue=datetime.datetime.fromtimestamp(os.path.getmtime(pathName))
+        timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
+        os.rename(pathName,pathName.replace(".last","."+timeStr))
+
+    handler=open(pathName ,"w")
+    handler.write("md5 cmd.last: "+ conf.md5Param()+"\n" )
+    def localPrint(strValue):
+        print(strValue)
+        if handler!=None:
+            handler.write(strValue+"\n")
+
     listOfScalar=[] # rounding mode plotted with vertical ligne
     listOfTab=[]
 
@@ -451,10 +659,10 @@ def print_stat(data, ref,  mca_estimator=False):
     else:
         refValue=numpy.mean(data["ref"])
 
-    print("\nrefValue[%s] : %.17e"%(ref,refValue))
+    localPrint("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
     if mca_estimator:
-        print("[mca] estimator\trel\trel(in bit)")
+        localPrint("[mca] estimator\trel\trel(in bit)")
 
     maxEstim=0
     nbTotalError=0
@@ -466,10 +674,10 @@ def print_stat(data, ref,  mca_estimator=False):
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
             estimRel, estimRelBit=computeRelative(estim, refValue)
-            print("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
+            localPrint("%s:\t%e\t%.4e\t%.2fbit"%(rounding, estim,estimRel, estimRelBit))
             if mca_estimator:
                 estimRel, estimRelBit=estimMca(data[rounding])
-                print("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
+                localPrint("[mca] %s:\t%.4e\t%.2fbit"%(rounding, estimRel, estimRelBit))
                 tabValue+=data[rounding]
 
         else:
@@ -477,16 +685,16 @@ def print_stat(data, ref,  mca_estimator=False):
             nbTotalError+=nbError
             nbTotalSample+=len(data[rounding])
             if nbError==len(data):
-                print("%s (100\% fail) :"%(rounding))
+                localPrint("%s (100\% fail) :"%(rounding))
             else:
                 estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
                 maxEstim=max(estim,maxEstim)
                 estimRel, estimRelBit=computeRelative(estim, refValue)
-                print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+                localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
                 if mca_estimator:
                     estimRel, estimRelBit=estimMca([x for x in data[rounding] if x!="fail"])
                     tabValue+=[x for x in data[rounding] if x!="fail"]
-                    print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
+                    localPrint("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estimRel, estimRelBit))
 
     for rounding in listOfScalar:
 
@@ -500,20 +708,20 @@ def print_stat(data, ref,  mca_estimator=False):
             estim=    maxDiff(data[rounding],refValue)
             maxEstim=max(estim,maxEstim)
         else:
-            print("Warning %s failing")
+            localPrint("Warning %s failing")
 
     estimRel, estimRelBit=computeRelative(maxEstim, refValue)
     if nbTotalError==0:
-        print("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
+        localPrint("%s:\t%e\t%.4e\t%.2fbit"%("all", maxEstim,estimRel, estimRelBit))
     else:
-        print("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
+        localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),maxEstim,estimRel, estimRelBit))
 
     if mca_estimator:
         estimRel, estimRelBit=estimMca(tabValue)
         if nbTotalError==0:
-            print("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
+            localPrint("[mca] %s:\t%.4e\t%.2fbit"%("all", estimRel, estimRelBit))
         else:
-            print("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
+            localPrint("[mca] %s (%.1f%% fail) :\t%.4e\t%.2fbit"%("all", 100.*nbTotalError/float(nbTotalSample),estimRel, estimRelBit))
 
 
 
@@ -521,16 +729,23 @@ class config_stat(gen_config.gen_config):
 
     def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
-        self.defaultRoundingTab=["random","average","det"]
-        super().__init__(argv,environ, config_keys,[2,3])
+        self.defaultRoundingTab=["det","random","average"]
+        super().__init__(argv,environ, config_keys,[1,2,3])
+        if sys.argv[1]=="bash_completion":
+            self.write_bashCompletion_script()
+            sys.exit(0)
         self.normalize()
         self.check()
-
+        self.cachePrepare()
+        self.instr_prefix="VERROU"
+        self.saveParam(os.path.join(self._rep,"cmd.last"))
 
     def registerOptions(self):
-        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
-                         docStr="rounding mode list (coma separated) [default random,average,det]")
+        self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default random,average,det]",
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
+        self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
         self.addRegistry("_num_threads", "int",    "NUM_THREADS",   ["--num-threads="],  None, docStr="number of parallel run")
 
@@ -544,6 +759,11 @@ class config_stat(gen_config.gen_config):
         self.addRegistry("_ref",      "string", "REF",      ["--ref="],              "nearest", docStr="reference for error estimator : rounding mode or value [default nearest]")
         self.addRegistry("_relative", "string", "RELATIVE", ["--relative="],         False, docStr="if used configure plot with relative abscissa (same parameter as --ref)")
         self.addRegistry("_time",     "bool",   "TIME",     ["--time","-t"],         False)
+        self.addRegistry("_logScalX", "bool",   "LOGSCALX", ["--log-scalx"],         False)
+        self.addRegistry("_timeVal",  "bool",   "TIMEVAL",  ["--time-val"],          False)
+        self.addRegistry("_timeRef",  "string", "TIMEREF",  ["--time-ref="],         None)
+
+        self.addRegistry("_timeParaview",     "bool",   "TIME_PARAVIEW",     ["--paraview_time"],         False)
         self.addRegistry("_pattern",  "string", "PATTERN",  ["--specific-pattern="], [], additive=True, docStr="pattern of rep (useful to plot histogramm without run.sh)")
         self.addRegistry("_continueOnExtractError", "bool", "CONTINUE_ON_EXTRACT_ERROR", ["--continue-on-extract-error"], False)
         self.addRegistry("_mca_estimator", "bool", "MCA_ESTIMATOR",      ["--mca-estimator"],   False, docStr="mca estimator in addition to bernouilli estimator")
@@ -551,7 +771,7 @@ class config_stat(gen_config.gen_config):
     def normalize(self):
         if len(self._pattern)!=0:
             self._rep="."
-        if self._time:
+        if self._time or self._timeParaview:
             self._hist=False
 
         self._roundingTab=[]
@@ -567,7 +787,7 @@ class config_stat(gen_config.gen_config):
 
         if "det" in self._roundingTab:
             self._roundingTab.remove("det")
-            self._roundingTab+=[x for x in roundingDetTab if x not in ["float","ftz"]]
+            self._roundingTab=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz"]]+self._roundingTab
 
         self._roundingTab=list(dict.fromkeys(self._roundingTab)) #uniq
 
@@ -576,6 +796,7 @@ class config_stat(gen_config.gen_config):
                 self._runScript=self.exec_arg[0]
             if len(self.exec_arg)>1:
                 self.help()
+                print(self.exec_arg, "size should be one")
                 self.failure()
             return
 
@@ -593,17 +814,40 @@ class config_stat(gen_config.gen_config):
         if len(self._pattern)!=0:
             if len(self.exec_arg)>1:
                 self.help()
+                print(self.exec_arg, "size should be at least 2")
                 self.failure()
             self._extractScript=self.exec_arg[0]
             self._runScript=None
-        if self._time:
+        if self._timeParaview:
             if len(self.exec_arg)>3:
                 self.help()
+                print(self.exec_arg, "size should be at least 3")
                 self.failure()
             self._runScript=self.exec_arg[0]
             self._extractTimeScript=self.exec_arg[1]
             self._extractVarScript=self.exec_arg[2]
 
+        if self._time:
+            if len(self.exec_arg)>2:
+                self.help()
+                print(self.exec_arg, "size should be at least 2")
+                self.failure()
+            self._runScript=self.exec_arg[0]
+            self._extractTimeScript=self.exec_arg[1]
+            if self._timeRef!=None:
+                time_ref_script=self.checkScriptPath(self._timeRef,False)
+                if time_ref_script!=None:
+                    self._time_ref_script=time_ref_script
+                    self._lambdaTimeRef=None
+                else:
+                    lambdaTimeRef=eval("lambda x: "+self._timeRef)
+                    try:
+                        test=float(lambdaTimeRef(1))
+                        self._lambdaTimeRef=lambdaTimeRef
+                        self._time_ref_script=None
+                    except:
+                        print(self._timeRef+ "should be a valid executable or x lambda expression")
+                        self.failure()
 
     def check(self):
         if len(self._pattern)!=0 and (self._isMontecarlo==True or self._nbSample!=None or self._time==True):
@@ -622,44 +866,79 @@ class config_stat(gen_config.gen_config):
                 print("With --specific-pattern option --ref shold be a float")
                 self.failure()
 
+    def cachePrepare(self):
+        rep=self.repName()
+        if self.getCache()=="continue":
+            if not os.path.exists(rep):
+                os.mkdir(rep)
+        if self.getCache()=="clean":
+            if os.path.exists(rep):
+                shutil.rmtree(rep, ignore_errors=True)
+            os.mkdir(rep)
+        if self.getCache()=="rename":
+            if os.path.exists(rep):
+                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(os.path.join(rep,x)) for x in os.listdir(rep)+["."] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                self.oldRepName=rep+"-"+timeStr
+                os.rename(rep,self.oldRepName)
+            os.mkdir(rep)
+        else:
+            self.oldRepName=None
 
     def usageCmd(self):
         name=sys.argv[0]
         print( "%s [options] run.sh extract.sh or %s -t[or --time] [options] run.sh extractTime.sh extractVar.sh "%(name,name)  )
         print(self.get_EnvDoc(self.config_keys[-1]))
         print("Valid rounding modes are:")
-        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
-        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
-        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTab))
+        print("\t rounding mode can be prefixed by \"float_\"")
+        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTabWithoutFloatPrefix))
 
+    def help(self):
+        self.usageCmd()
 
-    def nbBin(self):
-        return self._nbBin
+    def repName(self): return self._rep
+    def ref(self): return self._ref
+    def png(self): return self._png
+    def seed(self): return self._seed
 
-    def runScript(self):
-        return self._runScript
+    def num_threads(self): return self._num_threads
 
-    def extractScript(self):
-        return self._extractScript
+    def run_only(self): return self._runOnly
+    def no_plot(self): return self._noPlot
+    def getCache(self):return self._cache
 
-    def extractTimeScript(self):
-        return self._extractTimeScript
+    def runScript(self): return self._runScript
+    def extractScript(self): return self._extractScript
+    def extractTimeScript(self): return self._extractTimeScript
+    def extractVarScript(self): return self._extractVarScript
+    def continueOnExtractError(self): return self._continueOnExtractError
 
-    def extractVarScript(self):
-        return self._extractVarScript
+    def isHist(self): return self._hist
+    def nbBin(self): return self._nbBin
+    def relative(self): return self._relative
+    def mca_estimator(self): return self._mca_estimator
+    def useSpecificPattern(self): return len(self._pattern)!=0
+    def pattern(self): return self._pattern
 
-    def continueOnExtractError(self):
-        return self._continueOnExtractError
+    def isParaviewTime(self): return self._timeParaview
 
-    def isHist(self):
-        return self._hist
+    def isTime(self): return self._time
+    def timeVal(self): return self._timeVal
+    def timeRef(self): return self._timeRef
+    def logScalX(self): return self._logScalX
 
-    def isTime(self):
-        return self._time
-
-    def repName(self):
-        return self._rep
+    def lambdaTimeRef(self):
+        if self._timeRef!=None:
+            return self._lambdaTimeRef
+        else:
+            return None
+    def scriptTimeRef(self):
+        if self._timeRef:
+            return self._time_ref_script
+        else:
+            return None
 
     def getSampleConfig(self):
         nbDet=1
@@ -667,48 +946,20 @@ class config_stat(gen_config.gen_config):
             nbDet=self._nbSample
         nbSamples={}
         for key in self._roundingTab:
-            if key in roundingDetTab:
+            if key in roundingDetTabWithFloatPrefix:
                 nbSamples[key]=nbDet
             else:
                 nbSamples[key]=self._nbSample
         return nbSamples
 
-    def num_threads(self):
-        return self._num_threads
 
-    def relative(self):
-        return self._relative
-
-    def run_only(self):
-        return self._runOnly
-
-    def no_plot(self):
-        return self._noPlot
-
-    def useSpecificPattern(self):
-        return len(self._pattern)!=0
-
-    def pattern(self):
-        return self._pattern
-
-    def ref(self):
-        return self._ref
-
-    def png(self):
-        return self._png
-
-    def seed(self):
-        return self._seed
-
-    def mca_estimator(self):
-        return self._mca_estimator
 
 if __name__=="__main__":
     conf=config_stat(sys.argv,os.environ)
     nbSamples=conf.getSampleConfig()
 
     if conf.runScript()!=None:
-        verrou_run_stat(conf.runScript(), conf.repName(), nbSamples, conf.ref(),conf.num_threads(), conf.seed())
+        verrou_run_stat(conf)
     if conf.run_only():
         sys.exit(0)
 
@@ -717,16 +968,21 @@ if __name__=="__main__":
             dataExtracted=verrou_extract_stat(conf.extractScript(), conf.repName(), nbSamples, conf.ref(), conf.continueOnExtractError())
             if not conf.no_plot():
                 plot_hist(dataExtracted, png=conf.png(), relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref(), conf.mca_estimator())
+            print_stat(dataExtracted, conf)
         else:
             dataExtracted=verrou_extract_specific_pattern(conf.extractScript(), conf.repName(), conf.pattern(),ref=conf.ref(), continueOnExtractError=conf.continueOnExtractError())
             if not conf.no_plot():
-                plot_hist(dataExtracted, png=conf.png, relative=conf.relative(), nb_bin=conf.nbBin())
-            print_stat(dataExtracted, conf.ref(), conf.mca_estimator() )
+                plot_hist(dataExtracted, png=conf.png(), relative=conf.relative(), nb_bin=conf.nbBin())
+            print_stat(dataExtracted, conf)
+
+    if conf.isParaviewTime():
+        dataParaviewTimeExtracted=verrou_extract_paraview_time(conf.extractTimeScript(), conf.repName(), nbSamples)
+        dataParaviewVarExtracted=verrou_extract_paraview_var(conf.extractVarScript(), conf.repName(), nbSamples)
+
+        prepareDataForParaview(dataParaviewTimeExtracted, dataParaviewVarExtracted,conf.repName())
+        runParaview(conf.repName())
 
     if conf.isTime():
         dataTimeExtracted=verrou_extract_time(conf.extractTimeScript(), conf.repName(), nbSamples)
-        dataVarExtracted=verrou_extract_var(conf.extractVarScript(), conf.repName(), nbSamples)
+        plot_time(dataTimeExtracted,conf)
 
-        prepareDataForParaview(dataTimeExtracted, dataVarExtracted,conf.repName())
-        runParaview(conf.repName())

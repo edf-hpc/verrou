@@ -50,6 +50,7 @@ struct Vr_Rand_ {
   tinymt64_t gen_;
 #ifdef USE_XOSHIRO
   xoshiro128_state_t rng128_;
+  xoroshiro128_state_t rng128r_;
   xoshiro256_state_t rng256_;
 #endif
 uint64_t seed_;
@@ -59,6 +60,7 @@ uint64_t seed_;
 //extern Vr_Rand vr_rand;
 
 Vr_Rand vr_rand;
+Vr_Rand vr_rand_save;
 
 #include "vr_rand_implem.h"
 

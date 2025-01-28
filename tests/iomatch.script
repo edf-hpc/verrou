@@ -1,0 +1,4 @@
+cmatch: res[5] ==
+apply: start_soft
+bmatch: res[8] !=
+apply: stop

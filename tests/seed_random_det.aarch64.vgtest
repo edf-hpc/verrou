@@ -1,0 +1,7 @@
+prereq: test `uname -m` = aarch64
+prog: sum
+args: 0
+vgopts: --instr-atstart=no --rounding-mode=random_det --vr-seed=42
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude -scal-llo
+#compare to x86 we change the seed to avoid stagnation (not the same hash function)
+#to recover this result with x86 you can comment the line #define USE_XXH3 in the file xxHash.hxx

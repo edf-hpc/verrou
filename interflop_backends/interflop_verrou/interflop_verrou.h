@@ -56,6 +56,7 @@ extern "C" {
     VR_RANDOM_COMDET,
     VR_RANDOM_SCOMDET,
     VR_SR_MONOTONIC,
+    VR_SR_SMONOTONIC,
     VR_AVERAGE,
     VR_AVERAGE_DET,
     VR_AVERAGE_COMDET,
@@ -84,7 +85,11 @@ extern "C" {
   void verrou_end_instr(void);
 
   void verrou_set_seed (unsigned int seed);
-  void verrou_set_random_seed (void);
+
+  unsigned int verrou_get_seed (void);
+  void verrou_seed_save_state (void);
+  void verrou_seed_restore_state (void);
+
   void verrou_updatep_prandom (void);
   void verrou_updatep_prandom_double (double);
   double verrou_prandom_pvalue (void);

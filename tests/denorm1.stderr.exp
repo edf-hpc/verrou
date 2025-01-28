@@ -3,7 +3,6 @@ Copyright (C) XXXXX
 
 First seed : XXX
 Backend verrou : test-version
-Backend mcaquad : test-version
 Backend checkcancellation : test-version
 Backend check_float_max : test-version
 Backend checkdenorm : test-version
@@ -29,15 +28,19 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
 Denorm: 
-   at 0xFFFFFF: main (denorm.cxx:8)
+   at 0xFFFFFF: main (denorm.cxx:23)
 
 Denorm: 
-   at 0xFFFFFF: main (denorm.cxx:21)
+   at 0xFFFFFF: main (denorm.cxx:25)
 
 Denorm: 
    at 0xFFFFFF: double vr_fma<double>(double const&, double const&, double const&) (fmaintrin.h:73)
-   by 0xFFFFFF: main (denorm.cxx:22)
+   by 0xFFFFFF: main (denorm.cxx:28)
 
 
  ---------------------------------------------------------------------

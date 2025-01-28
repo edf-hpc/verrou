@@ -1,0 +1,4 @@
+prog: test_libm
+args: 
+vgopts: --rounding-mode=random_det --libm=instrumented --vr-instr=mAdd,mSub
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude -seed -scal-llo

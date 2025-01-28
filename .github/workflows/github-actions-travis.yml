@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get -qq update; sudo apt-get install -y libc-dbg python3-numpy python3-matplotlib texlive-latex-extra texlive-fonts-recommended dvipng cm-super
 
       - name: Download valgrind
-        run: export VALGRIND_VERSION=VALGRIND_3_20_0; make -f travis.mk download-valgrind
+        run: export VALGRIND_VERSION=VALGRIND_3_24_0; make -f travis.mk download-valgrind
 
       - name: Patch valgrind
         run: make -f travis.mk patch-valgrind || make -f travis.mk patch-error
@@ -47,3 +47,10 @@ jobs:
 
       - name: Check Verrou Unit-test
         run: make -f travis.mk unit-test
+
+      - name: Check Verrou post-regtest-checks
+        run: make -f travis.mk post-regtest-checks
+
+      - name: Check Verrou gitignore
+        run: make -f travis.mk gitignore-checks
+

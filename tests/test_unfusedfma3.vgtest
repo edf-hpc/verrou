@@ -1,0 +1,4 @@
+prog: test_unfusedfma
+args: 
+vgopts: --float=yes
+stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude -seed -scal-llo

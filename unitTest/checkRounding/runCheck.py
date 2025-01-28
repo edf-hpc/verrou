@@ -30,18 +30,27 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-valgrindRounding=stdRounding + ["random", "random_det", "random_comdet", "random_scomdet", "sr_monotonic",
-                                "average", "average_det", "average_comdet","average_scomdet",
-                                "float", "farthest", "memcheck" ,"ftz", "away_zero", "prandom", "prandom_0.5", "prandom_det", "prandom_comdet" ]
+detRounding=["farthest","float", "ftz", "away_zero"]
+randomStarRounding=["random", "random_det", "random_comdet", "random_scomdet", "prandom_0.5"]
+prandomStarRounding=["prandom",  "prandom_det", "prandom_comdet"]
+monotonicRounding=["sr_monotonic", "sr_smonotonic"]
+averageStarRounding=["average", "average_det", "average_comdet", "average_scomdet"]
+
+def roundingWithFloat(tab):
+    return tab+["float_"+x for x in tab]
+
+allVerrouRounding=stdRounding+detRounding+randomStarRounding+prandomStarRounding+monotonicRounding+averageStarRounding
+valgrindRounding=roundingWithFloat(allVerrouRounding)+ ["memcheck"]
+
 
 
 def printRes(res):
     print("stdout:")
     for line in res[0 ]:
-        print(line[0:-1])
+        print(line.replace("\n",""))
     print("cerr  :")
     for line in res[1 ]:
-        print(line[0:-1])
+        print(line.replace("\n",""))
 
 
 def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
@@ -82,7 +91,8 @@ class cmdPrepare:
         self.valgrindPath=os.path.join(os.environ["INSTALLPATH"], "bin", "valgrind")
         self.execPath=arg
 
-    def run(self,env="fenv", rounding="nearest"):
+    def run(self,env="fenv", roundingArg="nearest"):
+        rounding=roundingArg
         self.checkRounding(env, rounding)
         cmd=None
         if env=="fenv":
@@ -92,6 +102,10 @@ class cmdPrepare:
             if rounding=="memcheck":
                 cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
             else:
+                withFloat=False
+                if rounding.startswith("float_"):
+                    rounding=rounding.replace("float_","")
+                    withFloat=True
                 roundingStr=rounding
                 for prand in ["prandom_det_", "prandom_comdet_", "prandom_"]:
                     if rounding in ["prandom_det", "prandom_comdet", "prandom"]:
@@ -101,6 +115,8 @@ class cmdPrepare:
                         value=float(end)
                         roundingStr=prand.replace("_","")+" --prandom-pvalue="+end
                         break
+                if withFloat:
+                    roundingStr+=" --float=yes"
                 cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --check-inf=no --rounding-mode=" + roundingStr+ " " +self.execPath +" valgrind"
 
         return runCmd(cmd)
@@ -138,6 +154,8 @@ def verrouCerrFilter(res):
         if newLine.startswith(" First seed : "):
             continue
         if (newLine.strip()).startswith("PRANDOM: pvalue="):
+            continue
+        if (newLine.strip()).startswith("Frontend: double -> float"):
             continue
         newRes+=[newLine]
     return newRes
@@ -235,47 +253,20 @@ def checkRoundingInvariant(allResult):
 
 
 
-# def checkOrder(testName, *args):
-#     tabValue=[x[0] for x in args]
-#     nameValue=[x[0] for x in args]
-
-#     for i in range(len(tabValue)-1):
-
 
 class assertRounding:
     def __init__(self, testName):
         self.testName=testName
-        self.diff_nearestMemcheck=getDiff(allResult[("valgrind", "memcheck")], testName)
-        self.diff_nearestNative=getDiff(allResult[("fenv", "nearest")], testName)
-        self.diff_toward_zeroNative  =getDiff(allResult[("fenv", "toward_zero")], testName)
-        self.diff_downwardNative     =getDiff(allResult[("fenv", "downward")], testName)
-        self.diff_upwardNative       =getDiff(allResult[("fenv", "upward")], testName)
+        self.diffRes={}
 
-        self.diff_nearest      =getDiff(allResult[("valgrind", "nearest")], testName)
-        self.diff_toward_zero  =getDiff(allResult[("valgrind", "toward_zero")], testName)
-        self.diff_away_zero    =getDiff(allResult[("valgrind", "away_zero")], testName)
-        self.diff_downward     =getDiff(allResult[("valgrind", "downward")], testName)
-        self.diff_upward       =getDiff(allResult[("valgrind", "upward")], testName)
-        self.diff_float        =getDiff(allResult[("valgrind", "float")], testName)
-        self.diff_farthest     =getDiff(allResult[("valgrind", "farthest")], testName)
-        self.diff_ftz          =getDiff(allResult[("valgrind", "ftz")], testName)
+        self.diffRes["nearestMemcheck"]=getDiff(allResult[("valgrind", "memcheck")], testName)
+        self.diffRes["nearestNative"]=getDiff(allResult[("fenv", "nearest")], testName)
+        self.diffRes["toward_zeroNative"]  =getDiff(allResult[("fenv", "toward_zero")], testName)
+        self.diffRes["downwardNative"]     =getDiff(allResult[("fenv", "downward")], testName)
+        self.diffRes["upwardNative"]       =getDiff(allResult[("fenv", "upward")], testName)
 
-        self.diff_random        =getDiff(allResult[("valgrind", "random")], testName)
-        self.diff_random_det    =getDiff(allResult[("valgrind", "random_det")], testName)
-        self.diff_random_comdet =getDiff(allResult[("valgrind", "random_comdet")], testName)
-        self.diff_random_scomdet=getDiff(allResult[("valgrind", "random_scomdet")], testName)
-
-        self.diff_prandom        =getDiff(allResult[("valgrind", "prandom")], testName)
-        self.diff_prandom_half    =getDiff(allResult[("valgrind", "prandom_0.5")], testName)
-        self.diff_prandom_det    =getDiff(allResult[("valgrind", "prandom_det")], testName)
-        self.diff_prandom_comdet =getDiff(allResult[("valgrind", "prandom_comdet")], testName)
-
-        self.diff_average      =getDiff(allResult[("valgrind", "average")], testName)
-        self.diff_average_det   =getDiff(allResult[("valgrind", "average_det")], testName)
-        self.diff_average_comdet   =getDiff(allResult[("valgrind", "average_comdet")], testName)
-        self.diff_average_scomdet   =getDiff(allResult[("valgrind", "average_scomdet")], testName)
-
-        self.diff_sr_monotonic  =getDiff(allResult[("valgrind", "sr_monotonic")], testName)
+        for rounding in valgrindRounding:
+            self.diffRes[rounding]      =getDiff(allResult[("valgrind", rounding)], testName)
 
         self.KoStr="Warning"
         self.warnBool=True
@@ -289,7 +280,7 @@ class assertRounding:
             self.warnBool=False
 
     def getValue(self, str1):
-        return eval("self.diff_"+str1)
+        return self.diffRes[str1]
 
     def printKo(self, str):
         print(self.KoStr+" : "+self.testName+ " "+str)
@@ -303,7 +294,7 @@ class assertRounding:
         self.ok+=1
 
     def assertEqValue(self, str1, value):
-        value1=eval("self.diff_"+str1)
+        value1=self.getValue(str1)
         value2=value
         if value1!= value2:
             self.printKo(str1+ "!=" +str(value2) + " "+str(value1))
@@ -312,54 +303,47 @@ class assertRounding:
 
 
     def assertEqual(self, str1, str2):
-        value1= eval("self.diff_"+str1)
-        value2= eval("self.diff_"+str2)
-
+        value1= self.getValue(str1)
+        value2= self.getValue(str2)
         if value1!= value2:
             self.printKo(str1+ "!="+str2 + " "+str(value1) + " " +str(value2))
         else:
             self.printOk(str1+ "="+str2)
 
     def assertLeq(self, str1, str2):
-        value1= eval("self.diff_"+str1)
-        value2= eval("self.diff_"+str2)
-
+        value1= self.getValue(str1)
+        value2= self.getValue(str2)
         if value1 <= value2:
             self.printOk(str1+ "<="+str2)
         else:
             self.printKo(str1+ ">"+str2 + " "+str(value1) + " " +str(value2))
 
     def assertDiff(self, str1, str2):
-        value1= eval("self.diff_"+str1)
-        value2= eval("self.diff_"+str2)
-
+        value1= self.getValue(str1)
+        value2= self.getValue(str2)
         if value1 != value2:
             self.printOk(str1+ "!="+str2)
         else:
             self.printKo(str1+ "=="+str2 + " "+str(value1) + " " +str(value2))
 
     def assertLess(self, str1, str2):
-        value1= eval("self.diff_"+str1)
-        value2= eval("self.diff_"+str2)
-
+        value1= self.getValue(str1)
+        value2= self.getValue(str2)
         if value1 < value2:
             self.printOk(str1+ "<"+str2)
         else:
             self.printKo(str1+ ">="+str2 +  " "+str(value1) + " " +str(value2))
 
-
     def assertAbsLess(self, str1, str2):
-        value1= abs(eval("self.diff_"+str1))
-        value2= abs(eval("self.diff_"+str2))
-
+        value1= abs(self.getValue(str1))
+        value2= abs(self.getValue(str2))
         if value1 < value2:
             self.printOk("|"+str1+ "| < |"+str2+"|")
         else:
             self.printKo("|"+str1+ "| >= |"+str2+"|" +  " "+str(value1) + " " +str(value2))
 
-
     def assertNative(self):
-        for rd in ["nearest", "toward_zero", "downward", "upward"]:
+        for rd in stdRounding:
             self.assertEqual(rd, rd+"Native")
 
 
@@ -374,27 +358,29 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
-            testCheck.assertEqual("toward_zero", "downward")
-            testCheck.assertEqual("away_zero", "upward")
-            testCheck.assertLeq("downward", "nearest")
-            testCheck.assertLeq("downward", "farthest")
-            testCheck.assertLeq("farthest", "upward")
-            testCheck.assertLeq("nearest", "upward")
+            testCheck.assertEqual("float", "float_nearest")
+            for prefix in ["","float_"]:
+                testCheck.assertEqual(prefix+"nearest", prefix+"ftz") #hypothesis : no denorm
+                testCheck.assertEqual(prefix+"toward_zero", prefix+"downward")
+                testCheck.assertEqual(prefix+"away_zero", prefix+"upward")
+                testCheck.assertLeq(prefix+"downward", prefix+"nearest")
+                testCheck.assertLeq(prefix+"downward", prefix+"farthest")
+                testCheck.assertLeq(prefix+"farthest", prefix+"upward")
+                testCheck.assertLeq(prefix+"nearest", prefix+"upward")
 
-            for rnd in [ "upward", "prandom_half", "sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]]  + [ x+y for x in ["random", "average"] for y in ["_scomdet"]]:
+            middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+            for rnd in [ "upward"]+middleRounding:
                 testCheck.assertLess("downward", rnd)
+                testCheck.assertLess("float_downward", "float_"+rnd)
 
-            for rnd in [ "prandom_half", "sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ] + [ x+y for x in ["random", "average"] for y in ["_scomdet"]]:
+            for rnd in middleRounding:
                 testCheck.assertLess(rnd, "upward")
+                testCheck.assertLess("float_"+rnd, "float_upward")
 
-            for avg in ["average","average_det","average_comdet","average_scomdet","sr_monotonic"]:
-                testCheck.assertAbsLess(avg, "random")
-                testCheck.assertAbsLess(avg, "prandom_half")
-                testCheck.assertAbsLess(avg, "random_det")
-                testCheck.assertAbsLess(avg, "upward")
-                testCheck.assertAbsLess(avg, "downward")
-                testCheck.assertAbsLess(avg, "nearest")
+            for avg in averageStarRounding + monotonicRounding:
+                for rnd in randomStarRounding+ detRounding:
+                    testCheck.assertAbsLess(avg, rnd)
+                    testCheck.assertAbsLess("float_"+avg, "float_"+rnd)
 
             ok+=testCheck.ok
             ko+=testCheck.ko
@@ -412,6 +398,11 @@ def checkFloat(allResult, testList):
         testCheckDouble=assertRounding(test+"<double>")
         testCheckFloat.assertEqual("nearest", "float")
         testCheckDouble.assertEqValue("float", testCheckFloat.getValue("nearest"))
+
+        for rnd in  stdRounding+detRounding:
+            testCheckFloat.assertEqual(rnd, "float_"+rnd)
+            testCheckDouble.assertEqValue("float_"+rnd, testCheckFloat.getValue(rnd))
+
         ok+=testCheckFloat.ok
         ko+=testCheckFloat.ko
         warn+=testCheckFloat.warn
@@ -430,31 +421,27 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
-            testCheck.assertEqual("toward_zero", "upward")
-            testCheck.assertLeq("downward", "nearest")
-            testCheck.assertLeq("nearest", "upward")
+            testCheck.assertEqual("float","float_nearest")
+            for prefix in ["","float_"]:
+                testCheck.assertEqual(prefix+"nearest",prefix+"ftz") #hypothesis : no denorm
+                testCheck.assertEqual(prefix+"toward_zero", prefix+"upward")
+                testCheck.assertLeq(prefix+"downward", prefix+"nearest")
+                testCheck.assertLeq(prefix+"nearest", prefix+"upward")
+                testCheck.assertLeq(prefix+"downward", prefix+"farthest")
+                testCheck.assertLeq(prefix+"farthest", prefix+"upward")
 
-            testCheck.assertLeq("downward", "farthest")
-            testCheck.assertLeq("farthest", "upward")
-
-            for rnd in [ "upward", "prandom_half","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ] + [ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+            middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+            for rnd in [ "upward"] +middleRounding:
                 testCheck.assertLess("downward", rnd)
-            for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-                testCheck.assertLeq("downward", rnd)
-
-            for rnd in [ "prandom_half","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ]+ [ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+                testCheck.assertLess("float_downward", "float_"+rnd)
+            for rnd in middleRounding:
                 testCheck.assertLess(rnd, "upward")
-            for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-                testCheck.assertLeq(rnd, "upward")
+                testCheck.assertLess("float_"+rnd, "float_upward")
 
-            for avg in ["average","average_det","average_comdet", "average_scomdet", "sr_monotonic"]:
-                testCheck.assertAbsLess(avg, "random")
-                testCheck.assertAbsLess(avg, "prandom_half")
-                testCheck.assertAbsLess(avg, "random_det")
-                testCheck.assertAbsLess(avg, "upward")
-                testCheck.assertAbsLess(avg, "downward")
-                testCheck.assertAbsLess(avg, "nearest")
+            for avg in averageStarRounding+monotonicRounding:
+                for rnd in randomStarRounding+ detRounding:
+                    testCheck.assertAbsLess(avg, rnd)
+                    testCheck.assertAbsLess("float_"+avg, "float_"+rnd)
 
             ok+=testCheck.ok
             ko+=testCheck.ko
@@ -462,7 +449,8 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
 
     return errorCounter(ok, ko, warn)
 
-def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
+def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"], statNumber="good"):
+    assert(statNumber in ["good","low"])
     ok=0
     warn=0
     ko=0
@@ -472,6 +460,7 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+        testCheck.assertEqual("float","float_nearest")
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertEqual("away_zero", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -479,16 +468,31 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
         testCheck.assertLeq("downward", "farthest")
         testCheck.assertLeq("farthest", "upward")
 
+        floatInfCheck=( testCheck.getValue("float") in [float("inf"), float("-inf")])
+        middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+        if floatInfCheck:
+            for rnd in middleRounding+detRounding+["upward"]:
+                testCheck.assertEqual("float", "float_"+rnd)
 
-        for rnd in [ "upward", "prandom_half", "sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-            testCheck.assertLess("downward", rnd)
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq("downward", rnd)
+        for rnd in [ "upward"] +middleRounding:
+            if statNumber=="low" or rnd in prandomStarRounding:
+                testCheck.assertLeq("downward", rnd)
+                if not floatInfCheck:
+                    testCheck.assertLeq("float_downward", "float_"+rnd)
+            else:
+                testCheck.assertLess("downward", rnd)
+                if not floatInfCheck:
+                    testCheck.assertLess("float_downward", "float_"+rnd)
 
-        for rnd in [ "prandom_half", "sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-            testCheck.assertLess(rnd, "upward")
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq(rnd,"upward")
+        for rnd in middleRounding:
+            if statNumber=="low" or rnd in prandomStarRounding:
+                testCheck.assertLeq(rnd, "upward")
+                if not floatInfCheck:
+                    testCheck.assertLeq("float_"+rnd, "float_upward")
+            else:
+                testCheck.assertLess(rnd, "upward")
+                if not floatInfCheck:
+                    testCheck.assertLess("float_"+rnd, "float_upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
@@ -496,7 +500,8 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"]):
 
     return errorCounter(ok, ko, warn)
 
-def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
+def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"],statNumber="good"):
+    assert(statNumber in ["good","low"])
     ok=0
     warn=0
     ko=0
@@ -507,6 +512,7 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("float","float_nearest")
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertEqual("away_zero", "downward")
 
@@ -515,17 +521,31 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertLeq("downward", "farthest")
             testCheck.assertLeq("farthest", "upward")
 
+            floatInfCheck=( testCheck.getValue("float") in [float("inf"), float("-inf")])
+            middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+            if floatInfCheck:
+                for rnd in middleRounding+detRounding+["downward"]:
+                    testCheck.assertEqual("float", "float_"+rnd)
 
-            for rnd in [ "upward", "prandom_half","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-                testCheck.assertLess("downward", rnd)
-            for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-                testCheck.assertLeq("downward", rnd)
+            for rnd in [ "upward"] + middleRounding:
+                if statNumber=="low" or rnd in prandomStarRounding:
+                    testCheck.assertLeq("downward", rnd)
+                    if not floatInfCheck:
+                        testCheck.assertLeq("float_downward", "float_"+rnd)
+                else:
+                    testCheck.assertLess("downward", rnd)
+                    if not floatInfCheck:
+                        testCheck.assertLess("float_downward", "float_"+rnd)
 
-            for rnd in [ "prandom_half","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet","_scomdet"] ]:
-                testCheck.assertLess(rnd, "upward")
-            for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-                testCheck.assertLeq(rnd,"upward")
-
+            for rnd in middleRounding:
+                if statNumber=="low" or (rnd in prandomStarRounding):
+                    testCheck.assertLeq(rnd, "upward")
+                    if not floatInfCheck:
+                        testCheck.assertLeq("float_"+rnd, "float_upward")
+                else:
+                    testCheck.assertLess(rnd, "upward")
+                    if not floatInfCheck:
+                        testCheck.assertLess("float_"+rnd, "float_upward")
             ok+=testCheck.ok
             ko+=testCheck.ko
             warn+=testCheck.warn
@@ -541,21 +561,19 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
-        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
-        testCheck.assertEqual("toward_zero", "downward")
-        testCheck.assertEqual("away_zero", "upward")
-        testCheck.assertDiff("nearest", "farthest")
-        testCheck.assertLess("downward", "upward")
+        testCheck.assertEqual("float","float_nearest")
+        for prefix in ["","float_"]:
+            testCheck.assertEqual(prefix+"nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"toward_zero", prefix+"downward")
+            testCheck.assertEqual(prefix+"away_zero", prefix+"upward")
+            testCheck.assertDiff(prefix+"nearest", prefix+"farthest")
+            testCheck.assertLess(prefix+"downward", prefix+"upward")
 
-        for rnd in [ "prandom_half", "farthest", "nearest","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet", "_scomdet"] ]:
-            testCheck.assertLeq("downward", rnd)
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq("downward", rnd)
-
-        for rnd in [ "prandom_half", "farthest", "nearest","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet", "_scomdet"] ]:
-                testCheck.assertLeq(rnd, "upward")
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq(rnd,"upward")
+        middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+        for rnd in [ "farthest", "nearest"] + middleRounding:
+            for prefix in ["","float_"]:
+                testCheck.assertLeq(prefix+"downward", prefix+rnd)
+                testCheck.assertLeq(prefix+rnd, prefix+"upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
@@ -572,21 +590,19 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testName=test+RealType
         testCheck=assertRounding(testName)
         testCheck.assertNative()
-        testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
-        testCheck.assertEqual("toward_zero", "upward")
-        testCheck.assertEqual("away_zero", "downward")
-        testCheck.assertLess("downward", "upward")
-        testCheck.assertDiff("nearest", "farthest")
-        for rnd in [ "prandom_half", "farthest", "nearest","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet", "_scomdet"] ]:
-            testCheck.assertLeq("downward", rnd)
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq("downward", rnd)
+        testCheck.assertEqual("float","float_nearest")
+        for prefix in ["","float_"]:
+            testCheck.assertEqual(prefix+"nearest",prefix+"ftz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"toward_zero", prefix+"upward")
+            testCheck.assertEqual(prefix+"away_zero", prefix+"downward")
+            testCheck.assertLess(prefix+"downward", prefix+"upward")
+            testCheck.assertDiff(prefix+"nearest", prefix+"farthest")
 
-        for rnd in [ "prandom_half", "farthest", "nearest","sr_monotonic"] + [ x+y for x in ["random", "average"] for y in ["","_det","_comdet", "_scomdet"] ]:
-                testCheck.assertLeq(rnd, "upward")
-        for rnd in [ "prandom"+y  for y in ["","_det","_comdet"] ]:
-            testCheck.assertLeq(rnd,"upward")
-
+        middleRounding=averageStarRounding + monotonicRounding + randomStarRounding + prandomStarRounding
+        for rnd in [ "farthest", "nearest"]+middleRounding:
+            for prefix in ["","float_"]:
+                testCheck.assertLeq(prefix+"downward", prefix+rnd)
+                testCheck.assertLeq(prefix+rnd, prefix+"upward")
 
         ok+=testCheck.ok
         ko+=testCheck.ko
@@ -604,13 +620,16 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
     for test in testList:
         for RealType in typeTab:
             testName=test+RealType
-
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
 
-            for rnd in ["downward", "prandom_half", "farthest", "nearest", "toward_zero", "away_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
+            testCheck.assertEqual("float","float_nearest")
+
+            for rnd in allVerrouRounding:  #hypothesis : no denorm
+                if rnd in ["float"]:
+                    continue
                 testCheck.assertEqual(rnd,"upward")
+                testCheck.assertEqual("float_"+rnd,"float_upward")
 
             ok+=testCheck.ok
             ko+=testCheck.ko
@@ -618,7 +637,7 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
 
     return errorCounter(ok, ko, warn)
 
-def checkExactDetAndOptimistAverage(allResult,testList,typeTab=["<double>", "<float>"]):
+def checkExactDetAndOptimistAverageNonDet(allResult,testList,typeTab=["<double>", "<float>"]):
     ok=0
     warn=0
     ko=0
@@ -628,15 +647,16 @@ def checkExactDetAndOptimistAverage(allResult,testList,typeTab=["<double>", "<fl
 
             testCheck=assertRounding(testName)
             testCheck.assertNative()
-            testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            for prefix in ["","float_"]:
+                for rnd in allVerrouRounding:
+                    if rnd in ["random","average", "prandom_0.5", "prandom"]:
+                        continue
+                    testCheck.assertEqual(prefix+rnd,prefix+"upward")
 
-            for rnd in ["downward","farthest", "nearest", "toward_zero", "away_zero","sr_monotonic"] + [ x+y for x in ["random", "average", "prandom"] for y in ["_det","_comdet"] ]+[ x+y for x in ["random", "average"] for y in ["_scomdet"] ]:
-                testCheck.assertEqual(rnd,"upward")
-
-            for rnd in ["random", "prandom_half"]:
-                testCheck.assertLess("downward",rnd)
-                testCheck.assertLess("average",rnd)
-            testCheck.assertLess("downward","average")
+                for rnd in ["random", "prandom_0.5"]:
+                    testCheck.assertLess(prefix+"downward",prefix+rnd)
+                    testCheck.assertLess(prefix+"average",prefix+rnd)
+                testCheck.assertLess(prefix+"downward",prefix+"average")
 
             ok+=testCheck.ok
             ko+=testCheck.ko
@@ -661,7 +681,7 @@ def assertCmpTest(testName1, rounding1, testName2, rounding2, opposite=False):
 def checkScomdet(allResult, testPairList, typeTab=["<double>", "<float>"]):
     ok=0
     ko=0
-    roundingList=["random_scomdet", "average_scomdet", "sr_monotonic"]
+    roundingList=["random_scomdet", "average_scomdet", "sr_smonotonic"]
     for (code1,code2, oppositeSign) in testPairList:
         for RealType in typeTab:
             testName1=code1+RealType
@@ -700,17 +720,20 @@ if __name__=='__main__':
     eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>", "<float>"])
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>", "<float>"])
 
-    eCount+=checkExact(allResult, testList=["testMixSseLlo"], typeTab=["<double>", "<float>"])
+    eCount+=checkTestPositive(allResult, testList=["testMixSseLlo", "testMixAvxLlo", "testFmaMixSseLlo", "testFmaMixAvxLlo"],  typeTab=["<double>", "<float>"], statNumber="low")
+    eCount+=checkTestNegative(allResult, testList=["testMixSseLlom", "testMixAvxLlom", "testFmaMixSseLlom", "testFmaMixAvxLlom"], typeTab=["<double>", "<float>"], statNumber="low")
 
     eCount+=checkExact(allResult, testList=["testCast", "testCastm"], typeTab=["<double>"])
     eCount+=checkTestPositiveBetweenTwoValues(allResult, testList=["testCast"], typeTab=["<float>"])
     eCount+=checkTestNegativeBetweenTwoValues(allResult, testList=["testCastm"], typeTab=["<float>"])
 
-    eCount+=checkExactDetAndOptimistAverage(allResult, testList=["testDiffSqrt"],typeTab=["<double>", "<float>"])
+    eCount+=checkExactDetAndOptimistAverageNonDet(allResult, testList=["testDiffSqrt"],typeTab=["<double>", "<float>"])
 
-    eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam", "testMixSseLlo"])
+    eCount+=checkFloat(allResult, ["testInc0d1", "testIncSquare0d1", "testIncDiv10", "testInc0d1m", "testIncSquare0d1m", "testIncDiv10m", "testFma", "testFmam"])
 
-    eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True)])
+    eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True),
+                                    ("testMixSseLlo", "testMixSseLlom",True  ),("testMixAvxLlo", "testMixAvxLlom",True  ),
+                                    ("testFmaMixSseLlo", "testFmaMixSseLlom",True  ),("testFmaMixAvxLlo", "testFmaMixAvxLlom",True  )])
 
     eCount.printSummary()
-    sys.exit(eCount.ko)
+    sys.exit(eCount.ko+eCount.warn)

@@ -36,7 +36,7 @@
 #ifdef VERROU_SYNCHRO_INCLUDE
 #include "../include/valgrind.h"
 #else
-#include "valgrind.h"
+#include "pub_tool_clreq.h"
 #endif
 /* !! ABIWARNING !! ABIWARNING !! ABIWARNING !! ABIWARNING !!
    This enum comprises an ABI exported by Valgrind to programs
@@ -58,6 +58,23 @@ enum {
   VR_USERREQ__SET_SEED,
   VR_USERREQ__PRANDOM_UPDATE,
   VR_USERREQ__PRANDOM_UPDATE_VALUE,
+  VR_USERREQ__GET_ROUNDING,
+  VR_USERREQ__GET_LIBM_ROUNDING,
+  VR_USERREQ__NAN_DETECTED,
+  VR_USERREQ__INF_DETECTED,
+  VR_USERREQ__IS_INSTRUMENTED_FLOAT,
+  VR_USERREQ__IS_INSTRUMENTED_DOUBLE,
+  VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,
+  VR_USERREQ__COUNT_OP,
+  VR_USERREQ__GENERATE_EXCLUDE_SOURCE,
+  VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE,
+  VR_USERREQ__REGISTER_CACHE,
+  VR_USERREQ__GET_SEED,
+  VR_USERREQ__REGISTER_CACHE_SEED,
+  VR_USERREQ__GET_LIBM_ROUNDING_NO_INST,
+  VR_USERREQ__START_SOFT_INSTRUMENTATION,
+  VR_USERREQ__STOP_SOFT_INSTRUMENTATION,
+  VR_USERREQ__FLOAT_CONV
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -67,6 +84,14 @@ enum {
 #define VERROU_STOP_INSTRUMENTATION                                  \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_INSTRUMENTATION,  \
                                   0, 0, 0, 0, 0)
+#define VERROU_START_SOFT_INSTRUMENTATION                                 \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_SOFT_INSTRUMENTATION, \
+                                  0, 0, 0, 0, 0)
+
+#define VERROU_STOP_SOFT_INSTRUMENTATION                                  \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_SOFT_INSTRUMENTATION,  \
+                                  0, 0, 0, 0, 0)
+
 
 #define VERROU_START_DETERMINISTIC(LEVEL)                            \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_DETERMINISTIC,   \
@@ -108,5 +133,69 @@ enum {
 #define VERROU_PRANDOM_UPDATE_VALUE(P)\
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRANDOM_UPDATE_VALUE,    \
 				  P, 0, 0, 0, 0)
+
+#define VERROU_GET_ROUNDING \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_ROUNDING, \
+					    0, 0, 0, 0, 0)
+#define VERROU_GET_LIBM_ROUNDING \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_LIBM_ROUNDING, \
+					    0, 0, 0, 0, 0)
+#define VERROU_GET_LIBM_ROUNDING_NO_INST \
+  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                                VR_USERREQ__GET_LIBM_ROUNDING_NO_INST, \
+					    0, 0, 0, 0, 0)
+#define VERROU_NAN_DETECTED \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__NAN_DETECTED,    \
+                                  0, 0, 0, 0, 0)
+#define VERROU_INF_DETECTED \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__INF_DETECTED,    \
+                                  0, 0, 0, 0, 0)
+#define VERROU_IS_INSTRUMENTED_FLOAT \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_FLOAT,\
+					    0, 0, 0, 0, 0)
+
+#define VERROU_IS_INSTRUMENTED_DOUBLE \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_DOUBLE,\
+					    0, 0, 0, 0, 0)
+#define VERROU_IS_INSTRUMENTED_LDOUBLE \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,\
+					    0, 0, 0, 0, 0)
+#define VERROU_COUNT_OP \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__COUNT_OP,\
+					    0, 0, 0, 0, 0)
+
+#define VERROU_GENERATE_EXCLUDE_SOURCE(FCTNAME, LINENUM, FILENAME, OBJECT) \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__GENERATE_EXCLUDE_SOURCE,    \
+				  FCTNAME, LINENUM, FILENAME, OBJECT, 0)
+
+
+#define VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(FCTNAME, LINENUM, FILENAME, OBJECT) \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+					    VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE,\
+					FCTNAME, LINENUM, FILENAME, OBJECT, 0)
+
+#define VERROU_REGISTER_CACHE(CACHEPTR, SIZE)                 \
+   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__REGISTER_CACHE,\
+                                   CACHEPTR,SIZE, 0, 0, 0)
+
+#define VERROU_GET_SEED \
+  (uint64_t) VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	  \
+					     VR_USERREQ__GET_SEED,\
+					     0, 0, 0, 0, 0)
+
+#define VERROU_REGISTER_CACHE_SEED(CACHEPTR)			\
+   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__REGISTER_CACHE_SEED,\
+                                   CACHEPTR,0, 0, 0, 0)
+
+#define VERROU_FLOAT_CONV \
+  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+                                        VR_USERREQ__FLOAT_CONV,       \
+                                        0, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

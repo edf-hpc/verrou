@@ -13,12 +13,12 @@ installConfig= subprocess.Popen(["./config.status", "--config"],
                        env = env,
                        stdout = subprocess.PIPE)
 
-line = (installConfig.stdout.readline()).decode("utf8")
+line = (installConfig.stdout.readline()).decode("utf8").replace("'","")
 spline=(line.strip()).split()
 pathInstall="./install"
 for conf in spline:
-    if conf[1:-1].startswith("--prefix"):
-        pathInstall=(conf[1:-1].partition('='))[2]
+    if conf.startswith("--prefix"):
+        pathInstall=(conf.partition('='))[2]
 
 manPath=os.path.join(pathInstall, "share/man/man1/valgrind.1")
 if not os.path.exists(manPath):
@@ -55,6 +55,7 @@ for line in man.stdout:
         line = line[1:]
 
     line=line.replace('","','\\",\\"')
+    line=line.replace("<yes|no>","yes|no")
     linesRes+=[line.rstrip()]
 
 #with open("verrou/vr_clo_gen.c", "w") as f:

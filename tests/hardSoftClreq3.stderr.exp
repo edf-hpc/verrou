@@ -1,0 +1,55 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+Open IOMatchClr file : PATH 
+Open IOMatchClr output file : PATH 
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend mcaquad simulating mode MCA with precision 53 for double and 10 for float
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+match [0]: |res[5] ==|
+match [1]: |res[8] !=|
+
+match pattern count
+	1 : res[5] ==
+	1 : res[8] !=
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                    11000                     4000          ( 36%)
+  `- flt                    11000                     4000      ( 36%)
+      `- llo                    11000                     4000  ( 36%)
+ ---------------------------------------------------------------------
+ sub                       21                        8          ( 38%)
+  `- flt                       21                        8      ( 38%)
+      `- llo                       21                        8  ( 38%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

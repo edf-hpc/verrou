@@ -56,7 +56,8 @@
         When verrou finds a block of instructions (an IRSB, Intermediate Representation SuperBlock
         in valgrind terminology) whose address matches the
         <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
-        specification, the whole chunk is left uninstrumented.
+        specification, the whole chunk is left uninstrumented (we may still instrument IRSB to count
+	uninstrumented operations).
       </para>
 
       <warning>
@@ -66,7 +67,7 @@
         </para>
       </warning>
 
-      <para>A recommanded procedure to find the correct library path is the following: <screen>
+      <para>A recommenced procedure to find the correct library path is the following: <screen>
 <prompt>$</prompt> ldd <replaceable>program</replaceable>
         linux-vdso.so.1 (0x00007fffebbc6000)
         libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fdbe1760000)
@@ -126,9 +127,9 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
       <para>For example:<screen>
 <prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.tex python3
 ==10469== Verrou, Check floating-point rounding errors
-==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2021, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
+==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2023, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
 ==10469==
-==10469== Using Valgrind-3.19.0.+Verrou-Dev and LibVEX; rerun with -h for copyright info
+==10469== Using Valgrind-3.21.0.verrou-dev and LibVEX; rerun with -h for copyright info
 ==10469== Command: python3
 ==10469==
 ==10469== First seed : 147635
@@ -144,6 +145,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
 ==10469== 	div : yes
 ==10469== 	mAdd : yes
 ==10469== 	mSub : yes
+==10469== 	sqrt : yes
 ==10469== 	cmp : no
 ==10469== 	conv : yes
 ==10469== 	max : no
@@ -290,7 +292,7 @@ s_sin.c         12       cos</screen>
     <para>
       Instrumentation can be toggled off at program start using the <option><xref
       linkend="vr-opt.instr-atstart"/></option> command-line option. Furthermore, it can be
-      (de)activated programatically using the <computeroutput><xref
+      (de)activated programmatically using the <computeroutput><xref
       linkend="vr-cr.start-instrumentation"/></computeroutput> and <computeroutput><xref
       linkend="vr-cr.stop-instrumentation"/></computeroutput> client requests. This feature is
       greatly inspired by Callgrind (see <xref linkend="cl-manual.limits"/> in the Callgrind
@@ -318,6 +320,28 @@ int main () {
       linkend="vr.monitor_instrumentation"/></computeroutput> monitor command.
     </para>
 
+
+    <para>
+      As the <computeroutput>VERROU_START_INSTRUMENTATION</computeroutput> and <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput> client requests (usually called hard stop/start) imply to flush the valgrind instrumentation cache, it can be expensive for very frequent calls, we also propose an other couple of client requests (usually called soft sotp/start):
+      <computeroutput>VERROU_START_SOFT_INSTRUMENTATION</computeroutput> and <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput>. The idea behind is to instrument only once, but with a function which dynamically select between the instrumented backend and the nearest backend. As the instruemented code is less efficient, this approach designed only for frequent stop/start. The both approach are compatible : if <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput> or <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput> are activated, the instrumentation is stopped.
+    </para>
+    <para>
+      The hard and soft stop/start can also be called (without recompilation) thanks the an IOMatch script (See <option> <xref linkend="vr-opt.iomatch-clr"/></option>).
+      </para>
+      <para>
+	For python program it is possible to use python bindings:
+	<programlisting>
+#!/usr/bin/python3
+import valgrind.verrouPyBinding as verrou
+
+verrou.start_instrumentation()
+verrou.stop_instrumentation()
+verrou.start_soft_instrumentation()
+verrou.stop_soft_instrumentation()</programlisting>
+      </para>
+    <para>
+      As <computeroutput>verrou_dd_stdout</computeroutput> and <computeroutput>verrou_dd_task</computeroutput> use a stop/start mechanism (hard or soft), you can use the other mechanism to manually instrument your code, without unwanted side-effect.
+    </para>
   </section>
 </section>
 

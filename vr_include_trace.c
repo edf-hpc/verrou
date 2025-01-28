@@ -33,6 +33,7 @@
 */
 
 #include "vr_main.h"
+#include "vr_include_trace.h"
 
 #define LINE_SIZEMAX VR_FNNAME_BUFSIZE
 

@@ -10,9 +10,11 @@ AC_CACHE_CHECK([verrou fma], vg_cv_verrou_fma,
 if test "$vg_cv_verrou_fma" = yes; then
   # Check for fmaintrin.h
   AC_LANG_PUSH(C++)
-  CXXFLAGS="$safe_CXXFLAGS -mfma"
-  AC_MSG_CHECKING([for fmaintrin.h ])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    CXXFLAGS="$safe_CXXFLAGS -march=native"
+  AC_MSG_CHECKING([for fma instrinsics])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include  <immintrin.h>
       #include <stdlib.h>
 ]], [[
@@ -27,16 +29,38 @@ if test "$vg_cv_verrou_fma" = yes; then
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with fmaintrin.h is required for --enable-verrou-fma ])
-  ])
+  ]) ;;
+  arm64-linux)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include "arm_neon.h"
+  #include <stdlib.h>
+]], [[
+  double a,b,c,d;
+  float64x1_t ai, bi,ci,di;
+  ai = vld1_dup_f64(&a);
+  bi = vld1_dup_f64(&b);
+  ci = vld1_dup_f64(&c);
+  di=vfma_f64(ai,bi,ci);
+  vst1_f64(&d, di);
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-fma ])
+  ]) ;;
+  *)
+  vg_cv_verrou_fma=no
+  ;;
+  esac
   AC_LANG_POP(C++)
-else
-  AM_CONDITIONAL([HAVE_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 fi
 
+AM_CONDITIONAL([HAVE_VERROU_FMA_INTRIN], test x$vg_cv_verrou_fma = xyes,[])
 AC_SUBST(vg_cv_verrou_fma)
 
 
@@ -50,12 +74,14 @@ AC_CACHE_CHECK([verrou ], vg_cv_verrou_sqrt,
 if test "$vg_cv_verrou_sqrt" = yes; then
   # Check for sqrt intrinsics
   AC_LANG_PUSH(C++)
-  AC_MSG_CHECKING([for immintrin.h ])
+  AC_MSG_CHECKING([for sqrt intrinsic ])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
       #include  <immintrin.h>
       #include <stdlib.h>
 ]], [[
-       double a,d;
+       double a=1.,d;
       __m128d ai, di;
       ai = _mm_load_sd(&a);
       di=_mm_sqrt_sd(ai,ai);
@@ -64,29 +90,78 @@ if test "$vg_cv_verrou_sqrt" = yes; then
     ]])],
     [
       AC_MSG_RESULT([yes])
-      AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
     ],[
       AC_MSG_RESULT([no])
       AC_MSG_ERROR([A compiler with sqrt intrinsics is required for --enable-verrou-sqrt ])
+  ]);;
+    arm64-linux)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include "arm_neon.h"
+  #include <stdlib.h>
+]], [[
+  double a=1.2;
+  double d=vrsqrted_f64(a);
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with arm_neon is required for --enable-verrou-sqrt ])
   ])
+  ;;
+  *)
+  vg_cv_verrou_sqrt=no
+  esac
   AC_LANG_POP(C++)
-else
-  AM_CONDITIONAL([HAVE_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
 fi
 
+AM_CONDITIONAL([HAVE_VERROU_SQRT_INTRIN], test x$vg_cv_verrou_sqrt = xyes,[])
 AC_SUBST(vg_cv_verrou_sqrt)
 
 
-#--enable-verrou-quad
-AC_CACHE_CHECK([verrou quad], vg_cv_verrou_quad,
-  [AC_ARG_ENABLE(verrou-quad,
-    [  --enable-verrou-quad          enables verrou to use quad],
-    [vg_cv_verrou_quad=$enableval],
-    [vg_cv_verrou_quad=yes])])
+#--enable-verrou-quadmath
+AC_CACHE_CHECK([verrou quadmath], vg_cv_verrou_quadmath,
+  [AC_ARG_ENABLE(verrou-quadmath,
+    [  --enable-verrou-quadmath          enables verrou to use __float128 and quadmath],
+    [vg_cv_verrou_quadmath=$enableval],
+    [vg_cv_verrou_quadmath=yes])])
 
-AM_CONDITIONAL([USE_QUAD], test x$vg_cv_verrou_quad = xyes,[])
+if test "$vg_cv_verrou_quadmath" = yes; then
+  # Check for quadmath.h
+  AC_LANG_PUSH(C++)
+    CXXFLAGS="$safe_CXXFLAGS -lquadmath"
+  AC_MSG_CHECKING([for quadmath])
+case "$ARCH_MAX-$VGCONF_OS" in
+     amd64-linux)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include  <quadmath.h>
+      #include <stdlib.h>
+]], [[
+       __float128 a=0.1,b=0.1,c;
+       c=a+b;
+      return EXIT_SUCCESS;
+    ]])],
+    [
+      AC_MSG_RESULT([yes])
+    ],[
+      AC_MSG_RESULT([no])
+      AC_MSG_ERROR([A compiler with quadmath.h is required for --enable-verrou-quadmath ])
+  ]) ;;
+  arm64-linux)
+     AC_MSG_RESULT([no])
+     vg_cv_verrou_quadmath=no
+  ;;
+  *)
+  vg_cv_verrou_quadmath=no
+  ;;
+  esac
+  AC_LANG_POP(C++)
+fi
 
-AC_SUBST(vg_cv_verrou_quad)
+AM_CONDITIONAL([HAVE_VERROU_QUADMATH], test x$vg_cv_verrou_quadmath = xyes,[])
+AC_SUBST(vg_cv_verrou_quadmath)
+
 
 #--enable-profiling for exact operation
 AC_CACHE_CHECK([verrou profiling exact], vg_cv_verrou_profiling_exact,
@@ -140,7 +215,7 @@ AC_CACHE_CHECK([verrou-det-hash], vg_cv_verrou_det_hash,
 [
 AC_ARG_WITH(
 	[verrou-det-hash],
-	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister],
+	[  --with-verrou-det-hash=hash_name	hash algorithm for random_[com]det and average_[com]det: dietzfelbinger,multiply_shift,[double_]tabulation,xxhash,mersenne_twister],
 	[vg_cv_verrou_det_hash=$withval],
 	[vg_cv_verrou_det_hash=xxhash]
 )])
@@ -149,6 +224,7 @@ AS_CASE([$vg_cv_verrou_det_hash],
 	[yes],[vg_cv_verrou_det_hash=double_tabulation],
 	[dietzfelbinger],[echo "dietzfelbinger hash selected"],
 	[multiply_shift],[echo "multiply_shift hash selected"],
+	[tabulation],[echo "tabulation hash selected"],
 	[double_tabulation],[echo "double_tabulation hash selected"],
 	[xxhash],[echo "xxHash hash selected"],
 	[mersenne_twister],[echo "mersenne_twister hash selected"],
@@ -200,6 +276,46 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
   ])
 AC_LANG_POP(C++)
 AC_SUBST(vg_test_no_avx512f_flag)
+
+# mfpmath=sse
+vg_test_mfpmath_sse_flag="-mfpmath=sse"
+AC_LANG_PUSH(C++)
+CXXFLAGS="$safe_CXXFLAGS $vg_test_mfpmath_sse_flag"
+AC_MSG_CHECKING([for -mfpmath=sse compil option])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <stdlib.h>
+      ]], [[return EXIT_SUCCESS;]])],
+    [
+      CXXFLAGS="$safe_CXXFLAGS"
+      AC_MSG_RESULT([yes])
+    ],[
+    CXXFLAGS="$safe_CXXFLAGS"
+     vg_test_mfpmath_sse_flag=
+      AC_MSG_RESULT([no])
+  ])
+AC_LANG_POP(C++)
+AC_SUBST(vg_test_mfpmath_sse_flag)
+
+# mfma
+vg_test_mfma_flag=-mfma
+AC_LANG_PUSH(C++)
+CXXFLAGS="$safe_CXXFLAGS $vg_test_mfma_flag"
+AC_MSG_CHECKING([for -mfma compil option])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <stdlib.h>
+      ]], [[return EXIT_SUCCESS;]])],
+    [
+      CXXFLAGS="$safe_CXXFLAGS"
+      AC_MSG_RESULT([yes])
+    ],[
+    CXXFLAGS="$safe_CXXFLAGS"
+     vg_test_mfma_flag=
+      AC_MSG_RESULT([no])
+  ])
+AC_LANG_POP(C++)
+AC_SUBST(vg_test_mfma_flag)
+
+AC_SUBST(ac_have_as_avx)
 
 
 AC_CONFIG_FILES([verrou/env.sh])

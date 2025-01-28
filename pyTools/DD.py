@@ -827,7 +827,7 @@ class DD:
             next_n = n
 
             # // resolution
-            tTab=self._testTab(cs, [nbRun]*len(cs))
+            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, firstConfFail=True)
 
             for i in range(n):
                 if self.debug_dd:
@@ -861,7 +861,7 @@ class DD:
                 for j in range(n):
                     i = (j + cbar_offset) % n
                     cbars[i] = self.__listminus(c, cs[i])
-                tTab = self._testTab(cbars,[nbRun]*n)
+                tTab = self._testTab(cbars,[nbRun]*n,  earlyExit=True, firstConfFail=True)
                 for i in range(n):
                     t=tTab[i]
                     if t == self.FAIL:

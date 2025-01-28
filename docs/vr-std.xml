@@ -23,6 +23,7 @@
               <listitem><simpara><command>div</command>: division</simpara></listitem>
               <listitem><simpara><command>mAdd</command>: Fused Multiply-Add (FMA)</simpara></listitem>
               <listitem><simpara><command>mSub</command>: Fused Multiply-Sub</simpara></listitem>
+              <listitem><simpara><command>sqrt</command>: hardware square root (not square root function provided by libm)</simpara></listitem>
               <listitem><simpara><command>cmp</command>: comparison</simpara></listitem>
               <listitem><simpara><command>conv</command>: conversion (or cast)</simpara></listitem>
             </itemizedlist>
@@ -133,8 +134,12 @@
         different from <command>nearest</command> rounding mode, while still being
         deterministic.</para></listitem>
 
+	<listitem><para><command>away zero</command>: in this mode, all non-exact results are rounded
+        in the opposite way to IEEE-754 <command>toward zero</command> rounding mode.</para></listitem>
+
 	<listitem><para><command>float</command>: in this mode, all double precision floating-point
-	operations are replaced by simple precision equivalent. Float operations remain unchanged.
+	operations are replaced by simple precision equivalent. Float operations remain unchanged. (See also <link linkend="vr-opt.float">
+      <option>--float=yes</option></link>).
 	</para></listitem>
 
 	<listitem><para><command>ftz</command>: in this mode, denormal floating-point operations are flushed to zero.
@@ -146,7 +151,7 @@
     <para>
       Finally, the main use for Verrou is to randomly switch rounding mode at each floating-point
       operation, in order to implement the "random rounding" variant of Monte Carlo Arithmetic
-      (MCA). Three strategies can be used to choose the rounding mode for a given operation:
+      (MCA). Several strategies can be used to choose the rounding mode for a given operation:
       <itemizedlist>
         <listitem><para><command>random:</command> Randomly pick one among upward and downward
         rounding, with equal probabilities. This is a form of asynchronous CESTAC method.</para>
@@ -181,7 +186,7 @@
 	</para>
         </listitem>
 	<listitem><para><command>average_det:</command> Randomly choose between upward and downward
-        rounding mode, with the same probabilitie law as <command>average</command> but insuring that, for a given seed, the same computation
+        rounding mode, with the same probability law as <command>average</command> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>average</command> rounding mode that improves determinism and
         removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
@@ -210,16 +215,22 @@
 	      <listitem> fma(x,y,z) == fma(-x,-y,z)</listitem>
 	      <listitem> fma(-x,y,-z) == -fma(x,y,z)</listitem>
 	      <listitem> fma(x,-y,-z) == -fma(x,y,z)</listitem>
+	      <listitem> fma(x,y,0) == (x*y) </listitem>
 	      <listitem> cast(-x) == -cast(x)</listitem>
+	      <listitem> With <option><xref linkend="vr-opt.libm"/>=instrumented</option> the odd/even properties of libm instrumented functions are fullfilled. </listitem>
 	    </itemizedlist>
 	  </para>
         </listitem>
 
 	<listitem><para><command>average_scomdet:</command> variant of <command>average_det</command> which respects the same constraints as <command>random_scomdet</command></para> 
         </listitem>
-
 	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
-            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symetric.
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. 
+	  </para>
+        </listitem>
+
+	<listitem><para><command>sr_smonotonic:</command>  Choose between downward and upward
+            rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. This rounding mode satisfy the monotonicity of the rounding and respect also all the <command>random_scomdet</command> constraints as the limits are designed to be symmetric.
 	  </para>
         </listitem>
 
@@ -229,7 +240,7 @@
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
-      command-line option. For the modes <command>average_[[s]com]det</command> and <command>random_[[s]com]det</command>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <command>average_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>

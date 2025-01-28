@@ -5,8 +5,9 @@
 #include<stdint.h>
 #include<cfloat>
 
-typedef uint64_t xoshiro128_state_t[2];
+typedef uint32_t xoshiro128_state_t[4];
 typedef uint64_t xoshiro256_state_t[4];
+typedef uint64_t xoroshiro128_state_t[2];
 
 static inline uint32_t xoshiro128plus_rotl(const uint32_t x, int k) {
 	return (x << k) | (x >> (32 - k));
@@ -72,7 +73,7 @@ static inline uint64_t xoroshiro128plus_rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
 }
 
-inline uint64_t xoroshiro128plus_next(xoshiro128_state_t& s) {
+inline uint64_t xoroshiro128plus_next(xoroshiro128_state_t& s) {
 	const uint64_t s0 = s[0];
 	uint64_t s1 = s[1];
 	const uint64_t result = s0 + s1;
@@ -87,7 +88,7 @@ static inline uint64_t xoroshiro128plusplus_rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
 }
 
-inline uint64_t xoroshiro128plusplus_next(xoshiro128_state_t& s) {
+inline uint64_t xoroshiro128plusplus_next(xoroshiro128_state_t& s) {
 	const uint64_t s0 = s[0];
 	uint64_t s1 = s[1];
 	const uint64_t result = xoroshiro128plusplus_rotl(s0 + s1, 17) + s0;
@@ -102,7 +103,7 @@ static inline uint64_t xoroshiro128starstar_rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
 }
 
-inline uint64_t xoroshiro128starstar_next(xoshiro128_state_t& s) {
+inline uint64_t xoroshiro128starstar_next(xoroshiro128_state_t& s) {
 	const uint64_t s0 = s[0];
 	uint64_t s1 = s[1];
 	const uint64_t result = xoroshiro128starstar_rotl(s0 * 5, 7) * 9;
@@ -189,10 +190,20 @@ inline void init_xoshiro256_state(xoshiro256_state_t& state, uint64_t seed){
   state[3]= splitmix64_next(splitMixState);
 }
 
-inline void init_xoshiro128_state(xoshiro128_state_t& state,uint64_t seed){
+inline void init_xoroshiro128_state(xoroshiro128_state_t& state,uint64_t seed){
   uint64_t splitMixState=seed;
   state[0]= splitmix64_next(splitMixState);
   state[1]= splitmix64_next(splitMixState);
+}
+
+inline void init_xoshiro128_state(xoshiro128_state_t& state,uint64_t seed){
+  uint64_t splitMixState=seed;
+  uint64_t state01=splitmix64_next(splitMixState);
+  uint64_t state23=splitmix64_next(splitMixState);
+  state[0]= (uint32_t)state01;
+  state[1]= (uint32_t)(state01 << 32);
+  state[2]= (uint32_t)state23;
+  state[3]= (uint32_t)(state23 << 32);
 }
 
 

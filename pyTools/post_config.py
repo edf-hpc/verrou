@@ -23,21 +23,23 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("rep",     "string", "REP",          ["--rep="], "dd.line", "rep_exists")
         self.addRegistry("sub_rep", "string", "CONFIGURATION",["--sub-rep=","--configuration="],  [] , "rep_exists", additive=True)
         self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] , additive=True)
-        self.addRegistry("rounding", "string", "ROUNDING_LIST", ["--rounding-list=","--rounding=","--rounding-mode"] , [], additive=True,
-                         docStr="rounding mode list (coma separated) [default rounding in run.sh]")
+        self.addRegistry("rounding", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode"] , [], additive=True,
+                         docStr="rounding mode list (coma separated) [default rounding in run.sh]",
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
         self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False)
         self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)
-
+        self.addRegistry("seed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
 
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
         print(self.get_EnvDoc(self.config_keys[-1]))
 
         print("Valid rounding modes are:")
-        print("\t",  ",".join(rounding_tool.roundingDetTab  ))
-        print("\t",  ",".join(rounding_tool.roundingNonDetTab  ))
+        print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix  ))
+        print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix  ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t rounding mode can be prefixed by \"float_\"")
         print("\t det is an alias to "+",".join([x for x in rounding_tool.roundingDetTab if x not in ["float","ftz"]]))
         print("\t no_det is an alias to "+",".join(["random","average", "prandom"]))
 
@@ -68,7 +70,7 @@ class postConfig(gen_config.gen_config):
     def check_instr_tab(self):
         for instrConfig in self.instr:
             for instr in instrConfig.split(","):
-                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "conv"]
+                validInstrTab=["add","sub", "mul","div", "mAdd", "mSub", "sqrt","conv"]
                 if instr not in validInstrTab:
                     print("%s is not a valid instr configuration."%(instr))
                     print("%s should be a coma separated list of element of %s"%(instrConfig, str(validInstrTab)))
@@ -115,6 +117,7 @@ class postConfig(gen_config.gen_config):
 
     def get_rep_sub_rep(self):
         if self.sub_rep==[]:
+            self.saveParam(os.path.join(self.rep,"cmd_post.last"))
             return {self.rep:self.findDDmin(self.rep)}
         else:
             res={}
@@ -130,6 +133,8 @@ class postConfig(gen_config.gen_config):
                         print("sub_rep %s is not a valid"%(sub_rep))
                         self.usageCmd()
                         self.failure()
+            for rep in res:
+                self.saveParam(os.path.join(rep,"cmd_post.last"))
             return res
     def get_instr(self):
         if self.instr==[]:

@@ -31,32 +31,25 @@ Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html).
 ### Get the sources
 
 The preferred way to get Verrou sources is to download the latest *stable*
-version: [v2.4.0](https://github.com/edf-hpc/verrou/releases/latest).
+version: [v2.5.0](https://github.com/edf-hpc/verrou/releases/latest).
 Older versions are available in the [releases](https://github.com/edf-hpc/verrou/releases)
 page. After downloading one of the released versions, skip to the "Configure
 and build" section below.
 
 <p>&nbsp;</p>
 
-In order to build the *development* version of Verrou, it is necesary to first
+In order to build the *development* version of Verrou, it is necessary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=VALGRIND_3_20_0 --single-branch git://sourceware.org/git/valgrind.git valgrind-3.20.0+verrou-dev
-
-or if you have proxy problem with git:// protocol:
-
-    export https_proxy=ADDRESS_OF_PROXY
-    wget https://sourceware.org/pub/valgrind/valgrind-3.20.0.tar.bz2
-    tar xvfj valgrind-3.20.0.tar.bz2
-    mv valgrind-3.20.0 valgrind-3.20.0+verrou-dev
+    git clone --branch=VALGRIND_3_24_0 --single-branch https://sourceware.org/git/valgrind.git valgrind-3.24.0+verrou-dev
 
 
 Add verrou's sources to it:
 
-    cd valgrind-3.20.0+verrou-dev
+    cd valgrind-3.24.0+verrou-dev
     git clone https://github.com/edf-hpc/verrou.git verrou
 
-    patch -p1 <verrou/valgrind.diff
+    cat verrou/valgrind.*diff | patch -p1
 
 
 ### Configure and build
@@ -92,7 +85,7 @@ Advanced users can use the following configure flags :
 
 - `--enable-verrou-check-naninf=yes|no` (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
 - `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are not able to reproduce the reference results.
-- `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necesarry exact. With the average* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
+- `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necessary exact. With the average* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
 - `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and average) by the xo[ro]shiro prng.
 - `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disabled. This option is only useful to reduce the dependencies.
 

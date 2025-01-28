@@ -38,7 +38,6 @@ from valgrind import convNumLineTool
 from valgrind import DD
 
 
-
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
     and error outputs to FNAME.out and FNAME.err respectively.
@@ -71,7 +70,7 @@ def runCmd(cmd, fname, envvars=None):
 
 class verrouTask:
 
-    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None):
+    def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None, seedEnvVar=None):
         self.dirname=dirname
         self.refDir=refDir
         self.runCmd=runCmd
@@ -89,6 +88,21 @@ class verrouTask:
         self.preRunLambda=None
         self.postRunLambda=None
         self.seedTab=seedTab
+        self.bufferizedPrint=False
+        self.bufferPrint=""
+        self.seedEnvVar_=seedEnvVar
+
+    def printProgress(self,string, end="\n", flush=None):
+        if not self.bufferizedPrint:
+            if flush==True:
+                print(string, end=end, flush=True)
+            else:
+                print(string,end=end)
+        else:
+            self.bufferPrint+=(string+end)
+    def flushProgress(self):
+        print(self.bufferPrint, flush=True, end="")
+        self.bufferPrint=""
 
     def setPostRun(self, postLambda):
         self.postRunLambda=postLambda
@@ -98,21 +112,27 @@ class verrouTask:
 
 
     def printDir(self):
-        print(self.pathToPrint,end="")
+        self.printProgress(self.pathToPrint,end="")
 
-    def nameDir(self,i):
-        return  os.path.join(self.dirname,"dd.run%i" % (i))
+    def nameDir(self,i,relative=False):
+        if relative:
+            return "dd.run%i" % (i)
+        else:
+            return  os.path.join(self.dirname,"dd.run%i" % (i))
 
     def mkdir(self,i):
          os.mkdir(self.nameDir(i))
     def rmdir(self,i):
         shutil.rmtree(self.nameDir(i))
 
+    def replacePattern(self, value, i):
+        return value.replace("%DDRUN%", self.nameDir(i,True))
+
     def runOneSample(self,i):
         rundir= self.nameDir(i)
-        env={key:self.runEnv[key] for key in self.runEnv}
+        env={key:self.replacePattern(self.runEnv[key],i) for key in self.runEnv}
         if self.seedTab!=None:
-            env["VERROU_SEED"]=str(self.seedTab[i])
+            env[self.seedEnvVar_]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         self.subProcessRun[i]=runCmdAsync([self.runCmd, rundir],
@@ -197,7 +217,7 @@ class verrouTask:
 
         workToDo=self.sampleToCompute(self.nbRun, earlyExit)
         if workToDo==None:
-            print(" --(cache) -> FAIL")
+            self.printProgress(" --(cache) -> FAIL")
             return self.FAIL
         cmpOnlyToDo=workToDo[0]
         runToDo=workToDo[1]
@@ -206,36 +226,42 @@ class verrouTask:
 
         if len(cmpOnlyToDo)==0 and len(runToDo)==0:
             if(len(failureIndex)==0):
-                print(" --(cache) -> PASS("+str(self.nbRun)+")")
+                self.printProgress(" --(cache) -> PASS("+str(self.nbRun)+")")
                 return self.PASS
             else:
-                print(" --(cache) -> FAIL(%s)"%((str(failureIndex)[1:-1]).replace(" ","")))
+                self.printProgress(" --(cache) -> FAIL(%s)"%((str(failureIndex)[1:-1]).replace(" ","")))
                 return self.FAIL
 
         if len(cmpOnlyToDo)!=0:
-            print(" --( cmp ) -> ",end="",flush=True)
+            self.printProgress(" --( cmp ) -> ",end="",flush=True)
             returnVal=self.cmpSeq(cmpOnlyToDo, earlyExit)
             if returnVal==self.FAIL:
                 if earlyExit:
-                    print("FAIL", end="\n",flush=True)
+                    self.printProgress("FAIL", end="\n",flush=True)
                     return self.FAIL
                 else:
-                    print("FAIL", end="",flush= True)
+                    self.printProgress("FAIL", end="",flush= True)
             else:
-                print("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
+                self.printProgress("PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" , end="", flush=True)
 
+        self.futures=[]
+        self.dataAsyncPrint=None
         if len(runToDo)!=0:
 
             if self.maxNbPROC in [None,1]:
                 returnVal=self.runSeq(runToDo, earlyExit, self.verbose)
+            elif self.maxNbPROC=="async":
+                self.runParAsync(runToDo)
+                self.dataAsyncPrint="PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")"
+                return None
             else:
                 returnVal=self.runPar(runToDo)
 
             if(returnVal==self.PASS):
-                print("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+                self.printProgress("PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
             return returnVal
         else:
-            print("")
+            self.printProgress("")
         return self.PASS
 
 
@@ -253,17 +279,17 @@ class verrouTask:
 
     def runSeq(self,workToDo, earlyExit,printStatus=False):
         if printStatus:
-            print(" --( run ) -> ",end="",flush=True)
+            self.printProgress(" --( run ) -> ",end="",flush=True)
         res=self.PASS
         for run in workToDo:
             if not os.path.exists(self.nameDir(run)):
                 self.mkdir(run)
             else:
-                print("Manual cache modification detected (runSeq)")
+                print(self.nameDir(run) +" : manual cache modification detected (runSeq)")
 
             if self.alreadyFail:
                 if printStatus:
-                    print(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
+                    self.printProgress(" "*len(self.pathToPrint)+" --( run ) -> ", end="", flush=True)
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
@@ -272,34 +298,111 @@ class verrouTask:
 
                 if earlyExit:
                     if printStatus:
-                        print("FAIL(%i)"%(run))
+                        self.printProgress("FAIL(%i)"%(run))
                     return res
                 else:
                     if printStatus:
-                        print("FAIL(%i)"%(run))
+                        self.printProgress("FAIL(%i)"%(run))
                         self.alreadyFail=True
         return res
 
+    def submitSeq(self, cmpOrRun, sampleIndex, earlyExit=False):
+        if cmpOrRun=="cmp":
+            return self.cmpSeq([sampleIndex],earlyExit)
+        if cmpOrRun=="run":
+            return self.runSeq([sampleIndex],earlyExit)
 
-    def runPar(self,workToDo):
-        print(" --(/run ) -> ",end="",flush=True)
+
+    def runPar(self,workToDo, earlyExit=True):
+        self.printProgress(" --(/run ) -> ",end="",flush=True)
         import concurrent.futures
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
-            futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
-            concurrent.futures.wait(futures)
-        results=[futur.result() for futur in futures]
-        if self.FAIL in results:
-            indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
-            failIndices=[workToDo[indice] for indice in indices ]
-            print("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
+
+        numThread=self.maxNbPROC
+        activeDataTab=[True for i in range(len(workToDo))]
+        failIndices=[]
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+            futurePool=[executor.submit(self.runSeq, [work],False, False) for work in workToDo[0:numThread]]
+            dataIndexPool    = [i for i in range(numThread)]
+            poolLoop=futurePool
+            currentWork=numThread
+
+            while len(poolLoop)!=0:
+                (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
+                newFutures=[]
+                poolSlotAvail=[]
+                for future in doneTab:
+                    poolIndex=futurePool.index(future)
+                    poolSlotAvail+=[poolIndex]
+                    indexData=dataIndexPool[poolIndex]
+                    indexSample=workToDo[indexData]
+                    FAILorPASS =future.result()
+                    if FAILorPASS==self.FAIL:
+                        failIndices+=[indexSample]
+                        if earlyExit:
+                            for cWork in range(currentWork, len(workToDo)):
+                                activeDataTab[cWork]=False
+                    else:
+                        pass
+
+                for poolIndex in poolSlotAvail:
+                    while currentWork < len(workToDo) and activeDataTab[currentWork]==False:
+                        currentWork+=1
+                    if currentWork < len(workToDo):
+                        if activeDataTab[currentWork]:
+                            futur=executor.submit(self.runSeq, [workToDo[currentWork]],False,False)
+                            futurePool[poolIndex]=futur
+                            newFutures+=[futur]
+                            dataIndexPool[poolIndex]=currentWork
+                            currentWork+=1
+
+                poolLoop=list(toDo)+newFutures
+
+        if len(failIndices)!=0:
+            failIndices.sort()
+            self.printProgress("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
             return self.FAIL
         return self.PASS
+
+    def runParAsync(self, workToDo):
+        self.printProgress(" --(/run/) -> ",end="",flush=True)
+        self.futures=[self.executor.submit(self.runSeq, [work],False, False) for work in workToDo]
+
+    def runParAsyncWait(self):
+        import concurrent.futures
+        concurrent.futures.wait(self.futures)
+        results=[futur.result() for futur in self.futures]
+        if self.FAIL in results:
+            indices=[i for i in range(len(self.futures)) if self.futures[i].result()==self.FAIL]
+            failIndices=[workToDo[indice] for indice in indices ]
+            self.printProgress("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
+            self.flushProgress()
+            return self.FAIL
+        if self.dataAsyncPrint!=None:
+            self.printProgress(self.dataAsyncPrint);
+        self.flushProgress()
+        return self.PASS
+
+def runMultipleVerrouTask(verrouTaskTab, maxNbPROC):
+    import concurrent.futures
+    executor=concurrent.futures.ThreadPoolExecutor(max_workers=maxNbPROC)
+    for verrouTask in verrouTaskTab:
+        verrouTask.executor=executor
+        verrouTask.maxNbPROC="async"
+        verrouTask.bufferizedPrint=True
+        verrouTask.run()
+
+    for verrouTask in verrouTaskTab:
+        verrouTask.runParAsyncWait()
+
+    for verrouTask in verrouTaskTab:
+        verrouTask.executor=None
 
 
 def md5Name(deltas):
     copyDeltas=copy.copy(deltas)
     copyDeltas.sort()
-    return hashlib.md5(("".join(copyDeltas)).encode('utf-8')).hexdigest()
+    return hashlib.md5(("".join(["\n"+x for x in copyDeltas])).encode('utf-8')).hexdigest()
 
 
 def prepareOutput(dirname):
@@ -315,8 +418,9 @@ def failure():
 
 
 class DDStoch(DD.DD):
-    def __init__(self, config, prefix,
-                 selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x ):
+    def __init__(self, config,
+                 selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x,
+                 parseRef=None):
         DD.DD.__init__(self)
         self.config_=config
         if not  self.config_.get_quiet():
@@ -327,15 +431,27 @@ class DDStoch(DD.DD):
         self.compare_ = self.config_.get_cmpScript()
         self.cache_outcomes = False # the cache of DD.DD is ignored
         self.index=0
-        self.prefix_ = os.path.join(os.getcwd(),prefix)
-        self.relPrefix_=prefix
+        self.prefix_ = os.path.join(os.getcwd(), self.config_.get_cacheRep())
+        self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = os.path.join(self.prefix_, "ref")
         self.prepareCache()
         prepareOutput(self.ref_)
+
+        self.config_.saveParam(os.path.join(self.prefix_,"cmd.last"))
+
         self.reference() #generate the reference computation
-        self.mergeList() #generate the search space
+        self.mergeList(parseRef) #generate the search space
         self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space
 
+        self.initSeed()
+
+    def initSeed(self):
+        if self.config_.ddSeed!=None:
+            import random
+            random.seed(self.config_.ddSeed)
+            self.seedTab=random.sample(range(0,2**32-1), self.config_.get_nbRUN())
+        else:
+            self.seedTab=None
 
     def symlink(self,src, dst):
         """Create a relative symlink"""
@@ -372,7 +488,7 @@ class DDStoch(DD.DD):
         """ Load the results of previous ddmin. Need to be called after prepareCache"""
 
         self.useRddminHeuristic=False
-        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0:
+        if self.config_.get_rddminHeuristicsCache() !="none" or len(self.config_.get_rddminHeuristicsRep_Tab())!=0 or len(self.config_.get_rddminHeuristicsFile_Tab())!=0:
             self.useRddminHeuristic=True
         if self.useRddminHeuristic==False:
             return
@@ -397,19 +513,23 @@ class DDStoch(DD.DD):
                 rddmin_heuristic_rep+=[rep]
 
         self.ddminHeuristic=[]
+
+        for deltaFile in self.config_.get_rddminHeuristicsFile_Tab():
+            self.ddminHeuristic+=[ self.loadDeltaFile(deltaFile)]
+
         if self.config_.get_cache=="continue":
-            self.ddminHeuristic+=[ self.loadDeltaFile(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
+            self.ddminHeuristic+=[ self.loadDeltaFileFromRep(rep)  for rep in self.saveCleanSymLink if "ddmin" in rep]
 
         if self.config_.get_rddminHeuristicsLineConv():
             for rep in rddmin_heuristic_rep:
-                deltaOld=self.loadDeltaFile(os.path.join(rep,"ref"), True)
+                deltaOld=self.loadDeltaFileFromRep(os.path.join(rep,"ref"), True)
                 if deltaOld==None:
                     continue
                 cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
                 repTab=glob.glob(os.path.join(rep, "ddmin*"))
 
                 for repDDmin in repTab:
-                    deltas=self.loadDeltaFile(repDDmin)
+                    deltas=self.loadDeltaFileFromRep(repDDmin)
                     if deltas==None:
                         continue
                     deltasNew=[]
@@ -420,21 +540,25 @@ class DDStoch(DD.DD):
             for rep in rddmin_heuristic_rep:
                 repTab=glob.glob(os.path.join(rep, "ddmin*"))
                 for repDDmin in repTab:
-                    deltas=self.loadDeltaFile(repDDmin)
+                    deltas=self.loadDeltaFileFromRep(repDDmin)
                     if deltas==None:
                         continue
                     self.ddminHeuristic+=[deltas]
 
-    def loadDeltaFile(self,rep, ref=False):
+    def loadDeltaFileFromRep(self,rep, ref=False):
         fileName=os.path.join(rep, self.getDeltaFileName()+".include")
         if ref:
             fileName=os.path.join(rep, self.getDeltaFileName())
+        return self.loadDeltaFile(fileName)
+
+    def loadDeltaFile(self,fileName):
         if os.path.exists(fileName):
             deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
             return deltasTab
         else:
             print(fileName + " do not exist")
         return None
+
 
     def prepareCache(self):
         cache=self.config_.get_cache()
@@ -455,6 +579,7 @@ class DDStoch(DD.DD):
             print(repToKeep)
             for item in os.listdir(self.prefix_):
                 if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
+                    #check md5sum format
                     if not item in repToKeep:
                         shutil.rmtree(os.path.join(self.prefix_, item))
 
@@ -506,7 +631,7 @@ class DDStoch(DD.DD):
                 print("PASS")
 
 
-    def mergeList(self):
+    def mergeList(self, parseRef):
         """merge the file name.$PID into a uniq file called name """
         dirname=self.ref_
         name=self.getDeltaFileName()
@@ -520,11 +645,17 @@ class DDStoch(DD.DD):
 #        for excludeFile in listOfExcludeFile[1:]:
         excludeMerged=[]
         for excludeFile in listOfExcludeFile:
-            with open(os.path.join(dirname,excludeFile), "r") as f:
-                for line in f.readlines():
-                    rsline=line.rstrip()
-                    if rsline not in excludeMerged:
-                        excludeMerged+=[rsline]
+            lines=None
+            if parseRef==None:
+                with open(os.path.join(dirname,excludeFile), "r") as f:
+                    lines=[x.rstrip() for x in f.readlines()]
+            else:
+                lines=parseRef(os.path.join(dirname,excludeFile))
+
+            for line in lines:
+                if line not in excludeMerged:
+                    excludeMerged+=[line]
+
         with open(os.path.join(dirname, name), "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
@@ -555,7 +686,7 @@ class DDStoch(DD.DD):
             deltas=self.getDelta0()
 
         if(len(deltas)==0):
-            emptySearchSpaceFailure()
+            self.emptySearchSpaceFailure()
 
         #basic verification
         testResult=self._test(deltas)
@@ -568,10 +699,16 @@ class DDStoch(DD.DD):
         if testResult!=self.PASS:
             self.noPerturbationFailsFailure()
 
+        if(len(deltas)==1):
+            self.configuration_found("ddmin0",deltas)
+            self.configuration_found("rddmin-cmp",[])
+            return deltas
 
         #select the right variant of algo and apply it
         algo=self.config_.get_ddAlgo()
         resConf=None
+        if algo=="ddmax":
+            return  self.DDMax(deltas)
 
         def rddminAlgo(localDeltas):
             if algo=="rddmin":
@@ -590,13 +727,10 @@ class DDStoch(DD.DD):
         else:
             resConf=rddminAlgo(deltas)
 
-        if algo=="ddmax":
-            resConf= self.DDMax(deltas)
-        else:
-            if resConf!=None:
-                flatRes=[c  for conf in resConf for c in conf]
-                cmp= [delta for delta in deltas if  delta not in flatRes ]
-                self.configuration_found("rddmin-cmp", cmp)
+        if resConf!=None:
+            flatRes=[c  for conf in resConf for c in conf]
+            cmp= [delta for delta in deltas if  delta not in flatRes ]
+            self.configuration_found("rddmin-cmp", cmp)
 
         return resConf
 
@@ -984,17 +1118,19 @@ class DDStoch(DD.DD):
     def fullPerturbationSucceedsFailure(self):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
-        print("\t1) check the correctness of the %s script : the failure criteria may be too large"%self.compare_)
+        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        print("\t1) check the correctness of the %s script : the failure criteria may be too large"%cmpScript)
         print("\t2) check if the number of samples (option --nruns=) is sufficient ")
 
         print("Directory to analyze: FullPerturbation")
         failure()
 
     def noPerturbationFailsFailure(self):
-        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) andthe code without instrumentation failed")
+        print("FAILURE: the comparison between the reference (code instrumented with nearest mode) and the code without instrumentation failed")
 
         print("Suggestions:")
-        print("\t1) check if reproducibilty discrepancies are larger than the failure criteria of the script %s"%self.compare_)
+        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        print("\t1) check if reproducibility discrepancies are larger than the failure criteria of the script %s"%cmpScript)
         print("\t2) check the libm library is not instrumented")
         print("Directory to analyze: NoPerturbation")
         failure()
@@ -1004,9 +1140,14 @@ class DDStoch(DD.DD):
         print("Suggestions:")
         print("\t1) check the correctness of the %s script"%self.compare_)
 
+        def relativePathRef(filename):
+            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+
         print("Files to analyze:")
-        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
-        print("\t cmp output: " +  os.path.join(self.ref_,"checkRef.out") + " "+ os.path.join(self.ref_,"checkRef.err"))
+        print("\t run output: " + relativePathRef("dd.out"))
+        print("\t             " + relativePathRef("dd.err"))
+        print("\t cmp output: " + relativePathRef("checkRef.out"))
+        print("\t             " + relativePathRef("checkRef.err"))
         failure()
 
     def referenceRunFailure(self):
@@ -1014,15 +1155,20 @@ class DDStoch(DD.DD):
         print("Suggestions:")
         print("\t1) check the correctness of the %s script"%self.run_)
 
+        def relativePathRef(filename):
+            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+
         print("Files to analyze:")
-        print("\t run output: " +  os.path.join(self.ref_,"dd.out") + " " + os.path.join(self.ref_,"dd.err"))
+        print("\t run output: " + relativePathRef("dd.out"))
+        print("\t             " + relativePathRef("dd.err"))
+
         failure()
 
 
 
 
     def getDelta0(self):
-        return self.loadDeltaFile(self.ref_, True)
+        return self.loadDeltaFileFromRep(self.ref_, True)
 #        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
 #            return f.readlines()
 
@@ -1057,7 +1203,7 @@ class DDStoch(DD.DD):
             os.makedirs(dirname)
             self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
-        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname))
+        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
         return vT.run(earlyExit=earlyExit)
 
     def _getSampleNumberToExpectFail(self, deltas):
@@ -1077,98 +1223,122 @@ class DDStoch(DD.DD):
 
 
 
-    def _testTab(self, deltasTab,nbRunTab=None):
+
+    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
-        import concurrent.futures
-        executor=concurrent.futures.ThreadPoolExecutor(max_workers=self.config_.get_maxNbPROC())
 
         resTab=[None] *nbDelta
-        taskTab=[None] *nbDelta
-        indexCmp=[]
-        futureCmpTab=[None] *nbDelta
-        doCmpTab=[None] *nbDelta
-        indexRun=[]
-        futureRunTab=[None] *nbDelta
-        workToDoTab=[None]*nbDelta
-        for i in range(nbDelta):
-            deltas=deltasTab[i]
+        failIndexesTab=[[] for i in range(nbDelta)]
+        verrouTaskTab=[None] *nbDelta
+        workToDoTab=[]
+
+        subTaskDataUnorderTab=[]
+
+        for deltaIndex in range(nbDelta):
+            deltas=deltasTab[deltaIndex]
             dirname=os.path.join(self.prefix_, md5Name(deltas))
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
-            #the none is there to avoid inner/outer parallelism
-            taskTab[i]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[i], None , self.sampleRunEnv(dirname),verbose=False)
-            workToDo=taskTab[i].sampleToCompute(nbRunTab[i], earlyExit=True)
-            workToDoTab[i]=workToDo
+            #the node is there to avoid inner/outer parallelism
+            verrouTaskTab[deltaIndex]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+            workToDo=verrouTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
+            workToDoTab+=[workToDo]
             if workToDo==None:
-                resTab[i]=(taskTab[i].FAIL,"cache")
-                taskTab[i].printDir()
+#                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].FAIL,"cache")
+                resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                verrouTaskTab[deltaIndex].printDir()
                 print(" --(/cache) -> FAIL")
 
                 continue
-#            print("WorkToDo", workToDo)
-            cmpOnlyToDo=workToDo[0]
-            runToDo=workToDo[1]
-            cmpDone=workToDo[2]
+            cmpOnlyToDo,runToDo,cmpDone, failureIndex_unused=workToDo
 
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
-                resTab[i]=(taskTab[i].PASS,"cache")
-                taskTab[i].printDir()
-                print(" --(/cache) -> PASS("+ str(nbRunTab[i])+")")
+                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].PASS,"cache")
+                verrouTaskTab[deltaIndex].printDir()
+                print(" --(/cache) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 continue
-            if len(cmpOnlyToDo)!=0: #launch Cmp asynchronously
-                indexCmp+=[i]
-                futureCmpTab[i]=[executor.submit(taskTab[i].cmpSeq, [cmpConf],False) for cmpConf in cmpOnlyToDo]
-                continue
-            if len(runToDo)!=0: #launch run asynchronously
-                indexRun+=[i]
-                futureRunTab[i]=[ executor.submit(taskTab[i].runSeq, [run],False) for run in runToDo ]
-                continue
-            print("error parallel")
-            failure()
+            subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in cmpOnlyToDo ]
+            subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in runToDo ]
 
-        for i in indexCmp: #wait cmp result
-            workToDo=workToDoTab[i]
-            cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
+        subTaskDataTab=[]
 
-            concurrent.futures.wait(futureCmpTab[i])
-            cmpResult=[future.result() for future in futureCmpTab[i]]
-            if taskTab[i].FAIL in cmpResult:
-                failIndex=cmpResult.index(taskTab[i].FAIL)
-                resTab[i]=(taskTab[i].FAIL, "cmp")
-                taskTab[i].printDir()
-                print(" --(/cmp/) -> FAIL(%i)"%(cmpOnlyToDo[failIndex]))
+        sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+        sampleTab.sort()
+        for sample in sampleTab:
+            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
+        for sample in sampleTab:
+            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
 
-            else: #launch run asynchronously (depending of cmp result)
-                runToDo=workToDoTab[i][1]
-                if len(runToDo)==0:
-                    resTab[i]=(taskTab[i].PASS,"cmp")
-                    taskTab[i].printDir()
-                    print(" --(/cmp/) -> PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" )
+        if len(subTaskDataTab)!=len(subTaskDataUnorderTab):
+            print("internal error")
+            print("subTaskDataUnorderTab", subTaskDataUnorderTab)
+            print("subTaskDataTab", subTaskDataTab)
+            sys.exit(42)
 
-                    continue
-                else:
-                    futureRunTab[i]=[ executor.submit(taskTab[i].runSeq, [run], False) for run in runToDo]
-                    indexRun+=[i]
-                    continue
+        activeDataTab=[True for i in subTaskDataTab]
+        numThread=self.config_.get_maxNbPROC()
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+            futurePool= [executor.submit(verrouTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
+            dataIndexPool=[i for i in range(numThread)]
+            poolLoop=futurePool
+            currentWork=numThread
 
+            while len(poolLoop)!=0:
+                (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
+                newFutures=[]
+                poolSlotAvail=[]
+                for future in doneTab:
+                    poolIndex=futurePool.index(future)
+                    poolSlotAvail+=[poolIndex]
+                    indexData=dataIndexPool[poolIndex]
 
-        for i in indexRun: #wait run result
-            workToDo=workToDoTab[i]
-            cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
-            concurrent.futures.wait(futureRunTab[i])
-            runResult=[future.result() for future in futureRunTab[i]]
-            taskTab[i].printDir()
-            if taskTab[i].FAIL in runResult:
-                indexRun=runResult.index(taskTab[i].FAIL)
-                resTab[i]=(taskTab[i].FAIL, "index//")
-                print(" --(/run/) -> FAIL(%i)"%(runToDo[indexRun]))
-            else:
-                resTab[i]=(taskTab[i].PASS, "index//")
+                    (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
+                    res=future.result()
+                    if res==verrouTaskTab[deltaIndex].PASS:
+                        if resTab[deltaIndex]==None:
+                            resTab[deltaIndex]=verrouTaskTab[deltaIndex].PASS
+                    else:
+                        if resTab[deltaIndex]==None and earlyExit:
+                            verrouTaskTab[deltaIndex].printDir()
+                            print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
+                        resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                        failIndexesTab[deltaIndex]+=[sampleIndex]
+                        if earlyExit:
+                            for cWork in range(currentWork,len(subTaskDataTab)):
+                                if firstConfFail or subTaskDataTab[cWork][1]==deltaIndex :
+                                    activeDataTab[cWork]=False
+                #submit new subtasks
+                for poolIndex in poolSlotAvail:
+                    #ignore cancelled subtask
+                    while currentWork < len(subTaskDataTab) and activeDataTab[currentWork]==False:
+                        currentWork+=1
+                    if currentWork < len(subTaskDataTab):
+                        if activeDataTab[currentWork]:
+                            currentSubTask=subTaskDataTab[currentWork]
+                            computeType=currentSubTask[0]
+                            deltaIndex=currentSubTask[1]
+                            sampleIndex=currentSubTask[2]
+                            futur=executor.submit(verrouTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
+                            futurePool[poolIndex]=futur
+                            newFutures+=[futur]
+                            dataIndexPool[poolIndex]=currentWork
+                            currentWork+=1
+
+                poolLoop=list(toDo)+newFutures
+        #affichage
+        for deltaIndex in range(nbDelta):
+            if resTab[deltaIndex]==self.PASS:
+                workToDo=workToDoTab[deltaIndex]
+                cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
+                verrouTaskTab[deltaIndex].printDir()
                 print(" --(/run/) -> PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+            else:
+                if not earlyExit:
+                    verrouTaskTab[deltaIndex].printDir()
+                    print(" --(/run/) -> FAIL(%i)"%(str(failIndexesTab[deltaIndex])[1,-1]  ))
 
-        #affichage à faire
-        return [res[0] for res in resTab]
-
+        return resTab

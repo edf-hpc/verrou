@@ -49,19 +49,25 @@ inline REALTYPE nextAwayFromZero(REALTYPE a){
 
 template<>
 inline double nextAwayFromZero<double>(double a){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
   double res=a;
   uint64_t* resU=reinterpret_cast<uint64_t*>(&res);
   (*resU)+=1;
   return res;
+#pragma GCC diagnostic pop
 };
 
 
 template<>
 inline float nextAwayFromZero<float>(float a){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
   float res=a;
   uint32_t* resU=reinterpret_cast<uint32_t*>(&res);
   (*resU)+=1;
   return res;
+#pragma GCC diagnostic pop
 };
 
 
@@ -73,19 +79,25 @@ inline REALTYPE nextTowardZero(REALTYPE a){
 
 template<>
 inline double nextTowardZero<double>(double a){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
   double res=a;
   uint64_t* resU=reinterpret_cast<uint64_t*>(&res);
   (*resU)-=1;
   return res;
+#pragma GCC diagnostic pop
 };
 
 
 template<>
 inline float nextTowardZero<float>(float a){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
   float res=a;
   uint32_t* resU=reinterpret_cast<uint32_t*>(&res);
   (*resU)-=1;
   return res;
+#pragma GCC diagnostic pop
 };
 
 
@@ -110,3 +122,4 @@ inline REALTYPE nextPrev(REALTYPE a){
     return nextAwayFromZero(a);
   }
 };
+

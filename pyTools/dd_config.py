@@ -38,27 +38,30 @@ def exponentialRange(nbRun):
 
 class ddConfig(gen_config.gen_config):
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"], prefix="dd.generic"):
+        self.prefix_=prefix
         super().__init__(argv, environ, config_keys)
         self.normalizeOptions()
         self.runScript=self.exec_arg[0]
         self.cmpScript=self.exec_arg[1]
 
     def registerOptions(self):
-        self.addRegistry("nbRUN",                 "int",        "DD_NRUNS",                   ["--nruns="],                  5,          None)
-        self.addRegistry("maxNbPROC",             "int",        "DD_NUM_THREADS",             ["--num-threads="],            None,       None)
-        self.addRegistry("ddAlgo",                "string",     "DD_ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
-        self.addRegistry("rddminVariant",         "string",     "DD_RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "", "strict"])
-        self.addRegistry("param_rddmin_tab",      "string",     "DD_RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
-        self.addRegistry("param_dicho_tab",       "int/string", "DD_DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
-        self.addRegistry("splitGranularity",      "int",        "DD_DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
-        self.addRegistry("ddQuiet",               "bool",       "DD_QUIET",                   ["--quiet"],                    False,     None)
-        self.addRegistry("cache",                 "string",     "DD_CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
-        self.addRegistry("rddminHeuristicsCache", "string",     "DD_RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
-        self.addRegistry("rddminHeuristicsRep"  , "string",     "DD_RDDMIN_HEURISTICS_REP",   ["--rddmin-heuristics-rep="],   [] ,       "rep_exists", True)
-        self.addRegistry("rddminHeuristicsLineConv" , "bool",   "DD_RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None)
-        self.addRegistry("resWithAllSamples"    , "bool",       "DD_RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
-
+        self.addRegistry("cacheRep",              "string",     "REP",                     ["--rep="],                    self.prefix_,         None)
+        self.addRegistry("nbRUN",                 "int",        "NRUNS",                   ["--nruns="],                  5,          None)
+        self.addRegistry("maxNbPROC",             "int",        "NUM_THREADS",             ["--num-threads="],            None,       None)
+        self.addRegistry("ddAlgo",                "string",     "ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
+        self.addRegistry("rddminVariant",         "string",     "RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "", "strict"])
+        self.addRegistry("param_rddmin_tab",      "string",     "RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
+        self.addRegistry("param_dicho_tab",       "int/string", "DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
+        self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
+        self.addRegistry("ddQuiet",               "bool",       "QUIET",                   ["--quiet"],                    False,     None)
+        self.addRegistry("cache",                 "string",     "CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
+        self.addRegistry("rddminHeuristicsCache", "string",     "RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
+        self.addRegistry("rddminHeuristicsRep"  , "string",     "RDDMIN_HEURISTICS_REP",   ["--rddmin-heuristics-rep="],   [] ,       "rep_exists", True)
+        self.addRegistry("rddminHeuristicsFile" , "string",     "RDDMIN_HEURISTICS_FILE",  ["--rddmin-heuristics-file="],   [] ,       "file_exists", True)
+        self.addRegistry("rddminHeuristicsLineConv" , "bool",   "RDDMIN_HEURISTICS_LINE_CONV",    ["--rddmin-heuristics-line-conv"],     False,     None)
+        self.addRegistry("resWithAllSamples"    , "bool",       "RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
+        self.addRegistry("ddSeed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
 
     def normalizeOptions(self):
         if self.rddminVariant=="stoch":
@@ -67,7 +70,13 @@ class ddConfig(gen_config.gen_config):
             self.rddminVariant="d"
         if self.rddminVariant=="strict":
             self.rddminVariant=""
+            self.failure()
 
+    def get_ddSeed(self):
+        return self.ddSeed
+
+    def get_cacheRep(self):
+        return self.cacheRep
 
     ## Accessors
     def get_splitGranularity(self):
@@ -138,8 +147,11 @@ class ddConfig(gen_config.gen_config):
     def get_rddminHeuristicsRep_Tab(self):
         return self.rddminHeuristicsRep
 
+    def get_rddminHeuristicsFile_Tab(self):
+        return self.rddminHeuristicsFile
+
     def get_rddminHeuristicsLineConv(self):
         return self.rddminHeuristicsLineConv
 
     def get_use_dd_min_par(self):
-        return False #not yet efficient
+        return True #False #not yet efficient
