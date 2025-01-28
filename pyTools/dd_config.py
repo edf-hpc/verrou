@@ -70,7 +70,6 @@ class ddConfig(gen_config.gen_config):
             self.rddminVariant="d"
         if self.rddminVariant=="strict":
             self.rddminVariant=""
-            self.failure()
 
     def get_ddSeed(self):
         return self.ddSeed
