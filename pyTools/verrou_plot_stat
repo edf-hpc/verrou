@@ -463,7 +463,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
     if relative!=False:
         if relative in roundingDetTabWithFloatPrefix:
             valueRef=data[relative][0]
-            latexName=relative.replace("_","\_")
+            latexName=relative.replace("_",r"\_")
             legend=r"$\frac{X-X_{%s}}{|X_{%s}|}$"%(latexName,latexName)
         else:
             valueRef=float(relative)
@@ -499,7 +499,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
             namei+=" (#Nan/Inf:%i)"%(special)
 
         if plt.rcParams['text.usetex']:
-            namei=namei.replace("_","\_")
+            namei=namei.replace("_",r"\_")
         handle=plt.hist(datas[i],bins=bins, label=namei, linewidth=plotWidth,  alpha=0.6,color=lineColor[lineIndex])#, linestyle="-")
         lineIndex+=1
         plthandle+=[handle[0]]
@@ -513,7 +513,7 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
 
         modeStr=mode
         if plt.rcParams['text.usetex']:
-            modeStr=mode.replace("_","\_")
+            modeStr=mode.replace("_",r"\_")
         plt.text(value, 1., modeStr ,{'ha': 'left', 'va': 'bottom'},color=lineColor[lineIndex], transform=ax.get_xaxis_transform(),rotation=80)
 
         lineIndex+=1

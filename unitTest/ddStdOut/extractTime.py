@@ -3,7 +3,7 @@ import sys
 import os
 import re
 
-pattern=re.compile("it:\s+(\d+)\s+x2:\s*([\w.]*)[\w\s]*")
+pattern=re.compile(r"it:\s+(\d+)\s+x2:\s*([\w.]*)[\w\s]*")
 
 def extractTime(rep):
     res=""
