@@ -306,17 +306,60 @@ class verrouTask:
                         self.alreadyFail=True
         return res
 
+    def submitSeq(self, cmpOrRun, sampleIndex, earlyExit=False):
+        if cmpOrRun=="cmp":
+            return self.cmpSeq([sampleIndex],earlyExit)
+        if cmpOrRun=="run":
+            return self.runSeq([sampleIndex],earlyExit)
 
-    def runPar(self,workToDo):
+
+    def runPar(self,workToDo, earlyExit=True):
         self.printProgress(" --(/run ) -> ",end="",flush=True)
         import concurrent.futures
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.maxNbPROC) as executor:
-            futures=[executor.submit(self.runSeq, [work],False, False) for work in workToDo]
-            concurrent.futures.wait(futures)
-        results=[futur.result() for futur in futures]
-        if self.FAIL in results:
-            indices=[i for i in range(len(futures)) if futures[i].result()==self.FAIL]
-            failIndices=[workToDo[indice] for indice in indices ]
+
+        numThread=self.maxNbPROC
+        activeDataTab=[True for i in range(len(workToDo))]
+        failIndices=[]
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+            futurePool=[executor.submit(self.runSeq, [work],False, False) for work in workToDo[0:numThread]]
+            dataIndexPool    = [i for i in range(numThread)]
+            poolLoop=futurePool
+            currentWork=numThread
+
+            while len(poolLoop)!=0:
+                (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
+                newFutures=[]
+                poolSlotAvail=[]
+                for future in doneTab:
+                    poolIndex=futurePool.index(future)
+                    poolSlotAvail+=[poolIndex]
+                    indexData=dataIndexPool[poolIndex]
+                    indexSample=workToDo[indexData]
+                    FAILorPASS =future.result()
+                    if FAILorPASS==self.FAIL:
+                        failIndices+=[indexSample]
+                        if earlyExit:
+                            for cWork in range(currentWork, len(workToDo)):
+                                activeDataTab[cWork]=False
+                    else:
+                        pass
+
+                for poolIndex in poolSlotAvail:
+                    while currentWork < len(workToDo) and activeDataTab[currentWork]==False:
+                        currentWork+=1
+                    if currentWork < len(workToDo):
+                        if activeDataTab[currentWork]:
+                            futur=executor.submit(self.runSeq, [workToDo[currentWork]],False,False)
+                            futurePool[poolIndex]=futur
+                            newFutures+=[futur]
+                            dataIndexPool[poolIndex]=currentWork
+                            currentWork+=1
+
+                poolLoop=list(toDo)+newFutures
+
+        if len(failIndices)!=0:
+            failIndices.sort()
             self.printProgress("FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ",""))
             return self.FAIL
         return self.PASS
@@ -1135,98 +1178,122 @@ class DDStoch(DD.DD):
 
 
 
-    def _testTab(self, deltasTab,nbRunTab=None):
+
+    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
-        import concurrent.futures
-        executor=concurrent.futures.ThreadPoolExecutor(max_workers=self.config_.get_maxNbPROC())
 
         resTab=[None] *nbDelta
-        taskTab=[None] *nbDelta
-        indexCmp=[]
-        futureCmpTab=[None] *nbDelta
-        doCmpTab=[None] *nbDelta
-        indexRun=[]
-        futureRunTab=[None] *nbDelta
-        workToDoTab=[None]*nbDelta
-        for i in range(nbDelta):
-            deltas=deltasTab[i]
+        failIndexesTab=[[] for i in range(nbDelta)]
+        verrouTaskTab=[None] *nbDelta
+        workToDoTab=[]
+
+        subTaskDataUnorderTab=[]
+
+        for deltaIndex in range(nbDelta):
+            deltas=deltasTab[deltaIndex]
             dirname=os.path.join(self.prefix_, md5Name(deltas))
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
             #the node is there to avoid inner/outer parallelism
-            taskTab[i]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[i], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
-            workToDo=taskTab[i].sampleToCompute(nbRunTab[i], earlyExit=True)
-            workToDoTab[i]=workToDo
+            verrouTaskTab[deltaIndex]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+            workToDo=verrouTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
+            workToDoTab+=[workToDo]
             if workToDo==None:
-                resTab[i]=(taskTab[i].FAIL,"cache")
-                taskTab[i].printDir()
+#                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].FAIL,"cache")
+                resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                verrouTaskTab[deltaIndex].printDir()
                 print(" --(/cache) -> FAIL")
 
                 continue
-#            print("WorkToDo", workToDo)
-            cmpOnlyToDo=workToDo[0]
-            runToDo=workToDo[1]
-            cmpDone=workToDo[2]
+            cmpOnlyToDo,runToDo,cmpDone, failureIndex_unused=workToDo
 
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
-                resTab[i]=(taskTab[i].PASS,"cache")
-                taskTab[i].printDir()
-                print(" --(/cache) -> PASS("+ str(nbRunTab[i])+")")
+                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].PASS,"cache")
+                verrouTaskTab[deltaIndex].printDir()
+                print(" --(/cache) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 continue
-            if len(cmpOnlyToDo)!=0: #launch Cmp asynchronously
-                indexCmp+=[i]
-                futureCmpTab[i]=[executor.submit(taskTab[i].cmpSeq, [cmpConf],False) for cmpConf in cmpOnlyToDo]
-                continue
-            if len(runToDo)!=0: #launch run asynchronously
-                indexRun+=[i]
-                futureRunTab[i]=[ executor.submit(taskTab[i].runSeq, [run],False) for run in runToDo ]
-                continue
-            print("error parallel")
-            failure()
+            subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in cmpOnlyToDo ]
+            subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in runToDo ]
 
-        for i in indexCmp: #wait cmp result
-            workToDo=workToDoTab[i]
-            cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
+        subTaskDataTab=[]
 
-            concurrent.futures.wait(futureCmpTab[i])
-            cmpResult=[future.result() for future in futureCmpTab[i]]
-            if taskTab[i].FAIL in cmpResult:
-                failIndex=cmpResult.index(taskTab[i].FAIL)
-                resTab[i]=(taskTab[i].FAIL, "cmp")
-                taskTab[i].printDir()
-                print(" --(/cmp/) -> FAIL(%i)"%(cmpOnlyToDo[failIndex]))
+        sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+        sampleTab.sort()
+        for sample in sampleTab:
+            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
+        for sample in sampleTab:
+            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
 
-            else: #launch run asynchronously (depending of cmp result)
-                runToDo=workToDoTab[i][1]
-                if len(runToDo)==0:
-                    resTab[i]=(taskTab[i].PASS,"cmp")
-                    taskTab[i].printDir()
-                    print(" --(/cmp/) -> PASS(+" + str(len(cmpOnlyToDo))+"->"+str(len(cmpDone) +len(cmpOnlyToDo))+")" )
+        if len(subTaskDataTab)!=len(subTaskDataUnorderTab):
+            print("internal error")
+            print("subTaskDataUnorderTab", subTaskDataUnorderTab)
+            print("subTaskDataTab", subTaskDataTab)
+            sys.exit(42)
 
-                    continue
-                else:
-                    futureRunTab[i]=[ executor.submit(taskTab[i].runSeq, [run], False) for run in runToDo]
-                    indexRun+=[i]
-                    continue
+        activeDataTab=[True for i in subTaskDataTab]
+        numThread=self.config_.get_maxNbPROC()
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+            futurePool= [executor.submit(verrouTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
+            dataIndexPool=[i for i in range(numThread)]
+            poolLoop=futurePool
+            currentWork=numThread
 
+            while len(poolLoop)!=0:
+                (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
+                newFutures=[]
+                poolSlotAvail=[]
+                for future in doneTab:
+                    poolIndex=futurePool.index(future)
+                    poolSlotAvail+=[poolIndex]
+                    indexData=dataIndexPool[poolIndex]
 
-        for i in indexRun: #wait run result
-            workToDo=workToDoTab[i]
-            cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
-            concurrent.futures.wait(futureRunTab[i])
-            runResult=[future.result() for future in futureRunTab[i]]
-            taskTab[i].printDir()
-            if taskTab[i].FAIL in runResult:
-                indexRun=runResult.index(taskTab[i].FAIL)
-                resTab[i]=(taskTab[i].FAIL, "index//")
-                print(" --(/run/) -> FAIL(%i)"%(runToDo[indexRun]))
-            else:
-                resTab[i]=(taskTab[i].PASS, "index//")
+                    (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
+                    res=future.result()
+                    if res==verrouTaskTab[deltaIndex].PASS:
+                        if resTab[deltaIndex]==None:
+                            resTab[deltaIndex]=verrouTaskTab[deltaIndex].PASS
+                    else:
+                        if resTab[deltaIndex]==None and earlyExit:
+                            verrouTaskTab[deltaIndex].printDir()
+                            print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
+                        resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                        failIndexesTab[deltaIndex]+=[sampleIndex]
+                        if earlyExit:
+                            for cWork in range(currentWork,len(subTaskDataTab)):
+                                if firstConfFail or subTaskDataTab[cWork][1]==deltaIndex :
+                                    activeDataTab[cWork]=False
+                #submit new subtasks
+                for poolIndex in poolSlotAvail:
+                    #ignore cancelled subtask
+                    while currentWork < len(subTaskDataTab) and activeDataTab[currentWork]==False:
+                        currentWork+=1
+                    if currentWork < len(subTaskDataTab):
+                        if activeDataTab[currentWork]:
+                            currentSubTask=subTaskDataTab[currentWork]
+                            computeType=currentSubTask[0]
+                            deltaIndex=currentSubTask[1]
+                            sampleIndex=currentSubTask[2]
+                            futur=executor.submit(verrouTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
+                            futurePool[poolIndex]=futur
+                            newFutures+=[futur]
+                            dataIndexPool[poolIndex]=currentWork
+                            currentWork+=1
+
+                poolLoop=list(toDo)+newFutures
+        #affichage
+        for deltaIndex in range(nbDelta):
+            if resTab[deltaIndex]==self.PASS:
+                workToDo=workToDoTab[deltaIndex]
+                cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
+                verrouTaskTab[deltaIndex].printDir()
                 print(" --(/run/) -> PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+            else:
+                if not earlyExit:
+                    verrouTaskTab[deltaIndex].printDir()
+                    print(" --(/run/) -> FAIL(%i)"%(str(failIndexesTab[deltaIndex])[1,-1]  ))
 
-        #affichage à faire
-        return [res[0] for res in resTab]
-
+        return resTab
