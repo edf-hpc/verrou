@@ -803,14 +803,29 @@ class DDStoch(DD.DD):
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
             self.internalError("Check1-MIN", md5Name(deltas)+" should fail")
+        nbProc=self.config_.get_maxNbPROC()
+        deltaMin1Tab=[]
 
-        for deltaMin1 in deltas:
-            newDelta=[delta for delta in deltas if delta!=deltaMin1]
-            testResult=self._test(newDelta)
-            if testResult==self.FAIL:
+        for delta1 in deltas:
+            newDelta=[delta for delta in deltas if delta!=delta1]
+            deltaMin1Tab+=[newDelta]
+        resultTab=[]
+        if nbProc in [None,1]:
+            for deltaMin1 in deltaMin1Tab:
+                result=self._test(deltaMin1, nbRun)
+                resultTab+=[result]
+                if result==self.FAIL:
+                    break
+        else:
+            resultTab=self._testTab(deltaMin1Tab, [nbRun]*len(deltaMin1Tab), earlyExit=True, firstConfFail=True)
+
+        for indexRes in range(len(resultTab)):
+            result=resultTab[indexRes]
+            if result==self.FAIL:
                 if not self.config_.get_quiet():
                     print("Heuristics not 1-Minimal")
-                return self.RDDMin(deltas, nbRun)
+                return self.RDDMin(deltaMin1Tab[indexRes], nbRun)
+
         self.configuration_found("ddmin%d"%(self.index), deltas)
         self.index+=1
         return [deltas]
