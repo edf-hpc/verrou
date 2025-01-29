@@ -1231,8 +1231,9 @@ class DDStoch(DD.DD):
 
         resTab=[None] *nbDelta
         failIndexesTab=[[] for i in range(nbDelta)]
+        passIndexesTab=[[] for i in range(nbDelta)]
+        cacheTab=[False for i in range(nbDelta)]
         verrouTaskTab=[None] *nbDelta
-        workToDoTab=[]
 
         subTaskDataUnorderTab=[]
 
@@ -1245,20 +1246,21 @@ class DDStoch(DD.DD):
             #the node is there to avoid inner/outer parallelism
             verrouTaskTab[deltaIndex]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             workToDo=verrouTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
-            workToDoTab+=[workToDo]
+
             if workToDo==None:
 #                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].FAIL,"cache")
                 resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
                 verrouTaskTab[deltaIndex].printDir()
-                print(" --(/cache) -> FAIL")
-
+                print(" --(/cache/) -> FAIL")
+                cacheTab[deltaIndex]=True
                 continue
             cmpOnlyToDo,runToDo,cmpDone, failureIndex_unused=workToDo
 
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
                 resTab[deltaIndex]=(verrouTaskTab[deltaIndex].PASS,"cache")
                 verrouTaskTab[deltaIndex].printDir()
-                print(" --(/cache) -> PASS("+ str(nbRunTab[deltaIndex])+")")
+                print(" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
+                cacheTab[deltaIndex]=True
                 continue
             subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in cmpOnlyToDo ]
             subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in runToDo ]
@@ -1301,6 +1303,7 @@ class DDStoch(DD.DD):
                     if res==verrouTaskTab[deltaIndex].PASS:
                         if resTab[deltaIndex]==None:
                             resTab[deltaIndex]=verrouTaskTab[deltaIndex].PASS
+                        passIndexesTab[deltaIndex]+=[sampleIndex]
                     else:
                         if resTab[deltaIndex]==None and earlyExit:
                             verrouTaskTab[deltaIndex].printDir()
@@ -1331,11 +1334,11 @@ class DDStoch(DD.DD):
                 poolLoop=list(toDo)+newFutures
         #affichage
         for deltaIndex in range(nbDelta):
+            if cacheTab[deltaIndex]:#print already done
+                continue
             if resTab[deltaIndex]==self.PASS:
-                workToDo=workToDoTab[deltaIndex]
-                cmpOnlyToDo, runToDo, cmpDone =workToDo[0],workToDo[1],workToDo[2]
                 verrouTaskTab[deltaIndex].printDir()
-                print(" --(/run/) -> PASS(+" + str(len(runToDo))+"->"+str( len(cmpOnlyToDo) +len(cmpDone) +len(runToDo) )+")" )
+                print(" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
             else:
                 if not earlyExit:
                     verrouTaskTab[deltaIndex].printDir()
