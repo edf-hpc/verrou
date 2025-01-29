@@ -738,7 +738,7 @@ class DDStoch(DD.DD):
         """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
 
         res=[]
-
+        self.ddminHeuristic.sort(key=lambda x: len(x))#sort to test first small heuritics
         for heuristicsDelta in self.ddminHeuristic:
             if all(x in deltas for x in  heuristicsDelta): #check inclusion
                 testResult=self._test(heuristicsDelta, self.config_.get_nbRUN())
@@ -995,6 +995,7 @@ class DDStoch(DD.DD):
 
         #apply dichotomy
         candidats=self.SsplitDeltas(deltas,dicRunTab, granularity)
+        candidats.sort(key=lambda x: len(x))#sort to test first small candidats
         print("Dichotomy split done: " + str([len(candidat) for candidat in candidats if len(candidat)!=1] ))
 
         res=[]
