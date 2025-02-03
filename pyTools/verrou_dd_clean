@@ -42,6 +42,7 @@ class DDClean:
         res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
         res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
         res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
+        res+=glob.glob(os.path.join(self.prefix_, "ddmax-cmp"))
         res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
         res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
         return [x for x in res if os.path.islink(x)]
