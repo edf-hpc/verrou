@@ -16,8 +16,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  # This workflow contains a single job called "build-x86"
+  build-x86:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -54,3 +54,41 @@ jobs:
       - name: Check Verrou gitignore
         run: make -f travis.mk gitignore-checks
 
+
+  # This workflow contains a single job called "build-x86"
+  build-arm:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-24.04-arm
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: apt
+        run: sudo apt-get -qq update; sudo apt-get install -y libc-dbg python3-numpy python3-matplotlib texlive-latex-extra texlive-fonts-recommended dvipng cm-super
+
+      - name: Download valgrind
+        run: export VALGRIND_VERSION=VALGRIND_3_24_0; make -f travis.mk download-valgrind
+
+      - name: Patch valgrind
+        run: make -f travis.mk patch-valgrind || make -f travis.mk patch-error
+
+      - name: Configure patched valgrind
+        run: make -f travis.mk configure
+
+      - name: Build patched valgrind
+        run: make -f travis.mk build
+
+      - name: Check Valgrind
+        run: make -f travis.mk check-install ; make -f travis.mk check || make -f travis.mk check-error 
+
+      - name: Check Verrou Unit-test
+        run: make -f travis.mk unit-test
+
+      - name: Check Verrou post-regtest-checks
+        run: make -f travis.mk post-regtest-checks
+
+      - name: Check Verrou gitignore
+        run: make -f travis.mk gitignore-checks
