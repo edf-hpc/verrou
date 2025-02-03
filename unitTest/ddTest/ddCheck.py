@@ -76,8 +76,8 @@ if __name__=="__main__":
         if rddminAlgo:
             res=ddCase.checkRddminLineResult(loadedRes)
         else:
-            pass #not yet implemented
-            #res=ddCase.checkDDmaxLineResult(loadedRes)
+            #not yet implemented
+            res=ddCase.checkDDmaxLineResult(loadedRes)
 
     if res:
         print("valid rddmin//ddmax result")

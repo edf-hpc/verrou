@@ -23,7 +23,7 @@ run_check: install
 	verrou_dd_line --cache=rename --rddmin-heuristics-cache=cache --nruns=2 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=rename --rddmin-heuristics-cache=cache --rddmin-heuristics-line-conv --nruns=2 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=continue --res-with-all-samples --nruns=5 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
-#	verrou_dd_line --cache=clean --algo=ddmax --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
+	verrou_dd_line --cache=clean --algo=ddmax --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
 
 
 install:

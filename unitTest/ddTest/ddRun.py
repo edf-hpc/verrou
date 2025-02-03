@@ -35,20 +35,94 @@ def simulateRandom(config):
 
 
 class ddConfig:
+    """listOf1Failure [(sym, max(0, sym-16), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(20)]
+           sym : int symbol Index : 0,1,....19
+           max(0,sym-16) : positif number are active : 17,18,19
+           [(line, max(0, line-8)) for line in range(11) ] for each symbol there are 11 lines (0 to 10). Line 9,10 are active.
+
+    listOf2Failures [((0,1), 1, [(0,line, 1,max(0,line-1)) for line in range(4)])  ]
+      Couple (0,1) sym is active (,1,)  (Fail if both are present)
+
+      [(0,line, 1, line+1)) for line in range(4)]
+       =>
+     [(0,0,1,1),(0,1,1,2),(0,2,1,3),(0,3,1,4)]  => [ (sym0, line0, sym1, line1), (sym0, line1, sym1, line2) , (sym0, line2, sym1, line3), (sym0, line3, sym1, line4)]
+
+    """
+
     def __init__(self,listOf1Failure=[], listOf2Failures=[]):
         self.nbSym=len(listOf1Failure)
         self.listOf1Failure=listOf1Failure
         self.listOf2Failures=listOf2Failures
+        self.check1Failure()
         self.check2Failure()
 
+    def check1Failure(self):
+        """"check definition of self.listOf1Failure"""
+        definedRange=list(set([x[0] for x in self.listOf1Failure]))
+        definedRange.sort()
+        if definedRange!=list(range(self.nbSym)):
+            print("assert check1Failure")
+            print("definedRange:", definedRange)
+            sys.exit(42)
+
     def check2Failure(self):
-        for x in self.listOf2Failures:
-            ((sym0,sym1), fail, tab)=x
-            if sym0>= self.nbSym or sym1 >= self.nbSym:
-                print("failure")
-                sys.exit()
-            #todo check tab
-                #            for (s1, l1, s2, l2) in tab:
+        """"check definition of self.listOf2Failure"""
+        tupleList=self.getListOfTupleLine()
+        for tuple4 in self.getListOf2FailureLine():
+            (s0,line0,s1,line1)=tuple4
+            if (not (s0 in range(self.nbSym)))  or (not (s1 in range(self.nbSym))):
+                print("assert check2Failure sym : ", tuple4)
+                sys.exit(42)
+            if (   (not ( (s0,line0) in tupleList))
+                or (not ( (s1,line1) in tupleList))):
+                print("assert check2Failure line : ", tupleList )
+                sys.exit(42)
+            if s0 > s1:
+                print("assert check2Failure: please order sym")
+
+        tuple2ErrorList=self.getListOf2FailureLine()
+        for tuple4 in tuple2ErrorList:
+            if tuple4[0:2] not in tupleList:
+                print("assert check2Failure : tuple definition inclusion", tuple4[0:2] )
+                sys.exit(42)
+            if tuple4[2:4] not in tupleList:
+                print("assert check2Failure : tuple definition inclusion", tuple4[2:4] )
+                sys.exit(42)
+
+
+
+    def getListOfTupleLine(self):
+        """return the list of tuple line
+        ie (sym,line)with sym and line integer indexes """
+        # self.listOf1Failure: [(sym, max(0, sym-16), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(20)]
+        res=[]
+        for (sym, active, tabLine) in self.listOf1Failure:
+            for (line,active) in tabLine:
+                if (sym,line) in res:
+                    print("assert getListOfTupleLine : double definition" )
+                    sys.exit(42)
+                res+=[(sym,line)]
+        return res
+
+
+    def getListOf2FailureLine(self):
+        """return the list of error of type2 with  tuple line format
+        ie (sym0,line0,sym1,line1) with sym? and line? integer indexes """
+        res=[]
+        for  failure2 in self.listOf2Failures:
+            ((sym0,sym1), active, linesTab)=failure2
+            if active==0:
+                continue
+            for tuple4 in linesTab:
+                (s0,l0,s1,l1)=tuple4
+                if s0!=sym0 or s1!=sym1:
+                    print("invalid definition :", failure2 )
+                    sys.exit(42)
+                if tuple4 in res:
+                    print("assert getListOf2FailureLine : double definition" )
+                res+=[tuple4]
+        return res
+
 
     def pickle(self, fileName):
         """To serialize the ddConfig object in the file fileName"""
@@ -71,7 +145,6 @@ class ddConfig:
     def listOfTxtSym(self):
         """Return a fake list of symbol"""
         return [("sym-"+str(i), "fake.so") for i in self.listOfIntSym()]
-
 
 
     def getExcludeIntSymFromExclusionFile(self, excludeFile):
@@ -124,12 +197,11 @@ class ddConfig:
 
     def statusOfSourceConfig(self, configLine):
         print("configLine:", configLine)
-        listOfSym=[]
 
         configLineLines=self.getIncludedLines(configLine)
         print("configLineLines:", configLineLines)
         for sym in range(self.nbSym):
-            if sym not in listOfSym and self.listOf1Failure[sym][1]!=0:
+            if self.listOf1Failure[sym][1]!=0:
                 print("sym:", sym)
                 print("listofLineFailure :", self.listOf1Failure[sym][2])
 
@@ -147,18 +219,16 @@ class ddConfig:
             print ("sym1 sym2 tab", sym1, sym2, tab)
             if failure==0:
                 continue
-            if not sym1 in listOfSym and not sym2 in listOfSym:
-
-                selectedConfigLines1=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym1) ]
-                selectedConfigLines2=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym2) ]
-                print("selectedConfigLines1:", selectedConfigLines1)
-                print("selectedConfigLines2:", selectedConfigLines2)
-                for (s1, l1, s2,l2) in tab:
-                    if s1==sym1 and s2==sym2:
-                        if l1 in selectedConfigLines1 and l2 in selectedConfigLines2:
-                            res=simulateRandom(configLine)
-                            if res==1:
-                                return 1
+            selectedConfigLines1=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym1) ]
+            selectedConfigLines2=[int(line[1]) for line in configLineLines if line[2]=="sym-"+str(sym2) ]
+            print("selectedConfigLines1:", selectedConfigLines1)
+            print("selectedConfigLines2:", selectedConfigLines2)
+            for (s1, l1, s2,l2) in tab:
+                if s1==sym1 and s2==sym2:
+                    if l1 in selectedConfigLines1 and l2 in selectedConfigLines2:
+                        res=simulateRandom(configLine)
+                        if res==1:
+                            return 1
         return 0
 
 
@@ -174,7 +244,7 @@ class ddConfig:
             print("invalid no empty noperturbation")
             return False
         return fullList
-        
+
     def checkDDmaxSymResult(self,loadRes):
         fullList=self.fullListSym(loadRes)
         if fullList==False:
@@ -215,10 +285,10 @@ class ddConfig:
             return False
         print("ddmax/ddmaxcmp checked")
         return True
-    
+
     def checkRddminSymResult(self,loadRes):
         fullList=self.fullListSym(loadRes)
-        
+
         ddminList=[ [int(line.split()[0].replace("sym-",""))
                      for line in ddmin
                      ]
@@ -267,8 +337,7 @@ class ddConfig:
 
         return True
 
-    def checkRddminLineResult(self,loadRes):
-        #check fulllist
+    def fullListLine(self,loadRes):
         fullList=[(int(line.split("\t")[2].replace("sym-","")),
                    int(line.split("\t")[1]))
                    for  line in loadRes["full"]]
@@ -284,6 +353,54 @@ class ddConfig:
         #check empty list
         if len(loadRes["noperturbation"])!=0:
             print("invalid no empty noperturbation")
+            return False
+        return fullList
+
+
+    def checkDDmaxLineResult(self,loadRes):
+        #check fulllist
+        fullList=self.fullListLine(loadRes)
+        if fullList==False:
+            return False
+
+        ddmaxList=[(int(line.split("\t")[2].replace("sym-","")),
+                      int(line.split("\t")[1]))
+                     for line in loadRes["ddmax"]]
+        ddmaxCmpList=[(int(line.split("\t")[2].replace("sym-","")),
+                      int(line.split("\t")[1]))
+                     for line in loadRes["ddmaxcmp"]]
+
+        if len(ddmaxList)+len(ddmaxCmpList)!=len(fullList):
+            print("ddmax/ddmaxcmp : invalid size")
+            return False
+
+        ddminList1Expected=self.ddminLine1_expected()
+        for tupleSymLine in ddminList1Expected:
+            if not tupleSymLine in ddmaxCmpList:
+                return False
+
+        if len(self.getListOf2FailureLine()) + len(ddminList1Expected) != len(ddmaxCmpList):
+            print("Wrong ddmaxCmp size")
+            return False
+        for (s0,line0,s1,line1) in self.getListOf2FailureLine():
+            if (s0,line0) in ddmaxList and  (s1,line1) in ddmaxList:
+                print("Wrong ddmax separation")
+                return False
+            if (s0,line0) in ddmaxCmpList and  (s1,line1) in ddmaxCmpList:
+                print("Wrong ddmaxCmp separation")
+                return False
+
+        return True
+
+    def ddminLine1_expected(self):
+        ddminList1Expected=[(sym, lineTuple[0]) for sym in range(self.nbSym)  if  self.listOf1Failure[sym][1]!=0 for lineTuple in self.listOf1Failure[sym][2] if lineTuple[1]!=0]
+        ddminList1Expected.sort()
+        return ddminList1Expected
+
+    def checkRddminLineResult(self,loadRes):
+        #check fulllist
+        fullList=self.fullListLine(loadRes)
+        if fullList==False:
             return False
 
         #extract result form loadRes
@@ -304,8 +421,9 @@ class ddConfig:
             return False
 
         #check ddmin with length 1
-        ddminList1Expected=[(sym, lineTuple[0]) for sym in range(self.nbSym)  if  self.listOf1Failure[sym][1]!=0 for lineTuple in self.listOf1Failure[sym][2] if lineTuple[1]!=0]
-        ddminList1Expected.sort()
+        ddminList1Expected=self.ddminLine1_expected()
+        #[(sym, lineTuple[0]) for sym in range(self.nbSym)  if  self.listOf1Failure[sym][1]!=0 for lineTuple in self.listOf1Failure[sym][2] if lineTuple[1]!=0]
+        #ddminList1Expected.sort()
         if ddminList1 != ddminList1Expected:
             print("unexpected ddmin of size 1")
             print("ddminList1Expected", ddminList1Expected)
@@ -425,7 +543,7 @@ def runNorm(dir_path, ddCase):
 
 if __name__=="__main__":
     ddCase=ddConfig([(sym, max(0, sym-16), [(line, max(0, line-8)) for line in range(11) ] ) for sym in range(20)],
-                    [((0,1), 1, [(0,line, 1,max(0,line-1)) for line in range(4)])  ]
+                    [((0,1), 1, [(0,line, 1, line+1) for line in range(4)])  ]
     )
 #    ddCase=ddConfig([(0, 0, []),
 #                     (1, 1, [(0, 0),(1,1)] )])
