@@ -708,7 +708,7 @@ class DDStoch(DD.DD):
         algo=self.config_.get_ddAlgo()
         resConf=None
         if algo=="ddmax":
-            return  self.DDMax(deltas)
+            return  self.DDMax(deltas, self.config_.get_nbRUN())
 
         def rddminAlgo(localDeltas):
             if algo=="rddmin":
@@ -771,8 +771,8 @@ class DDStoch(DD.DD):
 
 
 
-    def DDMax(self, deltas):
-        res=self.verrou_dd_max(deltas)
+    def DDMax(self, deltas, nbRun):
+        res=self.verrou_dd_max(deltas,nbRun)
         cmp=[delta for delta in deltas if delta not in res]
         self.configuration_found("ddmax", cmp)
         self.configuration_found("ddmax-cmp", res)
