@@ -161,7 +161,8 @@ class ddConfig:
                                 return 1
         return 0
 
-    def checkRddminSymResult(self,loadRes):
+
+    def fullListSym(self,loadRes):
         fullList=[int(line.split()[0].replace("sym-",""))  for  line in loadRes["full"]]
         fullList.sort()
         if fullList != [x for x in range(self.nbSym)]:
@@ -172,7 +173,52 @@ class ddConfig:
         if len(loadRes["noperturbation"])!=0:
             print("invalid no empty noperturbation")
             return False
+        return fullList
+        
+    def checkDDmaxSymResult(self,loadRes):
+        fullList=self.fullListSym(loadRes)
+        if fullList==False:
+            return False
+        ddmaxList=[int(line.split()[0].replace("sym-",""))  for  line in loadRes["ddmax"]]
+        ddmaxCmpList=[int(line.split()[0].replace("sym-",""))  for  line in loadRes["ddmaxcmp"]]
+        #print("ddmaxList:", ddmaxList)
+        #print("ddmaxCmpList:", ddmaxCmpList)
 
+        if len(fullList)!=len(ddmaxCmpList)+len(ddmaxList):
+            print("ddmax/ddmaxcmp : invalid size")
+            return False
+
+        ddminList1Expected=[sym for sym in range(self.nbSym)  if  self.listOf1Failure[sym][1]!=0]
+        checkNb=0
+        for ddmin1 in ddminList1Expected:
+            if ddmin1 in ddmaxList:
+                print("1-min failure:", ddmin1 )
+                return False
+            if ddmin1 in ddmaxCmpList:
+                checkNb+=1
+        if checkNb!=len(ddminList1Expected):
+            return False
+            print("#ddmax wrong check number (after ddmin1):",checkNb)
+        ddminList2Expected=[[tup[0][0], tup[0][1]]for tup in self.listOf2Failures if tup[1]!=0]
+        for ddmin2 in ddminList2Expected:
+            index1,index2=ddmin2
+            if (index1 in ddmaxList) and (index2 in ddmaxCmpList):
+                checkNb+=1
+                continue
+            if (index2 in ddmaxList) and (index1 in ddmaxCmpList):
+                checkNb+=1
+                continue
+            print("#ddmin2 in ddmax : invalid partition", ddmin2)
+            return False
+        if self.nbSym- checkNb !=len(ddmaxList):
+            print("#ddmax wrong ddmaxList size")
+            return False
+        print("ddmax/ddmaxcmp checked")
+        return True
+    
+    def checkRddminSymResult(self,loadRes):
+        fullList=self.fullListSym(loadRes)
+        
         ddminList=[ [int(line.split()[0].replace("sym-",""))
                      for line in ddmin
                      ]

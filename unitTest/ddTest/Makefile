@@ -14,14 +14,16 @@ run_check: install
 	verrou_dd_sym --num-thread=2 --cache=keep_run ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_sym --cache=rename --rddmin-heuristics-cache=cache  ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_sym --cache=continue --res-with-all-samples --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
+	verrou_dd_sym --cache=clean --algo=ddmax --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
 
+	OUTCMD="| tee out && ./ddCheck.py dd.line out && test ${PIPESTATUS[0]} -eq 0 "
 	verrou_dd_line --cache=clean --num-thread=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=clean --num-thread=3 --nruns=2 ./ddRun.py ./ddCmp.py  ${OUTCMD}
 	verrou_dd_line --num-thread=6 --cache=keep_run --nruns=2 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=rename --rddmin-heuristics-cache=cache --nruns=2 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=rename --rddmin-heuristics-cache=cache --rddmin-heuristics-line-conv --nruns=2 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_line --cache=continue --res-with-all-samples --nruns=5 --num-thread=6 ./ddRun.py ./ddCmp.py ${OUTCMD}
-
+#	verrou_dd_line --cache=clean --algo=ddmax --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}
 
 
 install:
