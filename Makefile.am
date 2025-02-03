@@ -32,15 +32,15 @@ completion_install_dir=${prefix}/usr/share/completions
 #----------------------------------------------------------------------------
 
 install-exec-local:
-	mkdir -p ${pkgpythondir}
-	touch ${pkgpythondir}/__init__.py
-	install -t ${prefix} -m 644 env.sh
-	install -t ${verrouUnbuffereddir} verrouUnbuffered.so
-	install -t ${verrouCbindingDir} verrouCBinding.so
-	install -t ${verrouTaskDir} libverrouTask.so
-	install -t ${verrouExtendStdoutPrecisionDir} verrouExtendStdoutPrecision.so
-	mkdir -p ${completion_install_dir}
-	install -m 644 -t ${completion_install_dir} ${completion_scripts}
+	mkdir -p $(DESTDIR)${pkgpythondir}
+	touch $(DESTDIR)${pkgpythondir}/__init__.py
+	install -t $(DESTDIR)${prefix} -m 644 env.sh
+	install -t $(DESTDIR)${verrouUnbuffereddir} verrouUnbuffered.so
+	install -t $(DESTDIR)${verrouCbindingDir} verrouCBinding.so
+	install -t $(DESTDIR)${verrouTaskDir} libverrouTask.so
+	install -t $(DESTDIR)${verrouExtendStdoutPrecisionDir} verrouExtendStdoutPrecision.so
+	mkdir -p $(DESTDIR)${completion_install_dir}
+	install -m 644 -t $(DESTDIR)${completion_install_dir} ${completion_scripts}
 
 #----------------------------------------------------------------------------
 # verrou-<platform>
