@@ -270,7 +270,7 @@ class verrouTask:
         res=self.PASS
         for run in workToDo:
             retVal=self.cmpOneSample(run,assertRun=False)
-            if retVal=="FAIL":
+            if retVal==self.FAIL:
                 res=self.FAIL
                 if earlyExit:
                     return res
@@ -293,7 +293,7 @@ class verrouTask:
             self.runOneSample(run)
             retVal=self.cmpOneSample(run)
 
-            if retVal=="FAIL":
+            if retVal==self.FAIL:
                 res=self.FAIL
 
                 if earlyExit:
@@ -772,7 +772,11 @@ class DDStoch(DD.DD):
 
 
     def DDMax(self, deltas, nbRun):
-        res=self.verrou_dd_max(deltas,nbRun)
+        nbProc=self.config_.get_maxNbPROC()
+        if nbProc in [1,None]:
+            res=self.verrou_dd_max(deltas,nbRun)
+        else:
+            res=self.verrou_dd_max_par(deltas,nbRun)
         cmp=[delta for delta in deltas if delta not in res]
         self.configuration_found("ddmax", cmp)
         self.configuration_found("ddmax-cmp", res)
@@ -857,7 +861,7 @@ class DDStoch(DD.DD):
 
             ciTab=[self.split(candidat, min(granularity, len(candidat))) for candidat in toTreatNow]
             flatciTab=sum(ciTab,[])
-            flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab))
+            flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab),earlyExit=False)
             resTab=[]
             lBegin=0
             for i in range(len(ciTab)): #unflat flatRes
@@ -1240,10 +1244,11 @@ class DDStoch(DD.DD):
 
 
 
-    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False):
+    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
+        assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample"])
 
         resTab=[None] *nbDelta
         failIndexesTab=[[] for i in range(nbDelta)]
@@ -1265,7 +1270,7 @@ class DDStoch(DD.DD):
 
             if workToDo==None:
 #                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].FAIL,"cache")
-                resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                resTab[deltaIndex]="FAIL"
                 verrouTaskTab[deltaIndex].printDir()
                 print(" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
@@ -1280,15 +1285,24 @@ class DDStoch(DD.DD):
                 continue
             subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in cmpOnlyToDo ]
             subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in runToDo ]
+        if earlyExit:
+            if firstConfFail:
+                if self.FAIL in resTab:
+                    return resTab
+            if firstConfPass:
+                if self.PASS in resTab:
+                    return resTab
 
         subTaskDataTab=[]
-
-        sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
-        sampleTab.sort()
-        for sample in sampleTab:
-            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
-        for sample in sampleTab:
-            subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
+        if sortOrder=="outerSampleInnerConf":
+            sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+            sampleTab.sort()
+            for sample in sampleTab:
+                subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
+            for sample in sampleTab:
+                subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
+        if sortOrder=="outerConfInnerSample":
+            subTaskDataTab=subTaskDataUnorderTab
 
         if len(subTaskDataTab)!=len(subTaskDataUnorderTab):
             print("internal error")
@@ -1316,19 +1330,23 @@ class DDStoch(DD.DD):
 
                     (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
                     res=future.result()
-                    if res==verrouTaskTab[deltaIndex].PASS:
+                    if res==self.PASS:
                         if resTab[deltaIndex]==None:
-                            resTab[deltaIndex]=verrouTaskTab[deltaIndex].PASS
+                            resTab[deltaIndex]=self.PASS
                         passIndexesTab[deltaIndex]+=[sampleIndex]
+                        if earlyExit and firstConfPass:
+                            if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                                for cWork in range(currentWork,len(subTaskDataTab)):
+                                    activeDataTab[cWork]=False
                     else:
                         if resTab[deltaIndex]==None and earlyExit:
                             verrouTaskTab[deltaIndex].printDir()
                             print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
-                        resTab[deltaIndex]=verrouTaskTab[deltaIndex].FAIL
+                        resTab[deltaIndex]=self.FAIL
                         failIndexesTab[deltaIndex]+=[sampleIndex]
-                        if earlyExit:
+                        if earlyExit and firstConfFail:
                             for cWork in range(currentWork,len(subTaskDataTab)):
-                                if firstConfFail or subTaskDataTab[cWork][1]==deltaIndex :
+                                if subTaskDataTab[cWork][1]==deltaIndex :
                                     activeDataTab[cWork]=False
                 #submit new subtasks
                 for poolIndex in poolSlotAvail:
