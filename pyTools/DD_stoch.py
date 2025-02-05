@@ -429,8 +429,8 @@ class DDStoch(DD.DD):
 
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
-        self.cache_outcomes = False # the cache of DD.DD is ignored
-        self.index=0
+
+        self.index=0 #rddmin index
         self.prefix_ = os.path.join(os.getcwd(), self.config_.get_cacheRep())
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = os.path.join(self.prefix_, "ref")
@@ -640,9 +640,6 @@ class DDStoch(DD.DD):
         if len(listOfExcludeFile)<1:
             self.searchSpaceGenerationFailure()
 
-#        with open(os.path.join(dirname,listOfExcludeFile[0]), "r") as f:
-#                excludeMerged=f.readlines()
-#        for excludeFile in listOfExcludeFile[1:]:
         excludeMerged=[]
         for excludeFile in listOfExcludeFile:
             lines=None
@@ -689,12 +686,14 @@ class DDStoch(DD.DD):
             self.emptySearchSpaceFailure()
 
         #basic verification
-        testResult=self._test(deltas)
+        testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf")
+
+        testResult=testResultTab[0]
         self.configuration_found("FullPerturbation",deltas)
         if testResult!=self.FAIL:
             self.fullPerturbationSucceedsFailure()
 
-        testResult=self._test([])
+        testResult=testResultTab[1]
         self.configuration_found("NoPerturbation",[])
         if testResult!=self.PASS:
             self.noPerturbationFailsFailure()
@@ -773,10 +772,7 @@ class DDStoch(DD.DD):
 
     def DDMax(self, deltas, nbRun):
         nbProc=self.config_.get_maxNbPROC()
-        if nbProc in [1,None]:
-            res=self.verrou_dd_max(deltas,nbRun)
-        else:
-            res=self.verrou_dd_max_par(deltas,nbRun)
+        res=self.verrou_dd_max(deltas,nbRun)
         cmp=[delta for delta in deltas if delta not in res]
         self.configuration_found("ddmax", cmp)
         self.configuration_found("ddmax-cmp", res)
@@ -1038,12 +1034,6 @@ class DDStoch(DD.DD):
         else:
             return res+self.SRDDMin(deltas, SrunTab)
 
-    def verrou_dd_min_seqpar(self, deltas, nbRun):
-        if self.config_.get_maxNbPROC() in [None,1] or not self.config_.get_use_dd_min_par():
-            return (self.verrou_dd_min(deltas,nbRun),[])
-        else:
-            ddmin,expFail=self.verrou_dd_min_par(deltas,nbRun)
-            return (ddmin,expFail)
 
     def SRDDMin(self, deltas,runTab):#runTab=rddMinTab):
         #name for progression
@@ -1056,9 +1046,9 @@ class DDStoch(DD.DD):
 
         ddminTab=[]
         nbMin=self._getSampleNumberToExpectFail(deltas)
-        nbProc=self.config_.get_maxNbPROC()
-        if nbProc!=None:
-            nbMin=max(nbMin,nbProc)
+        #nbProc=self.config_.get_maxNbPROC()
+        #if nbProc!=None:
+        #    nbMin=max(nbMin,nbProc)
 
         filteredRunTab=[x for x in runTab if x>=nbMin]
         if len(filteredRunTab)==0:
@@ -1070,14 +1060,14 @@ class DDStoch(DD.DD):
             #rddmin loop
             while testResult==self.FAIL:
                 self.report_progress(deltas, algo_name)
-                (conf,failList) = self.verrou_dd_min_seqpar(deltas,run)
+                (conf,failList) = self.verrou_dd_min(deltas,run)
                 if len(conf)!=1:
                     #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
-                        conf,failIncList = self.verrou_dd_min_seqpar(conf,runIncValue)
+                        conf,failIncList = self.verrou_dd_min(conf,runIncValue)
                         for failInc in failIncList:
                             if failInc not in failList:
-                                failList+=failInc
+                                failList=failInc+failList
                         if len(conf)==1:
                             break
 
@@ -1242,19 +1232,78 @@ class DDStoch(DD.DD):
             return int(min( math.ceil(math.log(1-alpha) / math.log(1-p)), nbRun))
 
 
-
-
     def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+        nbDelta=len(deltasTab)
+        assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample","triangle"])
+
+        numThread=self.config_.get_maxNbPROC()
+        if numThread in [None,1]:
+            return self._testTabSeq(deltasTab,nbRunTab,earlyExit,firstConfFail,firstConfPass)
+        return self._testTabPar(deltasTab,nbRunTab,earlyExit,firstConfFail,firstConfPass, sortOrder)
+
+    def _testTabSeq(self, deltasTab,nbRunTab, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+        if nbRunTab==None:
+            nbRunTab=[self.config_.get_nbRUN()]*nbDelta
+
+        if sortOrder=="outerConfInnerSample":
+            resTab=[None]*len(deltasTab)
+            for deltaIndex in range(len(deltasTab)):
+                deltas=deltasTab[deltaIndex]
+                nbRun=nbRunTab[deltaIndex]
+
+                dirname=os.path.join(self.prefix_, md5Name(deltas))
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname)
+                    self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
+                #none to parallelism
+                vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=True, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+                resTab[deltaIndex]=vT.run(earlyExit=earlyExit)
+                if resTab[deltaIndex]==self.FAIL and earlyExit and firstConfFail:
+                    return resTab
+                if res[deltaIndex]==self.PASS and earlyExit and firstConfPass:
+                    return resTab
+            return resTab
+        if sortOrder in ["outerSampleInnerConf","triangle"]:
+            resTab,verrouTaskTab,subTaskDataTab,cacheTab=self.verrouTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+            if subTaskDataTab==None:
+                return resTab
+            nbDelta=len(deltasTab)
+            failIndexesTab=[[] for i in range(nbDelta)]
+            passIndexesTab=[[] for i in range(nbDelta)]
+
+            for subTaskData in subTaskDataTab:
+                cmpOrRun,deltaIndex, sampleIndex=subTaskData
+                sampleRes=verrouTaskTab[deltaIndex].submitSeq(cmpOrRun,sampleIndex)
+
+                if sampleRes==self.PASS:
+                    passIndexesTab[deltaIndex]+=[sampleIndex]
+                    if resTab[deltaIndex]==None:
+                        resTab[deltaIndex]=self.PASS
+                    if earlyExit and firstConfPass:
+                        if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                            self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                            return resTab
+                if sampleRes==self.FAIL:
+                    if resTab[deltaIndex]==None and earlyExit:
+                        verrouTaskTab[deltaIndex].printDir()
+                        print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
+                    resTab[deltaIndex]=self.FAIL
+                    failIndexesTab[deltaIndex]+=[sampleIndex]
+                    if earlyExit and firstConfFail:
+                        self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                        return resTab
+
+            self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+            return resTab
+
+    def verrouTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
-        assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample"])
 
         resTab=[None] *nbDelta
-        failIndexesTab=[[] for i in range(nbDelta)]
-        passIndexesTab=[[] for i in range(nbDelta)]
-        cacheTab=[False for i in range(nbDelta)]
         verrouTaskTab=[None] *nbDelta
+        cacheTab=[False for i in range(nbDelta)]
 
         subTaskDataUnorderTab=[]
 
@@ -1269,8 +1318,7 @@ class DDStoch(DD.DD):
             workToDo=verrouTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
 
             if workToDo==None:
-#                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].FAIL,"cache")
-                resTab[deltaIndex]="FAIL"
+                resTab[deltaIndex]=self.FAIL
                 verrouTaskTab[deltaIndex].printDir()
                 print(" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
@@ -1278,7 +1326,7 @@ class DDStoch(DD.DD):
             cmpOnlyToDo,runToDo,cmpDone, failureIndex_unused=workToDo
 
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
-                resTab[deltaIndex]=(verrouTaskTab[deltaIndex].PASS,"cache")
+                resTab[deltaIndex]=self.PASS
                 verrouTaskTab[deltaIndex].printDir()
                 print(" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 cacheTab[deltaIndex]=True
@@ -1288,10 +1336,10 @@ class DDStoch(DD.DD):
         if earlyExit:
             if firstConfFail:
                 if self.FAIL in resTab:
-                    return resTab
+                    return (resTab,None,None, cacheTab)
             if firstConfPass:
                 if self.PASS in resTab:
-                    return resTab
+                    return (resTab,None,None, cacheTab)
 
         subTaskDataTab=[]
         if sortOrder=="outerSampleInnerConf":
@@ -1301,6 +1349,15 @@ class DDStoch(DD.DD):
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
             for sample in sampleTab:
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
+        if sortOrder=="triangle":
+            sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+            sampleTab.sort()
+            for sample in sampleTab:
+                subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
+            runTab=[subTaskData for subTaskData in subTaskDataUnorderTab if subTaskData[0]=="run"]
+            runTab.sort(key=lambda task: task[1]+task[2])
+            subTaskDataTab+=runTab
+
         if sortOrder=="outerConfInnerSample":
             subTaskDataTab=subTaskDataUnorderTab
 
@@ -1309,6 +1366,30 @@ class DDStoch(DD.DD):
             print("subTaskDataUnorderTab", subTaskDataUnorderTab)
             print("subTaskDataTab", subTaskDataTab)
             sys.exit(42)
+
+        return (resTab,verrouTaskTab,subTaskDataTab, cacheTab)
+
+    def printParProgress(self,resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit):
+        #affichage
+        nbDelta=len(resTab)
+        for deltaIndex in range(nbDelta):
+            if cacheTab[deltaIndex]:#print already done
+                continue
+            if resTab[deltaIndex]==self.PASS:
+                verrouTaskTab[deltaIndex].printDir()
+                print(" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
+            if resTab[deltaIndex]==self.FAIL:
+                if not earlyExit:
+                    verrouTaskTab[deltaIndex].printDir()
+                    print(" --(/run/) -> FAIL(%s)"%( (str(failIndexesTab[deltaIndex])[1:-1]).replace(" ","") ))
+
+    def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+        resTab,verrouTaskTab,subTaskDataTab,cacheTab=self.verrouTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+        if subTaskDataTab==None:
+            return resTab
+        nbDelta=len(deltasTab)
+        failIndexesTab=[[] for i in range(nbDelta)]
+        passIndexesTab=[[] for i in range(nbDelta)]
 
         activeDataTab=[True for i in subTaskDataTab]
         numThread=self.config_.get_maxNbPROC()
@@ -1367,15 +1448,5 @@ class DDStoch(DD.DD):
 
                 poolLoop=list(toDo)+newFutures
         #affichage
-        for deltaIndex in range(nbDelta):
-            if cacheTab[deltaIndex]:#print already done
-                continue
-            if resTab[deltaIndex]==self.PASS:
-                verrouTaskTab[deltaIndex].printDir()
-                print(" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
-            else:
-                if not earlyExit:
-                    verrouTaskTab[deltaIndex].printDir()
-                    print(" --(/run/) -> FAIL(%i)"%(str(failIndexesTab[deltaIndex])[1,-1]  ))
-
+        self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab
