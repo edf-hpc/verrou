@@ -695,6 +695,24 @@ def checkScomdet(allResult, testPairList, typeTab=["<double>", "<float>"]):
 
     return errorCounter(ok,ko,0)
 
+def checkEqualSymDet(allResult, testPairList, typeTab=["<double>", "<float>"]):
+    ok=0
+    ko=0
+    roundingList=["random_scomdet", "average_scomdet", "sr_smonotonic", "nearest", "farthest"]
+    for (code1,code2) in testPairList:
+        for RealType in typeTab:
+            testName1=code1+RealType
+            testName2=code2+RealType
+
+            for rounding in roundingList:
+                if assertCmpTest(testName1, rounding, testName2, rounding):
+                    ok+=1
+                else:
+                    ko+=1
+
+    return errorCounter(ok,ko,0)
+
+
 
 if __name__=='__main__':
     cmdHandler=cmdPrepare(os.path.join(os.curdir,sys.argv[1]))
@@ -717,7 +735,7 @@ if __name__=='__main__':
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testInc0d1m", "testIncSquare0d1m", "testIncDiv10m"], typeTab=typeTab)
     eCount+=checkTestPositive(allResult, testList=["testInvariantProdDiv"], typeTab=typeTab)
     eCount+=checkTestNegative(allResult, testList=["testInvariantProdDivm"], typeTab=typeTab)
-    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma"], typeTab=["<double>", "<float>"])
+    eCount+=checkTestPositiveAndOptimistRandomVerrou(allResult, testList=["testFma", "testFms"], typeTab=["<double>", "<float>"])
     eCount+=checkTestNegativeAndOptimistRandomVerrou(allResult, testList=["testFmam"], typeTab=["<double>", "<float>"])
 
     eCount+=checkTestPositive(allResult, testList=["testMixSseLlo", "testMixAvxLlo", "testFmaMixSseLlo", "testFmaMixAvxLlo"],  typeTab=["<double>", "<float>"], statNumber="low")
@@ -734,6 +752,8 @@ if __name__=='__main__':
     eCount+=checkScomdet(allResult,[("testInc0d1","testInc0d1m", True),( "testIncSquare0d1", "testIncSquare0d1m",True),("testIncDiv10", "testIncDiv10m",True),("testFma", "testFmam",True),
                                     ("testMixSseLlo", "testMixSseLlom",True  ),("testMixAvxLlo", "testMixAvxLlom",True  ),
                                     ("testFmaMixSseLlo", "testFmaMixSseLlom",True  ),("testFmaMixAvxLlo", "testFmaMixAvxLlom",True  )])
+
+    eCount+=checkEqualSymDet(allResult,[("testFma","testFms")])
 
     eCount.printSummary()
     sys.exit(eCount.ko+eCount.warn)
