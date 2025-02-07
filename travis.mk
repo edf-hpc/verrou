@@ -35,11 +35,7 @@ check-install:
 
 check:
 	@echo "*** BUILD TESTS ***"
-	cd ../valgrind+verrou && make -C tests  check
-	cd ../valgrind+verrou && make -C verrou check
-
-	@echo "*** VALGRIND TESTS ***"
-	cd ../valgrind+verrou && perl tests/vg_regtest verrou
+	make -C ../valgrind+verrou/verrou/unitTest/ valgrind-test
 
 check-error:
 	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
@@ -47,7 +43,7 @@ check-error:
 
 unit-test:
 	@echo "*** UNIT TESTS ***"
-	cd ../valgrind+verrou/verrou/unitTest && make
+	cd ../valgrind+verrou/verrou/unitTestw && make
 
 post-regtest-checks:
 	@echo "*** POST_REGTEST_CHECKS ***"
