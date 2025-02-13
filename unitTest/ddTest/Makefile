@@ -11,6 +11,8 @@ run_check: install
 	OUTCMD="| tee out && ./ddCheck.py dd.sym out && test ${PIPESTATUS[0]} -eq 0 "
 	verrou_dd_sym --cache=clean --num-thread=4 ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_sym --cache=clean --nruns=2 ./ddRun.py ./ddCmp.py  ${OUTCMD}
+	verrou_dd_sym --cache=clean --rddmin=stoch --nruns=2 --num-thread=4 ./ddRun.py ./ddCmp.py  ${OUTCMD}
+	verrou_dd_sym --cache=clean --rddmin=strict --nruns=2 --num-thread=4 ./ddRun.py ./ddCmp.py  ${OUTCMD}
 	verrou_dd_sym --num-thread=2 --cache=keep_run ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_sym --cache=rename --rddmin-heuristics-cache=cache  ./ddRun.py ./ddCmp.py ${OUTCMD}
 	verrou_dd_sym --cache=continue --res-with-all-samples --nruns=5 ./ddRun.py ./ddCmp.py ${OUTCMD}

@@ -100,6 +100,7 @@ class stochTask:
                 print(string,end=end)
         else:
             self.bufferPrint+=(string+end)
+
     def flushProgress(self):
         print(self.bufferPrint, flush=True, end="")
         self.bufferPrint=""
@@ -109,7 +110,6 @@ class stochTask:
 
     def setPreRun(self, preLambda):
         self.preRunLambda=preLambda
-
 
     def printDir(self):
         self.printProgress(self.pathToPrint,end="")
@@ -728,18 +728,24 @@ class DDStoch(DD.DD):
 
         if resConf!=None:
             flatRes=[c  for conf in resConf for c in conf]
-            cmp= [delta for delta in deltas if  delta not in flatRes ]
-            self.configuration_found("rddmin-cmp", cmp)
+            rddminCmp=self.reduceSearchSpace(deltas,flatRes)
+            self.configuration_found("rddmin-cmp", rddminCmp)
 
         return resConf
+
+
+    def reduceSearchSpace(self, deltas, conf):
+        "return the set deltas -conf"
+        return [delta for delta in deltas if delta not in conf] #reduce search space
 
     def applyRddminWithHeuristics(self,deltas, algo):
         """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
 
-        res=[]
+        nablaRddmin=[]
+        deltasCurrent=deltas
         self.ddminHeuristic.sort(key=lambda x: len(x))#sort to test first small heuritics
         for heuristicsDelta in self.ddminHeuristic:
-            if all(x in deltas for x in  heuristicsDelta): #check inclusion
+            if all(x in deltasCurrent for x in  heuristicsDelta): #check inclusion
                 testResult=self._test(heuristicsDelta, self.config_.get_nbRUN())
                 if testResult!=self.FAIL:
                     if not self.config_.get_quiet():
@@ -748,142 +754,132 @@ class DDStoch(DD.DD):
                     if not self.config_.get_quiet():
                         print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
                     if len(heuristicsDelta)==1:
-                        res+=[heuristicsDelta]
+                        nablaRddmin.append(heuristicsDelta)
                         self.configuration_found("ddmin%d"%(self.index), heuristicsDelta)
                         self.index+=1
-                        deltas=[delta for delta in deltas if delta not in heuristicsDelta]
+                        deltasCurrent=self.reduceSearchSpace(deltasCurrent,heuristicsDelta)
                     else:
                         resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN(),algo)
                         for resMin in resTab:
-                            res+=[resMin] #add to res
-                            deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
+                            nablaRddmin.append(resMin)
+                            deltasCurrent=self.reduceSearchSpace(deltasCurrent,resMin)
 
         print("Heuristics applied")
         #after the heuristic filter a classic (s)rddmin is applied
-        testResult=self._test(deltas, self.config_.get_nbRUN())
+        testResult=self._test(deltasCurrent, self.config_.get_nbRUN())
         if testResult!=self.FAIL:
-            return res
+            return nablaRddmin
         else:
-            return res+algo(deltas)
+            return nablaRddmin+algo(deltasCurrent)
 
 
     def DDMax(self, deltas, nbRun):
         nbProc=self.config_.get_maxNbPROC()
-        res=self.dd_max(deltas,nbRun)
-        cmp=[delta for delta in deltas if delta not in res]
-        self.configuration_found("ddmax", cmp)
-        self.configuration_found("ddmax-cmp", res)
+        ddmax=self.dd_max(deltas, nbRun)
+        ddmaxCmp=self.reduceSearchSpace(deltas, ddmax)
+        self.configuration_found("ddmax", ddmaxCmp)
+        self.configuration_found("ddmax-cmp", ddmax)
+        return ddmaxCmp
 
-        return cmp
-
-    def RDDMin(self, deltas,nbRun):
-        ddminTab=[]
+    def RDDMin(self, deltas, nbRun):
+        nablaRddmin=[]
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
             self.internalError("RDDMIN", md5Name(deltas)+" should fail")
 
+        deltasCurrent=deltas
         while testResult==self.FAIL:
-            conf = self.dd_min(deltas,nbRun)
+            (ddmin, candidat) = self.dd_min(deltasCurrent,nbRun) #candidat is unused
 
-            ddminTab += [conf]
-            self.configuration_found("ddmin%d"%(self.index), conf)
-            #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
-
-            #update deltas
-            deltas=[delta for delta in deltas if delta not in conf]
-            testResult=self._test(deltas,nbRun)
+            nablaRddmin.append(ddmin)
+            self.configuration_found("ddmin%d"%(self.index), ddmin)
             self.index+=1
-        return ddminTab
 
-    def check1Min(self, deltas,nbRun, algo):
+            deltasCurrent=self.reduceSearchSpace(deltasCurrent, ddmin)
+            testResult=self._test(deltasCurrent,nbRun)
+
+        return nablaRddmin
+
+    def check1Min(self, deltasHeuristic, nbRun, algoRddmin):
+        """check if deltas in 1 minimal : return [deltasHeuristic] if deltasHeuristic is 1-min else
+        the result of algoRddmin applied on a failing subspace"""
         ddminTab=[]
-        testResult=self._test(deltas)
+        testResult=self._test(deltasHeuristic)
         if testResult!=self.FAIL:
-            self.internalError("Check1-MIN", md5Name(deltas)+" should fail")
-        nbProc=self.config_.get_maxNbPROC()
-        deltaMin1Tab=[]
+            self.internalError("Check1-MIN", md5Name(deltasHeuristic)+" should fail")
 
-        for delta1 in deltas:
-            newDelta=[delta for delta in deltas if delta!=delta1]
+        deltaMin1Tab=[]
+        for delta1 in deltasHeuristic:
+            newDelta=[delta for delta in deltasHeuristic if delta!=delta1]
             deltaMin1Tab+=[newDelta]
-        resultTab=[]
-        if nbProc in [None,1]:
-            for deltaMin1 in deltaMin1Tab:
-                result=self._test(deltaMin1, nbRun)
-                resultTab+=[result]
-                if result==self.FAIL:
-                    break
-        else:
-            resultTab=self._testTab(deltaMin1Tab, [nbRun]*len(deltaMin1Tab), earlyExit=True, firstConfFail=True)
+
+        resultTab=self._testTab(deltaMin1Tab, [nbRun]*len(deltaMin1Tab), earlyExit=True, firstConfFail=True)
 
         for indexRes in range(len(resultTab)):
             result=resultTab[indexRes]
             if result==self.FAIL:
                 if not self.config_.get_quiet():
                     print("Heuristics not 1-Minimal")
-                return algo(deltaMin1Tab[indexRes], nbRun)
+                return algoRddmin(deltaMin1Tab[indexRes], nbRun)
 
-        self.configuration_found("ddmin%d"%(self.index), deltas)
+        self.configuration_found("ddmin%d"%(self.index), deltasHeuristic)
         self.index+=1
-        return [deltas]
+        return [deltasHeuristic]
 
 
-    def splitDeltas(self, deltas,nbRun,granularity):
+    def splitDeltas(self, deltas, nbRun, granularity):
+        """ Return a list of failing non overlapping subspace"""
         if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
             return [] #short exit
-        nbProc=self.config_.get_maxNbPROC()
 
-        res=[] #result : set of smallest (each subset with repect with granularity lead to success)
-
-        toTreat=[deltas]
-
-        #name for progression
-        algo_name="splitDeltas"
+        nablaRes=[] #result : set of smallest (each subset with repect with granularity lead to success)
+        nablaCurrent=[deltas]
 
         nbPara=1
+        nbProc=self.config_.get_maxNbPROC()
         if not nbProc in [None,1]:
             nbPara=math.ceil( nbProc/granularity)
 
-        while len(toTreat)>0:
-            toTreatNow=toTreat[0:nbPara]
-            toTreatLater=toTreat[nbPara:]
+        while len(nablaCurrent)>0:
+            nablaBloc=nablaCurrent[0:nbPara]
+            ciTab=[self.split(candidat, min(granularity, len(candidat))) for candidat in nablaBloc]
 
-            ciTab=[self.split(candidat, min(granularity, len(candidat))) for candidat in toTreatNow]
-            flatciTab=sum(ciTab,[])
+            flatciTab=sum(ciTab,[]) #flat ciTab to be compatible with testTab
             flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab),earlyExit=False)
+            #unflat flatResTab
             resTab=[]
             lBegin=0
-            for i in range(len(ciTab)): #unflat flatRes
+            for i in range(len(ciTab)):
                 lEnd=lBegin+len(ciTab[i])
                 resTab+=[flatResTab[lBegin: lEnd]]
                 lBegin=lEnd
-            remainToTreat=[]
-            for i in range(len(ciTab)):
 
+            nablaBlocCurrent=[]
+            for i in range(len(ciTab)):
                 ci=ciTab[i]
-                splitFailed=False
+                subSetFailed=False
                 for j in range(len(ci)):
-                    conf=ci[j]
+                    deltaij=ci[j]
 
                     if resTab[i][j]==self.FAIL:
-                        splitFailed=True
-                        if len(conf)==1:
-                            self.configuration_found("ddmin%d"%(self.index), conf)
+                        subSetFailed=True
+                        if len(deltaij)==1:
+                            self.configuration_found("ddmin%d"%(self.index), deltaij)
                             self.index+=1
-                            res.append(conf)
+                            nablaRes.append(deltaij)
                         else:
-                            remainToTreat+=[conf]
-                if not splitFailed:
-                    res+=[toTreatNow[i]]
+                            nablaBlocCurrent.append(deltaij)
+                if not subSetFailed:
+                    nablaRes.append(nablaBloc[i])
 
-            toTreat=remainToTreat+toTreatLater
-        return res
+            nablaCurrent=nablaBlocCurrent+nablaCurrent[nbPara:]
+        return nablaRes
 
 
 
     def SsplitDeltas(self, deltas, runTab, granularity):#runTab=splitTab ,granularity=2):
         #apply splitDeltas recussivly with increasing sample number (runTab)
-        #remarks the remain treatment do not respect the binary split structure
+        #remark: the remain treatment do not respect the binary split structure
 
         #name for progression
         algo_name="ssplitDelta"
@@ -901,7 +897,7 @@ class DDStoch(DD.DD):
 
             #the remainDeltas in recomputed from the wall list (indeed the set can increase with the apply )
             flatNextCurrent=[flatItem  for nextCurrentItem in nextCurrent for flatItem in nextCurrentItem]
-            remainDeltas=[delta for delta in deltas if delta not in flatNextCurrent ]
+            remainDeltas=self.reduceSearchSpace(deltas,flatNextCurrent)
 
             #apply split to remainDeltas
             self.report_progress(remainDeltas,algo_name)
@@ -912,7 +908,6 @@ class DDStoch(DD.DD):
         return currentSplit
 
     def DRDDMin(self, deltas, SrunTab, dicRunTab, granularity):#SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
-        #name for progression
         algo_name="DRDDMin"
 
         #assert with the right nbRun number
@@ -926,26 +921,28 @@ class DDStoch(DD.DD):
         candidats.sort(key=lambda x: len(x))#sort to test first small candidats
         print("Dichotomy split done: " + str([len(candidat) for candidat in candidats if len(candidat)!=1] ))
 
-        res=[]
-        for candidat in candidats:
+        nablaRddmin=[] #result initialization
+        deltasCurrent=deltas
+        for candidat in candidats: #this loop can be parallelized easily (cost SRDDMin)
             if len(candidat)==1: #is a valid ddmin
-                res+=[candidat]
-                deltas=[delta for delta in deltas if delta not in candidat]
+                nablaRddmin.append(candidat)
+                deltasCurrent=[delta for delta in deltasCurrent if delta not in candidat]
             else:
                 self.report_progress(candidat, algo_name)
                 #we do not known id candidat is a valid ddmin (in case of sparse pattern)
-                resTab=self.SRDDMin(candidat,SrunTab)
-                for resMin in resTab:
-                    res+=[resMin] #add to res
-                    deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
+                nablaSddmin=self.SRDDMin(candidat,SrunTab)
+                for ddMin in nablaSddmin:
+                    nablaRddmin.append(ddMin) #add to nablaRddmin
+                    deltasCurrent=self.reduceSearchSpace(deltasCurrent,ddMin)
+
         print("Dichotomy split analyze done")
 
         #after the split filter a classic (s)rddmin is applied
-        testResult=self._test(deltas,nbRun)
+        testResult=self._test(deltasCurrent,nbRun)
         if testResult!=self.FAIL:
-            return res
+            return nablaRddmin
         else:
-            return res+self.SRDDMin(deltas, SrunTab)
+            return nablaRddmin+self.SRDDMin(deltasCurrent, SrunTab)
 
 
     def SRDDMin(self, deltas,runTab):#runTab=rddMinTab):
@@ -957,23 +954,22 @@ class DDStoch(DD.DD):
         if testResult!=self.FAIL:
             self.internalError("SRDDMIN", md5Name(deltas)+" should fail")
 
-        ddminTab=[]
+        nablaRddmin=[]
+        deltasCurrent=deltas
         nbMin=self._getSampleNumberToExpectFail(deltas)
-        #nbProc=self.config_.get_maxNbPROC()
-        #if nbProc!=None:
-        #    nbMin=max(nbMin,nbProc)
 
         filteredRunTab=[x for x in runTab if x>=nbMin]
         if len(filteredRunTab)==0:
             filteredRunTab=[nbRun]
         #increasing number of run
+
         for run in filteredRunTab:
-            testResult=self._test(deltas,run)
+            testResult=self._test(deltasCurrent,run)
 
             #rddmin loop
             while testResult==self.FAIL:
-                self.report_progress(deltas, algo_name)
-                (conf,failList) = self.dd_min(deltas,run)
+                self.report_progress(deltasCurrent, algo_name)
+                (conf,failList) = self.dd_min(deltasCurrent,run)
                 if len(conf)!=1:
                     #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
@@ -984,7 +980,7 @@ class DDStoch(DD.DD):
                         if len(conf)==1:
                             break
 
-                ddminTab += [conf]
+                nablaRddmin.append(conf)
                 self.configuration_found("ddmin%d"%(self.index), conf)
                 #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
                 self.index+=1
@@ -992,19 +988,17 @@ class DDStoch(DD.DD):
                 #could be nice to sort failList to begin by small failConf
                 failList.sort(key=lambda x: len(x))
                 #update search space
-                deltas=[delta for delta in deltas if delta not in conf]
+                deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
                 while len(failList)!=0:
-                    #print("failList:", failList)
                     failConf=failList[0]
                     failList=failList[1:]
-                    if all(x in deltas for x in  failConf): #check inclusion
-                        #print("// optim : ", failConf)
+                    if all(x in deltasCurrent for x in  failConf): #check inclusion
+
                         testResult=self._test(failConf,nbRun)
                         if testResult!=self.FAIL:
                             self.internalError("SRDDMIN inner", md5Name(failConf)+" should fail")
                         conf,failIncList = self.dd_min(failConf,run)
-                        #print("resConf:",conf)
-                        #print("failIncList:",failIncList)
+
                         for failInc in failIncList:
                             if failInc not in failList:
                                 failList+=failInc
@@ -1021,13 +1015,13 @@ class DDStoch(DD.DD):
                             failList.sort(key=lambda x: len(x))
                             self.configuration_found("ddmin%d"%(self.index), conf)
                             self.index+=1
-                        ddminTab += [conf]
-                        deltas=[delta for delta in deltas if delta not in conf]
+                        nablaRddmin.append(conf)
+                        deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
 
                 #end test loop of rddmin
-                testResult=self._test(deltas,nbRun)
+                testResult=self._test(deltasCurrent,nbRun)
 
-        return ddminTab
+        return nablaRddmin
 
     #Error Msg
     def emptySearchSpaceFailure(self):
@@ -1088,12 +1082,8 @@ class DDStoch(DD.DD):
         failure()
 
 
-
-
     def getDelta0(self):
         return self.loadDeltaFileFromRep(self.ref_, True)
-#        with open(os.path.join(self.ref_ ,self.getDeltaFileName()), "r") as f:
-#            return f.readlines()
 
 
     def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
@@ -1115,11 +1105,9 @@ class DDStoch(DD.DD):
                     f.write(line+"\n")
 
 
-
     def _test(self, deltas,nbRun=None, earlyExit=True):
         if nbRun==None:
             nbRun=self.config_.get_nbRUN()
-#        return self._testTab([deltas],[nbRun])[0]
 
         dirname=os.path.join(self.prefix_, md5Name(deltas))
         if not os.path.exists(dirname):
@@ -1143,7 +1131,6 @@ class DDStoch(DD.DD):
         else:
             alpha=0.85
             return int(min( math.ceil(math.log(1-alpha) / math.log(1-p)), nbRun))
-
 
     def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
         nbDelta=len(deltasTab)
