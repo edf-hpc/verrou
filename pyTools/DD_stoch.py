@@ -753,7 +753,7 @@ class DDStoch(DD.DD):
                         self.index+=1
                         deltas=[delta for delta in deltas if delta not in heuristicsDelta]
                     else:
-                        resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN())
+                        resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN(),algo)
                         for resMin in resTab:
                             res+=[resMin] #add to res
                             deltas=[delta for delta in deltas if delta not in resMin] #reduce search space
@@ -767,12 +767,9 @@ class DDStoch(DD.DD):
             return res+algo(deltas)
 
 
-
-
-
     def DDMax(self, deltas, nbRun):
         nbProc=self.config_.get_maxNbPROC()
-        res=self.verrou_dd_max(deltas,nbRun)
+        res=self.dd_max(deltas,nbRun)
         cmp=[delta for delta in deltas if delta not in res]
         self.configuration_found("ddmax", cmp)
         self.configuration_found("ddmax-cmp", res)
@@ -786,7 +783,7 @@ class DDStoch(DD.DD):
             self.internalError("RDDMIN", md5Name(deltas)+" should fail")
 
         while testResult==self.FAIL:
-            conf = self.verrou_dd_min(deltas,nbRun)
+            conf = self.dd_min(deltas,nbRun)
 
             ddminTab += [conf]
             self.configuration_found("ddmin%d"%(self.index), conf)
@@ -798,7 +795,7 @@ class DDStoch(DD.DD):
             self.index+=1
         return ddminTab
 
-    def check1Min(self, deltas,nbRun):
+    def check1Min(self, deltas,nbRun, algo):
         ddminTab=[]
         testResult=self._test(deltas)
         if testResult!=self.FAIL:
@@ -824,7 +821,7 @@ class DDStoch(DD.DD):
             if result==self.FAIL:
                 if not self.config_.get_quiet():
                     print("Heuristics not 1-Minimal")
-                return self.RDDMin(deltaMin1Tab[indexRes], nbRun)
+                return algo(deltaMin1Tab[indexRes], nbRun)
 
         self.configuration_found("ddmin%d"%(self.index), deltas)
         self.index+=1
@@ -832,25 +829,21 @@ class DDStoch(DD.DD):
 
 
     def splitDeltas(self, deltas,nbRun,granularity):
-        nbProc=self.config_.get_maxNbPROC()
-        if nbProc in [None,1]:
-            return self.splitDeltasSeq(deltas, nbRun, granularity)
-        return self.splitDeltasPar(deltas, nbRun, granularity,nbProc)
-
-
-
-    def splitDeltasPar(self, deltas,nbRun,granularity, nbProc):
         if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
             return [] #short exit
+        nbProc=self.config_.get_maxNbPROC()
 
         res=[] #result : set of smallest (each subset with repect with granularity lead to success)
 
         toTreat=[deltas]
 
         #name for progression
-        algo_name="splitDeltasPara"
+        algo_name="splitDeltas"
 
-        nbPara=math.ceil( nbProc/granularity)
+        nbPara=1
+        if not nbProc in [None,1]:
+            nbPara=math.ceil( nbProc/granularity)
+
         while len(toTreat)>0:
             toTreatNow=toTreat[0:nbPara]
             toTreatLater=toTreat[nbPara:]
@@ -887,86 +880,6 @@ class DDStoch(DD.DD):
         return res
 
 
-    def splitDeltasSeq(self, deltas,nbRun,granularity):
-        if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
-            return [] #short exit
-
-        res=[] #result : set of smallest (each subset with repect with granularity lead to success)
-
-        #two lists which contain tasks
-        # -the fail status is known
-        toTreatFailed=[deltas]
-        # -the status is no not known
-        toTreatUnknown=[]
-
-        #name for progression
-        algo_name="splitDeltas"
-
-        def treatFailedCandidat(candidat):
-            #treat a failing configuration
-            self.report_progress(candidat, algo_name)
-
-            # create subset
-            cutSize=min(granularity, len(candidat))
-            ciTab=self.split(candidat, cutSize)
-
-            cutAbleStatus=False
-            for i in range(len(ciTab)):
-                ci=ciTab[i]
-                #test each subset
-                status=self._test(ci ,nbRun)
-                if status==self.FAIL:
-                    if len(ci)==1:
-                        #if the subset size is one the subset is a valid ddmin : treat as such
-                        self.configuration_found("ddmin%d"%(self.index), ci)
-                        #print("ddmin%d (%s):"%(self.index,self.coerce(ci)))
-                        self.index+=1
-                        res.append(ci)
-                    else:
-                        #insert the subset in the begin of the failed task list
-                        toTreatFailed.insert(0,ci)
-                        #insert the remaining subsets to the unknown task list
-                        tail= ciTab[i+1:]
-                        tail.reverse() # to keep the same order
-                        for cip in tail:
-                            toTreatUnknown.insert(0,cip)
-                        return
-                    cutAbleStatus=True
-            #the failing configuration is failing
-            if cutAbleStatus==False:
-                res.append(candidat)
-
-        def treatUnknownStatusCandidat(candidat):
-            #test the configuration : do nothing in case of success and add to the failed task list in case of success
-            self.report_progress(candidat, algo_name+ "(unknownStatus)")
-            status=self._test(candidat, nbRun)
-            if status==self.FAIL:
-                toTreatFailed.insert(0,candidat)
-            else:
-                pass
-
-        # loop over tasks
-        while len(toTreatFailed)!=0 or len(toTreatUnknown)!=0:
-
-            unknownStatusSize=len(deltas) #to get a max
-            if len(toTreatUnknown)!=0:
-                unknownStatusSize=len(toTreatUnknown[0])
-
-            if len(toTreatFailed)==0:
-                treatUnknownStatusCandidat(toTreatUnknown[0])
-                toTreatUnknown=toTreatUnknown[1:]
-                continue
-
-            #select the smallest candidat : in case of equality select a fail
-            toTreatCandidat=toTreatFailed[0]
-            if  len(toTreatCandidat) <= unknownStatusSize:
-                cutCandidat=toTreatCandidat
-                toTreatFailed=toTreatFailed[1:]
-                treatFailedCandidat(cutCandidat)
-            else:
-                treatUnknownStatusCandidat(toTreatUnknown[0])
-                toTreatUnknown=toTreatUnknown[1:]
-        return res
 
     def SsplitDeltas(self, deltas, runTab, granularity):#runTab=splitTab ,granularity=2):
         #apply splitDeltas recussivly with increasing sample number (runTab)
@@ -1060,11 +973,11 @@ class DDStoch(DD.DD):
             #rddmin loop
             while testResult==self.FAIL:
                 self.report_progress(deltas, algo_name)
-                (conf,failList) = self.verrou_dd_min(deltas,run)
+                (conf,failList) = self.dd_min(deltas,run)
                 if len(conf)!=1:
                     #may be not minimal due to number of run)
                     for runIncValue in [x for x in runTab if x>run ]:
-                        conf,failIncList = self.verrou_dd_min(conf,runIncValue)
+                        conf,failIncList = self.dd_min(conf,runIncValue)
                         for failInc in failIncList:
                             if failInc not in failList:
                                 failList=failInc+failList
@@ -1089,7 +1002,7 @@ class DDStoch(DD.DD):
                         testResult=self._test(failConf,nbRun)
                         if testResult!=self.FAIL:
                             self.internalError("SRDDMIN inner", md5Name(failConf)+" should fail")
-                        conf,failIncList = self.verrou_dd_min_seqpar(failConf,run)
+                        conf,failIncList = self.dd_min(failConf,run)
                         #print("resConf:",conf)
                         #print("failIncList:",failIncList)
                         for failInc in failIncList:
@@ -1098,7 +1011,7 @@ class DDStoch(DD.DD):
                         if len(conf)!=1:
                             #may be not minimal due to number of run)
                             for runIncValue in [x for x in runTab if x>run ]:
-                                conf,failIncList = self.verrou_dd_min_seqpar(conf,runIncValue)
+                                conf,failIncList = self.dd_min(conf,runIncValue)
                                 for failInc in failIncList:
                                     if failInc not in failList:
                                         failList+=failInc
@@ -1213,8 +1126,8 @@ class DDStoch(DD.DD):
             os.makedirs(dirname)
             self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
-        vT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
-        return vT.run(earlyExit=earlyExit)
+        stT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+        return stT.run(earlyExit=earlyExit)
 
     def _getSampleNumberToExpectFail(self, deltas):
         nbRun=self.config_.get_nbRUN()
@@ -1223,8 +1136,8 @@ class DDStoch(DD.DD):
         if not os.path.exists(dirname):
             self.internalError("_getSampleNumberToExpectFail:", dirname+" should exist")
 
-        vT=stochTask(dirname,None, None, None ,None, None, None)
-        p=vT.getEstimatedFailProbability()
+        stT=stochTask(dirname,None, None, None ,None, None, None)
+        p=stT.getEstimatedFailProbability()
         if p==1.:
             return 1
         else:
@@ -1256,8 +1169,8 @@ class DDStoch(DD.DD):
                     os.makedirs(dirname)
                     self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
                 #none to parallelism
-                vT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=True, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
-                resTab[deltaIndex]=vT.run(earlyExit=earlyExit)
+                stT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=True, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+                resTab[deltaIndex]=stT.run(earlyExit=earlyExit)
                 if resTab[deltaIndex]==self.FAIL and earlyExit and firstConfFail:
                     return resTab
                 if res[deltaIndex]==self.PASS and earlyExit and firstConfPass:

@@ -168,7 +168,7 @@ class DD:
             self.__last_reported_length = len(c)
 
 
-    def verrou_dd_max(self, c, nbRun):
+    def dd_max(self, c, nbRun):
         """Stub to overload in subclasses"""
         n = 2
         self.CC = c
@@ -185,7 +185,7 @@ class DD:
         while True:#1:
             tc = self._test(c,nbRun)
             if tc == self.PASS:
-                self.internalError("verrou_dd_max","test([all deltas]) == PASS")
+                self.internalError("dd_max","test([all deltas]) == PASS")
 
             if n > len(c):
                 # No further minimizing
@@ -253,7 +253,7 @@ class DD:
             run = run + 1
 
 
-    def verrou_dd_min(self, c , nbRun):
+    def dd_min(self, c , nbRun):
         """Stub to overload in subclasses"""
         n = 2
         algo_name="ddmin"
@@ -264,7 +264,7 @@ class DD:
 
         testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
-            self.internalError("verrou_dd_min_par","ERROR: test([]) == FAILED")
+            self.internalError("dd_min","ERROR: test([]) == FAILED")
 
         run = 1
         cbar_offset = 0
@@ -275,7 +275,7 @@ class DD:
         while 1:
             tc = self._test(c ,nbRun)
             if tc != self.FAIL and tc != self.UNRESOLVED:
-                self.internalError("verrou_dd_min","ERROR: test([all deltas]) == PASS")
+                self.internalError("dd_min","ERROR: test([all deltas]) == PASS")
 
 
             if n > len(c):
