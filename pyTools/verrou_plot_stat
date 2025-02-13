@@ -89,13 +89,13 @@ def verrou_run_stat(conf, fullAsync=True):
 
         refDir=None
         script_cmp=None
-        task=DD_stoch.verrouTask(repName, refDir, conf.runScript(), script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
+        task=DD_stoch.stochTask(repName, refDir, conf.runScript(), script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
         if fullAsync:
             taskTab+=[task]
         else:
             task.run(earlyExit=False)
     if fullAsync:
-        DD_stoch.runMultipleVerrouTask(taskTab,  maxNbPROC)
+        DD_stoch.runMultipleStochTask(taskTab,  maxNbPROC)
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
     resDict={}

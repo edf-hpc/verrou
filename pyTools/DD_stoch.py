@@ -68,7 +68,7 @@ def runCmd(cmd, fname, envvars=None):
 
 
 
-class verrouTask:
+class stochTask:
 
     def __init__(self, dirname, refDir,runCmd, cmpCmd,nbRun, maxNbPROC, runEnv , verbose=True, seedTab=None, seedEnvVar=None):
         self.dirname=dirname
@@ -383,20 +383,20 @@ class verrouTask:
         self.flushProgress()
         return self.PASS
 
-def runMultipleVerrouTask(verrouTaskTab, maxNbPROC):
+def runMultipleStochTask(stochTaskTab, maxNbPROC):
     import concurrent.futures
     executor=concurrent.futures.ThreadPoolExecutor(max_workers=maxNbPROC)
-    for verrouTask in verrouTaskTab:
-        verrouTask.executor=executor
-        verrouTask.maxNbPROC="async"
-        verrouTask.bufferizedPrint=True
-        verrouTask.run()
+    for stochTask in stochTaskTab:
+        stochTask.executor=executor
+        stochTask.maxNbPROC="async"
+        stochTask.bufferizedPrint=True
+        stochTask.run()
 
-    for verrouTask in verrouTaskTab:
-        verrouTask.runParAsyncWait()
+    for stochTask in stochTaskTab:
+        stochTask.runParAsyncWait()
 
-    for verrouTask in verrouTaskTab:
-        verrouTask.executor=None
+    for stochTask in stochTaskTab:
+        stochTask.executor=None
 
 
 def md5Name(deltas):
@@ -1213,7 +1213,7 @@ class DDStoch(DD.DD):
             os.makedirs(dirname)
             self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
-        vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+        vT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRun, self.config_.get_maxNbPROC() , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
         return vT.run(earlyExit=earlyExit)
 
     def _getSampleNumberToExpectFail(self, deltas):
@@ -1223,7 +1223,7 @@ class DDStoch(DD.DD):
         if not os.path.exists(dirname):
             self.internalError("_getSampleNumberToExpectFail:", dirname+" should exist")
 
-        vT=verrouTask(dirname,None, None, None ,None, None, None)
+        vT=stochTask(dirname,None, None, None ,None, None, None)
         p=vT.getEstimatedFailProbability()
         if p==1.:
             return 1
@@ -1256,7 +1256,7 @@ class DDStoch(DD.DD):
                     os.makedirs(dirname)
                     self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
                 #none to parallelism
-                vT=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=True, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+                vT=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=True, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
                 resTab[deltaIndex]=vT.run(earlyExit=earlyExit)
                 if resTab[deltaIndex]==self.FAIL and earlyExit and firstConfFail:
                     return resTab
@@ -1264,7 +1264,7 @@ class DDStoch(DD.DD):
                     return resTab
             return resTab
         if sortOrder in ["outerSampleInnerConf","triangle"]:
-            resTab,verrouTaskTab,subTaskDataTab,cacheTab=self.verrouTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+            resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
             if subTaskDataTab==None:
                 return resTab
             nbDelta=len(deltasTab)
@@ -1273,7 +1273,7 @@ class DDStoch(DD.DD):
 
             for subTaskData in subTaskDataTab:
                 cmpOrRun,deltaIndex, sampleIndex=subTaskData
-                sampleRes=verrouTaskTab[deltaIndex].submitSeq(cmpOrRun,sampleIndex)
+                sampleRes=stochTaskTab[deltaIndex].submitSeq(cmpOrRun,sampleIndex)
 
                 if sampleRes==self.PASS:
                     passIndexesTab[deltaIndex]+=[sampleIndex]
@@ -1281,28 +1281,28 @@ class DDStoch(DD.DD):
                         resTab[deltaIndex]=self.PASS
                     if earlyExit and firstConfPass:
                         if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
-                            self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                            self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                             return resTab
                 if sampleRes==self.FAIL:
                     if resTab[deltaIndex]==None and earlyExit:
-                        verrouTaskTab[deltaIndex].printDir()
+                        stochTaskTab[deltaIndex].printDir()
                         print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
                     resTab[deltaIndex]=self.FAIL
                     failIndexesTab[deltaIndex]+=[sampleIndex]
                     if earlyExit and firstConfFail:
-                        self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                        self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                         return resTab
 
-            self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+            self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
             return resTab
 
-    def verrouTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass):
+    def stochTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
 
         resTab=[None] *nbDelta
-        verrouTaskTab=[None] *nbDelta
+        stochTaskTab=[None] *nbDelta
         cacheTab=[False for i in range(nbDelta)]
 
         subTaskDataUnorderTab=[]
@@ -1314,12 +1314,12 @@ class DDStoch(DD.DD):
                 os.makedirs(dirname)
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
             #the node is there to avoid inner/outer parallelism
-            verrouTaskTab[deltaIndex]=verrouTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
-            workToDo=verrouTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
+            stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ ,nbRunTab[deltaIndex], None , self.sampleRunEnv(dirname),verbose=False, seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+            workToDo=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit=True)
 
             if workToDo==None:
                 resTab[deltaIndex]=self.FAIL
-                verrouTaskTab[deltaIndex].printDir()
+                stochTaskTab[deltaIndex].printDir()
                 print(" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
                 continue
@@ -1327,7 +1327,7 @@ class DDStoch(DD.DD):
 
             if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
                 resTab[deltaIndex]=self.PASS
-                verrouTaskTab[deltaIndex].printDir()
+                stochTaskTab[deltaIndex].printDir()
                 print(" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 cacheTab[deltaIndex]=True
                 continue
@@ -1367,24 +1367,24 @@ class DDStoch(DD.DD):
             print("subTaskDataTab", subTaskDataTab)
             sys.exit(42)
 
-        return (resTab,verrouTaskTab,subTaskDataTab, cacheTab)
+        return (resTab,stochTaskTab,subTaskDataTab, cacheTab)
 
-    def printParProgress(self,resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit):
+    def printParProgress(self,resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit):
         #affichage
         nbDelta=len(resTab)
         for deltaIndex in range(nbDelta):
             if cacheTab[deltaIndex]:#print already done
                 continue
             if resTab[deltaIndex]==self.PASS:
-                verrouTaskTab[deltaIndex].printDir()
+                stochTaskTab[deltaIndex].printDir()
                 print(" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
             if resTab[deltaIndex]==self.FAIL:
                 if not earlyExit:
-                    verrouTaskTab[deltaIndex].printDir()
+                    stochTaskTab[deltaIndex].printDir()
                     print(" --(/run/) -> FAIL(%s)"%( (str(failIndexesTab[deltaIndex])[1:-1]).replace(" ","") ))
 
     def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
-        resTab,verrouTaskTab,subTaskDataTab,cacheTab=self.verrouTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+        resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
         if subTaskDataTab==None:
             return resTab
         nbDelta=len(deltasTab)
@@ -1395,7 +1395,7 @@ class DDStoch(DD.DD):
         numThread=self.config_.get_maxNbPROC()
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
-            futurePool= [executor.submit(verrouTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
+            futurePool= [executor.submit(stochTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
             dataIndexPool=[i for i in range(numThread)]
             poolLoop=futurePool
             currentWork=numThread
@@ -1421,7 +1421,7 @@ class DDStoch(DD.DD):
                                     activeDataTab[cWork]=False
                     else:
                         if resTab[deltaIndex]==None and earlyExit:
-                            verrouTaskTab[deltaIndex].printDir()
+                            stochTaskTab[deltaIndex].printDir()
                             print(" --(/run/) -> FAIL(%i)"%(sampleIndex))
                         resTab[deltaIndex]=self.FAIL
                         failIndexesTab[deltaIndex]+=[sampleIndex]
@@ -1440,7 +1440,7 @@ class DDStoch(DD.DD):
                             computeType=currentSubTask[0]
                             deltaIndex=currentSubTask[1]
                             sampleIndex=currentSubTask[2]
-                            futur=executor.submit(verrouTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
+                            futur=executor.submit(stochTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
                             futurePool[poolIndex]=futur
                             newFutures+=[futur]
                             dataIndexPool[poolIndex]=currentWork
@@ -1448,5 +1448,5 @@ class DDStoch(DD.DD):
 
                 poolLoop=list(toDo)+newFutures
         #affichage
-        self.printParProgress(resTab, verrouTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+        self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab
