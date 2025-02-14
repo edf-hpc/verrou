@@ -1,5 +1,5 @@
 diff --git a/VEX/priv/guest_arm64_toIR.c b/VEX/priv/guest_arm64_toIR.c
-index 97b094175..c4490c3fa 100644
+index e6b92c7a0..81e3bde5b 100644
 --- a/VEX/priv/guest_arm64_toIR.c
 +++ b/VEX/priv/guest_arm64_toIR.c
 @@ -39,11 +39,6 @@
@@ -14,7 +14,7 @@ index 97b094175..c4490c3fa 100644
     * FRINTX might be need updating to set the inexact computation FPSR flag
  
     * Ditto FCVTXN.  No idea what "round to odd" means.  This implementation
-@@ -2224,6 +2219,108 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
+@@ -2224,6 +2219,120 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
     return math_MAYBE_ZERO_HI64(bitQ, fullWidthT);
  }
  
@@ -64,12 +64,18 @@ index 97b094175..c4490c3fa 100644
 +
 +   // fma loop with type conversion (I32->F32 and F32->I32 )
 +   IRTemp ri_F64[2],ri_I64[2];
-+   IROp   opMaddOrSub = isSub ? Iop_MSubF64 : Iop_MAddF64;
++   // IROp   opMaddOrSub = isSub ? Iop_MSubF64 : Iop_MAddF64;
++   IROp   opMaddOrSub = isSub ? Iop_MAddF64 : Iop_MAddF64;//Workaround to avoid problem with Msub
 +   for(int i=0; i<2; i++){
 +      ri_F64[i]= newTemp(Ity_F64);
 +      //apply fma or fms
-+      assign(ri_F64[i], qop( opMaddOrSub, rm,
-+			     mkexpr(ai_F64[i]), mkexpr(bi_F64[i]), mkexpr(ci_F64[i])));
++      if(isSub){//Workarround
++         assign(ri_F64[i], qop( opMaddOrSub, rm,
++                                unop(Iop_NegF64 ,mkexpr(ai_F64[i])), mkexpr(bi_F64[i]), mkexpr(ci_F64[i])));
++      }else{
++         assign(ri_F64[i], qop( opMaddOrSub, rm,
++                                mkexpr(ai_F64[i]), mkexpr(bi_F64[i]), mkexpr(ci_F64[i])));
++      }
 +      ri_I64[i]=newTemp(Ity_I64);
 +      assign(ri_I64[i], unop(Iop_ReinterpF64asI64, mkexpr(ri_F64[i])));
 +   }
@@ -92,12 +98,18 @@ index 97b094175..c4490c3fa 100644
 +
 +   // fma loop with type conversion (I32->F32 and F32->I32 )
 +   IRTemp ri_F32[4],ri_I32[4];
-+   IROp   opMaddOrSub = isSub ? Iop_MSubF32 : Iop_MAddF32;
++   //IROp   opMaddOrSub = isSub ? Iop_MSubF32 : Iop_MAddF32;
++   IROp   opMaddOrSub = isSub ? Iop_MAddF32 : Iop_MAddF32; //Workaround to avoid problem with Msub
 +   for(int i=0; i<4 ; i++){
 +      ri_F32[i]=newTemp(Ity_F32);
-+      //apply fma or fms
-+      assign(ri_F32[i], qop( opMaddOrSub, rm,
++
++      if(isSub){
++         assign(ri_F32[i], qop( opMaddOrSub, rm,
++                                unop(Iop_NegF32 ,mkexpr(ai_F32[i])),mkexpr(bi_F32[i]),mkexpr(ci_F32[i])));
++      }else{
++         assign(ri_F32[i], qop( opMaddOrSub, rm,
 +			     mkexpr(ai_F32[i]),mkexpr(bi_F32[i]),mkexpr(ci_F32[i])));
++      }
 +      ri_I32[i]=newTemp(Ity_I32);
 +      assign(ri_I32[i], unop(Iop_ReinterpF32asI32, mkexpr(ri_F32[i])));
 +   }
@@ -123,7 +135,7 @@ index 97b094175..c4490c3fa 100644
  
  /*------------------------------------------------------------*/
  /*--- FP comparison helpers                                ---*/
-@@ -11488,19 +11585,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -11757,19 +11866,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -151,7 +163,7 @@ index 97b094175..c4490c3fa 100644
        const HChar c = isD ? 'd' : 's';
        DIP("%s %c%u, %c%u, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            c, dd, c, nn, nameQReg128(mm), c, index);
-@@ -12945,18 +13040,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -13214,18 +13321,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
        Bool isD   = (size & 1) == 1;
        Bool isSUB = (size & 2) == 2;
        if (bitQ == 0 && isD) return False; // implied 1d case
@@ -178,7 +190,7 @@ index 97b094175..c4490c3fa 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%s\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm), arr);
-@@ -14159,17 +14251,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -14438,17 +14542,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -204,3 +216,64 @@ index 97b094175..c4490c3fa 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm),
+@@ -15694,7 +15796,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+             assign(res, qop(opFMADD, rm, eN, eM, eA));
+             break;
+          case 1: /* FMSUB */
+-            assign(res, qop(opFMSUB, rm, eN, eM, eA));
++            assign(res, qop(opFMADD, rm, unop(opNEG,eN), eM, eA));
+             break;
+          case 2: /* FNMADD */
+             assign(res, qop(opFMADD, rm, unop(opNEG, eN), eM,
+diff --git a/VEX/priv/host_arm64_isel.c b/VEX/priv/host_arm64_isel.c
+index 34c526559..db5ccc8bf 100644
+--- a/VEX/priv/host_arm64_isel.c
++++ b/VEX/priv/host_arm64_isel.c
+@@ -3452,6 +3452,12 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, IRExpr* e )
+             addInstr(env, ARM64Instr_VUnaryD(ARM64fpu_RINTE, dst, src));
+             return dst;
+          }
++         case Iop_ReinterpI64asF64: {
++            HReg src   = iselIntExpr_R(env, e->Iex.Unop.arg);
++            HReg dst   = newVRegD(env);
++            addInstr(env, ARM64Instr_VDfromX(dst,src));
++            return dst;
++         }
+          default:
+             break;
+       }
+@@ -3652,6 +3658,12 @@ static HReg iselFltExpr_wrk ( ISelEnv* env, IRExpr* e )
+             addInstr(env, ARM64Instr_VUnaryS(ARM64fpu_RINTE, dst, src));
+             return dst;
+          }
++         case Iop_ReinterpI32asF32: {
++            HReg src   = iselIntExpr_R(env, e->Iex.Unop.arg);
++            HReg dst   = newVRegD(env);
++            addInstr(env, ARM64Instr_VDfromX(dst,src));
++            return dst;
++         }
+          default:
+             break;
+       }
+diff --git a/none/tests/arm64/fp_and_simd.stdout.exp b/none/tests/arm64/fp_and_simd.stdout.exp
+index aba3ed295..2b2337b04 100644
+--- a/none/tests/arm64/fp_and_simd.stdout.exp
++++ b/none/tests/arm64/fp_and_simd.stdout.exp
+@@ -26537,7 +26537,7 @@ fminp v2.2s, v23.2s, v11.2s   5d370116702dec2f0853b0775b14704a  c5c7be2ff6281ec1
+ fmaxv s2, v23.4s   e50c87c40611df68b742b56dee7dd8be  61cd25cb19673e5118debc4ed1ae7687  00000000000000000000000061cd25cb  61cd25cb19673e5118debc4ed1ae7687 fpsr=00000000
+ fminv s2, v23.4s   3ba37b9d5e20798112db006efa0a4cd2  0484896dbedf3b16a16bdeb5a97c1d4c  000000000000000000000000bedf3b16  0484896dbedf3b16a16bdeb5a97c1d4c fpsr=00000000
+ fmla v2.2d, v23.2d, v11.2d   a24c16b6fbf1dbe7767b860520768f7a  28fff582518a22a319e3e171a571d9ac  537003f26d34a4719a85bb76992a9f95  3c7ffd64956e2bfc767b860520768f7a  28fff582518a22a319e3e171a571d9ac  537003f26d34a4719a85bb76992a9f95 fpsr=00000000
+-fmla v2.4s, v23.4s, v11.4s   4b2e18537a0be303eac51d54243b2f57  6ac81f4aeb27b92437ba5bb916bb38b3  a28eb68cc46da8d47b4bccf5ea603cd7  cdd9af5a7a0be30d73945bbec1a3fe1b  6ac81f4aeb27b92437ba5bb916bb38b3  a28eb68cc46da8d47b4bccf5ea603cd7 fpsr=00000000
++fmla v2.4s, v23.4s, v11.4s   4b2e18537a0be303eac51d54243b2f57  6ac81f4aeb27b92437ba5bb916bb38b3  a28eb68cc46da8d47b4bccf5ea603cd7  cdd9af5b7a0be30d73945bbec1a3fe1b  6ac81f4aeb27b92437ba5bb916bb38b3  a28eb68cc46da8d47b4bccf5ea603cd7 fpsr=00000000
+ fmla v2.2s, v23.2s, v11.2s   bd3a1d66fb90508d9b554cc88bd9417c  64c60fab54e44979227656a5f72b2f2d  3cf1f48789bda456e4e968a851c12790  0000000000000000c7e09991ff800000  64c60fab54e44979227656a5f72b2f2d  3cf1f48789bda456e4e968a851c12790 fpsr=00000000
+ fmls v2.2d, v23.2d, v11.2d   8d01c3adf5066458cc3f2583a0d0c181  6da307c3b831f3561c1f07e7838ee807  c934b1a91030fb0fd6ad847a846bf852  76e89d03a0a967eecc3f2583a0d0c181  6da307c3b831f3561c1f07e7838ee807  c934b1a91030fb0fd6ad847a846bf852 fpsr=00000000
+ fmls v2.4s, v23.4s, v11.4s   1a24700fe0e892172f4cd975a0cd533c  8febd45002ac2b1d9a7e85640e989632  e67a3a51cd8d0bc03515c85211aaefae  b6e6830fe0e892172f4cd975a0cd533c  8febd45002ac2b1d9a7e85640e989632  e67a3a51cd8d0bc03515c85211aaefae fpsr=00000000
+@@ -26554,7 +26554,7 @@ fmla v2.2d, v11.2d, v29.d[0]   618ac9772a2770959500ac0e16c1e17f  c4464ff780bf931
+ fmla v2.2d, v11.2d, v29.d[1]   2013ede0878f12d99a437060904c189e  9b6eb24aa9cf28f51a19be44a1098c3a  9305f1b5675893e794bbcad76929d605  2013ede0878f12d99a437060904c189e  9b6eb24aa9cf28f51a19be44a1098c3a  9305f1b5675893e794bbcad76929d605 fpsr=00000000
+ fmla v2.4s, v11.4s, v29.s[0]   ca9647a19b4fca4f05513f650acfc98c  48ce928e2795f701340652530ab07605  639299ffca0408200680c4682e35a72e  ca9647a19b4f951a22be9fd90acfc98c  48ce928e2795f701340652530ab07605  639299ffca0408200680c4682e35a72e fpsr=00000000
+ fmla v2.4s, v11.4s, v29.s[3]   d0f4ee2ee71de562dc700e0df7d8a732  95bfbe48e522971eef5ebfce191b1b56  8ce26234dbd360878142d79e1f367610  d0f4ee2ee71de562dc700e0df7d8a732  95bfbe48e522971eef5ebfce191b1b56  8ce26234dbd360878142d79e1f367610 fpsr=00000000
+-fmla v2.2s, v11.2s, v29.s[0]   1f35b9149b2ad61ba7ab915bef14eb2c  b0c6183186fa1016b81832c8103c2999  4e7bc70b85821deba4c837b0b1c88948  00000000000000002a691609ef14eb2c  b0c6183186fa1016b81832c8103c2999  4e7bc70b85821deba4c837b0b1c88948 fpsr=00000000
++fmla v2.2s, v11.2s, v29.s[0]   1f35b9149b2ad61ba7ab915bef14eb2c  b0c6183186fa1016b81832c8103c2999  4e7bc70b85821deba4c837b0b1c88948  00000000000000002a69160aef14eb2c  b0c6183186fa1016b81832c8103c2999  4e7bc70b85821deba4c837b0b1c88948 fpsr=00000000
+ fmla v2.2s, v11.2s, v29.s[3]   ddf389ddc7dd949e723328dbefc60b40  4051ef84669665d8865b6ab40a8f385a  1bb053a3944a2bf1bfdf2b18655c7492  0000000000000000723328dbefc60b40  4051ef84669665d8865b6ab40a8f385a  1bb053a3944a2bf1bfdf2b18655c7492 fpsr=00000000
+ fmls v2.2d, v11.2d, v29.d[0]   0b305c876a361cea3c09d28cf6ee076d  d46c77c8cebb0584e895f472b500778c  54f54a78f103a62d31c254b0164fb13d  46404eb80a118e805a692736056207d9  d46c77c8cebb0584e895f472b500778c  54f54a78f103a62d31c254b0164fb13d fpsr=00000000
+ randV128: 768 calls, 1012 iters

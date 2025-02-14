@@ -456,9 +456,11 @@ class testInvariantProdDivm:public test<REALTYPE>{
     di=_mm_fmsub_sd(ai,bi,ci);
     d=_mm_cvtsd_f64(di);
 #elif  defined(__aarch64__)
-  const float64x1_t ai=vld1_f64(&a);
+  const double nega=-a;
+  const double negc=-c;
+  const float64x1_t ai=vld1_f64(&nega);
   const float64x1_t bi=vld1_f64(&b);
-  const float64x1_t ci=vld1_f64(&c);
+  const float64x1_t ci=vld1_f64(&negc);
   const float64x1_t di=vfms_f64(ci,ai,bi);// warning strange argument order
   // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
   vst1_f64(&d, di);
@@ -483,16 +485,16 @@ class testInvariantProdDivm:public test<REALTYPE>{
     di=_mm_fmsub_ss(ai,bi,ci);
     d=_mm_cvtss_f32(di);
 #elif  defined(__aarch64__)
-  float av[2]={a,0};
+  float av[2]={-a,0};
   float bv[2]={b,0};
-  float cv[2]={c,0};
+  float cv[2]={-c,0};
 
   float32x2_t ap=vld1_f32(av);
   float32x2_t bp=vld1_f32(bv);
   float32x2_t cp=vld1_f32(cv);
 
   float32x2_t resp= vfms_f32(cp,ap,bp); // warning strange argument order
-  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfms
   float res[2];
   vst1_f32(res, resp);
   d=res[0];
