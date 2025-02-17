@@ -11,20 +11,24 @@ all:
 #to be able to do valgrind test from this directory
 valgrind-test: verrou-test none-test callgrind-test #helgrind-test
 
-verrou-test:
+valgrind-check:
+	make -C ../.. check || true #ignore xml check
 	make -C ../../tests check
 	make -C ../../verrou check
+	make -C ../../none check
+	make -C ../../perf check
+	make -C ../../callgrind check
+
+verrou-test: valgrind-check
 	cd ../..; perl ./tests/vg_regtest verrou/tests
 
-none-test:
-	make -C ../../none check
+none-test: valgrind-check
 	cd ../..; perl ./tests/vg_regtest none/tests --force-tool=verrou --stderr-ignore
 
-callgrind-test:
-	make -C ../../callgrind check
+callgrind-test: valgrind-check
 	cd ../..; perl ./tests/vg_regtest callgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore --cleanup-ignore --post-ignore
 
-helgrind-test:
+helgrind-test: valgrind-check
 	make -C ../../helgrind check
 	cd ../..; perl ./tests/vg_regtest helgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore
 
