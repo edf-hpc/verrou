@@ -38,12 +38,14 @@ check:
 	make -C ../valgrind+verrou/verrou/unitTest/ valgrind-test
 
 check-error:
-	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
+	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
+	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/callgrind/tests/
+	/valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
 	@false
 
 unit-test:
 	@echo "*** UNIT TESTS ***"
-	cd ../valgrind+verrou/verrou/unitTestw && make
+	cd ../valgrind+verrou/verrou/unitTest && make
 
 post-regtest-checks:
 	@echo "*** POST_REGTEST_CHECKS ***"

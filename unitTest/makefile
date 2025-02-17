@@ -17,15 +17,15 @@ verrou-test:
 	cd ../..; perl ./tests/vg_regtest verrou/tests
 
 none-test:
-	make -C ../../tests check
+	make -C ../../none check
 	cd ../..; perl ./tests/vg_regtest none/tests --force-tool=verrou --stderr-ignore
 
 callgrind-test:
-	make -C ../../tests check
+	make -C ../../callgrind check
 	cd ../..; perl ./tests/vg_regtest callgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore --cleanup-ignore --post-ignore
 
 helgrind-test:
-	make -C ../../tests check
+	make -C ../../helgrind check
 	cd ../..; perl ./tests/vg_regtest helgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore
 
 clean:
