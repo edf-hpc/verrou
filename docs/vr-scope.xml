@@ -34,9 +34,8 @@
     <section>
       <title>Exclusion files</title>
       <para>
-        This can be done by providing an exclusion file via the <option><xref
-        linkend="vr-opt.exclude"/></option> command-line option. The file should follow the
-        following format:
+        This can be done by providing an exclusion file via the <xref linkend="vr-opt.exclude"/>
+	command-line option. The file should follow the following format:
         <itemizedlist>
           <listitem><para>one rule per line;</para></listitem>
           <listitem>
@@ -117,8 +116,8 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
     <section>
       <title>Automatic generation of exclusion lists</title>
       <para>
-        Instead of manually establishing an exclusion list, using the <option><xref
-        linkend="vr-opt.gen-exclude"/></option> command-line option can help producing the complete
+        Instead of manually establishing an exclusion list, using the <xref
+        linkend="vr-opt.gen-exclude"/> command-line option can help producing the complete
         list of <computeroutput>FNNAME</computeroutput>/<computeroutput>OBJNAME</computeroutput>
         pairs through which a given program passes. This complete list can then be filtered to keep
         only functions which really need to be excluded.
@@ -237,7 +236,7 @@ __cos_fma	/usr/lib/x86_64-linux-gnu/libm-2.28.so
       </para>
       <para>
         This can be done by providing a list of source code lines to instrument, via the
-        <option><xref linkend="vr-opt.source"/></option> command-line option. The file should have
+        <xref linkend="vr-opt.source"/> command-line option. The file should have
         the following format:
         <itemizedlist>
           <listitem><para>one item per line,</para></listitem>
@@ -263,15 +262,15 @@ s_sin.c         12       cos</screen>
       <para>
         When verrou finds an instruction coming from a listed source code line, it instruments
         it. Only the source file name and line number are considered during this selection. If the
-        <option><xref linkend="vr-opt.source"/></option> option is not specified all instructions
+        <xref linkend="vr-opt.source"/> option is not specified all instructions
 	are instrumented. If the file is empty, nothing is instrumented (contrary to the first verrou
 	versions).
       </para>
       <para>
-        The <option><xref linkend="vr-opt.gen-source"/></option> command-line switch can help
+        The <xref linkend="vr-opt.gen-source"/> command-line switch can help
         generate the list of all source code lines encountered during program execution, for later
-        filtering. It can be wise to combine it with the <option><xref
-        linkend="vr-opt.exclude"/></option> switch in order to restrict the source code lines list
+        filtering. It can be wise to combine it with the <xref
+        linkend="vr-opt.exclude"/> switch in order to restrict the source code lines list
         to a specific set of symbols.
       </para>
       <note>
@@ -290,11 +289,11 @@ s_sin.c         12       cos</screen>
       and off during program execution.
     </para>
     <para>
-      Instrumentation can be toggled off at program start using the <option><xref
-      linkend="vr-opt.instr-atstart"/></option> command-line option. Furthermore, it can be
-      (de)activated programmatically using the <computeroutput><xref
-      linkend="vr-cr.start-instrumentation"/></computeroutput> and <computeroutput><xref
-      linkend="vr-cr.stop-instrumentation"/></computeroutput> client requests. This feature is
+      Instrumentation can be toggled off at program start using the <xref
+      linkend="vr-opt.instr-atstart"/> command-line option. Furthermore, it can be
+      (de)activated programmatically using the <xref
+      linkend="vr-cr.start-instrumentation"/> and <xref
+      linkend="vr-cr.stop-instrumentation"/> client requests. This feature is
       greatly inspired by Callgrind (see <xref linkend="cl-manual.limits"/> in the Callgrind
       manual). Below is an example use:
     <programlisting>
@@ -316,8 +315,7 @@ int main () {
     </para>
     <para>
       The same thing can be achieved interactively (and without the need for a recompilation of the
-      program) using the <computeroutput><xref
-      linkend="vr.monitor_instrumentation"/></computeroutput> monitor command.
+      program) using the <xref linkend="vr.monitor_instrumentation"/> monitor command.
     </para>
 
 
@@ -326,7 +324,7 @@ int main () {
       <computeroutput>VERROU_START_SOFT_INSTRUMENTATION</computeroutput> and <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput>. The idea behind is to instrument only once, but with a function which dynamically select between the instrumented backend and the nearest backend. As the instruemented code is less efficient, this approach designed only for frequent stop/start. The both approach are compatible : if <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput> or <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput> are activated, the instrumentation is stopped.
     </para>
     <para>
-      The hard and soft stop/start can also be called (without recompilation) thanks the an IOMatch script (See <option> <xref linkend="vr-opt.iomatch-clr"/></option>).
+      The hard and soft stop/start can also be called (without recompilation) thanks the an IOMatch script (See <xref linkend="vr-opt.iomatch-clr"/>).
       </para>
       <para>
 	For python program it is possible to use python bindings:

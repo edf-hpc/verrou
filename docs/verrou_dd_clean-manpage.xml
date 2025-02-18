@@ -18,20 +18,20 @@
   </refnamediv>
 
   <refsynopsisdiv>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_clean.synopsis"
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.verrou_dd_clean.synopsis"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsynopsisdiv>
 
 
   <refsect1>
     <title>Description</title>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_clean.description"
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.verrou_dd_clean.description"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 
   <refsect1>
     <title>Options</title>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_clean.envvars"
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.verrou_dd_clean.envvars"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 

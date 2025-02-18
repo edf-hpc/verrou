@@ -30,7 +30,9 @@
 
   <refsect1>
     <title>Principle</title>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.dd.principle"
+    <!-- <xi:include href="vr-manual.xml" xpointer="vr-manual.dd.principle"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />-->
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.dd.principle"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 
@@ -73,6 +75,17 @@
   <refsect1>
     <title>Authors</title>
     <para>Fran&ccedil;ois F&eacute;votte and Bruno Lathuili&egrave;re.</para>
+    <!-- These para are fake to defined Id not included and used by link-->
+    <para id="id.iomatch.format"></para>
+    <para id="vr-manual.feat.instr"></para>
+    <para id="vr-manual.feat.rounding-mode"></para>
+    <para id="vr-cr.start-instrumentation"></para>
+    <para id="vr-manual.verrou_task"></para>
+    <para id="vr-manual.feat.source"></para>
+    <para id="vr-manual.feat.count"></para>
+    <para id="vr-manual.localization.CovBB"></para>
+    <para id="vr-manual.feat.exclude"></para>
+    <para id="vr-manual.feat.scope"></para>
   </refsect1>
 </refentry>
 

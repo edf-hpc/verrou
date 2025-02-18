@@ -12,7 +12,7 @@ all:
 valgrind-test: verrou-test none-test callgrind-test #helgrind-test
 
 valgrind-check:
-	make -C ../.. check || true #ignore xml check
+	make -C ../.. check
 	make -C ../../tests check
 	make -C ../../verrou check
 	make -C ../../none check
