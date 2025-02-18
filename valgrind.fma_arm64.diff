@@ -1,5 +1,5 @@
 diff --git a/VEX/priv/guest_arm64_toIR.c b/VEX/priv/guest_arm64_toIR.c
-index e6b92c7a0..81e3bde5b 100644
+index e6b92c7a0..9f058db81 100644
 --- a/VEX/priv/guest_arm64_toIR.c
 +++ b/VEX/priv/guest_arm64_toIR.c
 @@ -39,11 +39,6 @@
@@ -14,6 +14,27 @@ index e6b92c7a0..81e3bde5b 100644
     * FRINTX might be need updating to set the inexact computation FPSR flag
  
     * Ditto FCVTXN.  No idea what "round to odd" means.  This implementation
+@@ -546,13 +541,13 @@ static IROp mkFMADDF ( IRType ty ) {
+    }
+ }
+ 
+-static IROp mkFMSUBF ( IRType ty ) {
+-   switch (ty) {
+-      case Ity_F32: return Iop_MSubF32;
+-      case Ity_F64: return Iop_MSubF64;
+-      default: vpanic("mkFMSUBF");
+-   }
+-}
++/* static IROp mkFMSUBF ( IRType ty ) { */
++/*    switch (ty) { */
++/*       case Ity_F32: return Iop_MSubF32; */
++/*       case Ity_F64: return Iop_MSubF64; */
++/*       default: vpanic("mkFMSUBF"); */
++/*    } */
++/* } */
+ 
+ static IROp mkSUBF ( IRType ty ) {
+    switch (ty) {
 @@ -2224,6 +2219,120 @@ static IRExpr* math_MAYBE_ZERO_HI64_fromE ( UInt bitQ, IRExpr* fullWidth )
     return math_MAYBE_ZERO_HI64(bitQ, fullWidthT);
  }
@@ -216,6 +237,15 @@ index e6b92c7a0..81e3bde5b 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm),
+@@ -15682,7 +15784,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+       UInt    ix    = (bitO1 << 1) | bitO0;
+       IRType  ity   = isD ? Ity_F64 : Ity_F32;
+       IROp    opFMADD = mkFMADDF(ity);
+-      IROp    opFMSUB = mkFMSUBF(ity);
++      //IROp    opFMSUB = mkFMSUBF(ity);
+       IROp    opNEG = mkNEGF(ity);
+       IRTemp  res   = newTemp(ity);
+       IRExpr* eA    = getQRegLO(aa, ity);
 @@ -15694,7 +15796,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
              assign(res, qop(opFMADD, rm, eN, eM, eA));
              break;
