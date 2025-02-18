@@ -133,7 +133,7 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile
 
-    task=DD_stoch.verrouTask(outputDir, refDir,runScript, cmpScript,nbRun, maxNbPROC, envvars , verbose=True, seedTab=seedTab, seedEnvVar="VERROU_SEED")
+    task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript,nbRun, maxNbPROC, envvars , verbose=True, seedTab=seedTab, seedEnvVar="VERROU_SEED")
     if config.get_trace():
         task.setPreRun(preRunTrace)
         task.setPostRun(postRunTrace)

@@ -1,0 +1,4 @@
+cmatch:      10000 * *
+apply: dump_cover
+cmatch:       1000 * *
+apply: dump_cover
