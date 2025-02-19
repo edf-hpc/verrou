@@ -1,9 +1,16 @@
 SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover
 
+SUBREPLISTPYTHON=checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover
+
 .PHONY: valgrind-test
 
 all:
 	for i in $(SUBREPLIST) ; do \
+		make -C "./$$i" || exit 42; \
+	done
+
+python:
+	for i in $(SUBREPLISTPYTHON) ; do \
 		make -C "./$$i" || exit 42; \
 	done
 
