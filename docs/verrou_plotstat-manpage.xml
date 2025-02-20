@@ -18,19 +18,20 @@
   </refnamediv>
 
   <refsynopsisdiv>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.plotstat.synopsis"
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.plotstat.synopsis"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsynopsisdiv>
 
 
   <refsect1>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.plotstat.description"
+    <title>Description</title>
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.plotstat.description"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 
   <refsect1>
     <title>Options and Environment Variables</title>
-    <xi:include href="vr-manual.xml" xpointer="vr-manual.plotStat.envvars"
+    <xi:include href="vr-localization.xml" xpointer="vr-manual.plotStat.envvars"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect1>
 

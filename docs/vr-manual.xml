@@ -36,9 +36,9 @@
         calls will return the same result.
       </para>
 
-      <note>
-	Before to use this option, you should think about to use the <computeroutput>_det</computeroutput>, <computeroutput>_comdet</computeroutput> or  <computeroutput>_scomdet</computeroutput> rounding modes (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
-      </note>
+      <note><para>
+	Before to use this option, you should think about to use the <computeroutput>_det</computeroutput>, <computeroutput>_comdet</computeroutput> or  <computeroutput>_scomdet</computeroutput> rounding modes (See <xref linkend="vr-opt.rounding-mode"/> option).
+      </para></note>
 
       <programlisting>
 double det (double x) {
@@ -56,7 +56,7 @@ int main () {
         floating-point errors, which you want to quantify. However, you also know that
         whatever these errors, <function>det</function> will remain deterministic and
         the assertion only fails due to the instrumentation added by
-        Verrou. The <computeroutput><xref linkend="vr-cr.start-deterministic"/></computeroutput>
+        Verrou. The <xref linkend="vr-cr.start-deterministic"/>
         client request can help dealing with such problems.
       </para>
 
@@ -230,8 +230,9 @@ det2
             <listitem><para>
                 Toggle <link linkend="vr-manual.feat.count">floating-point
                   operations counting</link>.
-            </para></listitem>
-	    <para>This option can be activated with the env variable <command>VERROU_COUNT_OP</command></para>
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_COUNT_OP</command></para>
+	    </listitem>
           </varlistentry>
 
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
@@ -240,10 +241,10 @@ det2
 		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>
 		or <computeroutput>checkdenorm</computeroutput>
 		backend. <computeroutput>verrou</computeroutput>
-		enables to perform several rounding mode (See <option><xref linkend="vr-opt.rounding-mode"/></option> option).
+		enables to perform several rounding mode (See <xref linkend="vr-opt.rounding-mode"/> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extended precision in quad (See  <option><xref linkend="vr-opt.mca-mode"/></option>,
-		<option><xref linkend="vr-opt.mca-precision-double"/></option> and  <option><xref linkend="vr-opt.mca-precision-float"/></option>  options).
+		based on extended precision in quad (See <xref linkend="vr-opt.mca-mode"/>,
+		<xref linkend="vr-opt.mca-precision-double"/> and  <xref linkend="vr-opt.mca-precision-float"/>  options).
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
@@ -321,7 +322,7 @@ det2
 
 		  <listitem><para>
 		      Options <option>--rounding-mode=nearest --float=yes</option> instrument float operations by nearest wrapper function. So if your code contains float operations, it can be
-		      useful to use <link linkend="vr-opt.instr-[flt|dbl]"><option>--vr-instr-float=no</option></link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over float operations.
+		      useful to use <link linkend="vr-opt.instr-TYPE">--vr-instr-float=no</link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over float operations.
 		  </para></listitem>
 
 		</itemizedlist>
@@ -374,12 +375,13 @@ det2
 	  </varlistentry>
 	  <varlistentry id="vr-opt.libm-noinst-rounding-mode" xreflabel="--libm-noinst-rounding-mode=">
             <term><option><![CDATA[--libm-noinst-rounding-mode==<native|nearest> [default=native]]]></option></term>
+	      <listitem>
 	      <para>
 		Select the behavior of libm (when <option>--libm=instrumented</option> is activated) when libm function are not instrumented (thanks <option>--exclude</option> or <option>--source</option>) between <command>native</command> and <command>nearest</command>.
 	      </para>
 
 	      <para>This option can be activated with the env variable <command>VERROU_LIBM_NOINST_ROUNDING_MODE</command>.</para>
-
+	      </listitem>
 	  </varlistentry>
 			  <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
             <term><option><![CDATA[--mca-mode=<mca|rr|pb|ieee> [default=mca]]]></option></term>
@@ -515,7 +517,7 @@ det2
             </para></listitem>
           </varlistentry>
 
-	    <varlistentry id="vr-opt.instr-[flt|dbl]" xreflabel="--vr-instr-[flt|dbl]-">
+	    <varlistentry id="vr-opt.instr-TYPE" xreflabel="--vr-instr-[flt|dbl]-">
             <term><option><![CDATA[--vr-instr-[flt|dbl]=<yes|no> [default=yes]]]></option></term>
             <listitem><para>
                 Toggle instrumentation of float (or double) instructions.
@@ -571,18 +573,18 @@ det2
                 to build an <link linkend="vr-manual.feat.exclude">exclusion
                 list</link>.</para>
               <para>In combination
-              with <option><xref linkend="vr-opt.exclude"/></option>, only list
+              with <xref linkend="vr-opt.exclude"/>, only list
               symbols which were not already present in the provided exclusion
               list.</para>
               <para>
                 WARNING: in order to generate a correct list, the whole binary
                 (including symbols listed in the list provided
-                using <option><xref linkend="vr-opt.exclude"/></option>) must be
+                using <xref linkend="vr-opt.exclude"/>) must be
                 instrumented. When using
-                both <option><xref linkend="vr-opt.gen-exclude"/></option>
-                and <option><xref linkend="vr-opt.exclude"/></option>, it is
+                both <xref linkend="vr-opt.gen-exclude"/>
+                and <xref linkend="vr-opt.exclude"/>, it is
                 advised to avoid perturbing rounding-modes
-                using <option><xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]></option>.
+                using <xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]>.
               </para>
 	      <para>This option can be activated with the env variable <command>VERROU_GEN_EXCLUDE</command>.</para>
             </listitem>
@@ -614,7 +616,7 @@ det2
                   lines</link> (which contain perturbed floating point instruction)
 		encountered during program execution.</para>
               <para>In combination with
-                <option><xref linkend="vr-opt.source"/></option>, only list
+                <xref linkend="vr-opt.source"/>, only list
                 source code lines which were not already present in the provided
                 list.</para>
 	      <para>This option can be activated with the env variable <command>VERROU_GEN_SOURCE</command>.</para>
@@ -696,8 +698,8 @@ det2
             <listitem><para>
 		Activate cancellation detection. Cancellation produces a valgrind error.
 		This functionality is available for the verrou, mcaquad  and checkdenorm backends. The level
-		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
-		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+		of detected cancellations can be configured with <xref linkend="vr.opt.cc-threshold-float"/> and
+		<xref linkend="vr.opt.cc-threshold-double"/>.
             </para></listitem>
           </varlistentry>
 
@@ -706,8 +708,8 @@ det2
             <listitem><para>
 		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one cancellation.
 		This functionality is available for verrou, mcaquad and checkdenorm backends. The level
-		of detected cancellations can be configured with  <option><xref linkend="vr.opt.cc-threshold-float"/></option> and
-		<option><xref linkend="vr.opt.cc-threshold-double"/></option>.
+		of detected cancellations can be configured with <xref linkend="vr.opt.cc-threshold-float"/> and
+		<xref linkend="vr.opt.cc-threshold-double"/>.
             </para></listitem>
           </varlistentry>
 
@@ -854,7 +856,7 @@ det2
     <section id="id.iomatch.format" xreflabel="IOMatch format">
       <title>IOMatch script</title>
       <para>
-	The IOMatch script is activated thanks the option <option><xref linkend="vr-opt.iomatch-clr"/>=IOMATCH_FILE</option>.
+	The IOMatch script is activated thanks the option <xref linkend="vr-opt.iomatch-clr"/><option>=IOMATCH_FILE</option>.
 	The comment symbol is <computeroutput>#</computeroutput>.
       </para>
       <para>
@@ -862,42 +864,42 @@ det2
       <variablelist>
 	<varlistentry>
 	  <term><computeroutput>verbose: LEVEL</computeroutput></term>
-	  <listitem>
-	    Configure the verbosity level (default 1)
-	  </listitem>
+	  <listitem><para> Configure the verbosity level (default 1)
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>ignore-empty-line:</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    If this key is present, the empty lines are ignored.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>filter_line_exec: CMD</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Activate the line replacement with CMD.
+	    </para>
+	    <para>
+	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
 	  </listitem>
-
-	  <para>
-	  The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
 
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>dump-stdout: [FILENAME]</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Dump the stdout file. If FILENAME is not set the default name is <computeroutput>IOMATCH_FILE.stdout-PID</computeroutput> or <computeroutput>IOMATCH_OUTPUT_REP/iomatch.stdout-PID</computeroutput> (if option <option>--output-IOmatch-rep=IOMATCH_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-IOmatch-rep=</option> are incompatible.
-	  </listitem>
+	    </para>
+	    </listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>dump-filtered-stdout: [FILENAME]</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Dump the stdout file after application of <computeroutput>filter_line_exec CMD</computeroutput> to each line.
 	     If FILENAME is not set the default name is <computeroutput>IOMATCH_FILE.filtered.stdout-PID</computeroutput> (or <computeroutput>IOMATCH_OUTPUT_REP/iomatch.filtered.stdout-PID</computeroutput> if option <option>--output-IOmatch-rep=IOMATCH_OUTPUT_REP</option> is used). Remark: <computeroutput>FILENAME</computeroutput> absolute path and <option>--output-IOmatch-rep=</option> are incompatible.
-	  </listitem>
+	    </para></listitem>
 	</varlistentry>
       </variablelist>
 
@@ -907,23 +909,23 @@ det2
 	<variablelist>
 	<varlistentry>
 	  <term><computeroutput>default: ACTION</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Add ACTION to the default section.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>init: ACTION</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Add ACTION to the init section. This action will be executed during the verrou initialization.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>post-init: ACTION</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Add ACTION to the post-init section. This action will be executed when the first stdout line appears.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	</variablelist>
       </para>
@@ -932,38 +934,38 @@ det2
 	<variablelist>
 	<varlistentry>
 	  <term><computeroutput>bmatch: PATTERN</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Setup a break match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after :
 	    is a part of the format. Every space after this one is meaningful. The order of match section is important.
 	    If the first match is *. All following match section are ignored. The action associated to the section are
 	    defined in the following lines by <computeroutput>apply:</computeroutput> and <computeroutput>post-apply:</computeroutput>.
 	    A break match (in contrast to continue match) mean that after a match the following match (continue or break) are ignored.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>cmatch: PATTERN</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Setup a  continue match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?.
 	    In contrast to break match, if a line match the following match are tried. It is not possible to define <computeroutput>post-apply</computeroutput> action with <computeroutput>cmatch:</computeroutput>.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>apply: ACTION</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Add the ACTION to current <computeroutput>match</computeroutput> section. This action will be applied to the beginning of the match section.
 	    If no action is set for a match section, the default group of action will be executed. To avoid the default action, you can use a
 	    <computeroutput>nop</computeroutput> action.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>post-apply: ACTION</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Add the ACTION to current <computeroutput>match</computeroutput> section. This action will be applied to the end of the match section.
 	    If no post-action is defined, nothing is done (ie. no <computeroutput>default</computeroutput> action).
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
       </variablelist>
       </para>
@@ -973,76 +975,75 @@ The different possible actions are :
       <variablelist>
 	<varlistentry>
 	  <term><computeroutput>start</computeroutput></term>
-	  <listitem> Start instrumentation.
-	  </listitem>
+	  <listitem> <para>Start instrumentation. </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>stop</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Stop instrumentation.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>start_soft</computeroutput></term>
-	  <listitem> Start soft instrumentation.
-	  </listitem>
+	  <listitem><para> Start soft instrumentation.
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>stop_soft</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Stop soft instrumentation.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>nop</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    do nothing (useful to avoid default action)
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>display_counter</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    display counters
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>nb_instr</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Display the number of instrumented floating point operation in the log file.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>reset_counter</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Set all floating point counters to zero.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>dump_cover</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Apply <computeroutput>DUMP_COVER</computeroutput> client request.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>panic</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Stop program with panic.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>exit</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Stop program with exit.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
 	<varlistentry>
 	  <term><computeroutput>default,init,post-init</computeroutput></term>
-	  <listitem>
+	  <listitem><para>
 	    Apply the same group of actions defined for the section <computeroutput>default</computeroutput>, <computeroutput>init</computeroutput> and <computeroutput>post-init</computeroutput>.
-	  </listitem>
+	  </para></listitem>
 	</varlistentry>
 
       </variablelist>
@@ -1052,9 +1053,12 @@ The different possible actions are :
     <section>
       <title>Monitor commands</title>
 
+      <para>
       See <xref linkend="manual-core-adv.gdbserver"/> to get more information
       about the Valgrind gdbserver and monitor commands. Below is a list of
       specific monitor commands provided by Verrou:
+      </para>
+
       <variablelist>
         <varlistentry id="vr.monitor_count" xreflabel="count">
           <term><computeroutput>count</computeroutput></term>

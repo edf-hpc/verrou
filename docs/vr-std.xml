@@ -104,10 +104,10 @@
 
     <para>
       Floating-point instructions counters can be displayed at any point during the program
-      execution using the <computeroutput><xref linkend="vr-cr.display-counters"/></computeroutput>
-      client request or the <computeroutput><xref linkend="vr.monitor_count"/></computeroutput>
-      monitor command. It is also possible to disable this feature using the <option><xref
-      linkend="vr-opt.count-op"/>=no</option>.
+      execution using the <xref linkend="vr-cr.display-counters"/>
+      client request or the <xref linkend="vr.monitor_count"/>
+      monitor command. It is also possible to disable this feature using the <xref
+      linkend="vr-opt.count-op"/><option>=no</option>.
     </para>
   </section>
 
@@ -115,8 +115,8 @@
     <title>Rounding-mode switching</title>
     <para>
       When the instrumented program performs a floating-point operation, Verrou can replace it with
-      a perturbed version of the same operation, using another rounding mode. The <option><xref
-      linkend="vr-opt.rounding-mode"/></option> command-line option allows choosing between
+      a perturbed version of the same operation, using another rounding mode. The <xref
+      linkend="vr-opt.rounding-mode"/> command-line option allows choosing between
       different rounding strategies, described hereafter.
     </para>
     <para>
@@ -159,12 +159,10 @@
 	<listitem><para><command>prandom:</command> Randomly pick one among upward and downward
             rounding, with probabilities p and 1-p. By default p is selected randomly between 0 and
 	    1 with uniform distribution, once by verrou tool initialization. p can be setup with
-	    option <option><xref linkend="vr-manual.feat.updatepvalue"/> </option>.
-	      p can be dynamically modified with client requests <option><xref linkend="vr-manual.feat.clrupdatepvalue"/></option>
-		/
-		<option><xref linkend="vr-manual.feat.clrupdatep"/></option>
+	    option <xref linkend="vr-manual.feat.updatepvalue"/>.
+	      p can be dynamically modified with client requests <xref linkend="vr-manual.feat.clrupdatepvalue"/> / <xref linkend="vr-manual.feat.clrupdatep"/>
 		  or
-		  option <option><xref linkend="vr-manual.feat.updatepfunc"/></option>.
+		  option <xref linkend="vr-manual.feat.updatepfunc"/>.
 		    This rounding mode is designed to try to get wider distribution (useful for debug).</para>
         </listitem>
         <listitem><para><command>average:</command> Randomly choose between upward and downward
@@ -175,13 +173,13 @@
         rounding mode, with equal probabilities but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>random</command> rounding mode that improves determinism and
-        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
+        removes the need to use <xref linkend="vr-manual.feat.deterministic"/>.</para>
         </listitem>
 	<listitem><para><command>prandom_det:</command> Randomly choose between downward and upward
         rounding mode, with probabilities p and 1-p but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>prandom</command> rounding mode that improves determinism and
-        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.
+        removes the need to use <xref linkend="vr-manual.feat.deterministic"/>.
 	If the p is modified dynamically, determinism is no longer assured.
 	</para>
         </listitem>
@@ -189,7 +187,7 @@
         rounding mode, with the same probability law as <command>average</command> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
         This is a variant of the <command>average</command> rounding mode that improves determinism and
-        removes the need to use <option><xref linkend="vr-manual.feat.deterministic"/></option>.</para>
+        removes the need to use <xref linkend="vr-manual.feat.deterministic"/>.</para>
         </listitem>
 	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command>
 	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
@@ -204,20 +202,20 @@
 	<listitem><para><command>random_scomdet:</command> variant of <command>random_det</command>
 	    ensuring that <command>x op y</command> and  <command>y op x</command> will be rounded in the same way for commutative op (+,x, fma) and the following constraints :
 	    <itemizedlist>
-	      <listitem> (-x)+(-y) == -(x+y) </listitem>
-	      <listitem> x+(-y) == -((-x)+y) </listitem>
-	      <listitem> x-y == x+(-y) </listitem>
-	      <listitem> (-x)*(-y) == (x*y) </listitem>
-	      <listitem> (-x)*y == -(x*y) </listitem>
-	      <listitem> (-x)/(-y) == (x/y) </listitem>
-	      <listitem> (-x)/y == -(x/y) </listitem>
-	      <listitem> x/(-y) == -(x/y) </listitem>
-	      <listitem> fma(x,y,z) == fma(-x,-y,z)</listitem>
-	      <listitem> fma(-x,y,-z) == -fma(x,y,z)</listitem>
-	      <listitem> fma(x,-y,-z) == -fma(x,y,z)</listitem>
-	      <listitem> fma(x,y,0) == (x*y) </listitem>
-	      <listitem> cast(-x) == -cast(x)</listitem>
-	      <listitem> With <option><xref linkend="vr-opt.libm"/>=instrumented</option> the odd/even properties of libm instrumented functions are fullfilled. </listitem>
+	      <listitem><para> (-x)+(-y) == -(x+y) </para></listitem>
+	      <listitem><para> x+(-y) == -((-x)+y) </para></listitem>
+	      <listitem><para> x-y == x+(-y) </para></listitem>
+	      <listitem><para> (-x)*(-y) == (x*y) </para></listitem>
+	      <listitem><para> (-x)*y == -(x*y) </para></listitem>
+	      <listitem><para> (-x)/(-y) == (x/y) </para></listitem>
+	      <listitem><para> (-x)/y == -(x/y) </para></listitem>
+	      <listitem><para> x/(-y) == -(x/y) </para></listitem>
+	      <listitem><para> fma(x,y,z) == fma(-x,-y,z)</para></listitem>
+	      <listitem><para> fma(-x,y,-z) == -fma(x,y,z)</para></listitem>
+	      <listitem><para> fma(x,-y,-z) == -fma(x,y,z)</para></listitem>
+	      <listitem><para> fma(x,y,0) == (x*y) </para></listitem>
+	      <listitem><para> cast(-x) == -cast(x)</para></listitem>
+	      <listitem><para> With <xref linkend="vr-opt.libm"/><option>=instrumented</option> the odd/even properties of libm instrumented functions are fullfilled. </para></listitem>
 	    </itemizedlist>
 	  </para>
         </listitem>
@@ -239,7 +237,7 @@
       A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in the
       modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
-      given run, it is however possible to use the <option><xref linkend="vr-opt.seed"/></option>
+      given run, it is however possible to use the <xref linkend="vr-opt.seed"/>
       command-line option. For the modes <command>average_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
 
 

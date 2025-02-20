@@ -17,7 +17,7 @@ configure:
 	cd ../valgrind+verrou && ./autogen.sh
 
 	@echo "*** CONFIGURE ***"
-	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/../install
+	cd ../valgrind+verrou && ./configure --enable-only64bit --prefix=$${PWD}/../install
 
 build:
 	@echo "*** MAKE ***"
@@ -35,19 +35,21 @@ check-install:
 
 check:
 	@echo "*** BUILD TESTS ***"
-	cd ../valgrind+verrou && make -C tests  check
-	cd ../valgrind+verrou && make -C verrou check
-
-	@echo "*** VALGRIND TESTS ***"
-	cd ../valgrind+verrou && perl tests/vg_regtest verrou
+	make -C ../valgrind+verrou/verrou/unitTest/ valgrind-test
 
 check-error:
-	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
+	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
+	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/callgrind/tests/
+	../valgrind+verrou/verrou/tests/post_verrou_diff.sh ../valgrind+verrou/verrou/tests/
 	@false
 
 unit-test:
-	@echo "*** UNIT TESTS ***"
+	@echo "*** VERROU UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
+
+valgrind-test:
+	@echo "*** VALGRIND UNIT TESTS ***"
+	cd ../valgrind+verrou/verrou/unitTest && make valgrind-test
 
 post-regtest-checks:
 	@echo "*** POST_REGTEST_CHECKS ***"

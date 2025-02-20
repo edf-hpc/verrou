@@ -1,0 +1,116 @@
+diff --git a/tests/vg_regtest.in b/tests/vg_regtest.in
+index 3471322b0..ef7ef166f 100755
+--- a/tests/vg_regtest.in
++++ b/tests/vg_regtest.in
+@@ -163,7 +163,12 @@ my $stderrB_filter_args;# arguments passed to stderr_filterB
+ my $stdinB;             # Input file for progB
+ my $prereq;             # prerequisite test to satisfy before running test
+ my $post;               # check command after running test
++my $post_ignore;        # ignore previous variable
+ my $cleanup;            # cleanup command to run
++my $cleanup_ignore;     # ignore previous variable
++my $force_tool;         # replace the tool detection
++my $stderr_ignore;      # ignore stderr
++my $toolopt_ignore;     # ignore vgopt
+ my @env = ();           # environment variable to set prior calling $prog
+ my @envB = ();          # environment variable to set prior calling $progB
+ 
+@@ -252,6 +257,16 @@ sub process_command_line()
+                 $keepunfiltered = 1;
+             } elsif ($arg =~ /^--loop-till-fail$/) {
+                 $looptillfail = 1;
++	    } elsif ($arg =~ /^--force-tool=(.*)$/) {
++		$force_tool = $1;
++            } elsif ($arg =~ /^--stderr-ignore$/){
++		$stderr_ignore = 1;
++	    } elsif ($arg =~ /^--post-ignore$/){
++		$post_ignore = 1;
++	    } elsif ($arg =~ /^--cleanup-ignore$/){
++		$cleanup_ignore = 1;
++	    } elsif ($arg =~ /^--toolopt-ignore$/) {
++		$toolopt_ignore = 1;
+             } else {
+                 die $usage;
+             }
+@@ -407,6 +422,9 @@ sub filtered_rename($$$)
+ # from a directory name like "/foo/cachesim/tests/" determine the tool name
+ sub determine_tool()
+ {
++    if( defined($force_tool)){
++	return $force_tool
++    }
+     my $dir = `pwd`;
+     $dir =~ /.*\/([^\/]+)\/tests.*/;   # foo/tool_name/tests/foo
+     return $1;
+@@ -532,7 +550,12 @@ sub do_one_test($$)
+ 
+     # Pass the appropriate --tool option for the directory (can be overridden
+     # by an "args:" line, though).
+-    my $tool=determine_tool();
++    my $tool = determine_tool();
++    my $tool_opts = "$extraopts $vgopts " ;
++    if ( defined $toolopt_ignore ) {
++        $tool_opts=" ";
++    }
++
+     if (defined $outer_valgrind ) {
+         # in an outer-inner setup, only set VALGRIND_LIB_INNER
+         mysystem(*VGTESTLOG,
+@@ -543,7 +566,7 @@ sub do_one_test($$)
+                   . "$run_outer_args "
+                   . "$valgrind --command-line-only=yes --memcheck:leak-check=no "
+                   . "--sim-hints=no-inner-prefix "
+-                  . "--tool=$tool $extraopts $vgopts "
++                  . "--tool=$tool $tool_opts "
+                   . "$prog $args > $name.stdout.out 2> $name.stderr.out");
+     } else {
+         # Set both VALGRIND_LIB and VALGRIND_LIB_INNER in case this Valgrind
+@@ -551,7 +574,7 @@ sub do_one_test($$)
+         mysystem(*VGTESTLOG,
+                     "$envvars VALGRIND_LIB=$valgrind_lib VALGRIND_LIB_INNER=$valgrind_lib "
+                   . "$valgrind --command-line-only=yes --memcheck:leak-check=no "
+-                  . "--tool=$tool $extraopts $vgopts "
++                  . "--tool=$tool $tool_opts "
+                   . "$prog $args > $name.stdout.out 2> $name.stderr.out");
+     }
+ 
+@@ -578,6 +601,7 @@ sub do_one_test($$)
+     my $diffrc = do_diffs($fullname, $name, "stdout", *VGTESTLOG, \@stdout_exps);
+     if (defined $diffrc) { $rc = $diffrc; }
+ 
++    if (! $stderr_ignore){
+     # Filter stderr
+     $stderr_filter_args = $name if (! defined $stderr_filter_args);
+     mysystem(*VGTESTLOG,
+@@ -588,7 +612,7 @@ sub do_one_test($$)
+     (0 != scalar @stderr_exps) or die "Could not find `$name.stderr.exp*'\n";
+     $diffrc = do_diffs($fullname, $name, "stderr", *VGTESTLOG, \@stderr_exps);
+     if (defined $diffrc) { $rc = $diffrc; }
+-
++    }
+     if (defined $progB) {
+         # wait for the child to be finished
+         # tried things such as:
+@@ -639,6 +663,7 @@ sub do_one_test($$)
+     }
+ 
+     # Maybe do post-test check
++    if( !defined $post_ignore){
+     if (defined $post) {
+ 	my $postrc = mysystem(*VGTESTLOG, "$post > $name.post.out");
+         # Transcribe stdout
+@@ -657,11 +682,13 @@ sub do_one_test($$)
+ 	    do_diffs($fullname, $name, "post", *VGTESTLOG, \@post_exps);
+ 	}
+     }
+-
++    }
++    if( !defined $cleanup_ignore){
+     if (defined $cleanup) {
+         (mysystem(*VGTESTLOG, "$cleanup") == 0) or
+             print("(cleanup operation failed: $cleanup)\n");
+     }
++    }
+ 
+     close(VGTESTLOG);
+     $num_tests_done++;

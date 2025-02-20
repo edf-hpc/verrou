@@ -445,6 +445,69 @@ class testInvariantProdDivm:public test<REALTYPE>{
   }
 
 
+  inline double myFms(const double& a, const double& b, const double& c){
+    double d;
+#ifdef TEST_FMA
+#if defined(__x86_64__)
+    __m128d ai, bi,ci,di;
+    ai = _mm_load_sd(&a);
+    bi = _mm_load_sd(&b);
+    ci = _mm_load_sd(&c);
+    di=_mm_fmsub_sd(ai,bi,ci);
+    d=_mm_cvtsd_f64(di);
+#elif  defined(__aarch64__)
+  const double nega=-a;
+  const double negc=-c;
+  const float64x1_t ai=vld1_f64(&nega);
+  const float64x1_t bi=vld1_f64(&b);
+  const float64x1_t ci=vld1_f64(&negc);
+  const float64x1_t di=vfms_f64(ci,ai,bi);// warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfma
+  vst1_f64(&d, di);
+#else
+#error "not yet implemented for this architecture"
+#endif
+#else
+    d=a*b-c;
+#endif
+    return d;
+  }
+
+
+  inline float myFms(const float& a, const float& b, const float& c){
+    float d;
+#ifdef TEST_FMA
+#if defined(__x86_64__)
+    __m128 ai, bi,ci,di;
+    ai = _mm_load_ss(&a);
+    bi = _mm_load_ss(&b);
+    ci = _mm_load_ss(&c);
+    di=_mm_fmsub_ss(ai,bi,ci);
+    d=_mm_cvtss_f32(di);
+#elif  defined(__aarch64__)
+  float av[2]={-a,0};
+  float bv[2]={b,0};
+  float cv[2]={-c,0};
+
+  float32x2_t ap=vld1_f32(av);
+  float32x2_t bp=vld1_f32(bv);
+  float32x2_t cp=vld1_f32(cv);
+
+  float32x2_t resp= vfms_f32(cp,ap,bp); // warning strange argument order
+  // cf doc : https://developer.arm.com/architectures/instruction-set/intrinsics/#q=vfms
+  float res[2];
+  vst1_f32(res, resp);
+  d=res[0];
+#else
+#error "not yet implemented for this architecture"
+#endif
+#else
+    d=a*b-c;
+#endif
+    return d;
+  }
+
+
 
 template<class REALTYPE>
 class testFma:public test<REALTYPE>{
@@ -475,6 +538,37 @@ class testFma:public test<REALTYPE>{
   const REALTYPE init;
 
 };
+
+template<class REALTYPE>
+class testFms:public test<REALTYPE>{
+ public:
+  testFms():test<REALTYPE>(10000),
+    size(1000000),
+    value(0.1),
+    init(0.){}
+
+  std::string name(){
+    return std::string("testFms");
+  }
+
+
+  REALTYPE compute(){
+    REALTYPE acc=init;
+    volatile REALTYPE mone=-1.;
+    for(int i=0; i<size; i++){
+      acc=myFms(value,value,mone*acc);
+    }
+    return acc;
+  }
+
+ private:
+  const int size;
+  const REALTYPE value;
+  const REALTYPE init;
+
+};
+
+
 
 
 template<class REALTYPE>
@@ -1155,6 +1249,7 @@ int main(int argc, char** argv){
     testInvariantProdDivm<RealType> t4m; t4m.run();
     testFma<RealType> t5; t5.run();
     testFmam<RealType> t5m; t5m.run();
+    testFms<RealType> t5s; t5s.run();
     testMixSseLlo<RealType> t6; t6.run();
     testMixSseLlom<RealType> t6m; t6m.run();
     testCast<RealType,double> t7; t7.run();
@@ -1182,6 +1277,7 @@ int main(int argc, char** argv){
     testInvariantProdDivm<RealType> t4m; t4m.run();
     testFma<RealType> t5; t5.run();
     testFmam<RealType> t5m; t5m.run();
+    testFms<RealType> t5s; t5s.run();
     testMixSseLlo<RealType> t6; t6.run();
     testMixSseLlom<RealType> t6m; t6m.run();
     testCast<RealType,double> t7; t7.run();

@@ -12,8 +12,8 @@
 
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
     <title>Delta-debugging with the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command>, <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> commands</title>
-    <simplesect id="vr-manual.dd.principle" xreflabel="Delta-Debugging Principle">
-    <para>
+    <para id="vr-manual.dd.principle" xreflabel="Delta-Debugging Principle">
+
       The first technique builds upon Verrou's <link linkend="vr-manual.feat.scope">Instrumentation scope</link> features in
       order to perform a search of functions (or source code lines / verrou task / stdout task) whose perturbation produces the
       most important errors in final results. The idea is the following:
@@ -32,8 +32,7 @@
 	 Each trial (which corresponds to a subset of the search space) is called a configuration. As the evaluation of error is based on a stochastic evaluation there are several runs per configuration.</simpara>
 	</listitem>
       </itemizedlist>
-    </para>
-    <para>
+
       Depending on the search space there are four different commands:
       <itemizedlist>
 	<listitem>
@@ -45,7 +44,7 @@
 	<listitem><simpara>
 	  <command>verrou_dd_task</command> uses verrou task search space (<link linkend="vr-manual.verrou_task" > See how to perform instrumentation</link>). This search space enable temporal localization. The task instrumentation can be automatic with python code but is intrusive for compiled codes. <command>verrou_dd_task</command> has <link linkend="verrou_dd_task_stdout.specific.option" > one specific option</link>.
 	</simpara></listitem>
-	<listitem><para><simpara>
+	<listitem><simpara>
 	  <command>verrou_dd_stdout</command> performs localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the float are replace by * and address by ?).</simpara>
 	  <simpara>
 	    The user do not need to instrument the code but may need to modify the dataset to increase the verbosity. As the command works without code recompilation, it is possible to work from one result of an other <command>verrou_dd_*</command> commands, without rerunning the previous search.
@@ -55,11 +54,11 @@
 	  </simpara>
 	  <simpara>
 	  As there are more corner cases, there are specific options to tackle it (cf.  Specific options of <link linkend="verrou_dd_task_stdout.specific.option" >verrou_dd_task/stdout</link> and <link linkend="verrou_dd_stdout.specific.option" >verrou_dd_stdout</link>)</simpara>
-	  </para>
+
 	  </listitem>
       </itemizedlist>
     </para>
-    </simplesect>
+
     <simplesect>
       <title>Synopsis</title>
 
@@ -100,9 +99,11 @@
         <variablelist>
           <varlistentry>
             <term>
+	      <cmdsynopsis>
               <command><replaceable>run_script</replaceable></command>
               <arg choice="req"><replaceable>dir</replaceable></arg>
-            </term>
+	      </cmdsynopsis>
+              </term>
             <listitem><para> Should run your program under Verrou, and put the results somewhere
             under the <replaceable>dir</replaceable> directory. A minimal example could look like
             the following:</para>
@@ -114,9 +115,11 @@ valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replace
           </varlistentry>
           <varlistentry>
             <term>
+	      <cmdsynopsis>
               <command><replaceable>cmp_script</replaceable></command>
               <arg choice="req"><replaceable>ref_dir</replaceable></arg>
               <arg choice="req"><replaceable>run_dir</replaceable></arg>
+	      </cmdsynopsis>
             </term>
             <listitem>
               <simpara>
@@ -495,33 +498,27 @@ if __name__=="__main__":
 
     <simplesect>
       <title>Specific option of <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> </title>
-      <simplesect>
-	<para id="verrou_dd_task_stdout.specific.option">
-	  <variablelist>
-	    <varlistentry>
-	      <term>
-		<computeroutput>--stop_start=</computeroutput> or <computeroutput>VERROU_DD_STOP_START</computeroutput>
-              </term>
+      <para id="verrou_dd_task_stdout.specific.option">
+	<variablelist>
+	  <varlistentry>
+	    <term>
+	      <computeroutput>--stop_start=</computeroutput> or <computeroutput>VERROU_DD_STOP_START</computeroutput>
+            </term>
 	      <listitem>
 		<para>
 		  <computeroutput>hard</computeroutput>[default] use the hard stop/start client requests
 		</para>
-	      </listitem>
-	      <listitem>
 		<para>
 		  <computeroutput>soft</computeroutput> use the soft stop/start client requests. It should be used if the code use manual hard stop/start client requests or if the size of tasks is small (typically with python localization).
 		</para>
 	      </listitem>
-
-	    </varlistentry>
-	  </variablelist>
-	</para>
-      </simplesect>
+	  </varlistentry>
+	</variablelist>
+      </para>
     </simplesect>
 
     <simplesect>
       <title>Specific options of <command>verrou_dd_stdout</command> </title>
-      <simplesect>
       <para id="verrou_dd_stdout.specific.option">
         <variablelist>
 	  <varlistentry>
@@ -676,15 +673,16 @@ cat strace_verrou.*</programlisting>
             </varlistentry>
         </variablelist>
       </para>
-      </simplesect>
+
     </simplesect>
 
     <simplesect  id="vr-manual.verrou_task">
       <title>Definition of verrou task</title>
-
+      <para>
       A verrou task is defined by a key string and an index integer. The integer is usually used to specify a line of code or an iteration number. If you want to use both, you have to build a string post-fixed by one of both integers. If you need neither of both, 0 is fine.
 
       The task represents the code between the verrou task call and the next one (or finalyze call).
+      </para>
       <variablelist>
       <varlistentry><term>C API</term>
 	<listitem>
@@ -710,7 +708,7 @@ import valgrind.verrouPyBinding as verrou
 verrou.task("taskString", taskInt)</programlisting>
 </para>
 
-
+<para>
 	  You can notice  that verrouPyBinding can also provide binding to <link linkend="vr-manual.client-requests">other client requests</link>:
 	  <programlisting>
 #!/usr/bin/python3
@@ -724,7 +722,8 @@ index=verrou.dump_cover()
 verrou.display_counters()
 nbInst=verrou.count_fp_instrumented()
 nbNotInst=verrou.count_fp_not_instrumented()</programlisting>
-	</listitem>
+</para>
+</listitem>
       </varlistentry>
 
       <varlistentry><term>Python module instrumentation</term>
@@ -755,18 +754,18 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
 		  <para>
 		    Internal use of environnement variables:
 		    <itemizedlist>
-		      <listitem>
+		      <listitem><para>
 			<computeroutput>DEBUG_PRINT_TASK</computeroutput>: configure the debug status
-		      </listitem>
-		      <listitem>
+		      </para></listitem>
+		      <listitem><para>
 			<computeroutput>TASK_LIST</computeroutput>: read the file to setup which tasks are instrumented.
-		      </listitem>
-		      <listitem>
+		      </para></listitem>
+		      <listitem><para>
 			<computeroutput>GENERATE_TASK_LIST</computeroutput>: generate the file containing the list of tasks.
-		      </listitem>
-		      <listitem>
+		      </para></listitem>
+		      <listitem><para>
 			<computeroutput>GENERATE_TASK_FP_LIST</computeroutput>: generate the file containing the list of tasks containing instrumented floating point operation.
-		      </listitem>
+		      </para></listitem>
 		    </itemizedlist>
 		  </para>
 		</listitem>
@@ -776,51 +775,53 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
 	</varlistentry>
       </variablelist>
     </simplesect>
+  </section>
 
-    <simplesect  id="vr-manual.verrou_dd_clean">
-      <title> verrou_dd_clean</title>
-      <simplesect>
-	<simplesect id="vr-manual.verrou_dd_clean.description">
-      <para>The tool <command>verrou_dd_clean</command> enables to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
-	 and the default value is <command>./</command>).
-	In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
-      </para>
-      </simplesect>
-	</simplesect>
-      <simplesect>
-	  <title>Synopsis</title>
-	  <screen><cmdsynopsis id="vr-manual.verrou_dd_clean.synopsis">
-              <command>verrou_dd_clean [options]</command>
-              <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
-	</simplesect>
-
+  <section  id="vr-manual.verrou_dd_clean">
+    <title> verrou_dd_clean</title>
 
     <simplesect>
-      <title>Options</title>
+      <title>Decription</title>
+      <para id="vr-manual.verrou_dd_clean.description">
+	The tool <command>verrou_dd_clean</command> enables to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
+	  and the default value is <command>./</command>).
+	  In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
+	</para>
+    </simplesect>
+      <simplesect>
+	<title>Synopsis</title>
+	<screen><cmdsynopsis id="vr-manual.verrou_dd_clean.synopsis">
+            <command>verrou_dd_clean [options]</command>
+            <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
+      </simplesect>
 
-      <variablelist id="vr-manual.verrou_dd_clean.envvars">
-        <varlistentry>
+
+      <simplesect>
+	<title>Options</title>
+
+	<variablelist id="vr-manual.verrou_dd_clean.envvars">
+          <varlistentry>
           <term>
             <computeroutput>--help</computeroutput>
           </term>
           <listitem>
             <para> Print help</para>
           </listitem>
-	</varlistentry>
+	  </varlistentry>
 
-	<varlistentry>
-          <term>
-             <computeroutput>--dry-run</computeroutput>
-          </term>
-          <listitem>
-            <para>
+	  <varlistentry>
+            <term>
+              <computeroutput>--dry-run</computeroutput>
+            </term>
+            <listitem>
+              <para>
 	      Only print what will do the command. Useful if you need to check carefuly what will be deleted.
-	    </para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-    </simplesect>
-    </simplesect>
+	      </para>
+            </listitem>
+          </varlistentry>
+	</variablelist>
+      </simplesect>
+
   </section>
 
     <section id="vr-manual.localization.coverage" xreflabel="Coverage">
@@ -875,16 +876,13 @@ genCovBB trace_bb_cov.log-*
 
     </simplesect>
 
-    <simplesect id="vr-manual.post_verrou_dd.description">
+    <simplesect>
       <title>Description</title>
-      <para>
+      <para id="vr-manual.post_verrou_dd.description">
 	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command> command.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
-      </para>
-
-      <para>
-	The scripts <command> run_script </command> and <command> cmp_script </command> are the same parameters of the <command>verrou_dd_line</command> command.
+	The scripts <command>run_script</command> and <command>cmp_script</command> are the same parameters of the <command>verrou_dd_line</command> command.
       </para>
     </simplesect>
 
@@ -1053,12 +1051,12 @@ genCovBB trace_bb_cov.log-*
 
     </simplesect>
 
-    <simplesect id="vr-manual.plotstat.description">
+    <simplesect>
       <title>Description</title>
-      <para>
+      <para id="vr-manual.plotstat.description">
 	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
 	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator (results are printed in <command>stdout</command> and in a file <command>stat.last</command>).
-      </para>
+
 
       <screen>
 refValue[nearest] : 1.05891843750000000e+05
@@ -1069,19 +1067,17 @@ random:	1.983109e+03	1.8728e-02	5.74bit
 random_det:	1.985172e+03	1.8747e-02	5.74bit
 all:	4.337773e+03	4.0964e-02	4.61bit
       </screen>
-      <para>
+
 
 	<itemizedlist>
 
-          <listitem><simpara> The abs estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)</mathphrase> .</simpara></listitem>
-	  <listitem><simpara> The rel estimator is <mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|</mathphrase> </simpara></listitem>
-          <listitem><simpara> The binary rel estimator is <mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|)</mathphrase></simpara></listitem>
+          <listitem><simpara> The abs estimator is <inlineequation><mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)</mathphrase></inlineequation> .</simpara></listitem>
+	  <listitem><simpara> The rel estimator is <inlineequation><mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|</mathphrase></inlineequation> </simpara></listitem>
+          <listitem><simpara> The binary rel estimator is <inlineequation><mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ref</subscript>|)/|X<subscript>ref</subscript>|)</mathphrase></inlineequation></simpara></listitem>
           <listitem><simpara>  <computeroutput>all </computeroutput> means the i samples take into account all the sample of previous rounding mode and all deterministic computed rounding mode</simpara></listitem>
 
 	</itemizedlist>
-      </para>
 
-      <para>
 	The scripts <command>run_script</command> is similar to the one of <command>verrou_dd_line</command> command. This script is optional if the computation are already done (by example with
 	a previous call to <command>verrou_plot_stat</command> or <command>post_verrou_dd</command>).
 
@@ -1089,8 +1085,8 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	the extracted value on the first line of the standard output.
 
 	To study several output variables the command can be called several times the command with different <command>extract_script</command>. Thanks the cache repository (by default <computeroutput>verrou.stat</computeroutput>) the run commands won't be rerun. There is no guarantee in case of concurrent run of the command verrou_plot_stat and the <command>run_script</command> and <command>extract_script </command> should not be modify during a <command>verrou_plot_stat</command> call.
-      </para>
 
+    </para>
     </simplesect>
 
     <simplesect>
@@ -1180,22 +1176,18 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>toward_zero</computeroutput>,
 	     <computeroutput>away_zero</computeroutput>
 	    </para>
-          </listitem>
-	  <listitem>
+
             <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
 	    </para>
 	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,away_zero,farthest</computeroutput>.
 	    </para>
-          </listitem>
-	  <listitem>
+
 	    <para> The list can also contain <computeroutput>prandom_fun</computeroutput>. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the <xref linkend="vr-manual.feat.updatepfunc"/> set to <computeroutput>func</computeroutput>.
 	    </para>
-	  </listitem>
-	  <listitem>
+
 	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>.
 	    </para>
-	  </listitem>
-	  <listitem><para>
+	    <para>
 	    If the option is set multiple times, the list will be append to the current list.
 	    </para>
 	  </listitem>

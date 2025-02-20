@@ -2,7 +2,7 @@ SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest chec
 
 SUBREPLISTPYTHON=checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover
 
-.PHONY: valgrind-test
+.PHONY: valgrind-test none-test callgrind-test verrou-test
 
 all:
 	for i in $(SUBREPLIST) ; do \
@@ -16,11 +16,28 @@ python:
 
 
 #to be able to do valgrind test from this directory
-valgrind-test:
+valgrind-test: verrou-test none-test callgrind-test #helgrind-test
+
+valgrind-check:
+	make -C ../.. check
 	make -C ../../tests check
 	make -C ../../verrou check
+	make -C ../../none check
+	make -C ../../perf check
+	make -C ../../callgrind check
+
+verrou-test: valgrind-check
 	cd ../..; perl ./tests/vg_regtest verrou/tests
 
+none-test: valgrind-check
+	cd ../..; perl ./tests/vg_regtest none/tests --force-tool=verrou --stderr-ignore
+
+callgrind-test: valgrind-check
+	cd ../..; perl ./tests/vg_regtest callgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore --cleanup-ignore --post-ignore
+
+helgrind-test: valgrind-check
+	make -C ../../helgrind check
+	cd ../..; perl ./tests/vg_regtest helgrind/tests --force-tool=verrou --stderr-ignore --toolopt-ignore
 
 clean:
 	for i in $(SUBREPLIST) ; do \
