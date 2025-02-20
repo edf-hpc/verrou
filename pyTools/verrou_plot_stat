@@ -50,11 +50,7 @@ roundingDetTabWithFloatPrefix=rounding_tool.roundingDetTabWithFloatPrefix
 roundingNonDetTabWithoutFloatPrefix=rounding_tool.roundingNonDetTabWithoutFloatPrefix
 
 
-def verrou_run_stat(conf, fullAsync=True):
-
-    maxNbPROC=conf.num_threads()
-    if maxNbPROC in [None,1]:
-        fullAsync=False
+def verrou_run_stat(conf):
 
     rep=conf.repName()
     if not os.path.exists(rep):
@@ -89,13 +85,11 @@ def verrou_run_stat(conf, fullAsync=True):
 
         refDir=None
         script_cmp=None
-        task=DD_stoch.stochTask(repName, refDir, conf.runScript(), script_cmp ,nbSample, maxNbPROC, copy.deepcopy(envvars) , verbose=True, seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
-        if fullAsync:
-            taskTab+=[task]
-        else:
-            task.run(earlyExit=False)
-    if fullAsync:
-        DD_stoch.runMultipleStochTask(taskTab,  maxNbPROC)
+        task=DD_stoch.stochTask(repName, refDir, conf.runScript(), script_cmp , copy.deepcopy(envvars) , seedTab=seedTab,  seedEnvVar= conf.get_envVarSeed())
+        task.setNbRun(nbSample)
+        taskTab+=[task]
+
+    DD_stoch.runMultipleStochTask(taskTab,  maxNbPROC)
 
 def extractLoopOverComputation(rep, listOfStat, extractFunc):
     resDict={}

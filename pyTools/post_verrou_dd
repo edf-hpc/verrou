@@ -122,7 +122,6 @@ def preRunTrace(runDir, env):
 def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     runScript=config.get_runScript()
     cmpScript=config.get_cmpScript()
-    maxNbPROC=config.get_maxNbPROC()
 
     seedTab=None
     if config.seed!=None:
@@ -133,12 +132,13 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile
 
-    task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript,nbRun, maxNbPROC, envvars , verbose=True, seedTab=seedTab, seedEnvVar="VERROU_SEED")
+    task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript, envvars , seedTab=seedTab, seedEnvVar="VERROU_SEED")
+    task.setNbRun(nbRun)
     if config.get_trace():
         task.setPreRun(preRunTrace)
         task.setPostRun(postRunTrace)
 
-    task.run(earlyExit=False)
+    DD_stoch.runMultipleStochTask([task],config.get_maxNbPROC())
 
 
 
