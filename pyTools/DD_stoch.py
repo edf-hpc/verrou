@@ -38,6 +38,47 @@ from valgrind import convNumLineTool
 from valgrind import DD
 
 
+
+import threading
+import time
+
+class myTask:
+    def __init__(self,cmd,fname,envvars):
+        self.cmd=cmd
+        self.fname=fname
+        self.envvars=envvars
+        self.threadid()
+    def time(self):
+        return time.time()
+    def start(self):
+        self.startTime=self.time()
+    def stop(self):
+        self.stopTime=self.time()
+    def threadid(self):
+        self.tid=threading.get_native_id()
+
+class noLogTask:
+    def __init__(self):
+        pass
+    def initTask(self,cmd,fname,envvars):
+        return None
+    def closeTask(self, myTask,res):
+        pass
+
+class cmdLogTask:
+    def __init__(self,fileName):
+        self.handler=open(fileName,"w")
+    def initTask(self,cmd,fname,envvars):
+        task=myTask(cmd,fname,envvars)
+        task.start()
+        return task
+    def closeTask(self,myTask, res):
+        myTask.stop()
+        self.handler.write("%s\t%s\t%s\t%s%s\n"%(myTask.cmd, str(myTask.startTime), str(myTask.stopTime), str(res), str(myTask.tid)) )
+
+#logTool=cmdLogTask("logFile-%i.txt"%(os.getpid()))
+logTool=noLogTask()
+
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
     and error outputs to FNAME.out and FNAME.err respectively.
@@ -51,11 +92,15 @@ def runCmdAsync(cmd, fname, envvars=None):
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = envvars[var]
-            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
+            taskLog=logTool.initTask(cmd,fname,envvars)
+            return (subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr), taskLog)
 
-def getResult(subProcess):
+def getResult(subProcessTuple):
+    subProcess, taskLog=subProcessTuple
     subProcess.wait()
+    logTool.closeTask(taskLog,subProcess.returncode)
     return subProcess.returncode
+
 
 
 def runCmd(cmd, fname, envvars=None):
@@ -63,9 +108,7 @@ def runCmd(cmd, fname, envvars=None):
     and error outputs to FNAME.out and FNAME.err respectively.
 
     Returns CMD's exit code."""
-
     return getResult(runCmdAsync(cmd,fname,envvars))
-
 
 
 class stochTask:
