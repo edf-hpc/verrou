@@ -110,24 +110,32 @@ def runCmd(cmd, fname, envvars=None):
     return getResult(runCmdAsync(cmd,fname,envvars))
 
 
+subDirRun="dd.run"
+fileRun="dd.run"
+fileCmp="dd.compare"
+subDirRunPattern=subDirRun+"%i"
+ddReturnFileName="dd.return.value"
+
 class stochTask:
 
     def __init__(self, dirname, refDir,runCmd, cmpCmd, runEnv, seedTab=None, seedEnvVar=None):
         self.dirname=dirname
         self.refDir=refDir
+        self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
+
         self.runCmd=runCmd
         self.cmpCmd=cmpCmd
-        self.nbRun=None
-        self.FAIL=DD.DD.FAIL
+        self.nbRun=None #useful when used with  runMultipleStochTask
+
+        self.FAIL=DD.DD.FAIL #constant variable
         self.PASS=DD.DD.PASS
 
         self.runEnv=runEnv
 
-        self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
-        self.preRunLambda=None
-        self.postRunLambda=None
-        self.seedTab=seedTab
+        self.preRunLambda=None # lambda executed before runCmd
+        self.postRunLambda=None # lambda executed after runCmd before cmpCmd
 
+        self.seedTab=seedTab
         self.seedEnvVar_=seedEnvVar
 
 
@@ -140,27 +148,27 @@ class stochTask:
     def setNbRun(self, nbRun):
         self.nbRun=nbRun
 
-    def nameDir(self,i,relative=False):
+    def _nameDir(self,i,relative=False):
         if relative:
-            return "dd.run%i" % (i)
+            return subDirRunPattern% (i)
         else:
-            return  os.path.join(self.dirname,"dd.run%i" % (i))
+            return  os.path.join(self.dirname, subDirRunPattern % (i))
 
-    def replacePattern(self, value, i):
-        return value.replace("%DDRUN%", self.nameDir(i,True))
+    def _replacePattern(self, value, i):
+        return value.replace("%DDRUN%", self._nameDir(i,True))
 
     def runOneSample(self, i):
-        rundir= self.nameDir(i)
+        rundir= self._nameDir(i)
         if not os.path.exists(rundir):
             os.mkdir(rundir)
 
-        env={key:self.replacePattern(self.runEnv[key],i) for key in self.runEnv}
+        env={key:self._replacePattern(self.runEnv[key],i) for key in self.runEnv}
         if self.seedTab!=None:
             env[self.seedEnvVar_]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         subProcessRun=runCmdAsync([self.runCmd, rundir],
-                                  os.path.join(rundir,"dd.run"),
+                                  os.path.join(rundir,fileRun),
                                   env)
         getResult(subProcessRun)
         if self.postRunLambda!=None:
@@ -171,11 +179,11 @@ class stochTask:
         if self.refDir==None: #if there are no reference provided cmp is ignored
             return self.PASS
 
-        rundir= self.nameDir(i)
+        rundir= self._nameDir(i)
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         os.path.join(rundir,"dd.compare"))
 
-        with open(os.path.join(rundir, "dd.return.value"),"w") as f:
+        with open(os.path.join(rundir, ddReturnFileName),"w") as f:
             f.write(str(retval))
         if retval != 0:
             return self.FAIL
@@ -184,8 +192,7 @@ class stochTask:
 
     def sampleToCompute(self, nbRun, earlyExit):
         """Return the two lists of samples which have to be compared or computed (and compared) to perforn nbRun Success run : None means Failure ([],[]) means Success """
-        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
-        listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
+        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith(subDirRun)]
 
         cmpDone=[]
         runDone=[]
@@ -193,8 +200,8 @@ class stochTask:
         failureIndex=[]
         for runDir in listOfDirString:
 
-            returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
-            ddRunIndex=int(runDir.replace("dd.run",""))
+            returnValuePath=os.path.join(self.dirname, runDir, ddReturnFileName)
+            ddRunIndex=int(runDir.replace(subDirRun,""))
             if os.path.exists(returnValuePath):
                 statusCmp=int((open(returnValuePath).readline()))
                 if statusCmp!=0:
@@ -204,28 +211,13 @@ class stochTask:
                         failureIndex+=[ddRunIndex]
                 cmpDone+=[ddRunIndex]
             else:
-                runPath=os.path.join(self.dirname, runDir, "dd.run.out")
+                runPath=os.path.join(self.dirname, runDir, fileRun+".out")
                 if os.path.exists(runPath):
                     runDone+=[ddRunIndex]
 
-        workToRun= [x for x in range(nbRun) if (((not x in runDone+cmpDone) and (x in listOfDirIndex )) or (not (x in listOfDirIndex))) ]
+        workToRun= [x for x in range(nbRun) if (not x in runDone+cmpDone) ]
         return (runDone, workToRun, cmpDone, failureIndex)
 
-    def getEstimatedFailProbability(self):
-        """Return an estimated probablity of fail for the configuration"""
-        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith("dd.run")]
-        listOfDirIndex=[ int(x.replace("dd.run",""))  for x in listOfDirString  ]
-
-        cacheCounter=0.
-        cacheFail=0.
-        for runDir in listOfDirString:
-            returnValuePath=os.path.join(self.dirname, runDir, "dd.return.value")
-            if os.path.exists(returnValuePath):
-                cacheCounter+=1.
-                statusCmp=int((open(returnValuePath).readline()))
-                if statusCmp!=0:
-                    cacheFail+=1.
-        return cacheFail / cacheCounter
 
 
     def submitSeq(self, cmpOrRun, sampleIndex):
@@ -233,6 +225,22 @@ class stochTask:
             return self.cmpOneSample(sampleIndex)
         if cmpOrRun=="run":
             return self.runOneSample(sampleIndex)
+
+
+def getEstimatedFailProbability(dirname):
+    """Return an estimated probablity of fail for the configuration"""
+    listOfDirString=[runDir for runDir in os.listdir(dirname) if runDir.startswith(subDirRun)]
+
+    cacheCounter=0.
+    cacheFail=0.
+    for runDir in listOfDirString:
+        returnValuePath=os.path.join(dirname, runDir, ddReturnFileName)
+        if os.path.exists(returnValuePath):
+            cacheCounter+=1.
+            statusCmp=int((open(returnValuePath).readline()))
+            if statusCmp!=0:
+                cacheFail+=1.
+    return cacheFail / cacheCounter
 
 
 def runMultipleStochTask(stochTaskTab, maxNbPROC):
@@ -300,7 +308,7 @@ class DDStoch(DD.DD):
         self.run_ =  self.config_.get_runScript()
         self.compare_ = self.config_.get_cmpScript()
 
-        self.index=0 #rddmin index
+        self.rddminIndex=0 #rddmin index
         self.prefix_ = os.path.join(os.getcwd(), self.config_.get_cacheRep())
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = os.path.join(self.prefix_, "ref")
@@ -475,8 +483,8 @@ class DDStoch(DD.DD):
                 os.mkdir(self.prefix_)
             else:
                 self.cleanSymLink()
-                filesToDelete =glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.compare.*"))
-                filesToDelete +=glob.glob(os.path.join(self.prefix_, "*/dd.run[0-9]*/dd.return.value"))
+                filesToDelete =glob.glob(os.path.join(self.prefix_, "*/"+subDirRun+"[0-9]*/"+fileCmp+".*"))
+                filesToDelete +=glob.glob(os.path.join(self.prefix_, "*/"+subDirRun+"[0-9]*/"+ddReturnFileName))
                 for fileToDelete in filesToDelete:
                     os.remove(fileToDelete)
 
@@ -622,8 +630,8 @@ class DDStoch(DD.DD):
                         print("Good rddmin heuristics : %s"%self.coerce(heuristicsDelta))
                     if len(heuristicsDelta)==1:
                         nablaRddmin.append(heuristicsDelta)
-                        self.configuration_found("ddmin%d"%(self.index), heuristicsDelta)
-                        self.index+=1
+                        self.configuration_found("ddmin%d"%(self.rddminIndex), heuristicsDelta)
+                        self.rddminIndex+=1
                         deltasCurrent=self.reduceSearchSpace(deltasCurrent,heuristicsDelta)
                     else:
                         resTab= self.check1Min(heuristicsDelta, self.config_.get_nbRUN(),algo)
@@ -659,8 +667,8 @@ class DDStoch(DD.DD):
             (ddmin, candidat) = self.dd_min(deltasCurrent,nbRun) #candidat is unused
 
             nablaRddmin.append(ddmin)
-            self.configuration_found("ddmin%d"%(self.index), ddmin)
-            self.index+=1
+            self.configuration_found("ddmin%d"%(self.rddminIndex), ddmin)
+            self.rddminIndex+=1
 
             deltasCurrent=self.reduceSearchSpace(deltasCurrent, ddmin)
             testResult=self._test(deltasCurrent,nbRun)
@@ -689,8 +697,8 @@ class DDStoch(DD.DD):
                     print("Heuristics not 1-Minimal")
                 return algoRddmin(deltaMin1Tab[indexRes], nbRun)
 
-        self.configuration_found("ddmin%d"%(self.index), deltasHeuristic)
-        self.index+=1
+        self.configuration_found("ddmin%d"%(self.rddminIndex), deltasHeuristic)
+        self.rddminIndex+=1
         return [deltasHeuristic]
 
 
@@ -731,8 +739,8 @@ class DDStoch(DD.DD):
                     if resTab[i][j]==self.FAIL:
                         subSetFailed=True
                         if len(deltaij)==1:
-                            self.configuration_found("ddmin%d"%(self.index), deltaij)
-                            self.index+=1
+                            self.configuration_found("ddmin%d"%(self.rddminIndex), deltaij)
+                            self.rddminIndex+=1
                             nablaRes.append(deltaij)
                         else:
                             nablaBlocCurrent.append(deltaij)
@@ -848,9 +856,9 @@ class DDStoch(DD.DD):
                             break
 
                 nablaRddmin.append(conf)
-                self.configuration_found("ddmin%d"%(self.index), conf)
-                #print("ddmin%d (%s):"%(self.index,self.coerce(conf)))
-                self.index+=1
+                self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
+                #print("ddmin%d (%s):"%(self.rddminIndex,self.coerce(conf)))
+                self.rddminIndex+=1
 
                 #could be nice to sort failList to begin by small failConf
                 failList.sort(key=lambda x: len(x))
@@ -880,8 +888,8 @@ class DDStoch(DD.DD):
                                 if len(conf)==1:
                                     break
                             failList.sort(key=lambda x: len(x))
-                            self.configuration_found("ddmin%d"%(self.index), conf)
-                            self.index+=1
+                            self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
+                            self.rddminIndex+=1
                         nablaRddmin.append(conf)
                         deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
 
@@ -978,8 +986,7 @@ class DDStoch(DD.DD):
         if not os.path.exists(dirname):
             self.internalError("_getSampleNumberToExpectFail:", dirname+" should exist")
 
-        stT=stochTask(dirname,None, None, None, None)
-        p=stT.getEstimatedFailProbability()
+        p=getEstimatedFailProbability(dirname)
         if p==1.:
             return 1
         else:
@@ -1059,7 +1066,7 @@ class DDStoch(DD.DD):
             stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             workToDo=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
 
-            if workToDo==None:
+            if workToDo==None or workToDo[3]!=[]:
                 resTab[deltaIndex]=self.FAIL
                 print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
