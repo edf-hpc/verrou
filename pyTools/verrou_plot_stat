@@ -38,12 +38,11 @@ import shutil
 import datetime
 import numpy as np
 
-
 maxNbPROC=None
 
-from valgrind import DD_stoch
-from valgrind import rounding_tool
-from valgrind import gen_config
+import DD_stoch
+import rounding_tool
+import gen_config
 
 roundingDetTabWithoutFloatPrefix=rounding_tool.roundingDetTabWithoutFloatPrefix
 roundingDetTabWithFloatPrefix=rounding_tool.roundingDetTabWithFloatPrefix

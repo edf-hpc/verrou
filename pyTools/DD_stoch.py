@@ -37,8 +37,8 @@ import math
 import threading
 import time
 
-from valgrind import convNumLineTool
-from valgrind import DD
+import convNumLineTool
+import DD
 
 
 class myTask:
@@ -271,7 +271,9 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
         if FAIL in results:
             indices=[indice for indice in range(len(results)) if results[indice]==FAIL]
             failIndices=[runToDoTab[i][indice] for indice in indices ]
-            failStr="FAIL(%s)"%((str(failIndices)[1:-1])).replace(" ","")
+            failIndices.sort()
+            failIndicesStr=(str(failIndices)[1:-1]).replace(" ","")
+            failStr="FAIL(%s)"%(failIndicesStr)
             print(stochTask.pathToPrint + " --(/run/) -> " +failStr)
             returnTab+=[FAIL]
         else:
@@ -1038,7 +1040,7 @@ class DDStoch(DD.DD):
                             return resTab
                 if sampleRes==self.FAIL:
                     if resTab[deltaIndex]==None and earlyExit:
-                        print(stochTaskTab[deltaIndex].pathToPrint, " --(/run/) -> FAIL(%i)"%(sampleIndex))
+                        print(stochTaskTab[deltaIndex].pathToPrint+ " --(/run/) -> FAIL(%i)"%(sampleIndex))
                     resTab[deltaIndex]=self.FAIL
                     failIndexesTab[deltaIndex]+=[sampleIndex]
                     if earlyExit and firstConfFail:
@@ -1133,7 +1135,10 @@ class DDStoch(DD.DD):
                 print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
             if resTab[deltaIndex]==self.FAIL:
                 if not earlyExit:
-                    print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> FAIL(%s)"%( (str(failIndexesTab[deltaIndex])[1:-1]).replace(" ","") ))
+                    failIndexes=failIndexesTab[deltaIndex]
+                    failIndexes.sort()
+                    failIndexesStr=(str(failIndexes)[1:-1]).replace(" ","")
+                    print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> FAIL(%s)"%(failIndexesStr))
 
     def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
         resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)

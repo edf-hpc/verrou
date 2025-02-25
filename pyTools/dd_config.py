@@ -27,7 +27,7 @@ import math
 import sys
 import getopt
 
-from . import gen_config
+import gen_config
 
 
 def exponentialRange(nbRun):

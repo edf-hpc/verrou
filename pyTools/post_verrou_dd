@@ -6,9 +6,9 @@ import fnmatch
 import glob
 import functools
 import copy
-from valgrind import DD_stoch
-from valgrind import post_config
-from valgrind import rounding_tool
+import DD_stoch
+import post_config
+import rounding_tool
 
 
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):

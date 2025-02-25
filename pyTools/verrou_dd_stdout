@@ -27,13 +27,12 @@
 import sys
 import os
 import subprocess
-from valgrind import dd_config
-from valgrind import DD_stoch
-from valgrind import DD_exec_stat
-
-
-
 import re
+
+import dd_config
+import DD_stoch
+import DD_exec_stat
+
 
 #adapatation from  https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
 regExpFloat="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"

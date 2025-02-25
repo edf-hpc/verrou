@@ -27,9 +27,9 @@
 import sys
 import os
 import subprocess
-from valgrind import dd_config
-from valgrind import DD_stoch
-from valgrind import DD_exec_stat
+import dd_config
+import DD_stoch
+import DD_exec_stat
 
 
 def selectBlocAndNumLine(line):
