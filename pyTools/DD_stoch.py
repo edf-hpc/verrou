@@ -191,15 +191,19 @@ class stochTask:
             return self.PASS
 
     def sampleToCompute(self, nbRun, earlyExit):
-        """Return the two lists of samples which have to be compared or computed (and compared) to perforn nbRun Success run : None means Failure ([],[]) means Success """
-        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith(subDirRun)]
+        """Return a dict with 4 lists:
+    - indexesInCache : indexes of samples in cache (run and cmp)
+    - indexesToCmp : indexes of samples which only require cmp
+    - indexesToRun : indexes of samples which require run and cmp
+    - failedIndexes : indexes of failed sample in cache (subset of indexesInCache)
+        return None if earlyExit==True and it exists FAIL sample in cache."""
 
+        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith(subDirRun)]
         cmpDone=[]
         runDone=[]
         workToCmpOnly=[]
         failureIndex=[]
         for runDir in listOfDirString:
-
             returnValuePath=os.path.join(self.dirname, runDir, ddReturnFileName)
             ddRunIndex=int(runDir.replace(subDirRun,""))
             if os.path.exists(returnValuePath):
@@ -216,7 +220,7 @@ class stochTask:
                     runDone+=[ddRunIndex]
 
         indexesToRun= [x for x in range(nbRun) if (not x in runDone+cmpDone) ]
-        return {"indexesToCmp":runDone, "indexesToRun":indexesToRun, "cmpDone":cmpDone, "failedIndexes":failureIndex}
+        return {"indexesToCmp":runDone, "indexesToRun":indexesToRun, "indexesInCache":cmpDone, "failedIndexes":failureIndex}
 
 
 
@@ -1065,13 +1069,18 @@ class DDStoch(DD.DD):
             stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             sToC=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
 
-            if sToC==None or sToC["failedIndexes"]!=[]:
+            if sToC==None:
                 resTab[deltaIndex]=self.FAIL
                 print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
                 continue
+            if sToC["failedIndexes"]!=[]:
+                resTab[deltaIndex]=self.FAIL
+                print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL ->")
+                cacheTab[deltaIndex]=False
 
-            if len(sToC["indexesToRun"])==0 and len(sToC["indexesToCmp"])==0: #evrything in cache
+            if len(sToC["indexesToRun"])==0 and len(sToC["indexesToCmp"])==0 and sToC["failedIndexes"]==[]:
+                #evrything in cache and pass
                 resTab[deltaIndex]=self.PASS
                 print(stochTaskTab[deltaIndex].pathToPrint +" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 cacheTab[deltaIndex]=True

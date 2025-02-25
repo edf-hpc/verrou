@@ -5,7 +5,7 @@ import os.path
 
 
 def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default"):
-    res=[]    
+    res=[]
     symLinkTab=["NoPerturbation", "FullPerturbation","rddmin-cmp"]+ ["ddmin"+str(i) for i in range(ddminNumber)]
 
 
@@ -19,21 +19,21 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
         pathWithTrace=os.path.join(rep, symLink+"-trace", rounding)
         if "NoPerturbation" == symLink:
             pathWithTrace=os.path.join(rep, symLink+"-trace", "default")
-        
+
         fileTabCov=fileTab+["covBBLog"]+ [os.path.join("cover", "cover0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
         def sampleNumberPostLambda(path):
             if "NoPerturbation-trace" in path:
                 return 1
             else:
-                return sampleNumberPost                
-        
+                return sampleNumberPost
+
         res+=[os.path.join(pathWithTrace, "dd.run"+str(i), fileName)
               for fileName in fileTabCov
               for i in range(sampleNumberPostLambda(pathWithTrace))
               ]
-                
+
     return res
-        
+
 def checkExit(tabOfFile):
     res=True
     for filePath in tabOfFile:
@@ -41,8 +41,6 @@ def checkExit(tabOfFile):
             print("file missing:", filePath)
             res=False
     return res
-    
-
 
 
 fileTab=["dd.compare.err", "dd.compare.out", "dd.return.value", "dd.run.err", "dd.run.out", "res.dat"]
@@ -55,7 +53,7 @@ if __name__=="__main__":
     sampleNumberPost=int(sys.argv[4])
     dumpCoverNumber=int(sys.argv[5])
     rounding=sys.argv[6]
-    
+
     listOfFile=listOfFileToCheck(rep,ddminNumber,sampleNumberDD,sampleNumberPost, dumpCoverNumber, fileTab, rounding)
     check=checkExit(listOfFile)
     if not check:
