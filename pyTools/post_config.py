@@ -4,8 +4,8 @@ import sys
 import re
 import copy
 
-from . import gen_config
-from . import rounding_tool
+import gen_config
+import rounding_tool
 
 class postConfig(gen_config.gen_config):
 
