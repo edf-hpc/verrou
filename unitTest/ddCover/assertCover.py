@@ -35,11 +35,12 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
     return res
         
 def checkExit(tabOfFile):
+    res=True
     for filePath in tabOfFile:
         if not os.path.exists(filePath):
             print("file missing:", filePath)
-            return False
-    return True
+            res=False
+    return res
     
 
 

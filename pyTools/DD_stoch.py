@@ -215,8 +215,8 @@ class stochTask:
                 if os.path.exists(runPath):
                     runDone+=[ddRunIndex]
 
-        workToRun= [x for x in range(nbRun) if (not x in runDone+cmpDone) ]
-        return (runDone, workToRun, cmpDone, failureIndex)
+        indexesToRun= [x for x in range(nbRun) if (not x in runDone+cmpDone) ]
+        return {"indexesToCmp":runDone, "indexesToRun":indexesToRun, "cmpDone":cmpDone, "failedIndexes":failureIndex}
 
 
 
@@ -253,10 +253,9 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
     futureTab=[]
     runToDoTab=[]
     for stochTask in stochTaskTab:
-        workToDo=stochTask.sampleToCompute(stochTask.nbRun, False)
-        runToDo=workToDo[1]
-        runToDoTab+=[runToDo]
-        future=[executor.submit(stochTask.submitSeq, "run", work) for work in runToDo]
+        sToC=stochTask.sampleToCompute(stochTask.nbRun, False)
+        runToDoTab+=[sToC["indexesToRun"]]
+        future=[executor.submit(stochTask.submitSeq, "run", work) for work in sToC["indexesToRun"]]
         futureTab+=[future]
 
     returnTab=[]
@@ -1064,22 +1063,21 @@ class DDStoch(DD.DD):
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
             stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
-            workToDo=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
+            sToC=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
 
-            if workToDo==None or workToDo[3]!=[]:
+            if sToC==None or sToC["failedIndexes"]!=[]:
                 resTab[deltaIndex]=self.FAIL
                 print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
                 continue
-            cmpOnlyToDo,runToDo,cmpDone, failureIndex_unused=workToDo
 
-            if len(cmpOnlyToDo)==0 and len(runToDo)==0: #evrything in cache
+            if len(sToC["indexesToRun"])==0 and len(sToC["indexesToCmp"])==0: #evrything in cache
                 resTab[deltaIndex]=self.PASS
                 print(stochTaskTab[deltaIndex].pathToPrint +" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 cacheTab[deltaIndex]=True
                 continue
-            subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in cmpOnlyToDo ]
-            subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in runToDo ]
+            subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in sToC["indexesToCmp"] ]
+            subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in sToC["indexesToRun"] ]
         if earlyExit:
             if firstConfFail:
                 if self.FAIL in resTab:
