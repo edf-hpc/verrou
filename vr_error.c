@@ -120,18 +120,18 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind) {
                           NULL);
 }
 
-void vr_handle_NaN () {
+void vr_handle_NaN (void) {
    if(vr.checknan){
       vr_maybe_record_ErrorRt(VR_ERROR_NAN);
    }
 }
-void vr_handle_Inf () {
+void vr_handle_Inf (void) {
    if(vr.checkinf){
       vr_maybe_record_ErrorRt(VR_ERROR_INF);
    }
 }
 
-void vr_handle_FLT_MAX () {
+void vr_handle_FLT_MAX (void) {
    if(vr.checkFloatMax){
       vr_maybe_record_ErrorRt(VR_ERROR_FLT_MAX);
    }

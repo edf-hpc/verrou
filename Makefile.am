@@ -209,8 +209,13 @@ VERROUINTERLIBM_SOURCES_COMMON = Interlibmath/interlibmath.cxx Interlibmath/stac
 
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = \
 	$(VERROUINTERLIBM_SOURCES_COMMON)
-vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
-	$(AM_CPPFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -DVGA_@VGCONF_ARCH_PRI@  -static-libstdc++ -Wno-missing-declarations -I../include -fno-builtin @vg_test_no_avx512f_flag@
+
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CFLAGS     = \
+       $(AM_CFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_C) -DVGA_@VGCONF_ARCH_PRI@ -Wno-missing-declarations -I../include -fno-builtin @vg_test_no_avx512f_flag@
+
+vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CXXFLAGS     = \
+$(AM_CXXFLAGS@VGCONF_PLATFORM_PRI_CAPS@) -fPIC -DLIBMATHINTERP $(VERROU_FLAG_CXX) -DVGA_@VGCONF_ARCH_PRI@ -Wno-missing-declarations -I../include -fno-builtin @vg_test_no_avx512f_flag@
+
 vgpreload_verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
 	-static-libstdc++ -lm \
 	$(subst -nodefaultlibs,,$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))
