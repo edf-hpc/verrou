@@ -430,8 +430,20 @@ if __name__=="__main__":
           </term>
           <listitem>
             <para>
-	      Option to choose the directory used to prefiltered the rddmin algorithm by previous ddmin results. Could be used several times (with option but not with environment variable). Usually
+	      Option to choose the directory used to prefiltered the rddmin algorithm by previous ddmin results. Can be used multiple times (with option but not with environment variable). Usually
 	      useful after a manual cache renaming.
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+	  <term>
+	    <computeroutput>--rddmin-heuristics-file=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_FILE</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Option to define an heuristics defined by an include file. Can be used muliple times (with option but not with environment variable). Usually
+	      <option>--rddmin-heuristics-rep=</option> is preferred, this option is useful if you want to create your own heuristics.
 	    </para>
           </listitem>
         </varlistentry>
