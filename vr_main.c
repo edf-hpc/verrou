@@ -417,7 +417,7 @@ void vr_register_cache_seed(unsigned int* cache){
   cacheSeed=cache;
 }
 
-void vr_clean_cache_seed(){
+void vr_clean_cache_seed(void){
   if(cacheSeed!=NULL){
     *cacheSeed=0;
   }

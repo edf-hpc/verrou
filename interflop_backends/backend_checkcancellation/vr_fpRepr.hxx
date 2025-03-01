@@ -107,7 +107,7 @@ public:
 
   static inline void pp (const Real & x) {
     //    std::ostringstream oss;
-
+#ifdef VALGRIND_DEBUG_VERROU
     const BitField *xx = (BitField*)(&x);
     const int sign = bitrange<MANT+EXP, SIGN> (xx);
     const int expField = exponentField(x);
@@ -123,7 +123,6 @@ public:
     }
 
     //    oss << (sign==0?" ":"-") << mantissa << " * 2**" << exponent;
-#ifdef VALGRIND_DEBUG_VERROU
     VG_(printf)( (sign==0?" ":"-"));
     VG_(printf)("%lu",mantissa);
     VG_(printf)(" * 2**%d  ", exponent);

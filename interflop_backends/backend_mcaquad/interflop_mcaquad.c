@@ -76,11 +76,11 @@ void IFMQ_FCTNAME(configure)(mcaquad_conf_t mode,void* context) {
 void IFMQ_FCTNAME(finalize)(void* context){
 }
 
-const char* IFMQ_FCTNAME(get_backend_name)() {
+const char* IFMQ_FCTNAME(get_backend_name)(void) {
   return "mcaquad";
 }
 
-const char* IFMQ_FCTNAME(get_backend_version)() {
+const char* IFMQ_FCTNAME(get_backend_version)(void) {
   return "1.x-dev";
 }
 
@@ -93,7 +93,7 @@ void mcaquad_set_seed (unsigned int seed) {
   mcaquadrandom_seed = tinymt64_generate_uint64(&random_state);
 }
 
-void mcaquad_set_random_seed () {
+void mcaquad_set_random_seed (void) {
   _mca_set_seed(&mcaquadrandom_seed,1);
 }
 
