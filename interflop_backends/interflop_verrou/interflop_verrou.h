@@ -67,7 +67,9 @@ extern "C" {
     VR_FARTHEST,
     VR_FLOAT,
     VR_NATIVE,
-    VR_FTZ
+    VR_FTZ,
+    VR_DAZ,
+    VR_DAZFTZ
   };
 
 

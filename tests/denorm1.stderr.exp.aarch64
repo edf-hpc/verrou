@@ -32,14 +32,20 @@ EXCLUDE DETECTED: XXXXX
 EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
-Denorm: 
+Denorm Output:  (MUL dbl)
    at 0xFFFFFF: main (denorm.cxx:23)
 
-Denorm: 
+Denorm Output:  (MUL flt)
    at 0xFFFFFF: main (denorm.cxx:25)
 
-Denorm: 
+Denorm Input:  (MADD dbl 2)
    at 0xFFFFFF: main (denorm.cxx:28)
+
+Denorm Output:  (MADD dbl)
+   at 0xFFFFFF: main (denorm.cxx:28)
+
+Denorm Input:  (MUL dbl 1)
+   at 0xFFFFFF: main (denorm.cxx:37)
 
 
  ---------------------------------------------------------------------
@@ -47,13 +53,17 @@ Denorm:
   `- Precision
       `- Vectorization          Total             Instrumented
  ---------------------------------------------------------------------
- mul                        2                        2          (100%)
-  `- flt                        1                        1      (100%)
-      `- llo                        1                        1  (100%)
+ add                        1                        1          (100%)
   `- dbl                        1                        1      (100%)
       `- llo                        1                        1  (100%)
+ ---------------------------------------------------------------------
+ mul                        3                        3          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
  ---------------------------------------------------------------------
  mAdd                       1                        1          (100%)
   `- dbl                        1                        1      (100%)
  ---------------------------------------------------------------------
-ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)
+ERROR SUMMARY: 6 errors from 5 contexts (suppressed: 0 from 0)

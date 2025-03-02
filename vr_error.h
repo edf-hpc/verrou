@@ -6,7 +6,8 @@ typedef enum {
   VR_ERROR_NAN,
   VR_ERROR_INF,
   VR_ERROR_CC,
-  VR_ERROR_CD,
+  VR_ERROR_CDI,
+  VR_ERROR_CDO,
   VR_ERROR_FLT_MAX,
   VR_ERROR
 } Vr_ErrorKind;
@@ -36,6 +37,7 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 void vr_handle_NaN (void);
 void vr_handle_Inf (void);
 void vr_handle_CC (int);
-void vr_handle_CD (void);
+void vr_handle_CD_input (check_subnormal_op_t, check_subnormal_type_t, UInt);
+void vr_handle_CD_output (check_subnormal_op_t, check_subnormal_type_t);
 void vr_handle_FLT_MAX (void);
 

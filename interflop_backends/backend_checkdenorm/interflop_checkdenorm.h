@@ -39,16 +39,35 @@
 extern "C" {
 #endif
 #define IFCD_FCTNAME(FCT) interflop_checkdenorm_##FCT
-#define IFCD_DOOP
-   
+
 #include "../interflop.h"
 
-   struct checkdenorm_conf {
+  struct checkdenorm_conf {
       int flushtozero; //bool
+      int denormarezero;//bool
+      int counter;
   };
 
   typedef struct checkdenorm_conf checkdenorm_conf_t;
 
+  typedef enum check_subnormal_op {
+    CDN_ADD=0,
+    CDN_SUB,
+    CDN_MUL,
+    CDN_DIV,
+    CDN_MADD,
+    CDN_SQRT,
+    CDN_CAST
+  } check_subnormal_op_t;
+
+  typedef enum check_subnormal_type {
+    CDN_FLOAT=0,
+    CDN_DOUBLE
+  } check_subnormal_type_t;
+
+
+  const char* check_denorm_op_name (check_subnormal_op_t op);
+  const char* check_denorm_type_name (check_subnormal_type_t type);
 
   void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode,void* context);
   void IFCD_FCTNAME(finalize)(void* context);
@@ -56,7 +75,8 @@ extern "C" {
   const char* IFCD_FCTNAME(get_backend_name)(void);
   const char* IFCD_FCTNAME(get_backend_version)(void);
 
-  void checkdenorm_set_denorm_handler(void (*)(void));
+  void checkdenorm_set_denorm_output_handler(void (*)(check_subnormal_op_t, check_subnormal_type_t));
+  void checkdenorm_set_denorm_input_handler(void (*)(check_subnormal_op_t, check_subnormal_type_t, unsigned int));
 
   extern void (*vr_panicHandler)(const char*);
   void checkdenorm_set_panic_handler(void (*)(const char*));

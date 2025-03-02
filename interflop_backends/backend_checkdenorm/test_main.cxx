@@ -5,9 +5,13 @@
 
 #include "interflop_checkdenorm.h"
 
-void printDenorm(){
-  std::cout << "Denorm deteted " << std::endl;
+void printDenormOutput(){
+  std::cout << "Denorm output detected " << std::endl;
 }
+void printDenormInput(int nb){
+  std::cout << "Denorm input detected :" << nb<<std::endl;
+}
+
 
 void oups(const char* msg){
   std::cout << "oups:  " << msg<<std::endl;
@@ -22,7 +26,8 @@ int main(int argc, char** argv){
   conf.flushtozero=true;
   interflop_checkdenorm_configure(conf, context);
 
-  checkdenorm_set_denorm_handler(&printDenorm);
+  checkdenorm_set_denorm_input_handler(&printDenormInput);
+  checkdenorm_set_denorm_output_handler(&printDenormOutput);
   checkdenorm_set_panic_handler(&oups);
 
   
@@ -56,7 +61,7 @@ int main(int argc, char** argv){
 
   std::cout << "cast: "<< resFloat<<std::endl;
   
-  interflop_checkdenorm_finalyze(context);
+  interflop_checkdenorm_finalize(context);
 
   return 0;
 }

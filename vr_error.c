@@ -61,8 +61,10 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "+/-Inf";
   case VR_ERROR_CC:
     return "Cancellation";
-  case VR_ERROR_CD:
-    return "Denorm";
+  case VR_ERROR_CDI:
+    return "Denorm Input";
+  case VR_ERROR_CDO:
+    return "Denorm Output";
   case VR_ERROR_FLT_MAX:
     return "FLT_MAX";
 
@@ -96,7 +98,9 @@ static void vr_pp_ErrorOp (const Error* err) {
 
   VG_(umsg)("%s: ", vr_get_error_name(err));
   VG_(message_flush)();
-  ppIROp (extra->instr.op);
+  if(extra!=NULL){
+     ppIROp (extra->instr.op);
+  }
   VG_(printf)(" (%s)", VG_(get_error_string)(err));
   VG_(umsg)("\n");
   VG_(pp_ExeContext)(VG_(get_error_where)(err));
@@ -170,12 +174,12 @@ void vr_handle_CC (int unused) {
    }
 }
 
-void vr_handle_CD () {
+void vr_handle_CD_input (check_subnormal_op_t op, check_subnormal_type_t type, UInt nb) {
    ThreadId tid = VG_(get_running_tid)();
    Addr addr;
    VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
 
-   if(vr.dumpDenorm){
+   if(vr.dumpDenormIn){
       DiEpoch di=VG_(current_DiEpoch)();
       const HChar* fileName;
       const HChar* dirName;
@@ -188,14 +192,47 @@ void vr_handle_CD () {
                                 &lineNum );
       VG_(get_fnname_raw)(di, addr, &symName);
 //      VG_(umsg)("test ? %s - %s : %u   --> %u \n", symName,fileName, lineNum,errorName);
-      vr_includeSource_generate (&vr.denormSource , symName, fileName, lineNum);
+      vr_includeSource_generate (&vr.denormInputSource , symName, fileName, lineNum);
    }
 
    if(vr.checkDenorm){
-      HChar string[1];
-      string[0] = 0;
+      HChar string[20];
+      VG_(snprintf)(string,20,"%s %s %u", check_denorm_op_name(op), check_denorm_type_name(type), nb);
       VG_(maybe_record_error)(tid,
-                              VR_ERROR_CD,
+                              VR_ERROR_CDI,
+                              addr,
+                              string,
+                              NULL);
+   }
+}
+
+void vr_handle_CD_output (check_subnormal_op_t op, check_subnormal_type_t type) {
+   ThreadId tid = VG_(get_running_tid)();
+   Addr addr;
+   VG_(get_StackTrace)(tid, &addr, 1, NULL, NULL, 0);
+
+   if(vr.dumpDenormOut){
+      DiEpoch di=VG_(current_DiEpoch)();
+      const HChar* fileName;
+      const HChar* dirName;
+      const HChar* symName;
+      UInt lineNum;
+      //UInt errorName=
+      VG_(get_filename_linenum)(di,addr,
+                                &fileName,
+                                &dirName,
+                                &lineNum );
+      VG_(get_fnname_raw)(di, addr, &symName);
+//      VG_(umsg)("test ? %s - %s : %u   --> %u \n", symName,fileName, lineNum,errorName);
+      vr_includeSource_generate (&vr.denormOutputSource , symName, fileName, lineNum);
+   }
+
+   if(vr.checkDenorm){
+      HChar string[20];
+      VG_(snprintf)(string,20,"%s %s", check_denorm_op_name(op), check_denorm_type_name(type));
+
+      VG_(maybe_record_error)(tid,
+                              VR_ERROR_CDO,
                               addr,
                               string,
                               NULL);
@@ -242,10 +279,15 @@ void vr_pp_Error (const Error* err) {
   case VR_ERROR_SCALAR:
     vr_pp_ErrorOp (err);
     break;
+  case VR_ERROR_CDI:
+     vr_pp_ErrorOp (err);
+     break;
+  case VR_ERROR_CDO:
+     vr_pp_ErrorOp (err);
+     break;
   case VR_ERROR_NAN:
   case VR_ERROR_INF:
   case VR_ERROR_CC:
-  case VR_ERROR_CD:
   case VR_ERROR_FLT_MAX:
      vr_pp_ErrorRt (err);
      break;

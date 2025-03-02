@@ -40,17 +40,54 @@
 
 checkdenorm_conf_t checkdenorm_conf;
 
+
+const char*  check_denorm_op_name (check_subnormal_op_t op) {
+  switch (op) {
+  case CDN_ADD:
+    return "ADD";
+  case CDN_SUB:
+     return "SUB";
+  case CDN_MUL:
+     return "MUL";
+  case CDN_DIV:
+     return "DIV";
+  case CDN_MADD:
+     return "MADD";
+  case CDN_SQRT:
+     return "SQRT";
+  case CDN_CAST:
+     return "CAST";
+  }
+  return "undef";
+}
+
+const char*  check_denorm_type_name (check_subnormal_type_t type) {
+  switch (type) {
+  case CDN_DOUBLE:
+     return "dbl";
+  case CDN_FLOAT:
+     return "flt";
+  }
+  return "undef";
+}
+
+
 template <typename REAL>
 void ifcd_checkdenorm (const REAL & a, const REAL & b, const REAL & r);
 
 
 // * Global variables & parameters
 
-void (*ifcd_denormHandler)(void)=NULL;
+void (*ifcd_denormInputHandler)(check_subnormal_op_t, check_subnormal_type_t, unsigned int)=NULL;
+void (*ifcd_denormOutputHandler)(check_subnormal_op_t, check_subnormal_type_t)=NULL;
 void (*ifcd_panicHandler)(const char*)=NULL;
 
-void checkdenorm_set_denorm_handler(void (*denormHandler)(void)){
-  ifcd_denormHandler=denormHandler;
+void checkdenorm_set_denorm_input_handler(void (*denormHandler)(check_subnormal_op_t, check_subnormal_type_t, unsigned int)){
+  ifcd_denormInputHandler=denormHandler;
+}
+
+void checkdenorm_set_denorm_output_handler(void (*denormHandler)(check_subnormal_op_t, check_subnormal_type_t)){
+  ifcd_denormOutputHandler=denormHandler;
 }
 
 void checkdenorm_set_panic_handler(void (*panicHandler)(const char*)){
@@ -60,15 +97,74 @@ void checkdenorm_set_panic_handler(void (*panicHandler)(const char*)){
 
 
 template<class REAL>
-void flushToZeroAndCheck(REAL* res){
+void flushToZeroAndCheck(REAL* res, check_subnormal_type_t etype, check_subnormal_op_t eop){
   if( ( ((*res >= 0) ? (*res): -(*res)))   <  std::numeric_limits<REAL>::min()  && *res !=0.){
-    if(ifcd_denormHandler!=0){
-      (*ifcd_denormHandler)();
+    if(ifcd_denormOutputHandler!=0){
+      (*ifcd_denormOutputHandler)(eop,etype);
     }
     if( checkdenorm_conf.flushtozero ){
       *res=0.;
     }
-    
+  }
+}
+
+template<class REAL>
+void denormAreZeroAndCheck(REAL* a, check_subnormal_type_t etype, check_subnormal_op_t eop){
+  if( ( ((*a >= 0) ? (*a): -(*a)))   <  std::numeric_limits<REAL>::min()  && *a !=0.){
+    if(ifcd_denormInputHandler!=0){
+      (*ifcd_denormInputHandler)(eop,etype,1);
+    }
+    if( checkdenorm_conf.denormarezero){
+      *a=0.;
+    }
+  }
+}
+
+
+template<class REAL>
+void denormAreZeroAndCheck(REAL* a, REAL* b, check_subnormal_type_t etype, check_subnormal_op_t eop){
+  unsigned int nb=0;
+  if( ( ((*a >= 0) ? (*a): -(*a)))   <  std::numeric_limits<REAL>::min()  && *a !=0.){
+    nb++;
+    if( checkdenorm_conf.denormarezero){
+      *a=0.;
+    }
+  }
+  if( ( ((*b >= 0) ? (*b): -(*b)))   <  std::numeric_limits<REAL>::min()  && *b !=0.){
+    nb++;
+    if( checkdenorm_conf.denormarezero){
+      *b=0.;
+    }
+  }
+
+  if(ifcd_denormInputHandler!=0 and nb!=0){
+    (*ifcd_denormInputHandler)(eop,etype,nb);
+  }
+}
+
+template<class REAL>
+void denormAreZeroAndCheck(REAL* a, REAL* b, REAL* c, check_subnormal_type_t etype, check_subnormal_op_t eop){
+  unsigned int nb=0;
+  if( ( ((*a >= 0) ? (*a): -(*a)))   <  std::numeric_limits<REAL>::min()  && *a !=0.){
+    nb++;
+    if( checkdenorm_conf.denormarezero){
+      *a=0.;
+    }
+  }
+  if( ( ((*b >= 0) ? (*b): -(*b)))   <  std::numeric_limits<REAL>::min()  && *b !=0.){
+    nb++;
+    if( checkdenorm_conf.denormarezero){
+      *b=0.;
+    }
+  }
+  if( ( ((*c >= 0) ? (*c): -(*c)))   <  std::numeric_limits<REAL>::min()  && *c !=0.){
+    nb++;
+    if( checkdenorm_conf.denormarezero){
+      *c=0.;
+    }
+  }
+  if(ifcd_denormInputHandler!=0 and nb!=0){
+    (*ifcd_denormInputHandler)(eop,etype,nb);
   }
 }
 
@@ -90,96 +186,98 @@ const char* IFCD_FCTNAME(get_backend_version)() {
   return "1.x-dev";
 }
 
-#ifdef IFCD_DOOP
-#define APPLYOP(a,b,res,op)\
-  *res=a op b;\
-  flushToZeroAndCheck(res);
-#else
-#define APPLYOP(a,b,res,op)\
-  flushToZeroAndCheck(res);
-#endif
+#define APPLYOP(a,b,res,op,realtype, enumType, enumOp) \
+  realtype alocal=a;				       \
+  realtype blocal=b;				       \
+  denormAreZeroAndCheck(&alocal,&blocal,enumType,enumOp);\
+  *res=alocal op blocal;			       \
+  flushToZeroAndCheck(res,enumType,enumOp);
 
 
 
 void IFCD_FCTNAME(add_double) (double a, double b, double* res,void* context) {
-  APPLYOP(a,b,res,+);
+  APPLYOP(a,b,res,+,double, CDN_DOUBLE, CDN_ADD);
 }
 
 void IFCD_FCTNAME(add_float) (float a, float b, float* res,void* context) {
-  APPLYOP(a,b,res,+);
+  APPLYOP(a,b,res,+,float,CDN_FLOAT, CDN_ADD);
 }
 
 void IFCD_FCTNAME(sub_double) (double a, double b, double* res,void* context) {
-  APPLYOP(a,b,res,-);
+  APPLYOP(a,b,res,-,double, CDN_DOUBLE, CDN_SUB);
 }
 
 void IFCD_FCTNAME(sub_float) (float a, float b, float* res,void* context) {
-  APPLYOP(a,b,res,-);
+  APPLYOP(a,b,res,-,float, CDN_FLOAT, CDN_SUB);
 }
 
 
 void IFCD_FCTNAME(mul_double) (double a, double b, double* res,void* context) {
-  APPLYOP(a,b,res,*);
+  APPLYOP(a,b,res,*,double,CDN_DOUBLE, CDN_MUL);
 }
 
 void IFCD_FCTNAME(mul_float) (float a, float b, float* res,void* context) {
-  APPLYOP(a,b,res,*);
+  APPLYOP(a,b,res,*,float,CDN_FLOAT, CDN_MUL);
 }
 
 
 void IFCD_FCTNAME(div_double) (double a, double b, double* res,void* context) {
-  APPLYOP(a,b,res,/);
+  APPLYOP(a,b,res,/,double,CDN_DOUBLE, CDN_DIV);
 }
 
 void IFCD_FCTNAME(div_float) (float a, float b, float* res,void* context) {
-  APPLYOP(a,b,res,/);
+  APPLYOP(a,b,res,/,float,CDN_FLOAT, CDN_DIV);
 }
 
 
 
 void IFCD_FCTNAME(madd_float) (float a, float b, float c, float* res,void* context) {
-#ifdef IFCD_DOOP
+  float alocal=a;
+  float blocal=b;
+  float clocal=c;
+  denormAreZeroAndCheck(&alocal,&blocal,&clocal,CDN_FLOAT,CDN_MADD);
 #ifdef USE_VERROU_FMA
-  *res=vr_fma(a,b,c);
+  *res=vr_fma(alocal,blocal,clocal);
 #else
   ifcd_panicHandler("madd not implemented");
 #endif
-#endif
-  flushToZeroAndCheck(res);
+  flushToZeroAndCheck(res,CDN_FLOAT, CDN_MADD);
 }
 
 void IFCD_FCTNAME(madd_double) (double a, double b, double c, double* res,void* context) {
-#ifdef IFCD_DOOP
+  double alocal=a;
+  double blocal=b;
+  double clocal=c;
+  denormAreZeroAndCheck(&alocal,&blocal,&clocal,CDN_DOUBLE,CDN_MADD);
 #ifdef USE_VERROU_FMA
-  *res=vr_fma(a,b,c);
+  *res=vr_fma(alocal,blocal,clocal);
 #else
   ifcd_panicHandler("madd not implemented");
 #endif
-#endif
-  flushToZeroAndCheck(res);
+  flushToZeroAndCheck(res,CDN_DOUBLE, CDN_MADD);
 }
 
 void IFCD_FCTNAME(sqrt_float) (float a, float* res,void* context) {
-#ifdef IFCD_DOOP
+  float alocal=a;
+  denormAreZeroAndCheck(&alocal,CDN_FLOAT,CDN_SQRT);
 #ifdef USE_VERROU_SQRT
-  *res=vr_sqrt(a);
+  *res=vr_sqrt(alocal);
 #else
   ifcd_panicHandler("sqrt not implemented");
 #endif
-#endif
-  flushToZeroAndCheck(res);
+  flushToZeroAndCheck(res,CDN_FLOAT, CDN_SQRT);
 }
 
 
 void IFCD_FCTNAME(sqrt_double) (double a, double* res,void* context) {
-#ifdef IFCD_DOOP
+  double alocal=a;
+  denormAreZeroAndCheck(&alocal,CDN_DOUBLE,CDN_SQRT);
 #ifdef USE_VERROU_SQRT
-  *res=vr_sqrt(a);
+  *res=vr_sqrt(alocal);
 #else
   ifcd_panicHandler("sqrt not implemented");
 #endif
-#endif
-  flushToZeroAndCheck(res);
+  flushToZeroAndCheck(res,CDN_DOUBLE, CDN_SQRT);
 }
 
 
@@ -189,10 +287,9 @@ void IFCD_FCTNAME(sqrt_double) (double a, double* res,void* context) {
 
 
 void IFCD_FCTNAME(cast_double_to_float) (double a, float* res,void* context) {
-#ifdef  IFCD_DOOP
+
   *res=(float)a;
-#endif
-  flushToZeroAndCheck(res);
+  flushToZeroAndCheck(res,CDN_FLOAT, CDN_CAST);
 }
 
 

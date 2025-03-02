@@ -1352,9 +1352,13 @@ static void vr_fini(Int exitcode)
      vr_dumpIncludeSourceList(vr.cancellationSource, vr.cancellationDumpFile );
   }
 
-  if (vr.dumpDenorm){
-     vr_dumpIncludeSourceList(vr.denormSource, vr.denormDumpFile );
+  if (vr.dumpDenormIn){
+     vr_dumpIncludeSourceList(vr.denormInputSource, vr.denormInputDumpFile );
   }
+  if (vr.dumpDenormOut){
+     vr_dumpIncludeSourceList(vr.denormOutputSource, vr.denormOutputDumpFile );
+  }
+
   vr_freeExcludeList (vr.exclude);
   vr_freeExcludeList (vr.gen_exclude);
 
@@ -1505,21 +1509,28 @@ static void vr_post_clo_init(void)
 
 
    /*Init outfile cancellation*/
-   if(vr.roundingMode==VR_FTZ){
+   if(vr.roundingMode==VR_FTZ || vr.roundingMode==VR_DAZFTZ){
       vr.ftz=True;
    }
+   if(vr.roundingMode==VR_DAZ || vr.roundingMode==VR_DAZFTZ){
+      vr.daz=True;
+   }
+
 
    checkdenorm_conf_t checkdenorm_conf;
    checkdenorm_conf.flushtozero= vr.ftz;
+   checkdenorm_conf.denormarezero=vr.daz;
+   checkdenorm_conf.counter=False;
    backend_checkdenorm=interflop_checkdenorm_init(&backend_checkdenorm_context);
    interflop_checkdenorm_configure(checkdenorm_conf,backend_checkdenorm_context);
-   checkdenorm_set_denorm_handler(&vr_handle_CD);
+   checkdenorm_set_denorm_output_handler(&vr_handle_CD_output);
+   checkdenorm_set_denorm_input_handler(&vr_handle_CD_input);
    checkdenorm_set_panic_handler(&VG_(tool_panic));
    VG_(umsg)("Backend %s : %s\n", interflop_checkdenorm_get_backend_name(), interflop_checkdenorm_get_backend_version()  );
 
-  if( vr.checkDenorm || vr.dumpDenorm || vr.ftz){
+   if( vr.checkDenorm || vr.dumpDenormIn || vr.dumpDenormOut|| vr.ftz || vr.daz){
      if( vr.backend==vr_mcaquad ||
-         (vr.backend==vr_verrou && !(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_FTZ || vr.roundingMode==VR_NATIVE))){
+         (vr.backend==vr_verrou && !(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_FTZ ||vr.roundingMode==VR_DAZ||vr.roundingMode==VR_DAZFTZ|| vr.roundingMode==VR_NATIVE))){
         VG_(tool_panic)("backend checkDenorm incompatible with other backend");
      }
      vr.backend=vr_checkdenorm;

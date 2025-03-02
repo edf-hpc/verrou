@@ -152,7 +152,9 @@ void vr_clo_defaults (void) {
 
   vr.checkDenorm=False;
   vr.ftz=False;
-  vr.dumpDenorm=False;
+  vr.daz=False;
+  vr.dumpDenormOut=False;
+  vr.dumpDenormIn=False;
   vr.cancellationSource=NULL;
 
   vr.checkFloatMax=False;
@@ -218,7 +220,10 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_NATIVE)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=ftz",
                          vr.roundingMode, VR_FTZ)) {}
-
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=daz",
+                         vr.roundingMode, VR_DAZ)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=dazftz",
+                         vr.roundingMode, VR_DAZFTZ)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=nearest",
                          vr.roundingModeNoInst, VR_NEAREST)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--libm-noinst-rounding-mode=native",
@@ -404,9 +409,13 @@ Bool vr_process_clo (const HChar *arg) {
      vr.dumpCancellation = True;
   }
 
-  else if (VG_STR_CLOM (cloPD, arg, "--cd-gen-file", str)) {
-     vr.denormDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
-     vr.dumpDenorm = True;
+  else if (VG_STR_CLOM (cloPD, arg, "--cdi-gen-file", str)) {
+     vr.denormInputDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
+     vr.dumpDenormIn = True;
+  }
+  else if (VG_STR_CLOM (cloPD, arg, "--cdo-gen-file", str)) {
+     vr.denormOutputDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
+     vr.dumpDenormOut = True;
   }
 
 

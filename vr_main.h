@@ -181,9 +181,14 @@ typedef struct {
 
   Bool checkDenorm;
   Bool ftz;
-  Bool dumpDenorm ;
-  HChar* denormDumpFile;
-  Vr_IncludeSource * denormSource;
+  Bool daz;
+  Bool dumpDenormOut ;
+  Bool dumpDenormIn ;
+
+  HChar* denormOutputDumpFile;
+  Vr_IncludeSource * denormOutputSource;
+  HChar* denormInputDumpFile;
+  Vr_IncludeSource * denormInputSource;
 
   Bool checkFloatMax;
 

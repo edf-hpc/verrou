@@ -30,7 +30,7 @@ import shlex
 import re
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-detRounding=["farthest","float", "ftz", "away_zero"]
+detRounding=["farthest","float", "ftz", "daz","dazftz","away_zero"]
 randomStarRounding=["random", "random_det", "random_comdet", "random_scomdet", "prandom_0.5"]
 prandomStarRounding=["prandom",  "prandom_det", "prandom_comdet"]
 monotonicRounding=["sr_monotonic", "sr_smonotonic"]
@@ -361,6 +361,8 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck.assertEqual("float", "float_nearest")
             for prefix in ["","float_"]:
                 testCheck.assertEqual(prefix+"nearest", prefix+"ftz") #hypothesis : no denorm
+                testCheck.assertEqual(prefix+"nearest", prefix+"daz") #hypothesis : no denorm
+                testCheck.assertEqual(prefix+"nearest", prefix+"dazftz") #hypothesis : no denorm
                 testCheck.assertEqual(prefix+"toward_zero", prefix+"downward")
                 testCheck.assertEqual(prefix+"away_zero", prefix+"upward")
                 testCheck.assertLeq(prefix+"downward", prefix+"nearest")
@@ -460,6 +462,8 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"], statN
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+        testCheck.assertEqual("nearest","daz") #hypothesis : no denorm
+        testCheck.assertEqual("nearest","dazftz") #hypothesis : no denorm
         testCheck.assertEqual("float","float_nearest")
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertEqual("away_zero", "upward")
@@ -512,6 +516,8 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"],statNum
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual("nearest","daz") #hypothesis : no denorm
+            testCheck.assertEqual("nearest","dazftz") #hypothesis : no denorm
             testCheck.assertEqual("float","float_nearest")
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertEqual("away_zero", "downward")
@@ -564,6 +570,8 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertEqual("float","float_nearest")
         for prefix in ["","float_"]:
             testCheck.assertEqual(prefix+"nearest","ftz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"nearest","daz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"nearest","dazftz") #hypothesis : no denorm
             testCheck.assertEqual(prefix+"toward_zero", prefix+"downward")
             testCheck.assertEqual(prefix+"away_zero", prefix+"upward")
             testCheck.assertDiff(prefix+"nearest", prefix+"farthest")
@@ -593,6 +601,8 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck.assertEqual("float","float_nearest")
         for prefix in ["","float_"]:
             testCheck.assertEqual(prefix+"nearest",prefix+"ftz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"nearest",prefix+"daz") #hypothesis : no denorm
+            testCheck.assertEqual(prefix+"nearest",prefix+"dazftz") #hypothesis : no denorm
             testCheck.assertEqual(prefix+"toward_zero", prefix+"upward")
             testCheck.assertEqual(prefix+"away_zero", prefix+"downward")
             testCheck.assertLess(prefix+"downward", prefix+"upward")

@@ -33,7 +33,14 @@ int main (int argc, char **argv) {
    printf("cf: %e\n", cf);
    printf("cfma: %e\n",cfma );
       
-   
+   {
+     double am1=1.e-320;
+     double am2=1.e100;
+     double resm=am1*am2;
+     double resp=am1+am2;
+     printf("mul: %e\n",resm );
+     printf("add: %e\n",resp );
+   }
    
    
    return 0;
