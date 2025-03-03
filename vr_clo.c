@@ -77,6 +77,7 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_IOMATCH_FILE_PATTERN","--IOmatch-file-pattern");
 
    vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
+   vr_env_clo_one_option("VERROU_COUNT_DENORM","--count-denorm");
 }
 
 void vr_clo_defaults (void) {
@@ -155,8 +156,9 @@ void vr_clo_defaults (void) {
   vr.daz=False;
   vr.dumpDenormOut=False;
   vr.dumpDenormIn=False;
-  vr.cancellationSource=NULL;
+  vr.counterDenorm=False;
 
+  vr.cancellationSource=NULL;
   vr.checkFloatMax=False;
 
 }
@@ -417,6 +419,10 @@ Bool vr_process_clo (const HChar *arg) {
      vr.denormOutputDumpFile = VG_(expand_file_name)("vr.process_clo.cd-file", str);
      vr.dumpDenormOut = True;
   }
+  else if (VG_BOOL_CLOM (cloPD, arg, "--count-denorm", bool_val)) {
+    vr.counterDenorm = bool_val;
+  }
+
 
 
   // Set the pseudo-Random Number Generator

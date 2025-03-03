@@ -32,19 +32,19 @@ EXCLUDE DETECTED: XXXXX
 EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX
 Using exclusion rule: *	XXXXX
-Denorm Output:  (MUL dbl)
+Denorm Output:  (mul dbl)
    at 0xFFFFFF: main (denorm.cxx:23)
 
-Denorm Output:  (MUL flt)
+Denorm Output:  (mul flt)
    at 0xFFFFFF: main (denorm.cxx:25)
 
-Denorm Input:  (MADD dbl 2)
+Denorm Input:  (mAdd dbl 2)
    at 0xFFFFFF: main (denorm.cxx:28)
 
-Denorm Output:  (MADD dbl)
+Denorm Output:  (mAdd dbl)
    at 0xFFFFFF: main (denorm.cxx:28)
 
-Denorm Input:  (MUL dbl 1)
+Denorm Input:  (mul dbl 1)
    at 0xFFFFFF: main (denorm.cxx:37)
 
 

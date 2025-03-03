@@ -184,6 +184,7 @@ typedef struct {
   Bool daz;
   Bool dumpDenormOut ;
   Bool dumpDenormIn ;
+  Bool counterDenorm;
 
   HChar* denormOutputDumpFile;
   Vr_IncludeSource * denormOutputSource;

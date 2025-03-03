@@ -22,7 +22,7 @@ dd.line: unitTest ddRun.sh ddCmp.py
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
-	post_verrou_dd --rep=dd.line.post --trace-bin --seed=42 --nrun=3 --rounding=average ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.post --trace-bin --seed=42 --nrun=3 --rounding=average,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
 dd.line.post.assert: dd.line.post
 	./assertCover.py dd.line.post 2 8 3 0 average

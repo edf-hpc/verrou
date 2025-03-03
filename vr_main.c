@@ -1326,6 +1326,10 @@ static void vr_fini(Int exitcode)
       vr_IOmatch_clr_finalize();
    }
 
+  if(vr.counterDenorm){
+     checkdenorm_print_counter(VG_(umsg));
+  }
+
   vr_ppOpCount ();
   interflop_verrou_finalize(backend_verrou_context);
   interflop_verrou_finalize(backend_verrou_null_context);
@@ -1520,7 +1524,7 @@ static void vr_post_clo_init(void)
    checkdenorm_conf_t checkdenorm_conf;
    checkdenorm_conf.flushtozero= vr.ftz;
    checkdenorm_conf.denormarezero=vr.daz;
-   checkdenorm_conf.counter=False;
+   checkdenorm_conf.counter=vr.counterDenorm;
    backend_checkdenorm=interflop_checkdenorm_init(&backend_checkdenorm_context);
    interflop_checkdenorm_configure(checkdenorm_conf,backend_checkdenorm_context);
    checkdenorm_set_denorm_output_handler(&vr_handle_CD_output);
@@ -1528,7 +1532,7 @@ static void vr_post_clo_init(void)
    checkdenorm_set_panic_handler(&VG_(tool_panic));
    VG_(umsg)("Backend %s : %s\n", interflop_checkdenorm_get_backend_name(), interflop_checkdenorm_get_backend_version()  );
 
-   if( vr.checkDenorm || vr.dumpDenormIn || vr.dumpDenormOut|| vr.ftz || vr.daz){
+   if( vr.checkDenorm || vr.dumpDenormIn || vr.dumpDenormOut|| vr.ftz || vr.daz || vr.counterDenorm){
      if( vr.backend==vr_mcaquad ||
          (vr.backend==vr_verrou && !(vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_FTZ ||vr.roundingMode==VR_DAZ||vr.roundingMode==VR_DAZFTZ|| vr.roundingMode==VR_NATIVE))){
         VG_(tool_panic)("backend checkDenorm incompatible with other backend");

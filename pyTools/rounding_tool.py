@@ -2,7 +2,7 @@
 
 import sys
 
-roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "native"]
+roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "daz","dazftz","native"]
 roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
 
 
@@ -19,6 +19,9 @@ def filterDetRoundingTab(roundingTab):
 
 def isValidRounding(rounding):
     return roundingToEnvVar(rounding,failure=False)!=None
+
+def isRoundingCompatibleWithDenorm(rounding):
+    return roundingToEnvVar(rounding,failure=False)["VERROU_ROUNDING_MODE"] in ["nearest", "native", "ftz", "daz", "dazftz"]
 
 def isStrFloat(strFloat):
     try:
@@ -37,8 +40,13 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
     rounding=roundingCmd
     res.update({"VERROU_FLOAT":"no"})
     if roundingCmd.startswith("float_"):
-        rounding=roundingCmd.replace("float_","")
+        rounding=rounding.replace("float_","")
         res.update({"VERROU_FLOAT":"yes"})
+
+    res.update({"VERROU_UNFUSED":"no"})
+    if roundingCmd.startswith("unfused_"):
+        rounding=rounding.replace("unfused_","")
+        res.update({"VERROU_UNFUSED":"yes"})
 
     for prand in ["prandom_det", "prandom_comdet", "prandom"]:
         if rounding.startswith(prand):

@@ -217,6 +217,10 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                     if instr!="":
                         runEnv["VERROU_INSTR"]=instr
 
+                    if config.get_count_denorm():
+                        if rounding_tool.isRoundingCompatibleWithDenorm(det):
+                            runEnv["VERROU_COUNT_DENORM"]="yes"
+
                     detRep=os.path.join(ddminNewRep, det)
                     if not os.path.exists(detRep):
                         os.mkdir(detRep)

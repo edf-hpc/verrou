@@ -30,6 +30,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)
         self.addRegistry("seed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
+        self.addRegistry("count_denorm", "bool", "COUNT_DENORM", ["--count-denorm"],False)
 
     def usageCmd(self):
         print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
@@ -168,7 +169,8 @@ class postConfig(gen_config.gen_config):
             return True
         return False
 
-
+    def get_count_denorm(self):
+        return self.count_denorm
 
     def findDDmin(self, rep):
         ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="FullPerturbation" or x=="NoPerturbation"]

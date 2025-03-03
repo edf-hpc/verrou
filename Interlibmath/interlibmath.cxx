@@ -645,9 +645,11 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
   case VR_NATIVE:
     return "NATIVE";
   case VR_FTZ:
-    std::cerr<< "Rounding VR_FTZ not yet implemented in interlibmath"<<std::endl;
+  case VR_DAZ:
+  case VR_DAZFTZ:
+    std::cerr<< "Rounding FTZ/DAZ are not yet implemented in interlibmath"<<std::endl;
     exit(1);
-    return "FTZ";
+    return "FAILURE";
 
 
   }

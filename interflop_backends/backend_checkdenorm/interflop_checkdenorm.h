@@ -57,17 +57,20 @@ extern "C" {
     CDN_DIV,
     CDN_MADD,
     CDN_SQRT,
-    CDN_CAST
+    CDN_CAST,
+    CDN_OP_SIZE //to count the number of element (always last element of enum)
   } check_subnormal_op_t;
 
   typedef enum check_subnormal_type {
     CDN_FLOAT=0,
-    CDN_DOUBLE
+    CDN_DOUBLE,
+    CDN_TYPE_SIZE //to count the number of element (always last element of enum)
   } check_subnormal_type_t;
 
 
   const char* check_denorm_op_name (check_subnormal_op_t op);
   const char* check_denorm_type_name (check_subnormal_type_t type);
+  unsigned int  check_denorm_nb_args (check_subnormal_op_t op);
 
   void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode,void* context);
   void IFCD_FCTNAME(finalize)(void* context);
@@ -78,11 +81,16 @@ extern "C" {
   void checkdenorm_set_denorm_output_handler(void (*)(check_subnormal_op_t, check_subnormal_type_t));
   void checkdenorm_set_denorm_input_handler(void (*)(check_subnormal_op_t, check_subnormal_type_t, unsigned int));
 
+  void checkdenorm_reset_counter(void);
+  typedef unsigned int (*myPrintfType)(const char *format, ...);
+  void checkdenorm_print_counter(myPrintfType myPrintf);
+
+
   extern void (*vr_panicHandler)(const char*);
   void checkdenorm_set_panic_handler(void (*)(const char*));
 
   struct interflop_backend_interface_t IFCD_FCTNAME(init)(void ** context);
-   
+
   void IFCD_FCTNAME(add_double) (double a, double b, double* res, void* context);    
   void IFCD_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
   void IFCD_FCTNAME(sub_double) (double a, double b, double* res, void* context);
@@ -100,7 +108,6 @@ extern "C" {
   void IFCD_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFCD_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 
-  
 #ifdef __cplusplus
 }
 #endif
