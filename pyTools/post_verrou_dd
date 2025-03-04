@@ -106,7 +106,7 @@ def postRunTrace(runDir):
             f.write(log)
 
     if len(listOfTraceBBFile)==0:
-        print("Problem in trace generation detected")
+        print("Problem in trace generation detected: %s",runDir)
         sys.exit(42)
 
     cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))

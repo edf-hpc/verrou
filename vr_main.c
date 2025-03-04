@@ -1548,8 +1548,12 @@ static void vr_post_clo_init(void)
   }
 
 
-  if( vr.loadInterLibm && (vr.backend!=vr_verrou) ){
-    VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
+  if( vr.loadInterLibm && (vr.backend!=vr_verrou)){
+     if ((vr.backend==vr_checkdenorm) && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE ) ){
+        VG_(umsg)("Backend checkdenorm with NEAREST and NATIVE rounding mode is experimental");
+     }else{
+        VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
+     }
   }
 
   if(vr.genTrace){
