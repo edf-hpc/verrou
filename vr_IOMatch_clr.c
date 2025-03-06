@@ -153,13 +153,14 @@ const HChar resetCounterStr[]="reset_counter";
 const HChar dumpCoverStr[]="dump_cover";
 const HChar panicStr[]="panic";
 const HChar exitStr[]="exit";
+const HChar denormCounterStr[]="print_denorm_counter";
+const HChar resetDenormCounterStr[]="reset_denorm_counter";
 
 
-
-typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey} Vr_applyKey;
-static const SizeT actionNumber=15;
-const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr)};
+typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey, denormCounterKey,resetDenormCounterKey} Vr_applyKey;
+static const SizeT actionNumber=17;
+const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr, denormCounterStr, resetDenormCounterStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr), sizeof(denormCounterStr), sizeof(resetDenormCounterStr)};
 
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
@@ -359,6 +360,16 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: dump_cover : %lu\n", ret);
       return;
     }
+  case denormCounterKey:
+  {
+     vr_print_denorm_counter();
+     return;
+  }
+  case resetDenormCounterKey:
+  {
+     vr_reset_denorm_counter();
+     return;
+  }
   case panicKey:
     {
       VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: panic\n");
@@ -441,8 +452,8 @@ VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMa
         VG_(sprintf)(strFilename, "%s",fileName);
      }else{
         if(fileName[0]=='/'){
-           VG_(umsg)("incomptatible option --output-expect-rep with abspath : %s", fileName);
-           VG_(tool_panic)("incomptatible option --output-expect-rep with abspath");
+           VG_(umsg)("incompatible option --output-expect-rep with abspath : %s", fileName);
+           VG_(tool_panic)("incompatible option --output-expect-rep with abspath");
         }
         VG_(sprintf)(strFilename, "%s/%s", vr.outputIOMatchRep, fileName);
      }

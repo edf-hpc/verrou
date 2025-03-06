@@ -74,7 +74,9 @@ enum {
   VR_USERREQ__GET_LIBM_ROUNDING_NO_INST,
   VR_USERREQ__START_SOFT_INSTRUMENTATION,
   VR_USERREQ__STOP_SOFT_INSTRUMENTATION,
-  VR_USERREQ__FLOAT_CONV
+  VR_USERREQ__FLOAT_CONV,
+  VR_USERREQ__PRINT_COUNT_DENORM,
+  VR_USERREQ__RESET_COUNT_DENORM
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -198,4 +200,12 @@ enum {
                                         VR_USERREQ__FLOAT_CONV,       \
                                         0, 0, 0, 0, 0)
 
+#define VERROU_PRINT_DENORM_COUNTER \
+  VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	         \
+                                  VR_USERREQ__PRINT_COUNT_DENORM,\
+                                  0, 0, 0, 0, 0)
+#define VERROU_RESET_DENORM_COUNTER \
+  VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	         \
+                                  VR_USERREQ__RESET_COUNT_DENORM,\
+                                  0, 0, 0, 0, 0)
 #endif /* __VERROU_H */

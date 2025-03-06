@@ -60,22 +60,6 @@
 \n\
           This option can be activated with the env variable VERROU_FLOAT.\n\
 \n\
-      --unfused=yes|no [default=no]\n\
-          With this option, mAdd (mSub resp.) operations are replaced by a\n\
-          Mul and a Add (resp. Sub) in the frontend. Hence this option is\n\
-          compatible with all --rounding-mode options and with all other\n\
-          backends.\n\
-\n\
-          •   The fma function of libm is not modified.\n\
-\n\
-          •   Used with the nearest rounding mode, it is ofen pertinent to\n\
-              add the option --vr-instr=mAdd,mSub to speed up the\n\
-              instrumentation. The only drawback of this approach, is the\n\
-              deactivation of checks (such as Nan and Inf checks) over other\n\
-              floating point operations.\n\
-\n\
-          This option can be activated with the env variable VERROU_UNFUSED.\n\
-\n\
       --libm=<auto_exclude|manual_exclude|instrumented>\n\
       [default=auto_exclude]\n\
           Define the behavior of verrou with libm.\n\
@@ -121,8 +105,6 @@
 \n\
           The mcaquad backend implementation come from Verificarlo : More\n\
           information on Verificalo github[2]\n\
-\n\
-          This option can be activated with the env variable VERROU_MCA_MODE.\n\
 \n\
       --mca-precision-double= [default=53]\n\
           Configure the magnitude of inexact function used by mcaquad backend\n\
@@ -357,4 +339,9 @@
       --check-max-float=yes|no [default=no]\n\
           Activate max float detection. This functionality is compatible only\n\
           with verrou backend.\n\
+\n\
+    Performance optimization\n\
+      --vr-unsafe-llo-optim=yes|no [default=no]\n\
+          Activate faster instrumentation process but unsafe when binary\n\
+          mixes llo and vect instructions.\n\
 "

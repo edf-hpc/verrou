@@ -1,0 +1,8 @@
+init
+after axb
+after afxbf
+c: 9.999889e-321
+cf: -9.999946e-41
+cfma: -2.099779e-320
+mul: 9.999889e-221
+add: 1.000000e+100

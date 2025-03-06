@@ -73,3 +73,11 @@ unsigned int c_verrou_count_fp_not_instrumented(void){
    unsigned int res=VERROU_COUNT_FP_NOT_INSTRUMENTED;
    return res;
 }
+
+void c_verrou_print_denorm_counter(void){
+   VERROU_PRINT_DENORM_COUNTER;
+}
+
+void c_verrou_reset_denorm_counter(void){
+   VERROU_RESET_DENORM_COUNTER;
+}

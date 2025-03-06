@@ -1,0 +1,6 @@
+default: print_denorm_counter
+default: reset_denorm_counter
+bmatch: after afxbf
+apply: default
+cmatch: mul: *
+apply: default

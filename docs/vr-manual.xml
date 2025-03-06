@@ -247,7 +247,7 @@ det2
 		<xref linkend="vr-opt.mca-precision-double"/> and  <xref linkend="vr-opt.mca-precision-float"/>  options).
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
-		the <computeroutput>ftz</computeroutput> rounding-mode and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd-gen-file</computeroutput> options.
+		the <computeroutput>daz,ftz,dazftz</computeroutput> rounding-modes, and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd[io]-gen-file</computeroutput> options.
               </para>
 	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
 
@@ -740,10 +740,18 @@ det2
             </para></listitem>
           </varlistentry>
 
-	  <varlistentry id="vr.opt.cd-gen-file" xreflabel="--cd-gen-file">
-            <term><option><![CDATA[--cd-gen-file=<FILE>]]></option></term>
+	  <varlistentry id="vr.opt.cdi-gen-file" xreflabel="--cdi-gen-file">
+            <term><option><![CDATA[--cdi-gen-file=<FILE>]]></option></term>
             <listitem><para>
-		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces at least one denormal number.
+		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which reads (i for input) at least one denormal number.
+		This functionality is available for checkdenorm backend.
+            </para></listitem>
+          </varlistentry>
+
+	    <varlistentry id="vr.opt.cdo-gen-file" xreflabel="--cdo-gen-file">
+            <term><option><![CDATA[--cdo-gen-file=<FILE>]]></option></term>
+            <listitem><para>
+		Generate in <computeroutput>FILE </computeroutput> with the source format for each code source line which produces (o for output) at least one denormal number.
 		This functionality is available for checkdenorm backend.
             </para></listitem>
           </varlistentry>
@@ -849,6 +857,16 @@ det2
           <term><computeroutput>VERROU_PRANDOM_UPDATE_VALUE(floatStr)</computeroutput></term>
           <listitem><para>  The p-value of prandom[|_det|_comdet] rounding mode is set to <computeroutput>floatStr</computeroutput>.</para></listitem>
         </varlistentry>
+	<varlistentry id="vr-manual.feat.printDenormCounter"
+                      xreflabel="VERROU_PRINT_DENORM_COUNTER">
+          <term><computeroutput>VERROU_PRINT_DENORM_COUNTER</computeroutput></term>
+          <listitem><para>Print the counter of checkdenorm backend.</para></listitem>
+
+	  <varlistentry id="vr-manual.feat.resetDenormCounter"
+                      xreflabel="VERROU_PRINT_DENORM_COUNTER">
+          <term><computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput></term>
+          <listitem><para>Reset counters of checkDenorm backend.</para></listitem>
+	</varlistentry>
 
       </variablelist>
     </section>
@@ -1022,10 +1040,21 @@ The different possible actions are :
 	<varlistentry>
 	  <term><computeroutput>dump_cover</computeroutput></term>
 	  <listitem><para>
-	    Apply <computeroutput>DUMP_COVER</computeroutput> client request.
+	    Apply <computeroutput>VERROU_DUMP_COVER</computeroutput> client request.
 	  </para></listitem>
 	</varlistentry>
-
+	<varlistentry>
+	  <term><computeroutput>print_denorm_counter</computeroutput></term>
+	  <listitem><para>
+	    Apply <computeroutput>VERROU_PRINT_DENORM_COUNTER</computeroutput> client request.
+	  </para></listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><computeroutput>reset_denorm_counter</computeroutput></term>
+	  <listitem><para>
+	    Apply <computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput> client request.
+	  </para></listitem>
+	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>panic</computeroutput></term>
 	  <listitem><para>

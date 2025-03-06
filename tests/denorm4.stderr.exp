@@ -1,0 +1,56 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                        1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+ ---------------------------------------------------------------------
+ mul                        3                        3          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
+ ---------------------------------------------------------------------
+ mAdd                       1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+ ---------------------------------------------------------------------
+Dumping list of included source to PATH... OK.
+Dumping list of included source to PATH... OK.
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -39,6 +39,7 @@
 #ifdef PROFILING_EXACT
 #include "interflop_backends/interflop_verrou/interflop_verrou.h"
 #endif
+#include "interflop_backends/backend_checkdenorm/interflop_checkdenorm.h"
 
 void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool isHard) {
    if(isHard){
@@ -154,7 +155,7 @@ static void vr_stop_deterministic_section (unsigned int level) {
   VG_(message)(Vg_DebugMsg, "Leaving deterministic section: %s\n",
                name);
   verrou_seed_restore_state ();
-#ifdef USE_VERROU_QUADMATH 
+#ifdef USE_VERROU_QUADMATH
   mcaquad_set_random_seed ();
 #endif
 }
@@ -167,6 +168,26 @@ static void vr_print_profiling_exact(void){
   VG_(umsg)("%s #total: %u #exact: %u\n","Profiling exact", num, numExact);
   }
 #endif
+
+void vr_print_denorm_counter(void){
+   if(vr.backend==vr_checkdenorm){
+      checkdenorm_print_counter(&VG_(umsg));
+   }else{
+      if(vr.verbose){
+         VG_(umsg)("PRINT_COUNT_DENORM client request needs --count-denorm=yes\n");
+      }
+   }
+}
+void vr_reset_denorm_counter(void){
+   if(vr.backend==vr_checkdenorm){
+      checkdenorm_reset_counter();
+   }else{
+      if(vr.verbose){
+         VG_(umsg)("RESET_COUNT_DENORM client request needs --count-denorm=yes\n");
+      }
+   }
+}
+
 
 // * Handle client requests
 
@@ -192,12 +213,12 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
     return False;
   case 0: /* on */
      vr_set_instrument_state("Monitor", VR_INSTR_ON, False);
-    vr_handle_monitor_instrumentation_print();
-    return True;
+     vr_handle_monitor_instrumentation_print();
+     return True;
   case 1: /* off */
      vr_set_instrument_state("Monitor", VR_INSTR_OFF, False);
-    vr_handle_monitor_instrumentation_print();
-    return True;
+     vr_handle_monitor_instrumentation_print();
+     return True;
   }
   return False;
 }
@@ -378,6 +399,12 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__FLOAT_CONV:
     *ret=(UWord)( vr.float_conv );
     break;
+  case VR_USERREQ__PRINT_COUNT_DENORM:
+     vr_print_denorm_counter();
+     break;
+  case VR_USERREQ__RESET_COUNT_DENORM:
+     vr_reset_denorm_counter();
+  break;
   }
   return True;
 }

@@ -1,0 +1,82 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+Open IOMatchClr file : PATH 
+Open IOMatchClr output file : PATH 
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+EXCLUDE DETECTED: XXXXX
+EXCLUDE DETECTED: XXXXX
+Using exclusion rule: *	XXXXX
+Using exclusion rule: *	XXXXX
+match [0]: |after afxbf|
+ ---------------------------------------------------------------------
+Denormalized numbers count
+op-type                Total        denorm. Input       denorm. Output 
+ mul
+  `-flt                    1              0(  0%)              1(100%)
+  `-dbl                    1              0(  0%)              1(100%)
+ ---------------------------------------------------------------------
+match [1]: |mul: 9.999889e-221|
+ ---------------------------------------------------------------------
+Denormalized numbers count
+op-type                Total        denorm. Input       denorm. Output 
+ add
+  `-dbl                    1              1(100%)              0(  0%)
+ mul
+  `-dbl                    1              1(100%)              0(  0%)
+ mAdd
+  `-dbl                    1              1(100%)              1(100%)
+ ---------------------------------------------------------------------
+
+match pattern count
+	1 : after afxbf
+	1 : mul: *
+ ---------------------------------------------------------------------
+Denormalized numbers count
+op-type                Total        denorm. Input       denorm. Output 
+ ---------------------------------------------------------------------
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                        1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+ ---------------------------------------------------------------------
+ mul                        3                        3          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        2                        2      (100%)
+      `- llo                        2                        2  (100%)
+ ---------------------------------------------------------------------
+ mAdd                       1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

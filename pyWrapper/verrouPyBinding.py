@@ -62,6 +62,9 @@ class bindingVerrouCLib:
         self.lib.c_verrou_count_fp_instrumented.restype=  ctypes.c_uint
         self.lib.c_verrou_count_fp_not_instrumented.restype= ctypes.c_uint
 
+        self.lib.c_verrou_print_denorm_counter.argtypes=[]
+        self.lib.c_verrou_reset_denorm_counter.argtypes=[]
+
 
 bindVerrou=bindingVerrouCLib()
 
@@ -95,7 +98,11 @@ def count_fp_instrumented():
 def count_fp_not_instrumented():
     return bindVerrou.lib.c_verrou_count_fp_not_instrumented()
 
+def print_denorm_counter():
+    bindVerrou.lib.c_verrou_print_denorm_counter()
 
+def reset_denorm_counter():
+    bindVerrou.lib.c_verrou_reset_denorm_counter()
 
 if __name__=="__main__":
 

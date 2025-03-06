@@ -43,6 +43,9 @@ while [ ! -z "$1" ]; do
 	    cmd="${cmd} | perl -pne 's/Open IOMatchClr file : ([^\s]*)/Open IOMatchClr file : PATH/;'"
 	    cmd="${cmd} | perl -pne 's/Open IOMatchClr output file : ([^\s]*)/Open IOMatchClr output file : PATH/;'"
 	    ;;
+	"-dump-list")
+	    cmd="${cmd} | perl -pne 's/Dumping list of included sources to ([^\s]*)... OK/Dumping list of included source to PATH... OK/;'"
+	    ;;
     esac
     shift
 done
