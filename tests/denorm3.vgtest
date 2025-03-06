@@ -1,3 +1,4 @@
 prog: denorm
 vgopts: --count-denorm=yes --IOmatch-clr=./Iomatch.script
 stderr_filter_args: -seed -cnt-cmp-conv -backend-version -copyright -exclude -scal-llo -iomatch
+cleanup: rm Iomatch.script.log-*

@@ -16,3 +16,5 @@ clreq
 sum
 libmtest_float_conv
 test_unfusedfma
+cdi.out
+cdo.out
