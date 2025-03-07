@@ -155,12 +155,12 @@ const HChar panicStr[]="panic";
 const HChar exitStr[]="exit";
 const HChar denormCounterStr[]="print_denorm_counter";
 const HChar resetDenormCounterStr[]="reset_denorm_counter";
+const HChar backtraceStr[]="backtrace";
 
-
-typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey, denormCounterKey,resetDenormCounterKey} Vr_applyKey;
-static const SizeT actionNumber=17;
-const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr, denormCounterStr, resetDenormCounterStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr), sizeof(denormCounterStr), sizeof(resetDenormCounterStr)};
+typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey, denormCounterKey,resetDenormCounterKey,backtraceKey} Vr_applyKey;
+static const SizeT actionNumber=18;
+const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr, denormCounterStr, resetDenormCounterStr,backtraceStr};
+SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr), sizeof(denormCounterStr), sizeof(resetDenormCounterStr),sizeof(backtraceStr)};
 
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
@@ -370,6 +370,12 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
      vr_reset_denorm_counter();
      return;
   }
+  case backtraceKey:
+  {
+     VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
+     return;
+  }
+
   case panicKey:
     {
       VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: panic\n");
