@@ -41,7 +41,7 @@ class postConfig(gen_config.gen_config):
         print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix  ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
         print("\t rounding mode can be prefixed by \"float_\"")
-        print("\t det is an alias to "+",".join([x for x in rounding_tool.roundingDetTab if x not in ["float","ftz"]]))
+        print("\t det is an alias to "+",".join( [x for x in rounding_tool.roundingDetTabWithoutFloatPrefix if not x in ["float","ftz","daz","dazftz","native"] ] ))
         print("\t no_det is an alias to "+",".join(["random","average", "prandom"]))
 
 
@@ -57,7 +57,7 @@ class postConfig(gen_config.gen_config):
 
         if "det" in self.rounding:
             self.rounding.remove("det")
-            self.rounding+=[x for x in rounding_tool.roundingDetTab if x !="float" and x!="ftz" ]
+            self.rounding+=[x for x in rounding_tool.roundingDetTabWithoutFloatPrefix if not x in ["float","ftz","daz","dazftz","native"] ]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
             self.rounding+=["random","average", "prandom"]
@@ -65,8 +65,12 @@ class postConfig(gen_config.gen_config):
         for r in self.rounding:
             runEnv=rounding_tool.roundingToEnvVar(r,{})
 
-        self.runScript=self.exec_arg[0]
-        self.cmpScript=self.exec_arg[1]
+        if len(self.exec_arg)==2:
+            self.runScript=self.exec_arg[0]
+            self.cmpScript=self.exec_arg[1]
+        else:
+            self.usageCmd()
+            self.failure()
 
     def check_instr_tab(self):
         for instrConfig in self.instr:
