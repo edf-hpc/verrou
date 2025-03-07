@@ -5,10 +5,11 @@ if [ "$#" -eq 0 ]; then
 fi
 
 cd $1
-diffList=$(find . -name "*std*.diff")
+diffList=$(find . -name "*std*.diff" -o -name "*post.diff")
 
 testCasList=${diffList//.stdout.diff/}
 testCasList=${testCasList//.stderr.diff/}
+testCasList=${testCasList//.post.diff/}
 testCasList=$(echo $testCasList |uniq)
 
 echo "testCasList:"
@@ -44,6 +45,19 @@ do
 	testCasErr=$testCas".stderr.out"
 	echo $testCasErr
 	cat $testCasErr
+	echo ""
+    fi
+
+    testCasPostDiff=$testCas".post.diff"
+    if [ -f $testCasPostDiff ]
+    then
+	echo $testCasPostDiff
+	cat $testCasPostDiff
+	echo ""
+
+	testCasPost=$testCas".post.out"
+	echo $testCasPost
+	cat $testCasPost
 	echo ""
     fi
     echo ""
