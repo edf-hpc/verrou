@@ -22,7 +22,9 @@ EXTRA_DIST = \
 	accuClreq5.vgtest accuClreq5.stderr.exp accuClreq5.stdout.exp \
 	denorm1.vgtest    denorm1.stderr.exp    denorm1.stdout.exp denorm1.stderr.exp.aarch64 \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
-	test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
+	denorm3.vgtest    denorm3.stderr.exp    denorm3.stdout.exp \
+	denorm4.vgtest    denorm4.stderr.exp    denorm4.stdout.exp denorm4.post.exp denorm4.post.exp.arm64 \
+        test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
 	test_det_average_scomdet.stderr.exp test_det_average_scomdet.stdout.exp  test_det_average_scomdet.vgtest \
 	test_det_average_det.stderr.exp test_det_average_det.stdout.exp test_det_average_det.vgtest \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
