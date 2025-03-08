@@ -22,6 +22,7 @@ void        vr_freeExcludeList (Vr_Exclude* list);
 void        vr_dumpExcludeList (Vr_Exclude* list, const HChar* filename);
 Vr_Exclude* vr_loadExcludeList (Vr_Exclude * list, const HChar * filename);
 Vr_Exclude* vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName);
+Vr_Exclude* vr_addPythonSymbols(Vr_Exclude * list);
 Bool        vr_excludeIRSB(const HChar** fnname, const HChar** objname, Bool* counted);
 
 

@@ -180,6 +180,16 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   return list;
 }
 
+Vr_Exclude * vr_addPythonSymbols(Vr_Exclude * list){
+   Vr_Exclude * res=list;
+   const HChar star[]="*";
+   //With True False : the symbol are silently excluded
+   res=vr_addExclude (res, "_Py_dg_dtoa", star, True, False);
+   res=vr_addExclude (res, "_Py_dg_strtod", star, True, False);
+   res=vr_addExclude (res, "_Py_HashDouble", star, True, False);
+   res=vr_addExclude (res, "_PyTime_AsSecondsDouble", star, True, False);
+   return res;
+}
 
 
 

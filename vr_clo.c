@@ -102,7 +102,7 @@ void vr_clo_defaults (void) {
 
   vr.excludeDetect = True;
   vr.loadInterLibm = False;
-  //  vr.genAbove = NULL;
+  vr.excludePython = True;
 
   vr.genIncludeSource = False;
   vr.includeSource = NULL;
@@ -381,6 +381,10 @@ Bool vr_process_clo (const HChar *arg) {
   }
   else if (VG_XACT_CLOM (cloPD, arg, "--libm=instrumented", vr.excludeDetect,True)) {
     vr.loadInterLibm = True;
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--python=auto_exclude", vr.excludePython,True)) {
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--python=manual_exclude", vr.excludePython,False)) {
   }
 
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {

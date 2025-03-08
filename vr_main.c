@@ -1556,6 +1556,10 @@ static void vr_post_clo_init(void)
      }
   }
 
+  if(vr.excludePython){
+     vr.exclude=vr_addPythonSymbols(vr.exclude);
+  }
+
   if(vr.genTrace){
      vr_traceBB_initialize(vr.outputTraceRep);
    }

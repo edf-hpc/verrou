@@ -350,6 +350,22 @@ det2
 
 		</listitem>
 	      </varlistentry>
+	      <varlistentry id="vr-opt.python" xreflabel="--python">
+	        <term><option><![CDATA[--python=<auto_exclude|manual_exclude> [default=auto_exclude]]]></option></term>
+            <listitem>
+              <para>
+		Define the behavior of verrou with python.
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>auto_exclude</command> : The default python exclusion list is activated.
+                </para></listitem>
+                <listitem><para>
+                    <command>manual_exclude</command> : The default python exclusion list is ignored. The user has to manually define his own list.
+                </para></listitem>
+              </itemizedlist>
+            </listitem>
+		</varlistentry>
 	      <varlistentry id="vr-opt.libm" xreflabel="--libm">
 	        <term><option><![CDATA[--libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]]]></option></term>
             <listitem>
@@ -861,7 +877,7 @@ det2
                       xreflabel="VERROU_PRINT_DENORM_COUNTER">
           <term><computeroutput>VERROU_PRINT_DENORM_COUNTER</computeroutput></term>
           <listitem><para>Print the counter of checkdenorm backend.</para></listitem>
-
+	</varlistentry>
 	  <varlistentry id="vr-manual.feat.resetDenormCounter"
                       xreflabel="VERROU_PRINT_DENORM_COUNTER">
           <term><computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput></term>

@@ -15,8 +15,8 @@
           extended precision in quad (See --mca-mode, --mca-precision-double\n\
           and --mca-precision-float options). The integration of mcaquad\n\
           backend in the frontend verrou is still considered as experimental.\n\
-          checkdenorm enables the ftz rounding-mode and the --check-denorm\n\
-          and --cd-gen-file options.\n\
+          checkdenorm enables the daz,ftz,dazftz rounding-modes, and the\n\
+          --check-denorm and --cd[io]-gen-file options.\n\
 \n\
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
@@ -60,6 +60,30 @@
 \n\
           This option can be activated with the env variable VERROU_FLOAT.\n\
 \n\
+      --unfused=yes|no [default=no]\n\
+          With this option, mAdd (mSub resp.) operations are replaced by a\n\
+          Mul and a Add (resp. Sub) in the frontend. Hence this option is\n\
+          compatible with all --rounding-mode options and with all other\n\
+          backends.\n\
+\n\
+          •   The fma function of libm is not modified.\n\
+\n\
+          •   Used with the nearest rounding mode, it is ofen pertinent to\n\
+              add the option --vr-instr=mAdd,mSub to speed up the\n\
+              instrumentation. The only drawback of this approach, is the\n\
+              deactivation of checks (such as Nan and Inf checks) over other\n\
+              floating point operations.\n\
+\n\
+          This option can be activated with the env variable VERROU_UNFUSED.\n\
+\n\
+      --python=<auto_exclude|manual_exclude> [default=auto_exclude]\n\
+          Define the behavior of verrou with python.\n\
+\n\
+          •   auto_exclude : The default python exclusion list is activated.\n\
+\n\
+          •   manual_exclude : The default python exclusion list is ignored.\n\
+              The user has to manually define his own list.\n\
+\n\
       --libm=<auto_exclude|manual_exclude|instrumented>\n\
       [default=auto_exclude]\n\
           Define the behavior of verrou with libm.\n\
@@ -83,7 +107,6 @@
           will switch from auto_exclude to instrumented\n\
 \n\
       --libm-noinst-rounding-mode==<native|nearest> [default=native]\n\
-\n\
           Select the behavior of libm (when --libm=instrumented is activated)\n\
           when libm function are not instrumented (thanks --exclude or\n\
           --source) between native and nearest.\n\
@@ -105,6 +128,8 @@
 \n\
           The mcaquad backend implementation come from Verificarlo : More\n\
           information on Verificalo github[2]\n\
+\n\
+          This option can be activated with the env variable VERROU_MCA_MODE.\n\
 \n\
       --mca-precision-double= [default=53]\n\
           Configure the magnitude of inexact function used by mcaquad backend\n\
@@ -331,17 +356,17 @@
           floating point operation produces a valgrind error. This\n\
           functionality is available for the checkdenorm backend.\n\
 \n\
-      --cd-gen-file=<FILE>\n\
+      --cdi-gen-file=<FILE>\n\
           Generate in FILE with the source format for each code source line\n\
-          which produces at least one denormal number. This functionality is\n\
-          available for checkdenorm backend.\n\
+          which reads (i for input) at least one denormal number. This\n\
+          functionality is available for checkdenorm backend.\n\
+\n\
+      --cdo-gen-file=<FILE>\n\
+          Generate in FILE with the source format for each code source line\n\
+          which produces (o for output) at least one denormal number. This\n\
+          functionality is available for checkdenorm backend.\n\
 \n\
       --check-max-float=yes|no [default=no]\n\
           Activate max float detection. This functionality is compatible only\n\
           with verrou backend.\n\
-\n\
-    Performance optimization\n\
-      --vr-unsafe-llo-optim=yes|no [default=no]\n\
-          Activate faster instrumentation process but unsafe when binary\n\
-          mixes llo and vect instructions.\n\
 "
