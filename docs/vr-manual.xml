@@ -861,7 +861,7 @@ det2
                       xreflabel="VERROU_PRINT_DENORM_COUNTER">
           <term><computeroutput>VERROU_PRINT_DENORM_COUNTER</computeroutput></term>
           <listitem><para>Print the counter of checkdenorm backend.</para></listitem>
-
+	</varlistentry>
 	  <varlistentry id="vr-manual.feat.resetDenormCounter"
                       xreflabel="VERROU_PRINT_DENORM_COUNTER">
           <term><computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput></term>
