@@ -1081,6 +1081,46 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 
+//The two next functions come from derivgrind : https://github.com/SciCompKL/derivgrind/blob/derivgrind/derivgrind/dg_expressionhandling.c
+
+// Used to check if a VEX operation has floating-point args and return type,
+// to warn about unwrapped expressions.
+// We're not checking for SIMD types here, as this is only a heuristic and we
+// try to minimize false positives.
+static Bool isFloatingPoint(IRType type);
+static Bool operation_with_float_args(IRExpr* expr);
+
+static Bool isFloatingPoint(IRType type){
+  return type==Ity_F16 || type==Ity_F32 || type==Ity_F64 || type==Ity_F128 || type==Ity_D32 || type==Ity_D64 || type==Ity_D128;
+}
+
+// Return true if the "signature" of the VEX operations suggests that it might
+// handle floating-point data.
+static Bool operation_with_float_args(IRExpr* expr){
+  IRType t_dst=Ity_INVALID, t_arg1=Ity_INVALID, t_arg2=Ity_INVALID, t_arg3=Ity_INVALID, t_arg4=Ity_INVALID;
+  if(expr->tag==Iex_Unop){
+    typeOfPrimop(expr->Iex.Unop.op, &t_dst, &t_arg1, &t_arg2, &t_arg3, &t_arg4);
+    if(isFloatingPoint(t_dst) && isFloatingPoint(t_arg1)){
+      return True;
+    }
+  } else if(expr->tag==Iex_Binop){
+    typeOfPrimop(expr->Iex.Binop.op, &t_dst, &t_arg1, &t_arg2, &t_arg3, &t_arg4);
+    if(isFloatingPoint(t_dst) && (isFloatingPoint(t_arg1)||isFloatingPoint(t_arg2))){
+      return True;
+    }
+  } else if(expr->tag==Iex_Triop){
+    typeOfPrimop(expr->Iex.Triop.details->op, &t_dst, &t_arg1, &t_arg2, &t_arg3, &t_arg4);
+    if(isFloatingPoint(t_dst) && (isFloatingPoint(t_arg1)||isFloatingPoint(t_arg2)||isFloatingPoint(t_arg3))){
+      return True;
+    }
+  } else if(expr->tag==Iex_Qop){
+    typeOfPrimop(expr->Iex.Qop.details->op, &t_dst, &t_arg1, &t_arg2, &t_arg3, &t_arg4);
+    if(isFloatingPoint(t_dst) && (isFloatingPoint(t_arg1)||isFloatingPoint(t_arg2)||isFloatingPoint(t_arg3)||isFloatingPoint(t_arg4))){
+      return True;
+    }
+  }
+  return False;
+}
 
 
 
@@ -1100,6 +1140,10 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
   res.containFloatModOp=False;
   return res;
 }
+
+
+
+
 
 static Vr_instr_kind vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr, Bool countOnly) {
   IROp op;

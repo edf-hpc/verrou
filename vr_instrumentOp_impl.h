@@ -482,6 +482,9 @@
       break;
 
     default:
+      if(operation_with_float_args(expr) && !countOnly){
+         vr_maybe_record_ErrorOp (VR_ERROR_UNKNOWN_FLT_IOP, op);
+      };
       addStmtToIRSB (sb, stmt);
       break;
     }

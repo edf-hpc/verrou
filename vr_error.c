@@ -67,7 +67,8 @@ static const HChar* vr_error_name (Vr_ErrorKind kind) {
     return "Denorm Output";
   case VR_ERROR_FLT_MAX:
     return "FLT_MAX";
-
+  case VR_ERROR_UNKNOWN_FLT_IOP:
+    return "Unknown flt IOP";
   default:
     return NULL;
   }
@@ -276,6 +277,7 @@ void vr_before_pp_Error (const Error* err) {}
 void vr_pp_Error (const Error* err) {
   switch (VG_(get_error_kind)(err)) {
   case VR_ERROR_UNCOUNTED:
+  case VR_ERROR_UNKNOWN_FLT_IOP:
   case VR_ERROR_SCALAR:
     vr_pp_ErrorOp (err);
     break;

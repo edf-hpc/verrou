@@ -9,6 +9,7 @@ typedef enum {
   VR_ERROR_CDI,
   VR_ERROR_CDO,
   VR_ERROR_FLT_MAX,
+  VR_ERROR_UNKNOWN_FLT_IOP,
   VR_ERROR
 } Vr_ErrorKind;
 
