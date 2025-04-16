@@ -71,8 +71,8 @@ vr_findExclude (Vr_Exclude* list, const HChar * fnname, const HChar * objname) {
 
 void vr_freeExcludeList (Vr_Exclude* list) {
   while (list != NULL) {
-    if(!list->used){
-       VG_(umsg)("Warning exclude unused: %s\t%s\n", list->fnname,  list->objname );
+    if(!list->used && (VG_(clo_verbosity) >0)){
+        VG_(umsg)("Warning exclude unused: %s\t%s\n", list->fnname,  list->objname );
     }
     Vr_Exclude *next = list->next;
     VG_(free)(list->fnname);
@@ -87,9 +87,11 @@ vr_dumpExcludeList (Vr_Exclude* list, const HChar* fname) {
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
 			VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
-  VG_(umsg)("Dumping exclusions list to `%s'... ", fname);
+  if (VG_(clo_verbosity) >0){
+    VG_(umsg)("Dumping exclusions list to `%s'... ", fname);
+  }
   if (fd == -1) {
-    VG_(umsg)("ERROR!\n");
+    VG_(umsg)("Error (open) while dumping exclusions list to '%s'!\n",fname);
     return;
   }
 
@@ -101,15 +103,19 @@ vr_dumpExcludeList (Vr_Exclude* list, const HChar* fname) {
     VG_(write)(fd, "\n", 1);
   }
   VG_(close)(fd);
-
-  VG_(umsg)("OK.\n");
+  if(VG_(clo_verbosity) >0){
+     VG_(umsg)("OK.\n");
+  }
 }
 
 Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
-  VG_(umsg)("Loading exclusions list from `%s'... ", fname);
+  if (VG_(clo_verbosity) >0){
+     VG_(umsg)("Loading exclusions list from `%s'... ", fname);
+  }
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
-    VG_(tool_panic)("ERROR (open)\n");
+     VG_(umsg)("\nError while loading exclusions list from `%s'\n", fname);
+     VG_(tool_panic)("ERROR (open)\n");
   }
 
   SizeT nLine = LINE_SIZEMAX;
@@ -147,9 +153,9 @@ Vr_Exclude * vr_loadExcludeList (Vr_Exclude * list, const HChar * fname) {
 
   VG_(free)(line);
   VG_(close)(fd);
-
-  VG_(umsg)("OK.\n");
-
+  if (VG_(clo_verbosity) >0){
+     VG_(umsg)("OK.\n");
+  }
   return list;
 }
 
@@ -173,8 +179,10 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   const HChar star[]="*";
   for(int i=0; i< LIB_NB_PATTERN; i++){
     if( VG_(string_match)(libPattern[i],objName)){
-      VG_(umsg)("EXCLUDE DETECTED: %s\n",objName);
-      return vr_addExclude (list, star, objName,False,False);
+       if(VG_(clo_verbosity) >0){
+          VG_(umsg)("EXCLUDE DETECTED: %s\n",objName);
+       }
+       return vr_addExclude (list, star, objName,False,False);
     }
   }
   return list;
@@ -209,8 +217,10 @@ Bool vr_excludeIRSB (const HChar** fnnamePtr, const HChar **objnamePtr, Bool* co
   }
   // Inform the first time a rule is used
   if (!exclude->used) {
-    VG_(umsg)("Using exclusion rule: %s\t%s\n", exclude->fnname, exclude->objname);
-    exclude->used = True;
+     if(VG_(clo_verbosity) >0){
+        VG_(umsg)("Using exclusion rule: %s\t%s\n", exclude->fnname, exclude->objname);
+     }
+     exclude->used = True;
   }
 
   return True;
@@ -277,9 +287,11 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list,
   Int fd = VG_(fd_open)(fname,
 			VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY,
 			VKI_S_IRUSR|VKI_S_IWUSR|VKI_S_IRGRP|VKI_S_IWGRP);
-  VG_(umsg)("Dumping list of included sources to `%s'... ", fname);
+  if(VG_(clo_verbosity) >0){
+     VG_(umsg)("Dumping list of included sources to `%s'... ", fname);
+  }
   if (fd == -1) {
-    VG_(umsg)("ERROR!\n");
+     VG_(umsg)("ERROR open(%s)\n",fname);
     return;
   }
 
@@ -295,15 +307,19 @@ void vr_dumpIncludeSourceList (Vr_IncludeSource * list,
     VG_(write)(fd, "\n", 1);
   }
   VG_(close)(fd);
-
-  VG_(umsg)("OK.\n");
+  if(VG_(clo_verbosity) >0){
+     VG_(umsg)("OK.\n");
+  }
 }
 
 Vr_IncludeSource *
 vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
-  VG_(umsg)("Loading list of included sources from `%s'... ", fname);
+  if(VG_(clo_verbosity) >0){
+     VG_(umsg)("Loading list of included sources from `%s'... ", fname);
+  }
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
+    VG_(umsg)("\nError while loading list of included sources from `%s'\n", fname);
     VG_(tool_panic)("ERROR (open)\n");
     return list;
   }
@@ -362,9 +378,9 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 
   VG_(free)(line);
   VG_(close)(fd);
-
-  VG_(umsg)("OK.\n");
-
+  if(VG_(clo_verbosity) >0){
+     VG_(umsg)("OK.\n");
+  }
   return list;
 }
 

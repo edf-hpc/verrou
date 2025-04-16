@@ -176,6 +176,13 @@ static const HChar* vr_ppVec (Vr_Vec vec) {
   }
 }
 
+static const HChar* vr_ppInstrumentedStatus (Bool isInst) {
+   if(isInst){
+      return "yes";
+   }else{
+      return "no";
+   }
+}
 // ** Counter handling
 
 
@@ -1430,6 +1437,8 @@ static void print_op(int nbArg, const char* name, const double* args,const doubl
 }
 
 
+#define VR_UMSG_CONF(...) if (VG_(clo_verbosity) >0) { VG_(umsg)(__VA_ARGS__);};
+
 static void vr_post_clo_init(void)
 {
    // Values coming from the environment take precedence over CLOs
@@ -1452,7 +1461,7 @@ static void vr_post_clo_init(void)
       ULong pid = VG_(getpid)();
       vr.firstSeed = now.tv_usec + pid;
    }
-   VG_(umsg)("First seed : %llu\n", vr.firstSeed);
+   VR_UMSG_CONF("First seed : %llu\n", vr.firstSeed);
 
    //deactivate interlibm LD_PRELOAD
    if(! vr.loadInterLibm){
@@ -1508,7 +1517,7 @@ static void vr_post_clo_init(void)
 
    verrou_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
-   VG_(umsg)("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version() );
+   VR_UMSG_CONF("Backend %s : %s\n", interflop_verrou_get_backend_name() , interflop_verrou_get_backend_version() );
 
    interflop_verrou_configure(vr.roundingMode,backend_verrou_context);
    verrou_set_seed (vr.firstSeed);
@@ -1523,7 +1532,7 @@ static void vr_post_clo_init(void)
    backend_mcaquad=interflop_mcaquad_init(&backend_mcaquad_context);
    mcaquad_set_panic_handler(&VG_(tool_panic));
 
-   VG_(umsg)("Backend %s : %s\n", interflop_mcaquad_get_backend_name(), interflop_mcaquad_get_backend_version() );
+   VR_UMSG_CONF("Backend %s : %s\n", interflop_mcaquad_get_backend_name(), interflop_mcaquad_get_backend_version() );
 
 
    mcaquad_conf_t mca_quad_conf;
@@ -1544,7 +1553,7 @@ static void vr_post_clo_init(void)
 
    checkcancellation_set_cancellation_handler(&vr_handle_CC); //valgrind error
 
-   VG_(umsg)("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version() );
+   VR_UMSG_CONF("Backend %s : %s\n", interflop_checkcancellation_get_backend_name(), interflop_checkcancellation_get_backend_version() );
 
 
 
@@ -1552,7 +1561,7 @@ static void vr_post_clo_init(void)
    ifmax_set_max_handler(&vr_handle_FLT_MAX);
    ifmax_set_debug_print_op(&print_op);//Use only verrou backend is configured to use it
 
-   VG_(umsg)("Backend %s : %s\n", interflop_check_float_max_get_backend_name(), interflop_check_float_max_get_backend_version() );
+   VR_UMSG_CONF("Backend %s : %s\n", interflop_check_float_max_get_backend_name(), interflop_check_float_max_get_backend_version() );
 
 
 
@@ -1574,7 +1583,7 @@ static void vr_post_clo_init(void)
    checkdenorm_set_denorm_output_handler(&vr_handle_CD_output);
    checkdenorm_set_denorm_input_handler(&vr_handle_CD_input);
    checkdenorm_set_panic_handler(&VG_(tool_panic));
-   VG_(umsg)("Backend %s : %s\n", interflop_checkdenorm_get_backend_name(), interflop_checkdenorm_get_backend_version()  );
+   VR_UMSG_CONF("Backend %s : %s\n", interflop_checkdenorm_get_backend_name(), interflop_checkdenorm_get_backend_version()  );
 
    if( vr.checkDenorm || vr.dumpDenormIn || vr.dumpDenormOut|| vr.ftz || vr.daz || vr.counterDenorm){
      if( vr.backend==vr_mcaquad ||
@@ -1594,7 +1603,7 @@ static void vr_post_clo_init(void)
 
   if( vr.loadInterLibm && (vr.backend!=vr_verrou)){
      if ((vr.backend==vr_checkdenorm) && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE ) ){
-        VG_(umsg)("Backend checkdenorm with NEAREST and NATIVE rounding mode is experimental");
+        VR_UMSG_CONF("Backend checkdenorm with NEAREST and NATIVE rounding mode is experimental");
      }else{
         VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
      }
@@ -1627,47 +1636,41 @@ static void vr_post_clo_init(void)
 #endif
      vr.instr_op[VR_OP_CONV]=True;
    }
-   VG_(umsg)("Instrumented operations :\n");
+   VR_UMSG_CONF("Instrumented operations :\n");
    for (opIt=0; opIt< VR_OP ;opIt++){
-     VG_(umsg)("\t%s : ", vr_ppOp(opIt));
-     if(vr.instr_op[opIt]==True) VG_(umsg)("yes\n");
-     else VG_(umsg)("no\n");
+      VR_UMSG_CONF("\t%s : %s\n", vr_ppOp(opIt), vr_ppInstrumentedStatus(vr.instr_op[opIt]));
    }
-   VG_(umsg)("Instrumented vectorized operations :\n");
+   VR_UMSG_CONF("Instrumented vectorized operations :\n");
    int vecIt;
    for (vecIt=0; vecIt< VR_VEC ;vecIt++){
-      VG_(umsg)("\t%s : ", vr_ppVec(vecIt));
-      if(vr.instr_vec[vecIt]==True) VG_(umsg)("yes\n");
-      else VG_(umsg)("no\n");
+      VR_UMSG_CONF("\t%s : %s\n", vr_ppVec(vecIt), vr_ppInstrumentedStatus(vr.instr_vec[vecIt]));
    }
 
-   VG_(umsg)("Instrumented type :\n");
+   VR_UMSG_CONF("Instrumented type :\n");
    int precIt;
    int nbPrec=2;
    if(vr.loadInterLibm){
      nbPrec=3;
    }
    for (precIt=0; precIt< nbPrec ;precIt++){
-      VG_(umsg)("\t%s : ", vr_ppPrec(precIt));
-      if(vr.instr_prec[precIt]==True) VG_(umsg)("yes\n");
-      else VG_(umsg)("no\n");
+      VR_UMSG_CONF("\t%s : %s\n", vr_ppPrec(precIt),vr_ppInstrumentedStatus(vr.instr_prec[precIt]));
    }
    if(vr.float_conv){
-      VG_(umsg)("Frontend: double -> float\n");
+      VR_UMSG_CONF("Frontend: double -> float\n");
    }
    if(vr.unfused){
-      VG_(umsg)("Frontend: unfused\n");
+      VR_UMSG_CONF("Frontend: unfused\n");
    }
 
    if(vr.backend==vr_verrou){
-      VG_(umsg)("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
+      VR_UMSG_CONF("Backend verrou simulating %s rounding mode\n", verrou_rounding_mode_name (vr.roundingMode));
       if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
-	VG_(umsg)("\t PRANDOM: pvalue=%f\n", verrou_prandom_pvalue());
+	VR_UMSG_CONF("\t PRANDOM: pvalue=%f\n", verrou_prandom_pvalue());
       }
    }
    if(vr.backend==vr_mcaquad){
 #ifdef USE_VERROU_QUADMATH
-     VG_(umsg)("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
+     VR_UMSG_CONF("Backend mcaquad simulating mode %s with precision %u for double and %u for float\n", mcaquad_mode_name(vr.mca_mode), vr.mca_precision_double, vr.mca_precision_float );
 #else
      VG_(tool_panic)("Verrou compiled without quad support");
 #endif
