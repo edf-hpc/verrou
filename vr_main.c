@@ -1179,19 +1179,47 @@ static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
 inline
-void vr_treat_line_from_imark(Bool excludeIrsb, Bool includeSource, Bool doLineContainFloat,   HChar const **  fnnamePtr,   const HChar ** filenamePtr, const UInt *linenumPtr){
+void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool includeSource,
+                              Bool doLineContainFloat, Bool doLineContainFloatCmp,
+                              HChar const *  fnname,   const HChar * filename, const UInt linenum){
   if( !excludeIrsb && doLineContainFloat){
     if(vr.genIncludeSource){
-      vr_includeSource_generate (&vr.gen_includeSource, *fnnamePtr, *filenamePtr, *linenumPtr);
+      vr_includeSource_generate (&vr.gen_includeSource, fnname, filename, linenum);
     }
 
-    if(!includeSource&&  vr.sourceActivated && vr.sourceExcludeActivated&&!vr_includeSource(&vr.excludeSourceRead, *fnnamePtr, *filenamePtr, *linenumPtr)){
+    if(!includeSource&&  vr.sourceActivated && vr.sourceExcludeActivated&&!vr_includeSource(&vr.excludeSourceRead, fnname, filename, linenum)){
       VG_(umsg)("Warning new source line with fp operation discovered :\n");
-      VG_(umsg)("\t%s : %s : %u\n", *fnnamePtr, *filenamePtr, *linenumPtr);
-      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,*fnnamePtr,*filenamePtr,*linenumPtr);//to print only once
+      VG_(umsg)("\t%s : %s : %u\n", fnname, filename, linenum);
+      vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,fnname,filename,linenum);//to print only once
     }
   }
+  if(traceBB!=NULL){
+     vr_traceBB_trace_imark(traceBB,
+                            fnname, filename,linenum,
+                            doLineContainFloat, doLineContainFloatCmp);
+  }
 }
+
+
+
+static
+void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
+   if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
+      if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
+         const HChar *localFnname;
+         if (VG_(get_fnname_if_entry)(*dePtr, st->Ist.IMark.addr, &localFnname)) {
+	    IRDirty*   di;
+	    di = unsafeIRDirty_0_N(0,
+				   "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
+				   mkIRExprVec_0() );
+	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+	    if(vr.verbose){
+               VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
+	    }
+         }
+      }
+   }
+};
 
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
@@ -1248,15 +1276,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool doIRSBFContainFloat=False;
 
 
-  /*Data for Imark localisation*/
-  Bool includeSource = True;
-  Bool doLineContainFloat=False;
-  Bool doLineContainFloatCmp=False;
 
-  const HChar * filename=NULL;
-  const HChar ** filenamePtr=&filenamenoname;
-  UInt  linenum=0;
-  UInt*  linenumPtr=&linenum;
 
   /*Data for trace/coverage generation*/
   traceBB_t* traceBB=NULL;
@@ -1267,6 +1287,14 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     //vr_traceBB_trace_backtrace(traceBB);
   }
 
+  /*Data for Imark localisation*/
+  const HChar * filename=NULL;
+  const HChar ** filenamePtr=&filenamenoname;
+  UInt  linenum=0;
+  UInt*  linenumPtr=&linenum;
+  Bool includeSource = True;
+  Bool doLineContainFloat=False;
+  Bool doLineContainFloatCmp=False;
 
   /*Loop over instructions*/
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
@@ -1274,22 +1302,16 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
-			       fnnamePtr,filenamePtr,linenumPtr);
-      if(genIRSBTrace){
-	vr_traceBB_trace_imark(traceBB,
-			       *fnnamePtr, *filenamePtr,*linenumPtr,
-			       doLineContainFloat, doLineContainFloatCmp);
-      }
+      vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
+                               doLineContainFloat,doLineContainFloatCmp,
+			       *fnnamePtr,*filenamePtr,*linenumPtr);
 
       doLineContainFloat=False;
       doLineContainFloatCmp=False;
-      Addr  addrMark;
-      addrMark = st->Ist.IMark.addr;
-      //      filename[0] = 0;
+
       filenamePtr=&filename;
       Bool success=VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
-					     addrMark,
+					     st->Ist.IMark.addr,
 					     filenamePtr,
 					     NULL,
 					     linenumPtr);
@@ -1302,21 +1324,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
       }
 
-      if(vr.prandomUpdate==VR_PRANDOM_UPDATE_FUNC){
-	if(vr.roundingMode==VR_PRANDOM || vr.roundingMode==VR_PRANDOM_DET || vr.roundingMode==VR_PRANDOM_COMDET){
-	  const HChar *localFnname;
-	  if (VG_(get_fnname_if_entry)(de, st->Ist.IMark.addr, &localFnname)) {
-	    IRDirty*   di;
-	    di = unsafeIRDirty_0_N(0,
-				   "vr_updatep_prandom", VG_(fnptr_to_fnentry)( &vr_updatep_prandom ),
-				   mkIRExprVec_0() );
-	    addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-	    if(vr.verbose){
-	     VG_(umsg)("prandom update instrumentation: %s\n", localFnname );
-	    }
-	  }
-	}
-      }
+      vr_addPrandomUpdate(sbOut, st, &de);
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }
@@ -1346,13 +1354,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     }
   }
 
-  vr_treat_line_from_imark(excludeIrsb,includeSource,doLineContainFloat,
-			   fnnamePtr,filenamePtr,linenumPtr);
-  if(genIRSBTrace){
-    vr_traceBB_trace_imark(traceBB,
-			   *fnnamePtr, *filenamePtr,*linenumPtr,
-			   doLineContainFloat, doLineContainFloatCmp);
-  }
+  vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
+                           doLineContainFloat, doLineContainFloatCmp,
+			   *fnnamePtr,*filenamePtr,*linenumPtr);
 
   if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloat){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
