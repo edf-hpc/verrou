@@ -780,7 +780,7 @@ class config_stat(gen_config.gen_config):
 
         if "det" in self._roundingTab:
             self._roundingTab.remove("det")
-            self._roundingTab=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz"]]+self._roundingTab
+            self._roundingTab=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz","daz","dazftz"]]+self._roundingTab
 
         self._roundingTab=list(dict.fromkeys(self._roundingTab)) #uniq
 
