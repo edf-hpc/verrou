@@ -40,6 +40,7 @@ class DDTask(DD_stoch.DDStoch):
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_FLOAT":"no",
+                "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
                 "GENERATE_TASK_LIST":   os.path.join(self.ref_,"dd.task.gen"),
                 "GENERATE_TASK_FP_LIST":   os.path.join(self.ref_,"dd.taskFP.gen"),

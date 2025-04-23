@@ -39,6 +39,7 @@ class DDsym(DD_stoch.DDStoch):
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
                 "VERROU_FLOAT":"no",
+                "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
                 "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")}
 

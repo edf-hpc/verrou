@@ -151,6 +151,7 @@ class DDstdout(DD_stoch.DDStoch):
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
               "VERROU_FLOAT":"no",
+              "VERROU_UNFUSED":"no",
               "VERROU_IOMATCH_CLR":refPath,
               "VERROU_OUTPUT_IOMATCH_REP":self.ref_,
               "VERROU_COUNT_OP":"yes",
