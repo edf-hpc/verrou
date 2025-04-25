@@ -60,11 +60,11 @@ index b86e80220..f67bafdf1 100755
 +++ b/configure.ac
 @@ -17,7 +17,7 @@
  m4_define([v_major_ver], [3])
- m4_define([v_minor_ver], [24])
+ m4_define([v_minor_ver], [25])
  m4_define([v_micro_ver], [0])
 -m4_define([v_suffix_ver], [])
 +m4_define([v_suffix_ver], [verrou-dev])
- m4_define([v_rel_date], ["31 Oct 2024"])
+ m4_define([v_rel_date], ["25 Apr 2025"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
 @@ -5611,6 +5611,10 @@ AM_CONDITIONAL(HAVE_THRD_CREATE, test x$ac_cxx_have_thrd_create = xyes)
