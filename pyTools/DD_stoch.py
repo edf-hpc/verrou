@@ -611,6 +611,29 @@ class DDStoch(DD.DD):
             rddminCmp=self.reduceSearchSpace(deltas,flatRes)
             self.configuration_found("rddmin-cmp", rddminCmp)
 
+            print("Summary:")
+            summaryHandler=open(os.path.join(self.config_.get_cacheRep(),"summary"),"w")
+            for i in range(len(resConf)):
+                confDirName=os.path.join(self.config_.get_cacheRep(), "ddmin%i"%(i))
+                listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
+                failureIndex=[]
+                for runDir in listOfDirString:
+                    returnValuePath=os.path.join(confDirName, runDir, ddReturnFileName)
+                    ddRunIndex=int(runDir.replace(subDirRun,""))
+                    if os.path.exists(returnValuePath):
+                        statusCmp=int((open(returnValuePath).readline()))
+                        if statusCmp!=0:
+                            failureIndex+=[ddRunIndex]
+                        else:
+                            cmpDone+=[ddRunIndex]
+                    else:
+                        failureIndex+=[ddRunIndex]
+                failStatusStr="Fail Ratio: %.2f%% \tFail indexes: %s"%(100. *float(len(failureIndex)) / float(len(listOfDirString)),
+                                                                    ",".join([str(fail) for fail in failureIndex]))
+                confSummaryStr="%s:\t%s\n\t%s\n"%("ddmin%i"%(i),failStatusStr, "\t\n".join((self.coerce(resConf[i])).strip().split("\n")))
+                print(confSummaryStr)
+                summaryHandler.write(confSummaryStr)
+
         return resConf
 
 
