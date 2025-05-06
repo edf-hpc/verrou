@@ -511,16 +511,12 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				   Vr_Prec prec,
 				   Vr_Vec vec,
 				   Bool countOnly) {
-  // un-instrumented cases :
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+
+// un-instrumented cases :
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
-  }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
-    return True;
   }
 
   // instrumented case :
@@ -592,16 +588,11 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					 Vr_Prec prec,
 					 Vr_Vec vec,
 					 Bool countOnly) {
-  // un-instrumented cases :
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+   // un-instrumented cases :
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
      vr_countOp (sb,  op, prec,vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
-  }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
-    return True;
   }
 
   // instrumented case :
@@ -669,18 +660,12 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Vr_Prec prec,
 					    Vr_Vec vec,
 					    Bool countOnly){
-  //instrumentation to count operation
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+   //instrumentation to count operation
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec, True);
 
   IRExpr * arg1 = expr->Iex.Binop.arg1;
@@ -720,18 +705,12 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 						  Vr_Prec prec,
 						  Vr_Vec vec,
 						  Bool countOnly){
-  //instrumentation to count operation
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+   //instrumentation to count operation
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec, True);
 
   IRExpr * arg1 = expr->Iex.Binop.arg1;
@@ -790,17 +769,12 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+
+   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec, True);
 
   if(!(
@@ -841,17 +815,11 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec, False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec, True);
 
   if(!(
@@ -892,17 +860,11 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
 				  Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec,True);
 
 
@@ -943,17 +905,11 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Prec prec,
 					Vr_Vec vec,
 					Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,vec))) {
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
     vr_countOp (sb,  op, prec,vec,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec,vec,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec,vec,True);
 
 
@@ -992,15 +948,10 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   Vr_Op   op,
 			   Vr_Prec prec,
 			   Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))||countOnly) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
-  }
-  if(countOnly){
-    vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
-    addStmtToIRSB (sb, stmt);
-    return True;
   }
 
   vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
@@ -1055,17 +1006,11 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    Vr_Op   op,
 			    Vr_Prec prec,
 			    Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))) {
+  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))||countOnly) {
     vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  if(countOnly){
-    vr_countOp (sb,  op, prec, VR_VEC_UNK, False);
-    addStmtToIRSB (sb, stmt);
-    return True;
-  }
-
   vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
@@ -1149,6 +1094,14 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 }
 
 
+static Vr_instr_kind vr_IsInstrumentedOp (IROp op);
+static Vr_instr_kind vr_IsInstrumentedOp (IROp op) {
+//#ifndef USE_VERROU_SQRT
+//#define IGNORESQRT
+//#endif
+#include "vr_instrumentOp_checkInst.h"
+}
+
 
 
 
@@ -1221,6 +1174,67 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
    }
 };
 
+
+static
+Bool vr_IsInstrumented (IRSB* sbIn, HChar const ** fnnamePtr)
+{
+
+  /*Data for Imark localisation*/
+  const HChar * filename=NULL;
+  const HChar ** filenamePtr=&filenamenoname;
+  UInt  linenum=0;
+  UInt*  linenumPtr=&linenum;
+  Bool includeSource = True;
+
+  /*Loop over instructions*/
+  UInt i;
+  for (i=0 ; i<sbIn->stmts_used ; ++i) {
+    IRStmt* st = sbIn->stmts[i];
+
+    switch (st->tag) {
+    case Ist_IMark: {
+
+      filenamePtr=&filename;
+      Bool success=VG_(get_filename_linenum)(VG_(current_DiEpoch)(),
+					     st->Ist.IMark.addr,
+					     filenamePtr,
+					     NULL,
+					     linenumPtr);
+      if(! success || (**filenamePtr)==0){
+	filenamePtr=&filenamenoname;
+	*linenumPtr=0;
+      }
+
+      if(!vr.genIncludeSource){
+	includeSource =(!vr.sourceActivated) || (vr.sourceActivated&&  vr_includeSource (&vr.includeSource, *fnnamePtr, *filenamePtr, *linenumPtr));
+      }
+    }
+       break;
+    case Ist_WrTmp:
+      {
+	if (includeSource){
+           Vr_instr_kind instrStatus;
+
+           IROp op;
+           Bool doInstrContainFloat;
+           if (vr_getOp (st->Ist.WrTmp.data, &op)) {
+              instrStatus=vr_IsInstrumentedOp (op);
+              doInstrContainFloat=instrStatus.containFloatModOp;
+              if(doInstrContainFloat){
+                 return True;
+              }
+           }
+	}
+      }
+      break;
+    default:
+
+    }
+  }
+  return False;
+}
+
+
 static
 IRSB* vr_instrument ( VgCallbackClosure* closure,
                       IRSB* sbIn,
@@ -1276,8 +1290,6 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool doIRSBFContainFloat=False;
 
 
-
-
   /*Data for trace/coverage generation*/
   traceBB_t* traceBB=NULL;
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
@@ -1295,6 +1307,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool includeSource = True;
   Bool doLineContainFloat=False;
   Bool doLineContainFloatCmp=False;
+
+  Bool backTraceInstr= (!excludeIrsb) && vr_IsInstrumented(sbIn, fnnamePtr);
 
   /*Loop over instructions*/
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
@@ -1346,12 +1360,16 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
 	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
 	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
-
       }
       break;
     default:
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
+  }
+  if(doIRSBFContainFloat!= backTraceInstr){
+     VG_(umsg)( "doIRSBFContainFloat: %s\n", vr_ppInstrumentedStatus(doIRSBFContainFloat) );
+     VG_(umsg)( "backTraceInstr: %s\n", vr_ppInstrumentedStatus(backTraceInstr) );
+     VG_(tool_panic)("doIRSBFContainFloat!= backTraceInstr");
   }
 
   vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
