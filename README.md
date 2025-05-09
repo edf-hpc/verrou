@@ -1,6 +1,6 @@
 # Verrou
+[![gitHubAction](https://github.com/edf-hpc/verrou/actions/workflows/github-actions-travis.yml/badge.svg)](https://github.com/edf-hpc/verrou/actions/workflows/github-actions-travis.yml)
 
-[![Build Status](https://travis-ci.org/edf-hpc/verrou.svg?branch=master)](https://travis-ci.org/edf-hpc/verrou) 
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](http://edf-hpc.github.io/verrou/vr-manual.html)
 
 Verrou helps you look for floating-point round-off errors in programs. It
@@ -22,9 +22,11 @@ debugging process by implementing several variants of the Delta-Debugging
 algorithm. This allows easily locating which parts of the analyzed source code
 are likely to be responsible for Floating-Point-related instabilities.
 
-The documentation for Verrou is available as a dedicated [chapter in the
-Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html).
+The documentation of the latest stable release is available as a dedicated [chapter in the
+Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html). For master version,
+documentation generation is required (see below).
 
+Documentation and support can also be found in the [verrou_support repository] (https://github.com/edf-hpc/verrou_support).
 
 ## Installation
 
