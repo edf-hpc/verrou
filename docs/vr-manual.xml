@@ -262,7 +262,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|ftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -294,13 +294,19 @@ det2
                   <computeroutput>downward</computeroutput>,
                   <computeroutput>toward_zero</computeroutput>.
                 </para></listitem>
+		<listitem><para>
+		    <command>Denormalized rounding modes (imply checkdenorm backend):</command>
+		    <computeroutput>daz</computeroutput>,
+		    <computeroutput>ftz</computeroutput>,
+		    <computeroutput>dazftz</computeroutput>.
+		    </para>
+		</listitem>
                 <listitem><para>
                     <command>Other:</command>
 		    <computeroutput>native</computeroutput>[default] (similar to nearest (maybe different with <option>--libm=instrumented</option>),
 		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
-		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
               </itemizedlist>
 	      <para>This option can be activated with the env variable <command>VERROU_ROUNDING_MODE</command>.</para>
