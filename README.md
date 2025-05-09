@@ -1,6 +1,5 @@
 # Verrou
 [![gitHubAction](https://github.com/edf-hpc/verrou/actions/workflows/github-actions-travis.yml/badge.svg)](https://github.com/edf-hpc/verrou/actions/workflows/github-actions-travis.yml)
-
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](http://edf-hpc.github.io/verrou/vr-manual.html)
 
 Verrou helps you look for floating-point round-off errors in programs. It
