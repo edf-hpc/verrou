@@ -25,7 +25,7 @@ The documentation of the latest stable release is available as a dedicated [chap
 Valgrind manual](http://edf-hpc.github.io/verrou/vr-manual.html). For master version,
 documentation generation is required (see below).
 
-Documentation and support can also be found in the [verrou_support repository] (https://github.com/edf-hpc/verrou_support).
+Documentation and support can also be found in the [verrou_support repository](https://github.com/edf-hpc/verrou_support).
 
 ## Installation
 
