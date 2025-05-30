@@ -1159,7 +1159,7 @@ The different possible actions are :
 		    <para>
 		      With these estimators, the number of samples can be computed before the runs from the expected probability and confidence level:
 
-		      <table xml:id="tab.sample" frame='all'>
+		      <table frame='all'>
 			<title>Number of sample</title>
  <tgroup cols='10' align='center' colsep='1' rowsep='1'>
  <colspec colname='c1'/>
@@ -1176,7 +1176,7 @@ The different possible actions are :
  <thead>
 
  <row>
-   <entry align='center' morerows='1' valign='center'>Confidence level 1-alpha</entry>
+   <entry align='center' morerows='1' valign='middle'>Confidence level 1-alpha</entry>
    <entry namest="c2" nameend="c10" align="center">Probability p</entry>
  </row>
  <row>
@@ -1609,17 +1609,23 @@ The different possible actions are :
 		      </listitem>
 
 		      <listitem>
+			<para>
 			Can you reproduce your problem with a deterministic rounding (upward, downward, toward_zero, away_zero, farthest)? If so, you can run delta-debug with only one sample (<option>--nruns=1</option>).
-		      </listitem>
+			</para>
+			</listitem>
 
 		      <listitem>
+			<para>
 			Are you able to reproduce your problem with a subset of instructions (see <option>--vr-instr=</option>, <option>--vr-instr-vec*=</option>,  <option>--vr-instr-flt=</option>, <option>--vr-instr-dbl</option>). If so, this will reduce the cost of instrumentation and the size of the search space.
-		      </listitem>
+			</para>
+			</listitem>
 
 		      <listitem>
+			<para>
 			Sometimes the individual runs (FAIL or SUCCESS) can be very long due to quasi infinite noisy iterations  or due to NaN computation.
 			To solve this problem, you can reduce the maximum number of iterations or introduce early exit. This can be done with manual code modification, with <option>--exit-on-first-error=yes</option> (in conjunction of <option>--suppression</option> to filter errors), or with an IOmatch script.
-		      </listitem>
+			</para>
+			</listitem>
 
 		      <listitem>
 			<para>
