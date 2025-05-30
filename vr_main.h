@@ -172,6 +172,7 @@ typedef struct {
   HChar* genBackTraceRep;
   HChar* backExcludeFile;
   Vr_Back backTraceTool;
+  Int backIgnoreSize;
 
   UInt mca_precision_double;
   UInt mca_precision_float;

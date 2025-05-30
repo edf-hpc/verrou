@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2021 EDF
+#   F. Févotte <francois.fevotte@edf.fr>
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+
+import sys
+import os
+import subprocess
+import dd_config
+import DD_stoch
+import DD_exec_stat
+
+import ctypes
+import ctypes.util
+
+class DDback(DD_stoch.DDStoch):
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config)
+
+    def referenceRunEnv(self):
+        return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
+                "VERROU_FLOAT":"no",
+                "VERROU_UNFUSED":"no",
+                "VERROU_MCA_MODE": "ieee",
+                "VERROU_GEN_BACKTRACE":   os.path.join(self.ref_)}
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("backInfo-")
+
+    def getDeltaFileName(self):
+        return "dd.back"
+
+    def sampleRunEnv(self,dirName):
+        return {"VERROU_EXCLUDE_BACKTRACE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
+                "VERROU_GEN_BACKTRACE":   os.path.join(dirName, "debugGenBack")
+        }
+
+    def coerce(self, delta_config):
+        def transform(line):
+            return line
+        return "\n  " + "\n  ".join([transform(line) for line in delta_config])
+
+    # def demangle(self, mangledName):
+    #     try:
+    #         line=subprocess.check_output(["c++filt",mangledName]).decode("utf8").strip()
+    #     except:
+    #         line=mangledName
+    #     return line
+
+#code coming from verificarlo : https://github.com/verificarlo/verificarlo/blob/master/src/tools/ddebug/main.py
+def disable_ASLR():
+    # We call personality(ADDR_NO_RANDOMIZE) to disable ASLR, so that addresses during reference run
+    # always match addresses during sample runs (even for .so code).
+    ADDR_NO_RANDOMIZE = 0x0040000
+    libc_name = ctypes.util.find_library("c")
+    libc = ctypes.CDLL(libc_name)
+    personality = libc.personality
+    personality(ADDR_NO_RANDOMIZE)
+
+class ddBackConfig(dd_config.ddConfig):
+
+    def __init__(self, argv, environ):
+        super().__init__(argv,environ,config_keys=["INTERFLOP_DD","VERROU_DD"],prefix="dd.back")
+        self.instr_prefix="VERROU"
+
+    def registerOptions(self):
+        super().registerOptions()
+        self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+
+
+if __name__ == "__main__":
+    disable_ASLR()
+    config=ddBackConfig(sys.argv,os.environ)
+    et=DD_exec_stat.exec_stat(config.get_cacheRep())
+    dd = DDback(config)
+    dd.run()
+    et.terminate()

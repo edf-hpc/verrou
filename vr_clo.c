@@ -57,6 +57,9 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_EXCLUDE",       "--exclude");
    vr_env_clo_one_option("VERROU_GEN_EXCLUDE",   "--gen-exclude");
 
+   vr_env_clo_one_option("VERROU_EXCLUDE_BACKTRACE", "--exclude-backtrace");
+   vr_env_clo_one_option("VERROU_GEN_BACKTRACE",   "--gen-backtrace");
+
    vr_env_clo_one_option("VERROU_SOURCE",        "--source");
    vr_env_clo_one_option("VERROU_WARN_UNKNOWN_SOURCE","--warn-unknown-source");
    vr_env_clo_one_option("VERROU_GEN_SOURCE",    "--gen-source");
@@ -117,6 +120,7 @@ void vr_clo_defaults (void) {
   vr.useBackTraceBool=False;
   vr.genBackTraceRep=NULL;
   vr.backExcludeFile=NULL;
+  vr.backIgnoreSize=2;
 
   vr.genTrace=False;
   vr.includeTrace = NULL;

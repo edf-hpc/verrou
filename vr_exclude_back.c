@@ -74,7 +74,7 @@ vr_findExcludeBack (Vr_Exclude_Back* list, Int nbBack, Addr* ip) {
       continue;
      }
      Bool detectDiff=False;
-     for(Int i=0; i<nbBack; i++){
+     for(Int i=0; i<(nbBack- vr.backIgnoreSize); i++){
         if( exclude->ip[i]!= ip[i]){
            detectDiff=True;
            break;
