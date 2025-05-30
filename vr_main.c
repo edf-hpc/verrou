@@ -44,7 +44,7 @@ extern Bool VG_(get_fnname_raw) ( DiEpoch ep, Addr a, const HChar** buf );
 #include "pub_tool_libcfile.h"
 extern Bool VG_(resolve_filename) ( Int fd, const HChar** buf );
 
-
+#include "vr_exclude_back.h"
 
 Vr_State vr;
 
@@ -203,7 +203,7 @@ void vr_resetCount(void){
 };
 
 static VG_REGPARM(2) void vr_incOpCount (ULong* counter, SizeT increment) {
-   counter[(vr.instrument_hard && vr.instrument_soft)] += increment;
+   counter[(vr.instrument_hard && vr.instrument_soft&& vr.instrument_soft_back )] += increment;
 }
 
 static VG_REGPARM(2) void vr_incUninstrumentedOpCount (ULong* counter, SizeT increment) {
@@ -1175,6 +1175,32 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 };
 
 
+#define BACKTRACE_SIZE 40
+static VG_REGPARM(0) void vr_backtrace_dyn_BB (void) {
+   Addr ips[BACKTRACE_SIZE];
+   Int nb=VG_(get_StackTrace)(VG_(get_running_tid)(),ips, BACKTRACE_SIZE,
+                                 NULL, NULL,0);
+   if(vr.useBackTraceBool){
+      vr.instrument_soft_back = vr_isInstrumentedBack(&vr.backTraceTool, nb, ips);
+   }
+
+   if(vr.genBackTraceBool && (vr.instrument_soft_back)){
+      vr_addBackGen(&vr.backTraceTool, nb, ips);
+   }
+}
+
+static
+void vr_add_backtrace_prefix(IRSB* sbOut, DiEpoch* dePtr){
+   if(vr.genBackTraceBool || vr.useBackTraceBool){
+      IRDirty*   di;
+      di = unsafeIRDirty_0_N(0,
+                             "vr_backtrace_dyn_BB", VG_(fnptr_to_fnentry)( &vr_backtrace_dyn_BB ),
+                             mkIRExprVec_0() );
+      addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+   }
+};
+
+
 static
 Bool vr_IsInstrumented (IRSB* sbIn, HChar const ** fnnamePtr)
 {
@@ -1254,8 +1280,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   HChar const ** fnnamePtr=&fnname;
   HChar const ** objnamePtr=&objname;
 
-  Addr ips[256];
-  VG_(get_StackTrace)(VG_(get_running_tid)(),ips, 256,
+  Addr ips[1];
+  VG_(get_StackTrace)(VG_(get_running_tid)(),ips, 1,
 		      NULL, NULL,0);
   Addr addr = ips[0];
   DiEpoch de = VG_(current_DiEpoch)();
@@ -1308,7 +1334,17 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   Bool doLineContainFloat=False;
   Bool doLineContainFloatCmp=False;
 
-  Bool backTraceInstr= (!excludeIrsb) && vr_IsInstrumented(sbIn, fnnamePtr);
+
+  Bool backTraceInstr=False;
+
+  if(vr.genBackTraceBool || vr.useBackTraceBool){
+     backTraceInstr= (!excludeIrsb) && vr_IsInstrumented(sbIn, fnnamePtr);
+  }
+  vr.instrument_soft_back_used=False;
+  if(backTraceInstr){
+     vr_add_backtrace_prefix (sbOut, &de);
+     vr.instrument_soft_back_used=True;
+  }
 
   /*Loop over instructions*/
   for (i=0 ; i<sbIn->stmts_used ; ++i) {
@@ -1366,7 +1402,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
   }
-  if(doIRSBFContainFloat!= backTraceInstr){
+  if( (vr.genBackTraceBool || vr.useBackTraceBool) && doIRSBFContainFloat!= backTraceInstr){
      VG_(umsg)( "doIRSBFContainFloat: %s\n", vr_ppInstrumentedStatus(doIRSBFContainFloat) );
      VG_(umsg)( "backTraceInstr: %s\n", vr_ppInstrumentedStatus(backTraceInstr) );
      VG_(tool_panic)("doIRSBFContainFloat!= backTraceInstr");
@@ -1424,6 +1460,9 @@ static void vr_fini(Int exitcode)
   if(vr.genTrace){
     vr_traceBB_dumpCov();
     vr_traceBB_finalize();
+    if(vr.outputTraceRep!=NULL){
+       VG_(free)(vr.outputTraceRep);
+    }
   }
   if (vr.dumpCancellation){
      vr_dumpIncludeSourceList(vr.cancellationSource, vr.cancellationDumpFile );
@@ -1434,6 +1473,16 @@ static void vr_fini(Int exitcode)
   }
   if (vr.dumpDenormOut){
      vr_dumpIncludeSourceList(vr.denormOutputSource, vr.denormOutputDumpFile );
+  }
+
+  if (vr.genBackTraceBool || vr.useBackTraceBool){
+     if(vr.genBackTraceBool){
+        vr_dumpBack(&vr.backTraceTool);
+     }
+     vr_back_finalize(&vr.backTraceTool);
+     if(vr.genBackTraceRep!=NULL){
+        VG_(free)(vr.genBackTraceRep);
+     }
   }
 
   vr_freeExcludeList (vr.exclude);
@@ -1638,6 +1687,13 @@ static void vr_post_clo_init(void)
   if(vr.genTrace){
      vr_traceBB_initialize(vr.outputTraceRep);
    }
+
+  if(vr.genBackTraceBool || vr.useBackTraceBool){
+     vr_back_init(&vr.backTraceTool, vr.genBackTraceBool, vr.genBackTraceRep);
+     if( vr.useBackTraceBool){
+        vr_loadBack(&vr.backTraceTool, vr.backExcludeFile);
+     }
+  }
 
    /*If no operation selected the default is all*/
    Bool someThingInstr=False;

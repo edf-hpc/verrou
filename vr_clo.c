@@ -92,7 +92,10 @@ void vr_clo_defaults (void) {
   vr.unfused=False;
   vr.instrument_hard = VR_INSTR_ON;
   vr.instrument_soft = VR_INSTR_ON;
+  vr.instrument_soft_back = VR_INSTR_ON;
+
   vr.instrument_soft_used = False;
+  vr.instrument_soft_back_used =False;
 
   vr.verbose = False;
 
@@ -109,6 +112,12 @@ void vr_clo_defaults (void) {
   vr.sourceActivated= False;
   vr.excludeSourceRead = NULL;
   vr.sourceExcludeActivated = False;
+
+  vr.genBackTraceBool=False;
+  vr.useBackTraceBool=False;
+  vr.genBackTraceRep=NULL;
+  vr.backExcludeFile=NULL;
+
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr.outputTraceRep = NULL;
@@ -392,9 +401,22 @@ Bool vr_process_clo (const HChar *arg) {
     vr.genTrace = True;
   }
 
+  else if (VG_STR_CLOM  (cloPD, arg, "--gen-backtrace", str)) {
+    vr.genBackTraceRep = VG_(expand_file_name)("vr.process_clo.back-rep", str);
+    vr.genBackTraceBool = True;
+  }
+  else if (VG_STR_CLOM  (cloPD, arg, "--exclude-backtrace", str)) {
+    vr.backExcludeFile = VG_(expand_file_name)("vr.process_clo.backtrace", str);
+    if(vr.backExcludeFile==NULL){
+       VG_(umsg)("problem backExcludeFile\n");
+    }
+    vr.useBackTraceBool = True;
+  }
+
   else if (VG_STR_CLOM (cloPD, arg, "--output-trace-rep", str)) {
     vr.outputTraceRep = VG_(expand_file_name)("vr.process_clo.trace-rep", str);
   }
+
   // Instrumentation of only specified source lines
   else if (VG_STR_CLOM (cloPD, arg, "--gen-source", str)) {
     vr.includeSourceFile = VG_(expand_file_name)("vr.process_clo.gen-source", str);

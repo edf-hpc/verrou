@@ -119,7 +119,7 @@ def generateVerrouRounding(handler,roundingList):
             includeMacroHard=replaceConv(includePatternHard, "ROUNDING", roundingMode, "ROUNDING", "NEAREST")
             includeMacroSoft=replaceConv(includePatternSoft, "ROUNDING", roundingMode, "ROUNDING_soft", "NEAREST")
 
-        includeMacro="""\tif(vr.instrument_soft_used){\n""" + includeMacroSoft+"\t}else{//instrument hard\n"+includeMacroHard+"\t}\n"
+        includeMacro="""\tif(vr.instrument_soft_used|| vr.instrument_soft_back_used){\n""" + includeMacroSoft+"\t}else{//instrument hard\n"+includeMacroHard+"\t}\n"
         strWrite=checkStr + includeMacro+ "}\n"
         handler.write(strWrite)
 
@@ -144,7 +144,7 @@ def generateVerrouGeneric(handler, backendEnum="vr_verrou", backendName="verrou"
         includeMacroHard=includePatternHard.replace("_ROUNDING","")
         includeMacroSoft=includePatternSoft.replace("_ROUNDING","")
 
-        includeMacro="\tif(vr.instrument_soft_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
+        includeMacro="\tif(vr.instrument_soft_used|| vr.instrument_soft_back_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
         handler.write(includeMacro)
     else:
         for postBackend in postBackendList:
@@ -156,7 +156,7 @@ def generateVerrouGeneric(handler, backendEnum="vr_verrou", backendName="verrou"
                     includeMacroHard=replaceCC(includePatternHard,"_ROUNDING",postBackend["postBackendName"], "_ROUNDING", "" )
                     includeMacroSoft=replaceCC(includePatternSoft,"_ROUNDING",postBackend["postBackendName"], "_ROUNDING", "" )
 
-                includeMacro="\tif(vr.instrument_soft_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
+                includeMacro="\tif(vr.instrument_soft_used|| vr.instrument_soft_back_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
                 res+=includeMacro
             else:
                 includeMacroHard=includePatternHardWithoutConv.replace("_ROUNDING",postBackend["postBackendName"])
@@ -164,7 +164,7 @@ def generateVerrouGeneric(handler, backendEnum="vr_verrou", backendName="verrou"
                 if postBackend["ccOnly"]:
                     includeMacroHard=replaceCC(includePatternHardWithoutConv,"_ROUNDING",postBackend["postBackendName"], "_ROUNDING", "" )
                     includeMacroSoft=replaceCC(includePatternSoftWithoutConv,"_ROUNDING",postBackend["postBackendName"], "_ROUNDING", "" )
-                includeMacro="\tif(vr.instrument_soft_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
+                includeMacro="\tif(vr.instrument_soft_used || vr.instrument_soft_back_used){\n" + includeMacroSoft+"\n\t}else{//hard\n"+includeMacroHard+"\n\t}//end vr.instrument_soft_used)\n"
                 res+=includeMacro
             res+="}\n"
             res=res.replace("\n\n","\n")

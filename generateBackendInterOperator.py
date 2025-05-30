@@ -65,7 +65,7 @@ def treatBackend(tab, soft):
     if soft==False:
         return tab
     else:
-        res=["if(vr.instrument_soft){\n"]
+        res=["if(vr.instrument_soft&&vr.instrument_soft_back){\n"]
         res+=tab
         res+=["}else{\n"]
         if any(["BACKEND_FIRST" in line for line in tab]):
@@ -151,7 +151,7 @@ def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft)
         return remain[0:-1]
 
     res=[getFunctionName(lineTabConv)]
-    res+=["if(vr.instrument_soft){\n"]
+    res+=["if(vr.instrument_soft && vr.instrument_soft_back){\n"]
     res+= [x for x in  getFunctionBloc(lineTabConv) if not (("PREBACKEND" in x) or ("POSTBACKEND" in x )) ]
     res+=["}else{\n"]
 

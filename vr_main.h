@@ -61,6 +61,7 @@
 #include "vr_error.h"
 #include "vr_include_trace.h"
 
+#include "vr_exclude_back.h"
 #define VR_FNNAME_BUFSIZE 4096
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
@@ -140,8 +141,9 @@ typedef struct {
 //  Vr_Instr instrument;
   Vr_Instr instrument_hard;
   Vr_Instr instrument_soft;
+  Vr_Instr instrument_soft_back;
   Bool instrument_soft_used;
-
+  Bool instrument_soft_back_used;
   Bool verbose;
 
   ULong firstSeed;
@@ -164,6 +166,12 @@ typedef struct {
 
   Bool sourceExcludeActivated;
   Vr_IncludeSource *excludeSourceRead;
+
+  Bool genBackTraceBool;
+  Bool useBackTraceBool;
+  HChar* genBackTraceRep;
+  HChar* backExcludeFile;
+  Vr_Back backTraceTool;
 
   UInt mca_precision_double;
   UInt mca_precision_float;

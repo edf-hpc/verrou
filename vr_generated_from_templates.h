@@ -29,7 +29,7 @@ static VG_REGPARM(3) Int vr_checkdenormcast64FTo32F (Long a) {
 static VG_REGPARM(3) Int vr_verrou_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -42,7 +42,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_mcaquad_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_cast_double_to_float(*arg1, &res,backend_mcaquad_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -55,7 +55,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_checkdenorm_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_cast_double_to_float(*arg1, &res,backend_checkdenorm_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -76,7 +76,7 @@ static VG_REGPARM(3) Int vr_verroucheck_float_maxcast64FTo32F (Long a) {
 static VG_REGPARM(3) Int vr_verroucheck_float_max_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float(*arg1, &res,backend_verrou_context);
   interflop_check_float_max_cast_double_to_float(*arg1, &res,backend_check_float_max_context);
 }else{
@@ -241,7 +241,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICcast64FTo32F (Long a) {
 /*static VG_REGPARM(3) Int vr_verrou_NEAREST_softcast64FTo32F (Long a) {*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);*/
@@ -253,7 +253,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONICcast64FTo32F (Long a) {
 static VG_REGPARM(3) Int vr_verrou_UPWARD_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_UPWARD(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -265,7 +265,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_DOWNWARD_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_DOWNWARD(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -277,7 +277,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_FARTHEST_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_FARTHEST(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -289,7 +289,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_ZERO_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_ZERO(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -301,7 +301,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_AWAY_ZERO_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_AWAY_ZERO(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -313,7 +313,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_RANDOM_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_RANDOM(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -325,7 +325,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_RANDOM_DET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_RANDOM_DET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -337,7 +337,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_RANDOM_COMDET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_RANDOM_COMDET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -349,7 +349,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_AVERAGE_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_AVERAGE(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -361,7 +361,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_AVERAGE_DET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_AVERAGE_DET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -373,7 +373,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_AVERAGE_COMDET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_AVERAGE_COMDET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -385,7 +385,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_PRANDOM_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_PRANDOM(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -397,7 +397,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_PRANDOM_DET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_PRANDOM_DET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -409,7 +409,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_PRANDOM_COMDET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_PRANDOM_COMDET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -421,7 +421,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_RANDOM_SCOMDET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_RANDOM_SCOMDET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -433,7 +433,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_AVERAGE_SCOMDET_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_AVERAGE_SCOMDET(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -445,7 +445,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_SR_MONOTONIC_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_SR_MONOTONIC(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -457,7 +457,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONIC_softcast64FTo32F (Long a) {
   double *arg1 = (double*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_cast_double_to_float_SR_SMONOTONIC(*arg1, &res,backend_verrou_context);
 }else{
   interflop_verrou_cast_double_to_float_NEAREST(*arg1, &res,backend_verrou_null_context);
@@ -680,7 +680,7 @@ static VG_REGPARM(1) void vr_checkdenormsqrt32Fx4 (/*OUT*/V128* output){
 static VG_REGPARM(2) Long vr_verrou_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -690,7 +690,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -710,7 +710,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -719,7 +719,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float(arg1f, &resf, backend_verrou_context);
@@ -734,7 +734,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -744,7 +744,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -762,7 +762,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -774,7 +774,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -797,7 +797,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -808,7 +808,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -819,7 +819,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
   }
@@ -833,7 +833,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
   }
@@ -848,7 +848,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_checkdenorm_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sqrt_double(*arg1, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -858,7 +858,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_checkdenorm_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -878,7 +878,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sqrt_double(arg1CopyDouble[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -887,7 +887,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_checkdenorm_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_checkdenorm_sqrt_float(arg1f, &resf, backend_checkdenorm_context);
@@ -902,7 +902,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_checkdenorm_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sqrt_double(arg1[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_sqrt_double(arg1[1], res+1, backend_checkdenorm_context);
 }else{
@@ -912,7 +912,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -930,7 +930,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenorm_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_sqrt_double(arg1CopyDouble[i], res+i, backend_checkdenorm_context);
   }
@@ -942,7 +942,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -965,7 +965,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_checkdenorm_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sqrt_float(*arg1, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -976,7 +976,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sqrt_float(arg1CopyFloat[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -987,7 +987,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_checkdenorm_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sqrt_float(arg1[i], res+i, backend_checkdenorm_context);
   }
@@ -1001,7 +1001,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_checkdenorm_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sqrt_float(arg1[i], res+i, backend_checkdenorm_context);
   }
@@ -1133,7 +1133,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_maxsqrt32Fx4 (/*OUT*/V128* output
 static VG_REGPARM(2) Long vr_verroucheck_float_max_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(*arg1, &res, backend_verrou_context);
   interflop_check_float_max_sqrt_double(*arg1, &res, backend_check_float_max_context);
 }else{
@@ -1144,7 +1144,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(2) Long vr_conv_verroucheck_float_max_softsqrt64F (Long a, Long b) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float arg1f=*arg1;*/
 /*  double res;*/
@@ -1165,7 +1165,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(0) void vr_verroucheck_float_max_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(arg1CopyDouble[0], &res, backend_verrou_context);
   interflop_check_float_max_sqrt_double(arg1CopyDouble[0], &res, backend_check_float_max_context);
 }else{
@@ -1175,7 +1175,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(0) void vr_conv_verroucheck_float_max_softsqrt64FLLO (void) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float resf;*/
 /*  float arg1f=arg1CopyDouble[0];*/
 /*  interflop_verrou_sqrt_float(arg1f, &resf, backend_verrou_context);*/
@@ -1191,7 +1191,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verroucheck_float_max_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double(arg1[0], res, backend_verrou_context);
   interflop_check_float_max_sqrt_double(arg1[0], res, backend_check_float_max_context);
   interflop_verrou_sqrt_double(arg1[1], res+1, backend_verrou_context);
@@ -1202,7 +1202,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsqrt64Fx2(%%OUT%%V128* output) {*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsqrt64Fx2(%%OUT%%V128* output) {*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};*/
 /*  double* res=(double*) output;*/
 /*  float resf[2];*/
@@ -1222,7 +1222,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(1) void vr_verroucheck_float_max_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double(arg1CopyDouble[i], res+i, backend_verrou_context);
      interflop_check_float_max_sqrt_double(arg1CopyDouble[i], res+i, backend_check_float_max_context);
@@ -1234,7 +1234,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsqrt64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsqrt64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};*/
 /*  double* res=(double*) output;*/
 /*  float resf[4];*/
@@ -1258,7 +1258,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verroucheck_float_max_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float(*arg1, &res, backend_verrou_context);
   interflop_check_float_max_sqrt_float(*arg1, &res, backend_check_float_max_context);
 }else{
@@ -1270,7 +1270,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheck_float_max_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float(arg1CopyFloat[0], &res, backend_verrou_context);
   interflop_check_float_max_sqrt_float(arg1CopyFloat[0], &res, backend_check_float_max_context);
 }else{
@@ -1282,7 +1282,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verroucheck_float_max_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
      interflop_check_float_max_sqrt_float(arg1[i], res+i, backend_check_float_max_context);
@@ -1297,7 +1297,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verroucheck_float_max_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float(arg1[i], res+i, backend_verrou_context);
      interflop_check_float_max_sqrt_float(arg1[i], res+i, backend_check_float_max_context);
@@ -3308,7 +3308,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx4 (/*OUT*/V128* output)
 /*static VG_REGPARM(2) Long vr_verrou_NEAREST_softsqrt64F (Long a, Long b) {*/
 /*  double *arg1 = (double*)(&a);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);*/
@@ -3318,7 +3318,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICsqrt32Fx4 (/*OUT*/V128* output)
 /*}*/
 
 static VG_REGPARM(2) Long vr_conv_verrou_NEAREST_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -3338,7 +3338,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softsqrt64FLLO (void) {*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);*/
@@ -3347,7 +3347,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(0) void vr_conv_verrou_NEAREST_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_NEAREST(arg1f, &resf, backend_verrou_context);
@@ -3361,7 +3361,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsqrt64Fx2(%%OUT%%V128* output) {*//*  const double* arg1=arg1CopyDouble;*/
 /*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sqrt_double_NEAREST(arg1[0], res, backend_verrou_context);*/
 /*  interflop_verrou_sqrt_double_NEAREST(arg1[1], res+1, backend_verrou_context);*/
 /*}else{*/
@@ -3371,7 +3371,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -3388,7 +3388,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsqrt64Fx4 (%%OUT%%V256* output){*//*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4; i++){*/
 /*     interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -3400,7 +3400,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -3423,7 +3423,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(2) Int vr_verrou_NEAREST_softsqrt32F (Long a) {*/
 /*  float *arg1 = (float*)(&a);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);*/
@@ -3434,7 +3434,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softsqrt32FLLO (void) {*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);*/
@@ -3444,7 +3444,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsqrt32Fx8 (%%OUT%%V256* output){*//*  float* res=(float*) output;*/
 /*  float* arg1=arg1CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<8; i++){*/
 /*     interflop_verrou_sqrt_float_NEAREST(arg1[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -3457,7 +3457,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsqrt32Fx4 (%%OUT%%V128* output){*//*  float* res=(float*) output;*/
 /*  const float* arg1=arg1CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4;i++){*/
 /*     interflop_verrou_sqrt_float_NEAREST(arg1[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -3472,7 +3472,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_UPWARD_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_UPWARD(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3482,7 +3482,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_UPWARD_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -3502,7 +3502,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_UPWARD(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -3511,7 +3511,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_UPWARD_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_UPWARD(arg1f, &resf, backend_verrou_context);
@@ -3526,7 +3526,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_UPWARD_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_UPWARD(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_UPWARD(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -3536,7 +3536,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -3554,7 +3554,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_UPWARD_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_UPWARD(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -3566,7 +3566,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -3589,7 +3589,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_UPWARD_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_UPWARD(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3600,7 +3600,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_UPWARD(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -3611,7 +3611,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_UPWARD_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_UPWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -3625,7 +3625,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_UPWARD_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_UPWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -3640,7 +3640,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_DOWNWARD_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_DOWNWARD(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3650,7 +3650,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_DOWNWARD_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -3670,7 +3670,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_DOWNWARD(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -3679,7 +3679,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_DOWNWARD_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_DOWNWARD(arg1f, &resf, backend_verrou_context);
@@ -3694,7 +3694,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_DOWNWARD(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_DOWNWARD(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -3704,7 +3704,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -3722,7 +3722,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_DOWNWARD(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -3734,7 +3734,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -3757,7 +3757,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_DOWNWARD_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_DOWNWARD(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3768,7 +3768,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_DOWNWARD(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -3779,7 +3779,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_DOWNWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -3793,7 +3793,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_DOWNWARD(arg1[i], res+i, backend_verrou_context);
   }
@@ -3808,7 +3808,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_FARTHEST_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FARTHEST(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3818,7 +3818,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_FARTHEST_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -3838,7 +3838,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FARTHEST(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -3847,7 +3847,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_FARTHEST_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_FARTHEST(arg1f, &resf, backend_verrou_context);
@@ -3862,7 +3862,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FARTHEST(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_FARTHEST(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -3872,7 +3872,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -3890,7 +3890,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_FARTHEST(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -3902,7 +3902,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -3925,7 +3925,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_FARTHEST_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_FARTHEST(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3936,7 +3936,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_FARTHEST(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -3947,7 +3947,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_FARTHEST(arg1[i], res+i, backend_verrou_context);
   }
@@ -3961,7 +3961,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_FARTHEST(arg1[i], res+i, backend_verrou_context);
   }
@@ -3976,7 +3976,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_ZERO_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_ZERO(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -3986,7 +3986,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_ZERO_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4006,7 +4006,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_ZERO(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4015,7 +4015,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_ZERO_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_ZERO(arg1f, &resf, backend_verrou_context);
@@ -4030,7 +4030,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_ZERO_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_ZERO(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_ZERO(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4040,7 +4040,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4058,7 +4058,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_ZERO_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_ZERO(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4070,7 +4070,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4093,7 +4093,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_ZERO_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_ZERO(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4104,7 +4104,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_ZERO(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4115,7 +4115,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_ZERO_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -4129,7 +4129,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_ZERO_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -4144,7 +4144,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_AWAY_ZERO_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AWAY_ZERO(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4154,7 +4154,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_AWAY_ZERO_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4174,7 +4174,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4183,7 +4183,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_AWAY_ZERO_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_AWAY_ZERO(arg1f, &resf, backend_verrou_context);
@@ -4198,7 +4198,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AWAY_ZERO(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AWAY_ZERO(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4208,7 +4208,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4226,7 +4226,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_AWAY_ZERO(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4238,7 +4238,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4261,7 +4261,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_AWAY_ZERO_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AWAY_ZERO(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4272,7 +4272,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AWAY_ZERO(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4283,7 +4283,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -4297,7 +4297,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AWAY_ZERO(arg1[i], res+i, backend_verrou_context);
   }
@@ -4312,7 +4312,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_RANDOM_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4322,7 +4322,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4342,7 +4342,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4351,7 +4351,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_RANDOM_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_RANDOM(arg1f, &resf, backend_verrou_context);
@@ -4366,7 +4366,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4376,7 +4376,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4394,7 +4394,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_RANDOM(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4406,7 +4406,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4429,7 +4429,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_RANDOM_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4440,7 +4440,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4451,7 +4451,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -4465,7 +4465,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -4480,7 +4480,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_RANDOM_DET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4490,7 +4490,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_DET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4510,7 +4510,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_DET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4519,7 +4519,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_RANDOM_DET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_RANDOM_DET(arg1f, &resf, backend_verrou_context);
@@ -4534,7 +4534,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_DET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4544,7 +4544,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4562,7 +4562,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_RANDOM_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4574,7 +4574,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4597,7 +4597,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_RANDOM_DET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4608,7 +4608,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_DET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4619,7 +4619,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -4633,7 +4633,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -4648,7 +4648,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4658,7 +4658,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_COMDET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4678,7 +4678,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4687,7 +4687,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_RANDOM_COMDET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_RANDOM_COMDET(arg1f, &resf, backend_verrou_context);
@@ -4702,7 +4702,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_COMDET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4712,7 +4712,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4730,7 +4730,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_RANDOM_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4742,7 +4742,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4765,7 +4765,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4776,7 +4776,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4787,7 +4787,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -4801,7 +4801,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -4816,7 +4816,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_AVERAGE_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4826,7 +4826,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -4846,7 +4846,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -4855,7 +4855,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_AVERAGE_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_AVERAGE(arg1f, &resf, backend_verrou_context);
@@ -4870,7 +4870,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -4880,7 +4880,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -4898,7 +4898,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_AVERAGE(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -4910,7 +4910,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -4933,7 +4933,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_AVERAGE_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4944,7 +4944,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -4955,7 +4955,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE(arg1[i], res+i, backend_verrou_context);
   }
@@ -4969,7 +4969,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE(arg1[i], res+i, backend_verrou_context);
   }
@@ -4984,7 +4984,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_AVERAGE_DET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -4994,7 +4994,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_DET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5014,7 +5014,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5023,7 +5023,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_AVERAGE_DET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_AVERAGE_DET(arg1f, &resf, backend_verrou_context);
@@ -5038,7 +5038,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_DET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5048,7 +5048,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5066,7 +5066,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_AVERAGE_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5078,7 +5078,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5101,7 +5101,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_AVERAGE_DET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5112,7 +5112,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_DET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5123,7 +5123,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5137,7 +5137,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5152,7 +5152,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5162,7 +5162,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_COMDET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5182,7 +5182,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5191,7 +5191,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_AVERAGE_COMDET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1f, &resf, backend_verrou_context);
@@ -5206,7 +5206,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5216,7 +5216,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5234,7 +5234,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_AVERAGE_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5246,7 +5246,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5269,7 +5269,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5280,7 +5280,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5291,7 +5291,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5305,7 +5305,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5320,7 +5320,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_PRANDOM_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5330,7 +5330,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5350,7 +5350,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5359,7 +5359,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_PRANDOM_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_PRANDOM(arg1f, &resf, backend_verrou_context);
@@ -5374,7 +5374,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5384,7 +5384,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5402,7 +5402,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_PRANDOM(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5414,7 +5414,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5437,7 +5437,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_PRANDOM_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5448,7 +5448,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5459,7 +5459,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -5473,7 +5473,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM(arg1[i], res+i, backend_verrou_context);
   }
@@ -5488,7 +5488,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_PRANDOM_DET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5498,7 +5498,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_DET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5518,7 +5518,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5527,7 +5527,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_PRANDOM_DET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_PRANDOM_DET(arg1f, &resf, backend_verrou_context);
@@ -5542,7 +5542,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_DET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM_DET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5552,7 +5552,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5570,7 +5570,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_PRANDOM_DET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5582,7 +5582,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5605,7 +5605,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_PRANDOM_DET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM_DET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5616,7 +5616,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM_DET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5627,7 +5627,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5641,7 +5641,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM_DET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5656,7 +5656,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5666,7 +5666,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_COMDET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5686,7 +5686,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5695,7 +5695,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_PRANDOM_COMDET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1f, &resf, backend_verrou_context);
@@ -5710,7 +5710,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5720,7 +5720,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5738,7 +5738,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_PRANDOM_COMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5750,7 +5750,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5773,7 +5773,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM_COMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5784,7 +5784,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5795,7 +5795,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5809,7 +5809,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_PRANDOM_COMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5824,7 +5824,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5834,7 +5834,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_SCOMDET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -5854,7 +5854,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -5863,7 +5863,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_RANDOM_SCOMDET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1f, &resf, backend_verrou_context);
@@ -5878,7 +5878,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -5888,7 +5888,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -5906,7 +5906,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_RANDOM_SCOMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -5918,7 +5918,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -5941,7 +5941,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_SCOMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -5952,7 +5952,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -5963,7 +5963,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5977,7 +5977,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_RANDOM_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -5992,7 +5992,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDET_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6002,7 +6002,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_SCOMDET_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -6022,7 +6022,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -6031,7 +6031,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_AVERAGE_SCOMDET_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1f, &resf, backend_verrou_context);
@@ -6046,7 +6046,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -6056,7 +6056,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -6074,7 +6074,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_AVERAGE_SCOMDET(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -6086,7 +6086,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -6109,7 +6109,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDET_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_SCOMDET(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6120,7 +6120,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -6131,7 +6131,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -6145,7 +6145,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_AVERAGE_SCOMDET(arg1[i], res+i, backend_verrou_context);
   }
@@ -6160,7 +6160,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_SR_MONOTONIC_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_MONOTONIC(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6170,7 +6170,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_MONOTONIC_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -6190,7 +6190,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -6199,7 +6199,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_SR_MONOTONIC_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_SR_MONOTONIC(arg1f, &resf, backend_verrou_context);
@@ -6214,7 +6214,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_MONOTONIC(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_SR_MONOTONIC(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -6224,7 +6224,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -6242,7 +6242,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_SR_MONOTONIC(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -6254,7 +6254,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -6277,7 +6277,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_SR_MONOTONIC_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_SR_MONOTONIC(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6288,7 +6288,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_SR_MONOTONIC(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -6299,7 +6299,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_SR_MONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -6313,7 +6313,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_SR_MONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -6328,7 +6328,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONIC_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6338,7 +6338,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_SMONOTONIC_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -6358,7 +6358,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -6367,7 +6367,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_SR_SMONOTONIC_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1f, &resf, backend_verrou_context);
@@ -6382,7 +6382,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -6392,7 +6392,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -6410,7 +6410,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_SR_SMONOTONIC(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -6422,7 +6422,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -6445,7 +6445,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONIC_softsqrt32F (Long a) {
   float *arg1 = (float*)(&a);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_SR_SMONOTONIC(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6456,7 +6456,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softsqrt32FLLO (void) {
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_float_NEAREST(arg1CopyFloat[0], &res, backend_verrou_null_context);
@@ -6467,7 +6467,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsqrt32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -6481,7 +6481,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsqrt32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sqrt_float_SR_SMONOTONIC(arg1[i], res+i, backend_verrou_context);
   }
@@ -6571,7 +6571,7 @@ static VG_REGPARM(1) void vr_conv_verrou_FLOATsqrt64Fx4 (/*OUT*/V256* output){
 static VG_REGPARM(2) Long vr_verrou_FLOAT_softsqrt64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FLOAT(*arg1, &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(*arg1, &res, backend_verrou_null_context);
@@ -6581,7 +6581,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(2) Long vr_conv_verrou_FLOAT_softsqrt64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double res;
@@ -6601,7 +6601,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FLOAT_softsqrt64FLLO (void) {
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FLOAT(arg1CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sqrt_double_NEAREST(arg1CopyDouble[0], &res, backend_verrou_null_context);
@@ -6610,7 +6610,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void vr_conv_verrou_FLOAT_softsqrt64FLLO (void) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   interflop_verrou_sqrt_float_FLOAT(arg1f, &resf, backend_verrou_context);
@@ -6625,7 +6625,7 @@ if(vr.instrument_soft){
 static VG_REGPARM(1) void vr_verrou_FLOAT_softsqrt64Fx2(/*OUT*/V128* output) {
   const double* arg1=arg1CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sqrt_double_FLOAT(arg1[0], res, backend_verrou_context);
   interflop_verrou_sqrt_double_FLOAT(arg1[1], res+1, backend_verrou_context);
 }else{
@@ -6635,7 +6635,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softsqrt64Fx2(/*OUT*/V128* output) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[2]={arg1CopyDouble[0],arg1CopyDouble[1]};
   double* res=(double*) output;
   float resf[2];
@@ -6653,7 +6653,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FLOAT_softsqrt64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sqrt_double_FLOAT(arg1CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -6665,7 +6665,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softsqrt64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
   double* res=(double*) output;
   float resf[4];
@@ -8085,7 +8085,7 @@ static VG_REGPARM(2) Long vr_verrou_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8096,7 +8096,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -8119,7 +8119,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -8128,7 +8128,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -8145,7 +8145,7 @@ static VG_REGPARM(1) void vr_verrou_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -8155,7 +8155,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -8177,7 +8177,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -8189,7 +8189,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -8213,7 +8213,7 @@ static VG_REGPARM(2) Int vr_verrou_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8224,7 +8224,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -8236,7 +8236,7 @@ static VG_REGPARM(1) void vr_verrou_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8251,7 +8251,7 @@ static VG_REGPARM(1) void vr_verrou_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8266,7 +8266,7 @@ static VG_REGPARM(2) Long vr_verrou_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8277,7 +8277,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -8300,7 +8300,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -8309,7 +8309,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -8326,7 +8326,7 @@ static VG_REGPARM(1) void vr_verrou_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -8336,7 +8336,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -8358,7 +8358,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -8370,7 +8370,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -8394,7 +8394,7 @@ static VG_REGPARM(2) Int vr_verrou_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8405,7 +8405,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -8417,7 +8417,7 @@ static VG_REGPARM(1) void vr_verrou_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8432,7 +8432,7 @@ static VG_REGPARM(1) void vr_verrou_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8447,7 +8447,7 @@ static VG_REGPARM(2) Long vr_verrou_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8458,7 +8458,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -8481,7 +8481,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -8490,7 +8490,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -8507,7 +8507,7 @@ static VG_REGPARM(1) void vr_verrou_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -8517,7 +8517,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -8539,7 +8539,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -8551,7 +8551,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -8575,7 +8575,7 @@ static VG_REGPARM(2) Int vr_verrou_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8586,7 +8586,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -8598,7 +8598,7 @@ static VG_REGPARM(1) void vr_verrou_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8613,7 +8613,7 @@ static VG_REGPARM(1) void vr_verrou_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8628,7 +8628,7 @@ static VG_REGPARM(2) Long vr_verrou_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8639,7 +8639,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -8662,7 +8662,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -8671,7 +8671,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -8688,7 +8688,7 @@ static VG_REGPARM(1) void vr_verrou_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -8698,7 +8698,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -8720,7 +8720,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -8732,7 +8732,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -8756,7 +8756,7 @@ static VG_REGPARM(2) Int vr_verrou_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8767,7 +8767,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -8779,7 +8779,7 @@ static VG_REGPARM(1) void vr_verrou_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8794,7 +8794,7 @@ static VG_REGPARM(1) void vr_verrou_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -8810,7 +8810,7 @@ static VG_REGPARM(2) Long vr_mcaquad_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8821,7 +8821,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquad_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -8844,7 +8844,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquad_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -8853,7 +8853,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquad_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -8870,7 +8870,7 @@ static VG_REGPARM(1) void vr_mcaquad_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_add_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
 }else{
@@ -8880,7 +8880,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -8902,7 +8902,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquad_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
@@ -8914,7 +8914,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -8938,7 +8938,7 @@ static VG_REGPARM(2) Int vr_mcaquad_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_float(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -8949,7 +8949,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquad_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -8961,7 +8961,7 @@ static VG_REGPARM(1) void vr_mcaquad_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -8976,7 +8976,7 @@ static VG_REGPARM(1) void vr_mcaquad_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -8991,7 +8991,7 @@ static VG_REGPARM(2) Long vr_mcaquad_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9002,7 +9002,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquad_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9025,7 +9025,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquad_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9034,7 +9034,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquad_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9051,7 +9051,7 @@ static VG_REGPARM(1) void vr_mcaquad_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_sub_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
 }else{
@@ -9061,7 +9061,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9083,7 +9083,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquad_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
@@ -9095,7 +9095,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -9119,7 +9119,7 @@ static VG_REGPARM(2) Int vr_mcaquad_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_float(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9130,7 +9130,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquad_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -9142,7 +9142,7 @@ static VG_REGPARM(1) void vr_mcaquad_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9157,7 +9157,7 @@ static VG_REGPARM(1) void vr_mcaquad_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9172,7 +9172,7 @@ static VG_REGPARM(2) Long vr_mcaquad_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9183,7 +9183,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquad_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9206,7 +9206,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquad_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9215,7 +9215,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquad_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9232,7 +9232,7 @@ static VG_REGPARM(1) void vr_mcaquad_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_mul_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
 }else{
@@ -9242,7 +9242,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9264,7 +9264,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquad_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
@@ -9276,7 +9276,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -9300,7 +9300,7 @@ static VG_REGPARM(2) Int vr_mcaquad_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9311,7 +9311,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquad_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -9323,7 +9323,7 @@ static VG_REGPARM(1) void vr_mcaquad_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_mul_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9338,7 +9338,7 @@ static VG_REGPARM(1) void vr_mcaquad_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_mul_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9353,7 +9353,7 @@ static VG_REGPARM(2) Long vr_mcaquad_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_div_double(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9364,7 +9364,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquad_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9387,7 +9387,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquad_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9396,7 +9396,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquad_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9413,7 +9413,7 @@ static VG_REGPARM(1) void vr_mcaquad_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_div_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_mcaquad_div_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
 }else{
@@ -9423,7 +9423,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9445,7 +9445,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquad_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
   }
@@ -9457,7 +9457,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquad_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -9481,7 +9481,7 @@ static VG_REGPARM(2) Int vr_mcaquad_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_div_float(*arg1, *arg2, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9492,7 +9492,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquad_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -9504,7 +9504,7 @@ static VG_REGPARM(1) void vr_mcaquad_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_div_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9519,7 +9519,7 @@ static VG_REGPARM(1) void vr_mcaquad_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_div_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
   }
@@ -9535,7 +9535,7 @@ static VG_REGPARM(2) Long vr_checkdenorm_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9546,7 +9546,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenorm_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9569,7 +9569,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenorm_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9578,7 +9578,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenorm_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9595,7 +9595,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
 }else{
@@ -9605,7 +9605,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9627,7 +9627,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenorm_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
@@ -9639,7 +9639,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -9663,7 +9663,7 @@ static VG_REGPARM(2) Int vr_checkdenorm_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_float(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9674,7 +9674,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -9686,7 +9686,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -9701,7 +9701,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -9716,7 +9716,7 @@ static VG_REGPARM(2) Long vr_checkdenorm_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9727,7 +9727,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenorm_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9750,7 +9750,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenorm_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9759,7 +9759,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenorm_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9776,7 +9776,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
 }else{
@@ -9786,7 +9786,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9808,7 +9808,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenorm_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
@@ -9820,7 +9820,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -9844,7 +9844,7 @@ static VG_REGPARM(2) Int vr_checkdenorm_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_float(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9855,7 +9855,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -9867,7 +9867,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -9882,7 +9882,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -9897,7 +9897,7 @@ static VG_REGPARM(2) Long vr_checkdenorm_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -9908,7 +9908,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenorm_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -9931,7 +9931,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenorm_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -9940,7 +9940,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenorm_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -9957,7 +9957,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_mul_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
 }else{
@@ -9967,7 +9967,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -9989,7 +9989,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenorm_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
@@ -10001,7 +10001,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -10025,7 +10025,7 @@ static VG_REGPARM(2) Int vr_checkdenorm_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -10036,7 +10036,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -10048,7 +10048,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -10063,7 +10063,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_mul_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -10078,7 +10078,7 @@ static VG_REGPARM(2) Long vr_checkdenorm_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_div_double(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -10089,7 +10089,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenorm_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -10112,7 +10112,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenorm_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -10121,7 +10121,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenorm_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -10138,7 +10138,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_div_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkdenorm_div_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
 }else{
@@ -10148,7 +10148,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -10170,7 +10170,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenorm_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
   }
@@ -10182,7 +10182,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenorm_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -10206,7 +10206,7 @@ static VG_REGPARM(2) Int vr_checkdenorm_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_div_float(*arg1, *arg2, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -10217,7 +10217,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenorm_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -10229,7 +10229,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -10244,7 +10244,7 @@ static VG_REGPARM(1) void vr_checkdenorm_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_div_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
   }
@@ -10771,7 +10771,7 @@ static VG_REGPARM(2) Long vr_verroucheck_float_max_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_add_double(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -10783,7 +10783,7 @@ if(vr.instrument_soft){
 
 
 /*static VG_REGPARM(2) Long vr_conv_verroucheck_float_max_softadd64F (Long a, Long b) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float arg1f=*arg1;*/
 /*  double *arg2 = (double*)(&b);*/
@@ -10807,7 +10807,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(0) void  vr_verroucheck_float_max_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_check_float_max_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
 }else{
@@ -10817,7 +10817,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(0) void  vr_conv_verroucheck_float_max_softadd64FLLO (void){*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float resf;*/
 /*  float arg1f=arg1CopyDouble[0];*/
 /*  float arg2f=arg2CopyDouble[0];*/
@@ -10835,7 +10835,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softadd64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_add_double(arg1[0], arg2[0], res, backend_check_float_max_context);
   interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -10846,7 +10846,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softadd64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softadd64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  const double* arg1=arg1CopyDouble;*/
 /*  float arg1f[2]={arg1[0],arg1[1]};*/
 /*  const double* arg2=arg2CopyDouble;*/
@@ -10870,7 +10870,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(1) void vr_verroucheck_float_max_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
@@ -10882,7 +10882,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softadd64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softadd64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};*/
 /*   float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};*/
 /*   double* res=(double*) output;*/
@@ -10907,7 +10907,7 @@ static VG_REGPARM(2) Int vr_verroucheck_float_max_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_add_float(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -10919,7 +10919,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheck_float_max_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_check_float_max_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
 }else{
@@ -10932,7 +10932,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softadd32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -10948,7 +10948,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softadd32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_add_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -10964,7 +10964,7 @@ static VG_REGPARM(2) Long vr_verroucheck_float_max_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_sub_double(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -10976,7 +10976,7 @@ if(vr.instrument_soft){
 
 
 /*static VG_REGPARM(2) Long vr_conv_verroucheck_float_max_softsub64F (Long a, Long b) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float arg1f=*arg1;*/
 /*  double *arg2 = (double*)(&b);*/
@@ -11000,7 +11000,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(0) void  vr_verroucheck_float_max_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_check_float_max_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
 }else{
@@ -11010,7 +11010,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(0) void  vr_conv_verroucheck_float_max_softsub64FLLO (void){*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float resf;*/
 /*  float arg1f=arg1CopyDouble[0];*/
 /*  float arg2f=arg2CopyDouble[0];*/
@@ -11028,7 +11028,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softsub64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_sub_double(arg1[0], arg2[0], res, backend_check_float_max_context);
   interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -11039,7 +11039,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsub64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsub64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  const double* arg1=arg1CopyDouble;*/
 /*  float arg1f[2]={arg1[0],arg1[1]};*/
 /*  const double* arg2=arg2CopyDouble;*/
@@ -11063,7 +11063,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(1) void vr_verroucheck_float_max_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
@@ -11075,7 +11075,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsub64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softsub64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};*/
 /*   float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};*/
 /*   double* res=(double*) output;*/
@@ -11100,7 +11100,7 @@ static VG_REGPARM(2) Int vr_verroucheck_float_max_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_sub_float(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -11112,7 +11112,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheck_float_max_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_check_float_max_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
 }else{
@@ -11125,7 +11125,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softsub32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -11141,7 +11141,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softsub32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_sub_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -11157,7 +11157,7 @@ static VG_REGPARM(2) Long vr_verroucheck_float_max_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_mul_double(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -11169,7 +11169,7 @@ if(vr.instrument_soft){
 
 
 /*static VG_REGPARM(2) Long vr_conv_verroucheck_float_max_softmul64F (Long a, Long b) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float arg1f=*arg1;*/
 /*  double *arg2 = (double*)(&b);*/
@@ -11193,7 +11193,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(0) void  vr_verroucheck_float_max_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_check_float_max_mul_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
 }else{
@@ -11203,7 +11203,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(0) void  vr_conv_verroucheck_float_max_softmul64FLLO (void){*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float resf;*/
 /*  float arg1f=arg1CopyDouble[0];*/
 /*  float arg2f=arg2CopyDouble[0];*/
@@ -11221,7 +11221,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softmul64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_mul_double(arg1[0], arg2[0], res, backend_check_float_max_context);
   interflop_verrou_mul_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -11232,7 +11232,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softmul64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softmul64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  const double* arg1=arg1CopyDouble;*/
 /*  float arg1f[2]={arg1[0],arg1[1]};*/
 /*  const double* arg2=arg2CopyDouble;*/
@@ -11256,7 +11256,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(1) void vr_verroucheck_float_max_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
@@ -11268,7 +11268,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softmul64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softmul64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};*/
 /*   float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};*/
 /*   double* res=(double*) output;*/
@@ -11293,7 +11293,7 @@ static VG_REGPARM(2) Int vr_verroucheck_float_max_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_mul_float(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -11305,7 +11305,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheck_float_max_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_check_float_max_mul_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
 }else{
@@ -11318,7 +11318,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softmul32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -11334,7 +11334,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softmul32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_mul_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -11350,7 +11350,7 @@ static VG_REGPARM(2) Long vr_verroucheck_float_max_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_div_double(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -11362,7 +11362,7 @@ if(vr.instrument_soft){
 
 
 /*static VG_REGPARM(2) Long vr_conv_verroucheck_float_max_softdiv64F (Long a, Long b) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  double *arg1 = (double*)(&a);*/
 /*  float arg1f=*arg1;*/
 /*  double *arg2 = (double*)(&b);*/
@@ -11386,7 +11386,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(0) void  vr_verroucheck_float_max_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_check_float_max_div_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_check_float_max_context);
 }else{
@@ -11396,7 +11396,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(0) void  vr_conv_verroucheck_float_max_softdiv64FLLO (void){*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  float resf;*/
 /*  float arg1f=arg1CopyDouble[0];*/
 /*  float arg2f=arg2CopyDouble[0];*/
@@ -11414,7 +11414,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softdiv64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_check_float_max_div_double(arg1[0], arg2[0], res, backend_check_float_max_context);
   interflop_verrou_div_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -11425,7 +11425,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softdiv64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softdiv64Fx2(%%OUT%%V128* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*  const double* arg1=arg1CopyDouble;*/
 /*  float arg1f[2]={arg1[0],arg1[1]};*/
 /*  const double* arg2=arg2CopyDouble;*/
@@ -11449,7 +11449,7 @@ if(vr.instrument_soft){
 */
 static VG_REGPARM(1) void vr_verroucheck_float_max_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_check_float_max_context);
@@ -11461,7 +11461,7 @@ if(vr.instrument_soft){
 }
 }
 
-/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softdiv64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft){*/
+/*static VG_REGPARM(1) void vr_conv_verroucheck_float_max_softdiv64Fx4 (%%OUT%%V256* output){*//*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*   float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};*/
 /*   float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};*/
 /*   double* res=(double*) output;*/
@@ -11486,7 +11486,7 @@ static VG_REGPARM(2) Int vr_verroucheck_float_max_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_check_float_max_div_float(*arg1, *arg2, &res, backend_check_float_max_context);
 }else{
@@ -11498,7 +11498,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheck_float_max_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_check_float_max_div_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_check_float_max_context);
 }else{
@@ -11511,7 +11511,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softdiv32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -11527,7 +11527,7 @@ static VG_REGPARM(1) void vr_verroucheck_float_max_softdiv32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_check_float_max_div_float(arg1[i], arg2[i], res+i, backend_check_float_max_context);
@@ -20359,7 +20359,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output){
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -20370,7 +20370,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONICdiv32Fx4 (/*OUT*/V128* output){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_NEAREST_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -20393,7 +20393,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void  vr_verrou_NEAREST_softadd64FLLO (void){*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);*/
@@ -20402,7 +20402,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(0) void  vr_conv_verrou_NEAREST_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -20418,7 +20418,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softadd64Fx2(%%OUT%%V128* output){*//*  const double* arg1=arg1CopyDouble;*/
 /*  const double* arg2=arg2CopyDouble;*/
 /*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_add_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);*/
 /*  interflop_verrou_add_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);*/
 /*}else{*/
@@ -20428,7 +20428,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -20449,7 +20449,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softadd64Fx4 (%%OUT%%V256* output){*//*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4; i++){*/
 /*     interflop_verrou_add_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -20461,7 +20461,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -20485,7 +20485,7 @@ if(vr.instrument_soft){
 /*  float *arg1 = (float*)(&a);*/
 /*  float *arg2 = (float*)(&b);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -20496,7 +20496,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softadd32FLLO (void){*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);*/
@@ -20507,7 +20507,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softadd32Fx8 (%%OUT%%V256* output){*//*  float* res=(float*) output;*/
 /*  float* arg1=arg1CopyFloat;*/
 /*  float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<8; i++){*/
 /*     interflop_verrou_add_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -20521,7 +20521,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softadd32Fx4 (%%OUT%%V128* output){*//*  float* res=(float*) output;*/
 /*  const float* arg1=arg1CopyFloat;*/
 /*  const float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4;i++){*/
 /*     interflop_verrou_add_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -20536,7 +20536,7 @@ static VG_REGPARM(2) Long vr_verrou_UPWARD_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -20547,7 +20547,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_UPWARD_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -20570,7 +20570,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARD_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -20579,7 +20579,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_UPWARD_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -20596,7 +20596,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -20606,7 +20606,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -20628,7 +20628,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_UPWARD_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -20640,7 +20640,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -20664,7 +20664,7 @@ static VG_REGPARM(2) Int vr_verrou_UPWARD_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -20675,7 +20675,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -20687,7 +20687,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -20702,7 +20702,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -20717,7 +20717,7 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARD_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -20728,7 +20728,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_DOWNWARD_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -20751,7 +20751,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARD_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -20760,7 +20760,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_DOWNWARD_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -20777,7 +20777,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -20787,7 +20787,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -20809,7 +20809,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -20821,7 +20821,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -20845,7 +20845,7 @@ static VG_REGPARM(2) Int vr_verrou_DOWNWARD_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -20856,7 +20856,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -20868,7 +20868,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -20883,7 +20883,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -20898,7 +20898,7 @@ static VG_REGPARM(2) Long vr_verrou_FARTHEST_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -20909,7 +20909,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FARTHEST_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -20932,7 +20932,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHEST_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -20941,7 +20941,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FARTHEST_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -20958,7 +20958,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -20968,7 +20968,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -20990,7 +20990,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21002,7 +21002,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21026,7 +21026,7 @@ static VG_REGPARM(2) Int vr_verrou_FARTHEST_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21037,7 +21037,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21049,7 +21049,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21064,7 +21064,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21079,7 +21079,7 @@ static VG_REGPARM(2) Long vr_verrou_ZERO_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21090,7 +21090,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_ZERO_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -21113,7 +21113,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_ZERO_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -21122,7 +21122,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_ZERO_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -21139,7 +21139,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -21149,7 +21149,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -21171,7 +21171,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_ZERO_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21183,7 +21183,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21207,7 +21207,7 @@ static VG_REGPARM(2) Int vr_verrou_ZERO_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21218,7 +21218,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21230,7 +21230,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21245,7 +21245,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21260,7 +21260,7 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZERO_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21271,7 +21271,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AWAY_ZERO_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -21294,7 +21294,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZERO_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -21303,7 +21303,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AWAY_ZERO_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -21320,7 +21320,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -21330,7 +21330,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -21352,7 +21352,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21364,7 +21364,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21388,7 +21388,7 @@ static VG_REGPARM(2) Int vr_verrou_AWAY_ZERO_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21399,7 +21399,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21411,7 +21411,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softadd32Fx8 (/*OUT*/V256* output)
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21426,7 +21426,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softadd32Fx4 (/*OUT*/V128* output)
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21441,7 +21441,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21452,7 +21452,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -21475,7 +21475,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -21484,7 +21484,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -21501,7 +21501,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -21511,7 +21511,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -21533,7 +21533,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21545,7 +21545,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21569,7 +21569,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21580,7 +21580,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21592,7 +21592,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21607,7 +21607,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21622,7 +21622,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21633,7 +21633,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_DET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -21656,7 +21656,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -21665,7 +21665,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_DET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -21682,7 +21682,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softadd64Fx2(/*OUT*/V128* output)
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -21692,7 +21692,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -21714,7 +21714,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21726,7 +21726,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21750,7 +21750,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_DET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21761,7 +21761,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21773,7 +21773,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softadd32Fx8 (/*OUT*/V256* output
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21788,7 +21788,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softadd32Fx4 (/*OUT*/V128* output
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21803,7 +21803,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21814,7 +21814,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_COMDET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -21837,7 +21837,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -21846,7 +21846,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_COMDET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -21863,7 +21863,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softadd64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -21873,7 +21873,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -21895,7 +21895,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -21907,7 +21907,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -21931,7 +21931,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21942,7 +21942,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -21954,7 +21954,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softadd32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21969,7 +21969,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softadd32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -21984,7 +21984,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -21995,7 +21995,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22018,7 +22018,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22027,7 +22027,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22044,7 +22044,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22054,7 +22054,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22076,7 +22076,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22088,7 +22088,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -22112,7 +22112,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22123,7 +22123,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -22135,7 +22135,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22150,7 +22150,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22165,7 +22165,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22176,7 +22176,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_DET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22199,7 +22199,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22208,7 +22208,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_DET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22225,7 +22225,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softadd64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22235,7 +22235,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22257,7 +22257,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22269,7 +22269,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -22293,7 +22293,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_DET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22304,7 +22304,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -22316,7 +22316,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softadd32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22331,7 +22331,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softadd32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22346,7 +22346,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22357,7 +22357,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_COMDET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22380,7 +22380,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22389,7 +22389,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_COMDET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22406,7 +22406,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softadd64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22416,7 +22416,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22438,7 +22438,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22450,7 +22450,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -22474,7 +22474,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22485,7 +22485,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -22497,7 +22497,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softadd32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22512,7 +22512,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softadd32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22527,7 +22527,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22538,7 +22538,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22561,7 +22561,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22570,7 +22570,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22587,7 +22587,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22597,7 +22597,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22619,7 +22619,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22631,7 +22631,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -22655,7 +22655,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22666,7 +22666,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -22678,7 +22678,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softadd32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22693,7 +22693,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softadd32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22708,7 +22708,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22719,7 +22719,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_DET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22742,7 +22742,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22751,7 +22751,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_DET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22768,7 +22768,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softadd64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22778,7 +22778,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22800,7 +22800,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22812,7 +22812,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -22836,7 +22836,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_DET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22847,7 +22847,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -22859,7 +22859,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softadd32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22874,7 +22874,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softadd32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -22889,7 +22889,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -22900,7 +22900,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_COMDET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -22923,7 +22923,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -22932,7 +22932,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_COMDET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -22949,7 +22949,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softadd64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -22959,7 +22959,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -22981,7 +22981,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -22993,7 +22993,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23017,7 +23017,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23028,7 +23028,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -23040,7 +23040,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softadd32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23055,7 +23055,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softadd32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23070,7 +23070,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDET_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23081,7 +23081,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_SCOMDET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -23104,7 +23104,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -23113,7 +23113,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_SCOMDET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -23130,7 +23130,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softadd64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -23140,7 +23140,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -23162,7 +23162,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -23174,7 +23174,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23198,7 +23198,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23209,7 +23209,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -23221,7 +23221,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softadd32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23236,7 +23236,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softadd32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23251,7 +23251,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDET_softadd64F (Long a, Long b) 
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23262,7 +23262,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_SCOMDET_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -23285,7 +23285,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDET_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -23294,7 +23294,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_SCOMDET_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -23311,7 +23311,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softadd64Fx2(/*OUT*/V128* ou
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -23321,7 +23321,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -23343,7 +23343,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -23355,7 +23355,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23379,7 +23379,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDET_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23390,7 +23390,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -23402,7 +23402,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softadd32Fx8 (/*OUT*/V256* o
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23417,7 +23417,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softadd32Fx4 (/*OUT*/V128* o
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23432,7 +23432,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONIC_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23443,7 +23443,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_MONOTONIC_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -23466,7 +23466,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONIC_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -23475,7 +23475,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_MONOTONIC_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -23492,7 +23492,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softadd64Fx2(/*OUT*/V128* outpu
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -23502,7 +23502,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -23524,7 +23524,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -23536,7 +23536,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23560,7 +23560,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_MONOTONIC_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23571,7 +23571,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -23583,7 +23583,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softadd32Fx8 (/*OUT*/V256* outp
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23598,7 +23598,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softadd32Fx4 (/*OUT*/V128* outp
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23613,7 +23613,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONIC_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23624,7 +23624,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_SMONOTONIC_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -23647,7 +23647,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONIC_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -23656,7 +23656,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_SMONOTONIC_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -23673,7 +23673,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softadd64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -23683,7 +23683,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -23705,7 +23705,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -23717,7 +23717,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23741,7 +23741,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONIC_softadd32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23752,7 +23752,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -23764,7 +23764,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softadd32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23779,7 +23779,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softadd32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -23794,7 +23794,7 @@ if(vr.instrument_soft){
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -23805,7 +23805,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_NEAREST_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -23828,7 +23828,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void  vr_verrou_NEAREST_softsub64FLLO (void){*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);*/
@@ -23837,7 +23837,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(0) void  vr_conv_verrou_NEAREST_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -23853,7 +23853,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsub64Fx2(%%OUT%%V128* output){*//*  const double* arg1=arg1CopyDouble;*/
 /*  const double* arg2=arg2CopyDouble;*/
 /*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sub_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);*/
 /*  interflop_verrou_sub_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);*/
 /*}else{*/
@@ -23863,7 +23863,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -23884,7 +23884,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsub64Fx4 (%%OUT%%V256* output){*//*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4; i++){*/
 /*     interflop_verrou_sub_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -23896,7 +23896,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -23920,7 +23920,7 @@ if(vr.instrument_soft){
 /*  float *arg1 = (float*)(&a);*/
 /*  float *arg2 = (float*)(&b);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -23931,7 +23931,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softsub32FLLO (void){*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);*/
@@ -23942,7 +23942,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsub32Fx8 (%%OUT%%V256* output){*//*  float* res=(float*) output;*/
 /*  float* arg1=arg1CopyFloat;*/
 /*  float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<8; i++){*/
 /*     interflop_verrou_sub_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -23956,7 +23956,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softsub32Fx4 (%%OUT%%V128* output){*//*  float* res=(float*) output;*/
 /*  const float* arg1=arg1CopyFloat;*/
 /*  const float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4;i++){*/
 /*     interflop_verrou_sub_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -23971,7 +23971,7 @@ static VG_REGPARM(2) Long vr_verrou_UPWARD_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -23982,7 +23982,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_UPWARD_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24005,7 +24005,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARD_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24014,7 +24014,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_UPWARD_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24031,7 +24031,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24041,7 +24041,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24063,7 +24063,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_UPWARD_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24075,7 +24075,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -24099,7 +24099,7 @@ static VG_REGPARM(2) Int vr_verrou_UPWARD_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24110,7 +24110,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -24122,7 +24122,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24137,7 +24137,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24152,7 +24152,7 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARD_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24163,7 +24163,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_DOWNWARD_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24186,7 +24186,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARD_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24195,7 +24195,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_DOWNWARD_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24212,7 +24212,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24222,7 +24222,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24244,7 +24244,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24256,7 +24256,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -24280,7 +24280,7 @@ static VG_REGPARM(2) Int vr_verrou_DOWNWARD_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24291,7 +24291,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -24303,7 +24303,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24318,7 +24318,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24333,7 +24333,7 @@ static VG_REGPARM(2) Long vr_verrou_FARTHEST_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24344,7 +24344,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FARTHEST_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24367,7 +24367,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHEST_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24376,7 +24376,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FARTHEST_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24393,7 +24393,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24403,7 +24403,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24425,7 +24425,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24437,7 +24437,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -24461,7 +24461,7 @@ static VG_REGPARM(2) Int vr_verrou_FARTHEST_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24472,7 +24472,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -24484,7 +24484,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24499,7 +24499,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24514,7 +24514,7 @@ static VG_REGPARM(2) Long vr_verrou_ZERO_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24525,7 +24525,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_ZERO_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24548,7 +24548,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_ZERO_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24557,7 +24557,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_ZERO_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24574,7 +24574,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24584,7 +24584,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24606,7 +24606,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_ZERO_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24618,7 +24618,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -24642,7 +24642,7 @@ static VG_REGPARM(2) Int vr_verrou_ZERO_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24653,7 +24653,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -24665,7 +24665,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24680,7 +24680,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24695,7 +24695,7 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZERO_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24706,7 +24706,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AWAY_ZERO_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24729,7 +24729,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZERO_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24738,7 +24738,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AWAY_ZERO_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24755,7 +24755,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24765,7 +24765,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24787,7 +24787,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24799,7 +24799,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -24823,7 +24823,7 @@ static VG_REGPARM(2) Int vr_verrou_AWAY_ZERO_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24834,7 +24834,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -24846,7 +24846,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsub32Fx8 (/*OUT*/V256* output)
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24861,7 +24861,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softsub32Fx4 (/*OUT*/V128* output)
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -24876,7 +24876,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -24887,7 +24887,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -24910,7 +24910,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -24919,7 +24919,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -24936,7 +24936,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -24946,7 +24946,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -24968,7 +24968,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -24980,7 +24980,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25004,7 +25004,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25015,7 +25015,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25027,7 +25027,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25042,7 +25042,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25057,7 +25057,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25068,7 +25068,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_DET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25091,7 +25091,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -25100,7 +25100,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_DET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -25117,7 +25117,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsub64Fx2(/*OUT*/V128* output)
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -25127,7 +25127,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -25149,7 +25149,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -25161,7 +25161,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25185,7 +25185,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_DET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25196,7 +25196,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25208,7 +25208,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsub32Fx8 (/*OUT*/V256* output
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25223,7 +25223,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softsub32Fx4 (/*OUT*/V128* output
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25238,7 +25238,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25249,7 +25249,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_COMDET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25272,7 +25272,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -25281,7 +25281,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_COMDET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -25298,7 +25298,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsub64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -25308,7 +25308,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -25330,7 +25330,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -25342,7 +25342,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25366,7 +25366,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25377,7 +25377,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25389,7 +25389,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsub32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25404,7 +25404,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softsub32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25419,7 +25419,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25430,7 +25430,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25453,7 +25453,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -25462,7 +25462,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -25479,7 +25479,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -25489,7 +25489,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -25511,7 +25511,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -25523,7 +25523,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25547,7 +25547,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25558,7 +25558,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25570,7 +25570,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25585,7 +25585,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25600,7 +25600,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25611,7 +25611,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_DET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25634,7 +25634,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -25643,7 +25643,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_DET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -25660,7 +25660,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsub64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -25670,7 +25670,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -25692,7 +25692,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -25704,7 +25704,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25728,7 +25728,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_DET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25739,7 +25739,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25751,7 +25751,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsub32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25766,7 +25766,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softsub32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25781,7 +25781,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25792,7 +25792,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_COMDET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25815,7 +25815,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -25824,7 +25824,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_COMDET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -25841,7 +25841,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsub64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -25851,7 +25851,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -25873,7 +25873,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -25885,7 +25885,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -25909,7 +25909,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25920,7 +25920,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -25932,7 +25932,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsub32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25947,7 +25947,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softsub32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -25962,7 +25962,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -25973,7 +25973,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -25996,7 +25996,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26005,7 +26005,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26022,7 +26022,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26032,7 +26032,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26054,7 +26054,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26066,7 +26066,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26090,7 +26090,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26101,7 +26101,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -26113,7 +26113,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softsub32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26128,7 +26128,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softsub32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26143,7 +26143,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26154,7 +26154,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_DET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -26177,7 +26177,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26186,7 +26186,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_DET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26203,7 +26203,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsub64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26213,7 +26213,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26235,7 +26235,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26247,7 +26247,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26271,7 +26271,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_DET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26282,7 +26282,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -26294,7 +26294,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsub32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26309,7 +26309,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softsub32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26324,7 +26324,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26335,7 +26335,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_COMDET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -26358,7 +26358,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26367,7 +26367,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_COMDET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26384,7 +26384,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsub64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26394,7 +26394,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26416,7 +26416,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26428,7 +26428,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26452,7 +26452,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26463,7 +26463,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -26475,7 +26475,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsub32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26490,7 +26490,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softsub32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26505,7 +26505,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDET_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26516,7 +26516,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_SCOMDET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -26539,7 +26539,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26548,7 +26548,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_SCOMDET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26565,7 +26565,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsub64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26575,7 +26575,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26597,7 +26597,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26609,7 +26609,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26633,7 +26633,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26644,7 +26644,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -26656,7 +26656,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsub32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26671,7 +26671,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softsub32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26686,7 +26686,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDET_softsub64F (Long a, Long b) 
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26697,7 +26697,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_SCOMDET_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -26720,7 +26720,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDET_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26729,7 +26729,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_SCOMDET_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26746,7 +26746,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsub64Fx2(/*OUT*/V128* ou
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26756,7 +26756,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26778,7 +26778,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26790,7 +26790,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26814,7 +26814,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDET_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26825,7 +26825,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -26837,7 +26837,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsub32Fx8 (/*OUT*/V256* o
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26852,7 +26852,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softsub32Fx4 (/*OUT*/V128* o
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -26867,7 +26867,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONIC_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -26878,7 +26878,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_MONOTONIC_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -26901,7 +26901,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONIC_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -26910,7 +26910,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_MONOTONIC_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -26927,7 +26927,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsub64Fx2(/*OUT*/V128* outpu
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -26937,7 +26937,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -26959,7 +26959,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -26971,7 +26971,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -26995,7 +26995,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_MONOTONIC_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27006,7 +27006,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -27018,7 +27018,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsub32Fx8 (/*OUT*/V256* outp
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27033,7 +27033,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softsub32Fx4 (/*OUT*/V128* outp
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27048,7 +27048,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONIC_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27059,7 +27059,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_SMONOTONIC_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27082,7 +27082,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONIC_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -27091,7 +27091,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_SMONOTONIC_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -27108,7 +27108,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsub64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -27118,7 +27118,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -27140,7 +27140,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -27152,7 +27152,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -27176,7 +27176,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONIC_softsub32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27187,7 +27187,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -27199,7 +27199,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsub32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27214,7 +27214,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softsub32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27229,7 +27229,7 @@ if(vr.instrument_soft){
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -27240,7 +27240,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_NEAREST_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27263,7 +27263,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void  vr_verrou_NEAREST_softmul64FLLO (void){*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);*/
@@ -27272,7 +27272,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(0) void  vr_conv_verrou_NEAREST_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -27288,7 +27288,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softmul64Fx2(%%OUT%%V128* output){*//*  const double* arg1=arg1CopyDouble;*/
 /*  const double* arg2=arg2CopyDouble;*/
 /*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_mul_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);*/
 /*  interflop_verrou_mul_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);*/
 /*}else{*/
@@ -27298,7 +27298,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -27319,7 +27319,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softmul64Fx4 (%%OUT%%V256* output){*//*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4; i++){*/
 /*     interflop_verrou_mul_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -27331,7 +27331,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -27355,7 +27355,7 @@ if(vr.instrument_soft){
 /*  float *arg1 = (float*)(&a);*/
 /*  float *arg2 = (float*)(&b);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -27366,7 +27366,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softmul32FLLO (void){*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);*/
@@ -27377,7 +27377,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softmul32Fx8 (%%OUT%%V256* output){*//*  float* res=(float*) output;*/
 /*  float* arg1=arg1CopyFloat;*/
 /*  float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<8; i++){*/
 /*     interflop_verrou_mul_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -27391,7 +27391,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softmul32Fx4 (%%OUT%%V128* output){*//*  float* res=(float*) output;*/
 /*  const float* arg1=arg1CopyFloat;*/
 /*  const float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4;i++){*/
 /*     interflop_verrou_mul_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -27406,7 +27406,7 @@ static VG_REGPARM(2) Long vr_verrou_UPWARD_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27417,7 +27417,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_UPWARD_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27440,7 +27440,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARD_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -27449,7 +27449,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_UPWARD_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -27466,7 +27466,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -27476,7 +27476,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -27498,7 +27498,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_UPWARD_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -27510,7 +27510,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -27534,7 +27534,7 @@ static VG_REGPARM(2) Int vr_verrou_UPWARD_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27545,7 +27545,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -27557,7 +27557,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27572,7 +27572,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27587,7 +27587,7 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARD_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27598,7 +27598,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_DOWNWARD_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27621,7 +27621,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARD_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -27630,7 +27630,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_DOWNWARD_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -27647,7 +27647,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -27657,7 +27657,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -27679,7 +27679,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -27691,7 +27691,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -27715,7 +27715,7 @@ static VG_REGPARM(2) Int vr_verrou_DOWNWARD_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27726,7 +27726,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -27738,7 +27738,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27753,7 +27753,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27768,7 +27768,7 @@ static VG_REGPARM(2) Long vr_verrou_FARTHEST_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27779,7 +27779,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FARTHEST_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27802,7 +27802,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHEST_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -27811,7 +27811,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FARTHEST_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -27828,7 +27828,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -27838,7 +27838,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -27860,7 +27860,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -27872,7 +27872,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -27896,7 +27896,7 @@ static VG_REGPARM(2) Int vr_verrou_FARTHEST_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27907,7 +27907,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -27919,7 +27919,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27934,7 +27934,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -27949,7 +27949,7 @@ static VG_REGPARM(2) Long vr_verrou_ZERO_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -27960,7 +27960,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_ZERO_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -27983,7 +27983,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_ZERO_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -27992,7 +27992,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_ZERO_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28009,7 +28009,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28019,7 +28019,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28041,7 +28041,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_ZERO_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28053,7 +28053,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28077,7 +28077,7 @@ static VG_REGPARM(2) Int vr_verrou_ZERO_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28088,7 +28088,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -28100,7 +28100,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28115,7 +28115,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28130,7 +28130,7 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZERO_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28141,7 +28141,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AWAY_ZERO_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -28164,7 +28164,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZERO_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -28173,7 +28173,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AWAY_ZERO_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28190,7 +28190,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28200,7 +28200,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28222,7 +28222,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28234,7 +28234,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28258,7 +28258,7 @@ static VG_REGPARM(2) Int vr_verrou_AWAY_ZERO_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28269,7 +28269,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -28281,7 +28281,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softmul32Fx8 (/*OUT*/V256* output)
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28296,7 +28296,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softmul32Fx4 (/*OUT*/V128* output)
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28311,7 +28311,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28322,7 +28322,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -28345,7 +28345,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -28354,7 +28354,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28371,7 +28371,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28381,7 +28381,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28403,7 +28403,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28415,7 +28415,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28439,7 +28439,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28450,7 +28450,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -28462,7 +28462,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28477,7 +28477,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28492,7 +28492,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28503,7 +28503,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_DET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -28526,7 +28526,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -28535,7 +28535,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_DET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28552,7 +28552,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softmul64Fx2(/*OUT*/V128* output)
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28562,7 +28562,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28584,7 +28584,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28596,7 +28596,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28620,7 +28620,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_DET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28631,7 +28631,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -28643,7 +28643,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softmul32Fx8 (/*OUT*/V256* output
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28658,7 +28658,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softmul32Fx4 (/*OUT*/V128* output
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28673,7 +28673,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28684,7 +28684,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_COMDET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -28707,7 +28707,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -28716,7 +28716,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_COMDET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28733,7 +28733,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softmul64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28743,7 +28743,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28765,7 +28765,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28777,7 +28777,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28801,7 +28801,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28812,7 +28812,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -28824,7 +28824,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softmul32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28839,7 +28839,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softmul32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -28854,7 +28854,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28865,7 +28865,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -28888,7 +28888,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -28897,7 +28897,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -28914,7 +28914,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -28924,7 +28924,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -28946,7 +28946,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -28958,7 +28958,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -28982,7 +28982,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -28993,7 +28993,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29005,7 +29005,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29020,7 +29020,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29035,7 +29035,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29046,7 +29046,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_DET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29069,7 +29069,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29078,7 +29078,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_DET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -29095,7 +29095,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softmul64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -29105,7 +29105,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -29127,7 +29127,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -29139,7 +29139,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -29163,7 +29163,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_DET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29174,7 +29174,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29186,7 +29186,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softmul32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29201,7 +29201,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softmul32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29216,7 +29216,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29227,7 +29227,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_COMDET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29250,7 +29250,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29259,7 +29259,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_COMDET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -29276,7 +29276,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softmul64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -29286,7 +29286,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -29308,7 +29308,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -29320,7 +29320,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -29344,7 +29344,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29355,7 +29355,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29367,7 +29367,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softmul32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29382,7 +29382,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softmul32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29397,7 +29397,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29408,7 +29408,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29431,7 +29431,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29440,7 +29440,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -29457,7 +29457,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -29467,7 +29467,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -29489,7 +29489,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -29501,7 +29501,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -29525,7 +29525,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29536,7 +29536,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29548,7 +29548,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softmul32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29563,7 +29563,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softmul32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29578,7 +29578,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29589,7 +29589,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_DET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29612,7 +29612,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29621,7 +29621,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_DET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -29638,7 +29638,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softmul64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -29648,7 +29648,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -29670,7 +29670,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -29682,7 +29682,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -29706,7 +29706,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_DET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29717,7 +29717,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29729,7 +29729,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softmul32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29744,7 +29744,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softmul32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29759,7 +29759,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29770,7 +29770,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_COMDET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29793,7 +29793,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29802,7 +29802,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_COMDET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -29819,7 +29819,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softmul64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -29829,7 +29829,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -29851,7 +29851,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -29863,7 +29863,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -29887,7 +29887,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29898,7 +29898,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -29910,7 +29910,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softmul32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29925,7 +29925,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softmul32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -29940,7 +29940,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDET_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -29951,7 +29951,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_SCOMDET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -29974,7 +29974,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -29983,7 +29983,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_SCOMDET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30000,7 +30000,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softmul64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -30010,7 +30010,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30032,7 +30032,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -30044,7 +30044,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30068,7 +30068,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30079,7 +30079,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -30091,7 +30091,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softmul32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30106,7 +30106,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softmul32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30121,7 +30121,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDET_softmul64F (Long a, Long b) 
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30132,7 +30132,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_SCOMDET_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -30155,7 +30155,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDET_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -30164,7 +30164,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_SCOMDET_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30181,7 +30181,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softmul64Fx2(/*OUT*/V128* ou
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -30191,7 +30191,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30213,7 +30213,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -30225,7 +30225,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30249,7 +30249,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDET_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30260,7 +30260,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -30272,7 +30272,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softmul32Fx8 (/*OUT*/V256* o
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30287,7 +30287,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softmul32Fx4 (/*OUT*/V128* o
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30302,7 +30302,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONIC_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30313,7 +30313,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_MONOTONIC_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -30336,7 +30336,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONIC_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -30345,7 +30345,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_MONOTONIC_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30362,7 +30362,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softmul64Fx2(/*OUT*/V128* outpu
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -30372,7 +30372,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30394,7 +30394,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -30406,7 +30406,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30430,7 +30430,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_MONOTONIC_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30441,7 +30441,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -30453,7 +30453,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softmul32Fx8 (/*OUT*/V256* outp
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30468,7 +30468,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softmul32Fx4 (/*OUT*/V128* outp
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30483,7 +30483,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONIC_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30494,7 +30494,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_SMONOTONIC_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -30517,7 +30517,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONIC_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -30526,7 +30526,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_SMONOTONIC_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30543,7 +30543,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softmul64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -30553,7 +30553,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30575,7 +30575,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -30587,7 +30587,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30611,7 +30611,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONIC_softmul32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30622,7 +30622,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softmul32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -30634,7 +30634,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softmul32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30649,7 +30649,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softmul32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_mul_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -30664,7 +30664,7 @@ if(vr.instrument_soft){
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -30675,7 +30675,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_NEAREST_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -30698,7 +30698,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void  vr_verrou_NEAREST_softdiv64FLLO (void){*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);*/
@@ -30707,7 +30707,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(0) void  vr_conv_verrou_NEAREST_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30723,7 +30723,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softdiv64Fx2(%%OUT%%V128* output){*//*  const double* arg1=arg1CopyDouble;*/
 /*  const double* arg2=arg2CopyDouble;*/
 /*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_div_double_NEAREST(arg1[0], arg2[0], res, backend_verrou_context);*/
 /*  interflop_verrou_div_double_NEAREST(arg1[1], arg2[1], res+1, backend_verrou_context);*/
 /*}else{*/
@@ -30733,7 +30733,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30754,7 +30754,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softdiv64Fx4 (%%OUT%%V256* output){*//*  double* res=(double*) output;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4; i++){*/
 /*     interflop_verrou_div_double_NEAREST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -30766,7 +30766,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(1) void vr_conv_verrou_NEAREST_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30790,7 +30790,7 @@ if(vr.instrument_soft){
 /*  float *arg1 = (float*)(&a);*/
 /*  float *arg2 = (float*)(&b);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);*/
@@ -30801,7 +30801,7 @@ if(vr.instrument_soft){
 
 /*static VG_REGPARM(0) void vr_verrou_NEAREST_softdiv32FLLO (void){*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);*/
@@ -30812,7 +30812,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softdiv32Fx8 (%%OUT%%V256* output){*//*  float* res=(float*) output;*/
 /*  float* arg1=arg1CopyFloat;*/
 /*  float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<8; i++){*/
 /*     interflop_verrou_div_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -30826,7 +30826,7 @@ if(vr.instrument_soft){
 /*static VG_REGPARM(1) void vr_verrou_NEAREST_softdiv32Fx4 (%%OUT%%V128* output){*//*  float* res=(float*) output;*/
 /*  const float* arg1=arg1CopyFloat;*/
 /*  const float* arg2=arg2CopyFloat;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  for(int i=0; i<4;i++){*/
 /*     interflop_verrou_div_float_NEAREST(arg1[i], arg2[i], res+i, backend_verrou_context);*/
 /*  }*/
@@ -30841,7 +30841,7 @@ static VG_REGPARM(2) Long vr_verrou_UPWARD_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30852,7 +30852,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_UPWARD_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -30875,7 +30875,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_UPWARD_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_UPWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -30884,7 +30884,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_UPWARD_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -30901,7 +30901,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_UPWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_UPWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -30911,7 +30911,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -30933,7 +30933,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_UPWARD_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_UPWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -30945,7 +30945,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_UPWARD_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -30969,7 +30969,7 @@ static VG_REGPARM(2) Int vr_verrou_UPWARD_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_UPWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -30980,7 +30980,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_UPWARD_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_UPWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -30992,7 +30992,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31007,7 +31007,7 @@ static VG_REGPARM(1) void vr_verrou_UPWARD_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_UPWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31022,7 +31022,7 @@ static VG_REGPARM(2) Long vr_verrou_DOWNWARD_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31033,7 +31033,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_DOWNWARD_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31056,7 +31056,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_DOWNWARD_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_DOWNWARD(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31065,7 +31065,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_DOWNWARD_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31082,7 +31082,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_DOWNWARD(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_DOWNWARD(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31092,7 +31092,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -31114,7 +31114,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_DOWNWARD_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_DOWNWARD(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -31126,7 +31126,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_DOWNWARD_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -31150,7 +31150,7 @@ static VG_REGPARM(2) Int vr_verrou_DOWNWARD_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_DOWNWARD(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31161,7 +31161,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_DOWNWARD_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_DOWNWARD(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -31173,7 +31173,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31188,7 +31188,7 @@ static VG_REGPARM(1) void vr_verrou_DOWNWARD_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_DOWNWARD(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31203,7 +31203,7 @@ static VG_REGPARM(2) Long vr_verrou_FARTHEST_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31214,7 +31214,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FARTHEST_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31237,7 +31237,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FARTHEST_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FARTHEST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31246,7 +31246,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FARTHEST_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31263,7 +31263,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FARTHEST(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_FARTHEST(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31273,7 +31273,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -31295,7 +31295,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FARTHEST_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_FARTHEST(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -31307,7 +31307,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FARTHEST_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -31331,7 +31331,7 @@ static VG_REGPARM(2) Int vr_verrou_FARTHEST_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_FARTHEST(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31342,7 +31342,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_FARTHEST_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_FARTHEST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -31354,7 +31354,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31369,7 +31369,7 @@ static VG_REGPARM(1) void vr_verrou_FARTHEST_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_FARTHEST(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31384,7 +31384,7 @@ static VG_REGPARM(2) Long vr_verrou_ZERO_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31395,7 +31395,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_ZERO_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31418,7 +31418,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_ZERO_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31427,7 +31427,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_ZERO_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31444,7 +31444,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31454,7 +31454,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -31476,7 +31476,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_ZERO_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -31488,7 +31488,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_ZERO_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -31512,7 +31512,7 @@ static VG_REGPARM(2) Int vr_verrou_ZERO_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31523,7 +31523,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_ZERO_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -31535,7 +31535,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31550,7 +31550,7 @@ static VG_REGPARM(1) void vr_verrou_ZERO_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31565,7 +31565,7 @@ static VG_REGPARM(2) Long vr_verrou_AWAY_ZERO_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31576,7 +31576,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AWAY_ZERO_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31599,7 +31599,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AWAY_ZERO_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AWAY_ZERO(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31608,7 +31608,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AWAY_ZERO_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31625,7 +31625,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AWAY_ZERO(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AWAY_ZERO(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31635,7 +31635,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -31657,7 +31657,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_AWAY_ZERO(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -31669,7 +31669,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AWAY_ZERO_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -31693,7 +31693,7 @@ static VG_REGPARM(2) Int vr_verrou_AWAY_ZERO_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AWAY_ZERO(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31704,7 +31704,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AWAY_ZERO_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AWAY_ZERO(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -31716,7 +31716,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softdiv32Fx8 (/*OUT*/V256* output)
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31731,7 +31731,7 @@ static VG_REGPARM(1) void vr_verrou_AWAY_ZERO_softdiv32Fx4 (/*OUT*/V128* output)
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AWAY_ZERO(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31746,7 +31746,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31757,7 +31757,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31780,7 +31780,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31789,7 +31789,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31806,7 +31806,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31816,7 +31816,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -31838,7 +31838,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_RANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -31850,7 +31850,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -31874,7 +31874,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31885,7 +31885,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -31897,7 +31897,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31912,7 +31912,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -31927,7 +31927,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_DET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -31938,7 +31938,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_DET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -31961,7 +31961,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_DET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -31970,7 +31970,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_DET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -31987,7 +31987,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softdiv64Fx2(/*OUT*/V128* output)
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -31997,7 +31997,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32019,7 +32019,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_RANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32031,7 +32031,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_DET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32055,7 +32055,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_DET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32066,7 +32066,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_DET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32078,7 +32078,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softdiv32Fx8 (/*OUT*/V256* output
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32093,7 +32093,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_DET_softdiv32Fx4 (/*OUT*/V128* output
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32108,7 +32108,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_COMDET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32119,7 +32119,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_COMDET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -32142,7 +32142,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_COMDET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -32151,7 +32151,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_COMDET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -32168,7 +32168,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softdiv64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -32178,7 +32178,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32200,7 +32200,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_RANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32212,7 +32212,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32236,7 +32236,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_COMDET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32247,7 +32247,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_COMDET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32259,7 +32259,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softdiv32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32274,7 +32274,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_COMDET_softdiv32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32289,7 +32289,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32300,7 +32300,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -32323,7 +32323,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -32332,7 +32332,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -32349,7 +32349,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -32359,7 +32359,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32381,7 +32381,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_AVERAGE(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32393,7 +32393,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32417,7 +32417,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32428,7 +32428,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32440,7 +32440,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32455,7 +32455,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32470,7 +32470,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_DET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32481,7 +32481,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_DET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -32504,7 +32504,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_DET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -32513,7 +32513,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_DET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -32530,7 +32530,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softdiv64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -32540,7 +32540,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32562,7 +32562,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_AVERAGE_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32574,7 +32574,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_DET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32598,7 +32598,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_DET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32609,7 +32609,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_DET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32621,7 +32621,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softdiv32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32636,7 +32636,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_DET_softdiv32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32651,7 +32651,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_COMDET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32662,7 +32662,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_COMDET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -32685,7 +32685,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_COMDET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -32694,7 +32694,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_COMDET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -32711,7 +32711,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softdiv64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -32721,7 +32721,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32743,7 +32743,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_AVERAGE_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32755,7 +32755,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32779,7 +32779,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_COMDET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32790,7 +32790,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_COMDET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32802,7 +32802,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softdiv32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32817,7 +32817,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_COMDET_softdiv32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32832,7 +32832,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32843,7 +32843,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -32866,7 +32866,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -32875,7 +32875,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -32892,7 +32892,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -32902,7 +32902,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -32924,7 +32924,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_PRANDOM(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -32936,7 +32936,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -32960,7 +32960,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -32971,7 +32971,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -32983,7 +32983,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softdiv32Fx8 (/*OUT*/V256* output){
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -32998,7 +32998,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_softdiv32Fx4 (/*OUT*/V128* output){
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33013,7 +33013,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_DET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33024,7 +33024,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_DET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33047,7 +33047,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_DET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_DET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33056,7 +33056,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_DET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33073,7 +33073,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softdiv64Fx2(/*OUT*/V128* output
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_DET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_DET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33083,7 +33083,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -33105,7 +33105,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_PRANDOM_DET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -33117,7 +33117,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_DET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -33141,7 +33141,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_DET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM_DET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33152,7 +33152,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_DET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM_DET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -33164,7 +33164,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softdiv32Fx8 (/*OUT*/V256* outpu
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33179,7 +33179,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_DET_softdiv32Fx4 (/*OUT*/V128* outpu
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_DET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33194,7 +33194,7 @@ static VG_REGPARM(2) Long vr_verrou_PRANDOM_COMDET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33205,7 +33205,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_PRANDOM_COMDET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33228,7 +33228,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_PRANDOM_COMDET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_COMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33237,7 +33237,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_PRANDOM_COMDET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33254,7 +33254,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softdiv64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_PRANDOM_COMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33264,7 +33264,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -33286,7 +33286,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_PRANDOM_COMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -33298,7 +33298,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_PRANDOM_COMDET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -33322,7 +33322,7 @@ static VG_REGPARM(2) Int vr_verrou_PRANDOM_COMDET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM_COMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33333,7 +33333,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_PRANDOM_COMDET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_PRANDOM_COMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -33345,7 +33345,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softdiv32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33360,7 +33360,7 @@ static VG_REGPARM(1) void vr_verrou_PRANDOM_COMDET_softdiv32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_PRANDOM_COMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33375,7 +33375,7 @@ static VG_REGPARM(2) Long vr_verrou_RANDOM_SCOMDET_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33386,7 +33386,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_RANDOM_SCOMDET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33409,7 +33409,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_RANDOM_SCOMDET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33418,7 +33418,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_RANDOM_SCOMDET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33435,7 +33435,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softdiv64Fx2(/*OUT*/V128* out
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_RANDOM_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33445,7 +33445,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -33467,7 +33467,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_RANDOM_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -33479,7 +33479,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_RANDOM_SCOMDET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -33503,7 +33503,7 @@ static VG_REGPARM(2) Int vr_verrou_RANDOM_SCOMDET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33514,7 +33514,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_RANDOM_SCOMDET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_RANDOM_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -33526,7 +33526,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softdiv32Fx8 (/*OUT*/V256* ou
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33541,7 +33541,7 @@ static VG_REGPARM(1) void vr_verrou_RANDOM_SCOMDET_softdiv32Fx4 (/*OUT*/V128* ou
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_RANDOM_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33556,7 +33556,7 @@ static VG_REGPARM(2) Long vr_verrou_AVERAGE_SCOMDET_softdiv64F (Long a, Long b) 
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33567,7 +33567,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_AVERAGE_SCOMDET_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33590,7 +33590,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_AVERAGE_SCOMDET_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33599,7 +33599,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_AVERAGE_SCOMDET_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33616,7 +33616,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softdiv64Fx2(/*OUT*/V128* ou
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_AVERAGE_SCOMDET(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33626,7 +33626,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -33648,7 +33648,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_AVERAGE_SCOMDET(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -33660,7 +33660,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_AVERAGE_SCOMDET_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -33684,7 +33684,7 @@ static VG_REGPARM(2) Int vr_verrou_AVERAGE_SCOMDET_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_SCOMDET(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33695,7 +33695,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_AVERAGE_SCOMDET_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_AVERAGE_SCOMDET(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -33707,7 +33707,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softdiv32Fx8 (/*OUT*/V256* o
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33722,7 +33722,7 @@ static VG_REGPARM(1) void vr_verrou_AVERAGE_SCOMDET_softdiv32Fx4 (/*OUT*/V128* o
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_AVERAGE_SCOMDET(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33737,7 +33737,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_MONOTONIC_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33748,7 +33748,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_MONOTONIC_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33771,7 +33771,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_MONOTONIC_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_MONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33780,7 +33780,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_MONOTONIC_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33797,7 +33797,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softdiv64Fx2(/*OUT*/V128* outpu
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_MONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_MONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33807,7 +33807,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -33829,7 +33829,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_SR_MONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -33841,7 +33841,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_MONOTONIC_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -33865,7 +33865,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_MONOTONIC_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_SR_MONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33876,7 +33876,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_MONOTONIC_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_SR_MONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -33888,7 +33888,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softdiv32Fx8 (/*OUT*/V256* outp
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33903,7 +33903,7 @@ static VG_REGPARM(1) void vr_verrou_SR_MONOTONIC_softdiv32Fx4 (/*OUT*/V128* outp
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_MONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -33918,7 +33918,7 @@ static VG_REGPARM(2) Long vr_verrou_SR_SMONOTONIC_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -33929,7 +33929,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_SR_SMONOTONIC_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -33952,7 +33952,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_SR_SMONOTONIC_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -33961,7 +33961,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_SR_SMONOTONIC_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -33978,7 +33978,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softdiv64Fx2(/*OUT*/V128* outp
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_SR_SMONOTONIC(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -33988,7 +33988,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -34010,7 +34010,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_SR_SMONOTONIC(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -34022,7 +34022,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_SR_SMONOTONIC_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -34046,7 +34046,7 @@ static VG_REGPARM(2) Int vr_verrou_SR_SMONOTONIC_softdiv32F (Long a, Long b) {
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_SR_SMONOTONIC(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -34057,7 +34057,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verrou_SR_SMONOTONIC_softdiv32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_float_SR_SMONOTONIC(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_float_NEAREST(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_null_context);
@@ -34069,7 +34069,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softdiv32Fx8 (/*OUT*/V256* out
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -34084,7 +34084,7 @@ static VG_REGPARM(1) void vr_verrou_SR_SMONOTONIC_softdiv32Fx4 (/*OUT*/V128* out
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_div_float_SR_SMONOTONIC(arg1[i], arg2[i], res+i, backend_verrou_context);
   }
@@ -34435,7 +34435,7 @@ static VG_REGPARM(2) Long vr_verrou_FLOAT_softadd64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FLOAT(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -34446,7 +34446,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FLOAT_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -34469,7 +34469,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FLOAT_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FLOAT(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_add_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -34478,7 +34478,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FLOAT_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -34495,7 +34495,7 @@ static VG_REGPARM(1) void vr_verrou_FLOAT_softadd64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double_FLOAT(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_add_double_FLOAT(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -34505,7 +34505,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -34527,7 +34527,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FLOAT_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double_FLOAT(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -34539,7 +34539,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -34564,7 +34564,7 @@ static VG_REGPARM(2) Long vr_verrou_FLOAT_softsub64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FLOAT(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -34575,7 +34575,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FLOAT_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -34598,7 +34598,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FLOAT_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FLOAT(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_sub_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -34607,7 +34607,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FLOAT_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -34624,7 +34624,7 @@ static VG_REGPARM(1) void vr_verrou_FLOAT_softsub64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double_FLOAT(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_sub_double_FLOAT(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -34634,7 +34634,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -34656,7 +34656,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FLOAT_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double_FLOAT(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -34668,7 +34668,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -34693,7 +34693,7 @@ static VG_REGPARM(2) Long vr_verrou_FLOAT_softmul64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -34704,7 +34704,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FLOAT_softmul64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -34727,7 +34727,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FLOAT_softmul64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FLOAT(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_mul_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -34736,7 +34736,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FLOAT_softmul64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -34753,7 +34753,7 @@ static VG_REGPARM(1) void vr_verrou_FLOAT_softmul64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FLOAT(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_mul_double_FLOAT(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -34763,7 +34763,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softmul64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -34785,7 +34785,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FLOAT_softmul64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_mul_double_FLOAT(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -34797,7 +34797,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softmul64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -34822,7 +34822,7 @@ static VG_REGPARM(2) Long vr_verrou_FLOAT_softdiv64F (Long a, Long b) {
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FLOAT(*arg1, *arg2, &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(*arg1, *arg2, &res, backend_verrou_null_context);
@@ -34833,7 +34833,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verrou_FLOAT_softdiv64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -34856,7 +34856,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verrou_FLOAT_softdiv64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FLOAT(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
 }else{
   interflop_verrou_div_double_NEAREST(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_null_context);
@@ -34865,7 +34865,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verrou_FLOAT_softdiv64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -34882,7 +34882,7 @@ static VG_REGPARM(1) void vr_verrou_FLOAT_softdiv64Fx2(/*OUT*/V128* output){
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_div_double_FLOAT(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_verrou_div_double_FLOAT(arg1[1], arg2[1], res+1, backend_verrou_context);
 }else{
@@ -34892,7 +34892,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softdiv64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -34914,7 +34914,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verrou_FLOAT_softdiv64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_div_double_FLOAT(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
   }
@@ -34926,7 +34926,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verrou_FLOAT_softdiv64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -35733,7 +35733,7 @@ static VG_REGPARM(2) Long vr_verroucheckcancellation_softadd64F (Long a, Long b)
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_checkcancellation_add_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -35745,7 +35745,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verroucheckcancellation_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -35769,7 +35769,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verroucheckcancellation_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -35779,7 +35779,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verroucheckcancellation_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -35797,7 +35797,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softadd64Fx2(/*OUT*/V128* o
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_verrou_add_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -35809,7 +35809,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verroucheckcancellation_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -35833,7 +35833,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verroucheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -35846,7 +35846,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verroucheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -35871,7 +35871,7 @@ static VG_REGPARM(2) Int vr_verroucheckcancellation_softadd32F (Long a, Long b) 
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_checkcancellation_add_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -35883,7 +35883,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheckcancellation_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -35896,7 +35896,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softadd32Fx8 (/*OUT*/V256* 
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -35912,7 +35912,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softadd32Fx4 (/*OUT*/V128* 
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_add_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -35928,7 +35928,7 @@ static VG_REGPARM(2) Long vr_verroucheckcancellation_softsub64F (Long a, Long b)
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(*arg1, *arg2, &res, backend_verrou_context);
   interflop_checkcancellation_sub_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -35940,7 +35940,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_verroucheckcancellation_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -35964,7 +35964,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_verroucheckcancellation_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_verrou_context);
   interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -35974,7 +35974,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_verroucheckcancellation_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -35992,7 +35992,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softsub64Fx2(/*OUT*/V128* o
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_double(arg1[0], arg2[0], res, backend_verrou_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_verrou_sub_double(arg1[1], arg2[1], res+1, backend_verrou_context);
@@ -36004,7 +36004,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verroucheckcancellation_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -36028,7 +36028,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_verroucheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_verrou_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -36041,7 +36041,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_verroucheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -36066,7 +36066,7 @@ static VG_REGPARM(2) Int vr_verroucheckcancellation_softsub32F (Long a, Long b) 
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(*arg1, *arg2, &res, backend_verrou_context);
   interflop_checkcancellation_sub_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36078,7 +36078,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_verroucheckcancellation_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_verrou_context);
   interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -36091,7 +36091,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softsub32Fx8 (/*OUT*/V256* 
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36107,7 +36107,7 @@ static VG_REGPARM(1) void vr_verroucheckcancellation_softsub32Fx4 (/*OUT*/V128* 
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_verrou_sub_float(arg1[i], arg2[i], res+i, backend_verrou_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36124,7 +36124,7 @@ static VG_REGPARM(2) Long vr_mcaquadcheckcancellation_softadd64F (Long a, Long b
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(*arg1, *arg2, &res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36136,7 +36136,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquadcheckcancellation_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -36160,7 +36160,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquadcheckcancellation_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -36170,7 +36170,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquadcheckcancellation_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -36188,7 +36188,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softadd64Fx2(/*OUT*/V128* 
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_mcaquad_add_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -36200,7 +36200,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquadcheckcancellation_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -36224,7 +36224,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -36237,7 +36237,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquadcheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -36262,7 +36262,7 @@ static VG_REGPARM(2) Int vr_mcaquadcheckcancellation_softadd32F (Long a, Long b)
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_float(*arg1, *arg2, &res, backend_mcaquad_context);
   interflop_checkcancellation_add_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36274,7 +36274,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquadcheckcancellation_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
   interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -36287,7 +36287,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softadd32Fx8 (/*OUT*/V256*
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36303,7 +36303,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softadd32Fx4 (/*OUT*/V128*
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_add_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36319,7 +36319,7 @@ static VG_REGPARM(2) Long vr_mcaquadcheckcancellation_softsub64F (Long a, Long b
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(*arg1, *arg2, &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36331,7 +36331,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_mcaquadcheckcancellation_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -36355,7 +36355,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_mcaquadcheckcancellation_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -36365,7 +36365,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_mcaquadcheckcancellation_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -36383,7 +36383,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softsub64Fx2(/*OUT*/V128* 
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_double(arg1[0], arg2[0], res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_mcaquad_sub_double(arg1[1], arg2[1], res+1, backend_mcaquad_context);
@@ -36395,7 +36395,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquadcheckcancellation_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -36419,7 +36419,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_mcaquad_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -36432,7 +36432,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_mcaquadcheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -36457,7 +36457,7 @@ static VG_REGPARM(2) Int vr_mcaquadcheckcancellation_softsub32F (Long a, Long b)
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_float(*arg1, *arg2, &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36469,7 +36469,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_mcaquadcheckcancellation_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -36482,7 +36482,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softsub32Fx8 (/*OUT*/V256*
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36498,7 +36498,7 @@ static VG_REGPARM(1) void vr_mcaquadcheckcancellation_softsub32Fx4 (/*OUT*/V128*
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_mcaquad_sub_float(arg1[i], arg2[i], res+i, backend_mcaquad_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36515,7 +36515,7 @@ static VG_REGPARM(2) Long vr_checkdenormcheckcancellation_softadd64F (Long a, Lo
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(*arg1, *arg2, &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36527,7 +36527,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenormcheckcancellation_softadd64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -36551,7 +36551,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenormcheckcancellation_softadd64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -36561,7 +36561,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenormcheckcancellation_softadd64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -36579,7 +36579,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softadd64Fx2(/*OUT*/V1
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_checkdenorm_add_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -36591,7 +36591,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenormcheckcancellation_softadd64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -36615,7 +36615,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -36628,7 +36628,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenormcheckcancellation_softadd64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -36653,7 +36653,7 @@ static VG_REGPARM(2) Int vr_checkdenormcheckcancellation_softadd32F (Long a, Lon
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_float(*arg1, *arg2, &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36665,7 +36665,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenormcheckcancellation_softadd32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -36678,7 +36678,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softadd32Fx8 (/*OUT*/V
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36694,7 +36694,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softadd32Fx4 (/*OUT*/V
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_add_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36710,7 +36710,7 @@ static VG_REGPARM(2) Long vr_checkdenormcheckcancellation_softsub64F (Long a, Lo
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(*arg1, *arg2, &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36722,7 +36722,7 @@ if(vr.instrument_soft){
 
 
 static VG_REGPARM(2) Long vr_conv_checkdenormcheckcancellation_softsub64F (Long a, Long b) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   double *arg1 = (double*)(&a);
   float arg1f=*arg1;
   double *arg2 = (double*)(&b);
@@ -36746,7 +36746,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void  vr_checkdenormcheckcancellation_softsub64FLLO (void){
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(arg1CopyDouble[0], arg2CopyDouble[0], &res, backend_checkcancellation_context);
 }else{
@@ -36756,7 +36756,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(0) void  vr_conv_checkdenormcheckcancellation_softsub64FLLO (void){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   float resf;
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
@@ -36774,7 +36774,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softsub64Fx2(/*OUT*/V1
   const double* arg1=arg1CopyDouble;
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_double(arg1[0], arg2[0], res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
   interflop_checkdenorm_sub_double(arg1[1], arg2[1], res+1, backend_checkdenorm_context);
@@ -36786,7 +36786,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenormcheckcancellation_softsub64Fx2(/*OUT*/V128* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
   const double* arg1=arg1CopyDouble;
   float arg1f[2]={arg1[0],arg1[1]};
   const double* arg2=arg2CopyDouble;
@@ -36810,7 +36810,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
   double* res=(double*) output;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4; i++){
      interflop_checkdenorm_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_double(arg1CopyDouble[i], arg2CopyDouble[i], res+i, backend_checkcancellation_context);
@@ -36823,7 +36823,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(1) void vr_conv_checkdenormcheckcancellation_softsub64Fx4 (/*OUT*/V256* output){
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
    float arg1f[4]={arg1CopyDouble[0],arg1CopyDouble[1],arg1CopyDouble[2],arg1CopyDouble[3]};
    float arg2f[4]={arg2CopyDouble[0],arg2CopyDouble[1],arg2CopyDouble[2],arg2CopyDouble[3]};
    double* res=(double*) output;
@@ -36848,7 +36848,7 @@ static VG_REGPARM(2) Int vr_checkdenormcheckcancellation_softsub32F (Long a, Lon
   float *arg1 = (float*)(&a);
   float *arg2 = (float*)(&b);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_float(*arg1, *arg2, &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_float(*arg1, *arg2, &res, backend_checkcancellation_context);
 }else{
@@ -36860,7 +36860,7 @@ if(vr.instrument_soft){
 
 static VG_REGPARM(0) void vr_checkdenormcheckcancellation_softsub32FLLO (void){
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_float(arg1CopyFloat[0], arg2CopyFloat[0], &res, backend_checkcancellation_context);
 }else{
@@ -36873,7 +36873,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softsub32Fx8 (/*OUT*/V
   float* res=(float*) output;
   float* arg1=arg1CopyFloat;
   float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<8; i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -36889,7 +36889,7 @@ static VG_REGPARM(1) void vr_checkdenormcheckcancellation_softsub32Fx4 (/*OUT*/V
   float* res=(float*) output;
   const float* arg1=arg1CopyFloat;
   const float* arg2=arg2CopyFloat;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   for(int i=0; i<4;i++){
      interflop_checkdenorm_sub_float(arg1[i], arg2[i], res+i, backend_checkdenorm_context);
      interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
@@ -37575,7 +37575,7 @@ static VG_REGPARM(3) Long vr_verrou_softmadd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -37589,7 +37589,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -37630,7 +37630,7 @@ static VG_REGPARM(3) Int vr_verrou_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -37652,7 +37652,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_softmadd64F (Long a, Long b, Long c)
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -37667,7 +37667,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -37711,7 +37711,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_softmadd32F (Long a, Long b, Long c) 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -37731,7 +37731,7 @@ static VG_REGPARM(3) Long vr_verrou_softmsub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -37745,7 +37745,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -37786,7 +37786,7 @@ static VG_REGPARM(3) Int vr_verrou_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -37808,7 +37808,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_softmsub64F (Long a, Long b, Long c)
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -37823,7 +37823,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -37867,7 +37867,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_softmsub32F (Long a, Long b, Long c) 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -37888,7 +37888,7 @@ static VG_REGPARM(3) Long vr_mcaquad_softmadd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_double(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -37902,7 +37902,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_mcaquad_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -37943,7 +37943,7 @@ static VG_REGPARM(3) Int vr_mcaquad_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_float(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -37965,7 +37965,7 @@ static VG_REGPARM(3) Long vr_unfused_mcaquad_softmadd64F (Long a, Long b, Long c
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
 }else{
@@ -37980,7 +37980,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_mcaquad_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38024,7 +38024,7 @@ static VG_REGPARM(3) Int vr_unfused_mcaquad_softmadd32F (Long a, Long b, Long c)
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
 }else{
@@ -38044,7 +38044,7 @@ static VG_REGPARM(3) Long vr_mcaquad_softmsub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_double(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -38058,7 +38058,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_mcaquad_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38099,7 +38099,7 @@ static VG_REGPARM(3) Int vr_mcaquad_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -38121,7 +38121,7 @@ static VG_REGPARM(3) Long vr_unfused_mcaquad_softmsub64F (Long a, Long b, Long c
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
 }else{
@@ -38136,7 +38136,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_mcaquad_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38180,7 +38180,7 @@ static VG_REGPARM(3) Int vr_unfused_mcaquad_softmsub32F (Long a, Long b, Long c)
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
 }else{
@@ -38201,7 +38201,7 @@ static VG_REGPARM(3) Long vr_checkdenorm_softmadd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -38215,7 +38215,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_checkdenorm_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38256,7 +38256,7 @@ static VG_REGPARM(3) Int vr_checkdenorm_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -38278,7 +38278,7 @@ static VG_REGPARM(3) Long vr_unfused_checkdenorm_softmadd64F (Long a, Long b, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
 }else{
@@ -38293,7 +38293,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_checkdenorm_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38337,7 +38337,7 @@ static VG_REGPARM(3) Int vr_unfused_checkdenorm_softmadd32F (Long a, Long b, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
 }else{
@@ -38357,7 +38357,7 @@ static VG_REGPARM(3) Long vr_checkdenorm_softmsub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -38371,7 +38371,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_checkdenorm_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38412,7 +38412,7 @@ static VG_REGPARM(3) Int vr_checkdenorm_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -38434,7 +38434,7 @@ static VG_REGPARM(3) Long vr_unfused_checkdenorm_softmsub64F (Long a, Long b, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
 }else{
@@ -38449,7 +38449,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_checkdenorm_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -38493,7 +38493,7 @@ static VG_REGPARM(3) Int vr_unfused_checkdenorm_softmsub32F (Long a, Long b, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
 }else{
@@ -39217,7 +39217,7 @@ static VG_REGPARM(3) Long vr_verroucheckcancellation_softmadd64F (Long a, Long b
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39232,7 +39232,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verroucheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39274,7 +39274,7 @@ static VG_REGPARM(3) Int vr_verroucheckcancellation_softmadd32F (Long a, Long b,
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39297,7 +39297,7 @@ static VG_REGPARM(3) Long vr_unfused_verroucheckcancellation_softmadd64F (Long a
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -39314,7 +39314,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39359,7 +39359,7 @@ static VG_REGPARM(3) Int vr_unfused_verroucheckcancellation_softmadd32F (Long a,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -39381,7 +39381,7 @@ static VG_REGPARM(3) Long vr_verroucheckcancellation_softmsub64F (Long a, Long b
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39396,7 +39396,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verroucheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39438,7 +39438,7 @@ static VG_REGPARM(3) Int vr_verroucheckcancellation_softmsub32F (Long a, Long b,
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39461,7 +39461,7 @@ static VG_REGPARM(3) Long vr_unfused_verroucheckcancellation_softmsub64F (Long a
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -39478,7 +39478,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verroucheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39523,7 +39523,7 @@ static VG_REGPARM(3) Int vr_unfused_verroucheckcancellation_softmsub32F (Long a,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
   interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -39546,7 +39546,7 @@ static VG_REGPARM(3) Long vr_mcaquadcheckcancellation_softmadd64F (Long a, Long 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_double(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39561,7 +39561,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_mcaquadcheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39603,7 +39603,7 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellation_softmadd32F (Long a, Long b
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_float(*arg1, *arg2,  *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39626,7 +39626,7 @@ static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellation_softmadd64F (Long 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_add_double(res_temp,  *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -39643,7 +39643,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39688,7 +39688,7 @@ static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellation_softmadd32F (Long a
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_add_float(res_temp,  *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -39710,7 +39710,7 @@ static VG_REGPARM(3) Long vr_mcaquadcheckcancellation_softmsub64F (Long a, Long 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_double(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39725,7 +39725,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_mcaquadcheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39767,7 +39767,7 @@ static VG_REGPARM(3) Int vr_mcaquadcheckcancellation_softmsub32F (Long a, Long b
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_madd_float(*arg1, *arg2, - *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39790,7 +39790,7 @@ static VG_REGPARM(3) Long vr_unfused_mcaquadcheckcancellation_softmsub64F (Long 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_double(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_sub_double(res_temp, *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -39807,7 +39807,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_mcaquadcheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39852,7 +39852,7 @@ static VG_REGPARM(3) Int vr_unfused_mcaquadcheckcancellation_softmsub32F (Long a
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_mcaquad_mul_float(*arg1, *arg2, &res_temp, backend_mcaquad_context);
   interflop_mcaquad_sub_float(res_temp, *arg3, &res, backend_mcaquad_context);
   interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -39875,7 +39875,7 @@ static VG_REGPARM(3) Long vr_checkdenormcheckcancellation_softmadd64F (Long a, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39890,7 +39890,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_checkdenormcheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -39932,7 +39932,7 @@ static VG_REGPARM(3) Int vr_checkdenormcheckcancellation_softmadd32F (Long a, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -39955,7 +39955,7 @@ static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellation_softmadd64F (L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_add_double(res_temp,  *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_double(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -39972,7 +39972,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellation_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -40017,7 +40017,7 @@ static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellation_softmadd32F (Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_add_float(res_temp,  *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_add_float(res_temp,  *arg3, &res, backend_checkcancellation_context);
@@ -40039,7 +40039,7 @@ static VG_REGPARM(3) Long vr_checkdenormcheckcancellation_softmsub64F (Long a, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -40054,7 +40054,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_checkdenormcheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -40096,7 +40096,7 @@ static VG_REGPARM(3) Int vr_checkdenormcheckcancellation_softmsub32F (Long a, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 }else{
@@ -40119,7 +40119,7 @@ static VG_REGPARM(3) Long vr_unfused_checkdenormcheckcancellation_softmsub64F (L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_double(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_sub_double(res_temp, *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_double(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -40136,7 +40136,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_checkdenormcheckcancellation_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -40181,7 +40181,7 @@ static VG_REGPARM(3) Int vr_unfused_checkdenormcheckcancellation_softmsub32F (Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_checkdenorm_mul_float(*arg1, *arg2, &res_temp, backend_checkdenorm_context);
   interflop_checkdenorm_sub_float(res_temp, *arg3, &res, backend_checkdenorm_context);
   interflop_checkcancellation_sub_float(res_temp, *arg3, &res, backend_checkcancellation_context);
@@ -40443,7 +40443,7 @@ static VG_REGPARM(3) Long vr_verroucheck_float_max_softmadd64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
   interflop_check_float_max_madd_double(*arg1, *arg2,  *arg3, &res, backend_check_float_max_context);
 }else{
@@ -40458,7 +40458,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(3) Long vr_conv_verroucheck_float_max_softmadd64F (Long a, Long b, Long c) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*#ifdef USE_VERROU_FMA*/
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
@@ -40500,7 +40500,7 @@ static VG_REGPARM(3) Int vr_verroucheck_float_max_softmadd32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
   interflop_check_float_max_madd_float(*arg1, *arg2,  *arg3, &res, backend_check_float_max_context);
 }else{
@@ -40523,7 +40523,7 @@ static VG_REGPARM(3) Long vr_unfused_verroucheck_float_max_softmadd64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
   interflop_verrou_add_double(res_temp,  *arg3, &res, backend_verrou_context);
@@ -40541,7 +40541,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_max_softmadd64F (Long a, Long b, Long c) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*#ifdef USE_VERROU_FMA*/
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
@@ -40587,7 +40587,7 @@ static VG_REGPARM(3) Int vr_unfused_verroucheck_float_max_softmadd32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
   interflop_verrou_add_float(res_temp,  *arg3, &res, backend_verrou_context);
@@ -40610,7 +40610,7 @@ static VG_REGPARM(3) Long vr_verroucheck_float_max_softmsub64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_check_float_max_madd_double(*arg1, *arg2, - *arg3, &res, backend_check_float_max_context);
 }else{
@@ -40625,7 +40625,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(3) Long vr_conv_verroucheck_float_max_softmsub64F (Long a, Long b, Long c) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*#ifdef USE_VERROU_FMA*/
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
@@ -40667,7 +40667,7 @@ static VG_REGPARM(3) Int vr_verroucheck_float_max_softmsub32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
   interflop_check_float_max_madd_float(*arg1, *arg2, - *arg3, &res, backend_check_float_max_context);
 }else{
@@ -40690,7 +40690,7 @@ static VG_REGPARM(3) Long vr_unfused_verroucheck_float_max_softmsub64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_check_float_max_mul_double(*arg1, *arg2, &res_temp, backend_check_float_max_context);
   interflop_verrou_sub_double(res_temp, *arg3, &res, backend_verrou_context);
@@ -40708,7 +40708,7 @@ if(vr.instrument_soft){
 }
 
 /*static VG_REGPARM(3) Long vr_unfused_conv_verroucheck_float_max_softmsub64F (Long a, Long b, Long c) {*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft && vr.instrument_soft_back){*/
 /*#ifdef USE_VERROU_FMA*/
 /*  double *arg1 = (double*)(&a);*/
 /*  double *arg2 = (double*)(&b);*/
@@ -40754,7 +40754,7 @@ static VG_REGPARM(3) Int vr_unfused_verroucheck_float_max_softmsub32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_check_float_max_mul_float(*arg1, *arg2, &res_temp, backend_check_float_max_context);
   interflop_verrou_sub_float(res_temp, *arg3, &res, backend_verrou_context);
@@ -44995,7 +44995,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONICmsub32F (Long a, Long b,
 /*  double *arg2 = (double*)(&b);*/
 /*  double *arg3 = (double*)(&c);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);*/
@@ -45009,7 +45009,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONICmsub32F (Long a, Long b,
 /*}*/
 
 static VG_REGPARM(3) Long vr_conv_verrou_NEAREST_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45050,7 +45050,7 @@ if(vr.instrument_soft){
 /*  float *arg2 = (float*)(&b);*/
 /*  float *arg3 = (float*)(&c);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);*/
@@ -45072,7 +45072,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_NEAREST_softmadd64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45087,7 +45087,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEAREST_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45131,7 +45131,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_NEAREST_softmadd32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_NEAREST(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45151,7 +45151,7 @@ static VG_REGPARM(3) Long vr_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_UPWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45165,7 +45165,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45206,7 +45206,7 @@ static VG_REGPARM(3) Int vr_verrou_UPWARD_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_UPWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45228,7 +45228,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_UPWARD_softmadd64F (Long a, Long b, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45243,7 +45243,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARD_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45287,7 +45287,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_UPWARD_softmadd32F (Long a, Long b, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_UPWARD(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45307,7 +45307,7 @@ static VG_REGPARM(3) Long vr_verrou_DOWNWARD_softmadd64F (Long a, Long b, Long c
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_DOWNWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45321,7 +45321,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_DOWNWARD_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45362,7 +45362,7 @@ static VG_REGPARM(3) Int vr_verrou_DOWNWARD_softmadd32F (Long a, Long b, Long c)
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_DOWNWARD(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45384,7 +45384,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARD_softmadd64F (Long a, Long b
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45399,7 +45399,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARD_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45443,7 +45443,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARD_softmadd32F (Long a, Long b,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_DOWNWARD(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45463,7 +45463,7 @@ static VG_REGPARM(3) Long vr_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_FARTHEST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45477,7 +45477,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45518,7 +45518,7 @@ static VG_REGPARM(3) Int vr_verrou_FARTHEST_softmadd32F (Long a, Long b, Long c)
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_FARTHEST(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45540,7 +45540,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_FARTHEST_softmadd64F (Long a, Long b
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45555,7 +45555,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHEST_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45599,7 +45599,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_FARTHEST_softmadd32F (Long a, Long b,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_FARTHEST(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45619,7 +45619,7 @@ static VG_REGPARM(3) Long vr_verrou_ZERO_softmadd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45633,7 +45633,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_ZERO_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45674,7 +45674,7 @@ static VG_REGPARM(3) Int vr_verrou_ZERO_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45696,7 +45696,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_ZERO_softmadd64F (Long a, Long b, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45711,7 +45711,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZERO_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45755,7 +45755,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_ZERO_softmadd32F (Long a, Long b, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45775,7 +45775,7 @@ static VG_REGPARM(3) Long vr_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45789,7 +45789,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45830,7 +45830,7 @@ static VG_REGPARM(3) Int vr_verrou_AWAY_ZERO_softmadd32F (Long a, Long b, Long c
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45852,7 +45852,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZERO_softmadd64F (Long a, Long 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45867,7 +45867,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZERO_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45911,7 +45911,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZERO_softmadd32F (Long a, Long b
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_AWAY_ZERO(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -45931,7 +45931,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_softmadd64F (Long a, Long b, Long c) 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -45945,7 +45945,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -45986,7 +45986,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_softmadd32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46008,7 +46008,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_softmadd64F (Long a, Long b, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46023,7 +46023,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46067,7 +46067,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_softmadd32F (Long a, Long b, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_RANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46087,7 +46087,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46101,7 +46101,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46142,7 +46142,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_DET_softmadd32F (Long a, Long b, Long 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46164,7 +46164,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DET_softmadd64F (Long a, Long
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46179,7 +46179,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46223,7 +46223,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DET_softmadd32F (Long a, Long 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_RANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46243,7 +46243,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_COMDET_softmadd64F (Long a, Long b, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46257,7 +46257,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46298,7 +46298,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_COMDET_softmadd32F (Long a, Long b, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46320,7 +46320,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDET_softmadd64F (Long a, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46335,7 +46335,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46379,7 +46379,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDET_softmadd32F (Long a, Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_RANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46399,7 +46399,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c)
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46413,7 +46413,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46454,7 +46454,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_softmadd32F (Long a, Long b, Long c) 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46476,7 +46476,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_softmadd64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46491,7 +46491,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46535,7 +46535,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_softmadd32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_AVERAGE(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46555,7 +46555,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_DET_softmadd64F (Long a, Long b, Lon
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46569,7 +46569,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46610,7 +46610,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_DET_softmadd32F (Long a, Long b, Long
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46632,7 +46632,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DET_softmadd64F (Long a, Lon
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46647,7 +46647,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46691,7 +46691,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DET_softmadd32F (Long a, Long
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_AVERAGE_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46711,7 +46711,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46725,7 +46725,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46766,7 +46766,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_COMDET_softmadd32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46788,7 +46788,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDET_softmadd64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46803,7 +46803,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46847,7 +46847,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDET_softmadd32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_AVERAGE_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46867,7 +46867,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_softmadd64F (Long a, Long b, Long c)
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46881,7 +46881,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -46922,7 +46922,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_softmadd32F (Long a, Long b, Long c) 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -46944,7 +46944,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_softmadd64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -46959,7 +46959,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47003,7 +47003,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_softmadd32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_PRANDOM(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47023,7 +47023,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Lon
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47037,7 +47037,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47078,7 +47078,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_DET_softmadd32F (Long a, Long b, Long
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47100,7 +47100,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DET_softmadd64F (Long a, Lon
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47115,7 +47115,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47159,7 +47159,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DET_softmadd32F (Long a, Long
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_PRANDOM_DET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47179,7 +47179,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_COMDET_softmadd64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47193,7 +47193,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47234,7 +47234,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_COMDET_softmadd32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM_COMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47256,7 +47256,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDET_softmadd64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47271,7 +47271,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47315,7 +47315,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDET_softmadd32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_PRANDOM_COMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47335,7 +47335,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47349,7 +47349,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47390,7 +47390,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_SCOMDET_softmadd32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47412,7 +47412,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDET_softmadd64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47427,7 +47427,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47471,7 +47471,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDET_softmadd32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_RANDOM_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47491,7 +47491,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_SCOMDET_softmadd64F (Long a, Long b,
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47505,7 +47505,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_SCOMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47546,7 +47546,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_SCOMDET_softmadd32F (Long a, Long b, 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_SCOMDET(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47568,7 +47568,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDET_softmadd64F (Long a,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47583,7 +47583,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDET_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47627,7 +47627,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDET_softmadd32F (Long a, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_AVERAGE_SCOMDET(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47647,7 +47647,7 @@ static VG_REGPARM(3) Long vr_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Lo
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_SR_MONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47661,7 +47661,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47702,7 +47702,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONIC_softmadd32F (Long a, Long b, Lon
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47724,7 +47724,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONIC_softmadd64F (Long a, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47739,7 +47739,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONIC_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47783,7 +47783,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONIC_softmadd32F (Long a, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_SR_MONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47803,7 +47803,7 @@ static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONIC_softmadd64F (Long a, Long b, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47817,7 +47817,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_SR_SMONOTONIC_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47858,7 +47858,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONIC_softmadd32F (Long a, Long b, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -47880,7 +47880,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONIC_softmadd64F (Long a, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47895,7 +47895,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONIC_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -47939,7 +47939,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONIC_softmadd32F (Long a, Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_float_SR_SMONOTONIC(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -47959,7 +47959,7 @@ if(vr.instrument_soft){
 /*  double *arg2 = (double*)(&b);*/
 /*  double *arg3 = (double*)(&c);*/
 /*  double res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);*/
@@ -47973,7 +47973,7 @@ if(vr.instrument_soft){
 /*}*/
 
 static VG_REGPARM(3) Long vr_conv_verrou_NEAREST_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48014,7 +48014,7 @@ if(vr.instrument_soft){
 /*  float *arg2 = (float*)(&b);*/
 /*  float *arg3 = (float*)(&c);*/
 /*  float res;*/
-/*if(vr.instrument_soft){*/
+/*if(vr.instrument_soft&&vr.instrument_soft_back){*/
 /*  interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);*/
 /*}else{*/
 /*  interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);*/
@@ -48036,7 +48036,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_NEAREST_softmsub64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48051,7 +48051,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_NEAREST_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48095,7 +48095,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_NEAREST_softmsub32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_NEAREST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_NEAREST(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48115,7 +48115,7 @@ static VG_REGPARM(3) Long vr_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_UPWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48129,7 +48129,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48170,7 +48170,7 @@ static VG_REGPARM(3) Int vr_verrou_UPWARD_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_UPWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48192,7 +48192,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_UPWARD_softmsub64F (Long a, Long b, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48207,7 +48207,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_UPWARD_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48251,7 +48251,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_UPWARD_softmsub32F (Long a, Long b, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_UPWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_UPWARD(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48271,7 +48271,7 @@ static VG_REGPARM(3) Long vr_verrou_DOWNWARD_softmsub64F (Long a, Long b, Long c
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_DOWNWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48285,7 +48285,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_DOWNWARD_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48326,7 +48326,7 @@ static VG_REGPARM(3) Int vr_verrou_DOWNWARD_softmsub32F (Long a, Long b, Long c)
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_DOWNWARD(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48348,7 +48348,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_DOWNWARD_softmsub64F (Long a, Long b
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48363,7 +48363,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_DOWNWARD_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48407,7 +48407,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_DOWNWARD_softmsub32F (Long a, Long b,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_DOWNWARD(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_DOWNWARD(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48427,7 +48427,7 @@ static VG_REGPARM(3) Long vr_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_FARTHEST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48441,7 +48441,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48482,7 +48482,7 @@ static VG_REGPARM(3) Int vr_verrou_FARTHEST_softmsub32F (Long a, Long b, Long c)
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_FARTHEST(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48504,7 +48504,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_FARTHEST_softmsub64F (Long a, Long b
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48519,7 +48519,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_FARTHEST_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48563,7 +48563,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_FARTHEST_softmsub32F (Long a, Long b,
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_FARTHEST(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_FARTHEST(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48583,7 +48583,7 @@ static VG_REGPARM(3) Long vr_verrou_ZERO_softmsub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48597,7 +48597,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_ZERO_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48638,7 +48638,7 @@ static VG_REGPARM(3) Int vr_verrou_ZERO_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48660,7 +48660,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_ZERO_softmsub64F (Long a, Long b, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_ZERO(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48675,7 +48675,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_ZERO_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48719,7 +48719,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_ZERO_softmsub32F (Long a, Long b, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_ZERO(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48739,7 +48739,7 @@ static VG_REGPARM(3) Long vr_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48753,7 +48753,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48794,7 +48794,7 @@ static VG_REGPARM(3) Int vr_verrou_AWAY_ZERO_softmsub32F (Long a, Long b, Long c
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AWAY_ZERO(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48816,7 +48816,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AWAY_ZERO_softmsub64F (Long a, Long 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48831,7 +48831,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AWAY_ZERO_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48875,7 +48875,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AWAY_ZERO_softmsub32F (Long a, Long b
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AWAY_ZERO(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_AWAY_ZERO(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48895,7 +48895,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_softmsub64F (Long a, Long b, Long c) 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48909,7 +48909,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -48950,7 +48950,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_softmsub32F (Long a, Long b, Long c) {
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -48972,7 +48972,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_softmsub64F (Long a, Long b, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -48987,7 +48987,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49031,7 +49031,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_softmsub32F (Long a, Long b, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_RANDOM(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49051,7 +49051,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49065,7 +49065,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49106,7 +49106,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_DET_softmsub32F (Long a, Long b, Long 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49128,7 +49128,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_DET_softmsub64F (Long a, Long
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49143,7 +49143,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49187,7 +49187,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_DET_softmsub32F (Long a, Long 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_RANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49207,7 +49207,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_COMDET_softmsub64F (Long a, Long b, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49221,7 +49221,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49262,7 +49262,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_COMDET_softmsub32F (Long a, Long b, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49284,7 +49284,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_COMDET_softmsub64F (Long a, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49299,7 +49299,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49343,7 +49343,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_COMDET_softmsub32F (Long a, Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_RANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49363,7 +49363,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c)
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49377,7 +49377,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49418,7 +49418,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_softmsub32F (Long a, Long b, Long c) 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49440,7 +49440,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_softmsub64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49455,7 +49455,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49499,7 +49499,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_softmsub32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_AVERAGE(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49519,7 +49519,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_DET_softmsub64F (Long a, Long b, Lon
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49533,7 +49533,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49574,7 +49574,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_DET_softmsub32F (Long a, Long b, Long
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49596,7 +49596,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_DET_softmsub64F (Long a, Lon
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49611,7 +49611,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49655,7 +49655,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_DET_softmsub32F (Long a, Long
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_AVERAGE_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49675,7 +49675,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49689,7 +49689,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49730,7 +49730,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_COMDET_softmsub32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49752,7 +49752,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_COMDET_softmsub64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49767,7 +49767,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49811,7 +49811,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_COMDET_softmsub32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_AVERAGE_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49831,7 +49831,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_softmsub64F (Long a, Long b, Long c)
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49845,7 +49845,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49886,7 +49886,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_softmsub32F (Long a, Long b, Long c) 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -49908,7 +49908,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_softmsub64F (Long a, Long b,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49923,7 +49923,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -49967,7 +49967,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_softmsub32F (Long a, Long b, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_PRANDOM(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -49987,7 +49987,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Lon
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50001,7 +50001,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50042,7 +50042,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_DET_softmsub32F (Long a, Long b, Long
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM_DET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50064,7 +50064,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_DET_softmsub64F (Long a, Lon
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50079,7 +50079,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_DET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50123,7 +50123,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_DET_softmsub32F (Long a, Long
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_DET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_PRANDOM_DET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50143,7 +50143,7 @@ static VG_REGPARM(3) Long vr_verrou_PRANDOM_COMDET_softmsub64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_PRANDOM_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50157,7 +50157,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_PRANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50198,7 +50198,7 @@ static VG_REGPARM(3) Int vr_verrou_PRANDOM_COMDET_softmsub32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_PRANDOM_COMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50220,7 +50220,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_PRANDOM_COMDET_softmsub64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50235,7 +50235,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_PRANDOM_COMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50279,7 +50279,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_PRANDOM_COMDET_softmsub32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_PRANDOM_COMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_PRANDOM_COMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50299,7 +50299,7 @@ static VG_REGPARM(3) Long vr_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, 
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_RANDOM_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50313,7 +50313,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50354,7 +50354,7 @@ static VG_REGPARM(3) Int vr_verrou_RANDOM_SCOMDET_softmsub32F (Long a, Long b, L
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_RANDOM_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50376,7 +50376,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_RANDOM_SCOMDET_softmsub64F (Long a, 
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50391,7 +50391,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_RANDOM_SCOMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50435,7 +50435,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_RANDOM_SCOMDET_softmsub32F (Long a, L
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_RANDOM_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_RANDOM_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50455,7 +50455,7 @@ static VG_REGPARM(3) Long vr_verrou_AVERAGE_SCOMDET_softmsub64F (Long a, Long b,
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_AVERAGE_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50469,7 +50469,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_AVERAGE_SCOMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50510,7 +50510,7 @@ static VG_REGPARM(3) Int vr_verrou_AVERAGE_SCOMDET_softmsub32F (Long a, Long b, 
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_AVERAGE_SCOMDET(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50532,7 +50532,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_AVERAGE_SCOMDET_softmsub64F (Long a,
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50547,7 +50547,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_AVERAGE_SCOMDET_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50591,7 +50591,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_AVERAGE_SCOMDET_softmsub32F (Long a, 
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_AVERAGE_SCOMDET(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_AVERAGE_SCOMDET(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50611,7 +50611,7 @@ static VG_REGPARM(3) Long vr_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Lo
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_SR_MONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50625,7 +50625,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50666,7 +50666,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_MONOTONIC_softmsub32F (Long a, Long b, Lon
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_SR_MONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50688,7 +50688,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_SR_MONOTONIC_softmsub64F (Long a, Lo
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50703,7 +50703,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_MONOTONIC_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50747,7 +50747,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_MONOTONIC_softmsub32F (Long a, Lon
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_MONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_SR_MONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50767,7 +50767,7 @@ static VG_REGPARM(3) Long vr_verrou_SR_SMONOTONIC_softmsub64F (Long a, Long b, L
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_SR_SMONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50781,7 +50781,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_SR_SMONOTONIC_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50822,7 +50822,7 @@ static VG_REGPARM(3) Int vr_verrou_SR_SMONOTONIC_softmsub32F (Long a, Long b, Lo
   float *arg2 = (float*)(&b);
   float *arg3 = (float*)(&c);
   float res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_float_SR_SMONOTONIC(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_float_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -50844,7 +50844,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_SR_SMONOTONIC_softmsub64F (Long a, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -50859,7 +50859,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_SR_SMONOTONIC_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -50903,7 +50903,7 @@ static VG_REGPARM(3) Int vr_unfused_verrou_SR_SMONOTONIC_softmsub32F (Long a, Lo
   float *arg3 = (float*)(&c);
   float res;
   float res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_float_SR_SMONOTONIC(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_float_SR_SMONOTONIC(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -51079,7 +51079,7 @@ static VG_REGPARM(3) Long vr_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_FLOAT(*arg1, *arg2,  *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2,  *arg3, &res, backend_verrou_null_context);
@@ -51093,7 +51093,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -51135,7 +51135,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_FLOAT_softmadd64F (Long a, Long b, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_add_double_FLOAT(res_temp,  *arg3, &res, backend_verrou_context);
 }else{
@@ -51150,7 +51150,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOAT_softmadd64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -51194,7 +51194,7 @@ static VG_REGPARM(3) Long vr_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
   double *arg2 = (double*)(&b);
   double *arg3 = (double*)(&c);
   double res;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_madd_double_FLOAT(*arg1, *arg2, - *arg3, &res, backend_verrou_context);
 }else{
   interflop_verrou_madd_double_NEAREST(*arg1, *arg2, - *arg3, &res, backend_verrou_null_context);
@@ -51208,7 +51208,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_conv_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
@@ -51250,7 +51250,7 @@ static VG_REGPARM(3) Long vr_unfused_verrou_FLOAT_softmsub64F (Long a, Long b, L
   double *arg3 = (double*)(&c);
   double res;
   double res_temp;
-if(vr.instrument_soft){
+if(vr.instrument_soft&&vr.instrument_soft_back){
   interflop_verrou_mul_double_FLOAT(*arg1, *arg2, &res_temp, backend_verrou_context);
   interflop_verrou_sub_double_FLOAT(res_temp, *arg3, &res, backend_verrou_context);
 }else{
@@ -51265,7 +51265,7 @@ if(vr.instrument_soft){
 }
 
 static VG_REGPARM(3) Long vr_unfused_conv_verrou_FLOAT_softmsub64F (Long a, Long b, Long c) {
-if(vr.instrument_soft){
+if(vr.instrument_soft && vr.instrument_soft_back){
 #ifdef USE_VERROU_FMA
   double *arg1 = (double*)(&a);
   double *arg2 = (double*)(&b);
