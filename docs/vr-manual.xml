@@ -262,7 +262,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|ftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -294,13 +294,19 @@ det2
                   <computeroutput>downward</computeroutput>,
                   <computeroutput>toward_zero</computeroutput>.
                 </para></listitem>
+		<listitem><para>
+		    <command>Denormalized rounding modes (imply checkdenorm backend):</command>
+		    <computeroutput>daz</computeroutput>,
+		    <computeroutput>ftz</computeroutput>,
+		    <computeroutput>dazftz</computeroutput>.
+		    </para>
+		</listitem>
                 <listitem><para>
                     <command>Other:</command>
 		    <computeroutput>native</computeroutput>[default] (similar to nearest (maybe different with <option>--libm=instrumented</option>),
 		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
-		    <computeroutput>ftz</computeroutput>(imply checkdenorm backend).
                 </para></listitem>
               </itemizedlist>
 	      <para>This option can be activated with the env variable <command>VERROU_ROUNDING_MODE</command>.</para>
@@ -1123,5 +1129,614 @@ The different possible actions are :
         </varlistentry>
       </variablelist>
     </section>
-  </section>
-</chapter>
+	  </section>
+	  <section>
+	    <title>Frequently Asked Questions</title>
+
+	    <qandaset>
+	      <qandadiv id="faq.stoch">
+		<title>Stochastic method</title>
+
+		<qandaentry id="faq.stoch.sample">
+		  <question id="q-stoch.sample">
+		    <para>
+		      How-many sample do I need for stochastic rounding?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      This <ulink url="https://hal.science/hal-01827319/document"> paper </ulink> describes in detail this question.
+		      In practice I suggest working with Bernoulli estimators which do not require the centered normality assumption:
+
+		      <itemizedlist>
+
+			<listitem><simpara> The abs estimator is <inlineequation><mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ieee</subscript>|)</mathphrase></inlineequation> .</simpara></listitem>
+	  <listitem><simpara> The rel estimator is <inlineequation><mathphrase>max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ieee</subscript>|)/|X<subscript>ieee</subscript>|</mathphrase></inlineequation> </simpara></listitem>
+          <listitem><simpara> The binary rel estimator is <inlineequation><mathphrase>-log2(max<subscript>i</subscript>(|X<subscript>i</subscript>-X<subscript>ieee</subscript>|)/|X<subscript>ieee</subscript>|)</mathphrase></inlineequation></simpara></listitem>
+
+		      </itemizedlist>
+		    </para>
+		    <para>
+		      With these estimators, the number of samples can be computed before the runs from the expected probability and confidence level:
+
+		      <table frame='all'>
+			<title>Number of sample</title>
+ <tgroup cols='10' align='center' colsep='1' rowsep='1'>
+ <colspec colname='c1'/>
+ <colspec colname='c2'/>
+ <colspec colname='c3'/>
+ <colspec colname='c4'/>
+ <colspec colname='c5'/>
+ <colspec colname='c6'/>
+ <colspec colname='c7'/>
+ <colspec colname='c8'/>
+ <colspec colname='c9'/>
+ <colspec colname='c10'/>
+
+ <thead>
+
+ <row>
+   <entry align='center' morerows='1' valign='middle'>Confidence level 1-alpha</entry>
+   <entry namest="c2" nameend="c10" align="center">Probability p</entry>
+ </row>
+ <row>
+   <entry> 0.66 </entry><entry> 0.75 </entry><entry> 0.8 </entry><entry> 0.85 </entry><entry> 0.9 </entry><entry> 0.95 </entry><entry> 0.99 </entry><entry> 0.995 </entry><entry> 0.999</entry>
+ </row>
+ </thead>
+ <tbody>
+
+   <row><entry>0.75</entry><entry>4 </entry><entry> 5 </entry><entry> 7 </entry><entry> 9 </entry><entry> 14 </entry><entry> 28 </entry><entry> 138 </entry><entry> 277 </entry><entry> 1386</entry></row>
+
+   <row><entry>0.8</entry><entry>4 </entry><entry> 6 </entry><entry> 8 </entry><entry> 10 </entry><entry> 16 </entry><entry> 32 </entry><entry> 161 </entry><entry> 322 </entry><entry> 1609</entry></row>
+
+   <row><entry>0.85</entry><entry>5 </entry><entry> 7 </entry><entry> 9 </entry><entry> 12 </entry><entry> 19 </entry><entry> 37 </entry><entry> 189 </entry><entry> 379 </entry><entry> 1897</entry></row>
+
+   <row><entry>0.9</entry><entry>6 </entry><entry> 9 </entry><entry> 11 </entry><entry> 15 </entry><entry> 22 </entry><entry> 45 </entry><entry> 230 </entry><entry> 460 </entry><entry> 2302</entry></row>
+
+   <row><entry>0.95</entry><entry>8 </entry><entry> 11 </entry><entry> 14 </entry><entry> 19 </entry><entry> 29 </entry><entry> 59 </entry><entry> 299 </entry><entry> 598 </entry><entry> 2995</entry></row>
+
+   <row><entry> 0.99</entry><entry>12 </entry><entry> 17 </entry><entry> 21 </entry><entry> 29 </entry><entry> 44 </entry><entry> 90 </entry><entry> 459 </entry><entry> 919 </entry><entry> 4603</entry></row>
+
+   <row><entry>0.995</entry><entry>13 </entry><entry> 19 </entry><entry> 24 </entry><entry> 33 </entry><entry> 51 </entry><entry> 104 </entry><entry> 528 </entry><entry> 1058 </entry><entry> 5296</entry></row>
+
+   <row><entry>0.999</entry><entry>17 </entry><entry> 25 </entry><entry> 31 </entry><entry> 43 </entry><entry> 66 </entry><entry> 135 </entry><entry> 688 </entry><entry> 1379 </entry><entry> 6905</entry></row>
+ </tbody>
+ </tgroup>
+		      </table>
+		    </para>
+		    <para>
+		      The confidence interval say us if it is useful to do more samples, but it say us nothing about the quality of stochastic modelization. You can remark, that the number of samples does not depend on the kind of rounding.
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.stoch.int">
+		  <question id="q-stoch.int">
+		    <para>
+		      Why stochastic approach instead of interval arithmetic?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      Interval arithmetic is very attractive because it provide guarantee and you do not have to deal with confidence intervals.
+		      But it has of several disadvantages:
+		    </para>
+		    <itemizedlist>
+
+		  <listitem>
+		    <para> The result interval is often very large. To solve this problem you can use multi-precision interval arithmetic.
+		      It is too expensive for industrial use, but very handy for small functions to get a ground truth reference. I use it
+		      to check tricky corrections of small functions at source level.
+		    </para>
+		  </listitem>
+		  <listitem>
+		    <para> Interval arithmetic is designed to provide reference results not to verify an existing code. In fact, interval arithmetic often
+		      imply to modify the algorithm (ie a specific algorithm for newton iteration is needed).
+		    </para>
+		  </listitem>
+
+		  <listitem>
+		    <para>
+		      Interval arithmetic is incompatible with binary instrumentation (at least to my knowledge). In fact to implement interval arithmetic we need a
+		      shadow memory for floating-point data that works without any assumptions (with assumptions you will lose the main interest: guarantee).
+		      I don't know a perfect shadow memory implementation. It is a very hard task, because the compiler can generate floating-point code in integer registers.
+		      The best, but not perfect, floating point shadow memory for binary instrumentation is done (at least to my knowledge) by the impressive tool
+		      <ulink url="https://github.com/SciCompKL/derivgrind"> derivgrind </ulink>
+		    </para>
+		  </listitem>
+
+		    </itemizedlist>
+		    <para>
+		      Interval arithmetic and stochastic arithmetic are complementary. Indeed since verrou relies on stochastic arithmetic modelling, we need
+		      ground truth references for validation. This reference can be provided by multi-precision interval arithmetic.
+		    </para>
+
+		  </answer>
+		</qandaentry>
+
+	      </qandadiv>
+	      <qandadiv id="faq.instr">
+		<title>Instrumentation</title>
+
+		<qandaentry id="faq.instr.noverrou">
+		  <question id="q-instr.noverrou">
+
+		    <para> What's going wrong when I get the following error?
+<screen>valgrind: failed to start tool 'verrou' for platform 'amd64-linux': No such file or directory</screen></para>
+		  </question>
+		  <answer id="a-instr.noverrou">
+		    <para> Two possible explanations: </para>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  You may have forgotten to load the verrou environment :
+		      <screen>source INSTALL_PREFIX/env.sh</screen>
+		      You can easily check this with <option>which</option> command. You will get this error if another installation without verrou is found.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Maybe you forgot to apply the verrou patches when compiling verrou:
+			  <screen>cat verrou/valgrind.*diff | patch -p1</screen>
+			</para>
+		      </listitem>
+		    </itemizedlist>
+		  </answer>
+		</qandaentry>
+
+
+		<qandaentry id="faq.instr.wrapper">
+		  <question id="q-instr.wrapper">
+		    <para> verrou does not detect floating-point operation.</para>
+		  </question>
+		  <answer id="a-instr.wrapper">
+		    <para> There are two classic explanations for this: </para>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  Your program does not perform floating-point operations :)
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  You can instrument a wrapper such as a bash script instead of your program.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+		      <para> There are three solutions </para>
+		      <itemizedlist>
+		      <listitem>
+			<para>
+			  Modify the wrapper to instrument the binary of interest
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Use a <option>--prefix=</option>  or <option>--tool=</option> option provided by the wrapper.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Use a <option>--trace-children=yes</option> option provided by valgrind. To reduce the number of instrumented processes, you should consider using <option>--trace-children-skip=</option> and <option>--trace-children-skip-by-arg=</option> options.
+
+			</para>
+		      </listitem>
+
+		      </itemizedlist>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.instr.out">
+		  <question id="q-instr.out">
+
+		    <para> With verrou, I do not see any perturbation.</para>
+		  </question>
+		  <answer id="a-instr.out">
+		    <para> There are two classic explanations: </para>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  You are only instrumenting a wrapper (see specfic question).
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  The rounding of the output format is not perturbed by verrou. If the numerical noise is less than the output rounding, the noise can be hidden.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+		      <para> If you need to change output format</para>
+		      <itemizedlist>
+		      <listitem>
+			<para>
+			  For C++ code: <programlisting><![CDATA[std::cout <<std::setprecision(17);]]></programlisting>
+
+			  If your code does not use any formatting. You can use an LD_PRELOAD trick to force this command at the beginning of your program.
+			  <programlisting><![CDATA[LD_PRELOAD=verrouExtendStdoutPrecision.so]]></programlisting>
+
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  For Fortran code:
+ <programlisting><![CDATA[	  WRITE( ∗ , 42 ) MYFLOAT
+42	  FORMAT( d25.17 )]]></programlisting>
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Python works fine by default. You should be careful with output that is explicitly formatted with few digits.
+			</para>
+		      </listitem>
+
+		      </itemizedlist>
+
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.emul">
+		  <question id="q-inst.emul">
+		    <para>
+		      My code use emulated floating point type (such as float128 or quad). What can I do?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      Nothing
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.windows">
+		  <question id="q-inst.windows">
+		    <para>
+		      My code runs under windows. What can I do?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      Port your code to GNU/Linux :)
+		    </para>
+		    <para>
+		      Check the progress of the <ulink url="https://github.com/aneoconsulting/PENE">PENE</ulink> project.
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.avx512">
+		  <question id="q-inst.avx512">
+		    <para>
+		      My code uses AVX512. What can I do?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      Recompile your code with the <option>-mno-avx512f-</option> option.
+		    </para>
+		    <para>
+		      Check the progress of the <ulink url="https://github.com/aneoconsulting/PENE">PENE</ulink> project.
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.verbose">
+		  <question id="q-inst.verbose">
+		    <para>
+		      Verrou is too verbose. What can I do?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      Verrou is quite verbose by default. There are two reasons for this:
+
+		      <itemizedlist>
+			<listitem>
+			<para>
+			  It is easy to instrument a wrapper and counters are the easiest way to detect this behavior.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  The behavior of verrou can be changed using environment variables. The easiest way to detect typos, or forgotten environment variable settings is to read verrou's status.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+		    </para>
+		    <para>
+		     However, if you want verrou to be less verbose you can use the <option>--quiet --count-op=no</option> options.
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.native">
+		  <question id="q-inst.native">
+		    <para>
+		      Verrou with nearest rounding-mode and the native execution (my program without valgrind) do not give the same result.  What can I do?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      There are several possible causes:
+		    </para>
+		    <para>
+		      <itemizedlist>
+			<listitem>
+			<para>
+			  Your native execution is not deterministic.
+			</para>
+		      </listitem>
+			<listitem>
+			  <para>
+			    This is a valgrind emulation problem. If you use x87 opcodes, or fp flags (such as floating point trap or rounding mode setting) in your code, you may encounter this problem.
+			    To check this, you can use <option> valgrind --tool=none  --show-emwarns=yes</option>. With  amd64 architecture, if you see Scal instructions with verrou, it means you have x87 opcode.
+			  </para>
+			</listitem>
+			<listitem>
+			<para>
+			  Your code is doing introspection: your code can choose one algorithm or another depending on a computing time or memory consumption. In this can you should use an option to disable this introspection. If this is not possible, I have no solution for you.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+		    </para>
+		    <para>
+		    </para>
+		  </answer>
+		</qandaentry>
+
+
+		<qandaentry id="faq.inst.fmasqrt">
+		  <question id="q-inst.fmasqrt">
+		    <para>
+		      There are two kinds (opcode or libm) of fma operation (resp. sqrt). What are the consequences for the user?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      The fma  (resp.) sqrt can be implemented in hardware or implemented in libm function.
+		      For the user it as consequences :
+		    </para>
+		    <para>
+		      <itemizedlist>
+			<listitem>
+			  <para>
+			    The counters are not the same: MAdd,MSub,sqrt for hardware and fma,fmaf,sqrt,sqrtf for libm.
+			  </para>
+			</listitem>
+			<listitem>
+			  <para>
+			    You can have a thinner control with hardware fma (line localization and <option>-vr-instr=mAdd,mSub</option>). With libm
+			    you can select libm function only with <option>--exclude</option> or <option>--source=</option>: the limitation comes from
+			    the lack of backtrace localization.
+			  </para>
+			</listitem>
+			<listitem>
+			  <para>
+			  By default libm is not instrumented.
+			  </para>
+			</listitem>
+			<listitem>
+			  <para>
+			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([average,random]_[[s[com]]det] and sr_[s]monotonic).
+			  </para>
+			  <para>
+			    sqrt hardware and sqrt libm are considered as independent functions for stochastic-deterministic rounding mode.
+			  </para>
+
+			</listitem>
+		      </itemizedlist>
+		    </para>
+		  </answer>
+		</qandaentry>
+
+		<qandaentry id="faq.inst.uncountop">
+		  <question id="q-inst.uncountop">
+		    <para>
+		      We get <option>Uncounted operation</option> error message. What does it mean?
+		    </para>
+		  </question>
+		  <answer>
+		    <para>
+		      This operation is neither counted nor perturbed and it should be.
+		    </para>
+		    <para>
+		      Many of these operations come from the x87 instruction set and can be avoided by using the dynamic library libm.
+		    </para>
+
+		    <para>
+		      If you really need to instrument this operation, you should contact the verrou developer. You will increase your chance of convincing me
+		      if you are able to compute the error done by this operation without any dependencies.
+		    </para>
+
+		  </answer>
+		</qandaentry>
+
+	      </qandadiv>
+
+
+	      <qandadiv id="faq.dd">
+		<title>Delta-Debug</title>
+
+	      <qandaentry>
+		<question>
+		  <para>
+		    verrou_dd_sym or verrou_dd_line?
+		  </para>
+	      </question>
+
+	      <answer>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  If your code is compiled without the <option>-g</option> option, verrou_dd_sym is the best option.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  If your code is compiled with the <option>-g</option> option, verrou_dd_line is usually the best option.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  You can start with verrou_dd_sym and apply verrou_dd_line to the results of verrou_dd_sym.
+			  If you only apply verrou_dd_line to a selection of the result this approach is interesting. If you apply verrou_dd_line
+			  to every result, I suggest you apply verrou_dd_line directly.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+	      </answer>
+	      </qandaentry>
+
+
+	      <qandaentry>
+		<question>
+		  <para>
+		    delta-debug is too slow: what can I do?
+		  </para>
+	      </question>
+
+	      <answer>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  Reduce the test case. Sometimes it is useful to adjust the threshold tolerance to be able to reduce the test case
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			Can you reproduce your problem with a deterministic rounding (upward, downward, toward_zero, away_zero, farthest)? If so, you can run delta-debug with only one sample (<option>--nruns=1</option>).
+			</para>
+			</listitem>
+
+		      <listitem>
+			<para>
+			Are you able to reproduce your problem with a subset of instructions (see <option>--vr-instr=</option>, <option>--vr-instr-vec*=</option>,  <option>--vr-instr-flt=</option>, <option>--vr-instr-dbl</option>). If so, this will reduce the cost of instrumentation and the size of the search space.
+			</para>
+			</listitem>
+
+		      <listitem>
+			<para>
+			Sometimes the individual runs (FAIL or SUCCESS) can be very long due to quasi infinite noisy iterations  or due to NaN computation.
+			To solve this problem, you can reduce the maximum number of iterations or introduce early exit. This can be done with manual code modification, with <option>--exit-on-first-error=yes</option> (in conjunction of <option>--suppression</option> to filter errors), or with an IOmatch script.
+			</para>
+			</listitem>
+
+		      <listitem>
+			<para>
+			  If your script RUN and CMP are reentrant you can use the <option>--num-threads=</option> option. On a cluster it is possible to integrate the distribution into the RUN script.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  The <option>--rddmin-heuristics-*=</option> options are useful to speed-up the delta-debug, if you think
+			  you will find the same unstable lines again.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  The <option>--exclude=</option> option (not the environment variable VERROU_EXCLUDE) is helpful to reduce the search space.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  Be patient, enjoy your weekend.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  Be impatient, help improve the parallelism of delta-debug.
+			</para>
+		      </listitem>
+
+
+		      </itemizedlist>
+
+	      </answer>
+
+	    </qandaentry>
+
+	      <qandaentry>
+		<question>
+		  <para>
+		    The cache (like <option>dd.line</option>) footprint is too high.
+		  </para>
+	      </question>
+
+	      <answer>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			 In ddRun script, you should only store useful data.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			 You can compress data, in ddRun script. In ddCmp script you must be able to read compressed data.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  You can also compress data (or even delete unnecessary data) in ddCmp, but it will be incompatible with the  <option>--cache=keep_run</option> option.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  Become a verrou developer, to add a new verrou_dd functionality to clean the cache dynamically.
+			</para>
+		      </listitem>
+		      </itemizedlist>
+
+	      </answer>
+
+	    </qandaentry>
+
+
+	    <qandaentry>
+	      <question>
+		<para>
+		  The cache is corrupted because all computations fail due to full disk error.
+		</para>
+	      </question>
+
+	      <answer>
+
+		<para>To avoid to rerun all the delta-debug process, you should follow these steps</para>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  Identify the first computation that fails due to a full disk error.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Delete all later computations (md5/dd.run???).
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			  Re-run the delta-debug with the <option>--cache=continue</option> option.
+			</para>
+		      </listitem>
+		    </itemizedlist>
+	      </answer>
+
+	    </qandaentry>
+
+	      </qandadiv>
+	    </qandaset>
+
+	  </section>
+	  </chapter>

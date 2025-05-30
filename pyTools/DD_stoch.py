@@ -611,6 +611,33 @@ class DDStoch(DD.DD):
             rddminCmp=self.reduceSearchSpace(deltas,flatRes)
             self.configuration_found("rddmin-cmp", rddminCmp)
 
+            print("RDDMIN summary:")
+            summaryHandler=open(os.path.join(self.config_.get_cacheRep(),"rddmin_summary"),"w")
+            for ddminIndex in range(len(resConf)):
+                confDirName=os.path.join(self.config_.get_cacheRep(), "ddmin%i"%(ddminIndex))
+                listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
+                failureIndex=[]
+                #cmpDone=[]
+                for runDir in listOfDirString:
+                    returnValuePath=os.path.join(confDirName, runDir, ddReturnFileName)
+                    ddRunIndex=int(runDir.replace(subDirRun,""))
+                    if os.path.exists(returnValuePath):
+                        statusCmp=int((open(returnValuePath).readline()))
+                        if statusCmp!=0:
+                            failureIndex+=[ddRunIndex]
+                        #else:
+                        #    cmpDone+=[ddRunIndex]
+                    else:
+                        failureIndex+=[ddRunIndex]
+                failureIndex.sort()
+                failStatusStr="Fail Ratio: %.2f%%\tFail indexes: %s"%(100. *float(len(failureIndex)) / float(len(listOfDirString)),
+                                                                    ",".join([str(fail) for fail in failureIndex]))
+                confSummaryStr="%s:\t%s\n%s\n"%("ddmin%i"%(ddminIndex),
+                                                failStatusStr,
+                                                "".join(["\t"+line.strip()+"\n" for line in (self.coerce(resConf[ddminIndex]).strip()).split("\n") ]))
+                print(confSummaryStr,end="")
+                summaryHandler.write(confSummaryStr)
+
         return resConf
 
 
@@ -750,6 +777,9 @@ class DDStoch(DD.DD):
                         else:
                             nablaBlocCurrent.append(deltaij)
                 if not subSetFailed:
+                    if len(nablaBloc[i])==1:
+                        self.configuration_found("ddmin%d"%(self.rddminIndex), nablaBloc[i])
+                        self.rddminIndex+=1
                     nablaRes.append(nablaBloc[i])
 
             nablaCurrent=nablaBlocCurrent+nablaCurrent[nbPara:]
@@ -862,7 +892,6 @@ class DDStoch(DD.DD):
 
                 nablaRddmin.append(conf)
                 self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
-                #print("ddmin%d (%s):"%(self.rddminIndex,self.coerce(conf)))
                 self.rddminIndex+=1
 
                 #could be nice to sort failList to begin by small failConf
@@ -892,9 +921,9 @@ class DDStoch(DD.DD):
 
                                 if len(conf)==1:
                                     break
-                            failList.sort(key=lambda x: len(x))
-                            self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
-                            self.rddminIndex+=1
+                        failList.sort(key=lambda x: len(x))
+                        self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
+                        self.rddminIndex+=1
                         nablaRddmin.append(conf)
                         deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
 

@@ -19,7 +19,7 @@ jobs:
   buildVerrou:
     strategy:
       matrix:
-       version: [VALGRIND_3_24_0]
+       version: [VALGRIND_3_25_0]
        os: [ubuntu-latest, ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm]
 
 
