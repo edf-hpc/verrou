@@ -35,7 +35,7 @@
 #include "vr_exclude_back.h"
 
 static void vr_freeAddrList (Vr_Addr_List* list);
-static void vr_freeExcludeBack (Vr_Exclude_Back* list);
+static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
 static void vr_dumpExcludeBack(Vr_Exclude_Back* list, VgFile* openFile, const HChar* fname);
 static void vr_dumpAddrList(Vr_Addr_List* list, VgFile* openFile, const HChar* fname);
 static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, Int nbBack, Addr* ip, Bool used);
@@ -169,11 +169,19 @@ void vr_back_init(Vr_Back* vrBack, Bool genExclude, const HChar* rep){
    }
 }
 
-static void vr_freeExcludeBack (Vr_Exclude_Back* list) {
+static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
   while (list != NULL) {
-    Vr_Exclude_Back *next = list->next;
-    VG_(free)(list);
-    list = next;
+     if(verbose){
+        if(!(list->used)){
+           VG_(umsg)("Warning unused backtrace exclude: ");
+           vr_printf_back(list->nbBack, list->ip);
+           VG_(umsg)("\n");
+        }
+     }
+
+     Vr_Exclude_Back *next = list->next;
+     VG_(free)(list);
+     list = next;
   }
 }
 
@@ -186,8 +194,8 @@ static void vr_freeAddrList (Vr_Addr_List* list) {
 }
 
 void vr_back_finalize(Vr_Back* vrBack){
-   vr_freeExcludeBack(vrBack->exclude);
-   vr_freeExcludeBack(vrBack->gen_exclude);
+   vr_freeExcludeBack(vrBack->exclude, True);
+   vr_freeExcludeBack(vrBack->gen_exclude, False);
    vr_freeAddrList(vrBack->addr_list);
 }
 
@@ -227,9 +235,19 @@ static void vr_dumpAddrList (Vr_Addr_List* list, VgFile* fd, const HChar* fname)
      HChar const * fnname;
      //Bool errorFnname=
      VG_(get_fnname_w_offset)(de, cell->ip, &fnname);
-     //debug sym
-     HChar const * debugSym="";
-     VG_(fprintf)(fd,"%lu\t%s\t%s\n",cell->ip, fnname,debugSym);
+
+     const HChar * filename=NULL;
+//     const HChar ** filenamePtr=&filenamenoname;
+     const HChar ** filenamePtr=&filename;
+     UInt  linenum=0;
+     UInt*  linenumPtr=&linenum;
+     VG_(get_filename_linenum)(de,
+                               cell->ip,
+                               filenamePtr,
+                               NULL,
+                               linenumPtr);
+
+     VG_(fprintf)(fd,"%lu\t%s\t%s\t%u\n",cell->ip, fnname,filename, linenum);
   }
   VG_(fclose)(fd);
   if(VG_(clo_verbosity) >0){

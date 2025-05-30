@@ -34,9 +34,48 @@ import DD_exec_stat
 import ctypes
 import ctypes.util
 
+class BackAddrPrint:
+
+    def __init__(self, refDir):
+        self.addrFileTab=[os.path.join(refDir, x) for x in os.listdir(refDir) if x.startswith("backAddrInfo-")]
+        self.addrToTuple={}
+        self.parse()
+
+    def parse(self):
+        for addrFile in self.addrFileTab:
+            for line in open(addrFile).readlines():
+                addr,sym,filename,linenum =line.strip().split("\t")
+                if addr in self.addrToTuple:
+                    if (sym,filename,linenum) != self.addrToTuple[addr]:
+                        print("incomptabible address :", addr,   (sym,filename,linenum), self.addrToTuple[addr] )
+                        sys.exit(42)
+                else:
+                    self.addrToTuple[addr]=(sym,filename,linenum)
+
+    def addrToString(self,addr):
+        (sym,filename,linenum)=self.addrToTuple[addr]
+        return sym+"\t"+filename+":"+str(linenum)
+
+    def backTraceToStr(self, line):
+        nb,sep,remain=line.partition(":")
+        addrTab=remain.split(",")
+
+        res=line+"\n"
+        index=0
+        for addr in addrTab:
+            addrStr=self.addrToString(addr)
+            if "(below main)" in addrStr:
+                res+="\t\t"+str(index)+"+:  (below main)\n"
+                break
+            res+="\t\t"+str(index)+":  "+addrStr+"\n"
+            index+=1
+        return res
+
+
 class DDback(DD_stoch.DDStoch):
     def __init__(self, config):
         DD_stoch.DDStoch.__init__(self, config)
+        self.backAddrPrint=None
 
     def referenceRunEnv(self):
         return {"VERROU_ROUNDING_MODE": self.config_.referenceRounding,
@@ -58,8 +97,11 @@ class DDback(DD_stoch.DDStoch):
         }
 
     def coerce(self, delta_config):
+        if self.backAddrPrint==None:
+            self.backAddrPrint=BackAddrPrint(os.path.join(self.ref_))
+
         def transform(line):
-            return line
+            return self.backAddrPrint.backTraceToStr(line)
         return "\n  " + "\n  ".join([transform(line) for line in delta_config])
 
     # def demangle(self, mangledName):
