@@ -1096,13 +1096,10 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
 }
 
 
-static Vr_instr_kind vr_IsInstrumentedOp (IROp op);
-static Vr_instr_kind vr_IsInstrumentedOp (IROp op) {
-//#ifndef USE_VERROU_SQRT
-//#define IGNORESQRT
-//#endif
+static Bool vr_IsInstrumentedOp (IROp op);
+
 #include "vr_instrumentOp_checkInst.h"
-}
+
 
 
 
@@ -1241,14 +1238,9 @@ Bool vr_IsInstrumented (IRSB* sbIn, HChar const ** fnnamePtr)
     case Ist_WrTmp:
       {
 	if (includeSource){
-           Vr_instr_kind instrStatus;
-
            IROp op;
-           Bool doInstrContainFloat;
            if (vr_getOp (st->Ist.WrTmp.data, &op)) {
-              instrStatus=vr_IsInstrumentedOp (op);
-              doInstrContainFloat=instrStatus.containFloatModOp;
-              if(doInstrContainFloat){
+              if (vr_IsInstrumentedOp (op)){
                  return True;
               }
            }
