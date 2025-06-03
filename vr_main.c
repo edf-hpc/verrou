@@ -514,7 +514,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 // un-instrumented cases :
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-     vr_countOp (sb,  op, prec,vec, False);
+     vr_countOp (sb,  op, prec, vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
   }
@@ -526,7 +526,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   //conversion before call
   IRExpr * arg1;
@@ -590,7 +590,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					 Bool countOnly) {
    // un-instrumented cases :
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-     vr_countOp (sb,  op, prec,vec, False);
+     vr_countOp (sb,  op, prec, vec, False);
      addStmtToIRSB (sb, stmt);
     return False;
   }
@@ -602,7 +602,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
       vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
   }
 
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   //conversion before call
   IRExpr * arg1;
@@ -662,11 +662,11 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 					    Bool countOnly){
    //instrumentation to count operation
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec,False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   IRExpr * arg1 = expr->Iex.Binop.arg1;
   IRExpr * arg2 = expr->Iex.Binop.arg2;
@@ -707,11 +707,11 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 						  Bool countOnly){
    //instrumentation to count operation
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec,False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   IRExpr * arg1 = expr->Iex.Binop.arg1;
 
@@ -771,11 +771,11 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Bool countOnly) {
 
    if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec, False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   if(!(
 	 (vec==VR_VEC_FULL2 && prec==VR_PREC_DBL)
@@ -816,11 +816,11 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Vec vec,
 					Bool countOnly) {
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec, False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec, True);
+  vr_countOp (sb,  op, prec, vec, True);
 
   if(!(
 	 (vec==VR_VEC_FULL2 && prec==VR_PREC_DBL)
@@ -861,11 +861,11 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 				  Vr_Vec vec,
 				  Bool countOnly) {
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec,False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec,True);
+  vr_countOp (sb,  op, prec, vec, True);
 
 
   if(!(
@@ -906,11 +906,11 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 					Vr_Vec vec,
 					Bool countOnly) {
   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
-    vr_countOp (sb,  op, prec,vec,False);
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec,vec,True);
+  vr_countOp (sb,  op, prec, vec, True);
 
 
   if(!(
@@ -947,14 +947,15 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			   const HChar* functionName, void* function,
 			   Vr_Op   op,
 			   Vr_Prec prec,
+                           Vr_Vec vec,
 			   Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))||countOnly) {
-    vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
+    vr_countOp (sb,  op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
 
-  vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
+  vr_countOp (sb,  op, prec, vec, True);
 
 #ifdef USE_VERROU_FMA
   //  IRExpr * arg1 = expr->Iex.Qop.details->arg1; Rounding mode
@@ -1005,13 +1006,14 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 			    const HChar* functionName, void* function,
 			    Vr_Op   op,
 			    Vr_Prec prec,
+                            Vr_Vec vec,
 			    Bool countOnly) {
-  if(!(vr_isInstrumented_hard(op,prec,VR_VEC_UNK))||countOnly) {
-    vr_countOp (sb,  op, prec, VR_VEC_UNK,False);
+  if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
+    vr_countOp (sb, op, prec, vec, False);
     addStmtToIRSB (sb, stmt);
     return False;
   }
-  vr_countOp (sb,  op, prec, VR_VEC_UNK,True);
+  vr_countOp (sb, op, prec, vec, True);
 
   IRExpr * arg2 = expr->Iex.Binop.arg2;
 
