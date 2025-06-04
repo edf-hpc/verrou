@@ -1248,7 +1248,7 @@ Bool vr_IsInstrumented (IRSB* sbIn, HChar const ** fnnamePtr)
       }
       break;
     default:
-
+       break;
     }
   }
   return False;
