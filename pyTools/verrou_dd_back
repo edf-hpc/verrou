@@ -36,7 +36,8 @@ import ctypes.util
 
 class BackAddrPrint:
 
-    def __init__(self, refDir):
+    def __init__(self, refDir, config):
+        self.config_=config
         self.addrFileTab=[os.path.join(refDir, x) for x in os.listdir(refDir) if x.startswith("backAddrInfo-")]
         self.addrToTuple={}
         self.parse()
@@ -52,8 +53,8 @@ class BackAddrPrint:
                 else:
                     self.addrToTuple[addr]=(sym,filename,linenum)
 
-    def addrToString(self,addr):
-        (sym,filename,linenum)=self.addrToTuple[addr]
+    def addrToString(self,tupleName):
+        (sym,filename,linenum)=tupleName
         return sym+"\t"+filename+":"+str(linenum)
 
     def backTraceToStr(self, line):
@@ -63,10 +64,23 @@ class BackAddrPrint:
         res=line+"\n"
         index=0
         for addr in addrTab:
-            addrStr=self.addrToString(addr)
+            tupleName=self.addrToTuple[addr]
+            addrStr=self.addrToString(tupleName)
             if "(below main)" in addrStr:
                 res+="\t\t"+str(index)+"+:  (below main)\n"
                 break
+
+            if self.config_.hideBelowPython:
+                (sym,filename,linenum)=tupleName
+                if any([sym.startswith(x) for x in ["_PyCFunction_FastCallDict",
+                                                    "_PyFunction_FastCallDict",
+                                                    "_PyObject_FastCallDict",
+                                                    "PyObject_Call",
+                                                    "_PyEval_EvalFrameDefault",
+                                                    "PyEval_EvalCode"]]):
+                    res+="\t\t"+str(index)+"+:  (below python)\n"
+                    break
+
             res+="\t\t"+str(index)+":  "+addrStr+"\n"
             index+=1
         return res
@@ -82,7 +96,7 @@ class DDback(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
-                "VERROU_GEN_BACKTRACE":   os.path.join(self.ref_)}
+                "VERROU_GEN_BACKTRACE": self.ref_}
 
     def isFileValidToMerge(self, name):
         return name.startswith("backInfo-")
@@ -93,12 +107,12 @@ class DDback(DD_stoch.DDStoch):
     def sampleRunEnv(self,dirName):
         return {"VERROU_EXCLUDE_BACKTRACE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
-                "VERROU_GEN_BACKTRACE":   os.path.join(dirName, "debugGenBack")
+                #"VERROU_GEN_BACKTRACE":   os.path.join(dirName, "debugGenBack")
         }
 
     def coerce(self, delta_config):
         if self.backAddrPrint==None:
-            self.backAddrPrint=BackAddrPrint(os.path.join(self.ref_))
+            self.backAddrPrint=BackAddrPrint(os.path.join(self.ref_), self.config_)
 
         def transform(line):
             return self.backAddrPrint.backTraceToStr(line)
@@ -130,6 +144,7 @@ class ddBackConfig(dd_config.ddConfig):
     def registerOptions(self):
         super().registerOptions()
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
+        self.addRegistry("hideBelowPython", "bool", "HIDE_BELOW_PYTHON",["--hide-below-python"],True)
 
 
 if __name__ == "__main__":
