@@ -10,15 +10,28 @@ export SHELL=bash
 FLAGS=-Wall -g -O2
 
 
-all: dd.line.post.assert dd.line.postmatch.assert
+all: dd.line.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert
 
 unitTest: unitTest.cxx integrate.hxx
 	g++ $(FLAGS) -o $@ $<
 
-
 dd.line: unitTest ddRun.sh ddCmp.py
 	verrou_dd_line --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRun.sh ./ddCmp.py
 	touch dd.line #to ensure dependency
+
+dd.back: unitTest ddRun.sh ddCmp.py
+	verrou_dd_back --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
+	touch dd.back #to ensure dependency
+
+dd.back.line: unitTest ddRun.sh ddCmp.py dd.line
+	VERROU_SOURCE=${PWD}/dd.line/rddmin-cmp/dd.line.exclude verrou_dd_back --rep=dd.back.line --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
+	touch dd.back.line #to ensure dependency
+
+dd.back.assert:dd.back
+	./assertBack.py dd.back
+
+dd.back.line.assert: dd.back.line
+	./assertBack.py dd.back.line line
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
@@ -34,6 +47,5 @@ dd.line.postmatch: dd.line
 dd.line.postmatch.assert: dd.line.postmatch
 	./assertCover.py dd.line.postmatch 2 8 4 2 default
 
-
 clean:
-	rm -rf unitTest dd.line dd.line.post dd.line.postmatch matchLast.script.log-* *~
+	rm -rf unitTest dd.line dd.line.post dd.line.postmatch matchLast.script.log-* *~ dd.back dd.back.line

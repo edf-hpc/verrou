@@ -4,6 +4,8 @@ import sys
 import os.path
 
 
+# test only that expected generated files exists
+
 def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default"):
     res=[]
     symLinkTab=["NoPerturbation", "FullPerturbation","rddmin-cmp"]+ ["ddmin"+str(i) for i in range(ddminNumber)]
