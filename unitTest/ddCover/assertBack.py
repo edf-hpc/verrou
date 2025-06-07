@@ -16,7 +16,7 @@ def assertFile(rep, emptyCmp):
     nbNo_Line=len(open(pathNo).readlines())
     nbCmp_Line=len(open(pathCmp).readlines())
 
-    expectedFull=6
+    expectedFull=5
     if emptyCmp:
         expectedFull=1
 

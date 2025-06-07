@@ -7,7 +7,7 @@ export SHELL=bash
 
 .PHONY:
 
-FLAGS=-Wall -g -O2
+FLAGS=-Wall -g -O0
 
 
 all: dd.line.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert
