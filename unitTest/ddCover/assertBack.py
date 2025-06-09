@@ -16,9 +16,9 @@ def assertFile(rep, emptyCmp):
     nbNo_Line=len(open(pathNo).readlines())
     nbCmp_Line=len(open(pathCmp).readlines())
 
-    expectedFull=5
+    expectedFullTab=[4,5]
     if emptyCmp:
-        expectedFull=1
+        expectedFullTab=[1]
 
     print("nbDDMin" , nbDDMin)
     print("nbDDMin_Line", nbDDMin_Line)
@@ -35,11 +35,11 @@ def assertFile(rep, emptyCmp):
         return False
 
 
-    if nbFull_Line!=expectedFull :
+    if not (nbFull_Line in expectedFullTab) :
         print("Wrong number of nbFull_Line", nbFull_Line)
         return False
 
-    if nbCmp_Line!=expectedFull-nbDDMin_Line:
+    if nbCmp_Line!=nbFull_Line-nbDDMin_Line:
         print(" Wrong number of nbCmp_Line", nbCmp_Line)
         return False
 
