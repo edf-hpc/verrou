@@ -31,6 +31,7 @@ dd.back.assert:dd.back
 	./assertBack.py dd.back
 
 dd.back.line.assert: dd.back.line
+	cat dd.back.line/ref/*
 	./assertBack.py dd.back.line line
 
 dd.line.post: dd.line
