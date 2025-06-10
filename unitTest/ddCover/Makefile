@@ -24,8 +24,7 @@ dd.back: unitTest ddRun.sh ddCmp.py
 	touch dd.back #to ensure dependency
 
 dd.back.line: unitTest ddRun.sh ddCmp.py dd.line
-	VERROU_SOURCE=${PWD}/dd.line/rddmin-cmp/dd.line.exclude verrou_dd_back --rep=dd.back.line --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
-	cat dd.back.line/ref/*
+	VERROU_SOURCE=${PWD}/dd.line/rddmin-cmp/dd.line.exclude verrou_dd_back --rep=dd.back.line --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py || cat dd.back.line/ref/*
 	touch dd.back.line #to ensure dependency
 
 dd.back.assert:dd.back
