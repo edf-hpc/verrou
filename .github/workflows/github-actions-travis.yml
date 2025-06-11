@@ -17,8 +17,8 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   buildVerrou:
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
        version: [VALGRIND_3_25_0]
        os: [ubuntu-latest, ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm]
