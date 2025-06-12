@@ -259,6 +259,13 @@ static Bool vr_handle_monitor_command (HChar * req) {
     return False;
 }
 
+static Bool isInstrumentedClr(Vr_Prec prec){
+   Bool res=(vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[prec];
+   if(vr.genBackTraceBool || vr.useBackTraceBool){
+      vr_backtrace_dyn_BB();
+   }
+   return res && vr.instrument_soft_back;
+}
 // ** Client requests entry point
 
 Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
@@ -370,13 +377,13 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
      vr_handle_Inf();
      break;
   case VR_USERREQ__IS_INSTRUMENTED_FLOAT:
-    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_FLT] );
+     *ret=(UWord)(isInstrumentedClr(VR_PREC_FLT));
     break;
   case VR_USERREQ__IS_INSTRUMENTED_DOUBLE:
-    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_DBL] );
+    *ret=(UWord)(isInstrumentedClr(VR_PREC_DBL));
     break;
   case VR_USERREQ__IS_INSTRUMENTED_LDOUBLE:
-    *ret=(UWord)( (vr.instrument_hard && vr.instrument_soft) && vr.instr_prec[VR_PREC_LDBL] );
+    *ret=(UWord)(isInstrumentedClr(VR_PREC_LDBL));
     break;
   case VR_USERREQ__COUNT_OP:
     *ret=(UWord)( (Bool)(vr.count) );

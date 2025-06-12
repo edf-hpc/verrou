@@ -1175,7 +1175,8 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 
 
 #define BACKTRACE_SIZE 40
-static VG_REGPARM(0) void vr_backtrace_dyn_BB (void) {
+//static
+VG_REGPARM(0) void vr_backtrace_dyn_BB (void) {
    Addr ips[BACKTRACE_SIZE];
    Int nb=VG_(get_StackTrace)(VG_(get_running_tid)(),ips, BACKTRACE_SIZE,
                                  NULL, NULL,0);
