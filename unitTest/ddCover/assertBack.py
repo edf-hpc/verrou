@@ -16,7 +16,7 @@ def assertFile(rep, emptyCmp):
     nbNo_Line=len(open(pathNo).readlines())
     nbCmp_Line=len(open(pathCmp).readlines())
 
-    expectedFullTab=[4,5]
+    expectedFullTab=[4,5,6]
     if emptyCmp:
         expectedFullTab=[1]
 
