@@ -1236,7 +1236,7 @@ public:
   double FCT (double a){						\
     const char fctStr[]=STRINGIFY(FCT);					\
     const vr_packArg<double,1> p(a);					\
-    const bool isInstrumented=(VERROU_IS_INSTRUMENTED_DOUBLE && isInstrumented1(fctStr, enum##FCT,realTypeIndex<double>::index)); \
+    const bool isInstrumented=(isInstrumented1(fctStr, enum##FCT,realTypeIndex<double>::index) && VERROU_IS_INSTRUMENTED_DOUBLE); \
     typedef instrumentFunction<double,oneReal, libMathFunction1<libmq##FCT,double>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
@@ -1244,7 +1244,7 @@ public:
   float FCT##f (float a){						\
     char fctStr[]=STRINGIFY(FCT##f);					\
     const vr_packArg<float,1> p(a);					\
-    const bool isInstrumented=(VERROU_IS_INSTRUMENTED_FLOAT && isInstrumented1(fctStr, enum##FCT,realTypeIndex<float>::index)); \
+    const bool isInstrumented=(isInstrumented1(fctStr, enum##FCT,realTypeIndex<float>::index) && VERROU_IS_INSTRUMENTED_FLOAT); \
     typedef instrumentFunction<float,oneReal, libMathFunction1<libmq##FCT,float>, enum##FCT > inst; \
     return inst::apply(function1NameTab, fctStr, isInstrumented, p);	\
   }									\
