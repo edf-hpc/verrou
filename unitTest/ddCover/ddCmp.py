@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 import sys
-import os.path
+from pathlib import Path
 import re
 
 def extract(rep):
-    lines=(open(os.path.join(rep, "res.dat"))).readlines()
+    lines=(open(Path(rep) / "res.dat")).readlines()
     return re.split(" ",lines[-1].strip())[1]
     
 if __name__=="__main__":

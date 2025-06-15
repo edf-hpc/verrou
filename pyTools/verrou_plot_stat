@@ -37,6 +37,7 @@ from fractions import Fraction
 import shutil
 import datetime
 import numpy as np
+from pathlib import Path
 
 maxNbPROC=None
 
@@ -50,10 +51,8 @@ roundingNonDetTabWithoutFloatPrefix=rounding_tool.roundingNonDetTabWithoutFloatP
 
 
 def verrou_run_stat(conf):
-
     rep=conf.repName()
-    if not os.path.exists(rep):
-        os.mkdir(rep)
+    rep.mkdir(exist_ok=True)
     listOfConfigStat=conf.getSampleConfig()
     listOfStat=copy.deepcopy(listOfConfigStat)
     ref=conf.ref()
@@ -73,14 +72,13 @@ def verrou_run_stat(conf):
         name=("%s")%(roundingMode)
         envvars=rounding_tool.roundingToEnvVar(roundingMode)
         if roundingMode in roundingDetTabWithFloatPrefix:
-            detName=os.path.join(rep,"det")
-            if not os.path.exists(detName):
-                os.mkdir(detName)
+            detName=rep/"det"
+            detName.mkdir(exist_ok=True)
+
             name=("det/%s")%(roundingMode)
 
-        repName=os.path.join(rep,name)
-        if not os.path.exists(repName):
-            os.mkdir(repName)
+        repName=rep / name
+        repName.mkdir(exist_ok=True)
 
         refDir=None
         script_cmp=None
@@ -107,8 +105,8 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
         if nbSample==-1:
             i=0
             while True:
-                nameSample=os.path.join(rep,name, "dd.run%i"%(i))
-                if os.path.exists(nameSample):
+                nameSample=rep / name / ("dd.run%i"%(i))
+                if nameSample.is_file():
                     value=extractFunc(nameSample)
                     resTab+=[value]
                     i+=1
@@ -116,7 +114,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
                     break
 
         for i in range(nbSample):
-            nameSample=os.path.join(rep,name, "dd.run%i"%(i))
+            nameSample=rep / name / ("dd.run%i"%(i))
             value=extractFunc(nameSample)
             resTab+=[value]
 
@@ -134,10 +132,10 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 
     def getValueData(repName):
         try:
-            resProcess=subprocess.getoutput(extract_run +" "+ repName+ " 2> "+repName+"/extract.err")
+            resProcess=subprocess.getoutput(str(extract_run) +" "+ str(repName)+ " 2> "+str(repName / "extract.err") )
             return float(resProcess)
         except ValueError as err:
-            print("Value Error while extracting value from :"+ extract_run +" "+ repName)
+            print("Value Error while extracting value from :"+ str(extract_run) +" "+ str(repName))
             if continueOnExtractError:
                 return "fail"
             else:
@@ -192,7 +190,7 @@ def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=
     res={}
     for i  in range(len(listOfPattern)):
         pattern=listOfPattern[i]
-        listOfCatchPattern=[n for n in glob.glob(os.path.join(rep,pattern)) if os.path.isdir(n)]
+        listOfCatchPattern=[n for n in rep.glob(pattern) if n.is_dir()]
 
         if len(listOfCatchPattern)==0:
             print("empty pattern :%s/%s"%(rep,pattern))
@@ -205,11 +203,11 @@ def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=
 
 def verrou_extract_paraview_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
-        return [float(x) for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
+        return [float(x) for x in (subprocess.getoutput(str(extract_time) +" "+ str(repName))).split("\n")]
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
 def getExtractTimeData(extract_time,repName):
-    res=[x for x in (subprocess.getoutput(extract_time +" "+ repName)).split("\n")]
+    res=[x for x in (subprocess.getoutput(str(extract_time) +" "+ str(repName))).split("\n")]
     name=None
     if res[0].startswith("#"):
         name=(res[0].replace("#","")).strip()
@@ -312,7 +310,7 @@ class verrou_extract_time_data:
             lambdaRef=self._conf.lambdaTimeRef()
             self._refError=[abs((self._refY[i]- lambdaRef(self._refX[i]))/lambdaRef(self._refX[i])) for i in range(nbTimeIndex)]
         if self._conf.scriptTimeRef()!=None:
-            (nameRef,tabRef)=getExtractTimeData(self._conf.scriptTimeRef(), os.path.join(self._conf.repName(), "det", self._refRounding,"dd.run0"))
+            (nameRef,tabRef)=getExtractTimeData(self._conf.scriptTimeRef(), self._conf.repName() / "det" / self._refRounding /"dd.run0")
             if nameRef!=None:
                 self._labelRef=nameRef[1]
             mathRefX=[x[0] for x in tabRef]
@@ -357,7 +355,7 @@ def verrou_extract_paraview_var(extract_var, rep, listOfStat):
 
 def prepareDataForParaview(dataTime,dataVar, rep):
 
-    csvTime=open(os.path.join(rep, "paraviewTime.csv"),"w")
+    csvTime=open(rep / "paraviewTime.csv","w")
     first=True
     for rounding in dataTime:
         tabResult=dataTime[rounding]
@@ -389,7 +387,7 @@ def prepareDataForParaview(dataTime,dataVar, rep):
     keys.sort(key=lambda x:x[0])
     keys.sort(key=lambda x:x[1])
 
-    csvParam=open(os.path.join(rep, "paraviewParam.csv"),"w")
+    csvParam=open(rep / "paraviewParam.csv","w")
     first=True
     for rounding in dataVar:
         tabResult=dataVar[rounding]
@@ -404,7 +402,7 @@ def prepareDataForParaview(dataTime,dataVar, rep):
 def runParaview(rep):
     def getScriptPath():
         #the script is at the same place as this script
-        return __file__.replace(os.path.basename(sys.argv[0]),"paraview_script.py")        
+        return __file__.replace(Path(sys.argv[0]).name,"paraview_script.py")
 
     cmd="paraview --script=%s"%(getScriptPath())
     print("paraview cmd: ", cmd)
@@ -622,9 +620,9 @@ def print_stat(data, conf):
     ref=conf.ref()
     mca_estimator=conf.mca_estimator()
 
-    pathName=os.path.join(conf.repName(),"stat.last")
-    if os.path.exists(pathName):
-        timeValue=datetime.datetime.fromtimestamp(os.path.getmtime(pathName))
+    pathName=conf.repName()/"stat.last"
+    if pathName.is_file():
+        timeValue=datetime.datetime.fromtimestamp(pathName.stat().st_mtime)
         timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
         os.rename(pathName,pathName.replace(".last","."+timeStr))
 
@@ -731,7 +729,7 @@ class config_stat(gen_config.gen_config):
         self.check()
         self.cachePrepare()
         self.instr_prefix="VERROU"
-        self.saveParam(os.path.join(self._rep,"cmd.last"))
+        self.saveParam(self._rep /"cmd.last")
 
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
@@ -764,6 +762,7 @@ class config_stat(gen_config.gen_config):
     def normalize(self):
         if len(self._pattern)!=0:
             self._rep="."
+        self._rep=Path(self._rep)
         if self._time or self._timeParaview:
             self._hist=False
 
@@ -862,18 +861,18 @@ class config_stat(gen_config.gen_config):
     def cachePrepare(self):
         rep=self.repName()
         if self.getCache()=="continue":
-            if not os.path.exists(rep):
-                os.mkdir(rep)
+            rep.mkdir(exist_ok=True)
+
         if self.getCache()=="clean":
-            if os.path.exists(rep):
+            if rep.is_dir():
                 shutil.rmtree(rep, ignore_errors=True)
-            os.mkdir(rep)
+            rep.mkdir()
         if self.getCache()=="rename":
-            if os.path.exists(rep):
-                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(os.path.join(rep,x)) for x in os.listdir(rep)+["."] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+            if rep.is_dir():
+                timeStr=datetime.datetime.fromtimestamp(max([ (rep / x).stat().st_mtime for x in os.listdir(rep)+["."] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
                 self.oldRepName=rep+"-"+timeStr
                 os.rename(rep,self.oldRepName)
-            os.mkdir(rep)
+            rep.mkdir()
         else:
             self.oldRepName=None
 

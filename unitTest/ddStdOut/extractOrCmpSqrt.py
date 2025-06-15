@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 import sys
 import os
+from pathlib import Path
 
 
 def extractValue(rep):
-    fileName=os.path.join(rep,"res.dat")
+    fileName=Path(rep) / "res.dat"
     if "PARAM" in os.environ:
-        fileName=os.path.join(rep,os.environ["PARAM"])
+        fileName=Path(rep) / os.environ["PARAM"]
     lines=(open(fileName).readlines())
     for line in lines:
         if line.startswith("res="):

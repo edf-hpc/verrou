@@ -31,7 +31,7 @@ import copy
 import subprocess
 import getopt
 import functools
-
+from pathlib import Path
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -58,10 +58,10 @@ class openGz:
     """ Class to read/write  gzip file or ascii file """
     def __init__(self,name, mode="r", compress=None):
         self.name=name
-        if os.path.exists(name+".gz") and compress==None:
-            self.name=name+".gz"
+        if (name.with_suffix(".gz")).is_file() and compress==None:
+            self.name=name.with_suffix(".gz")
 
-        if (self.name[-3:]==".gz" and compress==None) or compress==True:
+        if (self.name.suffix==".gz" and compress==None) or compress==True:
             self.compress=True
             self.handler=gzip.open(self.name, mode)
         else:
@@ -211,8 +211,8 @@ class covReader:
     def __init__(self,pid, rep):
         self.pid=pid
         self.rep=rep
-        self.bbInfo=bbInfoReader(self.rep+"/trace_bb_info.log-"+str(pid))
-        covFile=openGz(self.rep+"/trace_bb_cov.log-"+str(pid))
+        self.bbInfo=bbInfoReader(self.rep / ("trace_bb_info.log-"+str(pid)))
+        covFile=openGz(self.rep / ("trace_bb_cov.log-"+str(pid)))
 
         self.cov=self.readCov(covFile)
 
@@ -239,7 +239,7 @@ class covReader:
 
     def writePartialCover(self,filenamePrefix="", pidMap=None):
         if pidMap!=None:
-            handler=openGz(os.path.join(self.rep,"pidMap"),"w")
+            handler=openGz(self.rep / "pidMap" ,"w")
             for pid in pidMap:
                 handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
 
@@ -250,7 +250,7 @@ class covReader:
             if pidMap!=None:
                 pidStr=pidMap[self.pid]
 
-            handler=openGz(self.rep+"/%scover%05d-%s"%(filenamePrefix ,num, pidStr),"w")
+            handler=openGz(self.rep / ("%scover%05d-%s"%(filenamePrefix ,num, pidStr)),"w")
             for (index,count,sym, strBB) in resTab:
                 handler.write("%d\t: %s\n"%(count,strBB))
 
@@ -415,7 +415,7 @@ class statusReader:
         self.read()
 
     def runCmpScript(self,runCmp,repref):
-        subProcessRun=runCmdAsync([runCmp, repref,self.rep], os.path.join(self.rep, "cmpCmd%i"%(self.pid)))
+        subProcessRun=runCmdAsync([runCmp, repref,self.rep], self.rep / ("cmpCmd%i"%(self.pid)))
         res=getResult(subProcessRun)
         if res==0:
             self.isSuccess=True
@@ -423,7 +423,7 @@ class statusReader:
             self.isSuccess=False
 
     def runEvalScript(self,runEval):
-        subProcessRun=runCmdAsync([runEval,self.rep], os.path.join(self.rep, "evalCmd%i"%(self.pid)))
+        subProcessRun=runCmdAsync([runEval,self.rep], self.rep / ("evalCmd%i"%(self.pid)))
         res=getResult(subProcessRun)
         if res==0:
             self.isSuccess=True
@@ -431,8 +431,8 @@ class statusReader:
             self.isSuccess=False
 
     def read(self):
-        pathName=os.path.join(self.rep, "dd.return.value")
-        if os.path.exists(pathName):
+        pathName=self.rep / "dd.return.value"
+        if pathName.is_file():
             try:
                 value=int(open(pathName).readline().strip())
                 if value==0:
@@ -443,7 +443,7 @@ class statusReader:
                 print("Error while  reading "+pathName )
                 self.isSuccess=None
         else:
-            if self.rep.endswith("ref"):
+            if self.rep.name=="ref":
                 print("Consider ref as a success")
                 self.isSuccess=True
             else:
@@ -588,12 +588,12 @@ class cmpToolsCov:
 
 def extractPidRep(fileName):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
-    rep=os.path.dirname(fileName)
+    rep=fileName.parent
     if rep=="":
         rep="."
-    baseFile=os.path.basename(fileName)
+    baseFile=fileName.name
     begin="trace_bb_cov.log-"
-    mtime=os.stat(fileName).st_mtime
+    mtime=(fileName.stat()).st_mtime
     if baseFile.startswith(begin):
         pid=int((baseFile.replace(begin,'')).replace(".gz",""))
         return (pid,rep,mtime)
@@ -678,6 +678,7 @@ class config_option:
         if len(self.listOfFiles)<2 and self.genCovCorrelation:
             print("--genCovCorrelation required at least 2 arguments")
             self.usage()
+        self.listOfFiles=[Path(x) for x in self.listOfFiles]
 
     def search_default_param(self):
         import pathlib

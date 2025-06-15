@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-
-import os
+from pathlib import Path
 import sys
 
 listOfFunction=["cos","sinf","erf", "atan2", "jn"]
@@ -13,8 +12,8 @@ def checkDD(rep, symOrLine, listOfInstableFunction):
         return False
     
     
-    ddminCmpPath=os.path.join(rep, "rddmin-cmp", "dd."+symOrLine+".include")
-    if os.path.exists(ddminCmpPath):
+    ddminCmpPath=rep / "rddmin-cmp" / ("dd."+symOrLine+".include")
+    if ddminCmpPath.is_file():
         lines=open(ddminCmpPath).readlines()
         if len(lines)!=len(listOfStableFunction):
             print("KO incoherent ddmin")
@@ -32,8 +31,8 @@ def checkDD(rep, symOrLine, listOfInstableFunction):
         return False
 
     for i in range(len(listOfInstableFunction)):
-        ddminCmpPath=os.path.join(rep, "ddmin"+str(i), "dd."+symOrLine+".include")
-        if os.path.exists(ddminCmpPath):
+        ddminCmpPath=rep / ("ddmin"+str(i)) / ("dd."+symOrLine+".include")
+        if ddminCmpPath.is_file():
             lines=open(ddminCmpPath).readlines()
             if len(lines)!=1:
                 print(ddminCmpPath, "bad size")
@@ -46,22 +45,19 @@ def checkDD(rep, symOrLine, listOfInstableFunction):
             print(ddminCmpPath,"missing")
             return False
 
-            
-        
-    
     return True
 
               
     
 
 if __name__=="__main__":
-    rep=sys.argv[1]
+    rep=Path(sys.argv[1])
     unstableFunction=sys.argv[2:]
 
     symOrLine=None
-    if rep.startswith("dd.line"):
+    if (rep.name).startswith("dd.line"):
         symOrLine="line"
-    if rep.startswith("dd.sym"):
+    if (rep.name).startswith("dd.sym"):
         symOrLine="sym"
 
     if symOrLine==None:

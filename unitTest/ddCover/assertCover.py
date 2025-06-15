@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
 import sys
-import os.path
-
+from pathlib import Path
 
 # test only that expected generated files exists
 
@@ -12,24 +11,24 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
 
 
     for symLink in symLinkTab:
-        pathWithoutTrace=os.path.join(rep, symLink)
-        res+=[os.path.join(pathWithoutTrace, "dd.run"+str(i), fileName)
+        pathWithoutTrace=rep / symLink
+        res+=[pathWithoutTrace / ("dd.run"+str(i)) / fileName
               for i in range(sampleNumberDD)
               for fileName in fileTab]
         localRounding=rounding
 
-        pathWithTrace=os.path.join(rep, symLink+"-trace", rounding)
+        pathWithTrace=rep / (symLink+"-trace") / rounding
         if "NoPerturbation" == symLink:
-            pathWithTrace=os.path.join(rep, symLink+"-trace", "default")
+            pathWithTrace= rep /  (symLink+"-trace") / "default"
 
-        fileTabCov=fileTab+["covBBLog"]+ [os.path.join("cover", "cover0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
+        fileTabCov=fileTab+["covBBLog"]+ [Path("cover") / ("cover0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
         def sampleNumberPostLambda(path):
-            if "NoPerturbation-trace" in path:
+            if "NoPerturbation-trace" in str(path):
                 return 1
             else:
                 return sampleNumberPost
 
-        res+=[os.path.join(pathWithTrace, "dd.run"+str(i), fileName)
+        res+=[pathWithTrace /  ("dd.run"+str(i)) / fileName
               for fileName in fileTabCov
               for i in range(sampleNumberPostLambda(pathWithTrace))
               ]
@@ -39,7 +38,7 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
 def checkExit(tabOfFile):
     res=True
     for filePath in tabOfFile:
-        if not os.path.exists(filePath):
+        if not filePath.is_file():
             print("file missing:", filePath)
             res=False
     return res
@@ -49,7 +48,7 @@ fileTab=["dd.compare.err", "dd.compare.out", "dd.return.value", "dd.run.err", "d
 
 
 if __name__=="__main__":
-    rep=sys.argv[1]
+    rep=Path(sys.argv[1])
     ddminNumber=int(sys.argv[2])
     sampleNumberDD=int(sys.argv[3])
     sampleNumberPost=int(sys.argv[4])

@@ -28,7 +28,7 @@ import sys
 import getopt
 
 import gen_config
-
+from pathlib import Path
 
 def exponentialRange(nbRun):
     tab=[int(nbRun / (2**i)) for i in range(1+int(math.floor(math.log(nbRun,2)))) ]
@@ -75,7 +75,7 @@ class ddConfig(gen_config.gen_config):
         return self.ddSeed
 
     def get_cacheRep(self):
-        return self.cacheRep
+        return Path(self.cacheRep)
 
     ## Accessors
     def get_splitGranularity(self):
@@ -132,10 +132,10 @@ class ddConfig(gen_config.gen_config):
         return splitTab
 
     def get_runScript(self):
-        return self.runScript
+        return Path(self.runScript)
 
     def get_cmpScript(self):
-        return self.cmpScript
+        return Path(self.cmpScript)
 
     def get_cache(self):
         return self.cache
@@ -144,10 +144,10 @@ class ddConfig(gen_config.gen_config):
         return self.rddminHeuristicsCache
 
     def get_rddminHeuristicsRep_Tab(self):
-        return self.rddminHeuristicsRep
+        return [Path(x) for x in self.rddminHeuristicsRep]
 
     def get_rddminHeuristicsFile_Tab(self):
-        return self.rddminHeuristicsFile
+        return [Path(x) for x in self.rddminHeuristicsFile]
 
     def get_rddminHeuristicsLineConv(self):
         return self.rddminHeuristicsLineConv

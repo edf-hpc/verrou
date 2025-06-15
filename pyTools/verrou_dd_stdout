@@ -72,7 +72,7 @@ class DDstdout(DD_stoch.DDStoch):
 
     def filePathReplace(self,strLine):
         cachePath=self.config_.get_cacheRep()
-        return strLine.replace(os.path.join(cachePath, "ref"),os.path.join(cachePath, "*"))
+        return strLine.replace(str(cachePath / "ref"),str(cachePath / "*"))
 
     def selectFloatTask(self,logFile):
         filterResPattern="match(filtered): "
@@ -122,7 +122,7 @@ class DDstdout(DD_stoch.DDStoch):
 
 
     def referenceRunEnv(self):
-        refPath=os.path.join(self.ref_, "vr_iomatch_ref.txt")
+        refPath=self.ref_ / "vr_iomatch_ref.txt"
         refFile=open(refPath,"w")
 
         refFile.write("verbose: 2\n")
@@ -179,7 +179,7 @@ class DDstdout(DD_stoch.DDStoch):
         if not unknownTask in ["stop","start","previous"]:
             print("error unknownTask:", unknownTask)
 
-        with open(os.path.join(dirname,"vr_iomatch.txt"), "w") as f:
+        with open(dirname / "vr_iomatch.txt", "w") as f:
             f.write(self.config_.get_ioMatchHeader()+"\n")
 
             f.write("verbose: 2\n")
@@ -214,12 +214,12 @@ class DDstdout(DD_stoch.DDStoch):
                         f.write("post-apply: %s\n"%(self.startCmd))
 
         if include:
-            with open(os.path.join(dirname,dd+".include"), "w") as f:
+            with open(dirname / (dd+".include"), "w") as f:
                 for d in deltas:
                     f.write(d+"\n")
 
         if exclude:
-            with open(os.path.join(dirname,dd+".exclude"), "w") as f:
+            with open(dirname / (dd+".exclude"), "w") as f:
                 for d in deltas:
                     excludes.remove(d)
 
@@ -229,8 +229,8 @@ class DDstdout(DD_stoch.DDStoch):
     def sampleRunEnv(self,dirName):
         res={"PYTHONUNBUFFERED": "x",
              "LD_PRELOAD": self.newLdPreload(),
-             "VERROU_IOMATCH_CLR": os.path.join(dirName, "vr_iomatch.txt"),
-             "VERROU_OUTPUT_IOMATCH_REP":os.path.join(dirName,"%DDRUN%"),
+             "VERROU_IOMATCH_CLR": dirName / "vr_iomatch.txt",
+             "VERROU_OUTPUT_IOMATCH_REP": str(dirName / "%DDRUN%"),
              "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
         }
         filePattern=self.config_.get_file_pattern()

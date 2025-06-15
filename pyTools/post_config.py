@@ -6,6 +6,7 @@ import copy
 
 import gen_config
 import rounding_tool
+from pathlib import Path
 
 class postConfig(gen_config.gen_config):
 
@@ -33,7 +34,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("count_denorm", "bool", "COUNT_DENORM", ["--count-denorm"],False)
 
     def usageCmd(self):
-        print("Usage: "+ os.path.basename(sys.argv[0]) + " [options] runScript cmpScript")
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
         print(self.get_EnvDoc(self.config_keys[-1]))
 
         print("Valid rounding modes are:")
@@ -46,9 +47,9 @@ class postConfig(gen_config.gen_config):
 
 
     def normalize(self):
-        self.rep=os.path.abspath(self.rep)
+        self.rep=Path(self.rep).absolute()
         if self.trace_file!=None:
-            self.trace_file=os.path.abspath(self.trace_file)
+            self.trace_file=Path(self.trace_file).absolute()
         for r in self.rounding:
             if "," in r:
                 splitR=r.split(",")
@@ -122,24 +123,24 @@ class postConfig(gen_config.gen_config):
 
     def get_rep_sub_rep(self):
         if self.sub_rep==[]:
-            self.saveParam(os.path.join(self.rep,"cmd_post.last"))
+            self.saveParam(self.rep / "cmd_post.last")
             return {self.rep:self.findDDmin(self.rep)}
         else:
             res={}
             for sub_rep in self.sub_rep:
-                sub_rep=os.path.abspath(sub_rep)
-                rep=os.path.dirname(sub_rep)
+                sub_rep=Path(sub_rep).absolute()
+                rep=sub_rep.parent
                 if rep in res:
                     res[rep]+=[sub_rep]
                 else:
-                    if os.path.isdir(os.path.join(rep,"ref")):
+                    if (rep /"ref").is_dir():
                         res[rep]=[sub_rep]
                     else:
                         print("sub_rep %s is not a valid"%(sub_rep))
                         self.usageCmd()
                         self.failure()
             for rep in res:
-                self.saveParam(os.path.join(rep,"cmd_post.last"))
+                self.saveParam(rep / "cmd_post.last")
             return res
     def get_instr(self):
         if self.instr==[]:
@@ -177,5 +178,5 @@ class postConfig(gen_config.gen_config):
         return self.count_denorm
 
     def findDDmin(self, rep):
-        ddminList=[os.path.abspath(os.path.join(rep,x)) for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="FullPerturbation" or x=="NoPerturbation"]
+        ddminList=[(rep /x).absolute() for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="FullPerturbation" or x=="NoPerturbation"]
         return ddminList

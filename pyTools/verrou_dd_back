@@ -38,7 +38,7 @@ class BackAddrPrint:
 
     def __init__(self, refDir, config):
         self.config_=config
-        self.addrFileTab=[os.path.join(refDir, x) for x in os.listdir(refDir) if x.startswith("backAddrInfo-")]
+        self.addrFileTab=refDir.glob("backAddrInfo-*")
         self.addrToTuple={}
         self.parse()
 
@@ -105,14 +105,13 @@ class DDback(DD_stoch.DDStoch):
         return "dd.back"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_EXCLUDE_BACKTRACE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
-                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
-                #"VERROU_GEN_BACKTRACE":   os.path.join(dirName, "debugGenBack")
-        }
+        return {"VERROU_EXCLUDE_BACKTRACE": dirName / (self.getDeltaFileName() +".exclude"),
+                "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding
+                }
 
     def coerce(self, delta_config):
         if self.backAddrPrint==None:
-            self.backAddrPrint=BackAddrPrint(os.path.join(self.ref_), self.config_)
+            self.backAddrPrint=BackAddrPrint(self.ref_, self.config_)
 
         def transform(line):
             return self.backAddrPrint.backTraceToStr(line)

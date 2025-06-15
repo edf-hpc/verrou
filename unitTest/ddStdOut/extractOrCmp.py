@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 import sys
-import os
-
+from pathlib import Path
 
 def extractValue(rep):
-    lines=(open(os.path.join(rep,"res.dat")).readlines())
+    lines=(open(Path(rep) / "res.dat")).readlines()
     for line in lines:
         if line.startswith("x[12]="):
             return float(line.partition("=")[2])

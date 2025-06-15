@@ -51,9 +51,9 @@ class DDline(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
-                "VERROU_GEN_SOURCE":   os.path.join(self.ref_,"dd.line.%p"),
-                "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")
-        }
+                "VERROU_GEN_SOURCE":   self.ref_ / "dd.line.%p",
+                "VERROU_GEN_EXCLUDE":  self.ref_ / "dd.sym.%p"
+                }
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.line.")
@@ -62,8 +62,8 @@ class DDline(DD_stoch.DDStoch):
         return "dd.line"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".include"),
-                "VERROU_WARN_UNKNOWN_SOURCE": os.path.join(dirName,self.getDeltaFileName() +".exclude"),
+        return {"VERROU_SOURCE": dirName / (self.getDeltaFileName() +".include"),
+                "VERROU_WARN_UNKNOWN_SOURCE": dirName / (self.getDeltaFileName() +".exclude"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
         }
 

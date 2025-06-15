@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-
 import os
 import sys
+from pathlib import Path
 
 def checkDDmin(rep, num):
-    ddmin0=os.path.join(rep, "ddmin"+str(num), "dd.task.include")
-    if os.path.exists(ddmin0):
+    ddmin0=rep / ("ddmin"+str(num)) / "dd.task.include"
+    if ddmin0.is_file():
         lines=open(ddmin0).readlines()
         if len(lines)!=1:
             return False
@@ -19,8 +19,8 @@ def checkDDmin(rep, num):
 
 
 def checkDDcmp(rep):
-    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.task.include")
-    if os.path.exists(ddminCmp):
+    ddminCmp=rep / "rddmin-cmp" / "dd.task.include"
+    if ddminCmp.is_file():
         lines=open(ddminCmp).readlines()
         for i in range(1,11):
             res_i=False
@@ -30,14 +30,13 @@ def checkDDcmp(rep):
             if res_i==False:
                 print("checkDDCmp:", lines)
                 return False
-
         return True
     else:
         return False
 
 
 if __name__=="__main__":
-    rep=sys.argv[1]
+    rep=Path(sys.argv[1])
 
     ddmin0=checkDDmin(rep, 0)
     if not ddmin0:

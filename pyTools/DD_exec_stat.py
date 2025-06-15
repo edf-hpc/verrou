@@ -22,9 +22,8 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
-import sys
-import os
 import time
+from pathlib import Path
 
 class exec_stat:
     def __init__(self,repName):
@@ -52,11 +51,11 @@ class exec_stat:
         print ("\nElapsed Time: %id %ih %imin %is   "%(rd,h,m,s) )
 
     def isNew(self, filename):
-        return ((os.stat(filename).st_mtime) > self.start)
+        return ((filename.stat().st_mtime) > self.start)
 
-    def printNbRun(self,dirName="."):
+    def printNbRun(self,dirName=Path.cwd()):
         import glob
 
-        runTab=glob.glob(dirName+"/"+self.repName+"/*/dd.run*/dd.run.out")
+        runTab=list((dirName / self.repName).glob("*/dd.run*/dd.run.out"))
         runFilter=[filename for filename in runTab if self.isNew(filename)]
-        print(self.repName+"  search : %i run (with cache included: %i)"%(len(runFilter),len(runTab)) )
+        print(str(self.repName)+"  search : %i run (with cache included: %i)"%(len(runFilter),len(runTab)) )

@@ -5,6 +5,7 @@ import sys
 import os
 import pickle
 import random
+from pathlib import Path
 
 proba=1.
 random_shuffle_seed=None
@@ -518,25 +519,25 @@ def generateFakeSource(ddCase):
 
 def runRef(dir_path, ddCase):
     print("ref")
-    if "dd.sym" in dir_path and not "dd.line" in dir_path:
+    if "dd.sym" in str(dir_path) and not "dd.line" in str(dir_path):
         generateFakeExclusion(ddCase)
-        ddCase.pickle(os.path.join(dir_path,"dd.pickle"))
+        ddCase.pickle(dir_path / "dd.pickle")
         return 0
-    if "dd.line" in dir_path:
+    if "dd.line" in str(dir_path):
         generateFakeSource(ddCase)
-        ddCase.pickle(os.path.join(dir_path,"dd.pickle"))
+        ddCase.pickle(dir_path / "dd.pickle")
         return 0
 
 
 def runNorm(dir_path, ddCase):
     print("norm")
-    if "dd.sym" in dir_path and not "dd.line" in dir_path:
-        f=open(os.path.join(dir_path , "path_exclude"), "w")
+    if "dd.sym" in str(dir_path) and not "dd.line" in str(dir_path):
+        f=open(dir_path / "path_exclude", "w")
         f.write(os.environ["VERROU_EXCLUDE"]+"\n")
         f.close()
         return 0
-    if "dd.line" in dir_path:
-        f=open(os.path.join(dir_path,"path_source"), "w")
+    if "dd.line" in str(dir_path):
+        f=open(dir_path / "path_source", "w")
         f.write(os.environ["VERROU_SOURCE"]+"\n")
         f.close()
 
@@ -549,6 +550,6 @@ if __name__=="__main__":
 #                     (1, 1, [(0, 0),(1,1)] )])
     # os.system("sleep 1"); #to fake time
     if "ref" in sys.argv[1]:
-        sys.exit(runRef(sys.argv[1], ddCase))
+        sys.exit(runRef(Path(sys.argv[1]), ddCase))
     else:
-        sys.exit(runNorm(sys.argv[1], ddCase))
+        sys.exit(runNorm(Path(sys.argv[1]), ddCase))

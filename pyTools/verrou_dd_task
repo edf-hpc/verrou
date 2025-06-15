@@ -42,8 +42,8 @@ class DDTask(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
-                "GENERATE_TASK_LIST":   os.path.join(self.ref_,"dd.task.gen"),
-                "GENERATE_TASK_FP_LIST":   os.path.join(self.ref_,"dd.taskFP.gen"),
+                "GENERATE_TASK_LIST":  self.ref_ / "dd.task.gen",
+                "GENERATE_TASK_FP_LIST": self.ref_ / "dd.taskFP.gen",
                 "VERROU_COUNT_OP":"yes",
                 }
 
@@ -54,7 +54,7 @@ class DDTask(DD_stoch.DDStoch):
         return "dd.task"
 
     def sampleRunEnv(self,dirName):
-        return {"TASK_LIST": os.path.join(dirName,self.getDeltaFileName() +".include"),
+        return {"TASK_LIST": dirName / (self.getDeltaFileName() +".include"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
                 "TASK_STOP_START": self.config_.hardOrSoft
         }

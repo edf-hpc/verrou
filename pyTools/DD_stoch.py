@@ -40,6 +40,7 @@ import time
 import convNumLineTool
 import DD
 
+from pathlib import Path
 
 class myTask:
     def __init__(self,cmd,fname,envvars):
@@ -86,11 +87,11 @@ def runCmdAsync(cmd, fname, envvars=None):
     if envvars is None:
         envvars = {}
 
-    with open("%s.out"%fname, "w") as fout:
-        with open("%s.err"%fname, "w") as ferr:
+    with open(Path(fname).with_suffix(fname.suffix+".out"), "w") as fout:
+        with open(Path(fname).with_suffix(fname.suffix+".err"), "w") as ferr:
             env = copy.deepcopy(os.environ)
             for var in envvars:
-                env[var] = envvars[var]
+                env[var] = str(envvars[var])
             taskLog=logTool.initTask(cmd,fname,envvars)
             return (subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr), taskLog)
 
@@ -119,9 +120,9 @@ ddReturnFileName="dd.return.value"
 class stochTask:
 
     def __init__(self, dirname, refDir,runCmd, cmpCmd, runEnv, seedTab=None, seedEnvVar=None):
-        self.dirname=dirname
+        self.dirname=Path(dirname)
         self.refDir=refDir
-        self.pathToPrint=os.path.relpath(self.dirname, os.getcwd())
+        self.pathToPrint=str((self.dirname.absolute()).relative_to(Path.cwd()))
 
         self.runCmd=runCmd
         self.cmpCmd=cmpCmd
@@ -152,15 +153,14 @@ class stochTask:
         if relative:
             return subDirRunPattern% (i)
         else:
-            return  os.path.join(self.dirname, subDirRunPattern % (i))
+            return self.dirname / (subDirRunPattern % (i))
 
     def _replacePattern(self, value, i):
-        return value.replace("%DDRUN%", self._nameDir(i,True))
+        return str(value).replace("%DDRUN%", self._nameDir(i,True))
 
     def runOneSample(self, i):
         rundir= self._nameDir(i)
-        if not os.path.exists(rundir):
-            os.mkdir(rundir)
+        rundir.mkdir(exist_ok=True)
 
         env={key:self._replacePattern(self.runEnv[key],i) for key in self.runEnv}
         if self.seedTab!=None:
@@ -168,7 +168,7 @@ class stochTask:
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         subProcessRun=runCmdAsync([self.runCmd, rundir],
-                                  os.path.join(rundir,fileRun),
+                                  rundir / fileRun,
                                   env)
         getResult(subProcessRun)
         if self.postRunLambda!=None:
@@ -181,9 +181,9 @@ class stochTask:
 
         rundir= self._nameDir(i)
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
-                        os.path.join(rundir,"dd.compare"))
+                        rundir / "dd.compare")
 
-        with open(os.path.join(rundir, ddReturnFileName),"w") as f:
+        with open(rundir / ddReturnFileName,"w") as f:
             f.write(str(retval))
         if retval != 0:
             return self.FAIL
@@ -204,9 +204,9 @@ class stochTask:
         workToCmpOnly=[]
         failureIndex=[]
         for runDir in listOfDirString:
-            returnValuePath=os.path.join(self.dirname, runDir, ddReturnFileName)
+            returnValuePath=self.dirname / runDir / ddReturnFileName
             ddRunIndex=int(runDir.replace(subDirRun,""))
-            if os.path.exists(returnValuePath):
+            if returnValuePath.is_file():
                 statusCmp=int((open(returnValuePath).readline()))
                 if statusCmp!=0:
                     if earlyExit:
@@ -215,8 +215,8 @@ class stochTask:
                         failureIndex+=[ddRunIndex]
                 cmpDone+=[ddRunIndex]
             else:
-                runPath=os.path.join(self.dirname, runDir, fileRun+".out")
-                if os.path.exists(runPath):
+                runPath=self.dirname / runDir / (fileRun+".out")
+                if runPath.is_file():
                     runDone+=[ddRunIndex]
 
         indexesToRun= [x for x in range(nbRun) if (not x in runDone+cmpDone) ]
@@ -233,17 +233,14 @@ class stochTask:
 
 def getEstimatedFailProbability(dirname):
     """Return an estimated probablity of fail for the configuration"""
-    listOfDirString=[runDir for runDir in os.listdir(dirname) if runDir.startswith(subDirRun)]
-
+    returnValuePathTab=dirname.glob(subDirRun+ "*/"+ddReturnFileName)
     cacheCounter=0.
     cacheFail=0.
-    for runDir in listOfDirString:
-        returnValuePath=os.path.join(dirname, runDir, ddReturnFileName)
-        if os.path.exists(returnValuePath):
-            cacheCounter+=1.
-            statusCmp=int((open(returnValuePath).readline()))
-            if statusCmp!=0:
-                cacheFail+=1.
+    for returnValuePath in returnValuePathTab:
+        cacheCounter+=1.
+        statusCmp=int((open(returnValuePath).readline()))
+        if statusCmp!=0:
+            cacheFail+=1.
     return cacheFail / cacheCounter
 
 
@@ -290,7 +287,7 @@ def md5Name(deltas):
 
 def prepareOutput(dirname):
      shutil.rmtree(dirname, ignore_errors=True)
-     os.makedirs(dirname)
+     dirname.mkdir()
 
 
 def failure():
@@ -314,19 +311,24 @@ class DDStoch(DD.DD):
         self.compare_ = self.config_.get_cmpScript()
 
         self.rddminIndex=0 #rddmin index
-        self.prefix_ = os.path.join(os.getcwd(), self.config_.get_cacheRep())
+        self.prefix_ = Path.cwd() / self.config_.get_cacheRep()
         self.relPrefix_=self.config_.get_cacheRep()
-        self.ref_ = os.path.join(self.prefix_, "ref")
+        self.ref_ = self.prefix_ / "ref"
         self.prepareCache()
         prepareOutput(self.ref_)
 
-        self.config_.saveParam(os.path.join(self.prefix_,"cmd.last"))
+        self.config_.saveParam(self.prefix_ / "cmd.last")
 
         self.reference() #generate the reference computation
         self.mergeList(parseRef) #generate the search space
         self.rddminHeuristicLoadRep(selectBlocAndNumLine, joinBlocAndNumLine) # at the end because need the search space
 
         self.initSeed()
+
+    def internalError(self,msg1, msg2):
+        print(msg1,msg2)
+        import traceback
+        traceback.print_stack()
 
     def initSeed(self):
         if self.config_.ddSeed!=None:
@@ -338,12 +340,12 @@ class DDStoch(DD.DD):
 
     def symlink(self,src, dst):
         """Create a relative symlink"""
-        if os.path.lexists(dst):
-            os.remove(dst)
-        relSrc=os.path.relpath(src, self.prefix_ )
-        relDist=os.path.relpath(dst, self.prefix_)
-        relPrefix=os.path.relpath(self.prefix_, os.getcwd())
-        os.symlink(relSrc, os.path.join(relPrefix, relDist))
+        if dst.is_symlink():
+            dst.unlink()
+        relSrc=src.relative_to(self.prefix_)
+        relDist=dst.relative_to(self.prefix_)
+        relPrefix=self.prefix_.relative_to(Path.cwd())
+        os.symlink(relSrc, relPrefix/ relDist)
 
 
     def cleanSymLink(self):
@@ -351,20 +353,16 @@ class DDStoch(DD.DD):
         self.saveCleabSymLink=[]
         symLinkTab=self.searchSymLink()
         for symLink in symLinkTab:
-            if os.path.lexists(symLink):
-                os.remove(symLink)
-                if self.config_.get_cache=="continue":
-                    self.saveCleanSymLink+=[symLink]
+            symLink.unlink()
+            if self.config_.get_cache=="continue":
+                self.saveCleanSymLink+=[symLink]
 
 
     def searchSymLink(self):
         """Return the list of symlink (created by DD_stoch) in the cache"""
-        res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
-        res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
-        res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
-        res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
-        res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
-        return res
+        res = list(self.prefix_.glob("ddmin*"))
+        res +=[self.prefix_ / sym for sym in ["rddmin-cmp","ddmax","ddmax-cmp","FullPerturbation","NoPerturbation"]]
+        return [ x for x in res if x.is_symlink()]
 
 
     def rddminHeuristicLoadRep(self, selectBlocAndNumLine, joinBlocAndNumLine):
@@ -380,16 +378,15 @@ class DDStoch(DD.DD):
         if "cache" in self.config_.get_rddminHeuristicsCache():
             if self.config_.get_cache()=="rename":
                 if self.oldCacheName!=None:
-                    cacheRep=self.oldCacheName
-                    if os.path.isdir(cacheRep):
+                    cacheRep=Path(self.oldCacheName)
+                    if cacheRep.is_dir():
                         rddmin_heuristic_rep+=[cacheRep]
             else:
-                cacheRep=self.prefix_
-                if os.path.isdir(cacheRep):
-                    rddmin_heuristic_rep+=[cacheRep]
+                if self.prefix_.is_dir():
+                    rddmin_heuristic_rep+=[self.prefix_]
 
         if self.config_.get_rddminHeuristicsCache()=="all_cache":
-            rddmin_heuristic_rep+=glob.glob(self.prefix_+"-*-*-*_*h*m*s")
+            rddmin_heuristic_rep+=(self.prefix_ / "..").glob(str(self.relPrefix_)+"*-*-*-*_*h*m*s")
 
         for rep in self.config_.get_rddminHeuristicsRep_Tab():
             if rep not in rddmin_heuristic_rep:
@@ -405,11 +402,11 @@ class DDStoch(DD.DD):
 
         if self.config_.get_rddminHeuristicsLineConv():
             for rep in rddmin_heuristic_rep:
-                deltaOld=self.loadDeltaFileFromRep(os.path.join(rep,"ref"), True)
+                deltaOld=self.loadDeltaFileFromRep(rep / "ref", True)
                 if deltaOld==None:
                     continue
                 cvTool=convNumLineTool.convNumLineTool(deltaOld, self.getDelta0(), selectBlocAndNumLine, joinBlocAndNumLine)
-                repTab=glob.glob(os.path.join(rep, "ddmin*"))
+                repTab=rep.glob("ddmin*")
 
                 for repDDmin in repTab:
                     deltas=self.loadDeltaFileFromRep(repDDmin)
@@ -421,7 +418,7 @@ class DDStoch(DD.DD):
                     self.ddminHeuristic+=[deltasNew]
         else:
             for rep in rddmin_heuristic_rep:
-                repTab=glob.glob(os.path.join(rep, "ddmin*"))
+                repTab=rep.glob("ddmin*")
                 for repDDmin in repTab:
                     deltas=self.loadDeltaFileFromRep(repDDmin)
                     if deltas==None:
@@ -429,13 +426,13 @@ class DDStoch(DD.DD):
                     self.ddminHeuristic+=[deltas]
 
     def loadDeltaFileFromRep(self,rep, ref=False):
-        fileName=os.path.join(rep, self.getDeltaFileName()+".include")
+        fileName=rep /  (self.getDeltaFileName()+".include")
         if ref:
-            fileName=os.path.join(rep, self.getDeltaFileName())
+            fileName=rep / self.getDeltaFileName()
         return self.loadDeltaFile(fileName)
 
     def loadDeltaFile(self,fileName):
-        if os.path.exists(fileName):
+        if fileName.is_file():
             deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
             return deltasTab
         else:
@@ -446,13 +443,12 @@ class DDStoch(DD.DD):
     def prepareCache(self):
         cache=self.config_.get_cache()
         if cache=="continue":
-            if not os.path.exists(self.prefix_):
-                os.mkdir(self.prefix_)
+            self.prefix_.mkdir(exist_ok=True)
             self.cleanSymLink()
             return
         if cache=="clean":
             shutil.rmtree(self.prefix_, ignore_errors=True)
-            os.mkdir(self.prefix_)
+            self.prefix_.mkdir()
             return
 
         if cache=="rename_keep_result":
@@ -464,41 +460,41 @@ class DDStoch(DD.DD):
                 if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
                     #check md5sum format
                     if not item in repToKeep:
-                        shutil.rmtree(os.path.join(self.prefix_, item))
+                        shutil.rmtree(self.prefix_ / item)
 
         if cache.startswith("rename"):
-            if os.path.exists(self.prefix_):
+            if self.prefix_.is_dir():
                 symLinkTab=self.searchSymLink()
                 if symLinkTab==[]:  #find alternative file to get time stamp
-                    refPath=os.path.join(self.prefix_, "ref")
-                    if os.path.exists(refPath):
+                    refPath= self.prefix_ / "ref"
+                    if refPath.is_dir():
                         symLinkTab=[refPath]
                     else:
                         symLinkTab=[self.prefix_]
-                timeStr=datetime.datetime.fromtimestamp(max([os.path.getmtime(x) for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
-                self.oldCacheName=self.prefix_+"-"+timeStr
-                os.rename(self.prefix_,self.oldCacheName )
+                timeStr=datetime.datetime.fromtimestamp(max([x.stat().st_mtime for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                self.oldCacheName= self.prefix_.with_name(self.prefix_.name+timeStr)
+                self.prefix_.rename(self.oldCacheName )
             else:
                 self.oldCacheName=None
-            os.mkdir(self.prefix_)
+            self.prefix_.mkdir()
 
 
         if cache=="keep_run":
-            if not os.path.exists(self.prefix_):
-                os.mkdir(self.prefix_)
+            if not self.prefix_.is_dir():
+                self.prefix_.mkdir()
             else:
                 self.cleanSymLink()
-                filesToDelete =glob.glob(os.path.join(self.prefix_, "*/"+subDirRun+"[0-9]*/"+fileCmp+".*"))
-                filesToDelete +=glob.glob(os.path.join(self.prefix_, "*/"+subDirRun+"[0-9]*/"+ddReturnFileName))
+                filesToDelete = list(self.prefix_.glob("*/"+subDirRun+"[0-9]*/"+fileCmp+".*"))
+                filesToDelete +=list(self.prefix_.glob("*/"+subDirRun+"[0-9]*/"+ddReturnFileName))
                 for fileToDelete in filesToDelete:
-                    os.remove(fileToDelete)
+                    fileToDelete.unlink()
 
     def reference(self):
         """Run the reference and check the result"""
-        print(os.path.relpath(self.ref_, os.getcwd()),end="")
+        print(self.ref_.relative_to(Path.cwd()),end="")
         print(" -- (run) -> ",end="",flush=True)
         retval = runCmd([self.run_, self.ref_],
-                        os.path.join(self.ref_,"dd"),
+                        self.ref_ /"dd",
                         self.referenceRunEnv())
         if retval!=0:
             print("")
@@ -506,7 +502,7 @@ class DDStoch(DD.DD):
         else:
             """Check the comparison between the reference and refrence is valid"""
             retval = runCmd([self.compare_,self.ref_, self.ref_],
-                            os.path.join(self.ref_,"checkRef"))
+                            self.ref_ / "checkRef")
             if retval != 0:
                 print("FAIL")
                 self.referenceFailsFailure()
@@ -527,24 +523,24 @@ class DDStoch(DD.DD):
         for excludeFile in listOfExcludeFile:
             lines=None
             if parseRef==None:
-                with open(os.path.join(dirname,excludeFile), "r") as f:
+                with open(dirname / excludeFile, "r") as f:
                     lines=[x.rstrip() for x in f.readlines()]
             else:
-                lines=parseRef(os.path.join(dirname,excludeFile))
+                lines=parseRef(dirname / excludeFile)
 
             for line in lines:
                 if line not in excludeMerged:
                     excludeMerged+=[line]
 
-        with open(os.path.join(dirname, name), "w" )as f:
+        with open(dirname / name, "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
 
 
     def testWithLink(self, deltas, linkname, earlyExit):
         testResult=self._test(deltas, self.config_.get_nbRUN() , earlyExit)
-        dirname = os.path.join(self.prefix_, md5Name(deltas))
-        self.symlink(dirname, os.path.join(self.prefix_,linkname))
+        dirname = self.prefix_ / md5Name(deltas)
+        self.symlink(dirname, self.prefix_ / linkname)
         return testResult
 
     def report_progress(self, c, title):
@@ -612,16 +608,16 @@ class DDStoch(DD.DD):
             self.configuration_found("rddmin-cmp", rddminCmp)
 
             print("RDDMIN summary:")
-            summaryHandler=open(os.path.join(self.config_.get_cacheRep(),"rddmin_summary"),"w")
+            summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
             for ddminIndex in range(len(resConf)):
-                confDirName=os.path.join(self.config_.get_cacheRep(), "ddmin%i"%(ddminIndex))
+                confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
                 listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
                 failureIndex=[]
                 #cmpDone=[]
                 for runDir in listOfDirString:
-                    returnValuePath=os.path.join(confDirName, runDir, ddReturnFileName)
+                    returnValuePath= confDirName / runDir / ddReturnFileName
                     ddRunIndex=int(runDir.replace(subDirRun,""))
-                    if os.path.exists(returnValuePath):
+                    if returnValuePath.is_file():
                         statusCmp=int((open(returnValuePath).readline()))
                         if statusCmp!=0:
                             failureIndex+=[ddRunIndex]
@@ -944,7 +940,7 @@ class DDStoch(DD.DD):
     def fullPerturbationSucceedsFailure(self):
         print("FAILURE: nothing to debug (the run with all symbols activated succeed)")
         print("Suggestions:")
-        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        cmpScript=str((self.compare_.absolute()).relative_to(Path.cwd()))
         print("\t1) check the correctness of the %s script : the failure criteria may be too large"%cmpScript)
         print("\t2) check if the number of samples (option --nruns=) is sufficient ")
 
@@ -955,7 +951,7 @@ class DDStoch(DD.DD):
         print("FAILURE: the comparison between the reference (code instrumented with nearest mode) and the code without instrumentation failed")
 
         print("Suggestions:")
-        cmpScript=os.path.relpath(self.compare_, os.getcwd())
+        cmpScript=str((self.compare_.absolute()).relative_to(Path.cwd()))
         print("\t1) check if reproducibility discrepancies are larger than the failure criteria of the script %s"%cmpScript)
         print("\t2) check the libm library is not instrumented")
         print("Directory to analyze: NoPerturbation")
@@ -967,7 +963,7 @@ class DDStoch(DD.DD):
         print("\t1) check the correctness of the %s script"%self.compare_)
 
         def relativePathRef(filename):
-            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+            return str((self.ref_.absolute()).relative_to(Path.cwd()) / filename)
 
         print("Files to analyze:")
         print("\t run output: " + relativePathRef("dd.out"))
@@ -982,12 +978,11 @@ class DDStoch(DD.DD):
         print("\t1) check the correctness of the %s script"%self.run_)
 
         def relativePathRef(filename):
-            return os.path.relpath(os.path.join(self.ref_,filename), os.getcwd())
+            return str((self.ref_.absolute()).relative_to(Path.cwd()) / filename)
 
         print("Files to analyze:")
         print("\t run output: " + relativePathRef("dd.out"))
         print("\t             " + relativePathRef("dd.err"))
-
         failure()
 
 
@@ -1001,12 +996,12 @@ class DDStoch(DD.DD):
         dd=self.getDeltaFileName()
 
         if include:
-            with open(os.path.join(dirname,dd+".include"), "w") as f:
+            with open(dirname / (dd+".include"), "w") as f:
                 for d in deltas:
                     f.write(d+"\n")
 
         if exclude:
-            with open(os.path.join(dirname,dd+".exclude"), "w") as f:
+            with open(dirname / (dd+".exclude"), "w") as f:
                 for d in deltas:
                     excludes.remove(d)
 
@@ -1016,9 +1011,9 @@ class DDStoch(DD.DD):
     def _getSampleNumberToExpectFail(self, deltas):
         nbRun=self.config_.get_nbRUN()
 
-        dirname=os.path.join(self.prefix_, md5Name(deltas))
-        if not os.path.exists(dirname):
-            self.internalError("_getSampleNumberToExpectFail:", dirname+" should exist")
+        dirname= self.prefix_ / md5Name(deltas)
+        if not dirname.is_dir():
+            self.internalError("_getSampleNumberToExpectFail:", str(dirname)+" should exist")
 
         p=getEstimatedFailProbability(dirname)
         if p==1.:
@@ -1092,9 +1087,9 @@ class DDStoch(DD.DD):
 
         for deltaIndex in range(nbDelta):
             deltas=deltasTab[deltaIndex]
-            dirname=os.path.join(self.prefix_, md5Name(deltas))
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
+            dirname=self.prefix_ / md5Name(deltas)
+            if not dirname.is_dir():
+                dirname.mkdir()
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
             stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())

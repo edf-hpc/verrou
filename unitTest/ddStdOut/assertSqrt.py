@@ -2,7 +2,7 @@
 
 import os
 import sys
-
+from pathlib import Path
 
 cmpExpected=["__verrou__stdout__init__",
              "xn[1]=*  delta=*",
@@ -25,8 +25,8 @@ def filterInit(line):
         return line
 
 def checkDDcmp(rep):
-    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.IOMatch.include")
-    if os.path.exists(ddminCmp):
+    ddminCmp=rep / "rddmin-cmp" / "dd.IOMatch.include"
+    if ddminCmp.is_file():
         lines=[filterInit(line) for line in open(ddminCmp).readlines()]
         for expectedLine in cmpExpected:
             if expectedLine not in cmpExpected:
@@ -40,7 +40,7 @@ def checkDDcmp(rep):
 
 
 if __name__=="__main__":
-    rep=sys.argv[1]
+    rep=Path(sys.argv[1])
 
     ddCmp=checkDDcmp(rep)
     if ddCmp:

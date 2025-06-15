@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
-import os
 import sys
+from pathlib import Path
 
 def checkDDmin0(rep):
-    ddmin0=os.path.join(rep, "ddmin0", "dd.IOMatch.include")
-    if os.path.exists(ddmin0):
+    ddmin0= rep / "ddmin0" / "dd.IOMatch.include"
+    if ddmin0.is_file():
         lines=open(ddmin0).readlines()
         if len(lines)!=1:
             return False
@@ -18,8 +18,8 @@ def checkDDmin0(rep):
         return False
 
 def checkDDmin1(rep, withEmptyLine=False):
-    ddmin1=os.path.join(rep, "ddmin1", "dd.IOMatch.include")
-    if os.path.exists(ddmin1):
+    ddmin1= rep / "ddmin1" / "dd.IOMatch.include"
+    if ddmin1.is_file():
         lines=open(ddmin1).readlines()
         if len(lines)!=1:
             print("ddmin1 : nbLineError : %s"%str(lines))
@@ -35,8 +35,8 @@ def checkDDmin1(rep, withEmptyLine=False):
 
 
 def checkDDcmp(rep, withEmptyLine=False):
-    ddminCmp=os.path.join(rep, "rddmin-cmp", "dd.IOMatch.include")
-    if os.path.exists(ddminCmp):
+    ddminCmp=rep / "rddmin-cmp" / "dd.IOMatch.include"
+    if ddminCmp.is_file():
         lines=open(ddminCmp).readlines()
         if len(lines)!=2:
             return False
@@ -55,7 +55,7 @@ def checkDDcmp(rep, withEmptyLine=False):
 
 
 if __name__=="__main__":
-    rep=sys.argv[1]
+    rep=Path(sys.argv[1])
 
     ddmin0=checkDDmin0(rep)
     if not ddmin0:

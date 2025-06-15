@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 import sys
-import os
+from pathlib import Path
 
 def extract(rep):
-    fileName=os.path.join(rep,"res.out")
+    fileName=Path(rep)/"res.out"
     value=float(open(fileName).readline().split(":")[1])
     return value
     

@@ -29,23 +29,17 @@ import os
 import shutil
 import copy
 import glob
+from pathlib import Path
 
 class DDClean:
     def __init__(self, prefix):
-        if prefix[0]=='/':
-            self.prefix_=prefix
-        else:
-            self.prefix_=os.path.join(os.getcwd(), prefix)
+        self.prefix_=Path(prefix).absolute()
 
     def searchSymLink(self):
         """Return the list of symlink (created by DD_stoch) in the cache"""
-        res =glob.glob(os.path.join(self.prefix_, "ddmin*"))
-        res+=glob.glob(os.path.join(self.prefix_, "ddmax"))
-        res+=glob.glob(os.path.join(self.prefix_, "rddmin-cmp"))
-        res+=glob.glob(os.path.join(self.prefix_, "ddmax-cmp"))
-        res+=glob.glob(os.path.join(self.prefix_, "FullPerturbation"))
-        res+=glob.glob(os.path.join(self.prefix_, "NoPerturbation"))
-        return [x for x in res if os.path.islink(x)]
+        res = list(self.prefix_.glob("ddmin*"))
+        res +=[self.prefix_ / sym for sym in ["rddmin-cmp","ddmax","ddmax-cmp","FullPerturbation","NoPerturbation"]]
+        return [ x for x in res if x.is_symlink()]
 
     def clean(self, dryRun):
         symLinkTab=self.searchSymLink()
@@ -53,14 +47,14 @@ class DDClean:
             print("is %s a verrou_dd rep?"%(self.prefix_))
             return
 
-        repToKeep=[os.path.basename(os.readlink(x)) for x in symLinkTab]
+        repToKeep=[Path(os.readlink(x)).name for x in symLinkTab]
 
         for item in os.listdir(self.prefix_):
             if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
-                itemStd=os.path.abspath(os.path.join(self.prefix_, item ))
+                itemStd=self.prefix_ / item
 
                 #check md5sum format
-                if not os.path.basename(itemStd) in repToKeep:
+                if not itemStd.name in repToKeep:
                     if not dryRun:
                         print("remove: %s"%(itemStd))
                         shutil.rmtree(itemStd)

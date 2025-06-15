@@ -41,7 +41,7 @@ class DDsym(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
-                "VERROU_GEN_EXCLUDE":   os.path.join(self.ref_,"dd.sym.%p")}
+                "VERROU_GEN_EXCLUDE":  self.ref_ / "dd.sym.%p"}
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.sym.")
@@ -50,7 +50,7 @@ class DDsym(DD_stoch.DDStoch):
         return "dd.sym"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_EXCLUDE": os.path.join(dirName, self.getDeltaFileName() +".exclude"),
+        return {"VERROU_EXCLUDE": dirName / (self.getDeltaFileName() +".exclude"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
         }
 
