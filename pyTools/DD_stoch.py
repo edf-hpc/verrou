@@ -471,7 +471,7 @@ class DDStoch(DD.DD):
                         symLinkTab=[refPath]
                     else:
                         symLinkTab=[self.prefix_]
-                timeStr=datetime.datetime.fromtimestamp(max([x.stat().st_mtime for x in symLinkTab])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                timeStr=datetime.datetime.fromtimestamp(max([x.stat().st_mtime for x in symLinkTab])).strftime("-%m-%d-%Y_%Hh%Mm%Ss")
                 self.oldCacheName= self.prefix_.with_name(self.prefix_.name+timeStr)
                 self.prefix_.rename(self.oldCacheName )
             else:
