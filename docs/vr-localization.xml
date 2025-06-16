@@ -11,14 +11,14 @@
   </para>
 
   <section id="vr-manual.localization.dd" xreflabel="Delta-Debugging">
-    <title>Delta-debugging with the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command>, <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> commands</title>
+    <title>Delta-debugging with the <command>verrou_dd_sym</command>, <command>verrou_dd_line</command>, <command>verrou_dd_back</command>, <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> commands</title>
     <para id="vr-manual.dd.principle" xreflabel="Delta-Debugging Principle">
 
       The first technique builds upon Verrou's <link linkend="vr-manual.feat.scope">Instrumentation scope</link> features in
       order to perform a search of functions (or source code lines / verrou task / stdout task) whose perturbation produces the
       most important errors in final results. The idea is the following:
       <itemizedlist>
-        <listitem><simpara>First, a complete list of all symbols (or line / task / stdout task) which contain perturbed
+        <listitem><simpara>First, a complete list of all symbols (or line / backtrace / task / stdout task) which contain perturbed
 	floating point instructions is generated. It is expected that
         perturbing all functions in this list will produce inexact results. On the other hand,
         excluding all symbols from the scope of perturbations should produce unperturbed
@@ -41,6 +41,11 @@
 	<listitem><simpara>
 	<command>verrou_dd_line</command> uses the code line search space and uses <link linkend="vr-manual.feat.source"> Source instrumentation</link> to select parts of the program which are instrumented or not. The results of this command are more useful if the code is compiled with debug option (<command>-g</command>).
 	</simpara></listitem>
+
+	<listitem><simpara>
+	    <command>verrou_dd_back</command> uses the backtrace search space and uses <link linkend="vr-manual.feat.backtrace"> backtrace instrumentation</link> to select which parts of the program are instrumented or not. The results of this command are more useful if the code is compiled with the debug option (<command>-g</command>). As the instrumentation is computationally expensive, this command should be used after an initial filtering provided by <command>verrou_dd_line</command> (See <link linkend="vr-manual.verrou_dd_chain"> How to chain delta-debug</link>). The search space is the backtrace of the beginning of each Basic Blocs with instrumented floating-point operations. A backtrace is a list of stack addresses. The maximum size of the list is 40, and when comparing between two stacks (to detect equality) the last two elements of the stack are ignored for internal reasons. The backtrace pretty printout with symbols and code lines are not one-to-one with the backtrace addresses. Line detection is less accurate than the lines used by the <option>--source</option> option (and therefore by <command>verrou_dd_line</command>). Therefore, when running a <command>verrou_dd_back</command> after a <command>verrou_dd_line</command> seemingly incoherent results may be seen if  basic_block contains multiple debug symbols. The pretty print ignores below main symbols and internal python symbols.
+	</simpara></listitem>
+
 	<listitem><simpara>
 	  <command>verrou_dd_task</command> uses verrou task search space (<link linkend="vr-manual.verrou_task" > See how to perform instrumentation</link>). This search space enable temporal localization. The task instrumentation can be automatic with python code but is intrusive for compiled codes. <command>verrou_dd_task</command> has <link linkend="verrou_dd_task_stdout.specific.option" > one specific option</link>.
 	</simpara></listitem>
@@ -70,6 +75,12 @@
 
       <screen><cmdsynopsis id="vr-manual.verrou_dd_line.synopsis">
         <command>verrou_dd_line [options]</command>
+        <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
+        <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
+      </cmdsynopsis></screen>
+
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_back.synopsis">
+        <command>verrou_dd_back [options]</command>
         <arg choice="req"><replaceable>/path/to/run_script</replaceable></arg>
         <arg choice="req"><replaceable>/path/to/cmp_script</replaceable></arg>
       </cmdsynopsis></screen>
@@ -789,6 +800,85 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
     </simplesect>
   </section>
 
+  <section id="vr-manual.verrou_dd_chain">
+    <title>Sequence of call between different <command>verrou_dd_*</command></title>
+
+    <para>
+    When the search space is too coarse, it can be interesting to run a delta-debug with a refined search space but
+    applied to only to coarse ddmin.
+
+    The classical exemples are:
+
+    <variablelist>
+      <varlistentry><term>verrou_dd_sym => verrou_dd_line</term>
+	<listitem>
+	  <para>
+    <programlisting>$ verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ #Need more details about ddmin1
+$ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+
+      <note><para>
+	If your script <command>ddRun.sh</command> already use <command>VERROU_DD_EXCLUDE</command>, you will need to modify manually <command>ddRun.sh</command>
+	to use <option>--exclude</option> option which can be used multiple times.
+      </para></note>
+
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry><term>verrou_dd_line => verrou_dd_back</term>
+      <listitem>
+	<para>
+	  <programlisting>$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ #Need more details about ddmin0
+$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+
+
+      <note><para>
+	Your script <command>ddRun.sh</command> should not use <command>VERROU_DD_SOURCE</command>, as it is incompatible with <command>verrou_dd_line</command>.
+      </para></note>
+	</para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry><term>verrou_dd_line => verrou_dd_stdout</term>
+      <listitem>
+	<para>
+	  <programlisting>$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ #Need more details about ddmin0
+$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+
+
+	</para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry><term>verrou_dd_sym => verrou_dd_line => verrou_dd_back</term>
+      <listitem>
+	<para>
+	  <programlisting>$verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ #Need more details about ddmin1
+	  $ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ #Need more details about ddmin0
+$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+
+      <note><para>
+	For the last line <command>VERROU_DD_EXCLUDE</command> is not specified again, as the information is implicitly included in <command>VERROU_DD_SOURCE</command>.
+      </para></note>
+	</para>
+      </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+    </para>
+
+    <para>
+      If you need to run the second <command>verrou_dd_</command> command for muliple ddmin, it is highly recommanded to use the option
+      <option>--rep=dd.back.fromLineDDmin0</option>.
+    </para>
+
+  </section>
   <section  id="vr-manual.verrou_dd_clean">
     <title> verrou_dd_clean</title>
 
