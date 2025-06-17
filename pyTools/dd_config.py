@@ -22,12 +22,9 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
-import os
 import math
-import sys
-import getopt
-
 import gen_config
+
 from pathlib import Path
 
 def exponentialRange(nbRun):

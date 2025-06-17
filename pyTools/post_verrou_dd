@@ -32,8 +32,7 @@ def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
 
 
 def getSortedPidList(rep):
-    pidList=[(int(x.replace("trace_bb_cov.log-","")), (rep / x).stat().st_mtime) for x in  os.listdir(rep) if x.startswith("trace_bb_cov.log-") if "trace_bb_cov.log-seqCount" not in x]
-#    print("pidList :", pidList)
+    pidList=[(int((x.name).replace("trace_bb_cov.log-","")), x.stat().st_mtime) for x in  rep.glob("trace_bb_cov.log-*") if x.name !="trace_bb_cov.log-seqCount" ]
     sortedPidList=sorted(pidList, key=lambda x: x[1])
     return sortedPidList
 
@@ -55,7 +54,7 @@ def mapRename(rep, pid, count, listOfFile,verbose):
 
         if verbose:
             print(oldPath , " => " , newPath)
-        os.rename(oldPath, newPath)
+        oldPath.rename(newPath)
 
 
 def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verbose=False):
@@ -64,8 +63,9 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
     convList=[]
     for pidTuple in pidList:
         pid=pidTuple[0]
-        coverOldFileList=[x for x in os.listdir(rep) if x.startswith("cover") and x.endswith("-"+str(pid)) and not x.endswith("-seqCount"+str(pid)) ]
-        otherOldFileList=[x for x in os.listdir(rep) if (x.startswith("trace_bb_cov.log-") or x.startswith("trace_bb_info.log-")  )and x.endswith("-"+str(pid)) ]
+        coverOldFileList=[x.name for x in rep.glob("cover*-"+str(pid))]
+        otherOldFileList=[x.name for x in list(rep.glob("trace_bb_cov.log-"+str(pid)))+
+                                          list(rep.glob("trace_bb_info.log-"+str(pid)))]
 
         if ignoreEmpty:
             fileName="trace_bb_info.log-"+str(pid)
@@ -88,14 +88,13 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
 
 
 def postRunTrace(runDir):
-    expr="%s/cover/trace_bb_cov.log*"%(str(runDir))
-    globListOfTraceBBFile=glob.glob(expr)
+    globListOfTraceBBFile=runDir.glob("cover/trace_bb_cov.log*")
 
     listOfTraceBBFile=[]
     log=""
     for traceBBFile in globListOfTraceBBFile:
-        traceInfo=traceBBFile.replace("cover/trace_bb_cov.log","cover/trace_bb_info.log")
-        if (os.stat(traceInfo)).st_size!=0:
+        traceInfo=traceBBFile.with_name( (traceBBFile.name).replace("cov","info"))
+        if (traceInfo.stat()).st_size!=0:
             listOfTraceBBFile+=[traceBBFile]
         else:
             log+="traceBBFile %s ignored\n"%(traceBBFile)
@@ -107,14 +106,14 @@ def postRunTrace(runDir):
         print("Problem in trace generation detected: %s",runDir)
         sys.exit(42)
 
-    cmd="genCovBB --genCov %s"%(" ".join(listOfTraceBBFile))
+    cmd="genCovBB --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
     os.system(cmd+ "  >> %s"%( runDir/ "covBBLog"))
     rename_pid_for_one_rep(runDir / "cover",what="cover", clean=True, ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):
     coverRep=runDir / "cover"
-    os.mkdir(coverRep)
+    coverRep.mkdir()
     env["VERROU_OUTPUT_TRACE_REP"]=coverRep
 
 def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):

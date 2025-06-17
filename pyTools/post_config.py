@@ -1,5 +1,4 @@
-import getopt
-import os
+
 import sys
 import re
 import copy
@@ -178,5 +177,7 @@ class postConfig(gen_config.gen_config):
         return self.count_denorm
 
     def findDDmin(self, rep):
-        ddminList=[(rep /x).absolute() for x in os.listdir(rep) if (re.match("^ddmin[0-9]+$",x) or x=="rddmin-cmp") or x=="FullPerturbation" or x=="NoPerturbation"]
+        ddminList =[x.absolute() for x in  rep.glob("ddmin*") if re.match("^ddmin[0-9]+$",x.name) if x.is_symlink()]
+        ddminList+=[x.absolute()  for x in [Path(rep) / relX for relX in ["rddmin-cmp","FullPerturbation","NoPerturbation"]]
+                    if x.is_dir() and x.is_symlink()]
         return ddminList

@@ -1,7 +1,6 @@
 import getopt
 import os
 import sys
-import re
 import copy
 import shutil
 import datetime
@@ -131,8 +130,8 @@ class gen_config:
     def saveParam(self,fileName):
         if fileName.is_file():
             timeValue=datetime.datetime.fromtimestamp(fileName.stat().st_mtime)
-            timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
-            os.rename(fileName,Path(str(fileName).replace(".last","."+timeStr)))
+            timeStr=(timeValue.strftime(".%m-%d-%Y_%Hh%Mm%Ss"))
+            fileName.rename(Path(str(fileName).replace(".last",timeStr)))
 
         strRes=self.confToStr()+"\n"
 

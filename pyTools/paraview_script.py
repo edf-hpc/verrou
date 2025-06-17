@@ -4,6 +4,7 @@ from paraview.simple import *
 paraview.simple._DisableFirstRenderCameraReset()
 import os
 
+### WARNING: Not tested since a while :WARNING ###
 
 DATAPATH=os.environ["VERROU_PARAVIEW_DATA_PATH"]
 

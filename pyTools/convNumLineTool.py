@@ -1,5 +1,5 @@
-#!/usr/bin/python3
-import sys
+#!/usr/bin/env python3
+
 import difflib
 
 

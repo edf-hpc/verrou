@@ -41,9 +41,6 @@
 #
 # Andreas Zeller
 
-import sys
-import os
-
 
 # Main Delta Debugging algorithm.
 class DD:

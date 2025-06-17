@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # This file is part of Verrou, a FPU instrumentation tool.
 
@@ -28,7 +28,6 @@ import sys
 import os
 import shutil
 import copy
-import glob
 from pathlib import Path
 
 class DDClean:
@@ -49,20 +48,17 @@ class DDClean:
 
         repToKeep=[Path(os.readlink(x)).name for x in symLinkTab]
 
-        for item in os.listdir(self.prefix_):
-            if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
-                itemStd=self.prefix_ / item
-
-                #check md5sum format
-                if not itemStd.name in repToKeep:
-                    if not dryRun:
-                        print("remove: %s"%(itemStd))
-                        shutil.rmtree(itemStd)
-                        pass
-                    else:
-                        print("[dry]remove: %s"%(itemStd))
+        #loop over rep with md5 format
+        for md5rep in [x for x in self.prefix_.glob("[a-f0-9]"*32) if x.is_dir()]:
+            if not md5rep.name in repToKeep:
+                if not dryRun:
+                    print("remove: %s"%(md5rep))
+                    shutil.rmtree(md5rep)
+                    pass
                 else:
-                    print("keep: %s"%(itemStd))
+                    print("[dry]remove: %s"%(md5rep))
+            else:
+                print("keep: %s"%(md5rep))
 
 def help():
     print(sys.argv[0] +" [rep]" + " [--dry-run,--help]")

@@ -31,7 +31,6 @@ import subprocess
 import shutil
 import hashlib
 import copy
-import glob
 import datetime
 import math
 import threading
@@ -198,7 +197,7 @@ class stochTask:
     - failedIndexes : indexes of failed sample in cache (subset of indexesInCache)
         return None if earlyExit==True and it exists FAIL sample in cache."""
 
-        listOfDirString=[runDir for runDir in os.listdir(self.dirname) if runDir.startswith(subDirRun)]
+        listOfDirString=[runDir.name for runDir in self.dirname.glob(subDirRun+"*")]
         cmpDone=[]
         runDone=[]
         workToCmpOnly=[]
@@ -456,11 +455,10 @@ class DDStoch(DD.DD):
             symLinkTab=self.searchSymLink()
             repToKeep=[os.readlink(x) for x in symLinkTab]
             print(repToKeep)
-            for item in os.listdir(self.prefix_):
-                if len(item)==32 and all(i in ['a', 'b', 'c', 'd', 'e', 'f']+[str(x) for x in range(10)] for i in item) :
-                    #check md5sum format
-                    if not item in repToKeep:
-                        shutil.rmtree(self.prefix_ / item)
+            #loop over rep with md5 format
+            for md5rep in [x for x in self.prefix.glob("[a-f0-9]"*32) if x.is_dir()]:
+                if not md5rep.name in repToKeep:
+                    shutil.rmtree(md5rep)
 
         if cache.startswith("rename"):
             if self.prefix_.is_dir():
@@ -515,7 +513,7 @@ class DDStoch(DD.DD):
         dirname=self.ref_
         name=self.getDeltaFileName()
 
-        listOfExcludeFile=[ x for x in os.listdir(dirname) if self.isFileValidToMerge(x) ]
+        listOfExcludeFile=[ x.name for x in dirname.iterdir() if self.isFileValidToMerge(x.name) ]
         if len(listOfExcludeFile)<1:
             self.searchSpaceGenerationFailure()
 
@@ -611,7 +609,8 @@ class DDStoch(DD.DD):
             summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
             for ddminIndex in range(len(resConf)):
                 confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
-                listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
+#                listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
+                listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
                 failureIndex=[]
                 #cmpDone=[]
                 for runDir in listOfDirString:

@@ -869,9 +869,9 @@ class config_stat(gen_config.gen_config):
             rep.mkdir()
         if self.getCache()=="rename":
             if rep.is_dir():
-                timeStr=datetime.datetime.fromtimestamp(max([ (rep / x).stat().st_mtime for x in os.listdir(rep)+["."] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
-                self.oldRepName=rep+"-"+timeStr
-                os.rename(rep,self.oldRepName)
+                timeStr=datetime.datetime.fromtimestamp(max([ (x.stat()).st_mtime for x in list(rep.iterdir())+[rep] ])).strftime("%m-%d-%Y_%Hh%Mm%Ss")
+                self.oldRepName=rep.with_name(rep.name+ "-"+timeStr)
+                rep.rename(self.oldRepName)
             rep.mkdir()
         else:
             self.oldRepName=None
