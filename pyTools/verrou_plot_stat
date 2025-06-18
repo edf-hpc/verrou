@@ -23,7 +23,6 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
-import numpy
 import matplotlib.pyplot as plt
 import sys
 import os
@@ -423,7 +422,7 @@ def listOfHistogram(listOfBrutData, nb_bin):
     numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")),"fail":data.count("fail") } for data in listOfBrutData]
     listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN") and x!="fail"] for data in listOfBrutData  ]
 
-    bins=  (numpy.histogram(listOfFilteredBrutData[0], bins=nb_bin, range=[minValue, maxValue]))[1]
+    bins=  (np.histogram(listOfFilteredBrutData[0], bins=nb_bin, range=[minValue, maxValue]))[1]
     return bins,listOfFilteredBrutData,numOfSpecialFloat
 
 def plot_hist(data, png=False, relative=False, nb_bin=40):
@@ -620,7 +619,7 @@ def print_stat(data, conf):
     if pathName.is_file():
         timeValue=datetime.datetime.fromtimestamp(pathName.stat().st_mtime)
         timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
-        os.rename(pathName,pathName.replace(".last","."+timeStr))
+        pathName.rename(pathName.with_name( pathName.name.replace(".last","."+timeStr)))
 
     handler=open(pathName ,"w")
     handler.write("md5 cmd.last: "+ conf.md5Param()+"\n" )
@@ -644,7 +643,7 @@ def print_stat(data, conf):
     if len(data["ref"])==1:
         refValue=data["ref"][0]
     else:
-        refValue=numpy.mean(data["ref"])
+        refValue=np.mean(data["ref"])
 
     localPrint("\nrefValue[%s] : %.17e"%(ref,refValue))
     print("estimator\tabs\trel\trel(in bit)")
