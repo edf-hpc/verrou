@@ -200,7 +200,6 @@ class stochTask:
         listOfDirString=[runDir.name for runDir in self.dirname.glob(subDirRun+"*")]
         cmpDone=[]
         runDone=[]
-        workToCmpOnly=[]
         failureIndex=[]
         for runDir in listOfDirString:
             returnValuePath=self.dirname / runDir / ddReturnFileName
@@ -609,10 +608,9 @@ class DDStoch(DD.DD):
             summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
             for ddminIndex in range(len(resConf)):
                 confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
-#                listOfDirString=[runDir for runDir in os.listdir(confDirName) if runDir.startswith(subDirRun)]
                 listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
                 failureIndex=[]
-                #cmpDone=[]
+
                 for runDir in listOfDirString:
                     returnValuePath= confDirName / runDir / ddReturnFileName
                     ddRunIndex=int(runDir.replace(subDirRun,""))
@@ -620,8 +618,6 @@ class DDStoch(DD.DD):
                         statusCmp=int((open(returnValuePath).readline()))
                         if statusCmp!=0:
                             failureIndex+=[ddRunIndex]
-                        #else:
-                        #    cmpDone+=[ddRunIndex]
                     else:
                         failureIndex+=[ddRunIndex]
                 failureIndex.sort()
@@ -676,7 +672,6 @@ class DDStoch(DD.DD):
 
 
     def DDMax(self, deltas, nbRun):
-        nbProc=self.config_.get_maxNbPROC()
         ddmax=self.dd_max(deltas, nbRun)
         ddmaxCmp=self.reduceSearchSpace(deltas, ddmax)
         self.configuration_found("ddmax", ddmaxCmp)
@@ -705,7 +700,7 @@ class DDStoch(DD.DD):
     def check1Min(self, deltasHeuristic, nbRun, algoRddmin):
         """check if deltas in 1 minimal : return [deltasHeuristic] if deltasHeuristic is 1-min else
         the result of algoRddmin applied on a failing subspace"""
-        ddminTab=[]
+
         testResult=self._test(deltasHeuristic)
         if testResult!=self.FAIL:
             self.internalError("Check1-MIN", md5Name(deltasHeuristic)+" should fail")
@@ -1091,7 +1086,9 @@ class DDStoch(DD.DD):
                 dirname.mkdir()
                 self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
 
-            stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ , self.sampleRunEnv(dirname), seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+            stochTaskTab[deltaIndex]=stochTask(dirname, self.ref_, self.run_, self.compare_ ,
+                                               self.sampleRunEnv(dirname),
+                                               seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             sToC=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
 
             if sToC==None:

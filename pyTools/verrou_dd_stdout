@@ -26,7 +26,6 @@
 
 import sys
 import os
-import subprocess
 import re
 
 import dd_config
@@ -76,7 +75,6 @@ class DDstdout(DD_stoch.DDStoch):
 
     def selectFloatTask(self,logFile):
         filterResPattern="match(filtered): "
-        currentTask=None
         taskRes=[]
         if self.config_.customSearchSpace!=None:
             return [task.replace("\n","") for task in (open(self.config_.customSearchSpace)).readlines()]

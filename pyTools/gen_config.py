@@ -2,7 +2,6 @@ import getopt
 import os
 import sys
 import copy
-import shutil
 import datetime
 import hashlib
 from pathlib import Path

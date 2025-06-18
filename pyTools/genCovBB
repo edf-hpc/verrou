@@ -30,7 +30,6 @@ import copy
 
 import subprocess
 import getopt
-import functools
 from pathlib import Path
 
 def runCmdAsync(cmd, fname, envvars=None):

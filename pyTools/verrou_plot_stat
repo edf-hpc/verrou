@@ -29,9 +29,6 @@ import sys
 import os
 import copy
 import subprocess
-import getopt
-import functools
-import glob
 import math
 from fractions import Fraction
 import shutil
@@ -39,12 +36,11 @@ import datetime
 import numpy as np
 from pathlib import Path
 
-maxNbPROC=None
-
 import DD_stoch
 import rounding_tool
 import gen_config
 
+maxNbPROC=None
 roundingDetTabWithoutFloatPrefix=rounding_tool.roundingDetTabWithoutFloatPrefix
 roundingDetTabWithFloatPrefix=rounding_tool.roundingDetTabWithFloatPrefix
 roundingNonDetTabWithoutFloatPrefix=rounding_tool.roundingNonDetTabWithoutFloatPrefix
@@ -834,7 +830,7 @@ class config_stat(gen_config.gen_config):
                 else:
                     lambdaTimeRef=eval("lambda x: "+self._timeRef)
                     try:
-                        test=float(lambdaTimeRef(1))
+                        test_to_get_early_error=float(lambdaTimeRef(1)) #unused
                         self._lambdaTimeRef=lambdaTimeRef
                         self._time_ref_script=None
                     except:

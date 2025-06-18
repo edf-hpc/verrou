@@ -1,8 +1,6 @@
 
 import sys
 import re
-import copy
-
 import gen_config
 import rounding_tool
 from pathlib import Path
