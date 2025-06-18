@@ -2,7 +2,7 @@
 
 .PHONY:bash_completion
 
-LISTOFCOMP=bash_completion_verrou_dd_stdout bash_completion_verrou_dd_line bash_completion_verrou_dd_sym bash_completion_verrou_dd_task bash_completion_verrou_plot_stat bash_completion_post_verrou_dd
+LISTOFCOMP=bash_completion_verrou_dd_stdout bash_completion_verrou_dd_line bash_completion_verrou_dd_sym bash_completion_verrou_dd_back bash_completion_verrou_dd_task bash_completion_verrou_plot_stat bash_completion_post_verrou_dd
 
 bash_completion: ${LISTOFCOMP}
 
@@ -14,6 +14,9 @@ bash_completion_verrou_dd_line:
 
 bash_completion_verrou_dd_sym:
 	verrou_dd_sym bash_completion
+
+bash_completion_verrou_dd_back:
+	verrou_dd_back bash_completion
 
 bash_completion_verrou_dd_task:
 	verrou_dd_task bash_completion
