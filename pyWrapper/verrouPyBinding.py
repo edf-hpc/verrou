@@ -2,21 +2,24 @@
 import sys, platform
 import ctypes, ctypes.util
 import os
-import os.path
+from pathlib import Path
 
 
 def searchDefaultPath(fileName):
-    dirName=os.path.dirname(os.path.abspath(__file__))
-    pathPrefixTab=["./", dirName, os.path.join(dirName, "..", "lib"),
-                   os.path.join(dirName, "..", "..","..","valgrind"),
-                   os.path.join(dirName, "..", "..","..","..","libexec","valgrind"),
-                   "../"
+    #dirName=os.path.dirname(os.path.abspath(__file__))
+    dirName=(Path(__file__).absolute()).parent
+    pathPrefixTab=[Path.cwd(),
+                   dirName,
+                   dirName / ".." / "lib",
+                   dirName / ".." / ".."/".."/"valgrind",
+                   dirName / ".." / ".."/".."/".."/"libexec"/"valgrind",
+                   Path.cwd()/ ".."
                    ]
 
     print(pathPrefixTab, file=sys.stderr)
     for pathPrefix in pathPrefixTab:
-        absPath=os.path.join(pathPrefix, fileName)
-        if os.path.exists(absPath):
+        absPath=pathPrefix / fileName
+        if absPath.is_file():
 #            print("absPath: ", absPath,file=sys.stderr)
             return absPath
     print("FileName %s not found"%(fileName),file=sys.stderr)

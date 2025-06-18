@@ -3,8 +3,8 @@
 import os
 import subprocess
 import re
-import os.path
 import sys
+from pathlib import Path
 
 env = os.environ
 env["COLUMNS"] = "81"
@@ -18,10 +18,10 @@ spline=(line.strip()).split()
 pathInstall="./install"
 for conf in spline:
     if conf.startswith("--prefix"):
-        pathInstall=(conf.partition('='))[2]
+        pathInstall=Path((conf.partition('='))[2])
 
-manPath=os.path.join(pathInstall, "share/man/man1/valgrind.1")
-if not os.path.exists(manPath):
+manPath=pathInstall / "share" / "man" / "man1" / "valgrind.1"
+if not manPath.is_file():
     print("unable to find valgrind man file : "+ manPath)
     sys.exit(42)
 
@@ -57,10 +57,6 @@ for line in man.stdout:
     line=line.replace('","','\\",\\"')
     line=line.replace("<yes|no>","yes|no")
     linesRes+=[line.rstrip()]
-
-#with open("verrou/vr_clo_gen.c", "w") as f:
-#    for line in linesRes:
-#        f.write ('VG_(printf)( "'+line+'\\n"'+"    );\n")
 
 with open("verrou/vr_clo.txt", "w") as f:
     f.write('"')

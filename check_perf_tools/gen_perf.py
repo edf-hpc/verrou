@@ -7,9 +7,10 @@ import subprocess
 from tabular import *
 
 from gen_build import workDirectory
+from pathlib import Path
 
 fastAnalyze=False
-#fastAnalyze=True
+fastAnalyze=True
 
 what="cmpBranch"
 if len(sys.argv)==2:
@@ -28,7 +29,7 @@ if not len(sys.argv) in [1,2]:
 
 #if what=="cmpBranch":
 roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
-buildConfigList=["master","seed", "llo"]
+buildConfigList=["master","master_fast","back", "back_fast"]
 ref_name="master"
 detRounding=[]
 buildSpecialConfigList=[]
@@ -49,7 +50,7 @@ minTime=False
 
 if fastAnalyze:
     drop=0
-    nbRunTuple=(2,1) #inner outer
+    nbRunTuple=(2,2) #inner outer
     minTime=True
 
 slowDown=True
@@ -61,7 +62,7 @@ if fastAnalyze:
     postFixTab=["O3-DOUBLE-FMA","O3-FLOAT-FMA"]
     #postFixTab=["O3-DOUBLE-FMA"]
 
-pathPerfBin="../unitTest/testPerf"
+pathPerfBin=Path("../unitTest/testPerf")
 perfBinNameList=["stencil-"+i for i in  postFixTab]
 perfCmdParam= "--scale=1 "+str(nbRunTuple[0])
 
@@ -78,53 +79,52 @@ def runCmd(cmd):
     subprocess.call(cmd, shell=True)
 
 def runPerfConfig(name):
-    repMeasure=os.path.join(workDirectory,"buildRep-%s"%(name),"measure")
+    repMeasure=workDirectory / ("buildRep-%s"%(name)) / "measure"
     print("working in %s"%(repMeasure))
-    if not os.path.exists(repMeasure):
-        os.mkdir(repMeasure)
+    repMeasure.mkdir(exist_ok=True)
+
     for binName in perfBinNameList:
         for (optName, opt) in verrouOptionsList:
             roundingTab=get_rounding_tab(name)
             for rounding in roundingTab:
-                cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin+"/"+binName,perfCmdParam)
+                cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all-nc":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex --count-op=no %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="nearest-nc":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="tool_none":
-                    cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                    cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="fma_only":
-                    cmd="valgrind --tool=verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin+"/"+binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
-                    outputName=os.path.join(workDirectory,"buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i))
-                    if not os.path.exists(outputName):
+                    outputName=workDirectory / ("buildRep-%s"%(name)) / "measure" / ("%s_%s_%s.%i"%(binName, optName, rounding, i))
+                    if not outputName.is_file():
                         if toPrint:
                             print(cmd)
                             toPrint=False
                         if name!="local":
-                            envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
-                            runCmd(". %s ; %s > %s 2> %s"%(envFile,cmd,outputName, outputName+".err"))
+                            envFile= workDirectory / ("buildRep-"+name) / "install" / "env.sh"
+                            runCmd(". %s ; %s > %s 2> %s"%(envFile,cmd,outputName, str(outputName)+".err"))
                         else:
-                            runCmd("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
+                            runCmd("%s > %s 2> %s"%(cmd,outputName, str(outputName)+".err"))
 
 def runPerfRef():
-    repMeasure=os.path.join(workDirectory,"measureRef")
-    if not os.path.exists(repMeasure):
-        os.mkdir(repMeasure)
+    repMeasure=workDirectory / "measureRef"
+    repMeasure.mkdir(exist_ok=True)
     for binName in perfBinNameList:
-        cmd="%s %s "%(pathPerfBin+"/"+binName,perfCmdParam)
+        cmd="%s %s "%(pathPerfBin / binName,perfCmdParam)
         toPrint=True
         for i in range(nbRunTuple[1]):
-            outputName=os.path.join(repMeasure ,"%s.%i"%(binName, i))
-            if not os.path.exists(outputName):
+            outputName=repMeasure  / ("%s.%i"%(binName, i))
+            if not outputName.is_file():
                 if toPrint:
                     print(cmd)
                     toPrint=False
-                runCmd("%s > %s 2> %s"%(cmd,outputName, outputName+".err"))
+                runCmd("%s > %s 2> %s"%(cmd,outputName, str(outputName)+".err"))
 
 
 timeRegExp = re.compile("@time of serial run:\s*\[(.+)\] secondes\s*")
@@ -161,7 +161,7 @@ def extractPerf(name):
             for rounding in get_rounding_tab(name):
                 resPerf=None
                 for i in range(nbRunTuple[1]):
-                    outputName=os.path.join(workDirectory,"buildRep-%s/measure/%s_%s_%s.%i"%(name, binName, optName, rounding, i))
+                    outputName=workDirectory / ("buildRep-%s"%(name)) / "measure" / ("%s_%s_%s.%i"%(binName, optName, rounding, i))
                     if resPerf==None:
                         resPerf=extractPerfMeasure(outputName)
                     else:
@@ -176,7 +176,7 @@ def extractPerfRef():
 
         resPerf=None
         for i in range(nbRunTuple[1]):
-            outputName=os.path.join(workDirectory , "measureRef/%s.%i"%( binName, i))
+            outputName=workDirectory / "measureRef" / ("%s.%i"%( binName, i))
             if resPerf==None:
                 resPerf=extractPerfMeasure(outputName)
             else:

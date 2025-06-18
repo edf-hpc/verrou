@@ -8,7 +8,7 @@ import math
 from tabular import *
 
 from gen_build import workDirectory
-
+from pathlib import Path
 
 what="cmpBranch"
 if len(sys.argv)==2:
@@ -26,7 +26,8 @@ if not len(sys.argv) in [1,2]:
     sys.exit(42)
 
 #cmpBranch
-buildConfList=[ "master", "seed", "llo"]
+
+buildConfList=[ "master","master_fast","back", "back_fast"]
 detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
 roundingListNum=["random", "average", "nearest", "upward", "downward"]
 refName="master"
@@ -36,7 +37,7 @@ if what=="cmpHash":
     buildConfList=[ "current","dietzfelbinger","multiply_shift", "double_tabulation", "xxhash","mersenne_twister"]
     refName="current"
 
-pathNumBin="../unitTest/checkStatRounding"
+pathNumBin=Path("../unitTest/checkStatRounding")
 runNum="run.sh"
 extractNum="extract.py"
 numEnvConfigTab=[{"ALGO":algo, "ALGO_TYPE":realtype} for realtype in ["double", "float"] for algo in ["Seq", "Rec"]]
@@ -93,7 +94,7 @@ def extractStat():
     res={}
     for name in buildConfList+buildConfListXoshiro:
         resName={}
-        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
+        repNum=workDirectory / ("buildRep-%s"%(name)) / "num"
         roundingTab=roundingListNum + detRounding
         roundingStr=",".join(roundingTab)
         for envConfig in numEnvConfigTab:
@@ -102,9 +103,9 @@ def extractStat():
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 concatStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot --mca-estimator %s %s "%( repNum, roundingStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --seed=42 --rounding-list=%s --no-plot --mca-estimator %s %s "%( repNum, roundingStr, pathNumBin / runNum, pathNumBin / extractNum)
             print(envStr, cmd)
-            envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+            envFile=workDirectory / ("buildRep-"+name) / "install" / "env.sh"
             lineTab=runCmdToLines(". %s ; %s %s "%(envFile,envStr,cmd))
             resName[concatStr]=parsePlotStat(lineTab)
         res[name]=resName
@@ -199,27 +200,25 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
 
 
 def plotNumConfig():
-    histRep="histPng"
-    if not os.path.exists(histRep):
-        os.mkdir(histRep)
+    histRep=Path("histPng")
+    histRep.mkdir(exist_ok=True)
 
     for name in buildConfList:
-        repNum=os.join.path(workDirectory,"buildRep-%s"%(name), "num")
-        if not os.path.exists(repNum):
-            os.mkdir(repNum)
+        repNum=workDirectory / ("buildRep-%s"%(name)) / "num"
+        repNum.mkdir(exist_ok=True)
 
         roundingTab=detRounding+ roundingListNum
         roundingStr=",".join(roundingTab)
         for envConfig in numEnvConfigTab:
             envStr=""
-            pngStr=os.path.join(histRep,name+"-")
+            pngStr=(name+"-")
             for key in envConfig:
                 envStr+= " "+key+"="+envConfig[key]
                 pngStr+=envConfig[key]
-            cmd="verrou_plot_stat --rep=%s --num-threads=5 --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, pngStr, pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
+            cmd="verrou_plot_stat --rep=%s --num-threads=5 --seed=42 --relative=104857.6 --rounding-list=%s --png=%s.png %s %s "%( repNum, roundingStr, str(histRep / pngStr), pathNumBin+"/"+runNum, pathNumBin+"/"+extractNum)
             print(envStr, cmd)
             if name!="local":
-                envFile=os.path.join(workDirectory,"buildRep-"+name, "install","env.sh")
+                envFile=workDirectory / ("buildRep-"+name) / "install" / "env.sh"
                 runCmd(". %s ; %s %s "%(envFile,envStr,cmd))
             else:
                 runCmd("%s %s "%(envStr,cmd))
@@ -255,7 +254,7 @@ if __name__=="__main__":
 
     if what=="cmpHash":
         name="mersenne_twister"
-        repNum=os.path.join(workDirectory,"buildRep-%s/num"%(name))
+        repNum=workDirectory / "buildRep-%s"%(name) / "num"
         cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)

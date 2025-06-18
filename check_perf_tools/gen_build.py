@@ -4,14 +4,15 @@ import os
 import re
 import sys
 import subprocess
+from pathlib import Path
 
-workDirectory="../../perfWorkDir/"
+workDirectory=Path().cwd() /".."/".."/"perfWorkDir"
 
 gitRepository="origin/"
 gitRepository=""
 
 branch="master"
-valgrind_version="valgrind-3.24.0"
+valgrind_version="valgrind-3.25.0"
 
 verrouConfigListHash={
     #good idea to keep the same definition of "current" and "current_fast" (see bellow)
@@ -36,8 +37,8 @@ verrouConfigListCmpBranch={
 #    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma" },
     "master_fast":{ "valgrind":valgrind_version, "branch_verrou":"master" ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
     "master":     { "valgrind":valgrind_version, "branch_verrou":"master" ,   "flags":""},
-    "seed":       { "valgrind":valgrind_version, "branch_verrou":"bl/ddSeed", "flags":""},
-    "llo":        { "valgrind":valgrind_version, "branch_verrou":"bl/newllo", "flags":""},
+    "back":       { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":""},
+    "back_fast":  { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
 }
 
 
@@ -49,6 +50,7 @@ valgrindConfigList={
     "valgrind-3.22.0": {"file": "valgrind-3.22.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.22.0.tar.bz2"},
     "valgrind-3.23.0": {"file": "valgrind-3.23.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.23.0.tar.bz2"},
     "valgrind-3.24.0": {"file": "valgrind-3.24.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.24.0.tar.bz2"},
+    "valgrind-3.25.0": {"file": "valgrind-3.25.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.25.0.tar.bz2"},
     "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"},
     "v2.4.0":          {"file": "v2.4.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.4.0/valgrind-3.20.0_verrou-2.4.0.tar.gz"},
     "v2.5.0":          {"file": "v2.5.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.5.0/valgrind-3.21.0_verrou-2.5.0.tar.gz"},
@@ -60,13 +62,11 @@ def runCmd(cmd):
     subprocess.call(cmd, shell=True)
 
 def buildConfig(name):
-    if not os.path.exists(workDirectory):
-        os.mkdir(workDirectory)
+    workDirectory.mkdir(exist_ok=True)
 
-    buildRep=os.path.join(workDirectory,"buildRep-"+name)
+    buildRep= workDirectory / ("buildRep-"+name)
     if name=="local":
-        if not os.path.exists(buildRep):
-            os.mkdir(buildRep)
+        buildRep.mkdir(exist_ok=True)
         return
     verrouConfigParam=verrouConfigList[name]
 
@@ -79,12 +79,12 @@ def buildConfig(name):
         print("Error valgrind key needed")
         sys.exit(42)
 
-    valgrindArchive=os.path.join(workDirectory,valgrindConfigList[valgrindKey]["file"])
-    if not os.path.exists(valgrindArchive):
+    valgrindArchive=workDirectory / valgrindConfigList[valgrindKey]["file"]
+    if not valgrindArchive.is_file():
         valgrindUrl=valgrindConfigList[valgrindKey]["url"]
         runCmd("wget --output-document=%s %s"%(valgrindArchive,valgrindUrl))
 
-    if not os.path.exists(buildRep):
+    if not buildRep.is_dir():
         if "valgrind" in verrouConfigParam:
             branch=verrouConfigParam["branch_verrou"]
             if "gitRepository" in verrouConfigParam:
@@ -92,7 +92,7 @@ def buildConfig(name):
             else:
                 branch=gitRepository+branch
             runCmd("./buildConfig.sh %s %s %s \"%s\""%(
-                buildRep,
+                buildRep.relative_to(Path.cwd()),
                 valgrindArchive,
                 branch,
                 verrouConfigParam["flags"])

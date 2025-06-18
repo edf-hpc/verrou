@@ -157,10 +157,10 @@ diff ${REF}/results.dat ${RUN}/results.dat</programlisting>
 	      </simpara>
               <programlisting>
 <![CDATA[import sys
-import os
+from pathlib import Path
 def extractValue(rep):
     """This parse function has to be adapted to each case"""
-    lines=(open(os.path.join(rep,"results.dat")).readlines())
+    lines=(open(rep / "results.dat").readlines())
     for line in lines:
         if line.startswith("res="):
             return float(line.partition("=")[2])
@@ -168,10 +168,10 @@ def extractValue(rep):
 if __name__=="__main__":
     if len(sys.argv)==2:
         #this case is to be compatible with the extract script of verrou_plot_stat
-        print(extractValue(sys.argv[1]))
+        print(extractValue(Path(sys.argv[1])))
     if len(sys.argv)==3:
-        valueRef=extractValue(sys.argv[1])
-        value=extractValue(sys.argv[2])
+        valueRef=extractValue(Path(sys.argv[1]))
+        value=extractValue(Path(sys.argv[2]))
 
         relDiff=abs((value-valueRef)/valueRef)
 	#the tolerance has to be adapted

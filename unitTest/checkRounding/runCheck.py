@@ -28,6 +28,7 @@ import sys
 import subprocess as sp
 import shlex
 import re
+from pathlib import Path
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
 detRounding=["farthest","float", "ftz", "daz","dazftz","away_zero"]
@@ -88,8 +89,8 @@ def runCmd(cmd,expectedResult=0, printCmd=True, printCwd=True):
 
 class cmdPrepare:
     def __init__(self, arg):
-        self.valgrindPath=os.path.join(os.environ["INSTALLPATH"], "bin", "valgrind")
-        self.execPath=arg
+        self.valgrindPath=str(Path(os.environ["INSTALLPATH"]) / "bin" / "valgrind")
+        self.execPath="./"+str(arg.absolute().relative_to(Path.cwd()))
 
     def run(self,env="fenv", roundingArg="nearest"):
         rounding=roundingArg
@@ -100,7 +101,7 @@ class cmdPrepare:
 
         if env=="valgrind":
             if rounding=="memcheck":
-                cmd=self.valgrindPath + " --tool=memcheck " +self.execPath +" valgrind"
+                cmd=self.valgrindPath + " --tool=memcheck " + self.execPath +" valgrind"
             else:
                 withFloat=False
                 if rounding.startswith("float_"):
@@ -120,7 +121,6 @@ class cmdPrepare:
                 cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --check-inf=no --rounding-mode=" + roundingStr+ " " +self.execPath +" valgrind"
 
         return runCmd(cmd)
-        # print cmd
 
     def checkRounding(self, env, rounding):
 
@@ -725,7 +725,7 @@ def checkEqualSymDet(allResult, testPairList, typeTab=["<double>", "<float>"]):
 
 
 if __name__=='__main__':
-    cmdHandler=cmdPrepare(os.path.join(os.curdir,sys.argv[1]))
+    cmdHandler=cmdPrepare(Path(sys.argv[1]))
     allResult={}
     for (env, rounding) in generatePairOfAvailableComputation():
         (cout, cerr)=cmdHandler.run(env, rounding)

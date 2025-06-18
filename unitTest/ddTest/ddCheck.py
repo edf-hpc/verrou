@@ -4,6 +4,7 @@ import sys
 import ddRun
 import os
 import pickle
+from pathlib import Path
 
 def loadResult(rep):
     if "dd.line" in rep:
@@ -15,25 +16,24 @@ def loadResult(rep):
     ddmaxcmp=None
     ddmax=None
 
-    listOfrddim=[[line.strip()
-                  for line in open(os.path.join(rep,x,pref+".include")).readlines()]
-                 for x in os.listdir(rep) if x.startswith("ddmin")]
+    listOfrddim=[[line.strip() for line in open(x / (pref+".include")).readlines()]
+                 for x in rep.glob("ddmin*")]
     full=[line.strip()
-          for line in open(os.path.join(rep,"FullPerturbation" ,pref+".include")).readlines()]
+          for line in open(rep / "FullPerturbation" / (pref+".include")).readlines()]
 
-    if os.path.exists(os.path.join(rep,"rddmin-cmp")):
+    if (rep / "rddmin-cmp").is_dir():
         rddmincmp=[line.strip()
-                   for line in open(os.path.join(rep,"rddmin-cmp" ,pref+".include")).readlines()]
+                   for line in open(rep / "rddmin-cmp" / (pref+".include")).readlines()]
 
     noPerturb=[line.strip()
-               for line in open(os.path.join(rep,"NoPerturbation" ,pref+".include")).readlines()]
+               for line in open(rep / "NoPerturbation" / (pref+".include")).readlines()]
 
-    if os.path.exists(os.path.join(rep,"ddmax-cmp")):
+    if (rep / "ddmax-cmp").is_dir():
         ddmaxcmp=[line.strip()
-                  for line in open(os.path.join(rep,"ddmax-cmp" ,pref+".include")).readlines()]
-    if os.path.exists(os.path.join(rep,"ddmax")):
+                  for line in open(rep / "ddmax-cmp" / (pref+".include")).readlines()]
+    if (rep / "ddmax").is_dir():
         ddmax=[line.strip()
-              for line in open(os.path.join(rep,"ddmax" ,pref+".include")).readlines()]
+              for line in open(rep / "ddmax" / (pref+".include")).readlines()]
 
     return {"ddmin": listOfrddim,
             "full":  full,
@@ -46,12 +46,12 @@ def loadResult(rep):
 
 if __name__=="__main__":
 
-    resRep=sys.argv[1]
-    resOut=sys.argv[2]
+    resRep=Path(sys.argv[1])
+    resOut=Path(sys.argv[2])
 
     ddCase=ddRun.ddConfig()
-    ref=os.path.join(resRep,"ref")
-    ddCase.unpickle(os.path.join(ref,"dd.pickle"))
+    ref=resRep / "ref"
+    ddCase.unpickle(ref / "dd.pickle")
 
     loadedRes=loadResult(resRep)
     ddmaxAlgo=False
