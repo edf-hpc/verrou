@@ -12,3 +12,8 @@ unitTest/flag.mk
 */.dirstamp
 */*/.dirstamp
 */*/*/.dirstamp
+vr_instrumentOp_impl_generated_verrou_specific.h
+vr_instrumentOp_impl_generated_all_backends.h
+vr_instrumentOp_impl.h
+vr_instrumentOp_checkInst.h
+vr_generated_from_templates.h

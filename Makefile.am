@@ -76,6 +76,26 @@ if VGCONF_HAVE_PLATFORM_SEC
 noinst_PROGRAMS += verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
+
+VR_GENERATED_FILE=vr_instrumentOp_checkInst.h vr_instrumentOp_impl.h vr_generated_from_templates.h vr_instrumentOp_impl_generated_verrou_specific.h vr_instrumentOp_impl_generated_all_backends.h
+# code generation frontend
+vr_main.c: ${VR_GENERATED_FILE}
+
+clean_generated:
+	rm ${VR_GENERATED_FILE}
+clean: clean_generated
+
+vr_generated_from_templates.h: generateBackendInterOperator.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
+	./generateBackendInterOperator.py
+vr_instrumentOp_checkInst.h: generateOpImpl.py
+	./generateOpImpl.py
+vr_instrumentOp_impl.h: generateOpImpl.py
+	./generateOpImpl.py
+vr_instrumentOp_impl_generated_verrou_specific.h: generateInstrumentOp_impl.py
+	./generateInstrumentOp_impl.py
+vr_instrumentOp_impl_generated_all_backends.h: generateInstrumentOp_impl.py
+	./generateInstrumentOp_impl.py
+
 VERROU_SOURCES_COMMON = \
 	vr_main.c	\
 	vr_exclude.c	\
