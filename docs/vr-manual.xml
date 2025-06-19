@@ -1178,8 +1178,25 @@ The different possible actions are :
 	  </section>
 	  <section>
 	    <title>Frequently Asked Questions</title>
-
 	    <qandaset>
+	      <qandadiv id="faq.compilation">
+		<title>Compilation</title>
+		    <qandaentry id="faq.stoch.docbook">
+		      <question>
+			<para>
+			  What's going wrong with the following error during documentation compilation :
+			  <screen>
+compilation error: file ../docs/lib/vg-html-common.xsl line 4 element import
+xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl</screen>
+			</para>
+		      </question>
+		      <answer>
+			<para>
+			You should install the package  <computeroutput>docbook-xsl</computeroutput>
+			</para>
+		      </answer>
+		    </qandaentry>
+		  </qandadiv>
 	      <qandadiv id="faq.stoch">
 		<title>Stochastic method</title>
 
