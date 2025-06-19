@@ -25,13 +25,38 @@ completion_dir= bash_completion
 completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${completion_dir}/bash_completion_verrou_dd_clean\
 		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
-		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat
+		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
+		   ${completion_dir}/bash_completion_verrou_dd_back
 completion_install_dir=${prefix}/usr/share/completions
+
+# bash completion code generation
+# bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean are not generated
+${completion_dir}/bash_completion_verrou_dd_back:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_back bash_completion
+${completion_dir}/bash_completion_verrou_dd_sym:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_sym bash_completion
+${completion_dir}/bash_completion_verrou_dd_line:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_line bash_completion
+${completion_dir}/bash_completion_verrou_dd_task:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_task bash_completion
+${completion_dir}/bash_completion_verrou_dd_stdout:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_stdout bash_completion
+${completion_dir}/bash_completion_post_verrou_dd:
+	cd ${completion_dir} ; ../${PYTHON_REP}/post_verrou_dd bash_completion
+${completion_dir}/bash_completion_verrou_plot_stat:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_plot_stat bash_completion
+
+
 #----------------------------------------------------------------------------
 # install
 #----------------------------------------------------------------------------
 
-install-exec-local:
+
+
+
+
+
+install-exec-local:${completion_scripts}
 	mkdir -p $(DESTDIR)${pkgpythondir}
 	touch $(DESTDIR)${pkgpythondir}/__init__.py
 	install -t $(DESTDIR)${prefix} -m 644 env.sh
