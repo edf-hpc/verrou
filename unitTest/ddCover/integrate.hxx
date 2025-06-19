@@ -11,9 +11,18 @@ REALTYPE integrate (const T& f, REALTYPE a, REALTYPE b, unsigned int n) {
   const REALTYPE dx = (b - a) / n;
   // Naive integration Loop
   REALTYPE sum = 0.;
+#ifdef FLOATLOOP
   for (REALTYPE x = a + (REALTYPE)0.5 * dx ;
        x < b ;
-       x += dx) {
+       x += dx)
+    {
+#elif defined(INTEGERLOOP)
+      for(unsigned int i =0; i < n; i++)
+    {
+      REALTYPE x= ((REALTYPE)i + (REALTYPE)0.5) *dx ;
+#else
+#error "FLOATLOOP or INTEGER LOOP should be defined"
+#endif
     sum += dx * f(x);
   }
   return sum;

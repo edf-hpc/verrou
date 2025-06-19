@@ -167,9 +167,9 @@ class gen_config:
             if hardFailure:
                 print("Invalid Cmd:"+str(sys.argv))
                 if fpath.is_file() and not os.access(fpath, os.X_OK):
-                    print(fpath + " should be executable")
+                    print(fpath , " should be executable")
                 if not fpath.is_file():
-                    print(fpath + " is not a file")
+                    print(fpath , " is not a file")
                 self.usageCmd()
                 self.failure()
             else:

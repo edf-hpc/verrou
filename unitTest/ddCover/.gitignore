@@ -1,4 +1,5 @@
 matchLast.script.log-*
 dd.line*
 unitTest
+unitTestInteger
 dd.back*
