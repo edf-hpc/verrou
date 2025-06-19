@@ -233,10 +233,13 @@ void vr_clean_cache(void);
 void vr_register_cache_seed(unsigned int*);
 void vr_clean_cache_seed(void);
 
+VG_REGPARM(0) void vr_backtrace_dyn_BB (void);
 
 /* Implem in vr_traceBB_impl.h*/
 void vr_traceBB_resetCov(void);
 UInt vr_traceBB_dumpCov(void);
+
+
 
 #include "vr_clo.h"
 #include "vr_IOMatch_clr.h"
