@@ -58,6 +58,7 @@ Vr_State vr;
 #endif
 
 typedef struct {
+  Bool containFloatOp;
   Bool containFloatModOp;
   Bool containFloatCmp;
 } Vr_instr_kind;
@@ -1132,9 +1133,9 @@ static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
 inline
 void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool includeSource,
-                              Bool doLineContainFloat, Bool doLineContainFloatCmp,
+                              Bool doLineContainFloat, Bool doLineContainFloatMod, Bool doLineContainFloatCmp,
                               HChar const *  fnname,   const HChar * filename, const UInt linenum){
-  if( !excludeIrsb && doLineContainFloat){
+  if( !excludeIrsb && doLineContainFloatMod){
     if(vr.genIncludeSource){
       vr_includeSource_generate (&vr.gen_includeSource, fnname, filename, linenum);
     }
@@ -1308,7 +1309,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
   Vr_instr_kind instrStatus;
 
-  Bool doIRSBFContainFloat=False;
+  Bool doIRSBFContainFloatMod=False;
 
 
   /*Data for trace/coverage generation*/
@@ -1327,6 +1328,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   UInt*  linenumPtr=&linenum;
   Bool includeSource = True;
   Bool doLineContainFloat=False;
+  Bool doLineContainFloatMod=False;
   Bool doLineContainFloatCmp=False;
 
 
@@ -1348,7 +1350,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     switch (st->tag) {
     case Ist_IMark: {
       vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
-                               doLineContainFloat,doLineContainFloatCmp,
+                               doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
 			       *fnnamePtr,*filenamePtr,*linenumPtr);
 
       doLineContainFloat=False;
@@ -1386,28 +1388,32 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 	  countOnly=True;
 	}
 	instrStatus=vr_instrumentExpr (sbOut, st, st->Ist.WrTmp.data,countOnly);
-	Bool doInstrContainFloat=instrStatus.containFloatModOp;
+        Bool doInstrContainFloat=instrStatus.containFloatOp;
+	Bool doInstrContainFloatMod=instrStatus.containFloatModOp;
 	Bool doInstrContainFloatCmp=instrStatus.containFloatCmp;
 	doLineContainFloat=doLineContainFloat   || doInstrContainFloat;
+        doLineContainFloatMod=doLineContainFloatMod   || doInstrContainFloatMod;
 	doLineContainFloatCmp=doLineContainFloatCmp   || doInstrContainFloatCmp;
-	doIRSBFContainFloat=doIRSBFContainFloat || doInstrContainFloat;
+	doIRSBFContainFloatMod=doIRSBFContainFloatMod || doInstrContainFloatMod;
       }
       break;
     default:
       addStmtToIRSB (sbOut, sbIn->stmts[i]);
     }
   }
-  if( (vr.genBackTraceBool || vr.useBackTraceBool) && doIRSBFContainFloat!= backTraceInstr){
-     VG_(umsg)( "doIRSBFContainFloat: %s\n", vr_ppInstrumentedStatus(doIRSBFContainFloat) );
+  if( (vr.genBackTraceBool || vr.useBackTraceBool) && doIRSBFContainFloatMod!= backTraceInstr){
+     VG_(umsg)( "doIRSBFContainFloatMod: %s\n", vr_ppInstrumentedStatus(doIRSBFContainFloatMod) );
      VG_(umsg)( "backTraceInstr: %s\n", vr_ppInstrumentedStatus(backTraceInstr) );
-     VG_(tool_panic)("doIRSBFContainFloat!= backTraceInstr");
+     VG_(tool_panic)("doIRSBFContainFloatMod!= backTraceInstr");
   }
 
   vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
-                           doLineContainFloat, doLineContainFloatCmp,
+                           doLineContainFloat,
+                           doLineContainFloatMod,
+                           doLineContainFloatCmp,
 			   *fnnamePtr,*filenamePtr,*linenumPtr);
 
-  if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloat){
+  if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloatMod){
     vr_excludeIRSB_generate (fnnamePtr, objnamePtr);
   }
   return sbOut;

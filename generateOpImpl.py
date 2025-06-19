@@ -235,6 +235,7 @@ prefixCode="""
     Vr_instr_kind res;
     res.containFloatCmp=False;
     res.containFloatModOp=False;
+    res.containFloatOp=False;
 """
 prefixIsInstrumentedCode="""
 static Bool vr_IsInstrumentedOp (IROp op) {
@@ -268,7 +269,7 @@ def transformCount(iopDic):
     res=countPattern
     if iopDic["op"]=="VR_OP_CMP":
         res+=" "*6+"res.containFloatCmp=True;\n"
-
+    res+=" "*6+"res.containFloatOp=True;\n"
     res=res.replace("%%OP%%", iopDic["op"])
     res=res.replace("%%PREC%%", iopDic["prec"])
     res=res.replace("%%VEC%%", iopDic["vec"])
@@ -277,6 +278,7 @@ def transformCount(iopDic):
 
 
 instPattern="""          res.containFloatModOp= %%REPLACE_INST%% (sb, stmt, expr, %%WRAPFUNCNAME%%, %%OP%%, %%PREC%%, %%VEC%%, countOnly);
+          res.containFloatOp=True;
 """
 
 isInstrumentedPattern="""          res= vr_isInstrumented_hard(%%OP%%, %%PREC%%, %%VEC%%);
