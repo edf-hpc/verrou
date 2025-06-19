@@ -63,9 +63,16 @@
   </refsect1>
 
   <refsect1>
+    <title>How to chain <command>verrou_dd_</command></title>
+    <xi:include href="vr-manual.xml" xpointer="vr-manual.verrou_dd_chain"
+		xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect1>
+
+  <refsect1>
     <title>See Also</title>
     <para>
       valgrind(1),
+      verrou_dd_clean(1),
       verrou_plot_stat(1),
       post_verrou_dd(1),
       <filename>&vg-docs-path;</filename>.

@@ -43,7 +43,7 @@
 	</simpara></listitem>
 
 	<listitem><simpara>
-	    <command>verrou_dd_back</command> uses the backtrace search space and uses <link linkend="vr-manual.feat.backtrace"> backtrace instrumentation</link> to select which parts of the program are instrumented or not. The results of this command are more useful if the code is compiled with the debug option (<command>-g</command>). As the instrumentation is computationally expensive, this command should be used after an initial filtering provided by <command>verrou_dd_line</command> (See <link linkend="vr-manual.verrou_dd_chain"> How to chain delta-debug</link>). The search space is the backtrace of the beginning of each Basic Blocs with instrumented floating-point operations. A backtrace is a list of stack addresses. The maximum size of the list is 40, and when comparing between two stacks (to detect equality) the last two elements of the stack are ignored for internal reasons. The backtrace pretty printout with symbols and code lines are not one-to-one with the backtrace addresses. Line detection is less accurate than the lines used by the <option>--source</option> option (and therefore by <command>verrou_dd_line</command>). Therefore, when running a <command>verrou_dd_back</command> after a <command>verrou_dd_line</command> seemingly incoherent results may be seen if  basic_block contains multiple debug symbols. The pretty print ignores below main symbols and internal python symbols.
+	    <command>verrou_dd_back</command> uses the backtrace search space and uses backtrace instrumentation to select which parts of the program are instrumented or not. The results of this command are more useful if the code is compiled with the debug option (<command>-g</command>). As the instrumentation is computationally expensive, this command should be used after an initial filtering provided by <command>verrou_dd_line</command> (See <link linkend="vr-manual.verrou_dd_chain"> How to chain delta-debug</link>). The search space is the backtrace of the beginning of each Basic Blocs with instrumented floating-point operations. A backtrace is a list of stack addresses. The maximum size of the list is 40, and when comparing between two stacks (to detect equality) the last two elements of the stack are ignored for internal reasons. The backtrace pretty printout with symbols and code lines are not one-to-one with the backtrace addresses. Line detection is less accurate than the lines used by the <option>--source</option> option (and therefore by <command>verrou_dd_line</command>). Therefore, when running a <command>verrou_dd_back</command> after a <command>verrou_dd_line</command> seemingly incoherent results may be seen if  basic_block contains multiple debug symbols. The pretty print ignores below main symbols and internal python symbols.
 	</simpara></listitem>
 
 	<listitem><simpara>
@@ -800,10 +800,10 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
     </simplesect>
   </section>
 
-  <section id="vr-manual.verrou_dd_chain">
+  <section>
     <title>Sequence of call between different <command>verrou_dd_*</command></title>
 
-    <para>
+      <para id="vr-manual.verrou_dd_chain">
     When the search space is too coarse, it can be interesting to run a delta-debug with a refined search space but
     applied to only to coarse ddmin.
 
