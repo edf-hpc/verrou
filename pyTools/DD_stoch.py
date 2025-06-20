@@ -603,33 +603,38 @@ class DDStoch(DD.DD):
             flatRes=[c  for conf in resConf for c in conf]
             rddminCmp=self.reduceSearchSpace(deltas,flatRes)
             self.configuration_found("rddmin-cmp", rddminCmp)
-
-            print("RDDMIN summary:")
-            summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
-            for ddminIndex in range(len(resConf)):
-                confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
-                listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
-                failureIndex=[]
-
-                for runDir in listOfDirString:
-                    returnValuePath= confDirName / runDir / ddReturnFileName
-                    ddRunIndex=int(runDir.replace(subDirRun,""))
-                    if returnValuePath.is_file():
-                        statusCmp=int((open(returnValuePath).readline()))
-                        if statusCmp!=0:
-                            failureIndex+=[ddRunIndex]
-                    else:
-                        failureIndex+=[ddRunIndex]
-                failureIndex.sort()
-                failStatusStr="Fail Ratio: %.2f%%\tFail indexes: %s"%(100. *float(len(failureIndex)) / float(len(listOfDirString)),
-                                                                    ",".join([str(fail) for fail in failureIndex]))
-                confSummaryStr="%s:\t%s\n%s\n"%("ddmin%i"%(ddminIndex),
-                                                failStatusStr,
-                                                "".join(["\t"+line.strip()+"\n" for line in (self.coerce(resConf[ddminIndex]).strip()).split("\n") ]))
-                print(confSummaryStr,end="")
-                summaryHandler.write(confSummaryStr)
+            self.rddminSummary(resConf)
 
         return resConf
+
+
+    def rddminSummary(self,resConf):
+        print("RDDMIN summary:")
+        summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
+        for ddminIndex in range(len(resConf)):
+            confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
+            listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
+            failureIndex=[]
+
+            #compute the failureRatio
+            for runDir in listOfDirString:
+                returnValuePath= confDirName / runDir / ddReturnFileName
+                ddRunIndex=int(runDir.replace(subDirRun,""))
+                if returnValuePath.is_file():
+                    statusCmp=int((open(returnValuePath).readline()))
+                    if statusCmp!=0:
+                        failureIndex+=[ddRunIndex]
+                else:
+                    failureIndex+=[ddRunIndex]
+            failureIndex.sort()
+            failStatusStr="Fail Ratio: %.2f%%\tFail indexes: %s"%(100. *float(len(failureIndex)) / float(len(listOfDirString)),
+                                                                ",".join([str(fail) for fail in failureIndex]))
+            confSummaryStr="%s:\t%s\n%s\n"%("ddmin%i"%(ddminIndex),
+                                            failStatusStr,
+                                            "".join(["\t"+line.strip()+"\n" for line in (self.coerce(resConf[ddminIndex]).strip()).split("\n") ]))
+            print(confSummaryStr,end="")
+            summaryHandler.write(confSummaryStr)
+
 
 
     def reduceSearchSpace(self, deltas, conf):
