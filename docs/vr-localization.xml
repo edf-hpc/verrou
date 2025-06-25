@@ -981,7 +981,7 @@ genCovBB trace_bb_cov.log-*
     <simplesect>
       <title>Description</title>
       <para id="vr-manual.post_verrou_dd.description">
-	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command> command.
+	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command>, <command>verrou_dd_sym</command> <command>verrou_dd_back</command>commands. The tool is not yet able to post-treat the result coming from  <command>verrou_dd_stdout</command> and  <command>verrou_dd_task</command>.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
 	The scripts <command>run_script</command> and <command>cmp_script</command> are the same parameters of the <command>verrou_dd_line</command> command.

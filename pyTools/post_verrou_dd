@@ -86,6 +86,36 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
         count+=1
 
 
+def parseLastCmd(rep, instr_prefix="VERROU"):
+    # maybe we should use a non-human cleaner format
+    # parse the result of confToStr defined in gen_config.py
+    fileName=rep/ "cmd.last"
+    if not fileName.is_file():
+        print(fileName, "missing")
+        return None
+    res={}
+    handler=open(fileName,"r")
+    line=handler.readline()
+    cmd=line.replace("ENV ","").replace(":\n","")
+    res["cmd"]=cmd
+    res["env"]={}
+    line=handler.readline()
+    while line!= "ENV "+instr_prefix+":\n":
+        if line.startswith("\tPWD="):
+            res["env"]["PWD"]=line.replace("\tPWD=","").strip()
+        line=handler.readline()
+    line=handler.readline()
+    while not line.startswith("Cmd:"):
+        if line.startswith("\t"+instr_prefix+"_"):
+            spline=line.strip().split("=",1)
+            res["env"][spline[0]]=spline[1]
+        else:
+            print("Parsing error", fileName)
+            print("line", line)
+            return None
+        line=handler.readline()
+    return res
+
 
 def postRunTrace(runDir):
     globListOfTraceBBFile=runDir.glob("cover/trace_bb_cov.log*")
@@ -139,6 +169,61 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
 
 
 
+def buildRunEnv(parsedCmd,ddmin, instr):
+    runEnv={}
+    if ddmin.name != "ref":
+        if "verrou_dd_sym" in parsedCmd["cmd"]:
+            if "VERROU_EXCLUDE" in parsedCmd["env"]:
+                print("Warning VERROU_EXCLUDE overwritten")
+            if "VERROU_SOURCE" in parsedCmd["env"]:
+                runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
+            if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
+                runEnv["VERROU_BACKTRACE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE_BACKTRACE"]
+            runEnv["VERROU_EXCLUD"]=ddmin / "dd.sym.exclude"
+
+        elif "verrou_dd_line" in parsedCmd["cmd"]:
+            if "VERROU_SOURCE" in parsedCmd["env"]:
+               print("Warning VERROU_SOURCE overwritten")
+            if "VERROU_WARN_UNKNOWN_SOURCE"  in parsedCmd["env"]:
+               print("Warning VERROU_WARN_UNKNOWN_SOURCE overwritten")
+            if "VERROU_EXCLUDE" in parsedCmd["env"]:
+                runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
+            runEnv["VERROU_SOURCE"]=ddmin / "dd.line.include"
+            runEnv["VERROU_WARN_UNKNOWN_SOURCE"]= ddmin / "dd.line.exclude"
+
+        elif "verrou_dd_back" in parsedCmd["cmd"]:
+            if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
+               print("Warning VERROU_EXCLUDE_BACKTRACE overwritten")
+            if "VERROU_SOURCE" in parsedCmd["env"]:
+                runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
+            if "VERROU_EXCLUDE" in parsedCmd["env"]:
+                runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
+            runEnv["VERROU_EXCLUDE_BACKTRACE"] = ddmin / "dd.back.exclude"
+
+        else:
+            print("post_verrou_dd works only with verrou_dd_sym,verrou_dd_line and verrou_dd_back")
+            failure()
+
+    if instr!="":
+        runEnv["VERROU_INSTR"]= instr
+        if "VERROU_INSTR" in parsedCmd["env"]:
+            print("Warning VERROU_INSTR  overwritten")
+    else:
+        if "VERROU_INSTR" in parsedCmd["env"]:
+            runEnv["VERROU_INSTR"]=parsedCmd["env"]["VERROU_INSTR"]
+
+    for i in parsedCmd["env"]:
+        if i in ["VERROU_INSTR", "VERROU_SOURCE", "VERROU_EXCLUDE", "VERROU_INSTR", "VERROU_EXCLUDE_BACKTRACE"]:
+            continue # treated above
+        if i in ["PWD"]:
+            continue
+        if i.startswith("VERROU_COMPILED_WITH_"):
+            continue
+        print("Forward env ", i, "=" , parsedCmd["env"][i])
+        runEnv[i]=parsedCmd["env"][i]
+
+    return runEnv
+
 def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 
     instrList=config.get_instr()
@@ -153,8 +238,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                                           config.get_trace_pattern())
         refNewDir=refNewDir.with_name( refNewDir.name+"-trace")
 
-
-
+    parsedCmd=parseLastCmd(rep)
 
     for ddmin in ddMinList:
 
@@ -167,13 +251,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             if instr=="":
                 ddminNewInstr=ddminNew
 
-            if ddmin.name=="ref":
-                runEnv={}
-            else:
-                runEnv={"VERROU_SOURCE": ddmin / "dd.line.include",
-                        "VERROU_WARN_UNKNOWN_SOURCE": ddmin / "dd.line.exclude"}
-            if instr!="":
-                runEnv["VERROU_INSTR"]= instr
+            runEnv=buildRunEnv(parsedCmd,ddmin,instr)
 
             ddminNewInstr.mkdir(exist_ok=True)
 
