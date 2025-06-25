@@ -606,25 +606,34 @@ class DDStoch(DD.DD):
                                          self.config_.get_splitGranularity())
             return localConf
 
-        if self.useRddminHeuristic and "rddmin" in algo:
-            resConf=self.applyRddminWithHeuristics(deltas,rddminAlgo)
-        else:
-            resConf=rddminAlgo(deltas)
+        try:
+            if self.useRddminHeuristic and "rddmin" in algo:
+                resConf=self.applyRddminWithHeuristics(deltas,rddminAlgo)
+            else:
+                resConf=rddminAlgo(deltas)
+        except KeyboardInterrupt:
+            if self.rddminIndex>0:
+                print("Warning: interrupted Summary:")
+                self.rddminSummary()
+            sys.exit(42)
 
         if resConf!=None:
             flatRes=[c  for conf in resConf for c in conf]
             rddminCmp=self.reduceSearchSpace(deltas,flatRes)
             self.configuration_found("rddmin-cmp", rddminCmp)
-            self.rddminSummary(resConf)
+            self.rddminSummary()
 
         return resConf
 
 
-    def rddminSummary(self,resConf):
+    def rddminSummary(self):
         print("RDDMIN summary:")
         summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
-        for ddminIndex in range(len(resConf)):
+        for ddminIndex in range(self.rddminIndex):
+
             confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
+            ddminDeltas=open(confDirName /( self.getDeltaFileName()+".include"),"r").readlines()
+
             listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
             failureIndex=[]
 
@@ -643,7 +652,7 @@ class DDStoch(DD.DD):
                                                                 ",".join([str(fail) for fail in failureIndex]))
             confSummaryStr="%s:\t%s\n%s\n"%("ddmin%i"%(ddminIndex),
                                             failStatusStr,
-                                            "".join(["\t"+line.strip()+"\n" for line in (self.coerce(resConf[ddminIndex]).strip()).split("\n") ]))
+                                            "".join(["\t"+line.strip()+"\n" for line in (self.coerce(ddminDeltas).strip()).split("\n") ]))
             print(confSummaryStr,end="")
             summaryHandler.write(confSummaryStr)
 
@@ -1189,57 +1198,71 @@ class DDStoch(DD.DD):
         numThread=self.config_.get_maxNbPROC()
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
-            futurePool= [executor.submit(stochTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
-            dataIndexPool=[i for i in range(numThread)]
-            poolLoop=futurePool
-            currentWork=numThread
+            try:
+                futurePool= [executor.submit(stochTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
+                dataIndexPool=[i for i in range(numThread)]
+                poolLoop=futurePool
+                currentWork=numThread
 
-            while len(poolLoop)!=0:
-                (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
-                newFutures=[]
-                poolSlotAvail=[]
-                for future in doneTab:
-                    poolIndex=futurePool.index(future)
-                    poolSlotAvail+=[poolIndex]
-                    indexData=dataIndexPool[poolIndex]
+                while len(poolLoop)!=0:
+                    (doneTab,toDo)=concurrent.futures.wait(poolLoop,return_when=concurrent.futures.FIRST_COMPLETED)
+                    newFutures=[]
+                    poolSlotAvail=[]
+                    for future in doneTab:
+                        poolIndex=futurePool.index(future)
+                        poolSlotAvail+=[poolIndex]
+                        indexData=dataIndexPool[poolIndex]
 
-                    (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
-                    res=future.result()
-                    if res==self.PASS:
-                        if resTab[deltaIndex]==None:
-                            resTab[deltaIndex]=self.PASS
-                        passIndexesTab[deltaIndex]+=[sampleIndex]
-                        if earlyExit and firstConfPass:
-                            if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                        (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
+                        res=future.result()
+                        if res==self.PASS:
+                            if resTab[deltaIndex]==None:
+                                resTab[deltaIndex]=self.PASS
+                            passIndexesTab[deltaIndex]+=[sampleIndex]
+                            if earlyExit and firstConfPass:
+                                if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                                    for cWork in range(currentWork,len(subTaskDataTab)):
+                                        activeDataTab[cWork]=False
+                        else:
+                            if resTab[deltaIndex]==None and earlyExit:
+                                print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/run/) -> FAIL(%i)"%(sampleIndex))
+                            resTab[deltaIndex]=self.FAIL
+                            failIndexesTab[deltaIndex]+=[sampleIndex]
+                            if earlyExit and firstConfFail:
                                 for cWork in range(currentWork,len(subTaskDataTab)):
-                                    activeDataTab[cWork]=False
-                    else:
-                        if resTab[deltaIndex]==None and earlyExit:
-                            print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/run/) -> FAIL(%i)"%(sampleIndex))
-                        resTab[deltaIndex]=self.FAIL
-                        failIndexesTab[deltaIndex]+=[sampleIndex]
-                        if earlyExit and firstConfFail:
-                            for cWork in range(currentWork,len(subTaskDataTab)):
-                                if subTaskDataTab[cWork][1]==deltaIndex :
-                                    activeDataTab[cWork]=False
-                #submit new subtasks
-                for poolIndex in poolSlotAvail:
-                    #ignore cancelled subtask
-                    while currentWork < len(subTaskDataTab) and activeDataTab[currentWork]==False:
-                        currentWork+=1
-                    if currentWork < len(subTaskDataTab):
-                        if activeDataTab[currentWork]:
-                            currentSubTask=subTaskDataTab[currentWork]
-                            computeType=currentSubTask[0]
-                            deltaIndex=currentSubTask[1]
-                            sampleIndex=currentSubTask[2]
-                            futur=executor.submit(stochTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
-                            futurePool[poolIndex]=futur
-                            newFutures+=[futur]
-                            dataIndexPool[poolIndex]=currentWork
+                                    if subTaskDataTab[cWork][1]==deltaIndex :
+                                        activeDataTab[cWork]=False
+                    #submit new subtasks
+                    for poolIndex in poolSlotAvail:
+                        #ignore cancelled subtask
+                        while currentWork < len(subTaskDataTab) and activeDataTab[currentWork]==False:
                             currentWork+=1
+                        if currentWork < len(subTaskDataTab):
+                            if activeDataTab[currentWork]:
+                                currentSubTask=subTaskDataTab[currentWork]
+                                computeType=currentSubTask[0]
+                                deltaIndex=currentSubTask[1]
+                                sampleIndex=currentSubTask[2]
+                                futur=executor.submit(stochTaskTab[deltaIndex].submitSeq ,computeType, sampleIndex)
+                                futurePool[poolIndex]=futur
+                                newFutures+=[futur]
+                                dataIndexPool[poolIndex]=currentWork
+                                currentWork+=1
 
-                poolLoop=list(toDo)+newFutures
+                    poolLoop=list(toDo)+newFutures
+            except KeyboardInterrupt:
+                print("")
+                print("Keyboard Interruption")
+                executor.shutdown(wait=False, cancel_futures=True)
+                for future in poolLoop:
+                    poolIndex=futurePool.index(future)
+                    indexData=dataIndexPool[poolIndex]
+                    (computeType, deltaIndex, sampleIndex)=subTaskDataTab[indexData]
+                    stTask=stochTaskTab[deltaIndex]
+                    print("clean", stTask._nameDir(sampleIndex))
+                    shutil.rmtree(stTask._nameDir(sampleIndex))
+                raise KeyboardInterrupt
+
         #affichage
         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab
