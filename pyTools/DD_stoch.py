@@ -116,6 +116,18 @@ fileCmp="dd.compare"
 subDirRunPattern=subDirRun+"%i"
 ddReturnFileName="dd.return.value"
 
+def strLenDeltas(deltas):
+    if deltas==None:
+        return " [????] "
+    nbDeltas=len(deltas)
+    if nbDeltas<10:
+        return " [  "+str(nbDeltas)+" ] "
+    if nbDeltas<100:
+        return " [ "+str(nbDeltas)+" ] "
+    if nbDeltas<1000:
+        return " [ "+str(nbDeltas)+"] "
+    return " ["+str(nbDeltas)+"] "
+
 class stochTask:
 
     def __init__(self, dirname, refDir,runCmd, cmpCmd, runEnv, seedTab=None, seedEnvVar=None):
@@ -1059,18 +1071,18 @@ class DDStoch(DD.DD):
                         resTab[deltaIndex]=self.PASS
                     if earlyExit and firstConfPass:
                         if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
-                            self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                            self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                             return resTab
                 if sampleRes==self.FAIL:
                     if resTab[deltaIndex]==None and earlyExit:
-                        print(stochTaskTab[deltaIndex].pathToPrint+ " --(/run/) -> FAIL(%i)"%(sampleIndex))
+                        print(stochTaskTab[deltaIndex].pathToPrint+ strLenDeltas(deltasTab[deltaIndex])+" --(/run/) -> FAIL(%i)"%(sampleIndex))
                     resTab[deltaIndex]=self.FAIL
                     failIndexesTab[deltaIndex]+=[sampleIndex]
                     if earlyExit and firstConfFail:
-                        self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+                        self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                         return resTab
 
-            self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+            self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
             return resTab
 
     def stochTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass):
@@ -1098,18 +1110,18 @@ class DDStoch(DD.DD):
 
             if sToC==None:
                 resTab[deltaIndex]=self.FAIL
-                print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL")
+                print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/cache/) -> FAIL")
                 cacheTab[deltaIndex]=True
                 continue
             if sToC["failedIndexes"]!=[]:
                 resTab[deltaIndex]=self.FAIL
-                print(stochTaskTab[deltaIndex].pathToPrint+" --(/cache/) -> FAIL ->")
+                print(stochTaskTab[deltaIndex].pathToPrint+ strLenDeltas(deltasTab[deltaIndex]) +"--(/cache/) -> FAIL ->")
                 cacheTab[deltaIndex]=False
 
             if len(sToC["indexesToRun"])==0 and len(sToC["indexesToCmp"])==0 and sToC["failedIndexes"]==[]:
                 #evrything in cache and pass
                 resTab[deltaIndex]=self.PASS
-                print(stochTaskTab[deltaIndex].pathToPrint +" --(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
+                print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) + "--(/cache/) -> PASS("+ str(nbRunTab[deltaIndex])+")")
                 cacheTab[deltaIndex]=True
                 continue
             subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in sToC["indexesToCmp"] ]
@@ -1150,20 +1162,20 @@ class DDStoch(DD.DD):
 
         return (resTab,stochTaskTab,subTaskDataTab, cacheTab)
 
-    def printParProgress(self,resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit):
+    def printParProgress(self,resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit):
         #affichage
         nbDelta=len(resTab)
         for deltaIndex in range(nbDelta):
             if cacheTab[deltaIndex]:#print already done
                 continue
             if resTab[deltaIndex]==self.PASS:
-                print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
+                print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex])+"--(/run/) -> PASS(+" + str(len(passIndexesTab[deltaIndex]))+"->"+str( max(passIndexesTab[deltaIndex])+1 )+")" )
             if resTab[deltaIndex]==self.FAIL:
                 if not earlyExit:
                     failIndexes=failIndexesTab[deltaIndex]
                     failIndexes.sort()
                     failIndexesStr=(str(failIndexes)[1:-1]).replace(" ","")
-                    print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> FAIL(%s)"%(failIndexesStr))
+                    print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex])+"--(/run/) -> FAIL(%s)"%(failIndexesStr))
 
     def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
         resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
@@ -1203,7 +1215,7 @@ class DDStoch(DD.DD):
                                     activeDataTab[cWork]=False
                     else:
                         if resTab[deltaIndex]==None and earlyExit:
-                            print(stochTaskTab[deltaIndex].pathToPrint+" --(/run/) -> FAIL(%i)"%(sampleIndex))
+                            print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/run/) -> FAIL(%i)"%(sampleIndex))
                         resTab[deltaIndex]=self.FAIL
                         failIndexesTab[deltaIndex]+=[sampleIndex]
                         if earlyExit and firstConfFail:
@@ -1229,5 +1241,5 @@ class DDStoch(DD.DD):
 
                 poolLoop=list(toDo)+newFutures
         #affichage
-        self.printParProgress(resTab, stochTaskTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
+        self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab
