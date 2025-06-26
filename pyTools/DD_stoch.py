@@ -260,33 +260,51 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
         maxProc=1
     import concurrent.futures
     executor=concurrent.futures.ThreadPoolExecutor(max_workers=maxProc)
-
     futureTab=[]
     runToDoTab=[]
-    for stochTask in stochTaskTab:
-        sToC=stochTask.sampleToCompute(stochTask.nbRun, False)
-        runToDoTab+=[sToC["indexesToRun"]]
-        future=[executor.submit(stochTask.submitSeq, "run", work) for work in sToC["indexesToRun"]]
-        futureTab+=[future]
+    try:
+        for stochTask in stochTaskTab:
+            sToC=stochTask.sampleToCompute(stochTask.nbRun, False)
+            runToDoTab+=[sToC["indexesToRun"]]
+            future=[executor.submit(stochTask.submitSeq, "run", work) for work in sToC["indexesToRun"]]
+            futureTab+=[future]
 
-    returnTab=[]
-    for i in range(len(stochTaskTab)):
-        stochTask=stochTaskTab[i]
-        FAIL=stochTask.FAIL
-        runToDo=runToDoTab[i]
-        results=[futur.result() for futur in futureTab[i]]
-        if FAIL in results:
-            indices=[indice for indice in range(len(results)) if results[indice]==FAIL]
-            failIndices=[runToDoTab[i][indice] for indice in indices ]
-            failIndices.sort()
-            failIndicesStr=(str(failIndices)[1:-1]).replace(" ","")
-            failStr="FAIL(%s)"%(failIndicesStr)
-            print(stochTask.pathToPrint + " --(/run/) -> " +failStr)
-            returnTab+=[FAIL]
-        else:
-            passStr="PASS(+" + str(len(runToDo))+"->"+str(stochTask.nbRun)+")"
-            print(stochTask.pathToPrint + " --(/run/) -> " +passStr)
-            returnTab+=[stochTask.PASS]
+        returnTab=[]
+        for i in range(len(stochTaskTab)):
+            stochTask=stochTaskTab[i]
+            FAIL=stochTask.FAIL
+            runToDo=runToDoTab[i]
+            results=[futur.result() for futur in futureTab[i]]
+
+            if FAIL in results:
+                indices=[indice for indice in range(len(results)) if results[indice]==FAIL]
+                failIndices=[runToDoTab[i][indice] for indice in indices ]
+                failIndices.sort()
+                failIndicesStr=(str(failIndices)[1:-1]).replace(" ","")
+                failStr="FAIL(%s)"%(failIndicesStr)
+                print(stochTask.pathToPrint + " --(/run/) -> " +failStr)
+                returnTab+=[FAIL]
+            else:
+                passStr="PASS(+" + str(len(runToDo))+"->"+str(stochTask.nbRun)+")"
+                print(stochTask.pathToPrint + " --(/run/) -> " +passStr)
+                returnTab+=[stochTask.PASS]
+    except KeyboardInterrupt:
+        print("")
+        print("Keyboard Interruption")
+        executor.shutdown(wait=False, cancel_futures=True)
+        for indexStoch in range(len(stochTaskTab)):
+            stochTask=stochTaskTab[indexStoch]
+            for indexFuture in range(len(futureTab)):
+                future=futureTab[indexStoch][indexFuture]
+                runToDo=runToDoTab[indexStoch][indexFuture]
+                if future.cancelled():
+                    pathToClean=stochTaskTab._nameDir(runToDo)
+                    print("clean :", pathToClean)
+                    if pathToClean.is_dir():
+                        shutil.rmdir(pathToClean)
+
+        raise KeyboardInterrupt
+
     return returnTab
 
 def md5Name(deltas):
@@ -571,8 +589,11 @@ class DDStoch(DD.DD):
             self.emptySearchSpaceFailure()
 
         #basic verification
-        testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf")
-
+        try:
+            testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf")
+        except KeyboardInterrupt:
+            print("Basic Delta Verification Interuption")
+            sys.exit(42)
         testResult=testResultTab[0]
         self.configuration_found("FullPerturbation",deltas)
         if testResult!=self.FAIL:
