@@ -1176,17 +1176,40 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 
 
 #define BACKTRACE_SIZE 40
+static Int firstAddrBellowMain=0;
+
+Int reduced_nb_below_main(Addr*ips, Int nb){
+   if(firstAddrBellowMain==0){
+      DiEpoch ep= VG_(current_DiEpoch)();
+      for(Int i=0; i<nb;i++){
+         if(VG_(get_fnname_kind_from_IP) ( ep, ips[i] ) == Vg_FnNameBelowMain){
+            firstAddrBellowMain=ips[i];
+            return i+1;
+         }
+      }
+   }else{
+      for(Int i=0; i<nb;i++){
+         if( ips[i] == firstAddrBellowMain ){
+            return i+1;
+         }
+      }
+      return nb;
+   }
+}
+
 //static
 VG_REGPARM(0) void vr_backtrace_dyn_BB (void) {
    Addr ips[BACKTRACE_SIZE];
    Int nb=VG_(get_StackTrace)(VG_(get_running_tid)(),ips, BACKTRACE_SIZE,
                                  NULL, NULL,0);
+   Int nbReduced=reduced_nb_below_main(ips, nb);
+
    if(vr.useBackTraceBool){
-      vr.instrument_soft_back = vr_isInstrumentedBack(&vr.backTraceTool, nb, ips);
+      vr.instrument_soft_back = vr_isInstrumentedBack(&vr.backTraceTool, nbReduced, ips);
    }
 
    if(vr.genBackTraceBool && (vr.instrument_soft_back)){
-      vr_addBackGen(&vr.backTraceTool, nb, ips);
+      vr_addBackGen(&vr.backTraceTool, nbReduced, ips);
    }
 }
 

@@ -58,7 +58,7 @@ class BackAddrPrint:
         return sym+"\t"+filename+":"+str(linenum)
 
     def backTraceToStr(self, line):
-        nb,sep,remain=line.partition(":")
+        nb,sep,remain=line.strip().partition(":")
         addrTab=remain.split(",")
 
         res=line+"\n"

@@ -120,7 +120,7 @@ void vr_clo_defaults (void) {
   vr.useBackTraceBool=False;
   vr.genBackTraceRep=NULL;
   vr.backExcludeFile=NULL;
-  vr.backIgnoreSize=2;
+  vr.backIgnoreSize=0;
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
