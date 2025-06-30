@@ -46,6 +46,8 @@ extern Bool VG_(resolve_filename) ( Int fd, const HChar** buf );
 
 #include "vr_exclude_back.h"
 
+Int reduced_nb_below_main(Addr*ips, Int nb);
+
 Vr_State vr;
 
 //
@@ -1176,6 +1178,7 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 
 
 #define BACKTRACE_SIZE 40
+
 static Int firstAddrBellowMain=0;
 
 Int reduced_nb_below_main(Addr*ips, Int nb){
@@ -1187,6 +1190,7 @@ Int reduced_nb_below_main(Addr*ips, Int nb){
             return i+1;
          }
       }
+      return nb;
    }else{
       for(Int i=0; i<nb;i++){
          if( ips[i] == firstAddrBellowMain ){
@@ -1195,6 +1199,7 @@ Int reduced_nb_below_main(Addr*ips, Int nb){
       }
       return nb;
    }
+   return 0; //Error
 }
 
 //static
