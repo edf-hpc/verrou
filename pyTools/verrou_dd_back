@@ -41,6 +41,7 @@ class BackAddrPrint:
         self.addrFileTab=refDir.glob("backAddrInfo-*")
         self.addrToTuple={}
         self.parse()
+        self.computeCommonStackTrace(refDir / "dd.back")
 
     def parse(self):
         for addrFile in self.addrFileTab:
@@ -53,13 +54,25 @@ class BackAddrPrint:
                 else:
                     self.addrToTuple[addr]=(sym,filename,linenum)
 
+    def computeCommonStackTrace(self, path):
+        self.commonIndex=0
+        splitLineTab=[(line.strip().split(":", maxsplit=1)[1]).split(",") for line in  open(path,"r").readlines()]
+        minSize=min([len(x) for x in splitLineTab])
+        for i in range(1, minSize+1):
+            self.commonIndex=i-1
+            addrTab=[ x[-i] for x in splitLineTab]
+            if not all([x == addrTab[0] for x in  addrTab]):
+                break
+
     def addrToString(self,tupleName):
         (sym,filename,linenum)=tupleName
         return sym+"\t"+filename+":"+str(linenum)
 
-    def backTraceToStr(self, line):
+    def backTraceToStr(self, line, ignoreCommon=False):
         nb,sep,remain=line.strip().partition(":")
         addrTab=remain.split(",")
+        if ignoreCommon and self.commonIndex>0:
+            addrTab=addrTab[0 : -self.commonIndex]
 
         res=line+"\n"
         index=0
@@ -83,6 +96,9 @@ class BackAddrPrint:
 
             res+="\t\t"+str(index)+":  "+addrStr+"\n"
             index+=1
+        if ignoreCommon and self.commonIndex>0:
+            res+="\t\t"+str(index)+"-"+str(index+self.commonIndex-1)+":\t(common stack)"
+
         return res
 
 
@@ -107,24 +123,22 @@ class DDback(DD_stoch.DDStoch):
         return "dd.back"
 
     def sampleRunEnv(self,dirName):
-        return {"VERROU_EXCLUDE_BACKTRACE": dirName / (self.getDeltaFileName() +".exclude"),
+        runEnv={"VERROU_EXCLUDE_BACKTRACE": dirName / (self.getDeltaFileName() +".exclude"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding
                 }
+        if self.config_.debug:
+            runEnv["VERROU_GEN_BACKTRACE"]=dirName
+        return runEnv
 
     def coerce(self, delta_config):
         if self.backAddrPrint==None:
             self.backAddrPrint=BackAddrPrint(self.ref_, self.config_)
 
         def transform(line):
-            return self.backAddrPrint.backTraceToStr(line)
+            return self.backAddrPrint.backTraceToStr(line,self.config_.hideCommon)
         return "\n  " + "\n  ".join([transform(line) for line in delta_config])
 
-    # def demangle(self, mangledName):
-    #     try:
-    #         line=subprocess.check_output(["c++filt",mangledName]).decode("utf8").strip()
-    #     except:
-    #         line=mangledName
-    #     return line
+
 
 #code coming from verificarlo : https://github.com/verificarlo/verificarlo/blob/master/src/tools/ddebug/main.py
 def disable_ASLR():
@@ -146,7 +160,7 @@ class ddBackConfig(dd_config.ddConfig):
         super().registerOptions()
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
         self.addRegistry("hideBelowPython", "bool", "HIDE_BELOW_PYTHON",["--hide-below-python"],True)
-
+        self.addRegistry("hideCommon", "bool", "HIDE_COMMON",["--hide-common"],False)
 
 if __name__ == "__main__":
     disable_ASLR()
