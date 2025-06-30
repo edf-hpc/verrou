@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2024 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 2.1 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+
+import sys
+import os
+import shutil
+import copy
+from pathlib import Path
+
+class DDFailure:
+    def __init__(self, prefix, symLinkOnly):
+        self.prefix_=Path(prefix).absolute()
+        self.symLinkOnly=symLinkOnly
+
+    def searchSymLink(self):
+        """Return the list of symlink (created by DD_stoch) in the cache"""
+        res = list(self.prefix_.glob("ddmin*"))
+        res +=[self.prefix_ / sym for sym in ["rddmin-cmp","ddmax","ddmax-cmp","FullPerturbation","NoPerturbation"]]
+        return [ x for x in res if x.is_symlink()]
+
+    def getRepList(self):
+        if self.symLinkOnly:
+            return self.searchSymLink()
+        else:
+            #all md5File
+            return [x for x in self.prefix_.glob("[a-f0-9]"*32) if x.is_dir()]
+
+    def getSubRepList(self):
+        res=[]
+        for rep in self.getRepList():
+            res+=[x.parent for x in rep.glob("dd.run[0-9]*/dd.return.value") if x.is_file() ]
+        return res
+
+    def isFail(self, path):
+        returnValue=int(open(path/"dd.return.value").readline())
+        return returnValue!=0
+
+
+    def printFailingSubRep(self):
+        failSubRepTab=[x for x in self.getSubRepList() if self.isFail(x)]
+        for failPath in failSubRepTab:
+            print(failPath)
+
+def help():
+    print(sys.argv[0] +" [rep]" + " [--all]")
+    sys.exit(42)
+
+
+if __name__=="__main__":
+    symLinkOnly=True
+    argv=copy.deepcopy(sys.argv)
+    if "--help" in sys.argv:
+        help()
+    if "--all" in sys.argv:
+        symLinkOnly=False
+        argv.remove("--all")
+
+    path="."
+    if len(argv)==2:
+        path=argv[1]
+    elif len(argv)==1:
+        pass
+    else:
+        help()
+
+    ddFailTool=DDFailure(path,symLinkOnly)
+    ddFailTool.printFailingSubRep()
