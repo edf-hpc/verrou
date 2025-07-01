@@ -650,8 +650,9 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     std::cerr<< "Rounding FTZ/DAZ are not yet implemented in interlibmath"<<std::endl;
     exit(1);
     return "FAILURE";
-
-
+  case VR_ENUM_SIZE:
+    std::cerr<< "Internal Error (VR_ENUM_SIZE)"<<std::endl;
+    exit(1);
   }
 
   return "undefined";
@@ -1163,6 +1164,9 @@ class instrumentFunction{
 public:
   template<class LIBMNAMETAB, class PACKARGS>
   static REALTYPE apply(const LIBMNAMETAB& functionNameTab,const char* fctStr, bool isInstrumented,  const PACKARGS& p){
+#ifndef INTERLIBM_STAND_ALONE
+    ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING;
+#endif
     if(isInstrumented){
       libMathCounter::incInstrOn(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index);
     }else{
@@ -1184,7 +1188,6 @@ public:
 	if( ! VERROU_FLOAT_CONV){
 	  return functionNameTab[ENUM_LIBM].apply(p);
 	}else{
-	  printf("test\n");
 	  vr_storeFloat<PACKARGS> sFloat(p);
 	  return (REALTYPE)functionNameTab[ENUM_LIBM].apply(sFloat.getPack());
 	}

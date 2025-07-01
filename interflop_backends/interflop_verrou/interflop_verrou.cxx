@@ -149,17 +149,35 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "DAZ";
   case VR_DAZFTZ:
     return "DAZ/FTZ";
+  case VR_ENUM_SIZE:
+    break;
   }
 
   return "undefined";
 }
 
 
+enum vr_RoundingMode verrou_rounding_mode_enum(char const*const roundingStr){
+  for(int i=0 ; i< (int)VR_ENUM_SIZE; i++){
+    const char* toCmp=verrou_rounding_mode_name((enum vr_RoundingMode)i);
+    for(int j=0;  ; j++){
+      if(roundingStr[j]==0 && toCmp[j]==0){
+	return (enum vr_RoundingMode)i;
+      }
+      if(roundingStr[j]==0 || toCmp[j]==0){
+        break;
+      }
+      if(roundingStr[j] != toCmp[j]){
+	break;
+      }
+    }
+  }
+  return (enum vr_RoundingMode)VR_ENUM_SIZE;
+};
 
 
 // * C interface
 void IFV_FCTNAME(configure)(vr_RoundingMode mode,void* context) {
-  DEFAULTROUNDINGMODE = mode;
   ROUNDINGMODE=mode;
 }
 
@@ -174,14 +192,6 @@ const char* IFV_FCTNAME(get_backend_version)() {
   return "1.x-dev";
 }
 
-void verrou_begin_instr(){
-  ROUNDINGMODE=DEFAULTROUNDINGMODE;
-}
-
-void verrou_end_instr(){
-  ROUNDINGMODE= VR_NEAREST;
-}
-
 void verrou_set_seed (unsigned int seed) {
   vr_rand_setSeed (&vr_rand, seed);
 }
@@ -189,6 +199,11 @@ void verrou_set_seed (unsigned int seed) {
 unsigned int verrou_get_seed (void) {
   return vr_rand_getSeed (&vr_rand);
 }
+
+void verrou_set_rounding_mode ( vr_RoundingMode mode) {
+  ROUNDINGMODE=mode;
+}
+
 
 void verrou_seed_save_state (void) {
   vr_rand_copy_state(&vr_rand, &vr_rand_save);

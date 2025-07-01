@@ -36,9 +36,9 @@
 #include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 
-#ifdef PROFILING_EXACT
+//#ifdef PROFILING_EXACT
 #include "interflop_backends/interflop_verrou/interflop_verrou.h"
-#endif
+//#endif
 #include "interflop_backends/backend_checkdenorm/interflop_checkdenorm.h"
 
 void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool isHard) {
@@ -85,6 +85,24 @@ void vr_set_instrument_state (const HChar* reason, Vr_Instr state, Bool isHard) 
       if(vr.verbose){
          VG_(message)(Vg_DebugMsg, "%s: instrumentation (soft) switched %s\n",
                       reason, (state==VR_INSTR_ON) ? "ON" : "OFF");
+      }
+   }
+}
+
+
+void vr_set_rounding_mode(const char* modeStr){
+   enum vr_RoundingMode mode= verrou_rounding_mode_enum(modeStr);
+
+   if(mode==VR_ENUM_SIZE){
+      VG_(umsg)("Invalid mode %s\n", modeStr);
+   }else{
+      if(mode!=vr.roundingMode){
+         vr.roundingMode=mode;
+         verrou_set_rounding_mode(mode);
+         VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+         if(vr.verbose){
+            VG_(umsg)("New rounding mode: ", modeStr);
+         }
       }
    }
 }
@@ -411,7 +429,10 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
      break;
   case VR_USERREQ__RESET_COUNT_DENORM:
      vr_reset_denorm_counter();
-  break;
+     break;
+  case VR_USERREQ__SET_ROUNDING_MODE:
+     vr_set_rounding_mode((char const*const)args[1]);
+     break;
   }
   return True;
 }

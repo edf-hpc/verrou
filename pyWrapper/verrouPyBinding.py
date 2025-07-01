@@ -68,6 +68,7 @@ class bindingVerrouCLib:
         self.lib.c_verrou_print_denorm_counter.argtypes=[]
         self.lib.c_verrou_reset_denorm_counter.argtypes=[]
 
+        self.lib.c_verrou_set_rounding.argtypes = [ ctypes.c_char_p]
 
 bindVerrou=bindingVerrouCLib()
 
@@ -106,6 +107,9 @@ def print_denorm_counter():
 
 def reset_denorm_counter():
     bindVerrou.lib.c_verrou_reset_denorm_counter()
+
+def set_rounding(roundingStr):
+    bindVerrou.lib.c_verrou_set_rounding(roundingStr.upper().encode('utf-8'))
 
 if __name__=="__main__":
 

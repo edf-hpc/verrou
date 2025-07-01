@@ -24,3 +24,5 @@ unsigned int c_verrou_count_fp_not_instrumented(void);
 
 void c_verrou_print_denorm_counter(void);
 void c_verrou_reset_denorm_counter(void);
+
+void c_verrou_set_rounding(char const*const rounding);

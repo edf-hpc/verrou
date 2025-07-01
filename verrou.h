@@ -38,6 +38,8 @@
 #else
 #include "pub_tool_clreq.h"
 #endif
+
+
 /* !! ABIWARNING !! ABIWARNING !! ABIWARNING !! ABIWARNING !!
    This enum comprises an ABI exported by Valgrind to programs
    which use client requests.  DO NOT CHANGE THE ORDER OF THESE
@@ -76,7 +78,8 @@ enum {
   VR_USERREQ__STOP_SOFT_INSTRUMENTATION,
   VR_USERREQ__FLOAT_CONV,
   VR_USERREQ__PRINT_COUNT_DENORM,
-  VR_USERREQ__RESET_COUNT_DENORM
+  VR_USERREQ__RESET_COUNT_DENORM,
+  VR_USERREQ__SET_ROUNDING_MODE
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -105,6 +108,11 @@ enum {
 #define VERROU_SET_SEED(SEED)                             \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__SET_SEED,    \
                                   SEED, 0, 0, 0, 0)
+
+#define VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)                             \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__SET_ROUNDING_MODE,    \
+                                  ROUNDINGMODE, 0, 0, 0, 0)
+
 
 #define VERROU_DISPLAY_COUNTERS                                      \
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__DISPLAY_COUNTERS,      \

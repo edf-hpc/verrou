@@ -44,9 +44,8 @@ extern "C" {
 #include "../interflop.h"
 
 
-
-  enum vr_RoundingMode {
-    VR_NEAREST,
+enum vr_RoundingMode {
+    VR_NEAREST=0,
     VR_UPWARD,
     VR_DOWNWARD,
     VR_ZERO,
@@ -69,7 +68,8 @@ extern "C" {
     VR_NATIVE,
     VR_FTZ,
     VR_DAZ,
-    VR_DAZFTZ
+    VR_DAZFTZ,
+    VR_ENUM_SIZE
   };
 
 
@@ -82,11 +82,10 @@ extern "C" {
 
 
   const char* verrou_rounding_mode_name (enum vr_RoundingMode mode);
-
-  void verrou_begin_instr(void);
-  void verrou_end_instr(void);
+  enum vr_RoundingMode verrou_rounding_mode_enum(char const*const roundingStr);
 
   void verrou_set_seed (unsigned int seed);
+  void verrou_set_rounding_mode(enum vr_RoundingMode mode);
 
   unsigned int verrou_get_seed (void);
   void verrou_seed_save_state (void);
