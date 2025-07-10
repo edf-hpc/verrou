@@ -20,6 +20,8 @@ if len(sys.argv)==2:
         what="cmpHash"
     elif sys.argv[1]=="cmpStable":
         what="cmpStable"
+    elif sys.argv[1]=="cmpInst":
+        what="cmpInst"
     else:
         print("invalid cmd")
         sys.exit(42)
@@ -43,6 +45,10 @@ if what=="cmpHash":
     detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
     ref_name="current_fast"
 
+
+if what=="cmpInst":
+    buildConfigList=["master"]
+    roundingListPerf=["tool_none", "nearest", "gen_exclude", "exclude_all", "gen_source", "source_nothing", "gen_backtrace","exclude_all_backtrace", "random"]
 
 drop=10
 nbRunTuple=(5,10) #inner outer
@@ -89,15 +95,26 @@ def runPerfConfig(name):
             for rounding in roundingTab:
                 cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all-nc":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.ex --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex --count-op=no %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="nearest-nc":
                     cmd="valgrind --tool=verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="tool_none":
                     cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="fma_only":
                     cmd="valgrind --tool=verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                if rounding=="gen_exclude":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-exclude=exclude.all.%s.ex %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
+                if rounding=="gen_source":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-source=source.all.%s.inc %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
+                if rounding=="source_nothing":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --source=source.nothing.inc %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                if rounding=="gen_backtrace":
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-backtrace=back-%s %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
+                if rounding=="exclude_all_backtrace":
+                    myPath=str( list(Path(".").glob("back-"+binName+"/backInfo-*"))[0])
+                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude-backtrace=%s %s %s %s "%(myPath,optName, pathPerfBin / binName,perfCmdParam)
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
@@ -346,6 +363,12 @@ if __name__=="__main__":
     if what=="cmpStable":
         print("ref_name:",ref_name)
         nonPerfRegressionAnalyze(resAll, ref_name)
+    if what=="cmpInst":
+        print("ref_name:",ref_name)
+        nonPerfRegressionAnalyze(resAll, ref_name)
+
+        tab=tabularLatex("lcccc", output="slowInst.tex")
+        feedPerfTab(tab,resAll,buildConfigList, detTab=[], branchTab=True)
 
     if what=="cmpHash":
         tab=tabularLatex("lcccc", output="slowDownHash.tex")

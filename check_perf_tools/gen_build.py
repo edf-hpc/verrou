@@ -42,6 +42,11 @@ verrouConfigListCmpBranch={
 }
 
 
+verrouConfigListInst={
+    "master":     { "valgrind":valgrind_version, "branch_verrou":"master" ,   "flags":""}
+}
+
+
 valgrindConfigList={
     "valgrind-3.17.0": {"file": "valgrind-3.17.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.17.0.tar.bz2"},
     "valgrind-3.19.0": {"file": "valgrind-3.19.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.19.0.tar.bz2"},
@@ -116,6 +121,8 @@ if __name__=="__main__":
             verrouConfigList=verrouConfigListHash
         elif sys.argv[1]=="cmpStable":
             verrouConfigList=verrouConfigListCmpToStable
+        elif sys.argv[1]=="cmpInst":
+            verrouConfigList=verrouConfigListInst
         else:
             print("invalid cmd")
             sys.exit(42)
