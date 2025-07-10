@@ -930,6 +930,18 @@ det2
           <listitem><para>Reset counters of checkDenorm backend.</para></listitem>
 	</varlistentry>
 
+	  <varlistentry id="vr-manual.feat.set_seed"
+                      xreflabel="VERROU_SET_SEED">
+          <term><computeroutput>VERROU_SET_ROUNDING_MODE</computeroutput></term>
+          <listitem><para>Set the seed.</para></listitem>
+	</varlistentry>
+
+	  <varlistentry id="vr-manual.feat.set_rounding_mode"
+                      xreflabel="VERROU_SET_ROUNDING_MODE">
+          <term><computeroutput>VERROU_SET_ROUNDING_MODE</computeroutput></term>
+          <listitem><para>Set the rounding mode (imply flush of instrumentation cache).</para></listitem>
+	</varlistentry>
+
       </variablelist>
     </section>
 

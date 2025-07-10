@@ -744,7 +744,13 @@ verrou.stop_soft_instrumentation()
 index=verrou.dump_cover()
 verrou.display_counters()
 nbInst=verrou.count_fp_instrumented()
-nbNotInst=verrou.count_fp_not_instrumented()</programlisting>
+nbNotInst=verrou.count_fp_not_instrumented()
+
+verrou.print_denorm_counter()
+verrou.reset_denorm_counter()
+verrou.set_rounding("random")
+
+</programlisting>
 </para>
 </listitem>
       </varlistentry>
