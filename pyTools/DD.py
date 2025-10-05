@@ -219,28 +219,36 @@ class DD:
                 cbars[i] = self.__listminus(c, cs[i])
                 cbarsTestTab[i]=self.__listminus(self.CC,cbars[i])
 
-            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="triangle")
+            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="outerConfInnerSample")
 
-            for j in range(n):
-                i = (j + cbar_offset) % n
-#                cbars[i] = self.__listminus(c, cs[i])
+            passIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
 
-                t=tTab[i]
+            if len(passIndexes) >=1:
+                firstIndex=passIndexes[0]
+                if self.debug_dd:
+                    print (algo_name+": reduced to", len(cbars[firstIndex]),)
+                    print ("deltas:", end="")
+                    print (self.pretty(cbars[firstIndex]))
+                cbar_pass = True
+                next_c = self.__listintersect(next_c, cbars[firstIndex])
+                next_n = next_n - 1
+                cbar_offset = firstIndex
 
-                if t == self.PASS:
-                    if self.debug_dd:
-                        print (algo_name+": reduced to", len(cbars[i]),)
-                        print ("deltas:", end="")
-                        print (self.pretty(cbars[i]))
+            if len(passIndexes) >=2:
+                nextPassIndexes=passIndexes[1:]
+                next_c_try_optim_tab=[ self.__listminuslist(next_c, [ cs[passi] for passi in nextPassIndexes[0: reductionNumber] ]) for reductionNumber in range(len(nextPassIndexes),0,-1) ]
+                next_c_try_optim_Testtab=[self.__listminus(self.CC,x) for x in next_c_try_optim_tab ]
+                tTab=self._testTab(next_c_try_optim_Testtab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="outerConfInnerSample")
+                passOptimIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
+                if len(passOptimIndexes)!=0:
+                    next_c=next_c_try_optim_tab[passOptimIndexes[0]]
+                    sizeReduction=(len(passOptimIndexes)-passOptimIndexes[0])
+                    next_n-=sizeReduction
+                    print("ddmax optim succeed ", sizeReduction)
+                else:
+                    print("ddmax optim fail")
 
-                    cbar_pass = True
-                    next_c = self.__listintersect(next_c, cbars[i])
-                    next_n = next_n - 1
-                    self.report_progress(next_c, algo_name)
-
-                    # In next run, start removing the following subset
-                    cbar_offset = i
-                    break
+            self.report_progress(next_c, algo_name)
 
             if not cbar_pass:
                 if n >= len(c):
