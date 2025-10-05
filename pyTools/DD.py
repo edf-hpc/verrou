@@ -219,7 +219,7 @@ class DD:
                 cbars[i] = self.__listminus(c, cs[i])
                 cbarsTestTab[i]=self.__listminus(self.CC,cbars[i])
 
-            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="outerConfInnerSample")
+            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyPass", sortOrder="outerConfInnerSample")
 
             passIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
 
@@ -238,7 +238,8 @@ class DD:
                 nextPassIndexes=passIndexes[1:]
                 next_c_try_optim_tab=[ self.__listminuslist(next_c, [ cs[passi] for passi in nextPassIndexes[0: reductionNumber] ]) for reductionNumber in range(len(nextPassIndexes),0,-1) ]
                 next_c_try_optim_Testtab=[self.__listminus(self.CC,x) for x in next_c_try_optim_tab ]
-                tTab=self._testTab(next_c_try_optim_Testtab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="outerConfInnerSample")
+
+                tTab=self._testTab(next_c_try_optim_Testtab, [nbRun]*len(cs), earlyExit=True, earlyConfExit="firstPass", sortOrder="outerConfInnerSample")
                 passOptimIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
                 if len(passOptimIndexes)!=0:
                     next_c=next_c_try_optim_tab[passOptimIndexes[0]]
@@ -269,10 +270,10 @@ class DD:
         """Stub to overload in subclasses"""
         n = 2
         algo_name="ddmin"
-        sortOrder="outerConfInnerSample"
+        sortOrder="outerSampleInnerConf"
         if self.config_.get_use_dd_min_par():
             algo_name="ddmin//"
-            sortOrder="outerSampleInnerConf"
+
 
         testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
@@ -309,7 +310,7 @@ class DD:
             next_n = n
 
             # // resolution
-            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, firstConfFail=True, sortOrder=sortOrder)
+            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
 
             for i in range(n):
                 if self.debug_dd:
@@ -343,7 +344,8 @@ class DD:
                 for j in range(n):
                     i = (j + cbar_offset) % n
                     cbars[i] = self.__listminus(c, cs[i])
-                tTab = self._testTab(cbars,[nbRun]*n, earlyExit=True, firstConfFail=True, sortOrder=sortOrder)
+                tTab = self._testTab(cbars,[nbRun]*n, earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
+
                 failIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
 
                 if len(failIndexes)>=1:
@@ -361,7 +363,7 @@ class DD:
                     if len(failIndexes)>=2:
                         nextFailIndexes=failIndexes[1:]
                         next_c_try_optim_tab=[ self.__listminuslist(next_c, [ cs[faili] for faili in nextFailIndexes[0: reductionNumber]   ]) for reductionNumber in range(len(nextFailIndexes),0,-1) ]
-                        tTab = self._testTab(next_c_try_optim_tab,[nbRun]*n, earlyExit=True, firstConfFail=True, sortOrder="outerConfInnerSample")
+                        tTab = self._testTab(next_c_try_optim_tab,[nbRun]*n, earlyExit=True, earlyConfExit="firstFail", sortOrder="outerConfInnerSample")
                         failOptimIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
                         if len(failOptimIndexes)!=0:
                             next_c=next_c_try_optim_tab[failOptimIndexes[0]]
