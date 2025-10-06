@@ -111,6 +111,25 @@ def reset_denorm_counter():
 def set_rounding(roundingStr):
     bindVerrou.lib.c_verrou_set_rounding(roundingStr.upper().encode('utf-8'))
 
+def compute_verrou_tolerance(functor,
+                             tabDet=["upward", "downward", "toward_zero", "farthest", "away_zero"],
+                             tabSto=["random","average","sr_smonotonic","sr_monotonic"],
+                             nbSamples=1000):
+    set_rounding("nearest")
+    res_ref=functor()
+    tab=[]
+    for rnd in tabDet:
+        set_rounding(rnd)
+        tab+=[functor()]
+    for rnd in tabSto:
+        set_rounding(rnd)
+        tab+=[functor() for i in range(nbSamples) ]
+    set_rounding("nearest")
+    errAbs=max([abs((x - res_ref))  for x in tab])
+    errRel=errAbs / abs(res_ref)
+    errRelUlp=errRel / sys.float_info.epsilon
+    return (errAbs, errRel, errRelUlp)
+
 if __name__=="__main__":
 
     print("avt a binding fp: ", count_fp_instrumented())
