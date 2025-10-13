@@ -949,7 +949,7 @@ public:
 };
 
 
-
+#ifdef    USE_VERROU_SQRT
 
 template<class REALTYPE>
 class sameSignOfErrorForSqrt{
@@ -1072,3 +1072,4 @@ public:
 
 };
 
+#endif //USE_VERROU_SQRT
