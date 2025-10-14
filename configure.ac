@@ -206,6 +206,9 @@ AS_CASE([$VERROU_NUM_AVG],
 	[3],[],
 	[4],[],
 	[8],[],
+	[16],[],
+	[32],[],
+	[64],[],
 	[*],[AC_MSG_ERROR(["invalid VERROU_NUM_AVG", $VERROU_NUM_AVG])]
 )
 

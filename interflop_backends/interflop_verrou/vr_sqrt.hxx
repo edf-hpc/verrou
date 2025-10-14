@@ -34,11 +34,11 @@
 
 #ifdef    USE_VERROU_SQRT
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 #include  <immintrin.h>
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 #include "arm_neon.h"
 #endif
 
@@ -46,7 +46,7 @@
 template<class REALTYPE>
 inline REALTYPE vr_sqrt(const REALTYPE&);
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 template<>
 inline double vr_sqrt<double>(const double& a){
   double d;
@@ -58,7 +58,7 @@ inline double vr_sqrt<double>(const double& a){
 }
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 template<>
 inline double vr_sqrt<double>(const double& a){
   const float64x1_t ap=vld1_f64(&a);
@@ -69,7 +69,7 @@ inline double vr_sqrt<double>(const double& a){
 }
 #endif
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 template<>
 inline float vr_sqrt<float>(const float& a){
   float d;
@@ -81,7 +81,7 @@ inline float vr_sqrt<float>(const float& a){
 }
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 template<>
 inline float vr_sqrt<float>(const float& a){
 

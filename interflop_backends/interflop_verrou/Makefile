@@ -1,18 +1,11 @@
-SRC_BACKEND=interflop_verrou.cxx
 
-SRC=test_main.cxx
+SRC=test_main.cxx interflop_verrou.cxx ../backend_mcaquad/common/tinymt64.c
 
-#CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash  -DUSE_VERROU_FMA  -O2
-CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash  -DUSE_VERROU_FMA -DUSE_VERROU_SQRT -O2
+CFLAGS=-g -Wall -march=native -O2 -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash  -DUSE_VERROU_FMA -DUSE_VERROU_SQRT
 
 
-
-%.o: %.cxx
-	g++ -o $@ -c $< $(CFLAGS)
-
-
-test_main: test_main.o interflop_verrou.o ../backend_mcaquad/common/tinymt64.o
-	g++ -o $@ $^ $(CFLAGS)	
+test_main: $(SRC)
+	g++ $(CFLAGS) -o $@ $^
 
 clean:
-	rm *.o test_main
+	rm test_main

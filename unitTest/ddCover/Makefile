@@ -25,13 +25,13 @@ dd.line.integer: unitTestInteger ddRunInteger.sh ddCmp.py
 	verrou_dd_line --cache=clean --rep=dd.line.integer --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRunInteger.sh ./ddCmp.py
 
 dd.back: unitTest ddRun.sh ddCmp.py
-	verrou_dd_back --cache=clean --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
+	verrou_dd_back --cache=clean --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRun.sh ./ddCmp.py
 
 dd.back.line: unitTest ddRun.sh ddCmp.py dd.line
-	VERROU_SOURCE=./dd.line/rddmin-cmp/dd.line.exclude verrou_dd_back --cache=clean --rep=dd.back.line --nruns=8 --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
+	VERROU_SOURCE=./dd.line/rddmin-cmp/dd.line.exclude verrou_dd_back --cache=clean --rep=dd.back.line --nruns=8 --res-with-all-samples --num-threads=4 --seed=42 ./ddRun.sh ./ddCmp.py
 
 dd.back.line.integer: unitTest ddRunInteger.sh ddCmp.py dd.line.integer
-	VERROU_SOURCE=./dd.line.integer/rddmin-cmp/dd.line.exclude verrou_dd_back --cache=clean --rep=dd.back.line.integer --nruns=8 --num-threads=4 --seed=42 ./ddRunInteger.sh ./ddCmp.py
+	VERROU_SOURCE=./dd.line.integer/rddmin-cmp/dd.line.exclude verrou_dd_back --cache=clean --rep=dd.back.line.integer --nruns=8 --num-threads=4 --res-with-all-samples --seed=42 ./ddRunInteger.sh ./ddCmp.py
 
 
 dd.back.line.post: dd.back.line
