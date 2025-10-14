@@ -27,14 +27,14 @@
 import sys
 import re
 
-FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
-FctConvNameRegExp=re.compile("(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
-FctNameUnfusedRegExp=re.compile("(.*)FCTNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
-FctConvNameUnfusedRegExp=re.compile("(.*)FCTCONVNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
-BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
-BckNameFirstRegExp=re.compile("(.*)BACKEND_FIRST_FUNC\(([^)]*)\)(.*)")
-BckNameSecondRegExp=re.compile("(.*)BACKEND_SECOND_FUNC\(([^)]*)\)(.*)")
-BckNameNearestRegExp=re.compile("(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
+FctNameRegExp=re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+FctConvNameRegExp=re.compile(r"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
+FctNameUnfusedRegExp=re.compile(r"(.*)FCTNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
+FctConvNameUnfusedRegExp=re.compile(r"(.*)FCTCONVNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
+BckNameRegExp=re.compile(r"(.*)BACKENDFUNC\(([^)]*)\)(.*)")
+BckNameFirstRegExp=re.compile(r"(.*)BACKEND_FIRST_FUNC\(([^)]*)\)(.*)")
+BckNameSecondRegExp=re.compile(r"(.*)BACKEND_SECOND_FUNC\(([^)]*)\)(.*)")
+BckNameNearestRegExp=re.compile(r"(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
 
 
 def mergeFused(tab,tmpVar="res_temp"):

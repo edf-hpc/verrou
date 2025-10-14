@@ -101,7 +101,7 @@ void vr_set_rounding_mode(const char* modeStr){
          verrou_set_rounding_mode(mode);
          VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
          if(vr.verbose){
-            VG_(umsg)("New rounding mode: ", modeStr);
+            VG_(umsg)("New rounding mode: %s", modeStr);
          }
       }
    }

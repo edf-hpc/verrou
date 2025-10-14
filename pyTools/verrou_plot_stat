@@ -509,9 +509,9 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
 
     plt.legend()
     plt.grid()
-    plt.ylabel("#occurrence")
+    plt.ylabel(r"#occurrence")
     if plt.rcParams['text.usetex']:
-        plt.ylabel("$\#occurrence$")
+        plt.ylabel(r"$\#occurrence$")
 
     plt.xlabel(legend)
 
@@ -671,7 +671,7 @@ def print_stat(data, conf):
             nbTotalError+=nbError
             nbTotalSample+=len(data[rounding])
             if nbError==len(data):
-                localPrint("%s (100\% fail) :"%(rounding))
+                localPrint(r"%s (100\% fail) :"%(rounding))
             else:
                 estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
                 maxEstim=max(estim,maxEstim)
