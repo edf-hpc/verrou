@@ -16,7 +16,7 @@ implements various forms of arithmetic, including:
 - an emulation of single-precision rounding, in order to test the effect of
   reduced precision without any need to change the source code.
 
-Verrou also comes with a `verrou_dd` utility, which simplifies the Verrou-based
+Verrou also comes with the `verrou_dd_*` tools, which simplify the Verrou-based
 debugging process by implementing several variants of the Delta-Debugging
 algorithm. This allows easily locating which parts of the analyzed source code
 are likely to be responsible for Floating-Point-related instabilities.
