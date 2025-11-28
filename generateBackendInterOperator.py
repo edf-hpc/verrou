@@ -349,8 +349,8 @@ if __name__=="__main__":
 
     template1Args="vr_interp_operator_template_cast.h"
     listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1,soft=True)
+    generateNargs(fileOut,template1Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp1Args, 1,soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
@@ -371,8 +371,8 @@ if __name__=="__main__":
 
     template2Args="vr_interp_operator_template_2args.h"
     listOfOp2Args=["add","sub","mul","div"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, soft=True)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, soft=True)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max", soft=True)
     generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab)
@@ -382,15 +382,15 @@ if __name__=="__main__":
 
 
     listOfOp2Args=["add","sub"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation",soft=True)
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
+    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, post="checkcancellation",soft=True)
 
     template3Args="vr_interp_operator_template_3args.h"
     listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, soft=True)
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation",soft=True)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, soft=True)
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
+    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, post="checkcancellation",soft=True)
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max",soft=True)
     generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab)

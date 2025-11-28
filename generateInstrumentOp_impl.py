@@ -198,6 +198,13 @@ if __name__=="__main__":
                                             {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
                            ])
 
+    handler.write("#define IGNORESQRT\n")
+    generateVerrouGeneric(handler, backendEnum="vr_vprec", backendName="vprec",
+                          postBackendList= [ {"postBackendName":"","boolCheck":None, "convFloat":True ,"ccOnly":False },
+                                             {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
+                                            ])
+    handler.write("#undef IGNORESQRT\n")
+
     handler.write("#ifdef USE_VERROU_QUADMATH\n")
     handler.write("#define IGNORESQRT\n")
 

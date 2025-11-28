@@ -40,7 +40,7 @@ extern "C" {
 #endif
 #define IFCD_FCTNAME(FCT) interflop_checkdenorm_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
   struct checkdenorm_conf {
       int flushtozero; //bool

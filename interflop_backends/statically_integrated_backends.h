@@ -15,3 +15,5 @@
 #include "backend_checkcancellation/interflop_checkcancellation.h"
 #include "backend_checkdenorm/interflop_checkdenorm.h"
 #include "backend_check_float_max/interflop_check_float_max.h"
+
+#include "interflop-backend-vprec/interflop_vprec.h"

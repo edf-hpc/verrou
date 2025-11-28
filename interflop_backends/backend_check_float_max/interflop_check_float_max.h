@@ -39,7 +39,7 @@ extern "C" {
 #endif
 #define IFMAX_FCTNAME(FCT) interflop_check_float_max_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
 
 

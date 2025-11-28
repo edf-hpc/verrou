@@ -40,7 +40,7 @@ extern "C" {
 #endif
 #define IFMQ_FCTNAME(FCT) interflop_mcaquad_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
 
    /* Repris depuis vfcwrapper.h*/

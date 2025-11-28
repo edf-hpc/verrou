@@ -174,6 +174,17 @@ void vr_clo_defaults (void) {
   vr.cancellationSource=NULL;
   vr.checkFloatMax=False;
 
+  vr.vprec_conf.preset = (UInt)(-1);
+  vr.vprec_conf.precision_binary32 = VPREC_PRECISION_BINARY32_DEFAULT;
+  vr.vprec_conf.range_binary32 = VPREC_RANGE_BINARY32_DEFAULT;
+  vr.vprec_conf.precision_binary64 = VPREC_PRECISION_BINARY64_DEFAULT;
+  vr.vprec_conf.range_binary64 = VPREC_RANGE_BINARY64_DEFAULT;
+  vr.vprec_conf.mode = VPREC_MODE_DEFAULT;
+  vr.vprec_conf.err_mode =  vprec_err_mode_rel;
+  vr.vprec_conf.max_abs_err_exponent = -DOUBLE_EXP_MIN;
+  vr.vprec_conf.daz = False;
+  vr.vprec_conf.ftz = False;
+
 }
 
 
@@ -187,6 +198,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.backend, vr_verrou)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
+    else if (VG_XACT_CLOM (cloPD, arg, "--backend=vprec",
+                         vr.backend, vr_vprec)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
                          vr.backend, vr_checkdenorm)) {}
 
@@ -473,6 +486,49 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--IOmatch-file-pattern", str)) {
     vr.IOMatchFileDescriptor=-1;
     vr.outputIOMatchFilePattern = VG_(strdup)("vr.process_clo.IOMatch-file-pattern", str);
+  }
+
+    // Options VPREC
+  else if (VG_INT_CLOM(cloPD, arg, "--vprec-precision-binary64",
+                       vr.vprec_conf.precision_binary64)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-precision-binary32",
+                         vr.vprec_conf.precision_binary32)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-range-binary64",
+                         vr.vprec_conf.range_binary64)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-range-binary32",
+                         vr.vprec_conf.range_binary32)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ob", vr.vprec_conf.mode,
+                          vprecmode_ob)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ib", vr.vprec_conf.mode,
+                          vprecmode_ib)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=full", vr.vprec_conf.mode,
+                          vprecmode_full)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ieee", vr.vprec_conf.mode,
+                          vprecmode_ieee)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary16",
+                          vr.vprec_conf.preset, vprec_preset_binary16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary32",
+                          vr.vprec_conf.preset, vprec_preset_binary32)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=bfloat16",
+                          vr.vprec_conf.preset, vprec_preset_bfloat16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=tensorfloat",
+                          vr.vprec_conf.preset, vprec_preset_tensorfloat)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=fp24", vr.vprec_conf.preset,
+                          vprec_preset_fp24)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=PXR24", vr.vprec_conf.preset,
+                          vprec_preset_PXR24)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=rel",
+                          vr.vprec_conf.err_mode, vprec_err_mode_rel)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=abs",
+                          vr.vprec_conf.err_mode, vprec_err_mode_abs)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=all",
+                          vr.vprec_conf.err_mode, vprec_err_mode_all)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-max-abs-error-exponent",
+                         vr.vprec_conf.max_abs_err_exponent)) {
+  } else if (VG_BOOL_CLO(arg, "--vprec-daz", bool_val)) {
+    vr.vprec_conf.daz = bool_val;
+  } else if (VG_BOOL_CLO(arg, "--vprec-ftz", bool_val)) {
+    vr.vprec_conf.ftz = bool_val;
   }
   // Unknown option
   else {

@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #define IFCC_FCTNAME(FCT) interflop_checkcancellation_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
    struct checkcancellation_conf {
      unsigned int threshold_float;

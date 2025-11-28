@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
 
 enum vr_RoundingMode {
