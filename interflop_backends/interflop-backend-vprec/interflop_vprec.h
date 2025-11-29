@@ -155,14 +155,7 @@ typedef struct {
   unsigned int ftz;
 } vprec_conf_t;
 
-void _set_vprec_precision_binary32(int precision, vprec_context_t *ctx);
-void _set_vprec_range_binary32(int range, vprec_context_t *ctx);
-void _set_vprec_precision_binary64(int precision, vprec_context_t *ctx);
-void _set_vprec_range_binary64(int range, vprec_context_t *ctx);
-float _vprec_round_binary32(float a, char is_input, void *context,
-                            int binary32_range, int binary32_precision);
-double _vprec_round_binary64(double a, char is_input, void *context,
-                             int binary64_range, int binary64_precision);
+
 extern struct argp vfi_argp;
 
 const char *get_vprec_mode_name(vprec_mode mode);

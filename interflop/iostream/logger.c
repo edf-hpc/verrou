@@ -124,6 +124,7 @@ static File *logger_stderr = Null;
 static int logger_level = logger_level_info;
 
 /* Returns ITrue if the logger is enabled */
+IBool is_logger_enabled(void);
 IBool is_logger_enabled(void) {
   const char *is_logger_enabled_env = interflop_getenv(vfc_backends_logger);
   if (is_logger_enabled_env == Null) {
@@ -136,6 +137,7 @@ IBool is_logger_enabled(void) {
 }
 
 /* Returns ITrue if the color is enabled */
+IBool is_logger_colored(void);
 IBool is_logger_colored(void) {
   const char *is_colored_logger_env =
       interflop_getenv(vfc_backends_colored_logger);
@@ -148,6 +150,7 @@ IBool is_logger_colored(void) {
   }
 }
 
+logger_level_t get_logger_level(void);
 logger_level_t get_logger_level(void) {
   const char *logger_level_env = interflop_getenv(vfc_backends_logger_level);
   if (logger_level_env == Null) {
@@ -178,7 +181,8 @@ static void _interflop_verrx(int eval, const char *fmt, va_list args) {
   interflop_exit(eval);
 }
 
-void set_logger_logfile() {
+void set_logger_logfile(void);
+void set_logger_logfile(void) {
   if (logger_logfile != Null) {
     return;
   }

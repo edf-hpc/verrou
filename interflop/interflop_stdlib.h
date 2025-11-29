@@ -143,6 +143,9 @@ double interflop_floord(double x);
 float interflop_ceilf(float x);
 double interflop_ceild(double x);
 
+float interflop_fpclassifyf(float x);
+double interflop_fpclassifyd(double x);
+
 #define interflop_fpclassify(x)                                                \
   _Generic(x, float: interflop_fpclassifyf, double: interflop_fpclassifyd)(x)
 

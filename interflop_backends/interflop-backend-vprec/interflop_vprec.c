@@ -74,6 +74,26 @@ static const char *const VPREC_PRESET_STR[] = {
     [vprec_preset_fp24] = "fp24",
     [vprec_preset_PXR24] = "PXR24"};
 
+//private functions header
+void _set_vprec_precision_binary32(int precision, vprec_context_t *ctx);
+void _set_vprec_range_binary32(int range, vprec_context_t *ctx);
+void _set_vprec_precision_binary64(int precision, vprec_context_t *ctx);
+void _set_vprec_range_binary64(int range, vprec_context_t *ctx);
+float _vprec_round_binary32(float a, char is_input, void *context,
+                            int binary32_range, int binary32_precision);
+double _vprec_round_binary64(double a, char is_input, void *context,
+                             int binary64_range, int binary64_precision);
+void _set_vprec_mode(vprec_mode mode, vprec_context_t *ctx);
+void _set_vprec_error_mode(vprec_err_mode mode, vprec_context_t *ctx);
+void _set_vprec_max_abs_err_exp(long exponent, vprec_context_t *ctx);
+const char *_get_error_mode_str(vprec_context_t *ctx);
+void _set_vprec_daz(bool daz, vprec_context_t *ctx);
+void _set_vprec_ftz(bool ftz, vprec_context_t *ctx);
+void _vprec_check_stdlib(void);
+void _vprec_alloc_context(void **context);
+
+
+
 static float _vprec_binary32_binary_op(float a, float b, vprec_operation op,
                                        void *context);
 static double _vprec_binary64_binary_op(double a, double b, vprec_operation op,
@@ -755,7 +775,7 @@ const char *INTERFLOP_VPREC_API(get_backend_version)(void) {
   return backend_version;
 }
 
-void _vprec_check_stdlib() {
+void _vprec_check_stdlib(void) {
   INTERFLOP_CHECK_IMPL(calloc);
   INTERFLOP_CHECK_IMPL(exit);
   INTERFLOP_CHECK_IMPL(fclose);

@@ -80,7 +80,8 @@ static inline int fpd(double x) {
   return f;
 }
 
-int fpq(_Float128 x) {
+
+static inline int fpq(_Float128 x) {
   binary128 b128 = {.f128 = x};
   int f = -1;
   if (b128.ieee128.exponent == QUAD_EXP_INF && b128.ieee128.mantissa == 0) {
