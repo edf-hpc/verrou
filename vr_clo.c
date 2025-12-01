@@ -81,6 +81,18 @@ void vr_env_clo(void){
 
    vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
    vr_env_clo_one_option("VERROU_COUNT_DENORM","--count-denorm");
+
+
+   vr_env_clo_one_option("VERROU_VPREC_PRECISION_BINARY64", "--vprec-precision-binary64");
+   vr_env_clo_one_option("VERROU_VPREC_RANGE_BINARY64", "--vprec-range-binary64");
+   vr_env_clo_one_option("VERROU_VPREC_PRECISION_BINARY32", "--vprec-precision-binary32");
+   vr_env_clo_one_option("VERROU_VPREC_RANGE_BINARY32", "--vprec-range-binary32");
+   vr_env_clo_one_option("VERROU_VPREC_MODE", "--vprec-mode");
+   vr_env_clo_one_option("VERROU_VPREC_PRESET", "--vprec-preset");
+   vr_env_clo_one_option("VERROU_VPREC_ERROR_MODE", "--vprec-error-mode");
+   vr_env_clo_one_option("VERROU_VPREC_MAX_ERROR_EXPONENT","--vprec-max-abs-error-exponent");
+   vr_env_clo_one_option("VERROU_VPREC_DAZ", "--vprec-daz");
+   vr_env_clo_one_option("VERROU_VPREC_FTZ", "--vprec-ftz");
 }
 
 void vr_clo_defaults (void) {
