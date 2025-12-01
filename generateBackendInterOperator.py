@@ -359,8 +359,8 @@ if __name__=="__main__":
     template1Args="vr_interp_operator_template_1args.h"
     listOfOp1Args=["sqrt"]
     fileOut.write("#ifdef USE_VERROU_SQRT\n")
-    generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1)
-    generateNargs(fileOut,template1Args, ["verrou","checkdenorm"], listOfOp1Args, 1,soft=True)
+    generateNargs(fileOut,template1Args, ["verrou","checkdenorm","vprec"], listOfOp1Args, 1)
+    generateNargs(fileOut,template1Args, ["verrou","checkdenorm","vprec"], listOfOp1Args, 1,soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
     generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)

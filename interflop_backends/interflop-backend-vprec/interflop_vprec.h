@@ -92,6 +92,7 @@ typedef enum {
   vprec_mul = '*',
   vprec_div = '/',
   vprec_fma = 'f',
+  vprec_sqrt = 's',
 } vprec_operation;
 
 /* define the possible VPREC preset */
@@ -185,6 +186,9 @@ void INTERFLOP_VPREC_API(madd_float)(float a, float b, float c, float *res,
                                     void *context);
 void INTERFLOP_VPREC_API(madd_double)(double a, double b, double c, double *res,
                                      void *context);
+void INTERFLOP_VPREC_API(sqrt_float)(float a, float *res, void *context);
+void INTERFLOP_VPREC_API(sqrt_double)(double a, double *res,void *context);
+
 void INTERFLOP_VPREC_API(enter_function)(interflop_function_stack_t *stack,
                                          void *context, int nb_args,
                                          va_list ap);

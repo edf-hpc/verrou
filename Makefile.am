@@ -119,6 +119,7 @@ VERROU_SOURCES_COMMON = \
 	interflop/interflop_stdlib.c\
 	interflop/iostream/logger.c\
 	interflop/fma/interflop_fma.c\
+	interflop/sqrt/interflop_sqrt.c\
 	interflop_valgrind_stdlib.c
 
 

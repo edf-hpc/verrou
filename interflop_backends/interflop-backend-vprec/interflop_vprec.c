@@ -34,6 +34,7 @@
 #include "interflop/common/float_struct.h"
 #include "interflop/common/float_utils.h"
 #include "interflop/fma/interflop_fma.h"
+#include "interflop/sqrt/interflop_sqrt.h"
 #include "interflop/interflop.h"
 #include "interflop/interflop_stdlib.h"
 #include "interflop/iostream/logger.h"
@@ -402,8 +403,24 @@ inline double handle_binary64_normal_absErr(double a, int64_t aexp,
 
 #define PERFORM_FMA(A, B, C)                                                   \
   _Generic(A,                                                                  \
-    float: interflop_fma_binary32,				\
+    float: interflop_fma_binary32,				               \
     double: interflop_fma_binary64 )(A, B, C)
+
+#define PERFORM_SQRT(A)                                                        \
+  _Generic(A,                                                                  \
+    float: interflop_sqrt_binary32,				               \
+    double: interflop_sqrt_binary64 )(A)
+
+
+
+#define perform_unary_op(op, res, a)                                           \
+  switch (op) {                                                                \
+  case vprec_sqrt:                                                             \
+    (res) = PERFORM_SQRT((a));                                                 \
+    break;                                                                     \
+  default:                                                                     \
+    logger_error("invalid operator %c", op);                                   \
+  };
 
 
 /* perform_binary_op: applies the binary operator (op) to (a) and (b) */
@@ -558,6 +575,59 @@ double _vprec_round_binary64(double a, char is_input, void *context,
 
   return a;
 }
+
+//debut unary
+static inline float _vprec_binary32_unary_op(float a,
+                                             const vprec_operation op,
+                                             void *context) {
+  vprec_context_t *ctx = (vprec_context_t *)context;
+  float res = 0;
+
+  logger_debug("[Inputs] binary32: a=%+.6a op=%c\n", a, op);
+
+  if ((ctx->mode == vprecmode_full) || (ctx->mode == vprecmode_ib)) {
+    a = _vprec_round_binary32(a, 1, context, ctx->binary32_range,
+                              ctx->binary32_precision);
+    logger_debug("[Round ] binary32: a=%+.6a op=%c\n", a, op);
+  }
+
+  perform_unary_op(op, res, a);
+  logger_debug("[Result] binary32: res=%.6a\n", res);
+
+  if ((ctx->mode == vprecmode_full) || (ctx->mode == vprecmode_ob)) {
+    res = _vprec_round_binary32(res, 0, context, ctx->binary32_range,
+                                ctx->binary32_precision);
+    logger_debug("[Round ] binary32: res=%+.6a\n", res);
+  }
+
+  return res;
+}//fait
+
+static inline double _vprec_binary64_unary_op(double a,
+                                              const vprec_operation op,
+                                              void *context) {
+  vprec_context_t *ctx = (vprec_context_t *)context;
+  double res = 0;
+  logger_debug("[Inputs] binary64: a=%+.13a op=%c\n", a, op);
+
+  if ((ctx->mode == vprecmode_full) || (ctx->mode == vprecmode_ib)) {
+    a = _vprec_round_binary64(a, 1, context, ctx->binary64_range,
+                              ctx->binary64_precision);
+    logger_debug("[Round ] binary64: a=%+.13a op=%c\n", a, op);
+  }
+
+  perform_unary_op(op, res, a);
+  logger_debug("[Result] binary64: res=%.13a\n", res);
+
+  if ((ctx->mode == vprecmode_full) || (ctx->mode == vprecmode_ob)) {
+    res = _vprec_round_binary64(res, 0, context, ctx->binary64_range,
+                                ctx->binary64_precision);
+    logger_debug("[Round ] binary64: res=%+.13a\n", res);
+  }
+
+  return res;
+}
+//fin unary
 
 static inline float _vprec_binary32_binary_op(float a, float b,
                                               const vprec_operation op,
@@ -739,6 +809,15 @@ void INTERFLOP_VPREC_API(madd_double)(double a, double b, double c, double *res,
                                      void *context) {
   *res = _vprec_binary64_ternary_op(a, b, c, vprec_fma, context);
 }
+
+void INTERFLOP_VPREC_API(sqrt_float)(float a, float *res, void *context) {
+  *res = _vprec_binary32_unary_op(a, vprec_sqrt, context);
+}
+
+void INTERFLOP_VPREC_API(sqrt_double)(double a, double *res, void *context) {
+  *res = _vprec_binary64_unary_op(a, vprec_sqrt, context);
+}
+
 
 void INTERFLOP_VPREC_API(user_call)(void *context, interflop_call_id id,
                                     va_list ap) {
@@ -1148,6 +1227,9 @@ struct interflop_backend_interface_t INTERFLOP_VPREC_API(init)(void *context) {
           INTERFLOP_VPREC_API(cast_double_to_float),
       .interflop_madd_float = INTERFLOP_VPREC_API(madd_float),
       .interflop_madd_double = INTERFLOP_VPREC_API(madd_double),
+
+      .interflop_sqrt_float  = INTERFLOP_VPREC_API(sqrt_float),
+      .interflop_sqrt_double = INTERFLOP_VPREC_API(sqrt_double),
 
       .interflop_enter_function = NULL,
       .interflop_exit_function =  NULL,
