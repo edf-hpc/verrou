@@ -1,13 +1,13 @@
 <refsect1 id="verrou-options">
   <title>Verrou Options</title>
-  
+
   <refsect2>
     <title>General options</title>
     <xi:include href="../../verrou/docs/vr-manual.xml"
                 xpointer="vr.opts.general.list"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect2>
-    
+
   <refsect2>
     <title>Perturbation of floating-point operations</title>
     <xi:include href="../../verrou/docs/vr-manual.xml"
@@ -35,4 +35,15 @@
                 xpointer="vr.opts.detection.list"
                 xmlns:xi="http://www.w3.org/2001/XInclude" />
   </refsect2>
+
+  <refsect2>
+    <title>VPREC options</title>
+    <para> The vprec backend implementation come from Verificarlo : <ulink url="https://github.com/verificarlo/verificarlo/blob/master/doc/02-Backends.md#vprec-backend-libinterflop_vprecso"> More information on Verificalo github </ulink>
+    </para>
+
+    <xi:include href="../../verrou/docs/vr-manual.xml"
+                xpointer="vr.opts.vprec.list"
+                xmlns:xi="http://www.w3.org/2001/XInclude" />
+  </refsect2>
+
 </refsect1>

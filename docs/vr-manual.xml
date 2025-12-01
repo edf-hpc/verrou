@@ -238,8 +238,8 @@ det2
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
             <term><option><![CDATA[--backend=<verrou|mcaquad|checkdenorm> [default=verrou]]]></option></term>
             <listitem><para>
-		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>
-		or <computeroutput>checkdenorm</computeroutput>
+		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>,
+		<computeroutput>checkdenorm</computeroutput> or <computeroutput>vprec</computeroutput>
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <xref linkend="vr-opt.rounding-mode"/> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
@@ -248,6 +248,7 @@ det2
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>daz,ftz,dazftz</computeroutput> rounding-modes, and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd[io]-gen-file</computeroutput> options.
+		<computeroutput>vprec</computeroutput> implements all reduced precisions.
               </para>
 	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
 
@@ -549,7 +550,132 @@ det2
 
 	  </variablelist>
       </section>
+      <section>
+        <title>VPREC options</title>
+	<para> The vprec backend implementation come from Verificarlo :
+	  <ulink url="https://github.com/verificarlo/verificarlo/blob/master/doc/02-Backends.md#vprec-backend-libinterflop_vprecso"> More information on Verificalo github </ulink>
+	  </para>
 
+        <variablelist id="vr.opts.vprec.list">
+	  <varlistentry id="vr-opt.vprec-mode" xreflabel="--vprec-mode">
+            <term><option><![CDATA[--vprec-mode=<ieee|full|ib|ob> [default=ob]]]></option></term>
+            <listitem>
+              <para>
+                Select the given vprec mode for operations instrumented with the vprec backend. Supported vprec modes are:
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>ieee : </command> The program uses standard IEEE arithmetic, no rounding are introduced.
+                </para></listitem>
+		<listitem><para>
+                  <command>ib : </command> <computeroutput> InBound precision only</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>ob : </command> <computeroutput> OutBound precision only (default mode)</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>full : Inbound and outbound mode combined </command>
+                </para></listitem>
+              </itemizedlist>
+
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_MODE</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-precision-binary64" xreflabel="--vprec-precision-binary64">
+            <term><option><![CDATA[--vprec-precision-binary64= [default=52]]]></option></term>
+            <listitem>
+              <para>
+                Configure the precision (length of pseudo-mantissa) used by vprec backend for double operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY64</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-range-binary64" xreflabel="--vprec-range-binary64">
+            <term><option><![CDATA[--vprec-range-binary64= [default=11]]]></option></term>
+            <listitem>
+              <para>
+                Configure the range (length of pseudo-exponent) used by vprec backend for double operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY64</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-precision-binary32" xreflabel="--vprec-precision-binary32">
+            <term><option><![CDATA[--vprec-precision-binary32= [default=23]]]></option></term>
+            <listitem>
+              <para>
+                Configure the precision (length of pseudo-mantissa) used by vprec backend for float operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY32</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-range-binary32" xreflabel="--vprec-range-binary32">
+            <term><option><![CDATA[--vprec-range-binary32= [default=8]]]></option></term>
+            <listitem>
+              <para>
+                Configure the range (length of pseudo-exponent) used by vprec backend for float operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY32</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-preset" xreflabel="--vprec-preset">
+            <term><option><![CDATA[--vprec-preset=<binary16|binary32|bfloat16|tensorfloat|fp24|PXR24>]]></option></term>
+            <listitem>
+              <para>
+                Select the given vprec mode for operations instrumented with the vprec backend.
+              </para>
+
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRESET</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-error-mode" xreflabel="--vprec-error-mode">
+            <term><option><![CDATA[--vprec-error-mode=<rel|abs|all> [default]=rel]]></option></term>
+            <listitem>
+              <para>
+                Select the given vprec error mode for operations instrumented with the vprec backend.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_ERROR_MODE</command>.</para>
+            </listitem>
+          </varlistentry>
+
+
+	    <varlistentry id="vr-opt.vprec-max-abs-error-exponent" xreflabel="--vprec-max-abs-error-exponent">
+            <term><option><![CDATA[--vprec-max-abs-error-exponent= [default]=-1022]]></option></term>
+            <listitem>
+              <para>Select the magnitude of the maximum allowed absolute error (this option is only used when vprec-error-mode={abs, all})
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_MAX_ABS_ERROR_EXPONENT</command>.</para>
+            </listitem>
+          </varlistentry>
+
+
+	    <varlistentry id="vr-opt.vprec-daz" xreflabel="--vprec-daz">
+            <term><option><![CDATA[--vprec-daz]]></option></term>
+            <listitem>
+              <para>
+		Sets denormals inputs to zero.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_DAZ</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	    <varlistentry id="vr-opt.vprec-ftz" xreflabel="--vprec-ftz">
+            <term><option><![CDATA[--vprec-ftz]]></option></term>
+            <listitem>
+              <para>
+		Sets denormals outputs to zero.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_FTZ</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	</variablelist>
+      </section>
       <section>
         <title>Restriction of instrumentation scope</title>
         <variablelist id="vr.opts.scope.list">
