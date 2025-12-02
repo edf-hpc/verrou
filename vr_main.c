@@ -1746,7 +1746,7 @@ static void vr_post_clo_init(void)
      if ((vr.backend==vr_checkdenorm) && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE ) ){
         VR_UMSG_CONF("Backend checkdenorm with NEAREST and NATIVE rounding mode is experimental");
      }else{
-        VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
+        VG_(tool_panic)("--libm=instrumented is only compatible with verrou backend");
      }
   }
 
