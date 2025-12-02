@@ -51,6 +51,7 @@ class DDline(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
+                "VERROU_VPREC_MODE": "ieee",
                 "VERROU_GEN_SOURCE":   self.ref_ / "dd.line.%p",
                 "VERROU_GEN_EXCLUDE":  self.ref_ / "dd.sym.%p"
                 }

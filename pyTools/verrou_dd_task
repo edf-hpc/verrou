@@ -42,6 +42,7 @@ class DDTask(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
+                "VERROU_VPREC_MODE": "ieee",
                 "GENERATE_TASK_LIST":  self.ref_ / "dd.task.gen",
                 "GENERATE_TASK_FP_LIST": self.ref_ / "dd.taskFP.gen",
                 "VERROU_COUNT_OP":"yes",

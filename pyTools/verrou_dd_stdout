@@ -148,6 +148,7 @@ class DDstdout(DD_stoch.DDStoch):
               "LD_PRELOAD": self.newLdPreload(),
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
+              "VERROU_VPREC_MODE": "ieee",
               "VERROU_FLOAT":"no",
               "VERROU_UNFUSED":"no",
               "VERROU_IOMATCH_CLR":refPath,

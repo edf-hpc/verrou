@@ -41,6 +41,7 @@ class DDsym(DD_stoch.DDStoch):
                 "VERROU_FLOAT":"no",
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
+                "VERROU_VPREC_MODE": "ieee",
                 "VERROU_GEN_EXCLUDE":  self.ref_ / "dd.sym.%p"}
 
     def isFileValidToMerge(self, name):
