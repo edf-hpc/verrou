@@ -41,6 +41,7 @@
 #include "interflop_vprec.h"
 #include "interflop_vprec_function_instrumentation.h"
 
+
 static const char backend_name[] = "interflop-vprec";
 static const char backend_version[] = "1.x-dev";
 
@@ -94,11 +95,12 @@ void _vprec_check_stdlib(void);
 void _vprec_alloc_context(void **context);
 
 
-
 static float _vprec_binary32_binary_op(float a, float b, vprec_operation op,
                                        void *context);
 static double _vprec_binary64_binary_op(double a, double b, vprec_operation op,
                                         void *context);
+
+static void print_information_header(void *context);
 
 /******************** VPREC CONTROL FUNCTIONS *******************
  * The following functions are used to set virtual precision,
@@ -796,8 +798,9 @@ void INTERFLOP_VPREC_API(div_double)(double a, double b, double *c,
 void INTERFLOP_VPREC_API(cast_double_to_float)(double a, float *b,
                                                void *context) {
   vprec_context_t *ctx = (vprec_context_t *)context;
-  *b = (float)_vprec_round_binary64(a, 0, context, ctx->binary32_precision,
-                                    ctx->binary32_range);
+
+  *b=_vprec_round_binary64(a, 0, context, ctx->binary32_range,
+                           ctx->binary32_precision);
 }
 
 void INTERFLOP_VPREC_API(madd_float)(float a, float b, float c, float *res,
