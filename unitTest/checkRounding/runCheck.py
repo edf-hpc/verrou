@@ -31,7 +31,7 @@ import re
 from pathlib import Path
 
 stdRounding=["nearest", "toward_zero", "downward", "upward" ]
-detRounding=["farthest","float", "ftz", "daz","dazftz","away_zero"]
+detRounding=["farthest","float", "ftz", "daz","dazftz","away_zero", "vprec_float"]
 randomStarRounding=["random", "random_det", "random_comdet", "random_scomdet", "prandom_0.5"]
 prandomStarRounding=["prandom",  "prandom_det", "prandom_comdet"]
 monotonicRounding=["sr_monotonic", "sr_smonotonic"]
@@ -102,6 +102,12 @@ class cmdPrepare:
         if env=="valgrind":
             if rounding=="memcheck":
                 cmd=self.valgrindPath + " --tool=memcheck " + self.execPath +" valgrind"
+            elif rounding.endswith("vprec_float"):
+                cmd=self.valgrindPath + " --tool=verrou --vr-verbose=no --check-inf=no --backend=vprec --vprec-precision-binary64=23 --vprec-range-binary64=8 --vprec-mode=full " + self.execPath +" valgrind"
+                if rounding.startswith("float_"):
+                    rounding=rounding.replace("float_","")
+                    withFloat=True
+                    cmd=self.valgrindPath + " --tool=verrou --float=yes --vr-verbose=no --check-inf=no --backend=vprec --vprec-precision-binary64=23 --vprec-range-binary64=8 --vprec-mode=full " + self.execPath +" valgrind"
             else:
                 withFloat=False
                 if rounding.startswith("float_"):
@@ -156,6 +162,10 @@ def verrouCerrFilter(res):
         if (newLine.strip()).startswith("PRANDOM: pvalue="):
             continue
         if (newLine.strip()).startswith("Frontend: double -> float"):
+            continue
+        if (newLine.strip()).startswith("Info [interflop-vprec]:"):
+            continue
+        if (newLine.strip()).startswith("Backend interflop-vprec"):
             continue
         newRes+=[newLine]
     return newRes
@@ -359,6 +369,8 @@ def checkTestPositiveAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("float", "float_nearest")
+            testCheck.assertEqual("float", "vprec_float")
+            testCheck.assertEqual("float", "float_vprec_float")
             for prefix in ["","float_"]:
                 testCheck.assertEqual(prefix+"nearest", prefix+"ftz") #hypothesis : no denorm
                 testCheck.assertEqual(prefix+"nearest", prefix+"daz") #hypothesis : no denorm
@@ -424,6 +436,9 @@ def checkTestNegativeAndOptimistRandomVerrou(allResult,testList,typeTab=["<doubl
             testCheck=assertRounding(testName)
             testCheck.assertNative()
             testCheck.assertEqual("float","float_nearest")
+            testCheck.assertEqual("float", "vprec_float")
+            testCheck.assertEqual("float", "float_vprec_float")
+
             for prefix in ["","float_"]:
                 testCheck.assertEqual(prefix+"nearest",prefix+"ftz") #hypothesis : no denorm
                 testCheck.assertEqual(prefix+"toward_zero", prefix+"upward")
@@ -465,6 +480,8 @@ def checkTestPositive(allResult,testList, typeTab=["<double>", "<float>"], statN
         testCheck.assertEqual("nearest","daz") #hypothesis : no denorm
         testCheck.assertEqual("nearest","dazftz") #hypothesis : no denorm
         testCheck.assertEqual("float","float_nearest")
+        testCheck.assertEqual("float", "vprec_float")
+        testCheck.assertEqual("float", "float_vprec_float")
         testCheck.assertEqual("toward_zero", "downward")
         testCheck.assertEqual("away_zero", "upward")
         testCheck.assertLeq("downward", "nearest")
@@ -519,6 +536,8 @@ def checkTestNegative(allResult,testList,typeTab=["<double>", "<float>"],statNum
             testCheck.assertEqual("nearest","daz") #hypothesis : no denorm
             testCheck.assertEqual("nearest","dazftz") #hypothesis : no denorm
             testCheck.assertEqual("float","float_nearest")
+            testCheck.assertEqual("float", "vprec_float")
+            testCheck.assertEqual("float", "float_vprec_float")
             testCheck.assertEqual("toward_zero", "upward")
             testCheck.assertEqual("away_zero", "downward")
 
@@ -568,6 +587,8 @@ def checkTestPositiveBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("float","float_nearest")
+        testCheck.assertEqual("float", "vprec_float")
+        testCheck.assertEqual("float", "float_vprec_float")
         for prefix in ["","float_"]:
             testCheck.assertEqual(prefix+"nearest","ftz") #hypothesis : no denorm
             testCheck.assertEqual(prefix+"nearest","daz") #hypothesis : no denorm
@@ -599,6 +620,8 @@ def checkTestNegativeBetweenTwoValues(allResult,testList, typeTab=["<double>", "
         testCheck=assertRounding(testName)
         testCheck.assertNative()
         testCheck.assertEqual("float","float_nearest")
+        testCheck.assertEqual("float", "vprec_float")
+        testCheck.assertEqual("float", "float_vprec_float")
         for prefix in ["","float_"]:
             testCheck.assertEqual(prefix+"nearest",prefix+"ftz") #hypothesis : no denorm
             testCheck.assertEqual(prefix+"nearest",prefix+"daz") #hypothesis : no denorm
@@ -634,6 +657,8 @@ def checkExact(allResult,testList,typeTab=["<double>", "<float>"]):
             testCheck.assertNative()
 
             testCheck.assertEqual("float","float_nearest")
+            testCheck.assertEqual("float", "vprec_float")
+            testCheck.assertEqual("float", "float_vprec_float")
 
             for rnd in allVerrouRounding:  #hypothesis : no denorm
                 if rnd in ["float"]:
