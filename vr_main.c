@@ -1680,8 +1680,8 @@ static void vr_post_clo_init(void)
                 interflop_vprec_get_backend_version());
 
       interflop_vprec_pre_init(&VG_(tool_panic), _stderr, &backend_vprec_context);
-      backend_vprec=interflop_vprec_init(backend_vprec_context);
       interflop_vprec_configure((void*)&vr.vprec_conf, backend_vprec_context);
+      backend_vprec=interflop_vprec_init(backend_vprec_context);
    }
 
    /*Init outfile cancellation*/
