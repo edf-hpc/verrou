@@ -88,6 +88,38 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
                  "VERROU_MCA_PRECISION_FLOAT": floatPrec}
         res.update(envvars)
         return res
+    if rounding.startswith("vprec"):
+        vprecConfig=rounding.split("-")[1:]
+        mode=vprecConfig[0]
+        (doubleRange, doublePrec)=(vprecConfig[1]).split("+")
+        (floatRange, floatPrec)=(vprecConfig[2]).split("+")
+        if not (mode in ["ob","ib","full"]):
+            if failure:
+                print("No valid vprec mode ",rounding)
+                sys.exit(42)
+            else:
+                return None
+
+        for localStr in [doubleRange, doublePrec,floatRange, floatPrec]:
+            try:
+                testInt=int(localStr)
+            except:
+                if failure:
+                    print("No valid vprec configuration ",rounding)
+                    sys.exit(42)
+                else:
+                    return None
+
+        envvars={"VERROU_BACKEND":"vprec",
+                 "VERROU_VPREC_MODE":mode,
+                 "VERROU_VPREC_RANGE_BINARY64": doubleRange,
+                 "VERROU_VPREC_PRECISION_BINARY64": doublePrec,
+                 "VERROU_VPREC_RANGE_BINARY32": floatRange,
+                 "VERROU_VPREC_PRECISION_BINARY32": floatPrec
+                 }
+        res.update(envvars)
+        return res
+
     if rounding in roundingDetTabWithoutFloatPrefix + roundingNonDetTabWithoutFloatPrefix:
         res.update({"VERROU_ROUNDING_MODE":rounding })
         return res

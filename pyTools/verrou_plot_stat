@@ -879,8 +879,11 @@ class config_stat(gen_config.gen_config):
         print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t",  ",".join(["vprec-ib-11+52-8+23","vprec-ob-11+52-8+23","vprec-full-11+52-8+23"]) , "(integer can be modified)")
         print("\t rounding mode can be prefixed by \"float_\"")
-        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTabWithoutFloatPrefix))
+
+        detAlias=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz","daz","dazftz"]]
+        print("\t det is an alias to "+",".join(detAlias))
 
     def help(self):
         self.usageCmd()
@@ -934,6 +937,8 @@ class config_stat(gen_config.gen_config):
         nbSamples={}
         for key in self._roundingTab:
             if key in roundingDetTabWithFloatPrefix:
+                nbSamples[key]=nbDet
+            elif key.startswith("vprec"):
                 nbSamples[key]=nbDet
             else:
                 nbSamples[key]=self._nbSample
