@@ -23,7 +23,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("instr"  , "string", "INSTR",        ["--instr="],   [] , additive=True)
         self.addRegistry("rounding", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode"] , [], additive=True,
                          docStr="rounding mode list (coma separated) [default rounding in run.sh]",
-                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix + rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]+rounding_tool.vprecSuggestion())
         self.addRegistry("trace_bin",    "bool",   "TRACE_BIN",     ["--trace-bin"],     False)
         self.addRegistry("trace_pattern","string", "TRACE_PATTERN", ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)

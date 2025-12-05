@@ -66,7 +66,7 @@ def verrou_run_stat(conf):
             continue
         name=("%s")%(roundingMode)
         envvars=rounding_tool.roundingToEnvVar(roundingMode)
-        if roundingMode in roundingDetTabWithFloatPrefix:
+        if roundingMode in roundingDetTabWithFloatPrefix or roundingMode.startswith("vprec"):
             detName=rep/"det"
             detName.mkdir(exist_ok=True)
 
@@ -88,7 +88,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
     for roundingMode in listOfStat:
         name=("%s")%(roundingMode)
-        if roundingMode in roundingDetTabWithFloatPrefix:
+        if roundingMode in roundingDetTabWithFloatPrefix or roundingMode.startswith("vprec"):
             name=("det/%s")%(roundingMode)
 
         resTab=[]
@@ -729,7 +729,7 @@ class config_stat(gen_config.gen_config):
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
                          docStr="rounding mode list (coma separated) [default random,average,det]",
-                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]+rounding_tool.vprecSuggestion())
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
         self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
@@ -879,7 +879,7 @@ class config_stat(gen_config.gen_config):
         print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
-        print("\t",  ",".join(["vprec-ib-11+52-8+23","vprec-ob-11+52-8+23","vprec-full-11+52-8+23"]) , "(integer can be modified)")
+        print("\t",  ",".join(["vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"]) , "(integer of E*M* format can be reduced)")
         print("\t rounding mode can be prefixed by \"float_\"")
 
         detAlias=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz","daz","dazftz"]]

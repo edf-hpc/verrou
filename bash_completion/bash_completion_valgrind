@@ -117,8 +117,22 @@ _valgrind()
 	     COMPREPLY=($(compgen -W 'mca rr pb ieee' -- "$cur"))
              return
 	     ;;
+	 --vprec-mode)
+	     COMPREPLY=($(compgen -W 'ieee ob ib full' -- "$cur"))
+             return
+	     ;;
+	 --vprec-error-mode)
+	     COMPREPLY=($(compgen -W 'rel abs all' -- "$cur"))
+             return
+	     ;;
+
+	 --vprec-preset)
+	     COMPREPLY=($(compgen -W 'binary16 fp16 binary32 fp32 bfloat16 bf16 tensorfloat tf32 fp24 PXR24 pxr24' -- "$cur"))
+             return
+	     ;;
+
 	 --backend)
-	     COMPREPLY=($(compgen -W 'verrou mcaquad checkdenorm' -- "$cur"))
+	     COMPREPLY=($(compgen -W 'verrou mcaquad checkdenorm vprec' -- "$cur"))
              return
 	     ;;
 	 --output-trace-rep)
@@ -141,6 +155,15 @@ _valgrind()
 	     _filedir
 	     return
 	     ;;
+	 --exclude-backtrace)
+	     _filedir
+	     return
+	     ;;
+	 --gen-backtrace)
+	     _filedir -d
+	     return
+	     ;;
+
          # generic cases parsed from --help output
         --+([-A-Za-z0-9_]))
             local value=$($1 --help-debug ${tool-} 2>/dev/null |

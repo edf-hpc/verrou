@@ -451,9 +451,28 @@
           This option can be activated with the env variable\n\
           VERROU_VPREC_RANGE_BINARY32.\n\
 \n\
-      --vprec-preset=<binary16|binary32|bfloat16|tensorfloat|fp24|PXR24>\n\
+      --vprec-preset=<binary16|fp16|binary32|fp32|bfloat16|bf16|tensorfloat|tf32|fp24|PXR24|pxr24>\n\
           Select the given vprec mode for operations instrumented with the\n\
-          vprec backend.\n\
+          vprec backend (flt/binary32 and dbl/binary64).\n\
+\n\
+          Table 1.1. Alias definition\n\
+              ┌─────────────────┬──────────────────┬──────────┬──────────┐\n\
+              │Alias compatible │ Alias compatible │ Exponent │ Mantissa │\n\
+              │with             │ with verificarlo │          │          │\n\
+              │verrou_plot_stat │                  │          │          │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │      fp16       │     binary16     │    5     │    10    │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │      fp32       │     binary32     │    8     │    23    │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │      bf16       │     bfloat16     │    8     │    7     │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │      tf32       │   tensorfloat    │    8     │    10    │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │      fp24       │       fp24       │    7     │    16    │\n\
+              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
+              │     pxr24       │      PXR24       │    8     │    15    │\n\
+              └─────────────────┴──────────────────┴──────────┴──────────┘\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_VPREC_PRESET.\n\

@@ -574,7 +574,7 @@ det2
                   <command>ob : </command> <computeroutput> OutBound precision only (default mode)</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>full : Inbound and outbound mode combined </command>
+                  <command>full : </command> <computeroutput>Inbound and outbound mode combined</computeroutput>
                 </para></listitem>
               </itemizedlist>
 
@@ -623,12 +623,49 @@ det2
           </varlistentry>
 
 	  <varlistentry id="vr-opt.vprec-preset" xreflabel="--vprec-preset">
-            <term><option><![CDATA[--vprec-preset=<binary16|binary32|bfloat16|tensorfloat|fp24|PXR24>]]></option></term>
+            <term><option><![CDATA[--vprec-preset=<binary16|fp16|binary32|fp32|bfloat16|bf16|tensorfloat|tf32|fp24|PXR24|pxr24>]]></option></term>
             <listitem>
               <para>
-                Select the given vprec mode for operations instrumented with the vprec backend.
+                Select the given vprec mode for operations instrumented with the vprec backend (flt/binary32 and dbl/binary64).
               </para>
-
+	      <para>
+	      <table frame='all'>
+		<title>Alias definition</title>
+		<tgroup cols='3' align='center' colsep='1' rowsep='1'>
+		  <colspec colname='c1'/>
+		  <colspec colname='c2'/>
+		  <colspec colname='c3'/>
+		  <colspec colname='c4'/>
+		  <thead>
+		    <row>
+		      <entry>Alias compatible with verrou_plot_stat</entry>
+		      <entry>Alias compatible with verificarlo</entry>
+		      <entry>Exponent</entry>
+		      <entry>Mantissa</entry>
+		    </row>
+		  </thead>
+		  <tbody>
+		    <row>
+		      <entry> fp16 </entry> <entry> binary16 </entry><entry> 5 </entry><entry> 10 </entry>
+		    </row>
+		    <row>
+		      <entry> fp32 </entry><entry> binary32 </entry><entry> 8 </entry><entry> 23 </entry>
+		    </row>
+		    <row>
+		       <entry> bf16 </entry><entry> bfloat16 </entry><entry> 8 </entry><entry> 7 </entry>
+		    </row>
+		    <row>
+		      <entry> tf32 </entry><entry> tensorfloat </entry><entry> 8 </entry><entry> 10 </entry>
+		    </row>
+		    <row>
+		      <entry> fp24 </entry><entry> fp24 </entry><entry> 7 </entry><entry> 16 </entry>
+		    </row>
+		    <row>
+		      <entry> pxr24 </entry><entry> PXR24 </entry><entry> 8 </entry><entry> 15 </entry>
+		    </row>
+		  </tbody>
+	      </tgroup></table>
+	      </para>
 	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRESET</command>.</para>
             </listitem>
           </varlistentry>

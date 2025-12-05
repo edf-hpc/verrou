@@ -1081,7 +1081,9 @@ genCovBB trace_bb_cov.log-*
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
 	     <computeroutput>toward_zero</computeroutput>,
-	     <computeroutput>away_zero</computeroutput>
+	     <computeroutput>away_zero</computeroutput>,
+	     <computeroutput>mca-{rr|pb|mca}-53-24</computeroutput>,
+	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"</computeroutput>
 	     )
           </term>
           <listitem>
@@ -1100,6 +1102,20 @@ genCovBB trace_bb_cov.log-*
 	      [<computeroutput>average</computeroutput>,
 	      <computeroutput>random</computeroutput>, <computeroutput>prandom</computeroutput>]
 	    </para>
+
+	    <para>
+	      The integer parameters of <computeroutput>mca-*</computeroutput> can be modified.
+	     </para>
+
+	    <para>
+	      The integer parameters of <computeroutput>E${exp}M${}</computeroutput> can be reduced.
+	      The first expression <computeroutput>E${exp}M${}</computeroutput>  corresponds to the couple (exponent/mantissa) for binary32 operation  and the secund is used to configure binary64 operation. If the second expression is ignored, vprec is configured with the same parameters for binary32/binary64 operations.
+	    </para>
+
+	     <para>vprec can be configured with aliases :
+		fp16=E5M10 bf16=E8M7 fp24=E7M16 fp32=E8M23 fp64=E11M52 tf32=E8M10 pxr24=E8M15
+	     </para>
+
           </listitem>
         </varlistentry>
 
@@ -1282,7 +1298,9 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>downward</computeroutput>,
 	     <computeroutput>farthest</computeroutput>,
 	     <computeroutput>toward_zero</computeroutput>,
-	     <computeroutput>away_zero</computeroutput>
+	     <computeroutput>away_zero</computeroutput>,
+	     <computeroutput>mca-{rr|pb|mca}-53-24</computeroutput>,
+	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"</computeroutput>
 	    </para>
 
             <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
@@ -1290,10 +1308,23 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,away_zero,farthest</computeroutput>.
 	    </para>
 
+	    <para>
+	      The integer parameters of <computeroutput>mca-*</computeroutput> can be modified.
+	     </para>
+
+	    <para>
+	      The integer parameters of <computeroutput>E${exp}M${}</computeroutput> can be reduced.
+	      The first expression <computeroutput>E${exp}M${}</computeroutput>  corresponds to the couple (exponent/mantissa) for binary32 operation  and the secund is used to configure binary64 operation. If the second expression is ignored, vprec is configured with the same parameters for binary32/binary64 operations.
+	    </para>
+
+	     <para>vprec can be configured with aliases :
+		fp16=E5M10 bf16=E8M7 fp24=E7M16 fp32=E8M23 fp64=E11M52 tf32=E8M10 pxr24=E8M15
+	     </para>
+
 	    <para> The list can also contain <computeroutput>prandom_fun</computeroutput>. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the <xref linkend="vr-manual.feat.updatepfunc"/> set to <computeroutput>func</computeroutput>.
 	    </para>
 
-	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>.
+	    <para> The list can also contain <computeroutput>prandom_FLOAT</computeroutput> with <computeroutput>FLOAT</computeroutput> a floating point number between 0 and 1. This rounding mode corresponds to <computeroutput>prandom</computeroutput> with the  <xref linkend="vr-manual.feat.updatepvalue"/>  set to <computeroutput>FLOAT</computeroutput>
 	    </para>
 	    <para>
 	    If the option is set multiple times, the list will be append to the current list.
