@@ -207,4 +207,7 @@ void INTERFLOP_VPREC_API(cli)(int argc, char **argv, void *context);
 void INTERFLOP_VPREC_API(configure)(void *configure, void *context);
 struct interflop_backend_interface_t INTERFLOP_VPREC_API(init)(void *context);
 
+void INTERFLOP_VPREC_API(print_header)(void *context);
+
+
 #endif /* __INTERFLOP_VPREC_H__ */

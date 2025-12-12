@@ -1271,10 +1271,17 @@ struct interflop_backend_interface_t INTERFLOP_VPREC_API(init)(void *context) {
   interflop_backend_vprec.interflop_exit_function = INTERFLOP_VPREC_API(exit_function);
 #endif
 
-  print_information_header(ctx);
+//  print_information_header(ctx);
 
   return interflop_backend_vprec;
 }
+
+
+void INTERFLOP_VPREC_API(print_header)(void *context){
+   vprec_context_t *ctx = (vprec_context_t *)context;
+   print_information_header(ctx);
+}
+
 
 struct interflop_backend_interface_t interflop_init(void *context)
     __attribute__((weak, alias("interflop_vprec_init")));

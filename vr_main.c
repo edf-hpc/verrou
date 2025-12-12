@@ -1676,12 +1676,16 @@ static void vr_post_clo_init(void)
    //init vprec
    interflop_vprec_pre_init(VG_(tool_panic), _stderr, &backend_vprec_context);
    if(vr.backend==vr_vprec){
-      VG_(umsg)("Backend %s : %s\n", interflop_vprec_get_backend_name(),
-                interflop_vprec_get_backend_version());
-
+      if( VG_(clo_verbosity) >0){
+         VG_(umsg)("Backend %s : %s\n", interflop_vprec_get_backend_name(),
+                   interflop_vprec_get_backend_version());
+      }
       interflop_vprec_pre_init(&VG_(tool_panic), _stderr, &backend_vprec_context);
       interflop_vprec_configure((void*)&vr.vprec_conf, backend_vprec_context);
       backend_vprec=interflop_vprec_init(backend_vprec_context);
+      if( VG_(clo_verbosity) >0){
+         interflop_vprec_print_header(backend_vprec_context);
+      }
    }
 
    /*Init outfile cancellation*/
