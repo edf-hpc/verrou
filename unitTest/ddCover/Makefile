@@ -10,7 +10,7 @@ export SHELL=bash
 FLAGS=-Wall -g -O0
 
 
-all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.back.line.integer.post.assert dd.back.line.post.assert
+all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.back.line.integer.post.assert dd.back.line.post.assert dd.line.integer.vprec
 
 unitTest: unitTest.cxx integrate.hxx
 	g++ $(FLAGS) -DFLOATLOOP -o $@ $<
@@ -23,6 +23,11 @@ dd.line: unitTest ddRun.sh ddCmp.py
 
 dd.line.integer: unitTestInteger ddRunInteger.sh ddCmp.py
 	verrou_dd_line --cache=clean --rep=dd.line.integer --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRunInteger.sh ./ddCmp.py
+
+
+dd.line.integer.vprec: unitTestInteger ddRunIntegerVprec.sh ddCmp.py dd.line.integer
+	verrou_dd_line --cache=clean --rep=dd.line.integer.vprec --nruns=1 --num-threads=4 --seed=42 --rddmin-heuristics-rep=dd.line.integer  ./ddRunIntegerVprec.sh ./ddCmp.py
+
 
 dd.back: unitTest ddRun.sh ddCmp.py
 	verrou_dd_back --cache=clean --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRun.sh ./ddCmp.py
