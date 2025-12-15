@@ -10,7 +10,7 @@ export SHELL=bash
 FLAGS=-Wall -g -O0
 
 
-all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.back.line.integer.post.assert dd.back.line.post.assert dd.line.integer.vprec
+all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.back.line.integer.post.assert dd.back.line.post.assert dd.line.integer.vprec.assert
 
 unitTest: unitTest.cxx integrate.hxx
 	g++ $(FLAGS) -DFLOATLOOP -o $@ $<
@@ -28,6 +28,11 @@ dd.line.integer: unitTestInteger ddRunInteger.sh ddCmp.py
 dd.line.integer.vprec: unitTestInteger ddRunIntegerVprec.sh ddCmp.py dd.line.integer
 	verrou_dd_line --cache=clean --rep=dd.line.integer.vprec --nruns=1 --num-threads=4 --seed=42 --rddmin-heuristics-rep=dd.line.integer  ./ddRunIntegerVprec.sh ./ddCmp.py
 
+
+dd.line.integer.vprec.assert: dd.line.integer.vprec dd.line.integer
+	diff dd.line.integer.vprec/ddmin0/dd.line.include  dd.line.integer/ddmin0/dd.line.include
+	diff dd.line.integer.vprec/rddmin-cmp/dd.line.exclude  dd.line.integer/rddmin-cmp/dd.line.exclude
+# exclude and not include because the search space is not the same due to --libm=instrumented
 
 dd.back: unitTest ddRun.sh ddCmp.py
 	verrou_dd_back --cache=clean --nruns=8 --num-threads=4 --seed=42 --res-with-all-samples ./ddRun.sh ./ddCmp.py
@@ -85,5 +90,5 @@ diff.assert: dd.line.integer.post dd.line.post
 	./assertDiffCover.sh
 
 clean:
-	rm -rf unitTest dd.line dd.line.integer dd.line.post dd.line.integer.post dd.line.postmatch matchLast.script.log-* *~
+	rm -rf unitTest unitTestInteger dd.line dd.line.integer dd.line.integer.vprec dd.line.post dd.line.integer.post dd.line.postmatch matchLast.script.log-* *~
 	rm -rf dd.back.line.integer.post dd.back.line.post dd.back.line.integer dd.back.line dd.back
