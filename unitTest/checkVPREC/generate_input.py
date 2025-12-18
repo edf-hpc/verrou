@@ -3,7 +3,7 @@
 import numpy as np
 import sys
 
-_output_filename = "input.txt"
+
 
 uniform = np.random.default_rng().uniform
 
@@ -15,14 +15,16 @@ def get_normal_number(emax, reminder, n_s):
     size = n_s + reminder
     a1 = uniform(low=low, high=high, size=size)
     a2 = uniform(low=low, high=high, size=size)
-    return (a1, a2)
+    a3 = uniform(low=low, high=high, size=size)
+    return zip(a1, a2, a3)
 
 
 def get_small_number(n_s):
     # add small numbers with negative exponent
     a1 = uniform(low=-1, high=1, size=n_s)
     a2 = uniform(low=-1, high=1, size=n_s)
-    return (a1, a2)
+    a3 = uniform(low=-1, high=1, size=n_s)
+    return zip(a1, a2, a3)
 
 
 def get_subnormal_number(emax, n_s):
@@ -33,7 +35,8 @@ def get_subnormal_number(emax, n_s):
     size = n_s
     a1 = uniform(low=low, high=high, size=size)
     a2 = uniform(low=low, high=high, size=size)
-    return (a1, a2)
+    a3 = uniform(low=low, high=high, size=size)
+    return zip(a1, a2, a3)
 
 
 def print_random_fp(n, r, output_filename):
@@ -49,27 +52,29 @@ def print_random_fp(n, r, output_filename):
     # emax = min(2**(r-1)-1,127)
 
     # any number in the representable range
-    rand_fp_array_1, rand_fp_array_2 = get_normal_number(emax, reminder, n_s)
+    rand_fp = get_normal_number(emax, reminder, n_s)
 
     # add small numbers with negative exponent
-    rand_small_fp_array_1, rand_small_fp_array_2 = get_small_number(n_s)
+    rand_small_fp= get_small_number(n_s)
 
     # add denormals
-    rand_sub_fp_array_1, rand_sub_fp_array_2 = get_subnormal_number(emax, n_s)
+    rand_sub_fp = get_subnormal_number(emax, n_s)
 
     with open(output_filename, "w", encoding='utf-8') as fo:
-        for fp1, fp2 in zip(rand_fp_array_1, rand_fp_array_2):
-            fo.write(f"{fp1.hex()} {fp2.hex()}\n")
-        for fp1, fp2 in zip(rand_small_fp_array_1, rand_small_fp_array_2):
-            fo.write(f"{fp1.hex()} {fp2.hex()}\n")
-        for fp1, fp2 in zip(rand_sub_fp_array_1, rand_sub_fp_array_2):
-            fo.write(f"{fp1.hex()} {fp2.hex()}\n")
+        for fp1, fp2, fp3 in rand_fp:
+            fo.write(f"{fp1.hex()} {fp2.hex()} {fp3.hex()}\n")
+        for fp1, fp2, fp3 in rand_small_fp:
+            fo.write(f"{fp1.hex()} {fp2.hex()} {fp3.hex()}\n")
+        for fp1, fp2, fp3 in rand_sub_fp:
+            fo.write(f"{fp1.hex()} {fp2.hex()} {fp3.hex()}\n")
 
 
 def main():
-    n = int(sys.argv[1])
-    r = int(sys.argv[2])
-    print_random_fp(n, r, _output_filename)
+    output_filename = sys.argv[1]
+    n = int(sys.argv[2])
+    r = int(sys.argv[3])
+
+    print_random_fp(n, r, output_filename)
 
 
 if "__main__" == __name__:

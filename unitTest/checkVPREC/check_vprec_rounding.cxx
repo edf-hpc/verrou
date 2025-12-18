@@ -9,8 +9,46 @@
 #include "verrou.h"
 
 
+
+#if defined(__x86_64__)
+#include  <immintrin.h>
+
+inline double mySqrt(const double& a){
+    double d;
+    __m128d ai,di;
+    ai = _mm_load_sd(&a);
+    di=_mm_sqrt_sd(ai,ai);
+    d=_mm_cvtsd_f64(di);
+    return d;
+  }
+
+
+  inline float mySqrt(const float& a){
+    float d;
+    __m128 ai, bi,ci,di;
+    ai = _mm_load_ss(&a);
+    di=_mm_sqrt_ss(ai);
+    d=_mm_cvtss_f32(di);
+
+    return d;
+  }
+#else
 template<class REALTYPE>
-REALTYPE perform_op(char op, REALTYPE* tab) {
+inline REALTYPE mySqrt(REALTYPE a);
+
+template<>
+inline double mySqrt<double>(double a){
+  return __builtin_sqrt(a);
+}
+template<>
+inline float mySqrt<float>(float a){
+  return __builtin_sqrtf(a);
+}
+#endif
+
+
+template<class REALTYPE>
+REALTYPE perform_op_2(char op, REALTYPE* tab) {
   VERROU_START_INSTRUMENTATION;
   REALTYPE a=tab[0];
   REALTYPE b=tab[1];
@@ -36,59 +74,109 @@ REALTYPE perform_op(char op, REALTYPE* tab) {
   return res;
 }
 
-bool isValidOp(char op){
+template<class REALTYPE>
+REALTYPE perform_op_3(char op, REALTYPE* tab) {
+  VERROU_START_INSTRUMENTATION;
+  REALTYPE a=tab[0];
+  REALTYPE b=tab[1];
+  REALTYPE c=tab[2];
+  REALTYPE res;
+  switch(op){
+  case 'f':
+    res = __builtin_fma(a,b,c);
+    break;
+  default:
+    fprintf(stderr, "Bad op %c\n",op);
+    exit(EXIT_FAILURE);
+  }
+  VERROU_STOP_INSTRUMENTATION;
+  return res;
+}
+
+template<class REALTYPE>
+REALTYPE perform_op_1(char op, REALTYPE* tab) {
+  VERROU_START_INSTRUMENTATION;
+  REALTYPE a=tab[0];
+  REALTYPE res;
+  switch(op){
+  case 's':
+    res = mySqrt(a);
+    break;
+  default:
+    fprintf(stderr, "Bad op %c\n",op);
+    exit(EXIT_FAILURE);
+  }
+  VERROU_STOP_INSTRUMENTATION;
+  return res;
+}
+
+
+int opToNbArgs(char op){
    switch(op){
    case '+':
    case '-':
    case 'x':
    case '/':
-      return true;
+     return 2;
+   case 's':
+     return 1;
+   case 'f':
+      return 3;
    default:
-      return false;
+      return -1;
    }
+}
+
+template<class REALTYPE>
+REALTYPE perform_op(char op, REALTYPE* tab) {
+  int nbArg=opToNbArgs(op);
+  if(nbArg==1) return perform_op_1(op,tab);
+  if(nbArg==2) return perform_op_2(op,tab);
+  if(nbArg==3) return perform_op_3(op,tab);
+  fprintf(stderr, "Bad op %c\n",op);
+  exit(EXIT_FAILURE);
 }
 
 
 bool parseLine(char* line,char* op, float* argsOp, float* ref){
 // + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
    char* cur=line;
-   if(!isValidOp(cur[0])){
+   int nbArgs=opToNbArgs(cur[0]);
+   if(nbArgs==-1){
       fprintf(stderr, "bad format invalid op\n");
       fprintf(stderr, "bad format %s\n", line);
       exit(EXIT_FAILURE);
    }
    *op=cur[0];
-
    cur=line+2;
-   argsOp[0]=strtof(cur, &cur );
-   argsOp[1]=strtof(cur, &cur );
 
+   for(int i=0; i< nbArgs; i++){
+     argsOp[i]=strtof(cur, &cur );
+   }
    cur=cur+4;
 
    *ref=strtof(cur, &cur );
-
    return true;
 }
-
 
 bool parseLine(char* line,char* op, double* argsOp, double* ref){
 // + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
    char* cur=line;
-   if(!isValidOp(cur[0])){
+   int nbArgs=opToNbArgs(cur[0]);
+   if(nbArgs==-1){
       fprintf(stderr, "bad format invalid op\n");
       fprintf(stderr, "bad format %s\n", line);
       exit(EXIT_FAILURE);
    }
    *op=cur[0];
-
    cur=line+2;
-   argsOp[0]=strtod(cur, &cur );
-   argsOp[1]=strtod(cur, &cur );
 
+   for(int i=0; i< nbArgs; i++){
+     argsOp[i]=strtod(cur, &cur );
+   }
    cur=cur+4;
 
    *ref=strtod(cur, &cur );
-
    return true;
 }
 
@@ -171,13 +259,13 @@ int main(int argc, char * argv[]) {
 
   if( floatFile){
     while(fgets(line, 512, refFile) ){
-      float argsOp[2];
+      float argsOp[3];
       float ref;
 
       parseLine(line,&op, argsOp, &ref);
       float vprecRes=perform_op(op,argsOp);
 
-      if(cmpFaithFullFloat(ref, vprecRes, exposant, mantisse)){
+      if(cmpFaithFulFloat(ref, vprecRes, exposant, mantisse)){
 	counterOK++;
       }else{
 	counterKO++;
@@ -186,12 +274,12 @@ int main(int argc, char * argv[]) {
      }
   }else{//double
      while(fgets(line, 512, refFile) ){
-       double argsOp[2];
+       double argsOp[3];
        double ref;
        parseLine(line,&op, argsOp, &ref);
        double vprecRes=perform_op(op,argsOp);
 
-       if(cmpFaithFullFloat(ref, vprecRes, exposant, mantisse)){
+       if(cmpFaithFulFloat(ref, vprecRes, exposant, mantisse)){
 	  counterOK++;
        }else{
 	 counterKO++;

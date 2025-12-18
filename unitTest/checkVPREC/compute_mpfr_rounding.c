@@ -12,6 +12,7 @@ typedef enum { float_type, double_type, unknown_type } fptype_t;
 
 
 static bool verbose_mode = false;
+//static bool verbose_mode = true;
 static int vprec_precision = -1;
 static int vprec_range = -1;
 static vprec_mode_t vprec_mode = unknown_mode;
@@ -55,6 +56,18 @@ void fprint_normalized_hex99_2(const char *msg, const char *name_x,
   fprint_normalized_hex99_raw(y, type, stream, "\n");
 }
 
+void fprint_normalized_hex99_3(const char *msg,
+                               const char *name_x,const char *name_y, const char *name_z,
+                               mpfr_t x, mpfr_t y, mpfr_t z,
+                               fptype_t type, FILE *stream) {
+  fprintf(stream, HEADER_FMT " " VAR_FMT, msg, name_x);
+  fprint_normalized_hex99_raw(x, type, stream, " ");
+  fprintf(stream, HEADER_FMT " " VAR_FMT, msg, name_y);
+  fprint_normalized_hex99_raw(y, type, stream, " ");
+  fprintf(stream, VAR_FMT, name_z);
+  fprint_normalized_hex99_raw(z, type, stream, "\n");
+}
+
 void print_normalized_hex99_debug(const char *msg, const char *name, mpfr_t x,
                                   fptype_t type) {
   fprint_normalized_hex99(msg, name, x, type, stderr);
@@ -69,6 +82,13 @@ void print_normalized_hex99_debug_2(const char *msg, const char *name_x,
                                     const char *name_y, mpfr_t x, mpfr_t y,
                                     fptype_t type) {
   fprint_normalized_hex99_2(msg, name_x, name_y, x, y, type, stderr);
+}
+
+void print_normalized_hex99_debug_3(const char *msg,
+                                    const char *name_x,const char *name_y, const char *name_z,
+                                    mpfr_t x, mpfr_t y, mpfr_t z,
+                                    fptype_t type) {
+  fprint_normalized_hex99_3(msg, name_x, name_y, name_z, x, y, z,type, stderr);
 }
 
 void print_debug(const char *msg, const char *name, const char *value) {
@@ -193,8 +213,8 @@ void get_largest_positive_normal_number(fptype_t type) {
   }
 }
 
-void apply_operation(mpfr_t res, mpfr_t a, mpfr_t b, const char op,
-                     fptype_t type) {
+void apply_operation_2(mpfr_t res, mpfr_t a, mpfr_t b, const char op,
+                       fptype_t type) {
   int i = 0;
   switch (op) {
   case '+':
@@ -208,6 +228,46 @@ void apply_operation(mpfr_t res, mpfr_t a, mpfr_t b, const char op,
     break;
   case '/':
     i = mpfr_div(res, a, b, MPFR_RNDN);
+    break;
+  default:
+    fprintf(stderr, "Bad op %c\n", op);
+    exit(1);
+  }
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (operation)", "res = ", res, type);
+  }
+  mpfr_subnormalize(res, i, MPFR_RNDN);
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (subnormalize)", "res = ", res, type);
+  }
+}
+
+void apply_operation_1(mpfr_t res, mpfr_t a, const char op,
+                       fptype_t type) {
+  int i = 0;
+  switch (op) {
+  case 's':
+    i = mpfr_sqrt(res, a, MPFR_RNDN);
+    break;
+  default:
+    fprintf(stderr, "Bad op %c\n", op);
+    exit(1);
+  }
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (operation)", "res = ", res, type);
+  }
+  mpfr_subnormalize(res, i, MPFR_RNDN);
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (subnormalize)", "res = ", res, type);
+  }
+}
+
+void apply_operation_3(mpfr_t res, mpfr_t a, mpfr_t b, mpfr_t c, const char op,
+                       fptype_t type) {
+  int i = 0;
+  switch (op) {
+  case 'f':
+     i = mpfr_fma(res, a, b,c, MPFR_RNDN);
     break;
   default:
     fprintf(stderr, "Bad op %c\n", op);
@@ -294,7 +354,7 @@ void compute2Args(double a, double b, char op, fptype_t type, FILE* fp) {
   mpfr_set_emin(mpfr_get_emin_min());
 
 
-  apply_operation(mres, ma, mb, op, type);
+  apply_operation_2(mres, ma, mb, op, type);
 
   if (mode == ob || mode == full) {
     mpfr_clear_flags();
@@ -323,10 +383,171 @@ void compute2Args(double a, double b, char op, fptype_t type, FILE* fp) {
 }
 
 
+void compute1Args(double a, char op, fptype_t type, FILE* fp) {
+  const int working_precision = (type == float_type) ? 24 : 53;
+
+  vprec_mode_t mode = vprec_mode;
+  mpfr_prec_t precision = vprec_precision;
+  mpfr_exp_t emax = get_emax();
+  mpfr_exp_t emin = get_emin();
+
+  mpfr_t ma, mres, ma_inter, mb_inter, mres_inter;
+  mpfr_inits2(working_precision, mres, ma, ma_inter, mb_inter, mres_inter,
+              (mpfr_ptr)0);
+
+  if (type == float_type) {
+    mpfr_set_flt(ma, a, MPFR_RNDN);
+  } else if (type == double_type) {
+    mpfr_set_d(ma, a, MPFR_RNDN);
+  }
+
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (before rounding)",
+                                   "a = ", ma,type);
+  }
+
+  if (mode == pb || mode == full) {
+    mpfr_clear_flags();
+    mpfr_set_emax(emax);
+    mpfr_set_emin(emin);
+    intermediate_rounding(ma, ma_inter, precision);
+
+    if (verbose_mode) {
+      print_normalized_hex99_debug("[MPFR] (intermediate rounding)",
+                                     "a = ", ma_inter, type);
+      print_normalized_hex99_debug("[MPFR] (subnormalized)",
+                                     "a = ", ma, type);
+    }
+  }
+
+  if (verbose_mode) {
+    print_normalized_hex99_debug("[MPFR] (after rounding)",
+                                   "a = ", ma, type);
+  }
+
+  mpfr_clear_flags();
+  mpfr_set_default_prec(256);
+  mpfr_set_emax(mpfr_get_emax_max());
+  mpfr_set_emin(mpfr_get_emin_min());
+
+
+  apply_operation_1(mres, ma, op, type);
+
+  if (mode == ob || mode == full) {
+    mpfr_clear_flags();
+    mpfr_set_emax(emax);
+    mpfr_set_emin(emin);
+    intermediate_rounding(mres, mres_inter, precision);
+
+    if (verbose_mode) {
+      print_normalized_hex99_debug("[MPFR] (intermediate rounding)",
+                                   "res = ", mres_inter, type);
+      print_normalized_hex99_debug("[MPFR] (subnormalized)", "res = ", mres,
+                                   type);
+    }
+  }
+
+  fprintf(fp, "%c ", op);
+  if(type==float_type){
+     fprint_normalized_float(a, fp, " => ");
+  }
+  if(type==double_type){
+     fprint_normalized_double(a, fp, " =>");
+  }
+  fprint_normalized_hex99_raw(mres, type,fp, "\n");
+}
+
+
+void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp) {
+  const int working_precision = (type == float_type) ? 24 : 53;
+
+  vprec_mode_t mode = vprec_mode;
+  mpfr_prec_t precision = vprec_precision;
+  mpfr_exp_t emax = get_emax();
+  mpfr_exp_t emin = get_emin();
+
+  mpfr_t ma, mb, mc, mres, ma_inter, mb_inter, mc_inter,mres_inter;
+  mpfr_inits2(working_precision, mres, ma, mb, mc, ma_inter, mb_inter, mc_inter, mres_inter,
+              (mpfr_ptr)0);
+
+  if (type == float_type) {
+    mpfr_set_flt(ma, a, MPFR_RNDN);
+    mpfr_set_flt(mb, b, MPFR_RNDN);
+    mpfr_set_flt(mc, c, MPFR_RNDN);
+  } else if (type == double_type) {
+    mpfr_set_d(ma, a, MPFR_RNDN);
+    mpfr_set_d(mb, b, MPFR_RNDN);
+    mpfr_set_d(mc, c, MPFR_RNDN);
+  }
+
+  if (verbose_mode) {
+    print_normalized_hex99_debug_3("[MPFR] (before rounding)",
+                                   "a = ", "b = ", "c = ",ma, mb, mc,type);
+  }
+
+  if (mode == pb || mode == full) {
+    mpfr_clear_flags();
+    mpfr_set_emax(emax);
+    mpfr_set_emin(emin);
+    intermediate_rounding(ma, ma_inter, precision);
+    intermediate_rounding(mb, mb_inter, precision);
+    intermediate_rounding(mc, mc_inter, precision);
+
+    if (verbose_mode) {
+      print_normalized_hex99_debug_3("[MPFR] (intermediate rounding)",
+                                     "a = ", "b = ", "c = ", ma_inter, mb_inter, mc_inter, type);
+      print_normalized_hex99_debug_3("[MPFR] (subnormalized)",
+                                     "a = ", "b = ", "c = ",ma, mb, mc, type);
+    }
+  }
+
+  if (verbose_mode) {
+    print_normalized_hex99_debug_3("[MPFR] (after rounding)",
+                                   "a = ", "b = ","c = ", ma, mb, mc,type);
+  }
+
+  mpfr_clear_flags();
+  mpfr_set_default_prec(256);
+  mpfr_set_emax(mpfr_get_emax_max());
+  mpfr_set_emin(mpfr_get_emin_min());
+
+
+  apply_operation_3(mres, ma, mb, mc, op, type);
+
+  if (mode == ob || mode == full) {
+    mpfr_clear_flags();
+    mpfr_set_emax(emax);
+    mpfr_set_emin(emin);
+    intermediate_rounding(mres, mres_inter, precision);
+
+    if (verbose_mode) {
+      print_normalized_hex99_debug("[MPFR] (intermediate rounding)",
+                                   "res = ", mres_inter, type);
+      print_normalized_hex99_debug("[MPFR] (subnormalized)", "res = ", mres,
+                                   type);
+    }
+  }
+
+  fprintf(fp, "%c ", op);
+  if(type==float_type){
+     fprint_normalized_float(a, fp, " ");
+     fprint_normalized_float(b, fp, " ");
+     fprint_normalized_float(c, fp, " => ");
+  }
+  if(type==double_type){
+     fprint_normalized_double(a, fp, " ");
+     fprint_normalized_double(b, fp, " ");
+     fprint_normalized_double(c, fp, " => ");
+  }
+  fprint_normalized_hex99_raw(mres, type,fp, "\n");
+}
+
+
+
 int main(int argc, char *argv[]) {
 
-  if (argc != 3) {
-    fprintf(stderr, "usage: compute_mpfr_rounding outputRep listOfPointFile\n");
+  if (argc != 4) {
+    fprintf(stderr, "usage: compute_mpfr_rounding outputRep listOfFloatPointFile listOfDoublePointFile\n");
     exit(1);
   }
 
@@ -340,7 +561,7 @@ int main(int argc, char *argv[]) {
   int fpPrecisionMin[]={1, 1};
   int fpPrecisionMax[]={23, 52};
 
-  char opTabStr[]={'+','-','x','/'};
+  char opTabStr[]={'+','-','x','/', 's', 'f'}; //s for sqrt and f for fma
 
   vprec_mode_t modeTab[]={pb, ob, full};
   char* modeTabStr[]={"ib","ob","full"};
@@ -361,7 +582,15 @@ int main(int argc, char *argv[]) {
               get_smallest_positive_subnormal_number(fpType);
 
               char line[512];
-              FILE* listOfPoints=fopen(argv[2],"r");
+              FILE* listOfPoints=NULL;
+
+              if(indexType==0){
+                 listOfPoints=fopen(argv[2],"r");
+              }
+              if(indexType==1){
+                 listOfPoints=fopen(argv[3],"r");
+              }
+
               if(listOfPoints==NULL){
                  printf("Error while opening input point file\n");
                  return EXIT_FAILURE;
@@ -373,12 +602,16 @@ int main(int argc, char *argv[]) {
               FILE* refFile=fopen(outRefName,"w");
 
               while(fgets(line, 512, listOfPoints) ){
-                 double args[2];
-                 strLineToDoubleTab(args, 2, line);
+                 double args[3];
+                 strLineToDoubleTab(args, 3, line);
 
                  for(int indexOp=0; indexOp< 4 ; indexOp++){
                     compute2Args(args[0], args[1], opTabStr[indexOp], fpType, refFile);
                  }
+
+                 compute1Args(args[0],opTabStr[4], fpType, refFile);//sqrt
+                 compute3Args(args[0], args[1], args[2], opTabStr[5], fpType, refFile);//fma
+
               }
               fclose(listOfPoints);
               fclose(refFile);
