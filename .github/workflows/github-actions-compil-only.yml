@@ -68,3 +68,6 @@ jobs:
 
       - name: Build AVG4
         run: make -f travis.mk clean && make -f travis.mk reconfigure-AVG4 && make -f travis.mk build
+
+      - name: Build disableoptim
+        run: make -f travis.mk clean && make -f travis.mk reconfigure-disableoptim && make -f travis.mk build

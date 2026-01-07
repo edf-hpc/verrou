@@ -81,6 +81,7 @@ Advanced users can use the following configure flags :
 - `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necessary exact. With the average* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
 - `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and average) by the xo[ro]shiro prng.
 - `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disabled. This option is only useful to reduce the dependencies.
+- `--enable-verrou-optim=[yes|no]` (default yes). Optim leads to high memory footprint during compilation. On small machine, you may need to deactivate this option.
 
 <p>&nbsp;</p>
 

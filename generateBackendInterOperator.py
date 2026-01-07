@@ -179,6 +179,8 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
 
         for op in listOfOp:
             for rounding in roundingTab:
+                if not rounding in ["NEAREST",None]:
+                    fileOut.write("#ifdef USE_VERROU_OPTIM\n")
                 if nargs in [1,2]:
                     applyTemplate(fileOut, templateStr, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv)
                 if nargs==3:
@@ -186,6 +188,8 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
                     if "msub" in op:
                         sign="-"
                     applyTemplate(fileOut, templateStr, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv)
+                if not rounding in ["NEAREST",None]:
+                    fileOut.write("#endif //USE_VERROU_OPTIM\n")
         if backend=="mcaquad":
             fileOut.write("#endif //USE_VERROU_QUADMATH\n")
 

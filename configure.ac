@@ -174,6 +174,18 @@ AM_CONDITIONAL([USE_PROFILING_EXACT], test x$vg_cv_verrou_profiling_exact = xyes
 AC_SUBST(vg_cv_verrou_profiling_exact)
 
 
+#--enable-verrou-optim for exact operation
+AC_CACHE_CHECK([verrou optim], vg_cv_verrou_optim,
+  [AC_ARG_ENABLE(verrou-optim,
+    [  --enable-verrou-optim          enables verrou optimisation (require lot of memory at compile time)],
+    [vg_cv_verrou_optim=$enableval],
+    [vg_cv_verrou_optim=yes])])
+
+AM_CONDITIONAL([USE_VERROU_OPTIM], test x$vg_cv_verrou_optim = xyes,[])
+AC_SUBST(vg_cv_verrou_optim)
+
+
+
 #--enable-xoshiro
 AC_CACHE_CHECK([verrou xoshiro prng], vg_cv_verrou_xoshiro,
   [AC_ARG_ENABLE(verrou-xoshiro,

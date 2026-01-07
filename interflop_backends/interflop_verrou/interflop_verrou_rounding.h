@@ -21,6 +21,7 @@
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_UPWARD
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -41,7 +42,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_DOWNWARD
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -62,7 +65,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_FARTHEST
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -83,7 +88,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_ZERO
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -104,7 +111,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AWAY_ZERO
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -125,7 +134,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_FLOAT
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -146,7 +157,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_RANDOM
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -167,7 +180,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_RANDOM_DET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -188,7 +203,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_RANDOM_COMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -209,7 +226,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_RANDOM_SCOMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -230,7 +249,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -251,7 +272,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_DET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -272,7 +295,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_COMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -293,7 +318,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_SCOMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -314,7 +341,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_PRANDOM
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -335,7 +364,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_PRANDOM_DET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -356,7 +387,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_PRANDOM_COMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -377,7 +410,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_SR_MONOTONIC
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -398,7 +433,9 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
+#ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_SR_SMONOTONIC
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
@@ -419,5 +456,6 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+#endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT

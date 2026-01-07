@@ -121,7 +121,11 @@ def generateVerrouRounding(handler,roundingList):
 
         includeMacro="""\tif(vr.instrument_soft_used|| vr.instrument_soft_back_used){\n""" + includeMacroSoft+"\t}else{//instrument hard\n"+includeMacroHard+"\t}\n"
         strWrite=checkStr + includeMacro+ "}\n"
+        if roundingMode!="NEAREST":
+            handler.write("#ifdef USE_VERROU_OPTIM\n")
         handler.write(strWrite)
+        if roundingMode!="NEAREST":
+            handler.write("#endif //USE_VERROU_OPTIM\n")
 
 def checkPostbackend(backendName, postBackendList, postBackendName):
     res="vr.backend=="+backendName+" "

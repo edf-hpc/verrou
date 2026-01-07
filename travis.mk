@@ -52,6 +52,11 @@ reconfigure-AVG4:
 	cd ../valgrind+verrou && VERROU_NUM_AVG=4 ./configure --enable-only64bit --prefix=$${PWD}/../install
 
 
+reconfigure-disableoptim:
+	@echo "*** CONFIGURE --disable-verrou-optim ***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --disable-verrou-optim --prefix=$${PWD}/../install
+
+
 
 clean:
 	@echo "*** MAKE clean ***"

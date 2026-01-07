@@ -316,6 +316,7 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEAREST) (double a, float* res,
 ;
 }
 
+#ifdef USE_VERROU_OPTIM
 #ifdef USE_VERROU_SQRT
 
 IFV_INLINE void IFV_FCTNAME(sqrt_double_UPWARD) (double a, double* res,void* context) {
@@ -4800,3 +4801,4 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_SMONOTONIC) (double a, float
 ;
 }
 
+#endif //USE_VERROU_OPTIM
