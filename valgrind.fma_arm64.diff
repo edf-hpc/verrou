@@ -156,7 +156,7 @@ index e6b92c7a0..9f058db81 100644
  
  /*------------------------------------------------------------*/
  /*--- FP comparison helpers                                ---*/
-@@ -11757,19 +11866,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -11763,19 +11872,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -184,7 +184,7 @@ index e6b92c7a0..9f058db81 100644
        const HChar c = isD ? 'd' : 's';
        DIP("%s %c%u, %c%u, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            c, dd, c, nn, nameQReg128(mm), c, index);
-@@ -13214,18 +13321,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -13220,18 +13327,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
        Bool isD   = (size & 1) == 1;
        Bool isSUB = (size & 2) == 2;
        if (bitQ == 0 && isD) return False; // implied 1d case
@@ -211,7 +211,7 @@ index e6b92c7a0..9f058db81 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%s\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm), arr);
-@@ -14438,17 +14542,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -14444,17 +14548,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -237,7 +237,7 @@ index e6b92c7a0..9f058db81 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm),
-@@ -15682,7 +15784,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -15688,7 +15790,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt    ix    = (bitO1 << 1) | bitO0;
        IRType  ity   = isD ? Ity_F64 : Ity_F32;
        IROp    opFMADD = mkFMADDF(ity);
@@ -246,7 +246,7 @@ index e6b92c7a0..9f058db81 100644
        IROp    opNEG = mkNEGF(ity);
        IRTemp  res   = newTemp(ity);
        IRExpr* eA    = getQRegLO(aa, ity);
-@@ -15694,7 +15796,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -15700,7 +15802,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
              assign(res, qop(opFMADD, rm, eN, eM, eA));
              break;
           case 1: /* FMSUB */
