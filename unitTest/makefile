@@ -19,6 +19,7 @@ python:
 valgrind-test: verrou-test none-none-test none-test-with-memcheck none-test callgrind-test #helgrind-test
 
 valgrind-check:
+	df -T
 	make -C ../.. check
 	make -C ../../tests check
 	make -C ../../verrou check
