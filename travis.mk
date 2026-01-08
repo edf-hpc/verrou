@@ -79,7 +79,7 @@ check-install:
 
 check:
 	@echo "*** BUILD TESTS ***"
-	make -C ../valgrind+verrou/verrou/unitTest/ valgrind-test
+	cd ../valgrind+verrou/ && ./tests/vg_regtest none
 
 check-error:
 	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
