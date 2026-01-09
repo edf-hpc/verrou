@@ -1371,6 +1371,25 @@ xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/h
 			</para>
 		      </answer>
 		    </qandaentry>
+
+		    <qandaentry id="faq.compil.cc1">
+		      <question>
+			<para>
+			  What's going wrong with the following error during documentation compilation :
+			  <screen>
+gcc -DHAVE_CONFIG_H -I. -I..  -I.. -I../include -I../include -I../VEX/pub -I../VEX/pub -DVGA_amd64=1 -DVGO_linux=1 -DVGP_amd64_linux=1 -DVGPV_amd64_linux_vanilla=1   -m64 -O2 -g -Wall -Wmissing-prototypes -Wshadow -Wpointer-arith -Wstrict-prototypes -Wmissing-declarations -Wno-unused-result -Wcast-align -Wcast-qual -Wwrite-strings -Wempty-body -Wformat -Wformat-signedness -Wformat-security -Wignored-qualifiers -Wmissing-parameter-type -Wlogical-op -Wenum-conversion -Wimplicit-fallthrough=2 -Wold-style-declaration -finline-functions -fno-stack-protector -fno-strict-aliasing -fno-builtin   -fomit-frame-pointer -mno-avx512f -march=native -mfma -DUSE_VERROU_FMA -DUSE_VERROU_SQRT -DUSE_VERROU_QUADMATH  -DUSE_XOSHIRO  -DVERROU_DENORM_HACKS_FLOAT  -DUSE_VERROU_OPTIM -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DINTERFLOP_STATIC_INTERFACE_ENABLED  -MT verrou_amd64_linux-vr_main.o -MD -MP -MF .deps/verrou_amd64_linux-vr_main.Tpo -c -o verrou_amd64_linux-vr_main.o `test -f 'vr_main.c' || echo './'`vr_main.c
+gcc: fatal error: Killed signal terminated program cc1
+compilation terminated.
+			  </screen>
+			</para>
+		      </question>
+		      <answer>
+			<para>
+			  You have not enough memory to compile verrou with all optimisations. If <option>make -j1</option> is not sufficient, you should use the <option>--disable-verrou-optim</option> during configure.
+			</para>
+		      </answer>
+		    </qandaentry>
+
 		  </qandadiv>
 	      <qandadiv id="faq.stoch">
 		<title>Stochastic method</title>
