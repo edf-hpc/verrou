@@ -12,6 +12,14 @@ patch-error:
 	# try to build verrou anyway if we check the development version of Valgrind
 	test "$(VALGRIND_VERSION)" = "master"
 
+info:
+	@echo "*** INFO ***"
+	cat /proc/cpuinfo
+	env
+	mount
+	df -Th
+	systemd-detect-virt
+
 configure:
 	@echo "*** AUTOGEN ***"
 	cd ../valgrind+verrou && ./autogen.sh
@@ -77,9 +85,9 @@ check-install:
 	@echo "*** CHECK HELP ***"
 	source ../install/env.sh && valgrind --tool=verrou --help
 
-check:
+check: info
 	@echo "*** BUILD TESTS ***"
-	cd ../valgrind+verrou/ && df -hT . && make check && ./tests/vg_regtest none
+	cd ../valgrind+verrou/ && make check && ./tests/vg_regtest none
 
 check-error:
 	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
