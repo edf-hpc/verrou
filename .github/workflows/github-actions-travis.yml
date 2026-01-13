@@ -39,8 +39,8 @@ jobs:
       - name: Download valgrind
         run: export VALGRIND_VERSION=${{ matrix.version }}; make -f travis.mk download-valgrind
 
-#      - name: Patch valgrind
-#        run: make -f travis.mk patch-valgrind || make -f travis.mk patch-error
+      - name: Patch valgrind
+        run: make -f travis.mk patch-valgrind || make -f travis.mk patch-error
 
       - name: Configure patched valgrind
         run: make -f travis.mk configure

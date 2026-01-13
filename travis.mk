@@ -5,7 +5,7 @@ download-valgrind:
 
 patch-valgrind:
 	cd ../valgrind+verrou && cp -a $(PWD) verrou
-	cd ../valgrind+verrou && cat verrou/valgrind.*diff | patch -p1
+#	cd ../valgrind+verrou && cat verrou/valgrind.*diff | patch -p1
 
 patch-error:
 	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
