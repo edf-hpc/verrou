@@ -87,12 +87,12 @@ check-install:
 
 check: info
 	@echo "*** BUILD TESTS ***"
-	cd ../valgrind+verrou/ && make check && ./tests/vg_regtest none
+	cd ../valgrind+verrou/ && make check && make regtest
 
 check-error:
 	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
 	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/callgrind/tests/
-	../valgrind+verrou/verrou/tests/post_verrou_diff.sh ../valgrind+verrou/verrou/tests/
+	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/memcheck/tests/
 	@false
 
 unit-test:

@@ -49,5 +49,5 @@ jobs:
         run: make -f travis.mk build
 
       - name: Check Valgrind
-        run: make -f travis.mk check
+        run: make -f travis.mk check || make -f travis.mk check-error
 
