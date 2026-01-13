@@ -90,9 +90,9 @@ check: info
 	cd ../valgrind+verrou/ && make check && make regtest
 
 check-error:
-	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/none/tests/
-	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/callgrind/tests/
-	../valgrind+verrou/verrou/tests/post_diff.sh ../valgrind+verrou/memcheck/tests/
+	../valgrind+verrou/verrou/tests/post_verrou_diff.sh ../valgrind+verrou/none/tests/
+	../valgrind+verrou/verrou/tests/post_verrou_diff.sh ../valgrind+verrou/callgrind/tests/
+	../valgrind+verrou/verrou/tests/post_verrou_diff.sh ../valgrind+verrou/memcheck/tests/
 	@false
 
 unit-test:
