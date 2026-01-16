@@ -16,11 +16,14 @@ check_vprec_rounding: check_vprec_rounding.cxx
 compute_mpfr_rounding: compute_mpfr_rounding.c
 	gcc $(FLAGS) compute_mpfr_rounding.c -o compute_mpfr_rounding $(LDFLAGS) -lmpfr
 
-mpfr_reference.tar.gz:compute_mpfr_rounding input_float.txt input_double.txt
+mpfr_reference.tar.gz:compute_mpfr_rounding input_11.txt
 	rm -rf mpfr_reference
 	mkdir mpfr_reference
-	./compute_mpfr_rounding ./mpfr_reference input_float.txt input_double.txt
+	./compute_mpfr_rounding ./mpfr_reference
 	tar cvfz mpfr_reference.tar.gz mpfr_reference
+
+input_%.txt: ./generate_input.py
+	./generate_input.py "input_%r.txt" $(NBSAMPLE) 11
 
 input_float.txt: ./generate_input.py
 	./generate_input.py input_float.txt $(NBSAMPLE) 8
@@ -33,4 +36,4 @@ mpfr_reference: mpfr_reference.tar.gz
 	tar xfz mpfr_reference.tar.gz
 
 clean:
-	rm -rf ./compute_mpfr_rounding check_vprec_rounding mpfr_reference
+	rm -rf ./compute_mpfr_rounding check_vprec_rounding mpfr_reference input_*.txt

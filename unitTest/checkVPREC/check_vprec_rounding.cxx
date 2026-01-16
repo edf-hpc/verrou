@@ -194,6 +194,20 @@ void printError(double ref, double a, double relError){
   printf("rel : %+.13a\t%.17e\n", relError, relError);
 };
 
+
+void printAbsError(float ref, float a, float absError){
+  printf("ref : %+.6a\t%.8e\n", ref,ref);
+  printf("vprec : %+.6a\t%.8e\n", a,a);
+  printf("abs error : %+.6a\t%.8e\n", absError, absError);
+};
+
+void printAbsError(double ref, double a, double absError){
+  printf("ref : %+.13a\t%.17e\n", ref,ref);
+  printf("vprec : %+.13a\t%.17e\n", a,a);
+  printf("abs error : %+.13a\t%.17e\n", absError, absError);
+};
+
+
 template<class REALTYPE>
 bool cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
   if ( ref == a){
@@ -203,13 +217,23 @@ bool cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
     return true;
   }
 
-  REALTYPE relError=abs((ref -a) / ref) ;
-   if( relError  * pow(2,precision-1) <= 1){
+  if( ref * pow(2,range)<=1 ){ //sub normal abs comparison
+    REALTYPE error=abs((ref -a)) ;
+    if( error  * pow(2,precision+range) <= 1){
       return true;
-   }else{
-     printError(ref,a,relError);
-     return false;
-   }
+    }else{
+      printAbsError(ref,a,error);
+      return false;
+    }
+  }else{ //relative comparison
+    REALTYPE relError=abs((ref -a) / ref) ;
+    if( relError  * pow(2,precision) <= 1){
+      return true;
+    }else{
+      printError(ref,a,relError);
+      return false;
+    }
+  }
 }
 
 

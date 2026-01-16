@@ -70,11 +70,13 @@ def print_random_fp(n, r, output_filename):
 
 
 def main():
-    output_filename = sys.argv[1]
+
     n = int(sys.argv[2])
     r = int(sys.argv[3])
 
-    print_random_fp(n, r, output_filename)
+    for r in range(1,r+1):
+        output_filename = sys.argv[1].replace("%r",str(r))
+        print_random_fp(n, r, output_filename)
 
 
 if "__main__" == __name__:

@@ -546,8 +546,8 @@ void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp
 
 int main(int argc, char *argv[]) {
 
-  if (argc != 4) {
-    fprintf(stderr, "usage: compute_mpfr_rounding outputRep listOfFloatPointFile listOfDoublePointFile\n");
+  if (argc != 2) {
+    fprintf(stderr, "usage: compute_mpfr_rounding outputRep\n");
     exit(1);
   }
 
@@ -583,13 +583,14 @@ int main(int argc, char *argv[]) {
 
               char line[512];
               FILE* listOfPoints=NULL;
+              char inputPointFile[512];
+              snprintf(inputPointFile, 512, "input_%i.txt",vprec_range);
+              if(inputPointFile==NULL){
+                 printf("Error while creating input filename name\n");
+                 return EXIT_FAILURE;
+              }
 
-              if(indexType==0){
-                 listOfPoints=fopen(argv[2],"r");
-              }
-              if(indexType==1){
-                 listOfPoints=fopen(argv[3],"r");
-              }
+              listOfPoints=fopen(inputPointFile,"r");
 
               if(listOfPoints==NULL){
                  printf("Error while opening input point file\n");
