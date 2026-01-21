@@ -24,7 +24,9 @@
 // 2019-11-25 Code refactoring, format conversions moved to
 // ../../common/vprec_tools.c
 //
+#ifndef IGNORE_VFI_CONTEXT
 #define IGNORE_VFI_CONTEXT
+#endif
 
 #include <argp.h>
 #include <math.h>
@@ -475,9 +477,20 @@ float _vprec_round_binary32(float a, char is_input, void *context,
   aexp.s32 = ((FLOAT_GET_EXP & aexp.u32) >> FLOAT_PMAN_SIZE) - FLOAT_EXP_COMP;
 
   /* check for overflow in target range */
-  if (aexp.s32 > emax) {
-    a = a * INFINITY;
-    return a;
+  if (aexp.s32 >= emax) {
+     if(aexp.s32 ==emax){
+        float b = round_binary32_normal(a, binary32_precision);
+        binary32 bexp = {.f32 = b};
+        bexp.s32 = (int32_t)((FLOAT_GET_EXP & bexp.u32) >> FLOAT_PMAN_SIZE) -
+           FLOAT_EXP_COMP;
+        if (bexp.s32 > emax) {
+           a = a * INFINITY;
+           return a;
+        }
+     }else{
+        a = a * INFINITY;
+        return a;
+     }
   }
 
   /* check for underflow in target range */
@@ -537,9 +550,20 @@ double _vprec_round_binary64(double a, char is_input, void *context,
              DOUBLE_EXP_COMP;
 
   /* check for overflow in target range */
-  if (aexp.s64 > emax) {
-    a = a * INFINITY;
-    return a;
+  if (aexp.s64 >= emax) {
+     if(aexp.s64 ==emax){
+        double b = round_binary64_normal(a, binary64_precision);
+        binary64 bexp = {.f64 = b};
+        bexp.s64 = (int64_t)((DOUBLE_GET_EXP & bexp.u64) >> DOUBLE_PMAN_SIZE) -
+           DOUBLE_EXP_COMP;
+        if (bexp.s64 > emax) {
+           a = a * INFINITY;
+           return a;
+        }
+     }else{
+        a = a * INFINITY;
+        return a;
+     }
   }
 
   /* check for underflow in target range */
