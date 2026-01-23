@@ -1,3 +1,4 @@
+#define __STDC_WANT_IEC_60559_TYPES_EXT__
 #include <float.h>
 #include "../interflop_vprec.h"
 
@@ -54,7 +55,7 @@ double _vfc_strtod(const char *nptr, char **endptr, int *error) {
 }
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
-   
+
    
    interflop_set_handler("getenv", getenv);
    interflop_set_handler("sprintf", sprintf);
@@ -78,7 +79,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
    interflop_set_handler("free", free);
    interflop_set_handler("calloc", calloc);
 //   interflop_set_handler("gettimeofday", gettimeofday);
-   
+
    void* context;
    vprec_conf_t vprec_conf;
    //default init
@@ -96,38 +97,65 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
    //test case : double are float
    vprec_conf.precision_binary64=VPREC_PRECISION_BINARY32_DEFAULT;
    vprec_conf.range_binary64=VPREC_RANGE_BINARY32_DEFAULT;
-   
-   
+   //test case : float are fp16
+   vprec_conf.precision_binary32=10;
+   vprec_conf.range_binary32=5;
+
    interflop_vprec_pre_init(my_panic , stderr , &context);
    interflop_vprec_configure((void*)&vprec_conf,context);
    interflop_vprec_init(context);
 
 
-   
 //   print_information_header(context);
+   {
+      float incTab[4]={7. , 6., 5. , 4. };
+      double a=FLT_MAX;
+      float af=(float)FLT_MAX;
+      for( int i=0 ; i< 128 ; i++){
+         printf("%d\n" , i);
+         double doubleRes[4];
+         float floatRes[4];
+         for(int j=0; j<4; j++){
+            interflop_vprec_add_double( a,(double)incTab[j], &(doubleRes[j]), context);
+            floatRes[j]=af+incTab[j];
 
-   float incTab[4]={7. , 6., 5. , 4. };
-   double a=FLT_MAX;
-   float af=(float)FLT_MAX;
-   for( int i=0 ; i< 128 ; i++){
-      printf("%d\n" , i);
-      double doubleRes[4];
-      float floatRes[4];
-      for(int j=0; j<4; j++){
-         interflop_vprec_add_double( a,(double)incTab[j], &(doubleRes[j]), context);
-         floatRes[j]=af+incTab[j];
+            if( ((double)floatRes[j]) != doubleRes[j]){
+               printf("%.17f + %.17f => float: %.17f\tdouble: %.17f\n" , a, incTab[j],  floatRes[j],  doubleRes[j]);
 
-         if( ((double)floatRes[j]) != doubleRes[j]){
-            printf("%.17f + %.17f => float: %.17f\tdouble: %.17f\n" , a, incTab[j],  floatRes[j],  doubleRes[j]);
-
-            printf("%+.13a + %+.13a => float: %+.13a\tdouble: %+.13a\n" , a, incTab[j],  floatRes[j],  doubleRes[j]);
-            
+               printf("%+.13a + %+.13a => float: %+.13a\tdouble: %+.13a\n" , a, incTab[j],  floatRes[j],  doubleRes[j]);
+            }
+         }
+         for(int j=0; j<4; j++){
+            incTab[j]*=2.f;
          }
       }
+   }
 
-      for(int j=0; j<4; j++){
-         incTab[j]*=2.f;
+#ifdef FLT16_MAX
+   {
+      _Float16 incTab[4]={7. , 6., 5. , 4. };
+      float a=FLT16_MAX;
+      _Float16 af=(_Float16)FLT16_MAX;
+      for( int i=0 ; i< 50 ; i++){
+         printf("%d\n" , i);
+         float floatRes[4];
+         _Float16 _Float16Res[4];
+         for(int j=0; j<4; j++){
+            interflop_vprec_add_float( a,(float)incTab[j],
+&(floatRes[j]), context);
+            _Float16Res[j]=af+incTab[j];
+
+            if( ((float)_Float16Res[j]) != floatRes[j]){
+               printf("%.17f + %.17f => _Float16: %.17f\tfloat: %.17f\n" , a, incTab[j],  _Float16Res[j],  floatRes[j]);
+
+               printf("%+.13a + %+.13a => _Float16: %+.13a\tfloat: %+.13a\n" , a, incTab[j],  _Float16Res[j],  floatRes[j]);
+            }
+         }
+
+         for(int j=0; j<4; j++){
+            incTab[j]*=2.f;
+         }
       }
    }
-   
+#endif
 }
