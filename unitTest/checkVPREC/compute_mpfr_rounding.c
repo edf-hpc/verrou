@@ -285,7 +285,7 @@ void apply_operation_3(mpfr_t res, mpfr_t a, mpfr_t b, mpfr_t c, const char op,
 void intermediate_rounding(mpfr_t x, mpfr_t intermediate,
                            mpfr_prec_t precision) {
   mpfr_clear_flags();
-  int i = mpfr_prec_round(x, precision, MPFR_RNDN);
+  int i = mpfr_prec_round(x, precision+1, MPFR_RNDN);
   mpfr_set(intermediate, x, MPFR_RNDN);
 
   i = mpfr_check_range(x, i, MPFR_RNDN);
