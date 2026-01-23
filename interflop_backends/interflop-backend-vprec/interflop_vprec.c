@@ -894,7 +894,7 @@ void INTERFLOP_VPREC_API(user_call)(void *context, interflop_call_id id,
   }
 }
 
-void INTERFLOP_VPREC_API(finalize)(void *context) {
+void INTERFLOP_VPREC_API(finalize)([[maybe_unused]]void *context) {
 #ifndef IGNORE_VFI_CONTEXT
   vprec_context_t *ctx = (vprec_context_t *)context;
   _vfi_finalize(ctx);
@@ -1256,13 +1256,11 @@ static void print_information_header(void *context) {
 #endif
 }
 
-struct interflop_backend_interface_t INTERFLOP_VPREC_API(init)(void *context) {
-
-  vprec_context_t *ctx = (vprec_context_t *)context;
-
+struct interflop_backend_interface_t INTERFLOP_VPREC_API(init)([[maybe_unused]] void *context) {
   /* initialize vprec function instrumentation context */
 #ifndef  IGNORE_VFI_CONTEXT
-  _vfi_init(ctx);
+    vprec_context_t *ctx = (vprec_context_t *)context;
+   _vfi_init(ctx);
 #endif
 
   struct interflop_backend_interface_t interflop_backend_vprec = {
