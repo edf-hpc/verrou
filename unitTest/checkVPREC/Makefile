@@ -1,5 +1,5 @@
 
-FLAGS=-g -Wall -O2 -mfma
+FLAGS=-g -Wall -O0 -mfma
 export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
@@ -36,4 +36,4 @@ mpfr_reference: mpfr_reference.tar.gz
 	tar xfz mpfr_reference.tar.gz
 
 clean:
-	rm -rf ./compute_mpfr_rounding check_vprec_rounding mpfr_reference input_*.txt
+	rm -rf ./compute_mpfr_rounding check_vprec_rounding mpfr_reference mpfr_reference.tar.gz input_*.txt
