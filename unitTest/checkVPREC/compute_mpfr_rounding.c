@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-
+#include <math.h>
 
 typedef enum { ieee, pb, ob, full, unknown_mode } vprec_mode_t;
 typedef enum { float_type, double_type, unknown_type } fptype_t;
@@ -247,7 +247,15 @@ void apply_operation_1(mpfr_t res, mpfr_t a, const char op,
   int i = 0;
   switch (op) {
   case 's':
-    i = mpfr_sqrt(res, a, MPFR_RNDN);
+  {
+     double d = mpfr_get_d(a, MPFR_RNDN);
+     if(d>0 ){
+        i = mpfr_sqrt(res, a, MPFR_RNDN);
+     }else{
+        d= - NAN;
+        mpfr_set_d(res, d, MPFR_RNDN);
+     }
+  }
     break;
   default:
     fprintf(stderr, "Bad op %c\n", op);
