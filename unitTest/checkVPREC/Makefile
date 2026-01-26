@@ -1,5 +1,5 @@
 
-FLAGS=-g -Wall -O0 -mfma
+FLAGS=-g -Wall -O1 -mfma
 export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused

@@ -49,7 +49,7 @@ inline float mySqrt<float>(float a){
 
 template<class REALTYPE>
 REALTYPE perform_op_2(char op, REALTYPE* tab) {
-  VERROU_START_INSTRUMENTATION;
+  VERROU_START_SOFT_INSTRUMENTATION;
   REALTYPE a=tab[0];
   REALTYPE b=tab[1];
   REALTYPE res;
@@ -70,13 +70,13 @@ REALTYPE perform_op_2(char op, REALTYPE* tab) {
     fprintf(stderr, "Bad op %c\n",op);
     exit(EXIT_FAILURE);
   }
-  VERROU_STOP_INSTRUMENTATION;
+  VERROU_STOP_SOFT_INSTRUMENTATION;
   return res;
 }
 
 template<class REALTYPE>
 REALTYPE perform_op_3(char op, REALTYPE* tab) {
-  VERROU_START_INSTRUMENTATION;
+  VERROU_START_SOFT_INSTRUMENTATION;
   REALTYPE a=tab[0];
   REALTYPE b=tab[1];
   REALTYPE c=tab[2];
@@ -89,13 +89,13 @@ REALTYPE perform_op_3(char op, REALTYPE* tab) {
     fprintf(stderr, "Bad op %c\n",op);
     exit(EXIT_FAILURE);
   }
-  VERROU_STOP_INSTRUMENTATION;
+  VERROU_STOP_SOFT_INSTRUMENTATION;
   return res;
 }
 
 template<class REALTYPE>
 REALTYPE perform_op_1(char op, REALTYPE* tab) {
-  VERROU_START_INSTRUMENTATION;
+  VERROU_START_SOFT_INSTRUMENTATION;
   REALTYPE a=tab[0];
   REALTYPE res;
   switch(op){
@@ -106,7 +106,7 @@ REALTYPE perform_op_1(char op, REALTYPE* tab) {
     fprintf(stderr, "Bad op %c\n",op);
     exit(EXIT_FAILURE);
   }
-  VERROU_STOP_INSTRUMENTATION;
+  VERROU_STOP_SOFT_INSTRUMENTATION;
   return res;
 }
 
@@ -240,7 +240,7 @@ bool cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
 
 
 int main(int argc, char * argv[]) {
-  VERROU_STOP_INSTRUMENTATION;
+  VERROU_STOP_SOFT_INSTRUMENTATION;
   if (argc != 4) {
     fprintf(stderr, "3 arguments expected : referenceFile EXPOSANT MANTISSE\n");
     exit(EXIT_FAILURE);
