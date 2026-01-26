@@ -24,6 +24,13 @@
 #include "interflop/iostream/logger.h"
 #include "vprec_tools.h"
 
+binary128 round_binary128_underflow(binary128 x, int emin,int precision);
+double round_binary64_underflow(double x, int emin, int precision);
+float round_binary32_underflow(float x, int emin, int precision);
+int has_underflow_binary32(float x, int emin, int precision);
+int has_underflow_binary64(double x, int emin, int precision);
+
+
 /* check if we need to add .5 ulp to have the rounding to nearest with ties to
  * even */
 inline static int check_if_binary32_needs_rounding(binary32 b32x,
@@ -67,10 +74,16 @@ inline float round_binary32_normal(float x, int precision) {
   const uint32_t mask = 0xFFFFFFFF << (FLOAT_PMAN_SIZE - precision);
 
   binary32 b32x = {.f32 = x};
+  int exp_hulp=b32x.ieee.exponent - precision - 1;
   binary32 half_ulp;
   half_ulp.ieee.sign = x < 0;
-  half_ulp.ieee.exponent = b32x.ieee.exponent - precision - 1;
+  half_ulp.ieee.exponent = exp_hulp;
   half_ulp.ieee.mantissa = 0;
+
+  if(exp_hulp < 1){
+     half_ulp.ieee.exponent =0;
+     half_ulp.ieee.mantissa= 1 << (FLOAT_PMAN_SIZE -1 +exp_hulp);
+  }
 
   if (check_if_binary32_needs_rounding(b32x, precision)) {
     b32x.f32 += half_ulp.f32;
@@ -122,9 +135,17 @@ inline double round_binary64_normal(double x, int precision) {
   const uint64_t mask = 0xFFFFFFFFFFFFFFFF << (DOUBLE_PMAN_SIZE - precision);
 
   binary64 b64x = {.f64 = x};
+
+  int exp_hulp=b64x.ieee.exponent - precision - 1;
   binary64 half_ulp = {.ieee = {.sign = x < 0,
-                                .exponent = b64x.ieee.exponent - precision - 1,
-                                .mantissa = 0}};
+        .exponent = exp_hulp,
+        .mantissa = 0}};
+  if(exp_hulp < 1){
+     binary64 half_ulp_denorm = {.ieee = {.sign = x < 0,
+           .exponent = 0,
+           .mantissa = 1 <<  (DOUBLE_PMAN_SIZE -1 +exp_hulp)} };
+     half_ulp=half_ulp_denorm;
+  }
 
   if (check_if_binary64_needs_rounding(b64x, precision)) {
     b64x.f64 += half_ulp.f64;
