@@ -37,8 +37,8 @@ verrouConfigListCmpBranch={
 #    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma" },
     "master_fast":{ "valgrind":valgrind_version, "branch_verrou":"master" ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
     "master":     { "valgrind":valgrind_version, "branch_verrou":"master" ,   "flags":""},
-    "back":       { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":""},
-    "back_fast":  { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
+    "vprec":       { "valgrind":valgrind_version, "branch_verrou":"bl/vprec", "flags":""},
+    "vprec_fast":  { "valgrind":valgrind_version, "branch_verrou":"bl/vprec", "flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
 }
 
 

@@ -10,7 +10,7 @@ from gen_build import workDirectory
 from pathlib import Path
 
 fastAnalyze=False
-fastAnalyze=True
+#fastAnalyze=True
 
 what="cmpBranch"
 if len(sys.argv)==2:
@@ -31,7 +31,7 @@ if not len(sys.argv) in [1,2]:
 
 #if what=="cmpBranch":
 roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
-buildConfigList=["master","master_fast","back", "back_fast"]
+buildConfigList=["master","master_fast", "vprec", "vprec_fast"]
 ref_name="master"
 detRounding=[]
 buildSpecialConfigList=[]
@@ -47,8 +47,10 @@ if what=="cmpHash":
 
 
 if what=="cmpInst":
-    buildConfigList=["master"]
+    buildConfigList=["vprec"]
     roundingListPerf=["tool_none", "nearest", "gen_exclude", "exclude_all", "gen_source", "source_nothing", "gen_backtrace","exclude_all_backtrace", "random"]
+    roundingListPerf=["tool_none", "nearest", "random", "vprec_float", "float"]
+    ref_name=buildConfigList[0]
 
 drop=10
 nbRunTuple=(5,10) #inner outer
@@ -115,6 +117,12 @@ def runPerfConfig(name):
                 if rounding=="exclude_all_backtrace":
                     myPath=str( list(Path(".").glob("back-"+binName+"/backInfo-*"))[0])
                     cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude-backtrace=%s %s %s %s "%(myPath,optName, pathPerfBin / binName,perfCmdParam)
+
+                if rounding=="float":
+                    cmd="valgrind --tool=verrou --float=yes --vr-instr-dbl=yes --vr-instr-flt=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+
+                if rounding=="vprec_float":
+                    cmd="valgrind --tool=verrou --backend=vprec --vprec-preset=fp32  %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
