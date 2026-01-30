@@ -87,31 +87,29 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
    vprec_conf.daz=IFalse;
    vprec_conf.ftz=IFalse;
 
-#define MYPREC 4
-#define MYRANGE 4   
+#define MYPREC 5
+#define MYRANGE 5
    vprec_conf.precision_binary64=MYPREC;
    vprec_conf.range_binary64=MYRANGE;
 
    vprec_conf.precision_binary32=MYPREC;
    vprec_conf.range_binary32=MYRANGE;
 
-   
    interflop_vprec_pre_init(my_panic , stderr , &context);
    interflop_vprec_configure((void*)&vprec_conf,context);
    interflop_vprec_init(context);
 
 //   print_information_header(context);
    {
-      #define NBELT 2
+      #define NBELT 1
+      //refLine:/ +0x1.e51c88p-15 +0x1.16a6cap-21 => +inf
 
-      //refLine:/ +0x1.a13088p-7 -0x1.91ab12p-10 => -0x1.a00000p+2
-      char opTab[NBELT]={'f', '/'};
-      double ref[NBELT]={ INFINITY, -0x1.a00000p+2};
-      double aTab[NBELT]={+0x1.9f6e00p+4, +0x1.a13088p-7};
-      double bTab[NBELT]={+0x1.13b986p+4, -0x1.91ab12p-10};
-      double cTab[NBELT]={-0x1.b98b2ab369eccp-1, NAN};
+      char opTab[NBELT]={'/'};
+      double ref[NBELT]={ INFINITY};
+      double aTab[NBELT]={ +0x1.e51c88p-15};
+      double bTab[NBELT]={+0x1.16a6cap-21};
+      double cTab[NBELT]={NAN};
 
-      
       double resMPFRTab[NBELT];
       double resMPFRHighTab[NBELT];
       double resDoubleTab[NBELT];
@@ -125,7 +123,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
          double b=bTab[i];
          double c=cTab[i];
          mpfr_set_default_prec(256);
-         mpfr_t ma,mb,mc,mr, mr_ref;         
+         mpfr_t ma,mb,mc,mr, mr_ref;
          mpfr_inits2(256, mr,mr_ref, ma, mb, mc,(mpfr_ptr)0);
          mpfr_set_default_prec(256);
 
@@ -164,27 +162,39 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char** argv){
             interflop_vprec_madd_float( a, b, c, &(resVprecFloatTab[i]), context);
             mpfr_fma(mr, ma, mb, mc,MPFR_RNDN);
          }
-         
+
          mpfr_set(mr_ref, mr,MPFR_RNDN);
-         mpfr_prec_round(mr, MYPREC +1 , MPFR_RNDN);
+         int e=mpfr_prec_round(mr, MYPREC +1 , MPFR_RNDN);
 
          resMPFRTab[i]= mpfr_get_d(mr, MPFR_RNDN);
          resMPFRHighTab[i]= mpfr_get_d(mr_ref, MPFR_RNDN);
 
+         bool error=false;
          if(resVprecFloatTab[i]!=resVprecDoubleTab[i]){
             printf("problem float/double(%d)  %+.13a  %+.13a \n",i, resVprecFloatTab[i],resVprecDoubleTab[i]);
+            error=true;
          }
 
          if(resMPFRTab[i] !=ref[i]){
-            printf("problem incompatible ref(%d)  %+.13a  %+.13a \n",i,resMPFRTab[i],ref[i]);            
+            printf("problem incompatible ref(%d)  localMPFR: %+.13a \trefOut%+.13a \n",i,resMPFRTab[i],ref[i]);
+            printf("problem incompatible ref(%d)  localMPFR: %+.17e \trefOut%+.17e \n",i,resMPFRTab[i],ref[i]);
+            error=true;
          }
          if(resVprecFloatTab[i]!=ref[i]){
-            printf("problem ref(%d)  %+.13a  %+.13a \n",i,resVprecFloatTab[i],ref[i]);
-
-            printf("problem deltaRef(%d)  %+.13a  \n",i, resMPFRHighTab[i] - resMPFRTab[i]);
-            
+            printf("problem(%d) with OutRef  vprec: %+.13a \trefOut:%+.13a \n",i,resVprecFloatTab[i],ref[i]);
+            printf("problem(%d) with OutRef  vprec: %+.17e \trefOut:%+.17e \n",i,resVprecFloatTab[i],ref[i]);
+            error=true;
          }
-
+         if(resVprecFloatTab[i]!=resMPFRTab[i]){
+            printf("problem(%d) with localMPFR  vprec: %+.13a \tlocalMPFR: %+.13a \n",i,resVprecFloatTab[i],resMPFRTab[i]);
+            printf("problem(%d) with localMPFR  vprec: %+.17e \tlocalMPFR: %+.17e \n",i,resVprecFloatTab[i],resMPFRTab[i]);
+            error=true;
+         }
+         if(error){
+            printf("debug deltaRef(%d)  %+.13a  \n",i, resMPFRHighTab[i] - resMPFRTab[i]);
+            printf("debug(%d) MPFR_high  %+.13a %+.17f \n",i, resMPFRHighTab[i], resMPFRHighTab[i]);
+            printf("debug(%d) MPFR_double  %+.13a %+.17f \n",i, resDoubleTab[i], resDoubleTab[i]);
+         }
       }
    }
 }
