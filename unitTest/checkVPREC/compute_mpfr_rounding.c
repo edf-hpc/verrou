@@ -163,8 +163,8 @@ void get_smallest_positive_subnormal_number(fptype_t type) {
   int range = vprec_range;
   int emax = (1 << (range - 1)) - 1;
   int emin = 1 - emax;
-  // Precision withiout the implicit bit
-  int precision = vprec_precision- 1;
+
+  int precision = vprec_precision;
 
   mpfr_set_emin(mpfr_get_emin_min());
   mpfr_set_emax(mpfr_get_emax_max());
@@ -189,8 +189,8 @@ void get_largest_positive_normal_number(fptype_t type) {
 
   int range = vprec_range;
   int emax = (1 << (range - 1)) - 1;
-  // Precision withiout the implicit bit
-  int precision = vprec_precision - 1;
+
+  int precision = vprec_precision ;
 
   mpfr_set_emin(mpfr_get_emin_min());
   mpfr_set_emax(mpfr_get_emax_max());
@@ -211,6 +211,7 @@ void get_largest_positive_normal_number(fptype_t type) {
     print_normalized_hex99_debug("[MPFR] (info)",
                                  "largest normal = ", largest_normal, type);
   }
+
 }
 
 void apply_operation_2(mpfr_t res, mpfr_t a, mpfr_t b, const char op,
@@ -249,7 +250,7 @@ void apply_operation_1(mpfr_t res, mpfr_t a, const char op,
   case 's':
   {
      double d = mpfr_get_d(a, MPFR_RNDN);
-     if(d>0 ){
+     if(d>=0 ){
         i = mpfr_sqrt(res, a, MPFR_RNDN);
      }else{
         d= - NAN;
@@ -320,7 +321,8 @@ void compute2Args(double a, double b, char op, fptype_t type, FILE* fp) {
   mpfr_exp_t emin = get_emin();
 
   mpfr_t ma, mb, mres, ma_inter, mb_inter, mres_inter;
-  mpfr_inits2(working_precision, mres, ma, mb, ma_inter, mb_inter, mres_inter,
+  mpfr_t maorg, mborg;
+  mpfr_inits2(working_precision, mres, ma, maorg, mb, mborg,ma_inter, mb_inter, mres_inter,
               (mpfr_ptr)0);
 
   if (type == float_type) {
@@ -330,6 +332,8 @@ void compute2Args(double a, double b, char op, fptype_t type, FILE* fp) {
     mpfr_set_d(ma, a, MPFR_RNDN);
     mpfr_set_d(mb, b, MPFR_RNDN);
   }
+  mpfr_set(maorg, ma,MPFR_RNDN);
+  mpfr_set(mborg, mb,MPFR_RNDN);
 
   if (verbose_mode) {
     print_normalized_hex99_debug_2("[MPFR] (before rounding)",
@@ -379,14 +383,9 @@ void compute2Args(double a, double b, char op, fptype_t type, FILE* fp) {
   }
 
   fprintf(fp, "%c ", op);
-  if(type==float_type){
-     fprint_normalized_float(a, fp, " ");
-     fprint_normalized_float(b, fp, " => ");
-  }
-  if(type==double_type){
-     fprint_normalized_double(a, fp, " ");
-     fprint_normalized_double(b, fp, " => ");
-  }
+
+  fprint_normalized_hex99_raw(maorg, type,fp, " ");
+  fprint_normalized_hex99_raw(mborg, type,fp, " => ");
   fprint_normalized_hex99_raw(mres, type,fp, "\n");
 }
 
@@ -400,7 +399,8 @@ void compute1Args(double a, char op, fptype_t type, FILE* fp) {
   mpfr_exp_t emin = get_emin();
 
   mpfr_t ma, mres, ma_inter, mb_inter, mres_inter;
-  mpfr_inits2(working_precision, mres, ma, ma_inter, mb_inter, mres_inter,
+  mpfr_t maorg;
+  mpfr_inits2(working_precision, mres, ma, maorg,ma_inter, mb_inter, mres_inter,
               (mpfr_ptr)0);
 
   if (type == float_type) {
@@ -408,6 +408,7 @@ void compute1Args(double a, char op, fptype_t type, FILE* fp) {
   } else if (type == double_type) {
     mpfr_set_d(ma, a, MPFR_RNDN);
   }
+  mpfr_set(maorg, ma,MPFR_RNDN);
 
   if (verbose_mode) {
     print_normalized_hex99_debug("[MPFR] (before rounding)",
@@ -456,17 +457,12 @@ void compute1Args(double a, char op, fptype_t type, FILE* fp) {
   }
 
   fprintf(fp, "%c ", op);
-  if(type==float_type){
-     fprint_normalized_float(a, fp, " => ");
-  }
-  if(type==double_type){
-     fprint_normalized_double(a, fp, " =>");
-  }
+  fprint_normalized_hex99_raw(maorg, type,fp, " => ");
   fprint_normalized_hex99_raw(mres, type,fp, "\n");
 }
 
 
-void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp) {
+void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp){
   const int working_precision = (type == float_type) ? 24 : 53;
 
   vprec_mode_t mode = vprec_mode;
@@ -475,7 +471,8 @@ void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp
   mpfr_exp_t emin = get_emin();
 
   mpfr_t ma, mb, mc, mres, ma_inter, mb_inter, mc_inter,mres_inter;
-  mpfr_inits2(working_precision, mres, ma, mb, mc, ma_inter, mb_inter, mc_inter, mres_inter,
+  mpfr_t maorg,mborg,mcorg;
+  mpfr_inits2(working_precision, mres, ma, mb, mc,maorg, mborg, mcorg, ma_inter, mb_inter, mc_inter, mres_inter,
               (mpfr_ptr)0);
 
   if (type == float_type) {
@@ -487,6 +484,9 @@ void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp
     mpfr_set_d(mb, b, MPFR_RNDN);
     mpfr_set_d(mc, c, MPFR_RNDN);
   }
+  mpfr_set(maorg, ma,MPFR_RNDN);
+  mpfr_set(mborg, mb,MPFR_RNDN);
+  mpfr_set(mcorg, mc,MPFR_RNDN);
 
   if (verbose_mode) {
     print_normalized_hex99_debug_3("[MPFR] (before rounding)",
@@ -537,16 +537,10 @@ void compute3Args(double a, double b, double c, char op, fptype_t type, FILE* fp
   }
 
   fprintf(fp, "%c ", op);
-  if(type==float_type){
-     fprint_normalized_float(a, fp, " ");
-     fprint_normalized_float(b, fp, " ");
-     fprint_normalized_float(c, fp, " => ");
-  }
-  if(type==double_type){
-     fprint_normalized_double(a, fp, " ");
-     fprint_normalized_double(b, fp, " ");
-     fprint_normalized_double(c, fp, " => ");
-  }
+  fprint_normalized_hex99_raw(maorg, type,fp, " ");
+  fprint_normalized_hex99_raw(mborg, type,fp, " ");
+  fprint_normalized_hex99_raw(mcorg, type,fp, " => ");
+
   fprint_normalized_hex99_raw(mres, type,fp, "\n");
 }
 
@@ -563,10 +557,10 @@ int main(int argc, char *argv[]) {
 
   fptype_t fpTypeTab[]={float_type, double_type};
   char*  fpTypeTabStr[]={"float", "double"};
-  int fpRangeMin[]={1, 1};
+  int fpRangeMin[]={2, 2};
   int fpRangeMax[]={8, 11};
 
-  int fpPrecisionMin[]={1, 1};
+  int fpPrecisionMin[]={2, 2};
   int fpPrecisionMax[]={23, 52};
 
   char opTabStr[]={'+','-','x','/', 's', 'f'}; //s for sqrt and f for fma
