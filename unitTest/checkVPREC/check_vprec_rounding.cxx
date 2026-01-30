@@ -207,31 +207,36 @@ void printAbsError(double ref, double a, double absError){
   printf("abs error : %+.13a\t%.17e\n", absError, absError);
 };
 
+typedef enum {
+  equal_exact=0,
+  equal_tol=1,
+  diff=2
+} cmp_res_t;
 
 template<class REALTYPE>
-bool cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
+cmp_res_t cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
   if ( ref == a){
-    return true;
+    return equal_exact;
   }
   if( ref!=ref && a!=a){ //NaN
-    return true;
+    return equal_exact;
   }
 
   if( ref * pow(2,range)<=1 ){ //sub normal abs comparison
     REALTYPE error=abs((ref -a)) ;
     if( error  * pow(2,precision+range) <= 1){
-      return true;
+      return equal_tol;
     }else{
       printAbsError(ref,a,error);
-      return false;
+      return diff;
     }
   }else{ //relative comparison
     REALTYPE relError=abs((ref -a) / ref) ;
     if( relError  * pow(2,precision) <= 1){
-      return true;
+      return equal_tol;
     }else{
       printError(ref,a,relError);
-      return false;
+      return diff;
     }
   }
 }
@@ -278,6 +283,7 @@ int main(int argc, char * argv[]) {
 
   char line[512];
   int counterOK=0;
+  int counterOKTol=0;
   int counterKO=0;
   char op;
 
@@ -289,9 +295,13 @@ int main(int argc, char * argv[]) {
       parseLine(line,&op, argsOp, &ref);
       float vprecRes=perform_op(op,argsOp);
 
-      if(cmpFaithFulFloat(ref, vprecRes, exposant, mantisse)){
+      cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
+      if(res==equal_exact){
 	counterOK++;
-      }else{
+      }else if(res==equal_tol){
+	counterOKTol++;
+      }
+      else{
 	counterKO++;
 	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
       }
@@ -302,9 +312,11 @@ int main(int argc, char * argv[]) {
        double ref;
        parseLine(line,&op, argsOp, &ref);
        double vprecRes=perform_op(op,argsOp);
-
-       if(cmpFaithFulFloat(ref, vprecRes, exposant, mantisse)){
-	  counterOK++;
+       cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
+       if(res==equal_exact){
+	 counterOK++;
+       }else if(res==equal_tol){
+	 counterOKTol++;
        }else{
 	 counterKO++;
 	 printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
@@ -313,6 +325,7 @@ int main(int argc, char * argv[]) {
   }
 
   printf("OK: %d \n", counterOK);
+  printf("OK(tol): %d \n", counterOKTol);
   printf("KO: %d \n", counterKO);
   if(counterKO!=0){
      return EXIT_FAILURE;
