@@ -8,7 +8,7 @@
 
 #include "verrou.h"
 
-
+#include "fpPropImpl.c"
 
 #if defined(__x86_64__)
 #include  <immintrin.h>
@@ -182,30 +182,23 @@ bool parseLine(char* line,char* op, double* argsOp, double* ref){
 
 
 
-void printError(float ref, float a, float relError){
+void printError(float ref, float a, float relError, float absError, int range, int precision){
   printf("ref : %+.6a\t%.8e\n", ref,ref);
   printf("vprec : %+.6a\t%.8e\n", a,a);
-  printf("rel : %+.6a\t%.8e\n", relError, relError);
-};
-
-void printError(double ref, double a, double relError){
-  printf("ref : %+.13a\t%.17e\n", ref,ref);
-  printf("vprec : %+.13a\t%.17e\n", a,a);
-  printf("rel : %+.13a\t%.17e\n", relError, relError);
-};
-
-
-void printAbsError(float ref, float a, float absError){
-  printf("ref : %+.6a\t%.8e\n", ref,ref);
-  printf("vprec : %+.6a\t%.8e\n", a,a);
+  printf("rel : %+.6a\t%.8e\t%.2fulp\n", relError, relError, absError / getUlp(ref, range, precision));
   printf("abs error : %+.6a\t%.8e\n", absError, absError);
 };
 
-void printAbsError(double ref, double a, double absError){
+
+void printError(double ref, double a, double relError,double absError, int range, int precision){
   printf("ref : %+.13a\t%.17e\n", ref,ref);
   printf("vprec : %+.13a\t%.17e\n", a,a);
+  printf("rel : %+.13a\t%.17e\t%.2fulp\n", relError, relError, absError / getUlp(ref, range, precision));
   printf("abs error : %+.13a\t%.17e\n", absError, absError);
+
 };
+
+
 
 typedef enum {
   equal_exact=0,
@@ -222,22 +215,16 @@ cmp_res_t cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
     return equal_exact;
   }
 
-  if( ref * pow(2,range)<=1 ){ //sub normal abs comparison
-    REALTYPE error=abs((ref -a)) ;
-    if( error  * pow(2,precision+range) <= 1){
-      return equal_tol;
-    }else{
-      printAbsError(ref,a,error);
-      return diff;
-    }
-  }else{ //relative comparison
-    REALTYPE relError=abs((ref -a) / ref) ;
-    if( relError  * pow(2,precision) <= 1){
-      return equal_tol;
-    }else{
-      printError(ref,a,relError);
-      return diff;
-    }
+  REALTYPE error=abs((ref -a)) ;
+  REALTYPE relError=abs((ref -a) / ref) ;
+
+  if( relError  * pow(2,precision) <= 1){
+    printf("tol Ok\n");
+    printError(ref,a,relError,error,range,precision);
+    return equal_tol;
+  }else{
+    printError(ref,a,relError,error,range,precision);
+    return diff;
   }
 }
 
@@ -300,6 +287,7 @@ int main(int argc, char * argv[]) {
 	counterOK++;
       }else if(res==equal_tol){
 	counterOKTol++;
+	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
       }
       else{
 	counterKO++;

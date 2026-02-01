@@ -10,7 +10,7 @@ NBSAMPLE=10
 check:mpfr_reference check_vprec_rounding
 	./check.sh
 
-check_vprec_rounding: check_vprec_rounding.cxx
+check_vprec_rounding: check_vprec_rounding.cxx fpPropImpl.c
 	g++ $(FLAGS) check_vprec_rounding.cxx -o check_vprec_rounding $(LDFLAGS)
 
 compute_mpfr_rounding: compute_mpfr_rounding.c
