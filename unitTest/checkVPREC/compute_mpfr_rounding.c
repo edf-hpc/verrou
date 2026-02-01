@@ -132,44 +132,59 @@ int nb_args_from_op(const char op){
 void apply_operation(mpfr_t res, mpfr_t* args, const char op,
                      fptype_t type) {
    mpfr_clear_flags();
-   mpfr_set_default_prec(256);
-   mpfr_set_emax(mpfr_get_emax_max());
-   mpfr_set_emin(mpfr_get_emin_min());
+
+   const int precision = (type == float_type) ? 23 : 52;
+   const int range = (type == float_type) ? 8 : 11;
+   mpfr_set_default_prec(precision+1);
+
+   mpfr_exp_t emax = get_emax_for_mpfr(range);
+   mpfr_exp_t emin = get_emin_for_mpfr(range, precision);
+
+   mpfr_t resLocal;
+   mpfr_set_emax(emax);
+   mpfr_set_emin(emin);
+   mpfr_inits2(precision+1,resLocal, (mpfr_ptr)0);
 
    int i = 0;
    switch (op) {
    case '+':
-      i = mpfr_add(res, args[0], args[1], MPFR_RNDN);
+      i = mpfr_add(resLocal, args[0], args[1], MPFR_RNDN);
       break;
    case '-':
-      i = mpfr_sub(res, args[0], args[1], MPFR_RNDN);
+      i = mpfr_sub(resLocal, args[0], args[1], MPFR_RNDN);
       break;
    case 'x':
-      i = mpfr_mul(res, args[0], args[1], MPFR_RNDN);
+      i = mpfr_mul(resLocal, args[0], args[1], MPFR_RNDN);
       break;
    case '/':
-      i = mpfr_div(res, args[0], args[1], MPFR_RNDN);
+      i = mpfr_div(resLocal, args[0], args[1], MPFR_RNDN);
       break;
    case 's':
    {
       double d = mpfr_get_d(args[0], MPFR_RNDN);
       if(d>=0 ){
-         i = mpfr_sqrt(res, args[0], MPFR_RNDN);
+         i = mpfr_sqrt(resLocal, args[0], MPFR_RNDN);
       }else{
          d= - NAN;
-         mpfr_set_d(res, d, MPFR_RNDN);
+         mpfr_set_d(resLocal, d, MPFR_RNDN);
       }
       break;
    }
    case 'f':
-      i = mpfr_fma(res, args[0], args[1], args[2], MPFR_RNDN);
+      i = mpfr_fma(resLocal, args[0], args[1], args[2], MPFR_RNDN);
+      break;
+   case '=':
+      i = mpfr_set(resLocal, args[0], MPFR_RNDN);
       break;
    default:
       fprintf(stderr, "Bad op %c\n", op);
       exit(1);
    }
-   i = mpfr_check_range(res, i, MPFR_RNDN);
-   mpfr_subnormalize(res, i, MPFR_RNDN);
+   i = mpfr_check_range(resLocal, i, MPFR_RNDN);
+   mpfr_subnormalize(resLocal, i, MPFR_RNDN);
+
+   mpfr_set(res, resLocal,MPFR_RNDN);
+   mpfr_clear(resLocal);
 }
 
 //#define DEBUG_CMP_FLOAT
@@ -264,6 +279,7 @@ void vprec_rounding(mpfr_t x, int range, int precision) {
             BYTE_TO_BINARY(fToPrint ));
   };
 #endif
+  mpfr_clear(xRound);
 }
 
 
@@ -284,14 +300,15 @@ void generate_ref(double* arg, char op, fptype_t type, FILE* fp,
      } else if (type == double_type) {
         mpfr_set_d(marg[i], arg[i], MPFR_RNDN);
      }
+     apply_operation(marg[i], &(marg[i]), '=',type);
      mpfr_inits2(working_precision, marg_org[i],(mpfr_ptr)0);
      mpfr_set(marg_org[i], marg[i],MPFR_RNDN);
   }
 
   if (mode == pb || mode == full) {
-    for(int i=0; i< nbArg; i++){
-       vprec_rounding(marg[i], range, precision);
-    }
+     for(int i=0; i< nbArg; i++){
+        vprec_rounding(marg[i], range, precision);
+     }
   }
 
   apply_operation(mres, marg, op, type);
@@ -361,13 +378,8 @@ int main(int argc, char *argv[]) {
               FILE* listOfPoints=NULL;
               char inputPointFile[512];
               snprintf(inputPointFile, 512, "input_%i.txt",vprec_range);
-              if(inputPointFile==NULL){
-                 printf("Error while creating input filename name\n");
-                 return EXIT_FAILURE;
-              }
 
               listOfPoints=fopen(inputPointFile,"r");
-
               if(listOfPoints==NULL){
                  printf("Error while opening input point file\n");
                  return EXIT_FAILURE;
