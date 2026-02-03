@@ -1,5 +1,5 @@
 
-FLAGS=-g -Wall -O1 -mfma
+FLAGS=-g -Wall -O0 -mfma
 export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
@@ -15,6 +15,10 @@ check_vprec_rounding: check_vprec_rounding.cxx fpPropImpl.c
 
 compute_mpfr_rounding: compute_mpfr_rounding.c
 	gcc $(FLAGS) compute_mpfr_rounding.c -o compute_mpfr_rounding $(LDFLAGS) -lmpfr
+
+fpProp: fpProp.c fpPropImpl.c
+	gcc $(FLAGS) fpProp.c -o fpProp $(LDFLAGS)
+
 
 mpfr_reference.tar.gz:compute_mpfr_rounding input_11.txt
 	rm -rf mpfr_reference

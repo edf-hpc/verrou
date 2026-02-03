@@ -214,17 +214,34 @@ cmp_res_t cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
   if( ref!=ref && a!=a){ //NaN
     return equal_exact;
   }
+  if(ref==0){
+    printf("0 expected but %.17e\t%a\n",a ,a);
+    return diff;
+  }
 
   REALTYPE error=abs((ref -a)) ;
   REALTYPE relError=abs((ref -a) / ref) ;
 
-  if( relError  * pow(2,precision) <= 1){
-    printf("tol Ok\n");
-    printError(ref,a,relError,error,range,precision);
-    return equal_tol;
+  if( abs(ref)> floatMinNorm(range,precision)){
+    if( relError  * pow(2,precision) <= 1){
+      printf("tol OK (normal)\n");
+      printError(ref,a,relError,error,range,precision);
+      return equal_tol;
+    }else{
+      printf("fail (normal)\n");
+      printError(ref,a,relError,error,range,precision);
+      return diff;
+    }
   }else{
-    printError(ref,a,relError,error,range,precision);
-    return diff;
+    if( error <= getUlp(ref, range, precision)){
+      printf("tol OK (denormal)\n");
+      printError(ref,a,relError,error,range,precision);
+      return equal_tol;
+    }else{
+      printf("fail (denormal)\n");
+      printError(ref,a,relError,error,range,precision);
+      return diff;
+    }
   }
 }
 

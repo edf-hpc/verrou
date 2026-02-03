@@ -33,12 +33,12 @@ do
 	do
 
 	       
-	    valGrind="valgrind --tool=verrou --backend=vprec --vprec-range-binary${bit}=${range} --vprec-precision-binary${bit}=${precision} --vprec-mode=${mode} --count-op=no --quiet"
+	    valGrind="valgrind --tool=verrou --backend=vprec --vprec-range-binary${bit}=${range} --vprec-precision-binary${bit}=${precision} --vprec-mode=${mode} --count-op=no --quiet --check-nan=no --check-inf=no"
 	    fileRef="./mpfr_reference/mpfr_${realType}_${mode}_E${range}M${precision} "
 	    runCmd="${valGrind} ./check_vprec_rounding ${fileRef} ${range} ${precision}"
 	    #echo ${realType} ${mode} E${range} M${precision} ${valGrind} ${runCmd}
 	    echo ${runCmd}
-	    ${runCmd}
+	    ${runCmd} ||  exit 42;
 	done
     done		    
     done
