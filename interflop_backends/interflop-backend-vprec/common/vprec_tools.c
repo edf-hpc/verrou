@@ -141,9 +141,10 @@ inline double round_binary64_normal(double x, int precision) {
         .exponent = exp_hulp,
         .mantissa = 0}};
   if(exp_hulp < 1){
+     int64_t one=1;
      binary64 half_ulp_denorm = {.ieee = {.sign = x < 0,
            .exponent = 0,
-           .mantissa = 1 <<  (DOUBLE_PMAN_SIZE -1 +exp_hulp)} };
+           .mantissa = one <<  (DOUBLE_PMAN_SIZE -1 +exp_hulp)} };
      half_ulp=half_ulp_denorm;
   }
 
