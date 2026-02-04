@@ -6,6 +6,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include <climits>
 #include "verrou.h"
 
 #include "fpPropImpl.c"
@@ -250,8 +251,8 @@ cmp_res_t cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
 
 int main(int argc, char * argv[]) {
   VERROU_STOP_SOFT_INSTRUMENTATION;
-  if (argc != 4) {
-    fprintf(stderr, "3 arguments expected : referenceFile EXPOSANT MANTISSE\n");
+  if (! ((argc == 4) || (argc == 5))) {
+    fprintf(stderr, "3 arguments expected : referenceFile EXPOSANT MANTISSE [#max_sample]\n");
     exit(EXIT_FAILURE);
   }
 
@@ -281,16 +282,19 @@ int main(int argc, char * argv[]) {
   int mantisse;
   exposant=atoi(argv[2]);
   mantisse=atoi(argv[3]);
-
   printf("exposant %d mantisse %d\n", exposant, mantisse);
 
+  int nbSample=INT_MAX;
+  if( argc==5){
+    nbSample=atoi(argv[4]);
+  }
 
   char line[512];
   int counterOK=0;
   int counterOKTol=0;
   int counterKO=0;
   char op;
-
+  int count=0;
   if( floatFile){
     while(fgets(line, 512, refFile) ){
       float argsOp[3];
@@ -310,6 +314,10 @@ int main(int argc, char * argv[]) {
 	counterKO++;
 	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
       }
+      count++;
+      if(count == nbSample){
+	break;
+      }
      }
   }else{//double
      while(fgets(line, 512, refFile) ){
@@ -325,6 +333,10 @@ int main(int argc, char * argv[]) {
        }else{
 	 counterKO++;
 	 printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
+       }
+       count++;
+       if(count == nbSample){
+	 break;
        }
      }
   }
