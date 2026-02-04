@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. $INSTALLPATH/env.sh
 
 #modelist="ob ib full"
 modelist="ob"
