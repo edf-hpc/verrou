@@ -1,5 +1,8 @@
 .PHONY: build_reference check
-FLAGS=-g -Wall -O0 -mfma
+
+include ../flag.mk
+FLAGS=${AVX512FLAG} ${FMAFLAG}  -Wall -O0 -g
+
 export INSTALLPATH = $(shell bash ../installpath)
 FLAGS += -I$(INSTALLPATH)/include/valgrind
 FLAGS += -Wall -Wno-unused
