@@ -91,6 +91,9 @@ unit-test:
 	@echo "*** VERROU UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
 
+build_reference:
+	cd ../valgrind+verrou/verrou/unitTest/checkVPREC && make build_reference
+
 valgrind-test:
 	@echo "*** VALGRIND UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make valgrind-test
