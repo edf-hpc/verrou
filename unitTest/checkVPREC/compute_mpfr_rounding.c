@@ -6,6 +6,7 @@
 #include <string.h>
 #include <strings.h>
 #include <math.h>
+#include "fpPropImpl.c"
 
 typedef enum { ieee, pb, ob, full, unknown_mode } vprec_mode_t;
 typedef enum { float_type, double_type, unknown_type } fptype_t;
@@ -66,6 +67,10 @@ void get_smallest_positive_subnormal_number(mpfr_t smallest_subnormal, int range
 
   mpfr_set_emin(_emin);
   mpfr_set_emax(_emax);
+
+  double fpPropMinDenorm=floatMinDeNorm(range, precision);
+  double mpfrMinDenorm=mpfr_get_d(smallest_subnormal, MPFR_RNDN);
+  assert(fpPropMinDenorm==mpfrMinDenorm);
 }
 
 void get_smallest_normal_number(mpfr_t smallest_normal, int range) {
@@ -84,6 +89,11 @@ void get_smallest_normal_number(mpfr_t smallest_normal, int range) {
 
   mpfr_set_emin(_emin);
   mpfr_set_emax(_emax);
+
+  double fpPropMin=floatMinNorm(range, 0);
+  double mpfrMin=mpfr_get_d(smallest_normal, MPFR_RNDN);
+  assert(fpPropMin==mpfrMin);
+
 }
 
 
@@ -109,6 +119,10 @@ void get_largest_positive_normal_number(mpfr_t largest_normal, int range, int pr
   mpfr_set_emin(_emin);
   mpfr_set_emax(_emax);
 
+  double fpPropMax=floatMax(range, precision);
+  double mpfrMax=mpfr_get_d(largest_normal, MPFR_RNDN);
+  assert(fpPropMax==mpfrMax);
+
 }
 
 int nb_args_from_op(const char op){
@@ -126,6 +140,32 @@ int nb_args_from_op(const char op){
     fprintf(stderr, "Bad op %c\n", op);
     exit(1);
   }
+}
+
+void overUnderFlow(mpfr_t x, int range, int precision){
+   mpfr_t smallest_subnormal, smallest_normal,largest_normal;
+   get_smallest_positive_subnormal_number(smallest_subnormal, range, precision);
+   get_largest_positive_normal_number(largest_normal, range, precision);
+   get_smallest_normal_number(smallest_normal,range);
+
+   if (mpfr_cmpabs(x, largest_normal) > 0) {
+      if (verbose_mode)
+         fprintf(stderr, "Overflow detected\n");
+      mpfr_set_inf(x, mpfr_sgn(x));
+  }else{
+      if (mpfr_cmpabs(x, smallest_normal)<0){
+         if (verbose_mode){
+            fprintf(stderr, "Subnormal detected limit(%e)\n",  mpfr_get_d(smallest_normal,MPFR_RNDN));
+         }
+
+         if (mpfr_cmpabs(x, smallest_subnormal) < 0) {
+            if (verbose_mode){
+               fprintf(stderr, "Underflow detected %e\n", mpfr_get_d(smallest_subnormal, MPFR_RNDN));
+            }
+            mpfr_set_zero(x, mpfr_sgn(x));
+         }
+      }
+   }
 }
 
 
@@ -183,6 +223,8 @@ void apply_operation(mpfr_t res, mpfr_t* args, const char op,
    i = mpfr_check_range(resLocal, i, MPFR_RNDN);
    mpfr_subnormalize(resLocal, i, MPFR_RNDN);
 
+   overUnderFlow(resLocal, range, precision);
+
    mpfr_set(res, resLocal,MPFR_RNDN);
    mpfr_clear(resLocal);
 }
@@ -192,7 +234,9 @@ void apply_operation(mpfr_t res, mpfr_t* args, const char op,
 #include <assert.h>
 #endif
 
-void vprec_rounding(mpfr_t x, int range, int precision) {
+
+
+bool vprec_rounding(mpfr_t x, int range, int precision) {
 #ifdef DEBUG_CMP_FLOAT
    assert(range==8);
    assert(precision==23);
@@ -201,55 +245,42 @@ void vprec_rounding(mpfr_t x, int range, int precision) {
    float df=(float)d;
    assert(fRef==df);
 #endif
+   double xDouble = mpfr_get_d(x, MPFR_RNDN);
    mpfr_clear_flags();
-  mpfr_exp_t emax = get_emax_for_mpfr(range);
-  mpfr_exp_t emin = get_emin_for_mpfr(range, precision);
+   mpfr_exp_t emax = get_emax_for_mpfr(range);
+   mpfr_exp_t emin = get_emin_for_mpfr(range, precision);
+   if( verbose_mode){
+      printf("emax %ld\t emin %ld\n", emax, emin);
+   }
 
-  if( verbose_mode){
-     printf("emax %ld\t emin %ld\n", emax, emin);
-  }
+   mpfr_t xRound;
+   mpfr_set_emax(emax);
+   mpfr_set_emin(emin);
+   mpfr_inits2(precision+1,xRound, (mpfr_ptr)0);
+   int i=mpfr_set(xRound, x,MPFR_RNDN);
+   i = mpfr_check_range(xRound, i, MPFR_RNDN);
+   i = mpfr_subnormalize(xRound, i, MPFR_RNDN);
 
-  mpfr_t xRound;
-  mpfr_set_emax(emax);
-  mpfr_set_emin(emin);
-  mpfr_inits2(precision+1,xRound, (mpfr_ptr)0);
-  int i=mpfr_set(xRound, x,MPFR_RNDN);
-  i = mpfr_check_range(xRound, i, MPFR_RNDN);
-  i = mpfr_subnormalize(xRound, i, MPFR_RNDN);
+   overUnderFlow(xRound, range, precision);
 
-  mpfr_t smallest_subnormal, smallest_normal,largest_normal;
-  get_smallest_positive_subnormal_number(smallest_subnormal, range, precision);
-  get_largest_positive_normal_number(largest_normal, range, precision);
-  get_smallest_normal_number(smallest_normal,range);
+   double xRoundDouble = mpfr_get_d(xRound, MPFR_RNDN);
+   double xDiff=fabs(xDouble - xRoundDouble);
+   bool midPoint=false;
+   if(2.* xDiff == getUlp(xRoundDouble, range, precision)){
+     printf("Warning mid-point rounding\n");
+     midPoint=true;
+   }
 
-  if (mpfr_cmpabs(xRound, largest_normal) > 0) {
-    if (verbose_mode)
-      fprintf(stderr, "Overflow detected\n");
-    mpfr_set_inf(xRound, mpfr_sgn(x));
-  }else{
-     if (mpfr_cmpabs(xRound, smallest_normal)<0){
-        if (verbose_mode){
-           fprintf(stderr, "Subnormal detected limit(%e)\n",  mpfr_get_d(smallest_normal,MPFR_RNDN));
-        }
-
-        if (mpfr_cmpabs(xRound, smallest_subnormal) < 0) {
-           if (verbose_mode)
-              fprintf(stderr, "Underflow detected %e\n", mpfr_get_d(smallest_subnormal, MPFR_RNDN));
-           mpfr_set_zero(xRound, mpfr_sgn(x));
-        }
-     }
-  }
-
-  mpfr_set(x, xRound,MPFR_RNDN);
+   mpfr_set(x, xRound,MPFR_RNDN);
 
 #ifdef DEBUG_CMP_FLOAT
-  double dRes = mpfr_get_d(xRound, MPFR_RNDN);
-  if(dRes!=df && (! (dRes!=dRes && df!=df ) ) ){
-     printf("d:%.17e  dRes: %.9e  float: %.9e\n", d, dRes, df);
-     printf("d:%a  dRes: %a  float: %a\n", d, dRes, df);
+   double dRes = mpfr_get_d(xRound, MPFR_RNDN);
+   if(dRes!=df && (! (dRes!=dRes && df!=df ) ) ){
+      printf("d:%.17e  dRes: %.9e  float: %.9e\n", d, dRes, df);
+      printf("d:%a  dRes: %a  float: %a\n", d, dRes, df);
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
+#define BYTE_TO_BINARY(byte)   \
   ((byte) & 0x80 ? '1' : '0'), \
   ((byte) & 0x40 ? '1' : '0'), \
   ((byte) & 0x20 ? '1' : '0'), \
@@ -280,6 +311,7 @@ void vprec_rounding(mpfr_t x, int range, int precision) {
   };
 #endif
   mpfr_clear(xRound);
+  return midPoint;
 }
 
 
@@ -292,6 +324,7 @@ void generate_ref(double* arg, char op, fptype_t type, FILE* fp,
   mpfr_t marg[3];
   mpfr_t  mres;
   mpfr_t marg_org[3];
+  bool midPoint=false;
   mpfr_inits2(working_precision, mres,(mpfr_ptr)0);
   for(int i=0; i< nbArg; i++){
      mpfr_inits2(working_precision, marg[i],(mpfr_ptr)0);
@@ -307,14 +340,20 @@ void generate_ref(double* arg, char op, fptype_t type, FILE* fp,
 
   if (mode == pb || mode == full) {
      for(int i=0; i< nbArg; i++){
-        vprec_rounding(marg[i], range, precision);
+        midPoint= midPoint | vprec_rounding(marg[i], range, precision);
      }
   }
 
   apply_operation(mres, marg, op, type);
 
   if (mode == ob || mode == full) {
-    vprec_rounding(mres,range,precision);
+     midPoint= midPoint |  vprec_rounding(mres,range,precision);
+  }
+
+  if(midPoint){
+     fprintf(fp, "~ ");
+  }else{
+     fprintf(fp, "= ");
   }
 
   fprintf(fp, "%c ", op);
@@ -329,6 +368,11 @@ void generate_ref(double* arg, char op, fptype_t type, FILE* fp,
 
 
 int main(int argc, char *argv[]) {
+
+   /* double debugArgs[3]={ -0x1.a4a780d30d118p+13, -0x1.14112d64af780p+13, NAN};*/
+   /* FILE* refDebug=fopen("debugRef","w"); */
+   /* generate_ref(debugArgs, 'x', double_type, refDebug, full, 5, 44); */
+   /* return EXIT_FAILURE; */
 
   if (argc != 2) {
     fprintf(stderr, "usage: compute_mpfr_rounding outputRep\n");

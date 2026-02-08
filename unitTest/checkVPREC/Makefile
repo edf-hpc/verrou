@@ -16,7 +16,7 @@ check:mpfr_reference check_vprec_rounding
 check_vprec_rounding: check_vprec_rounding.cxx fpPropImpl.c
 	g++ $(FLAGS) check_vprec_rounding.cxx -o check_vprec_rounding $(LDFLAGS)
 
-compute_mpfr_rounding: compute_mpfr_rounding.c
+compute_mpfr_rounding: compute_mpfr_rounding.c fpPropImpl.c
 	gcc $(FLAGS) compute_mpfr_rounding.c -o compute_mpfr_rounding $(LDFLAGS) -lmpfr
 
 fpProp: fpProp.c fpPropImpl.c

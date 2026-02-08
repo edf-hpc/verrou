@@ -2,7 +2,8 @@
 
 . $INSTALLPATH/env.sh
 
-#modelist="ob ib full"
+modelist="ob ib full"
+modelist="ob full" #which ulp for tolerance with ib?
 modelist="ob"
 typeList="float double"
 nbSample=100
@@ -45,7 +46,7 @@ do
 	done	
     done
 
-    parallel --group --halt now,fail=1 -j 5  :::: ${runListFile} 
+    parallel --group --halt now,fail=1 -j 5  :::: ${runListFile} || exit 42
     
     done    
 done

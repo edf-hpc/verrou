@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <math.h>
 
+double floatMinDeNorm(int range, int64_t precision);
+
 int64_t emax(int range){
    int res= (1 << (range - 1)) - 1;
    return res;
@@ -16,7 +18,7 @@ int64_t emin(int range){
 
 int64_t getExp(double a){
    int64_t res;
-   assert(a!=0);
+   assert(a!=0.);
    binary64 aexp = {.f64 = a};
    aexp.s64 = (int64_t)((DOUBLE_GET_EXP & aexp.u64) >> DOUBLE_PMAN_SIZE) -
       DOUBLE_EXP_COMP;
@@ -34,19 +36,22 @@ int64_t getExp(double a){
       assert(lastIOne>=0);
       res= -1023 + lastIOne-DOUBLE_PMAN_SIZE +1;
    }
-   int64_t expoMath;
-   if(a>0){
-      expoMath=floor(log2(a));
-   }else{
-      expoMath=floor(log2(-a));
-   }
-   if(expoMath !=res){
-      printf("getExp(%a | %.17e)",a,a);
-      printf("expoMath %ld\n", expoMath);
-      printf("res %ld\n", res);
-   }
 
-   assert(expoMath==res);
+   if( (fabs(a)!=INFINITY) && !(a!=a)){
+      int64_t expoMath;
+      if(a>0){
+         expoMath=floor(log2(a));
+      }else{
+         expoMath=floor(log2(-a));
+      }
+      if(expoMath !=res){
+         printf("getExp(%a | %.17e)\n",a,a);
+         printf("\texpoMath %ld\n", expoMath);
+         printf("\tres %ld\n", res);
+      }
+
+      assert(expoMath==res);
+   }
    return res;
 }
 
@@ -55,9 +60,15 @@ int64_t getExp(double a){
 double getUlp(double a, int range, int precision){
    int myemax=emax(range);
    int myemin=emin(range);
+   if(a==0.){
+      return floatMinDeNorm(range, precision);
+   }
+
    int64_t expo=getExp(a);
 
-   assert(expo<=myemax);
+   if( expo> myemax){
+      return INFINITY;
+   }
 
    int64_t expoUlp=expo-precision;
    if(expoUlp<myemin-precision){

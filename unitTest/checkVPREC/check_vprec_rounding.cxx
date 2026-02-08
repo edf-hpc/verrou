@@ -139,9 +139,21 @@ REALTYPE perform_op(char op, REALTYPE* tab) {
 }
 
 
-bool parseLine(char* line,char* op, float* argsOp, float* ref){
-// + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
+bool parseLine(char* line, bool* exact, char* op, float* argsOp, float* ref){
+//= + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
    char* cur=line;
+   char exactOrApprox=cur[0];
+   if(exactOrApprox=='='){
+     *exact=true;
+   }else{
+     if(exactOrApprox=='~'){
+       *exact=false;
+     }else{
+       fprintf(stderr, "bad format %s\n", line);
+       exit(EXIT_FAILURE);
+     }
+   }
+   cur=cur+2;
    int nbArgs=opToNbArgs(cur[0]);
    if(nbArgs==-1){
       fprintf(stderr, "bad format invalid op\n");
@@ -149,7 +161,7 @@ bool parseLine(char* line,char* op, float* argsOp, float* ref){
       exit(EXIT_FAILURE);
    }
    *op=cur[0];
-   cur=line+2;
+   cur=cur+2;
 
    for(int i=0; i< nbArgs; i++){
      argsOp[i]=strtof(cur, &cur );
@@ -160,9 +172,22 @@ bool parseLine(char* line,char* op, float* argsOp, float* ref){
    return true;
 }
 
-bool parseLine(char* line,char* op, double* argsOp, double* ref){
+bool parseLine(char* line, bool* exact, char* op, double* argsOp, double* ref){
 // + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
    char* cur=line;
+   char exactOrApprox=cur[0];
+   if(exactOrApprox=='='){
+     *exact=true;
+   }else{
+     if(exactOrApprox=='~'){
+       *exact=false;
+     }else{
+       fprintf(stderr, "bad format %s\n", line);
+       exit(EXIT_FAILURE);
+     }
+   }
+   cur=cur+2;
+
    int nbArgs=opToNbArgs(cur[0]);
    if(nbArgs==-1){
       fprintf(stderr, "bad format invalid op\n");
@@ -170,7 +195,7 @@ bool parseLine(char* line,char* op, double* argsOp, double* ref){
       exit(EXIT_FAILURE);
    }
    *op=cur[0];
-   cur=line+2;
+   cur=cur+2;
 
    for(int i=0; i< nbArgs; i++){
      argsOp[i]=strtod(cur, &cur );
@@ -299,20 +324,28 @@ int main(int argc, char * argv[]) {
     while(fgets(line, 512, refFile) ){
       float argsOp[3];
       float ref;
+      bool exact;
 
-      parseLine(line,&op, argsOp, &ref);
+      parseLine(line,&exact, &op, argsOp, &ref);
       float vprecRes=perform_op(op,argsOp);
 
       cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
       if(res==equal_exact){
 	counterOK++;
       }else if(res==equal_tol){
-	counterOKTol++;
-	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
+	if(exact){
+	  counterKO++;
+	  printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
+	  printf("args %.8e %.8e\n", argsOp[0],argsOp[1]);
+	}else{
+	  counterOKTol++;
+	  printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
+	}
       }
       else{
 	counterKO++;
 	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
+	printf("args %.8e %.8e\n", argsOp[0],argsOp[1]);
       }
       count++;
       if(count == nbSample){
@@ -323,13 +356,21 @@ int main(int argc, char * argv[]) {
      while(fgets(line, 512, refFile) ){
        double argsOp[3];
        double ref;
-       parseLine(line,&op, argsOp, &ref);
+       bool exact;
+
+       parseLine(line,&exact, &op, argsOp, &ref);
        double vprecRes=perform_op(op,argsOp);
        cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
        if(res==equal_exact){
 	 counterOK++;
        }else if(res==equal_tol){
-	 counterOKTol++;
+	 if(exact){
+	   counterKO++;
+	   printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
+	 }else{
+	   counterOKTol++;
+	   printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
+	 }
        }else{
 	 counterKO++;
 	 printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
