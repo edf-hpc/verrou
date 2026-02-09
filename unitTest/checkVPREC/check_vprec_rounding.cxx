@@ -33,6 +33,29 @@ inline double mySqrt(const double& a){
 
     return d;
   }
+#elif defined(__aarch64__)
+#include "arm_neon.h"
+
+
+inline double mySqrt(const double& a){
+  const float64x1_t ap=vld1_f64(&a);
+  const float64x1_t res_p=vsqrt_f64(ap);
+  double res;
+  vst1_f64(&res,res_p);
+  return res;
+}
+
+
+inline float vrSqrt(const float& a){
+
+  float av[2]={a,0};
+  float32x2_t ap=vld1_f32(av);
+  float32x2_t resp= vsqrt_f32(ap);
+  float res[2];
+  vst1_f32(res, resp);
+  return res[0];
+}
+
 #else
 template<class REALTYPE>
 inline REALTYPE mySqrt(REALTYPE a);
