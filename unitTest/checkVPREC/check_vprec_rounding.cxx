@@ -11,64 +11,12 @@
 
 #include "fpPropImpl.c"
 
-#if defined(__x86_64__)
-#include  <immintrin.h>
 
-inline double mySqrt(const double& a){
-    double d;
-    __m128d ai,di;
-    ai = _mm_load_sd(&a);
-    di=_mm_sqrt_sd(ai,ai);
-    d=_mm_cvtsd_f64(di);
-    return d;
-  }
+#define USE_VERROU_FMA
+#include "../../interflop_backends/interflop_verrou/vr_fma.hxx"
 
-
-  inline float mySqrt(const float& a){
-    float d;
-    __m128 ai, bi,ci,di;
-    ai = _mm_load_ss(&a);
-    di=_mm_sqrt_ss(ai);
-    d=_mm_cvtss_f32(di);
-
-    return d;
-  }
-#elif defined(__aarch64__)
-#include "arm_neon.h"
-
-
-inline double mySqrt(const double& a){
-  const float64x1_t ap=vld1_f64(&a);
-  const float64x1_t res_p=vsqrt_f64(ap);
-  double res;
-  vst1_f64(&res,res_p);
-  return res;
-}
-
-
-inline float vrSqrt(const float& a){
-
-  float av[2]={a,0};
-  float32x2_t ap=vld1_f32(av);
-  float32x2_t resp= vsqrt_f32(ap);
-  float res[2];
-  vst1_f32(res, resp);
-  return res[0];
-}
-
-#else
-template<class REALTYPE>
-inline REALTYPE mySqrt(REALTYPE a);
-
-template<>
-inline double mySqrt<double>(double a){
-  return __builtin_sqrt(a);
-}
-template<>
-inline float mySqrt<float>(float a){
-  return __builtin_sqrtf(a);
-}
-#endif
+#define USE_VERROU_SQRT
+#include "../../interflop_backends/interflop_verrou/vr_sqrt.hxx"
 
 
 template<class REALTYPE>
@@ -107,7 +55,7 @@ REALTYPE perform_op_3(char op, REALTYPE* tab) {
   REALTYPE res;
   switch(op){
   case 'f':
-    res = __builtin_fma(a,b,c);
+    res = vr_fma<REALTYPE>(a,b,c);
     break;
   default:
     fprintf(stderr, "Bad op %c\n",op);
@@ -124,7 +72,7 @@ REALTYPE perform_op_1(char op, REALTYPE* tab) {
   REALTYPE res;
   switch(op){
   case 's':
-    res = mySqrt(a);
+    res = vr_sqrt<REALTYPE>(a);
     break;
   default:
     fprintf(stderr, "Bad op %c\n",op);
