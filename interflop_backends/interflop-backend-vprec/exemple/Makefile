@@ -7,7 +7,11 @@ SRC= ../interflop_vprec.c ../common/vprec_tools.c ../../../interflop/interflop_s
 FLAGS= -Wall -Wextra -Wno-varargs -O0 -g -fno-builtin -DIGNORE_VFI_CONTEXT -msse2
 LDFLAGS=-lm -lmpfr
 
-all: cmpFloat infCheck smallExpo
+all: debugCheckVPREC cmpFloat infCheck smallExpo
+
+debugCheckVPREC: debugCheckVPREC.c $(SRC)
+	gcc $(FLAGS) $(INCLUDE) debugCheckVPREC.c $(SRC) -o debugCheckVPREC $(LDFLAGS)
+
 
 cmpFloat: cmpFloat.c $(SRC)
 	gcc $(FLAGS) $(INCLUDE) cmpFloat.c $(SRC) -o cmpFloat $(LDFLAGS)
