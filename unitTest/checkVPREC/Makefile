@@ -9,6 +9,7 @@ FLAGS += -Wall -Wno-unused
 LDFLAGS=-lm
 
 NBSAMPLE=50
+#NBSAMPLE=1000
 
 check:mpfr_reference check_vprec_rounding
 	./check.sh

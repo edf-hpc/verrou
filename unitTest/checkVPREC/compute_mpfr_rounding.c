@@ -267,8 +267,10 @@ bool vprec_rounding(mpfr_t x, int range, int precision) {
    double xDiff=fabs(xDouble - xRoundDouble);
    bool midPoint=false;
    if(2.* xDiff == getUlp(xRoundDouble, range, precision)){
-     printf("Warning mid-point rounding\n");
-     midPoint=true;
+      if(fabs(xRoundDouble)!=INFINITY){
+         printf("Warning mid-point rounding: %.17e %.a\n", xDouble, xDouble);
+      }
+      midPoint=true;
    }
 
    mpfr_set(x, xRound,MPFR_RNDN);

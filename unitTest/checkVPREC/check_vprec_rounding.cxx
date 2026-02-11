@@ -110,7 +110,24 @@ REALTYPE perform_op(char op, REALTYPE* tab) {
 }
 
 
-bool parseLine(char* line, bool* exact, char* op, float* argsOp, float* ref){
+template<class REALTYPE>
+REALTYPE strToRealtype(char* str, char** next);
+
+template<>
+double strToRealtype<double>(char* str, char** next){
+  double res=strtod(str, next );
+  return res;
+}
+
+template<>
+float strToRealtype<float>(char* str, char** next){
+  float res=strtof(str, next );
+  return res;
+}
+
+
+template<class REALTYPE>
+bool parseLine(char* line, bool* exact, char* op, REALTYPE* argsOp, REALTYPE* ref){
 //= + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
    char* cur=line;
    char exactOrApprox=cur[0];
@@ -135,48 +152,13 @@ bool parseLine(char* line, bool* exact, char* op, float* argsOp, float* ref){
    cur=cur+2;
 
    for(int i=0; i< nbArgs; i++){
-     argsOp[i]=strtof(cur, &cur );
+     argsOp[i]=strToRealtype<REALTYPE>(cur, &cur);
    }
    cur=cur+4;
 
-   *ref=strtof(cur, &cur );
+   *ref=strToRealtype<REALTYPE>(cur, &cur);
    return true;
 }
-
-bool parseLine(char* line, bool* exact, char* op, double* argsOp, double* ref){
-// + +0x1.3be88f5a8c2b8p-2 -0x1.2b46c18de74dcp-3 => +0x1.4c8a5d2731090p-3
-   char* cur=line;
-   char exactOrApprox=cur[0];
-   if(exactOrApprox=='='){
-     *exact=true;
-   }else{
-     if(exactOrApprox=='~'){
-       *exact=false;
-     }else{
-       fprintf(stderr, "bad format %s\n", line);
-       exit(EXIT_FAILURE);
-     }
-   }
-   cur=cur+2;
-
-   int nbArgs=opToNbArgs(cur[0]);
-   if(nbArgs==-1){
-      fprintf(stderr, "bad format invalid op\n");
-      fprintf(stderr, "bad format %s\n", line);
-      exit(EXIT_FAILURE);
-   }
-   *op=cur[0];
-   cur=cur+2;
-
-   for(int i=0; i< nbArgs; i++){
-     argsOp[i]=strtod(cur, &cur );
-   }
-   cur=cur+4;
-
-   *ref=strtod(cur, &cur );
-   return true;
-}
-
 
 
 void printError(float ref, float a, float relError, float absError, int range, int precision){
@@ -199,8 +181,10 @@ void printError(double ref, double a, double relError,double absError, int range
 
 typedef enum {
   equal_exact=0,
-  equal_tol=1,
-  diff=2
+  equal_ulp=1,
+  inf_ulp=2,
+  inf_2ulp=3,
+  sup_2ulp=4
 } cmp_res_t;
 
 template<class REALTYPE>
@@ -208,39 +192,148 @@ cmp_res_t cmpFaithFulFloat(REALTYPE ref, REALTYPE a, int range, int precision){
   if ( ref == a){
     return equal_exact;
   }
-  if( ref!=ref && a!=a){ //NaN
+  if( isnan(ref) && isnan(a)){ //NaN
     return equal_exact;
   }
   if(ref==0){
     printf("0 expected but %.17e\t%a\n",a ,a);
-    return diff;
+    return sup_2ulp;
   }
 
-  REALTYPE error=abs((ref -a)) ;
-  REALTYPE relError=abs((ref -a) / ref) ;
-
-  if( abs(ref)> floatMinNorm(range,precision)){
-    if( relError  * pow(2,precision) <= 1){
-      printf("tol OK (normal)\n");
-      printError(ref,a,relError,error,range,precision);
-      return equal_tol;
-    }else{
-      printf("fail (normal)\n");
-      printError(ref,a,relError,error,range,precision);
-      return diff;
-    }
-  }else{
-    if( error <= getUlp(ref, range, precision)){
-      printf("tol OK (denormal)\n");
-      printError(ref,a,relError,error,range,precision);
-      return equal_tol;
-    }else{
-      printf("fail (denormal)\n");
-      printError(ref,a,relError,error,range,precision);
-      return diff;
-    }
+  REALTYPE absError=std::abs((ref -a)) ;
+  REALTYPE relError=std::abs((ref -a) / ref) ;
+  printf("absError: %.17e\t relError %.17e\n" , absError, relError);
+  char normalStr[]="normal";
+  char subnormalStr[]="subnormal";
+  char* normalityStatusStr=normalStr;
+  if( fabs(ref)>= floatMinNorm(range,precision)){
+    normalityStatusStr=subnormalStr;
   }
+
+  if( absError == getUlp(ref, range, precision)){
+    printf("=+ulp OK (%s)\n",normalityStatusStr);
+    printError(ref,a,relError,absError,range,precision);
+    return equal_ulp;
+  }
+  else if(  absError <= getUlp(ref, range, precision)){
+    printf("<ulp (%s)\n",normalityStatusStr);
+    printError(ref,a,relError,absError,range,precision);
+    return inf_ulp;
+  }
+  else if( absError <= 2.*getUlp(ref, range, precision)){
+    printf("<2ulp (%s)\n", normalityStatusStr);
+    printError(ref,a,relError,absError,range,precision);
+    return inf_2ulp;
+  } else{
+    printf("fail (%s)\n",normalityStatusStr);
+    printError(ref,a,relError,absError,range,precision);
+    return sup_2ulp;
+  }
+  return sup_2ulp;
 }
+
+template<class REALTYPE>
+struct ErrorLineFormat;
+
+template<>
+struct ErrorLineFormat<float>{
+  static const char* getStr(){
+    return "Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n";
+  }
+};
+template<>
+struct ErrorLineFormat<double>{
+  static const char* getStr(){
+    return "Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n";
+  }
+};
+
+
+template<class REALTYPE>
+int loopOverReferenceFile(char* fileName, int nbSampleMax, int range, int precision,
+			  bool isIB, bool isOB, bool isFULL){
+  FILE* refFile=fopen(fileName,"r");
+  if(refFile==NULL){
+    printf("file %s impossible to open\n", fileName);
+    return EXIT_FAILURE;
+  }
+  char line[512];
+  int counterOK=0;
+  int counterOKTol=0;
+  int counterKO=0;
+  int count=0;
+
+  while(fgets(line, 512, refFile) ){
+    REALTYPE argsOp[3];
+    REALTYPE ref=1.;
+    bool exact=false;
+    char op;
+    parseLine<REALTYPE>(line,&exact, &op, argsOp, &ref);
+
+    REALTYPE vprecRes=perform_op(op,argsOp);
+
+    cmp_res_t cmpRes=cmpFaithFulFloat<REALTYPE>(ref, vprecRes, range, precision);
+
+    if(exact){
+      if(cmpRes==equal_exact){
+	counterOK++;
+      }else{
+	counterKO++;
+	printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+      }
+    }else{//mid point detected in reference
+      switch(cmpRes){
+      case equal_exact:
+	counterOK++;
+	break;
+      case equal_ulp:
+	counterOKTol++;
+	printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+	break;
+      case inf_ulp:
+	if(isOB){
+	  counterKO++;
+	  printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+	}
+	if(isIB || isFULL){
+	  counterOKTol++;
+	  printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+	}
+	break;
+
+      case inf_2ulp:
+      case sup_2ulp:
+	if(isOB){
+	  counterKO++;
+	  printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+	}
+	if(isIB || isFULL){
+	  counterKO++;
+	  printf("No necessary an error, but I need a case to analyse\n");
+	  printf(ErrorLineFormat<REALTYPE>::getStr(), vprecRes, ref, line);
+	}
+	break;
+      default:
+	printf("error switch\n");
+      }
+    }
+    count++;
+    if(count == nbSampleMax){
+      break;
+    }
+  }
+
+  printf("OK: %d \n", counterOK);
+  printf("OK(tol): %d \n", counterOKTol);
+  printf("KO: %d \n", counterKO);
+  if(counterKO!=0){
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+};
+
+
+
 
 
 
@@ -264,101 +357,47 @@ int main(int argc, char * argv[]) {
   }
 
   if( ! (floatFile ^ doubleFile)){
-     printf("impossible to detect float or double type");
+     printf("impossible to detect float or double type\n");
      return EXIT_FAILURE;
   }
 
-  FILE* refFile=fopen(argv[1],"r");
-  if(refFile==NULL){
-    printf("file %s impossible to open\n", argv[1]);
-    return EXIT_FAILURE;
+
+  bool fullFile=false;
+  if( strstr(argv[1], "full")!=NULL){
+     fullFile=true;
+     printf("full detected\n");
+  }
+  bool obFile=false;
+  if( strstr(argv[1], "ob")!=NULL){
+     obFile=true;
+     printf("ob detected\n");
+  }
+  bool ibFile=false;
+  if( strstr(argv[1], "ib")!=NULL){
+     ibFile=true;
+     printf("ib detected\n");
   }
 
-  int exposant;
-  int mantisse;
-  exposant=atoi(argv[2]);
-  mantisse=atoi(argv[3]);
-  printf("exposant %d mantisse %d\n", exposant, mantisse);
+  if( ! ((fullFile ^ obFile) || (fullFile ^ ibFile) || (ibFile ^ obFile) ) ){
+     printf("impossible to detect full/ib/ob simultaneously\n");
+     return EXIT_FAILURE;
+  }
+  int range=atoi(argv[2]);
+  int precision=atoi(argv[3]);
+  printf("range %d\tprecision %d\n", range, precision);
 
-  int nbSample=INT_MAX;
+  int nbSampleMax=INT_MAX;
   if( argc==5){
-    nbSample=atoi(argv[4]);
+    nbSampleMax=atoi(argv[4]);
   }
 
-  char line[512];
-  int counterOK=0;
-  int counterOKTol=0;
-  int counterKO=0;
-  char op;
-  int count=0;
-  if( floatFile){
-    while(fgets(line, 512, refFile) ){
-      float argsOp[3];
-      float ref;
-      bool exact;
-
-      parseLine(line,&exact, &op, argsOp, &ref);
-      float vprecRes=perform_op(op,argsOp);
-
-      cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
-      if(res==equal_exact){
-	counterOK++;
-      }else if(res==equal_tol){
-	if(exact){
-	  counterKO++;
-	  printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
-	  printf("args %.8e %.8e\n", argsOp[0],argsOp[1]);
-	}else{
-	  counterOKTol++;
-	  printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
-	}
-      }
-      else{
-	counterKO++;
-	printf("Error : resVprec [%+.6a] != ref [%+.6a] \t refLine:%s\n", vprecRes, ref, line);
-	printf("args %.8e %.8e\n", argsOp[0],argsOp[1]);
-      }
-      count++;
-      if(count == nbSample){
-	break;
-      }
-     }
-  }else{//double
-     while(fgets(line, 512, refFile) ){
-       double argsOp[3];
-       double ref;
-       bool exact;
-
-       parseLine(line,&exact, &op, argsOp, &ref);
-       double vprecRes=perform_op(op,argsOp);
-       cmp_res_t res=cmpFaithFulFloat(ref, vprecRes, exposant, mantisse);
-       if(res==equal_exact){
-	 counterOK++;
-       }else if(res==equal_tol){
-	 if(exact){
-	   counterKO++;
-	   printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
-	 }else{
-	   counterOKTol++;
-	   printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
-	 }
-       }else{
-	 counterKO++;
-	 printf("Error : resVprec [%+.13a] != ref [%+.13a] \t refLine:%s\n", vprecRes, ref, line);
-       }
-       count++;
-       if(count == nbSample){
-	 break;
-       }
-     }
+  if(floatFile){
+    return loopOverReferenceFile<float>(argv[1], nbSampleMax, range, precision, ibFile, obFile, fullFile);
   }
 
-  printf("OK: %d \n", counterOK);
-  printf("OK(tol): %d \n", counterOKTol);
-  printf("KO: %d \n", counterKO);
-  if(counterKO!=0){
-     return EXIT_FAILURE;
+  if(doubleFile){
+    return loopOverReferenceFile<double>(argv[1],nbSampleMax, range, precision, ibFile, obFile, fullFile);
   }
+  return EXIT_FAILURE;
 
-  return EXIT_SUCCESS;
 }
