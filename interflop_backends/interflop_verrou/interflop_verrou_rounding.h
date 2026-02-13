@@ -231,7 +231,7 @@
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
-#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
@@ -252,7 +252,7 @@
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
-#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_DET
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_DET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
@@ -273,7 +273,7 @@
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
-#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_COMDET
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_COMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
@@ -294,7 +294,7 @@
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
-#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_AVERAGE_SCOMDET
+#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_SCOMDET
 
   void IFV_FCTNAME(add_double) (double a, double b, double* res, void* context);
   void IFV_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);

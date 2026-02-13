@@ -40,7 +40,7 @@ class postConfig(gen_config.gen_config):
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
         print("\t rounding mode can be prefixed by \"float_\"")
         print("\t det is an alias to "+",".join( [x for x in rounding_tool.roundingDetTabWithoutFloatPrefix if not x in ["float","ftz","daz","dazftz","native"] ] ))
-        print("\t no_det is an alias to "+",".join(["random","average", "prandom"]))
+        print("\t no_det is an alias to "+",".join(["random","nearness", "prandom"]))
 
 
     def normalize(self):
@@ -58,7 +58,7 @@ class postConfig(gen_config.gen_config):
             self.rounding+=[x for x in rounding_tool.roundingDetTabWithoutFloatPrefix if not x in ["float","ftz","daz","dazftz","native"] ]
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
-            self.rounding+=["random","average", "prandom"]
+            self.rounding+=["random","nearness", "prandom"]
         #check valid rounding
         for r in self.rounding:
             runEnv=rounding_tool.roundingToEnvVar(r,{})

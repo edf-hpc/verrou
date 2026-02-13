@@ -3,7 +3,7 @@
 import sys
 
 roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "daz","dazftz","native"]
-roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
+roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "nearness", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "nearness"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
 
 
 roundingDetTabWithFloatPrefix=roundingDetTabWithoutFloatPrefix+["float_"+x for x in roundingDetTabWithoutFloatPrefix]

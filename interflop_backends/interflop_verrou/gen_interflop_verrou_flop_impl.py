@@ -132,10 +132,10 @@ def getRoundingClass(rounding):
         return "RoundingRandom"
     if rounding in ["RANDOM"+det for det in ["_SCOMDET"] ]:
         return "RoundingPRandom"
-    if rounding in ["AVERAGE"+det for det in ["_SCOMDET"] ]:
-        return "RoundingSAverage"
-    if rounding in ["AVERAGE"+det for det in ["","_DET","_COMDET"] ]:
-        return "RoundingAverage"
+    if rounding in ["NEARNESS"+det for det in ["_SCOMDET"] ]:
+        return "RoundingSNearness"
+    if rounding in ["NEARNESS"+det for det in ["","_DET","_COMDET"] ]:
+        return "RoundingNearness"
     if rounding in ["PRANDOM"+det for det in ["","_DET","_COMDET"] ]:
         return "RoundingPRandom"
     if rounding in ["SR_MONOTONIC"]:
@@ -147,13 +147,13 @@ def getRoundingClass(rounding):
 def getRandClass(rounding):
     if rounding in ["NEAREST","UPWARD","DOWNWARD","ZERO", "AWAY_ZERO", "FARTHEST"]:
         return None
-    if rounding in ["RANDOM","AVERAGE"]:
+    if rounding in ["RANDOM","NEARNESS"]:
         return "vr_rand_prng</OPCLASS/ </TYPE/> >"
-    if rounding in ["RANDOM_DET","AVERAGE_DET","SR_MONOTONIC","SR_SMONOTONIC" ]:
+    if rounding in ["RANDOM_DET","NEARNESS_DET","SR_MONOTONIC","SR_SMONOTONIC" ]:
         return "vr_rand_det</OPCLASS/ </TYPE/> >"
-    if rounding in ["RANDOM_COMDET","AVERAGE_COMDET"]:
+    if rounding in ["RANDOM_COMDET","NEARNESS_COMDET"]:
         return "vr_rand_comdet</OPCLASS/ </TYPE/> >"
-    if rounding in ["RANDOM_SCOMDET","AVERAGE_SCOMDET"]:
+    if rounding in ["RANDOM_SCOMDET","NEARNESS_SCOMDET"]:
         return "vr_rand_scomdet</OPCLASS/ </TYPE/> >"
     if rounding == "PRANDOM":
         return "vr_rand_p</OPCLASS/ </TYPE/>,vr_rand_prng>"
@@ -226,7 +226,7 @@ def genFlopImpl(handler, roundingmode="dyn"):
 
 if __name__=="__main__":
     roundingTab =["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO", "AWAY_ZERO", "FLOAT"]
-    roundingTab+=[rnd + det for rnd in ["RANDOM", "AVERAGE"] for det in ["","_DET","_COMDET","_SCOMDET" ]]
+    roundingTab+=[rnd + det for rnd in ["RANDOM", "NEARNESS"] for det in ["","_DET","_COMDET","_SCOMDET" ]]
     roundingTab+=[rnd + det for rnd in ["PRANDOM"] for det in ["","_DET","_COMDET" ]]
     roundingTab+=["SR_MONOTONIC","SR_SMONOTONIC"]
 

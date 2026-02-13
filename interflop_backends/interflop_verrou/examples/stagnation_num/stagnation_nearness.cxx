@@ -15,7 +15,7 @@
 
 int  main(int argc, char** argv){
 
-  int avgNum=VERROU_NUM_AVG;
+  int nearnessNum=VERROU_NUM_NEARNESS;
   int size=100000000;
   //int size=1000000;
 
@@ -23,11 +23,11 @@ int  main(int argc, char** argv){
   float init=100000;
   float inc=0.1;
 
-  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_UPWARD,VR_DOWNWARD,VR_RANDOM,VR_AVERAGE};
+  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_UPWARD,VR_DOWNWARD,VR_RANDOM,VR_NEARNESS};
   int nbRUN=20;
 
   std::vector<int> nbRunTab={1, 1, 1, nbRUN, nbRUN};
-  if(avgNum!=1){
+  if(nearnessNum!=1){
     for(int i=0; i<4; i++){
       nbRunTab[i]=0;
     }
@@ -42,8 +42,8 @@ int  main(int argc, char** argv){
       //open output filename
       std::string name=verrou_rounding_mode_name(roundingMode[i]);
       std::stringstream ss;
-      if( roundingMode[i]== VR_AVERAGE){
-	ss<< "_"<< avgNum;
+      if( roundingMode[i]== VR_NEARNESS){
+	ss<< "_"<< nearnessNum;
       }
        ss<<"." << j;
       std::string jStr=ss.str();
@@ -52,7 +52,7 @@ int  main(int argc, char** argv){
 	jStr=std::string("");
       }
 
-      std::ofstream outStream("avg_study_"+name+jStr+ std::string(".out"));
+      std::ofstream outStream("nearness_study_"+name+jStr+ std::string(".out"));
       outStream<< std::setprecision(17);
 
       // init verrou backend

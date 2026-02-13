@@ -32,16 +32,16 @@ set output "stagnationLog-1_st.pdf"
 plot  "NEAREST_st.out"     using 1:5 title 'reference' lc "black"  pt 0 with lines,\
       "NEAREST_st.out"     using 1:2 notitle lc "dark-green" pt 2 ps 0.8,\
       "RANDOM_st.0.out"    using 1:2 notitle lc "dark-red"   pt 2 ps 0.8,\
-      "AVERAGE_st.0.out"   using 1:2 notitle lc "blue"       pt 2 ps 0.8
+      "NEARNESS_st.0.out"   using 1:2 notitle lc "blue"       pt 2 ps 0.8
 
 
 #if (file_exists("RANDOM_DET.STAGNATION_st.out")) {
 #   stagnationRandomDet=`cat RANDOM_DET.STAGNATION_st.out 2>/dev/null`
 #   set arrow from stagnationRandomDet, graph 0 to stagnationRandomDet, graph 1 nohead  li#necolor "dark-violet" dashtype 2 lw 2
 #}
-#if (file_exists("AVERAGE_DET.STAGNATION_st.out")){
-#   stagnationAverageDet=`cat AVERAGE_DET.STAGNATION_st.out 2>/dev/null`
-#   set arrow from stagnationAverageDet, graph 0 to stagnationAverageDet, graph 1 nohead  #linecolor 0x008B8B dashtype 5 lw 2
+#if (file_exists("NEARNESS_DET.STAGNATION_st.out")){
+#   stagnationNearnessDet=`cat NEARNESS_DET.STAGNATION_st.out 2>/dev/null`
+#   set arrow from stagnationNearnessDet, graph 0 to stagnationNearnessDet, graph 1 nohead  #linecolor 0x008B8B dashtype 5 lw 2
 #}
 
 
@@ -49,9 +49,9 @@ set output "stagnationLog-2_st.pdf"
 plot "NEAREST_st.out"       using 1:5 title 'reference' lc "black"  pt 0 with lines,\
      "NEAREST_st.out"       using 1:2 notitle lc "dark-green"  pt 2 ps 0.8,\
      "RANDOM_st.0.out"      using 1:2 notitle lc "dark-red"    pt 2 ps 0.8,\
-     "AVERAGE_st.0.out"     using 1:2 notitle lc "blue"        pt 2 ps 0.8,\
+     "NEARNESS_st.0.out"     using 1:2 notitle lc "blue"        pt 2 ps 0.8,\
      "RANDOM_DET_st.0.out"  using 1:2 notitle lc "dark-violet" pt 2 ps 0.8,\
-     "AVERAGE_DET_st.0.out" using 1:2 notitle lc 0x008B8B      pt 2 ps 0.8
+     "NEARNESS_DET_st.0.out" using 1:2 notitle lc 0x008B8B      pt 2 ps 0.8
 
 
 #if (file_exists("SR_MONOTONIC.STAGNATION_st.0.out")) {
@@ -63,7 +63,7 @@ set output "stagnationLog_st.pdf"
 plot "NEAREST_st.out"        using 1:5 title 'reference' lc "black"  pt 0 with lines,\
      "NEAREST_st.out"        using 1:2 notitle  lc "dark-green"  pt 2 ps 0.8,\
      "RANDOM_st.0.out"       using 1:2 notitle  lc "dark-red"    pt 2 ps 0.8,\
-     "AVERAGE_st.0.out"      using 1:2 notitle  lc "blue"        pt 2 ps 0.8,\
+     "NEARNESS_st.0.out"      using 1:2 notitle  lc "blue"        pt 2 ps 0.8,\
      "RANDOM_DET_st.0.out"   using 1:2 notitle  lc "dark-violet" pt 2 ps 0.8,\
-     "AVERAGE_DET_st.0.out"  using 1:2 notitle  lc 0x008B8B      pt 2 ps 0.8,\
+     "NEARNESS_DET_st.0.out"  using 1:2 notitle  lc 0x008B8B      pt 2 ps 0.8,\
      "SR_MONOTONIC_st.0.out" using 1:2 notitle  lc "red"         pt 2 ps 0.8

@@ -47,9 +47,9 @@ reconfigure-noquadmath:
 	@echo "*** CONFIGURE QUAD NO ***"
 	cd ../valgrind+verrou && ./configure --enable-only64bit  --enable-verrou-quadmath=no  --prefix=$${PWD}/../install
 
-reconfigure-AVG4:
-	@echo "*** CONFIGURE VERROU_NUM_AVG=4 ***"
-	cd ../valgrind+verrou && VERROU_NUM_AVG=4 ./configure --enable-only64bit --prefix=$${PWD}/../install
+reconfigure-NEARNESS4:
+	@echo "*** CONFIGURE VERROU_NUM_NEARNESS=4 ***"
+	cd ../valgrind+verrou && VERROU_NUM_NEARNESS=4 ./configure --enable-only64bit --prefix=$${PWD}/../install
 
 
 

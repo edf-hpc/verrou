@@ -43,11 +43,11 @@ bool isRandomLike(vr_RoundingMode rnd){
   return false;
 }
 
-bool isAverageLike(vr_RoundingMode rnd){
-  if(rnd==VR_AVERAGE) return true;
-  if(rnd==VR_AVERAGE_DET) return true;
-  if(rnd==VR_AVERAGE_COMDET) return true;
-  if(rnd==VR_AVERAGE_SCOMDET) return true;
+bool isNearnessLike(vr_RoundingMode rnd){
+  if(rnd==VR_NEARNESS) return true;
+  if(rnd==VR_NEARNESS_DET) return true;
+  if(rnd==VR_NEARNESS_COMDET) return true;
+  if(rnd==VR_NEARNESS_SCOMDET) return true;
   if(rnd==VR_SR_MONOTONIC) return true;
   return false;
 }
@@ -56,9 +56,9 @@ bool needToUpdateSeed(vr_RoundingMode rnd){
   if(rnd==VR_RANDOM_DET) return true;
   if(rnd==VR_RANDOM_COMDET) return true;
   if(rnd==VR_RANDOM_SCOMDET) return true;
-  if(rnd==VR_AVERAGE_DET) return true;
-  if(rnd==VR_AVERAGE_COMDET) return true;
-  if(rnd==VR_AVERAGE_SCOMDET) return true;
+  if(rnd==VR_NEARNESS_DET) return true;
+  if(rnd==VR_NEARNESS_COMDET) return true;
+  if(rnd==VR_NEARNESS_SCOMDET) return true;
   if(rnd==VR_SR_MONOTONIC) return true;
   if(rnd==VR_PRANDOM) return true;
   return false;
@@ -80,7 +80,7 @@ int  main(int argc, char** argv){
   std::vector<vr_RoundingMode> roundingMode= {
     VR_NEAREST,VR_DOWNWARD, VR_UPWARD, VR_FARTHEST,
     VR_RANDOM, VR_RANDOM_DET, VR_RANDOM_COMDET,  VR_RANDOM_SCOMDET,
-    VR_AVERAGE, VR_AVERAGE_DET, VR_AVERAGE_COMDET,  VR_AVERAGE_SCOMDET,
+    VR_NEARNESS, VR_NEARNESS_DET, VR_NEARNESS_COMDET,  VR_NEARNESS_SCOMDET,
     VR_PRANDOM,
     VR_SR_MONOTONIC };
 
@@ -155,7 +155,7 @@ int  main(int argc, char** argv){
       assert(my_abs<float>(pp-0.5) <tol );
 #endif
     }
-    if(isAverageLike(roundingMode[rnd])){
+    if(isNearnessLike(roundingMode[rnd])){
       assert(my_abs<float>(pm-1.) < tol );
       assert(my_abs<float>(pp-0.) < tol );
     }

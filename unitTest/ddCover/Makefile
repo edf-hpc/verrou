@@ -56,18 +56,18 @@ dd.back.line.assert: dd.back.line
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
-	post_verrou_dd --rep=dd.line.post --trace-bin --seed=42 --nrun=3 --rounding=average,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.post --trace-bin --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
-	post_verrou_dd --rep=dd.line.integer.post --trace-bin --seed=42 --nrun=3 --rounding=average,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 
 dd.line.integer.post.assert: dd.line.integer.post
-	./assertCover.py dd.line.integer.post 1 8 3 0 average
+	./assertCover.py dd.line.integer.post 1 8 3 0 nearness
 
 
 dd.line.post.assert: dd.line.post
-	./assertCover.py dd.line.post 2 8 3 0 average
+	./assertCover.py dd.line.post 2 8 3 0 nearness
 
 dd.line.postmatch: dd.line
 	cp -r dd.line dd.line.postmatch

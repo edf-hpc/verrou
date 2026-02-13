@@ -58,6 +58,6 @@ def loadFile(fileNameTab, outPut, st=False):
 
 
 if __name__=="__main__":
-    for rnd in [i+j for i in ["AVERAGE", "RANDOM"] for j in ["","_DET"]  ]+ ["SR_MONOTONIC","SR_SMONOTONIC"]:
+    for rnd in [i+j for i in ["NEARNESS", "RANDOM"] for j in ["","_DET"]  ]+ ["SR_MONOTONIC","SR_SMONOTONIC"]:
         loadFile([rnd+"."+str(i)+".out"  for i in range(20)],rnd+".post.out")
         loadFile([rnd+"_st."+str(i)+".out"  for i in range(20)],rnd+"_st.post.out",st=True)

@@ -4,15 +4,15 @@ TINYREP=../../../backend_mcaquad/common/
 SRC_BACKEND=../../interflop_verrou.cxx
 SRC=testProdDenorm.cxx
 
-#CFLAGS=-g -Wall -march=native -DVERROU_NUM_AVG=2 -DVERROU_DET_HASH=vr_double_tabulation_hash
-CFLAGS=-O0 -g -Wall -march=native  -DUSE_XOSHIRO -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DUSE_VERROU_SQRT -DUSE_VERROU_FMA -DVERROU_DENORM_HACKS_DOUBLE
-#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash
+#CFLAGS=-g -Wall -march=native -DVERROU_NUM_NEARNESS=2 -DVERROU_DET_HASH=vr_double_tabulation_hash
+CFLAGS=-O0 -g -Wall -march=native  -DUSE_XOSHIRO -DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_xxhash_hash -DUSE_VERROU_SQRT -DUSE_VERROU_FMA -DVERROU_DENORM_HACKS_DOUBLE
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_xxhash_hash
 
-#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_double_tabulation_hash
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_double_tabulation_hash
 
-#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_multiply_shift_hash
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_multiply_shift_hash
 
-#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_dietzfelbinger_hash
+#CFLAGS=-O2 -g -Wall -march=native -DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_dietzfelbinger_hash
 
 
 %.o: %.cxx

@@ -715,7 +715,7 @@ class config_stat(gen_config.gen_config):
 
     def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
-        self.defaultRoundingTab=["det","random","average"]
+        self.defaultRoundingTab=["det","random","nearness"]
         super().__init__(argv,environ, config_keys,[1,2,3])
         if sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
@@ -728,7 +728,7 @@ class config_stat(gen_config.gen_config):
 
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
-                         docStr="rounding mode list (coma separated) [default random,average,det]",
+                         docStr="rounding mode list (coma separated) [default random,nearness,det]",
                          suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
         self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
