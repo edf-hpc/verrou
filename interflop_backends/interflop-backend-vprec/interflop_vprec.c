@@ -43,7 +43,6 @@
 #include "interflop_vprec.h"
 #include "interflop_vprec_function_instrumentation.h"
 
-
 static const char backend_name[] = "interflop-vprec";
 static const char backend_version[] = "1.x-dev";
 
@@ -273,7 +272,6 @@ void _set_vprec_ftz(bool ftz, vprec_context_t *ctx) { ctx->ftz = ftz; }
  * The following functions are used to set virtual precision,
  * VPREC mode of operation and instrumentation mode.
  ***************************************************************/
-
 extern int compute_absErr_vprec_binary32(bool isDenormal,
                                          vprec_context_t *currentContext,
                                          int expDiff, int binary32_precision);
