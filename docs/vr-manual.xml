@@ -262,7 +262,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -274,16 +274,16 @@ det2
                 <listitem><para>
                     <command>Stochastic rounding modes:</command>
 		    <computeroutput>random</computeroutput>,
-                    <computeroutput>average</computeroutput>,
+                    <computeroutput>nearness</computeroutput>,
 		    <computeroutput>prandom</computeroutput>,
 		    <computeroutput>random_det</computeroutput>,
-                    <computeroutput>average_det</computeroutput>,
+                    <computeroutput>nearness_det</computeroutput>,
 		    <computeroutput>prandom_det</computeroutput>,
 		    <computeroutput>random_comdet</computeroutput>,
-                    <computeroutput>average_comdet</computeroutput>,
+                    <computeroutput>nearness_comdet</computeroutput>,
 		    <computeroutput>prandom_comdet</computeroutput>,
 		    <computeroutput>random_scomdet</computeroutput>,
-                    <computeroutput>average_scomdet</computeroutput>,
+                    <computeroutput>nearness_scomdet</computeroutput>,
 		    <computeroutput>sr_monotonic</computeroutput>,
 		    <computeroutput>sr_smonotonic</computeroutput>.
                 </para></listitem>
@@ -458,8 +458,8 @@ det2
               <para>If present, this option allows setting the seed of the
               pseudo-Random Number Generator used for the
 		<command>random</command> or
-		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
-		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and average_[com]det
+		<command>nearness </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
+		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and nearness_[com]det
 		rounding mode.
 		This helps reproducing the behavior of a program under Verrou.
               </para>
@@ -1595,7 +1595,7 @@ xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/h
 			</listitem>
 			<listitem>
 			  <para>
-			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([average,random]_[[s[com]]det] and sr_[s]monotonic).
+			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([nearness,random]_[[s[com]]det] and sr_[s]monotonic).
 			  </para>
 			  <para>
 			    sqrt hardware and sqrt libm are considered as independent functions for stochastic-deterministic rounding mode.

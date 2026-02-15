@@ -1073,7 +1073,7 @@ genCovBB trace_bb_cov.log-*
 	     The option can be called several times to generate a list of rounding mode (
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
-	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>nearness[_[[s]com]det]</computeroutput>,
 	     <computeroutput>sr_[s]monotonic</computeroutput>,
 	     <computeroutput>nearest</computeroutput>,
 	     <computeroutput>native</computeroutput>,
@@ -1097,7 +1097,7 @@ genCovBB trace_bb_cov.log-*
 	    </para>
 	    <para>
 	      <computeroutput>no_det</computeroutput> corresponds to the list :
-	      [<computeroutput>average</computeroutput>,
+	      [<computeroutput>nearness</computeroutput>,
 	      <computeroutput>random</computeroutput>, <computeroutput>prandom</computeroutput>]
 	    </para>
           </listitem>
@@ -1169,8 +1169,8 @@ genCovBB trace_bb_cov.log-*
       <screen>
 refValue[nearest] : 1.05891843750000000e+05
 estimator	abs	rel	rel(in bit)
-average:	1.034992e+03	9.7741e-03	6.68bit
-average_det:	1.036070e+03	9.7842e-03	6.68bit
+nearness:	1.034992e+03	9.7741e-03	6.68bit
+nearness_det:	1.036070e+03	9.7842e-03	6.68bit
 random:	1.983109e+03	1.8728e-02	5.74bit
 random_det:	1.985172e+03	1.8747e-02	5.74bit
 all:	4.337773e+03	4.0964e-02	4.61bit
@@ -1250,7 +1250,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <computeroutput>--samples=</computeroutput> or <computeroutput>--nruns=</computeroutput>  or <computeroutput>-s</computeroutput>
           </term>
           <listitem>
-            <para>An integer setting the run number of random and average distribution. If this variable is not set, the default value is
+            <para>An integer setting the run number of random and nearness distribution. If this variable is not set, the default value is
               100. -1 means the highest number without running additional computation.</para>
           </listitem>
 	</varlistentry>
@@ -1274,7 +1274,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <para> A coma separated list of rounding mode. The list can contain
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
-	     <computeroutput>average[_[[s]com]det]</computeroutput>,
+	     <computeroutput>nearness[_[[s]com]det]</computeroutput>,
 	     <computeroutput>sr_[s]monotonic</computeroutput>,
 	     <computeroutput>nearest</computeroutput>,
 	     <computeroutput>native</computeroutput>,
@@ -1285,7 +1285,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>away_zero</computeroutput>
 	    </para>
 
-            <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>average,random</computeroutput>.
+            <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>nearness,random</computeroutput>.
 	    </para>
 	    <para> <computeroutput>det</computeroutput> is an alias to <computeroutput>nearest,upward,downward,toward_zero,away_zero,farthest</computeroutput>.
 	    </para>
