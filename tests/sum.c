@@ -58,7 +58,7 @@ int main (int argc, char **argv) {
     // sum3.vgtest
     // CL switches:
     //   --instr-atstart=no
-    //   --rounding-mode=average
+    //   --rounding-mode=nearness
     //
     // res should be close to ref
     float threshold = 0.2f * (float)N * epsilon;

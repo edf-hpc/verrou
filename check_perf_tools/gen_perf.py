@@ -30,7 +30,8 @@ if not len(sys.argv) in [1,2]:
     sys.exit(42)
 
 #if what=="cmpBranch":
-roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
+
+roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "nearness"]
 buildConfigList=["master","master_fast", "vprec", "vprec_fast"]
 ref_name="master"
 detRounding=[]
@@ -42,7 +43,7 @@ if what=="cmpStable":
 if what=="cmpHash":
     buildConfigList=["current", "current_fast"]
     buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
-    detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
+    detRounding=["random_det","nearness_det", "random_comdet","nearness_comdet","random_scomdet","nearness_scomdet", "sr_monotonic","sr_smonotonic"]
     ref_name="current_fast"
 
 
@@ -332,7 +333,7 @@ def feedPerfTab(tab, data, buildList, detTab=["_det","_comdet"], branchTab=False
     else:
         addRefDet(roundingTab,  ref_name, False, withNearestNc, withExclude, withExcludeNc, withFmaOnly, withToolNone)
         roundingTab+=["SEPARATOR"]
-        for rd in ["random","average"]:
+        for rd in ["random","nearness"]:
             roundingTab+=[(rd, rd, ref_name)]
 
             for detType in detTab:

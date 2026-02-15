@@ -1,4 +1,4 @@
 prog: test_det
 args: 
-vgopts: --rounding-mode=average_det --vr-seed=42
+vgopts: --rounding-mode=nearness_comdet --vr-seed=42
 stderr_filter_args: -cnt-cmp-conv -backend-version -copyright -exclude -scal-llo

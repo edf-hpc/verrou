@@ -3,7 +3,7 @@
 import sys
 
 roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "daz","dazftz","native"]
-roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "average", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "average"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
+roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "nearness", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "nearness"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
 
 
 roundingDetTabWithFloatPrefix=roundingDetTabWithoutFloatPrefix+["float_"+x for x in roundingDetTabWithoutFloatPrefix]
@@ -45,6 +45,17 @@ def vprecSuggestion():
 
 def roundingToEnvVar(roundingCmd, res={}, failure=True):
     rounding=roundingCmd
+    if "average" in rounding:
+        rounding=rounding.replace("average","nearness")
+        if roundingToEnvVar(rounding,failure=False):
+            print("WARNING: %s is deprecated use %s instead"%(roundingCmd, rounding))
+        else:
+            if failure:
+                print("No valid rounding : ",rounding)
+                sys.exit(42)
+            else:
+                return None
+
     res.update({"VERROU_FLOAT":"no"})
     if roundingCmd.startswith("float_"):
         rounding=rounding.replace("float_","")

@@ -74,10 +74,10 @@ includePatternSoftNearest="""\tif(!vr.float_conv){
 
 
 roundingList=[["NEAREST","NATIVE"],
-              ["RANDOM"], ["AVERAGE"],
-              ["RANDOM_DET"],["AVERAGE_DET"],
-              ["RANDOM_COMDET"],["AVERAGE_COMDET"],
-              ["RANDOM_SCOMDET"],["AVERAGE_SCOMDET"],
+              ["RANDOM"], ["NEARNESS"],
+              ["RANDOM_DET"],["NEARNESS_DET"],
+              ["RANDOM_COMDET"],["NEARNESS_COMDET"],
+              ["RANDOM_SCOMDET"],["NEARNESS_SCOMDET"],
               ["SR_MONOTONIC"],["SR_SMONOTONIC"],
               ["UPWARD"],["DOWNWARD"],["ZERO"],
               ["AWAY_ZERO"],["FARTHEST"],["FLOAT"],

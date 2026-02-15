@@ -228,14 +228,30 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",
                          vr.roundingMode, VR_SR_SMONOTONIC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness",
+                         vr.roundingMode, VR_NEARNESS)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
-                         vr.roundingMode, VR_AVERAGE)) {}
+                         vr.roundingMode, VR_NEARNESS)) {
+     VG_(umsg)("WARNING: average is deprecated: use nearness instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_det",
+                         vr.roundingMode, VR_NEARNESS_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
-                         vr.roundingMode, VR_AVERAGE_DET)) {}
+                         vr.roundingMode, VR_NEARNESS_DET)) {
+     VG_(umsg)("WARNING: average_det is deprecated: use nearness_det instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_comdet",
+                         vr.roundingMode, VR_NEARNESS_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_comdet",
-                         vr.roundingMode, VR_AVERAGE_COMDET)) {}
+                         vr.roundingMode, VR_NEARNESS_COMDET)) {
+     VG_(umsg)("WARNING: average_comdet is deprecated: use nearness_comdet instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_scomdet",
+                         vr.roundingMode, VR_NEARNESS_SCOMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_scomdet",
-                         vr.roundingMode, VR_AVERAGE_SCOMDET)) {}
+                         vr.roundingMode, VR_NEARNESS_SCOMDET)) {
+     VG_(umsg)("WARNING: average_scomdet is deprecated: use nearness_scomdet instead\n");
+  }
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom",
                          vr.roundingMode, VR_PRANDOM)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_det",

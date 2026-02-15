@@ -21,7 +21,7 @@ VERROU_ROUNDING_MODE=random LD_PRELOAD='PATH'/interlibmath.so. /myProg
 
 If both  VERROU_LIBM_ROUNDING_MODE and VERROU_ROUNDING_MODE are set, interlibmath take into account VERROU_LIBM_ROUNDING_MODE.
 
-These variable can be to set to the values : random, average, nearest, upward, downward,toward_zero,farthest,float,native
+These variable can be to set to the values : random, nearness, nearest, upward, downward,toward_zero,farthest,float,native
 
 The meaning is the same for Verrou.
 The difference between native and nearest is that : native return the value obtain by native implementation and nearest return the nearest cast of the result obtain by libquadmath.

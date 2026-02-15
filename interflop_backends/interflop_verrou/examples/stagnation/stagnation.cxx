@@ -26,7 +26,7 @@ int  main(int argc, char** argv){
   float init_st=100000;
   tinymt64_t rng;
 
-  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_UPWARD,VR_DOWNWARD,VR_RANDOM, VR_RANDOM_DET,VR_AVERAGE, VR_AVERAGE_DET, VR_SR_MONOTONIC, VR_SR_SMONOTONIC};
+  std::vector<vr_RoundingMode> roundingMode={VR_NEAREST, VR_UPWARD,VR_DOWNWARD,VR_RANDOM, VR_RANDOM_DET,VR_NEARNESS, VR_NEARNESS_DET, VR_SR_MONOTONIC, VR_SR_SMONOTONIC};
   int nbRUN=20;
 
   std::vector<int> nbRunTab={1, 1, 1, nbRUN, nbRUN, nbRUN, nbRUN, nbRUN, nbRUN};

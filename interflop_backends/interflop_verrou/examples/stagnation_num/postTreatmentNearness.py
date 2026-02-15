@@ -44,6 +44,6 @@ def loadFile(fileNameTab, outPut):
 
 
 if __name__=="__main__":
-    for rnd in ["RANDOM"]+["AVERAGE_"+str(i) for i in [1,2,3,4,8,16,32,64]]:
-        loadFile(["avg_study_"+rnd+"."+str(i)+".out"  for i in range(20)],rnd+".post.out")
+    for rnd in ["RANDOM"]+["NEARNESS_"+str(i) for i in [1,2,3,4,8,16,32,64]]:
+        loadFile(["nearness_study_"+rnd+"."+str(i)+".out"  for i in range(20)],rnd+".post.out")
 

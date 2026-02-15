@@ -48,7 +48,7 @@
 
 void usage(char** argv){
   std::cout << "usage : "<< argv[0]<< " ENV ROUNDING_MODE  avec "<<std::endl;
-  std::cout << "ROUNDING_MODE in [upward, toward_zero, downward, nearest]  random, average are not valid"<<std::endl;
+  std::cout << "ROUNDING_MODE in [upward, toward_zero, downward, nearest]  random, nearness are not valid"<<std::endl;
   std::cout << "ENV in [valgrind fenv]"<<std::endl;
 }
 int roundingMode=-2;

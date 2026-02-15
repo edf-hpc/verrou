@@ -81,7 +81,7 @@ _valgrind()
             return
 	    ;;
 	--rounding-mode)
-	    COMPREPLY=($(compgen -W 'nearest upward downward toward_zero farthest away_zero random random_det random_comdet random_scomdet average average_det average_comdet average_scomdet prandom prandom_det prandom_comdet sr_monotonic sr_smonotonic ftz float native' -- "$cur"))
+	    COMPREPLY=($(compgen -W 'nearest upward downward toward_zero farthest away_zero random random_det random_comdet random_scomdet nearness nearness_det nearness_comdet nearness_scomdet prandom prandom_det prandom_comdet sr_monotonic sr_smonotonic ftz float native' -- "$cur"))
             return
 	    ;;
 	 --libm-noinst-rounding-mode)

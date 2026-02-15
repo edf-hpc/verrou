@@ -33,7 +33,7 @@ plot "NEAREST.out"       using 1:4 notitle  lc "dark-green" pt 2 ,\
 
 
 set label "random" at	    1400,0.2
-set label "average" at      1400,0.1
+set label "nearness" at      1400,0.1
 set label "first" at      12000,0.65 font "sans,10"
 set label "mean" at       22000,0.65 font "sans,10"
 set label "max" at        50000,0.65 font "sans,10"
@@ -44,9 +44,9 @@ plot "NEAREST.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
      "RANDOM.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
      "RANDOM.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
      "RANDOM.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
-     "AVERAGE.0.out"      using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
-     "AVERAGE.post.out"   using 1:3 notitle  lc "blue" pt 6 ps 0.5 ,\
-     "AVERAGE.post.out"   using 1:7 notitle  with line lc "blue" lt 3,\
+     "NEARNESS.0.out"      using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "NEARNESS.post.out"   using 1:3 notitle  lc "blue" pt 6 ps 0.5 ,\
+     "NEARNESS.post.out"   using 1:7 notitle  with line lc "blue" lt 3,\
       "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
       "<echo '15000 0.2'" notitle lc "dark-red" pt 2 ,\
       "<echo '30000 0.2'" notitle lc "dark-red" pt 6 ps 0.5 ,\
@@ -61,28 +61,28 @@ if (file_exists("RANDOM_DET.STAGNATION.out")) {
    stagnationRandomDet=`cat RANDOM_DET.STAGNATION.out |head -n 1 2>/dev/null`
    set arrow from stagnationRandomDet, graph 0 to stagnationRandomDet, graph 1 nohead  linecolor "dark-violet" dashtype 2 lw 2
 }
-if (file_exists("AVERAGE_DET.STAGNATION.out")) {
-   stagnationAverageDet=`cat AVERAGE_DET.STAGNATION.out |head -n 1 2>/dev/null`
-   set arrow from stagnationAverageDet, graph 0 to stagnationAverageDet, graph 1 nohead  linecolor 0x008B8B dashtype 5 lw 2
+if (file_exists("NEARNESS_DET.STAGNATION.out")) {
+   stagnationNearnessDet=`cat NEARNESS_DET.STAGNATION.out |head -n 1 2>/dev/null`
+   set arrow from stagnationNearnessDet, graph 0 to stagnationNearnessDet, graph 1 nohead  linecolor 0x008B8B dashtype 5 lw 2
 }
 
 set label "random\_det" noenhanced at	    1400,0.05
-set label "average\_det"  noenhanced  at 1400,0.025
+set label "nearness\_det"  noenhanced  at 1400,0.025
 
 set output "stagnationErrorLog-2.pdf"
 plot "NEAREST.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
      "RANDOM.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
      "RANDOM.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
      "RANDOM.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
-     "AVERAGE.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
-     "AVERAGE.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
-     "AVERAGE.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
+     "NEARNESS.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "NEARNESS.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
+     "NEARNESS.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
      "RANDOM_DET.0.out"      using 1:4 notitle  lc "dark-violet" pt 2 ps 0.8 ,\
      "RANDOM_DET.post.out"   using 1:3 notitle  lc "dark-violet" pt 6 ps 0.5 ,\
      "RANDOM_DET.post.out"   using 1:7 notitle  with line lc "dark-violet" lt 3,\
-     "AVERAGE_DET.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
-     "AVERAGE_DET.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
-     "AVERAGE_DET.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
+     "NEARNESS_DET.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
+     "NEARNESS_DET.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
+     "NEARNESS_DET.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
       "<echo '15000 0.40'" notitle lc "dark-green" pt 2 ,\
       "<echo '15000 0.2'" notitle lc "dark-red" pt 2 ,\
       "<echo '30000 0.2'" notitle lc "dark-red" pt 6 ps 0.5 ,\
@@ -111,15 +111,15 @@ plot "NEAREST.out"       using 1:4 notitle  lc "dark-green" pt 2 ps 0.8,\
      "RANDOM.0.out"      using 1:4 notitle  lc "dark-red" pt 2 ps 0.8,\
      "RANDOM.post.out"   using 1:3 notitle  lc "dark-red" pt 6 ps 0.5 ,\
      "RANDOM.post.out"   using 1:7 notitle  with line lc "dark-red" lt 3,\
-     "AVERAGE.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
-     "AVERAGE.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
-     "AVERAGE.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
+     "NEARNESS.0.out"     using 1:4 notitle  lc "blue" pt 2 ps 0.8,\
+     "NEARNESS.post.out"  using 1:3 notitle lc "blue" pt 6  ps 0.5 ,\
+     "NEARNESS.post.out"  using 1:7 notitle with line lc "blue" lt 3,\
      "RANDOM_DET.0.out"      using 1:4 notitle  lc "dark-violet" pt 2 ps 0.8,\
      "RANDOM_DET.post.out"   using 1:3 notitle  lc "dark-violet" pt 6 ps 0.5 ,\
      "RANDOM_DET.post.out"   using 1:7 notitle  with line lc "dark-violet" lt 3,\
-     "AVERAGE_DET.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
-     "AVERAGE_DET.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
-     "AVERAGE_DET.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
+     "NEARNESS_DET.0.out"     using 1:4 notitle lc 0x008B8B pt 2 ps 0.8,\
+     "NEARNESS_DET.post.out"  using 1:3 notitle lc 0x008B8B pt 6  ps 0.5,\
+     "NEARNESS_DET.post.out"  using 1:7 notitle  with line lc 0x008B8B  lt 3 ,\
      "SR_MONOTONIC.0.out" using 1:4 notitle lc "red" pt 2 ps 0.8,\
      "SR_MONOTONIC.post.out"  using 1:3 notitle  lc "red" pt 6  ps 0.5,\
      "SR_MONOTONIC.post.out"  using 1:7 notitle  with line lc "red"  lt 3,\

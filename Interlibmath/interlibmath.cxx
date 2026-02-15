@@ -624,14 +624,14 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     return "SR_MONOTONIC";
   case VR_SR_SMONOTONIC:
     return "SR_SMONOTONIC";
-  case VR_AVERAGE:
-    return "AVERAGE";
-  case VR_AVERAGE_DET:
-    return "AVERAGE_DET";
-  case VR_AVERAGE_COMDET:
-    return "AVERAGE_COMDET";
-  case VR_AVERAGE_SCOMDET:
-    return "AVERAGE_SCOMDET";
+  case VR_NEARNESS:
+    return "NEARNESS";
+  case VR_NEARNESS_DET:
+    return "NEARNESS_DET";
+  case VR_NEARNESS_COMDET:
+    return "NEARNESS_COMDET";
+  case VR_NEARNESS_SCOMDET:
+    return "NEARNESS_SCOMDET";
   case VR_PRANDOM:
     return "PRANDOM";
   case VR_PRANDOM_DET:
@@ -1597,17 +1597,17 @@ vr_RoundingMode stringToRoundingMode(std::string strEnv){
     if(strEnv==std::string("sr_smonotonic")){
       return VR_SR_SMONOTONIC;
     }
-    if(strEnv==std::string("average")){
-      return VR_AVERAGE;
+    if(strEnv==std::string("nearness")){
+      return VR_NEARNESS;
     }
-    if(strEnv==std::string("average_det")){
-      return VR_AVERAGE_DET;
+    if(strEnv==std::string("nearness_det")){
+      return VR_NEARNESS_DET;
     }
-    if(strEnv==std::string("average_comdet")){
-      return VR_AVERAGE_COMDET;
+    if(strEnv==std::string("nearness_comdet")){
+      return VR_NEARNESS_COMDET;
     }
-    if(strEnv==std::string("average_scomdet")){
-      return VR_AVERAGE_SCOMDET;
+    if(strEnv==std::string("nearness_scomdet")){
+      return VR_NEARNESS_SCOMDET;
     }
     if(strEnv==std::string("nearest")){
       return VR_NEAREST;

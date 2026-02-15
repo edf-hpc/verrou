@@ -22,16 +22,16 @@
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
       [default=native]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
           rounds to the nearest floating-point. Supported rounding modes are:\n\
 \n\
-          •   Stochastic rounding modes: random, average, prandom,\n\
-              random_det, average_det, prandom_det, random_comdet,\n\
-              average_comdet, prandom_comdet, random_scomdet,\n\
-              average_scomdet, sr_monotonic, sr_smonotonic.\n\
+          •   Stochastic rounding modes: random, nearness, prandom,\n\
+              random_det, nearness_det, prandom_det, random_comdet,\n\
+              nearness_comdet, prandom_comdet, random_scomdet,\n\
+              nearness_scomdet, sr_monotonic, sr_smonotonic.\n\
 \n\
           •   IEEE-754 rounding modes: nearest, upward, downward,\n\
               toward_zero.\n\
@@ -150,10 +150,10 @@
 \n\
       --vr-seed=RNG_SEED [default=automatically generated]\n\
           If present, this option allows setting the seed of the\n\
-          pseudo-Random Number Generator used for the random or average\n\
+          pseudo-Random Number Generator used for the random or nearness\n\
           rounding modes. The same option can also be used to set the seed of\n\
           the hash function used for the [p]random_[com]det and\n\
-          average_[com]det rounding mode. This helps reproducing the behavior\n\
+          nearness_[com]det rounding mode. This helps reproducing the behavior\n\
           of a program under Verrou.\n\
 \n\
           If this option is omitted, the pRNG is seeded with a value based on\n\
