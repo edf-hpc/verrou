@@ -66,5 +66,5 @@ jobs:
       - name: Build noquadmath
         run: make -f travis.mk clean && make -f travis.mk reconfigure-noquadmath && make -f travis.mk build
 
-      - name: Build AVG4
-        run: make -f travis.mk clean && make -f travis.mk reconfigure-AVG4 && make -f travis.mk build
+      - name: Build NEARNESS4
+        run: make -f travis.mk clean && make -f travis.mk reconfigure-NEARNESS4 && make -f travis.mk build
