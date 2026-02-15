@@ -89,8 +89,8 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_VPREC_RANGE_BINARY32", "--vprec-range-binary32");
    vr_env_clo_one_option("VERROU_VPREC_MODE", "--vprec-mode");
    vr_env_clo_one_option("VERROU_VPREC_PRESET", "--vprec-preset");
-   vr_env_clo_one_option("VERROU_VPREC_ERROR_MODE", "--vprec-error-mode");
-   vr_env_clo_one_option("VERROU_VPREC_MAX_ERROR_EXPONENT","--vprec-max-abs-error-exponent");
+//   vr_env_clo_one_option("VERROU_VPREC_ERROR_MODE", "--vprec-error-mode");
+//   vr_env_clo_one_option("VERROU_VPREC_MAX_ERROR_EXPONENT","--vprec-max-abs-error-exponent");
    vr_env_clo_one_option("VERROU_VPREC_DAZ", "--vprec-daz");
    vr_env_clo_one_option("VERROU_VPREC_FTZ", "--vprec-ftz");
 }
@@ -555,7 +555,7 @@ Bool vr_process_clo (const HChar *arg) {
                           vprec_preset_PXR24)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=pxr24", vr.vprec_conf.preset,
                           vprec_preset_PXR24)) {
-  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=rel",
+  }/* else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=rel",
                           vr.vprec_conf.err_mode, vprec_err_mode_rel)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=abs",
                           vr.vprec_conf.err_mode, vprec_err_mode_abs)) {
@@ -563,7 +563,8 @@ Bool vr_process_clo (const HChar *arg) {
                           vr.vprec_conf.err_mode, vprec_err_mode_all)) {
   } else if (VG_INT_CLOM(cloPD, arg, "--vprec-max-abs-error-exponent",
                          vr.vprec_conf.max_abs_err_exponent)) {
-  } else if (VG_BOOL_CLO(arg, "--vprec-daz", bool_val)) {
+                         }*/
+  else if (VG_BOOL_CLO(arg, "--vprec-daz", bool_val)) {
     vr.vprec_conf.daz = bool_val;
   } else if (VG_BOOL_CLO(arg, "--vprec-ftz", bool_val)) {
     vr.vprec_conf.ftz = bool_val;

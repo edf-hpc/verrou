@@ -670,27 +670,6 @@ det2
             </listitem>
           </varlistentry>
 
-	  <varlistentry id="vr-opt.vprec-error-mode" xreflabel="--vprec-error-mode">
-            <term><option><![CDATA[--vprec-error-mode=<rel|abs|all> [default]=rel]]></option></term>
-            <listitem>
-              <para>
-                Select the given vprec error mode for operations instrumented with the vprec backend.
-              </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_ERROR_MODE</command>.</para>
-            </listitem>
-          </varlistentry>
-
-
-	    <varlistentry id="vr-opt.vprec-max-abs-error-exponent" xreflabel="--vprec-max-abs-error-exponent">
-            <term><option><![CDATA[--vprec-max-abs-error-exponent= [default]=-1022]]></option></term>
-            <listitem>
-              <para>Select the magnitude of the maximum allowed absolute error (this option is only used when vprec-error-mode={abs, all})
-              </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_MAX_ABS_ERROR_EXPONENT</command>.</para>
-            </listitem>
-          </varlistentry>
-
-
 	    <varlistentry id="vr-opt.vprec-daz" xreflabel="--vprec-daz">
             <term><option><![CDATA[--vprec-daz]]></option></term>
             <listitem>

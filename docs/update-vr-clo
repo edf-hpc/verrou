@@ -41,8 +41,8 @@ if not verrouFound:
     print("valgrind man file does not contain VERROU options : "+ manPath)
     sys.exit(42)
 
-title = re.compile("^[A-Z]")
-subtitle = re.compile("^\s{3}[A-Z]")
+title = re.compile(r"^[A-Z]")
+subtitle = re.compile(r"^\s{3}[A-Z]")
 
 linesRes=[]
 for line in man.stdout:
