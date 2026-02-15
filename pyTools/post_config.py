@@ -4,6 +4,7 @@ import re
 import gen_config
 import rounding_tool
 from pathlib import Path
+import copy
 
 class postConfig(gen_config.gen_config):
 
@@ -59,9 +60,21 @@ class postConfig(gen_config.gen_config):
         if "no_det" in self.rounding:
             self.rounding.remove("no_det")
             self.rounding+=["random","nearness", "prandom"]
+
         #check valid rounding
-        for r in self.rounding:
-            runEnv=rounding_tool.roundingToEnvVar(r,{})
+        for avgCandidat in copy.copy(self.rounding):
+            if "average" in avgCandidat:
+                newRounding=avgCandidat.replace("average","nearness")
+                if rounding_tool.roundingToEnvVar(newRounding,failure=False):
+                    self.rounding.remove(avgCandidat)
+                    if not (newRounding in self.rounding):
+                        self.rounding+=[newRounding]
+                    print("WARNING: %s is deprecated use %s instead"%(avgCandidat, newRounding))
+                else:
+                    rounding_tool.roundingToEnvVar(avgCandidat,failure=True)
+            else:
+                rounding_tool.roundingToEnvVar(avgCandidat,failure=True)
+
 
         if len(self.exec_arg)==2:
             self.runScript=self.exec_arg[0]

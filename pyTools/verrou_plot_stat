@@ -765,8 +765,18 @@ class config_stat(gen_config.gen_config):
         for arg in self._roundingList:
             splitArgs=arg.split(",")
             for toCheck in splitArgs:
-                if toCheck not in ["det"]:
-                    check=rounding_tool.roundingToEnvVar(toCheck)
+                if "average" in toCheck:
+                    toCheckNew=toCheck.replace("average","nearness")
+                    check=rounding_tool.roundingToEnvVar(toCheckNew, failure=False)
+                    if check:
+                        print("WARNING: %s is deprecated use %s instead"%(toCheck, toCheckNew))
+                        toCheck=toCheckNew
+                    else:
+                        #generate failure
+                        rounding_tool.roundingToEnvVar(toCheck, failure=True)
+                else:
+                    if toCheck not in ["det"]:
+                        check=rounding_tool.roundingToEnvVar(toCheck)
                 self._roundingTab+=[toCheck]
 
         if self._roundingTab==[]:
@@ -886,7 +896,18 @@ class config_stat(gen_config.gen_config):
         self.usageCmd()
 
     def repName(self): return self._rep
-    def ref(self): return self._ref
+    def ref(self):
+        if "average" in self._ref:
+            newRef=self._ref.replace("average","nearness")
+            if rounding_tool.roundingToEnvVar(newRef, failure=False):
+                print("WARNING: %s is deprecated use %s instead"%(self._ref, newRef))
+                self._ref=newRef
+            else:
+                rounding_tool.roundingToEnvVar(self._ref, failure=True)
+        else:
+            rounding_tool.roundingToEnvVar(self._ref, failure=True)
+        return self._ref
+
     def png(self): return self._png
     def seed(self): return self._seed
 

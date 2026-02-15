@@ -38,6 +38,17 @@ def isValidRef(strRounding):
 
 def roundingToEnvVar(roundingCmd, res={}, failure=True):
     rounding=roundingCmd
+    if "average" in rounding:
+        rounding=rounding.replace("average","nearness")
+        if roundingToEnvVar(rounding,failure=False):
+            print("WARNING: %s is deprecated use %s instead"%(roundingCmd, rounding))
+        else:
+            if failure:
+                print("No valid rounding : ",rounding)
+                sys.exit(42)
+            else:
+                return None
+
     res.update({"VERROU_FLOAT":"no"})
     if roundingCmd.startswith("float_"):
         rounding=rounding.replace("float_","")
