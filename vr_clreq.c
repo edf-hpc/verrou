@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -101,7 +101,7 @@ void vr_set_rounding_mode(const char* modeStr){
          verrou_set_rounding_mode(mode);
          VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
          if(vr.verbose){
-            VG_(umsg)("New rounding mode: ", modeStr);
+            VG_(umsg)("New rounding mode: %s", modeStr);
          }
       }
    }

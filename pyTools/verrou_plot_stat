@@ -8,7 +8,7 @@
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
-# published by the Free Software Foundation; either version 2.1 of the
+# published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful, but
@@ -66,7 +66,7 @@ def verrou_run_stat(conf):
             continue
         name=("%s")%(roundingMode)
         envvars=rounding_tool.roundingToEnvVar(roundingMode)
-        if roundingMode in roundingDetTabWithFloatPrefix:
+        if roundingMode in roundingDetTabWithFloatPrefix or roundingMode.startswith("vprec"):
             detName=rep/"det"
             detName.mkdir(exist_ok=True)
 
@@ -88,7 +88,7 @@ def extractLoopOverComputation(rep, listOfStat, extractFunc):
 
     for roundingMode in listOfStat:
         name=("%s")%(roundingMode)
-        if roundingMode in roundingDetTabWithFloatPrefix:
+        if roundingMode in roundingDetTabWithFloatPrefix or roundingMode.startswith("vprec"):
             name=("det/%s")%(roundingMode)
 
         resTab=[]
@@ -509,9 +509,9 @@ def plot_hist(data, png=False, relative=False, nb_bin=40):
 
     plt.legend()
     plt.grid()
-    plt.ylabel("#occurrence")
+    plt.ylabel(r"#occurrence")
     if plt.rcParams['text.usetex']:
-        plt.ylabel("$\#occurrence$")
+        plt.ylabel(r"$\#occurrence$")
 
     plt.xlabel(legend)
 
@@ -671,7 +671,7 @@ def print_stat(data, conf):
             nbTotalError+=nbError
             nbTotalSample+=len(data[rounding])
             if nbError==len(data):
-                localPrint("%s (100\% fail) :"%(rounding))
+                localPrint(r"%s (100\% fail) :"%(rounding))
             else:
                 estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
                 maxEstim=max(estim,maxEstim)
@@ -715,7 +715,7 @@ class config_stat(gen_config.gen_config):
 
     def __init__(self, argv, environ,config_keys=["PLOT_STAT"]):
         self._hist=True
-        self.defaultRoundingTab=["det","random","average"]
+        self.defaultRoundingTab=["det","random","nearness"]
         super().__init__(argv,environ, config_keys,[1,2,3])
         if sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
@@ -728,8 +728,8 @@ class config_stat(gen_config.gen_config):
 
     def registerOptions(self):
         self.addRegistry("_roundingList", "string", "ROUNDING_LIST", ["--rounding=","#--rounding-list=","#--rounding-mode="] , [], additive=True,
-                         docStr="rounding mode list (coma separated) [default random,average,det]",
-                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"])
+                         docStr="rounding mode list (coma separated) [default random,nearness,det]",
+                         suggestionForComaList= rounding_tool.roundingDetTabWithFloatPrefix +rounding_tool.roundingNonDetTabWithFloatPrefix + ["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]+rounding_tool.vprecSuggestion())
         self.addRegistry("_rep",      "string", "REP",       ["--rep="], "verrou.stat", docStr="working directory (default verrou.stat)")
         self.addRegistry("_cache", "string",  "CACHE",       ["--cache="], "continue" , checkParam=["continue", "rename", "clean"], docStr="cache policy: continue (default), rename, clean")
         self.addRegistry("_nbSample", "int",    "NRUNS",     ["-s:", "--samples=","--nruns="], 100, docStr="number of samples [default 100] -1 means use what available without use run.sh")
@@ -765,8 +765,18 @@ class config_stat(gen_config.gen_config):
         for arg in self._roundingList:
             splitArgs=arg.split(",")
             for toCheck in splitArgs:
-                if toCheck not in ["det"]:
-                    check=rounding_tool.roundingToEnvVar(toCheck)
+                if "average" in toCheck:
+                    toCheckNew=toCheck.replace("average","nearness")
+                    check=rounding_tool.roundingToEnvVar(toCheckNew, failure=False)
+                    if check:
+                        print("WARNING: %s is deprecated use %s instead"%(toCheck, toCheckNew))
+                        toCheck=toCheckNew
+                    else:
+                        #generate failure
+                        rounding_tool.roundingToEnvVar(toCheck, failure=True)
+                else:
+                    if toCheck not in ["det"]:
+                        check=rounding_tool.roundingToEnvVar(toCheck)
                 self._roundingTab+=[toCheck]
 
         if self._roundingTab==[]:
@@ -879,14 +889,28 @@ class config_stat(gen_config.gen_config):
         print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(rounding_tool.roundingNonDetTabWithoutFloatPrefix ))
         print("\t",  ",".join(["mca-rr-53-24", "mca-pb-53-24", "mca-mca-53-24"]) , "(53 and 24 can be modified)")
+        print("\t",  ",".join(["vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"]) , "(integer of E*M* format can be reduced)")
         print("\t rounding mode can be prefixed by \"float_\"")
-        print("\t det is an alias to "+",".join(rounding_tool.roundingDetTabWithoutFloatPrefix))
+
+        detAlias=[x for x in roundingDetTabWithoutFloatPrefix if x not in ["float","ftz","daz","dazftz"]]
+        print("\t det is an alias to "+",".join(detAlias))
 
     def help(self):
         self.usageCmd()
 
     def repName(self): return self._rep
-    def ref(self): return self._ref
+    def ref(self):
+        if "average" in self._ref:
+            newRef=self._ref.replace("average","nearness")
+            if rounding_tool.roundingToEnvVar(newRef, failure=False):
+                print("WARNING: %s is deprecated use %s instead"%(self._ref, newRef))
+                self._ref=newRef
+            else:
+                rounding_tool.roundingToEnvVar(self._ref, failure=True)
+        else:
+            rounding_tool.roundingToEnvVar(self._ref, failure=True)
+        return self._ref
+
     def png(self): return self._png
     def seed(self): return self._seed
 
@@ -934,6 +958,8 @@ class config_stat(gen_config.gen_config):
         nbSamples={}
         for key in self._roundingTab:
             if key in roundingDetTabWithFloatPrefix:
+                nbSamples[key]=nbDet
+            elif key.startswith("vprec"):
                 nbSamples[key]=nbDet
             else:
                 nbSamples[key]=self._nbSample

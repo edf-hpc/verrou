@@ -11,7 +11,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -31,6 +31,7 @@
 #include "float.h"
 #include "pub_tool_seqmatch.h"
 
+#include "interflop_valgrind_stdlib.h"
 
 //#include "coregrind/pub_core_transtab.h"
 #include "pub_tool_transtab.h"
@@ -74,6 +75,9 @@ void* backend_verrou_null_context;
 
 struct interflop_backend_interface_t backend_mcaquad;
 void* backend_mcaquad_context;
+
+struct interflop_backend_interface_t backend_vprec;
+void* backend_vprec_context;
 
 struct interflop_backend_interface_t backend_checkcancellation;
 void* backend_checkcancellation_context;
@@ -1474,6 +1478,9 @@ static void vr_fini(Int exitcode)
 #ifdef USE_VERROU_QUADMATH
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
+
+  interflop_vprec_finalize(backend_vprec_context);
+
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
   interflop_check_float_max_finalize(backend_check_float_max_context);
 
@@ -1643,6 +1650,44 @@ static void vr_post_clo_init(void)
    mcaquad_set_seed(vr.firstSeed);
 #endif
 
+   //init interflop
+   interflop_set_handler("malloc", _interflop_valgrind_malloc);
+   interflop_set_handler("fopen", _interflop_valgrind_fopen);
+   interflop_set_handler("strcmp", _interflop_valgrind_strcmp);
+   interflop_set_handler("strcasecmp", _interflop_valgrind_strcasecmp);
+   interflop_set_handler("strtol", _interflop_valgrind_strtol);
+   interflop_set_handler("getenv", _interflop_valgrind_getenv);
+   interflop_set_handler("fprintf", _interflop_valgrind_fprintf);
+   interflop_set_handler("strcpy", _interflop_valgrind_strcpy);
+   interflop_set_handler("strncpy", _interflop_valgrind_strncpy);
+   interflop_set_handler("fclose", _interflop_valgrind_fclose);
+   interflop_set_handler("gettid", _interflop_valgrind_gettid);
+   interflop_set_handler("strerror", _interflop_valgrind_strerror);
+   interflop_set_handler("sprintf", _interflop_valgrind_sprintf);
+   interflop_set_handler("vwarnx", _interflop_valgrind_vwarnx);
+   interflop_set_handler("vfprintf", _interflop_valgrind_vfprintf);
+   interflop_set_handler("exit", _interflop_valgrind_exit);
+   interflop_set_handler("strtok_r", _interflop_valgrind_strtok_r);
+   interflop_set_handler("fgets", _interflop_valgrind_fgets);
+   interflop_set_handler("free", _interflop_valgrind_free);
+   interflop_set_handler("calloc", _interflop_valgrind_calloc);
+   VgFile *_stderr = _interflop_stderr();
+
+   //init vprec
+   interflop_vprec_pre_init(VG_(tool_panic), _stderr, &backend_vprec_context);
+   if(vr.backend==vr_vprec){
+      if( VG_(clo_verbosity) >0){
+         VG_(umsg)("Backend %s : %s\n", interflop_vprec_get_backend_name(),
+                   interflop_vprec_get_backend_version());
+      }
+      interflop_vprec_pre_init(&VG_(tool_panic), _stderr, &backend_vprec_context);
+      interflop_vprec_configure((void*)&vr.vprec_conf, backend_vprec_context);
+      backend_vprec=interflop_vprec_init(backend_vprec_context);
+      if( VG_(clo_verbosity) >0){
+         interflop_vprec_print_header(backend_vprec_context);
+      }
+   }
+
    /*Init outfile cancellation*/
    checkcancellation_conf_t checkcancellation_conf;
    checkcancellation_conf.threshold_float= vr.cc_threshold_float;
@@ -1705,7 +1750,7 @@ static void vr_post_clo_init(void)
      if ((vr.backend==vr_checkdenorm) && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE ) ){
         VR_UMSG_CONF("Backend checkdenorm with NEAREST and NATIVE rounding mode is experimental");
      }else{
-        VG_(tool_panic)("--libm=instrumented  is compatible only with verrou backend");
+        VG_(tool_panic)("--libm=instrumented is only compatible with verrou backend");
      }
   }
 

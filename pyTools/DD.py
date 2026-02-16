@@ -91,6 +91,13 @@ class DD:
 
         return c
 
+    def __listminuslist(self, c1, c2list):
+        """Return a list of all elements of C1 that are not in one of C2 list."""
+        res=c1
+        for c2 in c2list:
+            res=self.__listminus(res,c2)
+        return res
+
     def __listintersect(self, c1, c2):
         """Return the common elements of C1 and C2."""
         s2 = {}
@@ -212,28 +219,37 @@ class DD:
                 cbars[i] = self.__listminus(c, cs[i])
                 cbarsTestTab[i]=self.__listminus(self.CC,cbars[i])
 
-            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, firstConfFail=False, firstConfPass=True, sortOrder="triangle")
+            tTab=self._testTab(cbarsTestTab, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyPass", sortOrder="outerConfInnerSample")
 
-            for j in range(n):
-                i = (j + cbar_offset) % n
-#                cbars[i] = self.__listminus(c, cs[i])
+            passIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
 
-                t=tTab[i]
+            if len(passIndexes) >=1:
+                firstIndex=passIndexes[0]
+                if self.debug_dd:
+                    print (algo_name+": reduced to", len(cbars[firstIndex]),)
+                    print ("deltas:", end="")
+                    print (self.pretty(cbars[firstIndex]))
+                cbar_pass = True
+                next_c = self.__listintersect(next_c, cbars[firstIndex])
+                next_n = next_n - 1
+                cbar_offset = firstIndex
 
-                if t == self.PASS:
-                    if self.debug_dd:
-                        print (algo_name+": reduced to", len(cbars[i]),)
-                        print ("deltas:", end="")
-                        print (self.pretty(cbars[i]))
+            if len(passIndexes) >=2:
+                nextPassIndexes=passIndexes[1:]
+                next_c_try_optim_tab=[ self.__listminuslist(next_c, [ cs[passi] for passi in nextPassIndexes[0: reductionNumber] ]) for reductionNumber in range(len(nextPassIndexes),0,-1) ]
+                next_c_try_optim_Testtab=[self.__listminus(self.CC,x) for x in next_c_try_optim_tab ]
 
-                    cbar_pass = True
-                    next_c = self.__listintersect(next_c, cbars[i])
-                    next_n = next_n - 1
-                    self.report_progress(next_c, algo_name)
+                tTab=self._testTab(next_c_try_optim_Testtab, [nbRun]*len(cs), earlyExit=True, earlyConfExit="firstPass", sortOrder="outerConfInnerSample")
+                passOptimIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.PASS]
+                if len(passOptimIndexes)!=0:
+                    next_c=next_c_try_optim_tab[passOptimIndexes[0]]
+                    sizeReduction=(len(passOptimIndexes)-passOptimIndexes[0])
+                    next_n-=sizeReduction
+                    print("ddmax optim succeed ", sizeReduction)
+                else:
+                    print("ddmax optim fail")
 
-                    # In next run, start removing the following subset
-                    cbar_offset = i
-                    break
+            self.report_progress(next_c, algo_name)
 
             if not cbar_pass:
                 if n >= len(c):
@@ -254,10 +270,10 @@ class DD:
         """Stub to overload in subclasses"""
         n = 2
         algo_name="ddmin"
-        sortOrder="outerConfInnerSample"
+        sortOrder="outerSampleInnerConf"
         if self.config_.get_use_dd_min_par():
             algo_name="ddmin//"
-            sortOrder="outerSampleInnerConf"
+
 
         testNoDelta=self._test([],nbRun)
         if testNoDelta!=self.PASS:
@@ -294,7 +310,7 @@ class DD:
             next_n = n
 
             # // resolution
-            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, firstConfFail=True, sortOrder=sortOrder)
+            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
 
             for i in range(n):
                 if self.debug_dd:
@@ -328,29 +344,31 @@ class DD:
                 for j in range(n):
                     i = (j + cbar_offset) % n
                     cbars[i] = self.__listminus(c, cs[i])
-                tTab = self._testTab(cbars,[nbRun]*n, earlyExit=True, firstConfFail=True, sortOrder=sortOrder)
-                for i in range(n):
-                    t=tTab[i]
-                    if t == self.FAIL:
-                        if self.debug_dd:
-                            print (algo_name+": reduced to", len(cbars[i]),)
-                            print ("deltas:", end="")
-                            print (self.pretty(cbars[i]))
+                tTab = self._testTab(cbars,[nbRun]*n, earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
 
-                        cbar_failed = True
-                        next_c = cbars[i]
-                        next_n = next_n - 1
+                failIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
 
-                        for j in range(i+1,n):
-                            t = tTab[j]
-                            if t == self.FAIL:
-                                failMemory+=[cbars[j]]
+                if len(failIndexes)>=1:
+                    firstIndex=failIndexes[0]
+                    if self.debug_dd:
+                        print (algo_name+": reduced to", len(cbars[firstIndex]))
+                        print ("deltas:", end="")
+                        print (self.pretty(cbars[firstIndex]))
 
-                        self.report_progress(next_c, algo_name)
+                    cbar_failed = True
+                    next_c = cbars[firstIndex]
+                    next_n = next_n - 1
+                    cbar_offset = firstIndex
 
-                        # In next run, start removing the following subset
-                        cbar_offset = i
-                        break
+                    if len(failIndexes)>=2:
+                        nextFailIndexes=failIndexes[1:]
+                        next_c_try_optim_tab=[ self.__listminuslist(next_c, [ cs[faili] for faili in nextFailIndexes[0: reductionNumber]   ]) for reductionNumber in range(len(nextFailIndexes),0,-1) ]
+                        tTab = self._testTab(next_c_try_optim_tab,[nbRun]*n, earlyExit=True, earlyConfExit="firstFail", sortOrder="outerConfInnerSample")
+                        failOptimIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
+                        if len(failOptimIndexes)!=0:
+                            next_c=next_c_try_optim_tab[failOptimIndexes[0]]
+                            next_n-=(len(failOptimIndexes)-failOptimIndexes[0])
+                    self.report_progress(next_c, algo_name)
 
             if not c_failed and not cbar_failed:
                 if n >= len(c):

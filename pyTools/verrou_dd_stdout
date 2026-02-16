@@ -34,7 +34,7 @@ import DD_exec_stat
 
 
 #adapatation from  https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
-regExpFloat="([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
+regExpFloat=r"([+-]?(?:\d+([.]\d*)(?:[eE][+-]?\d+)?|[.]\d+(?:[eE][+-]?\d+)?))"
 regFloatCompiled=re.compile(regExpFloat)
 
 regExpAddr8="0x[0-9a-fA-F]{8}"
@@ -148,6 +148,7 @@ class DDstdout(DD_stoch.DDStoch):
               "LD_PRELOAD": self.newLdPreload(),
               "VERROU_ROUNDING_MODE": self.config_.referenceRounding,
               "VERROU_MCA_MODE": "ieee",
+              "VERROU_VPREC_MODE": "ieee",
               "VERROU_FLOAT":"no",
               "VERROU_UNFUSED":"no",
               "VERROU_IOMATCH_CLR":refPath,

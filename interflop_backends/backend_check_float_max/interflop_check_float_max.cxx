@@ -13,7 +13,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -191,25 +191,25 @@ void IFMAX_FCTNAME(sqrt_float) (float a, float* res, void* context){
 struct interflop_backend_interface_t IFMAX_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config=interflop_backend_empty_interface;
 
-  config.add_float = & IFMAX_FCTNAME(add_float);
-  config.sub_float = & IFMAX_FCTNAME(sub_float);
-  config.mul_float = & IFMAX_FCTNAME(mul_float);;
-  config.div_float = & IFMAX_FCTNAME(div_float);;
-  config.sqrt_float = & IFMAX_FCTNAME(sqrt_float);;
+  config.interflop_add_float = & IFMAX_FCTNAME(add_float);
+  config.interflop_sub_float = & IFMAX_FCTNAME(sub_float);
+  config.interflop_mul_float = & IFMAX_FCTNAME(mul_float);;
+  config.interflop_div_float = & IFMAX_FCTNAME(div_float);;
+  config.interflop_sqrt_float = & IFMAX_FCTNAME(sqrt_float);;
 
-  config.add_double = & IFMAX_FCTNAME(add_double);
-  config.sub_double = & IFMAX_FCTNAME(sub_double);
-  config.mul_double = & IFMAX_FCTNAME(mul_double);;
-  config.div_double = & IFMAX_FCTNAME(div_double);;
-  config.sqrt_double = & IFMAX_FCTNAME(sqrt_double);;
+  config.interflop_add_double = & IFMAX_FCTNAME(add_double);
+  config.interflop_sub_double = & IFMAX_FCTNAME(sub_double);
+  config.interflop_mul_double = & IFMAX_FCTNAME(mul_double);;
+  config.interflop_div_double = & IFMAX_FCTNAME(div_double);;
+  config.interflop_sqrt_double = & IFMAX_FCTNAME(sqrt_double);;
 
 
-  config.cast_double_to_float=& IFMAX_FCTNAME(cast_double_to_float);
+  config.interflop_cast_double_to_float=& IFMAX_FCTNAME(cast_double_to_float);
 
-  config.madd_float = & IFMAX_FCTNAME(madd_float);
-  config.madd_double =& IFMAX_FCTNAME(madd_double);
+  config.interflop_madd_float = & IFMAX_FCTNAME(madd_float);
+  config.interflop_madd_double =& IFMAX_FCTNAME(madd_double);
 
-  config.finalize = & IFMAX_FCTNAME(finalize);
+  config.interflop_finalize = & IFMAX_FCTNAME(finalize);
 
   return config;
 }

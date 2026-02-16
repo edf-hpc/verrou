@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
 
 enum vr_RoundingMode {
@@ -56,10 +56,10 @@ enum vr_RoundingMode {
     VR_RANDOM_SCOMDET,
     VR_SR_MONOTONIC,
     VR_SR_SMONOTONIC,
-    VR_AVERAGE,
-    VR_AVERAGE_DET,
-    VR_AVERAGE_COMDET,
-    VR_AVERAGE_SCOMDET,
+    VR_NEARNESS,
+    VR_NEARNESS_DET,
+    VR_NEARNESS_COMDET,
+    VR_NEARNESS_SCOMDET,
     VR_PRANDOM,
     VR_PRANDOM_DET,
     VR_PRANDOM_COMDET,

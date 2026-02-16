@@ -28,7 +28,7 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
-Backend verrou simulating AVERAGE rounding mode
+Backend verrou simulating NEARNESS rounding mode
 EXCLUDE DETECTED: XXXXX
 Using exclusion rule: *	XXXXX
 

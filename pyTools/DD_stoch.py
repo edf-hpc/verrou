@@ -8,7 +8,7 @@
 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License as
-# published by the Free Software Foundation; either version 2.1 of the
+# published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful, but
@@ -590,7 +590,7 @@ class DDStoch(DD.DD):
 
         #basic verification
         try:
-            testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf")
+            testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
         except KeyboardInterrupt:
             print("Basic Delta Verification Interuption")
             sys.exit(42)
@@ -757,7 +757,7 @@ class DDStoch(DD.DD):
             newDelta=[delta for delta in deltasHeuristic if delta!=delta1]
             deltaMin1Tab+=[newDelta]
 
-        resultTab=self._testTab(deltaMin1Tab, [nbRun]*len(deltaMin1Tab), earlyExit=True, firstConfFail=True)
+        resultTab=self._testTab(deltaMin1Tab, [nbRun]*len(deltaMin1Tab), earlyExit=True, earlyConfExit="anyFail")
 
         for indexRes in range(len(resultTab)):
             result=resultTab[indexRes]
@@ -789,7 +789,9 @@ class DDStoch(DD.DD):
             ciTab=[self.split(candidat, min(granularity, len(candidat))) for candidat in nablaBloc]
 
             flatciTab=sum(ciTab,[]) #flat ciTab to be compatible with testTab
-            flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab),earlyExit=False)
+#            flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab),earlyExit=False)
+            flatResTab=self._testTab(flatciTab, [nbRun]* len(flatciTab),earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
+
             #unflat flatResTab
             resTab=[]
             lBegin=0
@@ -1069,22 +1071,24 @@ class DDStoch(DD.DD):
         resTab=self._testTab([deltas],[nbRun], earlyExit)
         return resTab[0]
 
-
-    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+    def _testTab(self, deltasTab,nbRunTab=None, earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf"):
         nbDelta=len(deltasTab)
-        assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample","triangle"])
+        assert(earlyConfExit in ["no", "anyPass", "anyFail","firstPass", "firstFail"])
+        assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample"])
 
         numThread=self.config_.get_maxNbPROC()
         if numThread in [None,1]:
-            return self._testTabSeq(deltasTab,nbRunTab,earlyExit,firstConfFail,firstConfPass)
-        return self._testTabPar(deltasTab,nbRunTab,earlyExit,firstConfFail,firstConfPass, sortOrder)
+            return self._testTabSeq(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
+        return self._testTabPar(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
 
-    def _testTabSeq(self, deltasTab,nbRunTab, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+    def _testTabSeq(self, deltasTab,nbRunTab, earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf"):
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
+        if earlyConfExit in ["firstPass", "firstFail"]:
+            assert(sortOrder=="outerConfInnerSample" )
 
-        if sortOrder in ["outerConfInnerSample","outerSampleInnerConf","triangle"]:
-            resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+        if sortOrder in ["outerConfInnerSample","outerSampleInnerConf"]:
+            resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, earlyConfExit)
             if subTaskDataTab==None:
                 return resTab
             nbDelta=len(deltasTab)
@@ -1099,7 +1103,8 @@ class DDStoch(DD.DD):
                     passIndexesTab[deltaIndex]+=[sampleIndex]
                     if resTab[deltaIndex]==None:
                         resTab[deltaIndex]=self.PASS
-                    if earlyExit and firstConfPass:
+
+                    if earlyExit and earlyConfExit in ["firstPass", "anyPass"]:
                         if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
                             self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                             return resTab
@@ -1108,14 +1113,15 @@ class DDStoch(DD.DD):
                         print(stochTaskTab[deltaIndex].pathToPrint+ strLenDeltas(deltasTab[deltaIndex])+" --(/run/) -> FAIL(%i)"%(sampleIndex))
                     resTab[deltaIndex]=self.FAIL
                     failIndexesTab[deltaIndex]+=[sampleIndex]
-                    if earlyExit and firstConfFail:
+
+                    if earlyExit and earlyConfExit in ["firstFail","anyFail"]:
                         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                         return resTab
 
             self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
             return resTab
 
-    def stochTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass):
+    def stochTaskTabPrepare(self, deltasTab,nbRunTab, sortOrder, earlyExit, earlyConfExit):
         nbDelta=len(deltasTab)
         if nbRunTab==None:
             nbRunTab=[self.config_.get_nbRUN()]*nbDelta
@@ -1156,12 +1162,22 @@ class DDStoch(DD.DD):
                 continue
             subTaskDataUnorderTab+=[("cmp",deltaIndex, cmpConf ) for cmpConf in sToC["indexesToCmp"] ]
             subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in sToC["indexesToRun"] ]
-        if earlyExit:
-            if firstConfFail:
-                if self.FAIL in resTab:
-                    return (resTab,None,None, cacheTab)
-            if firstConfPass:
-                if self.PASS in resTab:
+
+        if earlyConfExit=="anyFail":
+             if self.FAIL in resTab:
+                 return (resTab,None,None, cacheTab)
+        if earlyConfExit=="anyPass":
+             if self.PASS in resTab:
+                 return (resTab,None,None, cacheTab)
+        if earlyConfExit=="firstFail":
+             if self.FAIL in resTab:
+                 index=resTab.index(self.FAIL)
+                 if not (None in resTab[0:index] ):
+                      return (resTab,None,None, cacheTab)
+        if earlyConfExit=="firstPass":
+             if self.PASS in resTab:
+                 index=resTab.index(self.PASS)
+                 if not (None in resTab[0:index] ):
                     return (resTab,None,None, cacheTab)
 
         subTaskDataTab=[]
@@ -1172,14 +1188,6 @@ class DDStoch(DD.DD):
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
             for sample in sampleTab:
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="run" and subTaskData[2]==sample)]
-        if sortOrder=="triangle":
-            sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
-            sampleTab.sort()
-            for sample in sampleTab:
-                subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
-            runTab=[subTaskData for subTaskData in subTaskDataUnorderTab if subTaskData[0]=="run"]
-            runTab.sort(key=lambda task: task[1]+task[2])
-            subTaskDataTab+=runTab
 
         if sortOrder=="outerConfInnerSample":
             subTaskDataTab=subTaskDataUnorderTab
@@ -1207,8 +1215,9 @@ class DDStoch(DD.DD):
                     failIndexesStr=(str(failIndexes)[1:-1]).replace(" ","")
                     print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex])+"--(/run/) -> FAIL(%s)"%(failIndexesStr))
 
-    def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
-        resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, firstConfFail,firstConfPass)
+#    def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, firstConfFail=False, firstConfPass=False, sortOrder="outerSampleInnerConf"):
+    def _testTabPar(self, deltasTab,nbRunTab=None, earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf"):
+        resTab,stochTaskTab,subTaskDataTab,cacheTab=self.stochTaskTabPrepare(deltasTab,nbRunTab, sortOrder, earlyExit, earlyConfExit)
         if subTaskDataTab==None:
             return resTab
         nbDelta=len(deltasTab)
@@ -1240,18 +1249,19 @@ class DDStoch(DD.DD):
                             if resTab[deltaIndex]==None:
                                 resTab[deltaIndex]=self.PASS
                             passIndexesTab[deltaIndex]+=[sampleIndex]
-                            if earlyExit and firstConfPass:
-                                if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                            if earlyExit and earlyConfExit in ["anyPass","firstPass"]:
+                                if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]): #check the right sample number
                                     for cWork in range(currentWork,len(subTaskDataTab)):
-                                        activeDataTab[cWork]=False
+                                        if earlyConfExit=="anyPass" or subTaskDataTab[cWork][1]>=deltaIndex:
+                                            activeDataTab[cWork]=False
                         else:
                             if resTab[deltaIndex]==None and earlyExit:
                                 print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/run/) -> FAIL(%i)"%(sampleIndex))
                             resTab[deltaIndex]=self.FAIL
                             failIndexesTab[deltaIndex]+=[sampleIndex]
-                            if earlyExit and firstConfFail:
+                            if earlyExit and  earlyConfExit in ["anyFail","firstFail","no"]:
                                 for cWork in range(currentWork,len(subTaskDataTab)):
-                                    if subTaskDataTab[cWork][1]==deltaIndex :
+                                    if earlyConfExit=="anyFail" or (earlyConfExit=="firstFail" and subTaskDataTab[cWork][1]>deltaIndex) or (earlyConfExit=="no" and subTaskDataTab[cWork][1]==deltaIndex):
                                         activeDataTab[cWork]=False
                     #submit new subtasks
                     for poolIndex in poolSlotAvail:

@@ -15,7 +15,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 #define IFCC_FCTNAME(FCT) interflop_checkcancellation_##FCT
 
-#include "../interflop.h"
+#include "../../interflop/interflop.h"
 
    struct checkcancellation_conf {
      unsigned int threshold_float;

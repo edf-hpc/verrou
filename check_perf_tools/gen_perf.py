@@ -10,7 +10,7 @@ from gen_build import workDirectory
 from pathlib import Path
 
 fastAnalyze=False
-fastAnalyze=True
+#fastAnalyze=True
 
 what="cmpBranch"
 if len(sys.argv)==2:
@@ -30,8 +30,9 @@ if not len(sys.argv) in [1,2]:
     sys.exit(42)
 
 #if what=="cmpBranch":
-roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "average"]
-buildConfigList=["master","master_fast","back", "back_fast"]
+
+roundingListPerf=["tool_none",  "exclude_all-nc", "exclude_all", "nearest-nc", "nearest", "random", "nearness"]
+buildConfigList=["master","master_fast", "vprec", "vprec_fast"]
 ref_name="master"
 detRounding=[]
 buildSpecialConfigList=[]
@@ -42,13 +43,15 @@ if what=="cmpStable":
 if what=="cmpHash":
     buildConfigList=["current", "current_fast"]
     buildSpecialConfigList=["dietzfelbinger", "multiply_shift","double_tabulation", "xxhash","mersenne_twister"]
-    detRounding=["random_det","average_det", "random_comdet","average_comdet","random_scomdet","average_scomdet", "sr_monotonic","sr_smonotonic"]
+    detRounding=["random_det","nearness_det", "random_comdet","nearness_comdet","random_scomdet","nearness_scomdet", "sr_monotonic","sr_smonotonic"]
     ref_name="current_fast"
 
 
 if what=="cmpInst":
-    buildConfigList=["master"]
+    buildConfigList=["vprec"]
     roundingListPerf=["tool_none", "nearest", "gen_exclude", "exclude_all", "gen_source", "source_nothing", "gen_backtrace","exclude_all_backtrace", "random"]
+    roundingListPerf=["tool_none", "nearest", "random", "vprec_float", "float"]
+    ref_name=buildConfigList[0]
 
 drop=10
 nbRunTuple=(5,10) #inner outer
@@ -115,6 +118,12 @@ def runPerfConfig(name):
                 if rounding=="exclude_all_backtrace":
                     myPath=str( list(Path(".").glob("back-"+binName+"/backInfo-*"))[0])
                     cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude-backtrace=%s %s %s %s "%(myPath,optName, pathPerfBin / binName,perfCmdParam)
+
+                if rounding=="float":
+                    cmd="valgrind --tool=verrou --float=yes --vr-instr-dbl=yes --vr-instr-flt=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+
+                if rounding=="vprec_float":
+                    cmd="valgrind --tool=verrou --backend=vprec --vprec-preset=fp32  %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
@@ -324,7 +333,7 @@ def feedPerfTab(tab, data, buildList, detTab=["_det","_comdet"], branchTab=False
     else:
         addRefDet(roundingTab,  ref_name, False, withNearestNc, withExclude, withExcludeNc, withFmaOnly, withToolNone)
         roundingTab+=["SEPARATOR"]
-        for rd in ["random","average"]:
+        for rd in ["random","nearness"]:
             roundingTab+=[(rd, rd, ref_name)]
 
             for detType in detTab:

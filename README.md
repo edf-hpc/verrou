@@ -16,7 +16,7 @@ implements various forms of arithmetic, including:
 - an emulation of single-precision rounding, in order to test the effect of
   reduced precision without any need to change the source code.
 
-Verrou also comes with a `verrou_dd` utility, which simplifies the Verrou-based
+Verrou also comes with the `verrou_dd_*` tools, which simplify the Verrou-based
 debugging process by implementing several variants of the Delta-Debugging
 algorithm. This allows easily locating which parts of the analyzed source code
 are likely to be responsible for Floating-Point-related instabilities.
@@ -42,12 +42,12 @@ and build" section below.
 In order to build the *development* version of Verrou, it is necessary to first
 download a specific Valgrind version, and patch it. Fetch valgrind's sources:
 
-    git clone --branch=VALGRIND_3_25_0 --single-branch https://sourceware.org/git/valgrind.git valgrind-3.25.0+verrou-dev
+    git clone --branch=VALGRIND_3_26_0 --single-branch https://sourceware.org/git/valgrind.git valgrind-3.26.0+verrou-dev
 
 
 Add verrou's sources to it:
 
-    cd valgrind-3.25.0+verrou-dev
+    cd valgrind-3.26.0+verrou-dev
     git clone https://github.com/edf-hpc/verrou.git verrou
 
     cat verrou/valgrind.*diff | patch -p1
@@ -77,10 +77,11 @@ Advanced users can use the following configure flags :
 - `--enable-verrou-fma=yes|no (default yes)`. This option is useful if your system does not support fma intrinsics.
 - `--enable-verrou-sqrt=yes|no (default yes)`. This option is useful if your system does not support sqrt intrinsics.
 - `--enable-verrou-check-naninf=yes|no` (default yes). If NaN does not appear in the verified code set this option to 'no' can slightly speed up verrou.
-- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|average]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are not able to reproduce the reference results.
-- `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necessary exact. With the average* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
-- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and average) by the xo[ro]shiro prng.
+- `--with-det-hash=hash_name` with hash_name in [dietzfelbinger,multiply_shift,double_tabulation,xxhash,mersenne_twister] to select the hash function used for [random|nearness]_[det|comdet] rounding mode. The default is xxhash. double_tabulation was the previous default(before introduction of xxhash). mersenne_twister is the reference but slow. dietzfelbinger and multiply_shift are faster but are not able to reproduce the reference results.
+- `--with-verrou-denorm-hack=[none|float|double|all]` (default float). With denormal number the EFT are no more necessary exact. With the nearness* rounding modes this problem is always ignored, but the random* rounding, there are the following available options :  with  `none` the problem is ignored. With `float` a hack based on computation in double is applied on float operations ; With `double` an experimental hack is applied for double operations ; With `all` the float and double hacks are applied. float is selected by default.
+- `--enable-verrou-xoshiro=[no|yes]` (default yes). If set to yes the tiny mersenne twister prng is replaced (for random, prandom and nearness) by the xo[ro]shiro prng.
 - `--enable-verrou-quad=[yes|no]` (default yes). If set to no the backend mcaquad is disabled. This option is only useful to reduce the dependencies.
+- `--enable-verrou-optim=[yes|no]` (default yes). Optim leads to high memory footprint during compilation. On small machine, you may need to deactivate this option.
 
 <p>&nbsp;</p>
 

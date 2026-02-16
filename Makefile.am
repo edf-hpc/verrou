@@ -81,9 +81,13 @@ VR_GENERATED_FILE=vr_instrumentOp_checkInst.h vr_instrumentOp_impl.h vr_generate
 # code generation frontend
 vr_main.c: ${VR_GENERATED_FILE}
 
-clean_generated:
-	rm ${VR_GENERATED_FILE}
+.PHONY: clean_generated
 clean: clean_generated
+
+clean_generated:
+	rm -f ${VR_GENERATED_FILE}
+	find -name "*.o" -exec rm \{\} \;
+	find -name "*.so" -exec rm \{\} \;
 
 vr_generated_from_templates.h: generateBackendInterOperator.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
 	./generateBackendInterOperator.py
@@ -109,8 +113,14 @@ VERROU_SOURCES_COMMON = \
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
-	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx
-
+	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx\
+	interflop_backends/interflop-backend-vprec/interflop_vprec.c\
+	interflop_backends/interflop-backend-vprec/common/vprec_tools.c\
+	interflop/interflop_stdlib.c\
+	interflop/iostream/logger.c\
+	interflop/fma/interflop_fma.c\
+	interflop/sqrt/interflop_sqrt.c\
+	interflop_valgrind_stdlib.c
 
 
 VERROU_FLAG_CXX = $(subst \
@@ -174,9 +184,13 @@ VERROU_FLAG_CXX +=  -DVERROU_DENORM_HACKS_DOUBLE
 VERROU_FLAG_C   +=  -DVERROU_DENORM_HACKS_DOUBLE
 endif
 
+if USE_VERROU_OPTIM
+VERROU_FLAG_CXX +=  -DUSE_VERROU_OPTIM
+VERROU_FLAG_C   +=  -DUSE_VERROU_OPTIM
+endif
 
-VERROU_FLAG_C +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
-VERROU_FLAG_CXX +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
+VERROU_FLAG_C +=-DVERROU_NUM_NEARNESS=@VERROU_NUM_NEARNESS@
+VERROU_FLAG_CXX +=-DVERROU_NUM_NEARNESS=@VERROU_NUM_NEARNESS@
 
 
 VERROU_FLAG_C +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash

@@ -1,7 +1,7 @@
 SRC=stencil_interflop_verrou.cpp
 
 SRC_VERROU=../../interflop_verrou.cxx ../../../backend_mcaquad/common/tinymt64.c 
-FLAGS_VERROU=-DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DVERROU_IGNORE_NANINF_CHECK -DUSE_VERROU_FMA -mfma -march=native -DUSE_VERROU_SQRT
+FLAGS_VERROU=-DVERROU_NUM_NEARNESS=1 -DVERROU_DET_HASH=vr_xxhash_hash -DVERROU_IGNORE_NANINF_CHECK -DUSE_VERROU_FMA -mfma -march=native -DUSE_VERROU_SQRT
 
 BIN=stencil_interflop_verrou
 

@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -81,6 +81,18 @@ void vr_env_clo(void){
 
    vr_env_clo_one_option("VERROU_COUNT_OP","--count-op");
    vr_env_clo_one_option("VERROU_COUNT_DENORM","--count-denorm");
+
+
+   vr_env_clo_one_option("VERROU_VPREC_PRECISION_BINARY64", "--vprec-precision-binary64");
+   vr_env_clo_one_option("VERROU_VPREC_RANGE_BINARY64", "--vprec-range-binary64");
+   vr_env_clo_one_option("VERROU_VPREC_PRECISION_BINARY32", "--vprec-precision-binary32");
+   vr_env_clo_one_option("VERROU_VPREC_RANGE_BINARY32", "--vprec-range-binary32");
+   vr_env_clo_one_option("VERROU_VPREC_MODE", "--vprec-mode");
+   vr_env_clo_one_option("VERROU_VPREC_PRESET", "--vprec-preset");
+//   vr_env_clo_one_option("VERROU_VPREC_ERROR_MODE", "--vprec-error-mode");
+//   vr_env_clo_one_option("VERROU_VPREC_MAX_ERROR_EXPONENT","--vprec-max-abs-error-exponent");
+   vr_env_clo_one_option("VERROU_VPREC_DAZ", "--vprec-daz");
+   vr_env_clo_one_option("VERROU_VPREC_FTZ", "--vprec-ftz");
 }
 
 void vr_clo_defaults (void) {
@@ -174,6 +186,17 @@ void vr_clo_defaults (void) {
   vr.cancellationSource=NULL;
   vr.checkFloatMax=False;
 
+  vr.vprec_conf.preset = (UInt)(-1);
+  vr.vprec_conf.precision_binary32 = VPREC_PRECISION_BINARY32_DEFAULT;
+  vr.vprec_conf.range_binary32 = VPREC_RANGE_BINARY32_DEFAULT;
+  vr.vprec_conf.precision_binary64 = VPREC_PRECISION_BINARY64_DEFAULT;
+  vr.vprec_conf.range_binary64 = VPREC_RANGE_BINARY64_DEFAULT;
+  vr.vprec_conf.mode = VPREC_MODE_DEFAULT;
+  vr.vprec_conf.err_mode =  vprec_err_mode_rel;
+  vr.vprec_conf.max_abs_err_exponent = -DOUBLE_EXP_MIN;
+  vr.vprec_conf.daz = False;
+  vr.vprec_conf.ftz = False;
+
 }
 
 
@@ -187,6 +210,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.backend, vr_verrou)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
+    else if (VG_XACT_CLOM (cloPD, arg, "--backend=vprec",
+                         vr.backend, vr_vprec)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
                          vr.backend, vr_checkdenorm)) {}
 
@@ -203,14 +228,30 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",
                          vr.roundingMode, VR_SR_SMONOTONIC)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness",
+                         vr.roundingMode, VR_NEARNESS)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average",
-                         vr.roundingMode, VR_AVERAGE)) {}
+                         vr.roundingMode, VR_NEARNESS)) {
+     VG_(umsg)("WARNING: average is deprecated: use nearness instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_det",
+                         vr.roundingMode, VR_NEARNESS_DET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_det",
-                         vr.roundingMode, VR_AVERAGE_DET)) {}
+                         vr.roundingMode, VR_NEARNESS_DET)) {
+     VG_(umsg)("WARNING: average_det is deprecated: use nearness_det instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_comdet",
+                         vr.roundingMode, VR_NEARNESS_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_comdet",
-                         vr.roundingMode, VR_AVERAGE_COMDET)) {}
+                         vr.roundingMode, VR_NEARNESS_COMDET)) {
+     VG_(umsg)("WARNING: average_comdet is deprecated: use nearness_comdet instead\n");
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=nearness_scomdet",
+                         vr.roundingMode, VR_NEARNESS_SCOMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=average_scomdet",
-                         vr.roundingMode, VR_AVERAGE_SCOMDET)) {}
+                         vr.roundingMode, VR_NEARNESS_SCOMDET)) {
+     VG_(umsg)("WARNING: average_scomdet is deprecated: use nearness_scomdet instead\n");
+  }
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom",
                          vr.roundingMode, VR_PRANDOM)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=prandom_det",
@@ -473,6 +514,60 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM (cloPD, arg, "--IOmatch-file-pattern", str)) {
     vr.IOMatchFileDescriptor=-1;
     vr.outputIOMatchFilePattern = VG_(strdup)("vr.process_clo.IOMatch-file-pattern", str);
+  }
+
+    // Options VPREC
+  else if (VG_INT_CLOM(cloPD, arg, "--vprec-precision-binary64",
+                       vr.vprec_conf.precision_binary64)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-precision-binary32",
+                         vr.vprec_conf.precision_binary32)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-range-binary64",
+                         vr.vprec_conf.range_binary64)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-range-binary32",
+                         vr.vprec_conf.range_binary32)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ob", vr.vprec_conf.mode,
+                          vprecmode_ob)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ib", vr.vprec_conf.mode,
+                          vprecmode_ib)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=full", vr.vprec_conf.mode,
+                          vprecmode_full)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ieee", vr.vprec_conf.mode,
+                          vprecmode_ieee)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary16",
+                          vr.vprec_conf.preset, vprec_preset_binary16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=fp16",
+                          vr.vprec_conf.preset, vprec_preset_binary16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary32",
+                          vr.vprec_conf.preset, vprec_preset_binary32)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=fp32",
+                          vr.vprec_conf.preset, vprec_preset_binary32)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=bfloat16",
+                          vr.vprec_conf.preset, vprec_preset_bfloat16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=bf16",
+                          vr.vprec_conf.preset, vprec_preset_bfloat16)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=tensorfloat",
+                          vr.vprec_conf.preset, vprec_preset_tensorfloat)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=tf32",
+                          vr.vprec_conf.preset, vprec_preset_tensorfloat)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=fp24", vr.vprec_conf.preset,
+                          vprec_preset_fp24)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=PXR24", vr.vprec_conf.preset,
+                          vprec_preset_PXR24)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=pxr24", vr.vprec_conf.preset,
+                          vprec_preset_PXR24)) {
+  }/* else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=rel",
+                          vr.vprec_conf.err_mode, vprec_err_mode_rel)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=abs",
+                          vr.vprec_conf.err_mode, vprec_err_mode_abs)) {
+  } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=all",
+                          vr.vprec_conf.err_mode, vprec_err_mode_all)) {
+  } else if (VG_INT_CLOM(cloPD, arg, "--vprec-max-abs-error-exponent",
+                         vr.vprec_conf.max_abs_err_exponent)) {
+                         }*/
+  else if (VG_BOOL_CLO(arg, "--vprec-daz", bool_val)) {
+    vr.vprec_conf.daz = bool_val;
+  } else if (VG_BOOL_CLO(arg, "--vprec-ftz", bool_val)) {
+    vr.vprec_conf.ftz = bool_val;
   }
   // Unknown option
   else {

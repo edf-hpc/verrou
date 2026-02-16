@@ -238,8 +238,8 @@ det2
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
             <term><option><![CDATA[--backend=<verrou|mcaquad|checkdenorm> [default=verrou]]]></option></term>
             <listitem><para>
-		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>
-		or <computeroutput>checkdenorm</computeroutput>
+		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>,
+		<computeroutput>checkdenorm</computeroutput> or <computeroutput>vprec</computeroutput>
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <xref linkend="vr-opt.rounding-mode"/> option).
 		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
@@ -248,6 +248,7 @@ det2
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>daz,ftz,dazftz</computeroutput> rounding-modes, and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd[io]-gen-file</computeroutput> options.
+		<computeroutput>vprec</computeroutput> implements all reduced precisions.
               </para>
 	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
 
@@ -262,7 +263,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -274,16 +275,16 @@ det2
                 <listitem><para>
                     <command>Stochastic rounding modes:</command>
 		    <computeroutput>random</computeroutput>,
-                    <computeroutput>average</computeroutput>,
+                    <computeroutput>nearness</computeroutput>,
 		    <computeroutput>prandom</computeroutput>,
 		    <computeroutput>random_det</computeroutput>,
-                    <computeroutput>average_det</computeroutput>,
+                    <computeroutput>nearness_det</computeroutput>,
 		    <computeroutput>prandom_det</computeroutput>,
 		    <computeroutput>random_comdet</computeroutput>,
-                    <computeroutput>average_comdet</computeroutput>,
+                    <computeroutput>nearness_comdet</computeroutput>,
 		    <computeroutput>prandom_comdet</computeroutput>,
 		    <computeroutput>random_scomdet</computeroutput>,
-                    <computeroutput>average_scomdet</computeroutput>,
+                    <computeroutput>nearness_scomdet</computeroutput>,
 		    <computeroutput>sr_monotonic</computeroutput>,
 		    <computeroutput>sr_smonotonic</computeroutput>.
                 </para></listitem>
@@ -458,8 +459,8 @@ det2
               <para>If present, this option allows setting the seed of the
               pseudo-Random Number Generator used for the
 		<command>random</command> or
-		<command>average </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
-		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and average_[com]det
+		<command>nearness </command> <link linkend="vr-manual.feat.rounding-mode">rounding modes</link>.
+		The same option can also be used to set the seed of the hash function used for the [p]random_[com]det and nearness_[com]det
 		rounding mode.
 		This helps reproducing the behavior of a program under Verrou.
               </para>
@@ -549,7 +550,148 @@ det2
 
 	  </variablelist>
       </section>
+      <section>
+        <title>VPREC options</title>
+	<para> The vprec backend implementation come from Verificarlo :
+	  <ulink url="https://github.com/verificarlo/verificarlo/blob/master/doc/02-Backends.md#vprec-backend-libinterflop_vprecso"> More information on Verificalo github </ulink>
+	  </para>
 
+        <variablelist id="vr.opts.vprec.list">
+	  <varlistentry id="vr-opt.vprec-mode" xreflabel="--vprec-mode">
+            <term><option><![CDATA[--vprec-mode=<ieee|full|ib|ob> [default=ob]]]></option></term>
+            <listitem>
+              <para>
+                Select the given vprec mode for operations instrumented with the vprec backend. Supported vprec modes are:
+              </para>
+              <itemizedlist>
+                <listitem><para>
+                  <command>ieee : </command> The program uses standard IEEE arithmetic, no rounding are introduced.
+                </para></listitem>
+		<listitem><para>
+                  <command>ib : </command> <computeroutput> InBound precision only</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>ob : </command> <computeroutput> OutBound precision only (default mode)</computeroutput>
+                </para></listitem>
+		<listitem><para>
+                  <command>full : </command> <computeroutput>Inbound and outbound mode combined</computeroutput>
+                </para></listitem>
+              </itemizedlist>
+
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_MODE</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-precision-binary64" xreflabel="--vprec-precision-binary64">
+            <term><option><![CDATA[--vprec-precision-binary64= [default=52]]]></option></term>
+            <listitem>
+              <para>
+                Configure the precision (length of pseudo-mantissa) used by vprec backend for double operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY64</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-range-binary64" xreflabel="--vprec-range-binary64">
+            <term><option><![CDATA[--vprec-range-binary64= [default=11]]]></option></term>
+            <listitem>
+              <para>
+                Configure the range (length of pseudo-exponent) used by vprec backend for double operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY64</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-precision-binary32" xreflabel="--vprec-precision-binary32">
+            <term><option><![CDATA[--vprec-precision-binary32= [default=23]]]></option></term>
+            <listitem>
+              <para>
+                Configure the precision (length of pseudo-mantissa) used by vprec backend for float operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY32</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-range-binary32" xreflabel="--vprec-range-binary32">
+            <term><option><![CDATA[--vprec-range-binary32= [default=8]]]></option></term>
+            <listitem>
+              <para>
+                Configure the range (length of pseudo-exponent) used by vprec backend for float operations.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY32</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr-opt.vprec-preset" xreflabel="--vprec-preset">
+            <term><option><![CDATA[--vprec-preset=<binary16|fp16|binary32|fp32|bfloat16|bf16|tensorfloat|tf32|fp24|PXR24|pxr24>]]></option></term>
+            <listitem>
+              <para>
+                Select the given vprec mode for operations instrumented with the vprec backend (flt/binary32 and dbl/binary64).
+              </para>
+	      <para>
+	      <table frame='all'>
+		<title>Alias definition</title>
+		<tgroup cols='3' align='center' colsep='1' rowsep='1'>
+		  <colspec colname='c1'/>
+		  <colspec colname='c2'/>
+		  <colspec colname='c3'/>
+		  <colspec colname='c4'/>
+		  <thead>
+		    <row>
+		      <entry>Alias compatible with verrou_plot_stat</entry>
+		      <entry>Alias compatible with verificarlo</entry>
+		      <entry>Exponent</entry>
+		      <entry>Mantissa</entry>
+		    </row>
+		  </thead>
+		  <tbody>
+		    <row>
+		      <entry> fp16 </entry> <entry> binary16 </entry><entry> 5 </entry><entry> 10 </entry>
+		    </row>
+		    <row>
+		      <entry> fp32 </entry><entry> binary32 </entry><entry> 8 </entry><entry> 23 </entry>
+		    </row>
+		    <row>
+		       <entry> bf16 </entry><entry> bfloat16 </entry><entry> 8 </entry><entry> 7 </entry>
+		    </row>
+		    <row>
+		      <entry> tf32 </entry><entry> tensorfloat </entry><entry> 8 </entry><entry> 10 </entry>
+		    </row>
+		    <row>
+		      <entry> fp24 </entry><entry> fp24 </entry><entry> 7 </entry><entry> 16 </entry>
+		    </row>
+		    <row>
+		      <entry> pxr24 </entry><entry> PXR24 </entry><entry> 8 </entry><entry> 15 </entry>
+		    </row>
+		  </tbody>
+	      </tgroup></table>
+	      </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRESET</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	    <varlistentry id="vr-opt.vprec-daz" xreflabel="--vprec-daz">
+            <term><option><![CDATA[--vprec-daz]]></option></term>
+            <listitem>
+              <para>
+		Sets denormals inputs to zero.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_DAZ</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	    <varlistentry id="vr-opt.vprec-ftz" xreflabel="--vprec-ftz">
+            <term><option><![CDATA[--vprec-ftz]]></option></term>
+            <listitem>
+              <para>
+		Sets denormals outputs to zero.
+              </para>
+	      <para>This option can be activated with the env variable <command>VERROU_VPREC_FTZ</command>.</para>
+            </listitem>
+          </varlistentry>
+
+	</variablelist>
+      </section>
       <section>
         <title>Restriction of instrumentation scope</title>
         <variablelist id="vr.opts.scope.list">
@@ -1208,6 +1350,25 @@ xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/h
 			</para>
 		      </answer>
 		    </qandaentry>
+
+		    <qandaentry id="faq.compil.cc1">
+		      <question>
+			<para>
+			  What's going wrong with the following error during documentation compilation :
+			  <screen>
+gcc -DHAVE_CONFIG_H -I. -I..  -I.. -I../include -I../include -I../VEX/pub -I../VEX/pub -DVGA_amd64=1 -DVGO_linux=1 -DVGP_amd64_linux=1 -DVGPV_amd64_linux_vanilla=1   -m64 -O2 -g -Wall -Wmissing-prototypes -Wshadow -Wpointer-arith -Wstrict-prototypes -Wmissing-declarations -Wno-unused-result -Wcast-align -Wcast-qual -Wwrite-strings -Wempty-body -Wformat -Wformat-signedness -Wformat-security -Wignored-qualifiers -Wmissing-parameter-type -Wlogical-op -Wenum-conversion -Wimplicit-fallthrough=2 -Wold-style-declaration -finline-functions -fno-stack-protector -fno-strict-aliasing -fno-builtin   -fomit-frame-pointer -mno-avx512f -march=native -mfma -DUSE_VERROU_FMA -DUSE_VERROU_SQRT -DUSE_VERROU_QUADMATH  -DUSE_XOSHIRO  -DVERROU_DENORM_HACKS_FLOAT  -DUSE_VERROU_OPTIM -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DINTERFLOP_STATIC_INTERFACE_ENABLED  -MT verrou_amd64_linux-vr_main.o -MD -MP -MF .deps/verrou_amd64_linux-vr_main.Tpo -c -o verrou_amd64_linux-vr_main.o `test -f 'vr_main.c' || echo './'`vr_main.c
+gcc: fatal error: Killed signal terminated program cc1
+compilation terminated.
+			  </screen>
+			</para>
+		      </question>
+		      <answer>
+			<para>
+			  You have not enough memory to compile verrou with all optimisations. If <option>make -j1</option> is not sufficient, you should use the <option>--disable-verrou-optim</option> during configure.
+			</para>
+		      </answer>
+		    </qandaentry>
+
 		  </qandadiv>
 	      <qandadiv id="faq.stoch">
 		<title>Stochastic method</title>
@@ -1595,7 +1756,7 @@ xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/h
 			</listitem>
 			<listitem>
 			  <para>
-			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([average,random]_[[s[com]]det] and sr_[s]monotonic).
+			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([nearness,random]_[[s[com]]det] and sr_[s]monotonic).
 			  </para>
 			  <para>
 			    sqrt hardware and sqrt libm are considered as independent functions for stochastic-deterministic rounding mode.

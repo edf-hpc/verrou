@@ -19,9 +19,53 @@ configure:
 	@echo "*** CONFIGURE ***"
 	cd ../valgrind+verrou && ./configure --enable-only64bit --prefix=$${PWD}/../install
 
+reconfigure-nosqrt:
+	@echo "*** CONFIGURE NO SQRT***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-sqrt=no --prefix=$${PWD}/../install
+
+reconfigure-nofma:
+	@echo "*** CONFIGURE NO FMA***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=no --prefix=$${PWD}/../install
+
+reconfigure-nochecknaninf:
+	@echo "*** CONFIGURE NO NAN INF CHECK***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-check-naninf=no --prefix=$${PWD}/../install
+
+reconfigure-allhack:
+	@echo "*** CONFIGURE DENORM HACK ALL***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --with-verrou-denorm-hack=all --prefix=$${PWD}/../install
+
+reconfigure-nohack:
+	@echo "*** CONFIGURE DENORM HACK NO***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --with-verrou-denorm-hack=none --prefix=$${PWD}/../install
+
+reconfigure-noxoshiro:
+	@echo "*** CONFIGURE XOSHIRO  NO***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit  --enable-verrou-xoshiro=no  --prefix=$${PWD}/../install
+
+reconfigure-noquadmath:
+	@echo "*** CONFIGURE QUAD NO ***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit  --enable-verrou-quadmath=no  --prefix=$${PWD}/../install
+
+reconfigure-NEARNESS4:
+	@echo "*** CONFIGURE VERROU_NUM_NEARNESS=4 ***"
+	cd ../valgrind+verrou && VERROU_NUM_NEARNESS=4 ./configure --enable-only64bit --prefix=$${PWD}/../install
+
+
+reconfigure-disableoptim:
+	@echo "*** CONFIGURE --disable-verrou-optim ***"
+	cd ../valgrind+verrou && ./configure --enable-only64bit --disable-verrou-optim --prefix=$${PWD}/../install
+
+
+
+clean:
+	@echo "*** MAKE clean ***"
+	cd ../valgrind+verrou/verrou && make clean
+
+
 build:
 	@echo "*** MAKE ***"
-	cd ../valgrind+verrou && make
+	cd ../valgrind+verrou && make -j4
 
 	@echo "*** MAKE INSTALL ***"
 	cd ../valgrind+verrou && make install
@@ -46,6 +90,9 @@ check-error:
 unit-test:
 	@echo "*** VERROU UNIT TESTS ***"
 	cd ../valgrind+verrou/verrou/unitTest && make
+
+build_reference:
+	cd ../valgrind+verrou/verrou/unitTest/checkVPREC && make build_reference
 
 valgrind-test:
 	@echo "*** VALGRIND UNIT TESTS ***"

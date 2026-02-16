@@ -147,21 +147,21 @@ void IFMQ_FCTNAME(madd_float) (float a, float b, float c, float* res, void* cont
 struct interflop_backend_interface_t IFMQ_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config= interflop_backend_empty_interface;
 
-  config.add_float = & IFMQ_FCTNAME(add_float);
-  config.sub_float = & IFMQ_FCTNAME(sub_float);
-  config.mul_float = & IFMQ_FCTNAME(mul_float);
-  config.div_float = & IFMQ_FCTNAME(div_float);
+  config.interflop_add_float = & IFMQ_FCTNAME(add_float);
+  config.interflop_sub_float = & IFMQ_FCTNAME(sub_float);
+  config.interflop_mul_float = & IFMQ_FCTNAME(mul_float);
+  config.interflop_div_float = & IFMQ_FCTNAME(div_float);
 
-  config.add_double = & IFMQ_FCTNAME(add_double);
-  config.sub_double = & IFMQ_FCTNAME(sub_double);
-  config.mul_double = & IFMQ_FCTNAME(mul_double);
-  config.div_double = & IFMQ_FCTNAME(div_double);
+  config.interflop_add_double = & IFMQ_FCTNAME(add_double);
+  config.interflop_sub_double = & IFMQ_FCTNAME(sub_double);
+  config.interflop_mul_double = & IFMQ_FCTNAME(mul_double);
+  config.interflop_div_double = & IFMQ_FCTNAME(div_double);
 
-  config.cast_double_to_float= & IFMQ_FCTNAME(cast_double_to_float);
+  config.interflop_cast_double_to_float= & IFMQ_FCTNAME(cast_double_to_float);
 
-  config.madd_float = & IFMQ_FCTNAME(madd_float);
-  config.madd_double = & IFMQ_FCTNAME(madd_double);
+  config.interflop_madd_float = & IFMQ_FCTNAME(madd_float);
+  config.interflop_madd_double = & IFMQ_FCTNAME(madd_double);
 
-  config.finalize=& IFMQ_FCTNAME(finalize);
+  config.interflop_finalize=& IFMQ_FCTNAME(finalize);
   return config;
 }

@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -132,22 +132,22 @@ void IFCC_FCTNAME(madd_float) (float a, float b, float c, float* res, void* cont
 struct interflop_backend_interface_t IFCC_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config=interflop_backend_empty_interface;
 
-  config.add_float = & IFCC_FCTNAME(add_float);
-  config.sub_float = & IFCC_FCTNAME(sub_float);
-  config.mul_float = NULL;
-  config.div_float = NULL;
+  config.interflop_add_float = & IFCC_FCTNAME(add_float);
+  config.interflop_sub_float = & IFCC_FCTNAME(sub_float);
+  config.interflop_mul_float = NULL;
+  config.interflop_div_float = NULL;
 
-  config.add_double = & IFCC_FCTNAME(add_double);
-  config.sub_double = & IFCC_FCTNAME(sub_double);
-  config.mul_double = NULL;
-  config.div_double = NULL;
+  config.interflop_add_double = & IFCC_FCTNAME(add_double);
+  config.interflop_sub_double = & IFCC_FCTNAME(sub_double);
+  config.interflop_mul_double = NULL;
+  config.interflop_div_double = NULL;
 
-  config.cast_double_to_float=NULL;
+  config.interflop_cast_double_to_float=NULL;
 
-  config.madd_float = & IFCC_FCTNAME(madd_float);
-  config.madd_double =& IFCC_FCTNAME(madd_double);
+  config.interflop_madd_float = & IFCC_FCTNAME(madd_float);
+  config.interflop_madd_double =& IFCC_FCTNAME(madd_double);
 
-  config.finalize = & IFCC_FCTNAME(finalize);
+  config.interflop_finalize = & IFCC_FCTNAME(finalize);
 
   return config;
 }

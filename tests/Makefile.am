@@ -24,9 +24,9 @@ EXTRA_DIST = \
 	denorm2.vgtest    denorm2.stderr.exp    denorm2.stdout.exp \
 	denorm3.vgtest    denorm3.stderr.exp    denorm3.stdout.exp \
 	denorm4.vgtest    denorm4.stderr.exp    denorm4.stdout.exp denorm4.post.exp denorm4.post.exp.arm64 \
-        test_det_average_comdet.stderr.exp test_det_average_comdet.stdout.exp  test_det_average_comdet.vgtest \
-	test_det_average_scomdet.stderr.exp test_det_average_scomdet.stdout.exp  test_det_average_scomdet.vgtest \
-	test_det_average_det.stderr.exp test_det_average_det.stdout.exp test_det_average_det.vgtest \
+        test_det_nearness_comdet.stderr.exp test_det_nearness_comdet.stdout.exp  test_det_nearness_comdet.vgtest \
+	test_det_nearness_scomdet.stderr.exp test_det_nearness_scomdet.stdout.exp  test_det_nearness_scomdet.vgtest \
+	test_det_nearness_det.stderr.exp test_det_nearness_det.stdout.exp test_det_nearness_det.vgtest \
 	test_det_random_comdet.stderr.exp test_det_random_comdet.stdout.exp  test_det_random_comdet.vgtest \
 	test_det_random_scomdet.stderr.exp test_det_random_scomdet.stdout.exp  test_det_random_scomdet.vgtest \
 	test_det_random_det.stderr.exp test_det_random_det.stdout.exp  test_det_random_det.vgtest \

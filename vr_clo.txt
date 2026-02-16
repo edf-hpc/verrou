@@ -9,72 +9,72 @@
           This option can be activated with the env variable VERROU_COUNT_OP\n\
 \n\
       --backend=<verrou|mcaquad|checkdenorm> [default=verrou]\n\
-          Select the verrou, mcaquad or checkdenorm backend.  verrou enables\n\
-          to perform several rounding mode (See --rounding-mode option).\n\
-          mcaquad enables to perform MCA (Monte Carlo Arithmetics) based on\n\
-          extended precision in quad (See --mca-mode, --mca-precision-double\n\
-          and --mca-precision-float options). The integration of mcaquad\n\
+          Select the verrou, mcaquad, checkdenorm or vprec backend.  verrou\n\
+          enables to perform several rounding mode (See --rounding-mode\n\
+          option).  mcaquad enables to perform MCA (Monte Carlo Arithmetics)\n\
+          based on extended precision in quad (See --mca-mode, --mca-precision-\n\
+          double and --mca-precision-float options). The integration of mcaquad\n\
           backend in the frontend verrou is still considered as experimental.\n\
           checkdenorm enables the daz,ftz,dazftz rounding-modes, and the\n\
-          --check-denorm and --cd[io]-gen-file options.\n\
+          --check-denorm and --cd[io]-gen-file options.  vprec implements all\n\
+          reduced precisions.\n\
 \n\
           This option can be activated with the env variable VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|_comdet|_scomdet]|average[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
       [default=native]\n\
-          Emulate the given rounding mode for operations instrumented with\n\
-          the verrou backend. If this option is not provided, Verrou always\n\
-          rounds to the nearest floating-point. Supported rounding modes are:\n\
+          Emulate the given rounding mode for operations instrumented with the\n\
+          verrou backend. If this option is not provided, Verrou always rounds\n\
+          to the nearest floating-point. Supported rounding modes are:\n\
 \n\
-          •   Stochastic rounding modes: random, average, prandom,\n\
-              random_det, average_det, prandom_det, random_comdet,\n\
-              average_comdet, prandom_comdet, random_scomdet,\n\
-              average_scomdet, sr_monotonic, sr_smonotonic.\n\
+          •   Stochastic rounding modes: random, nearness, prandom, random_det,\n\
+              nearness_det, prandom_det, random_comdet, nearness_comdet,\n\
+              prandom_comdet, random_scomdet, nearness_scomdet, sr_monotonic,\n\
+              sr_smonotonic.\n\
 \n\
-          •   IEEE-754 rounding modes: nearest, upward, downward,\n\
-              toward_zero.\n\
+          •   IEEE-754 rounding modes: nearest, upward, downward, toward_zero.\n\
 \n\
           •   Denormalized rounding modes (imply checkdenorm backend): daz,\n\
               ftz, dazftz.\n\
 \n\
-          •   Other: native[default] (similar to nearest (maybe different\n\
-              with --libm=instrumented), away_zero, farthest, float,\n\
+          •   Other: native[default] (similar to nearest (maybe different with\n\
+              --libm=instrumented), away_zero, farthest, float,\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_ROUNDING_MODE.\n\
 \n\
       --float=yes|no [default=no]\n\
-          With this option, all double precision floating-point operations\n\
-          are replaced by simple precision equivalent in the frontend. Hence\n\
-          this option is compatible with all --rounding-mode options and with\n\
-          all other backends.\n\
+          With this option, all double precision floating-point operations are\n\
+          replaced by simple precision equivalent in the frontend. Hence this\n\
+          option is compatible with all --rounding-mode options and with all\n\
+          other backends.\n\
 \n\
           •   Numerically, option --rounding-mode=float is equivalent to\n\
               --rounding-mode=nearest --float=yes.\n\
 \n\
           •   Options --rounding-mode=nearest --float=yes instrument float\n\
-              operations by nearest wrapper function. So if your code\n\
-              contains float operations, it can be useful to use\n\
-              --vr-instr-float=no to speed up the instrumentation. The only\n\
-              drawback of this approach, is the deactivation of checks (such\n\
-              as Nan and Inf checks) over float operations.\n\
+              operations by nearest wrapper function. So if your code contains\n\
+              float operations, it can be useful to use --vr-instr-float=no to\n\
+              speed up the instrumentation. The only drawback of this approach,\n\
+              is the deactivation of checks (such as Nan and Inf checks) over\n\
+              float operations.\n\
 \n\
           This option can be activated with the env variable VERROU_FLOAT.\n\
 \n\
       --unfused=yes|no [default=no]\n\
-          With this option, mAdd (mSub resp.) operations are replaced by a\n\
-          Mul and a Add (resp. Sub) in the frontend. Hence this option is\n\
+          With this option, mAdd (mSub resp.) operations are replaced by a Mul\n\
+          and a Add (resp. Sub) in the frontend. Hence this option is\n\
           compatible with all --rounding-mode options and with all other\n\
           backends.\n\
 \n\
           •   The fma function of libm is not modified.\n\
 \n\
-          •   Used with the nearest rounding mode, it is ofen pertinent to\n\
-              add the option --vr-instr=mAdd,mSub to speed up the\n\
-              instrumentation. The only drawback of this approach, is the\n\
-              deactivation of checks (such as Nan and Inf checks) over other\n\
-              floating point operations.\n\
+          •   Used with the nearest rounding mode, it is ofen pertinent to add\n\
+              the option --vr-instr=mAdd,mSub to speed up the instrumentation.\n\
+              The only drawback of this approach, is the deactivation of checks\n\
+              (such as Nan and Inf checks) over other floating point\n\
+              operations.\n\
 \n\
           This option can be activated with the env variable VERROU_UNFUSED.\n\
 \n\
@@ -86,24 +86,23 @@
           •   manual_exclude : The default python exclusion list is ignored.\n\
               The user has to manually define his own list.\n\
 \n\
-      --libm=<auto_exclude|manual_exclude|instrumented>\n\
-      [default=auto_exclude]\n\
+      --libm=<auto_exclude|manual_exclude|instrumented> [default=auto_exclude]\n\
           Define the behavior of verrou with libm.\n\
 \n\
           •   auto_exclude : The libm exclusion is automatically detected\n\
               thanks pattern detection. The library detected are libm,\n\
-              vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If\n\
-              you need to perturb libgcc_s, we will need to use libgcc_s.\n\
+              vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you\n\
+              need to perturb libgcc_s, we will need to use libgcc_s.\n\
 \n\
-          •   manual_exclude : The automatic detection is ignored and the\n\
-              user has to define manually the exclusion thanks --exclude\n\
-              option. This option is useful if the pattern detection detect\n\
-              object you need to perturb.\n\
+          •   manual_exclude : The automatic detection is ignored and the user\n\
+              has to define manually the exclusion thanks --exclude option.\n\
+              This option is useful if the pattern detection detect object you\n\
+              need to perturb.\n\
 \n\
           •   instrumented : the interposition library Interlibmath is loaded\n\
-              (The complex libm function are not yet instrumented). This\n\
-              option is valid only with verrou backend. This option imply\n\
-              implicitly the libm exclusion.\n\
+              (The complex libm function are not yet instrumented). This option\n\
+              is valid only with verrou backend. This option imply implicitly\n\
+              the libm exclusion.\n\
 \n\
           The option instrumented is quite new. In a near future, the default\n\
           will switch from auto_exclude to instrumented\n\
@@ -148,12 +147,11 @@
           VERROU_MCA_PRECISION_FLOAT.\n\
 \n\
       --vr-seed=RNG_SEED [default=automatically generated]\n\
-          If present, this option allows setting the seed of the\n\
-          pseudo-Random Number Generator used for the random or average\n\
-          rounding modes. The same option can also be used to set the seed of\n\
-          the hash function used for the [p]random_[com]det and\n\
-          average_[com]det rounding mode. This helps reproducing the behavior\n\
-          of a program under Verrou.\n\
+          If present, this option allows setting the seed of the pseudo-Random\n\
+          Number Generator used for the random or nearness rounding modes. The\n\
+          same option can also be used to set the seed of the hash function\n\
+          used for the [p]random_[com]det and nearness_[com]det rounding mode.\n\
+          This helps reproducing the behavior of a program under Verrou.\n\
 \n\
           If this option is omitted, the pRNG is seeded with a value based on\n\
           the current time and process id, so that it should change at each\n\
@@ -163,32 +161,31 @@
 \n\
       --prandom-update=func [default=none]\n\
           If present, this option the p-value of the prandom[|det|comdet]\n\
-          rounding mode is updated (with an uniform random selection between\n\
-          0 and 1) at the beginning of each function call. Be careful the\n\
-          option is highly sensitive to the program compilation option. If\n\
-          each the update is inserted between each floating point operations\n\
-          the prandom and random modes are equivalent.\n\
+          rounding mode is updated (with an uniform random selection between 0\n\
+          and 1) at the beginning of each function call. Be careful the option\n\
+          is highly sensitive to the program compilation option. If each the\n\
+          update is inserted between each floating point operations the prandom\n\
+          and random modes are equivalent.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_PRANDOM_UPDATE.\n\
 \n\
       --prandom-pvalue=P\n\
           If present, this option the p-value of the prandom[|det|comdet]\n\
-          rounding mode is set to P instead of the random number between 0\n\
-          and 1. If P is equal to 0., prandom and upward are equivalent. If P\n\
-          is equal to 1., prandom and downward are equivalent. If P is equal\n\
-          to .5, prandom and random are equivalent.\n\
+          rounding mode is set to P instead of the random number between 0 and\n\
+          1. If P is equal to 0., prandom and upward are equivalent. If P is\n\
+          equal to 1., prandom and downward are equivalent. If P is equal to\n\
+          .5, prandom and random are equivalent.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_PRANDOM_PVALUE.\n\
 \n\
       --vr-instr=<add|sub|mul|div|mAdd|mSub|sqrt|conv> [default=all]\n\
           Toggle instrumentation of floating-point additions, subtractions,\n\
-          multiplications, divisions, fused multiply additions, fused\n\
-          multiply subtractions, square root, conversions (only double to\n\
-          float cast) respectively. This option can be set multiple times (or\n\
-          use \",\" to separate arguments) to instrument multiple types of\n\
-          operations.\n\
+          multiplications, divisions, fused multiply additions, fused multiply\n\
+          subtractions, square root, conversions (only double to float cast)\n\
+          respectively. This option can be set multiple times (or use \",\" to\n\
+          separate arguments) to instrument multiple types of operations.\n\
 \n\
           If this option is not provided, all supported operations types are\n\
           instrumented.\n\
@@ -205,27 +202,27 @@
           instructions are considered as llo).\n\
 \n\
       --vr-instr-vec<2,4,8>=yes|no [default=yes]\n\
-          Toggle instrumentation of vectorized instructions (number\n\
-          corresponds to the pack size)\n\
+          Toggle instrumentation of vectorized instructions (number corresponds\n\
+          to the pack size)\n\
 \n\
       --vr-instr-unk=yes|no [default=yes]\n\
-          Toggle instrumentation of instructions with unknown vectorized\n\
-          status (fma is unvectorized in valgrind IR).\n\
+          Toggle instrumentation of instructions with unknown vectorized status\n\
+          (fma is unvectorized in valgrind IR).\n\
 \n\
       --vr-instr-[flt|dbl]=yes|no [default=yes]\n\
           Toggle instrumentation of float (or double) instructions.\n\
 \n\
     Instrumentation scope\n\
       --instr-atstart=yes|no [default=yes]\n\
-          Toggle hard instrumentation state on or off at program start.\n\
-          Useful in combination with client requests.\n\
+          Toggle hard instrumentation state on or off at program start. Useful\n\
+          in combination with client requests.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_INSTR_ATSTART.\n\
 \n\
       --instr-atstart-soft=yes|no [default=yes]\n\
-          Toggle soft instrumentation state on or off at program start.\n\
-          Useful in combination with client requests.\n\
+          Toggle soft instrumentation state on or off at program start. Useful\n\
+          in combination with client requests.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_INSTR_ATSTART_SOFT.\n\
@@ -244,9 +241,9 @@
           already present in the provided exclusion list.\n\
 \n\
           WARNING: in order to generate a correct list, the whole binary\n\
-          (including symbols listed in the list provided using --exclude)\n\
-          must be instrumented. When using both --gen-exclude and --exclude,\n\
-          it is advised to avoid perturbing rounding-modes using --rounding-\n\
+          (including symbols listed in the list provided using --exclude) must\n\
+          be instrumented. When using both --gen-exclude and --exclude, it is\n\
+          advised to avoid perturbing rounding-modes using --rounding-\n\
           mode=nearest.\n\
 \n\
           This option can be activated with the env variable\n\
@@ -260,9 +257,9 @@
 \n\
       --warn-unknown-source=FILE\n\
           This option requires the use of --source option. When used, verrou\n\
-          generates warning for each line of code (which execute floating\n\
-          point operation) neither present in the FILE defined by --source\n\
-          option nor in the FILE provided by --warn-unknown-source option.\n\
+          generates warning for each line of code (which execute floating point\n\
+          operation) neither present in the FILE defined by --source option nor\n\
+          in the FILE provided by --warn-unknown-source option.\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_WARN_UNKNOWN_SOURCE.\n\
@@ -272,25 +269,53 @@
           perturbed floating point instruction) encountered during program\n\
           execution.\n\
 \n\
-          In combination with --source, only list source code lines which\n\
-          were not already present in the provided list.\n\
+          In combination with --source, only list source code lines which were\n\
+          not already present in the provided list.\n\
+\n\
+          This option can be activated with the env variable VERROU_GEN_SOURCE.\n\
+\n\
+      --exclude-backtrace=FILE\n\
+          Backtrace listed in FILE will be left uninstrumented. In practice\n\
+          FILE is a subset of the file backInfo-PID generated by the\n\
+          --gen-backtrace option. To keep addresses compatible between\n\
+          --exclude-backtrace and --gen-backtrace it is mandatory to disable\n\
+          ASLR (automatically done by verrou_dd_back).\n\
+\n\
+          This option is used by verrou_dd_back. Manual use is not expected but\n\
+          possible.\n\
 \n\
           This option can be activated with the env variable\n\
-          VERROU_GEN_SOURCE.\n\
+          VERROU_EXCLUDE_BACKTRACE.\n\
+\n\
+      --gen-backtrace=REP\n\
+          Generate two files in REP:\n\
+\n\
+          •   backInfo-PID contains the list of backtrace (One line per\n\
+              backtrace). The format is STACKSIZE: address list. The address\n\
+              separator is ,.\n\
+\n\
+          •   backAddrInfo-PID contains for each addresses of BackInfo file,\n\
+              the corresponding symbol and debug info (filename and linenum).\n\
+              The separator is the tabulation.\n\
+\n\
+          This option is used by verrou_dd_back. Manual use is not expected but\n\
+          possible.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_GEN_BACKTRACE.\n\
 \n\
       --IOmatch-clr=IOMATCH_FILE\n\
           When this option is present the IOMatch script is read. This file\n\
           defines the interaction between verrou and the stdout (See IOMatch\n\
-          format). The main idea behind this format is to apply client\n\
-          request action when a line match a bmatch: (b for break) or cmatch:\n\
-          (c for continue) line. If a line match a bmatch the following match\n\
-          (b or c) are not tried. With a cmatch: the following match are\n\
-          tried.\n\
+          format). The main idea behind this format is to apply client request\n\
+          action when a line match a bmatch: (b for break) or cmatch: (c for\n\
+          continue) line. If a line match a bmatch the following match (b or c)\n\
+          are not tried. With a cmatch: the following match are tried.\n\
 \n\
-          The use of this option, may be sensitive to the bufferization of\n\
-          the program. In C++ std::endl flush the output, so we usually avoid\n\
-          the problem. In python, you can use PYTHONUNBUFFERED env variable.\n\
-          In C we proposed the library verrouUnbuffered.so (Loadable with\n\
+          The use of this option, may be sensitive to the bufferization of the\n\
+          program. In C++ std::endl flush the output, so we usually avoid the\n\
+          problem. In python, you can use PYTHONUNBUFFERED env variable. In C\n\
+          we proposed the library verrouUnbuffered.so (Loadable with\n\
           LD_PRELOAD), to deactivate bufferization of stdout (For other file\n\
           descriptors you have to flush manually, as it require more complex\n\
           development).\n\
@@ -301,17 +326,16 @@
 \n\
       --output-IOmatch-rep=REP\n\
           Specify the repository of IOmatch log file. By default the log file\n\
-          is IOMATCH_FILE.log-PID. With this option it is\n\
-          REP/IOMatch.log-PID. This option as also influence on the keys\n\
-          dump-stdout: and dump-filtered-stdout:of the IOMatch format).\n\
+          is IOMATCH_FILE.log-PID. With this option it is REP/IOMatch.log-PID.\n\
+          This option as also influence on the keys dump-stdout: and\n\
+          dump-filtered-stdout:of the IOMatch format).\n\
 \n\
           This option can be activated with the env variable\n\
           VERROU_OUTPUT_IOMATCH_REP.\n\
 \n\
     Coverage generation\n\
       --trace=FILE\n\
-          Activate the Basic Blocks Coverage for the symbols specified in\n\
-          FILE.\n\
+          Activate the Basic Blocks Coverage for the symbols specified in FILE.\n\
 \n\
           This option can be activated with the env variable VERROU_TRACE.\n\
 \n\
@@ -339,19 +363,17 @@
       --cc-gen-file=<FILE>\n\
           Generate in FILE with the source format for each code source line\n\
           which produces at least one cancellation. This functionality is\n\
-          available for verrou, mcaquad and checkdenorm backends. The level\n\
-          of detected cancellations can be configured with --cc-threshold-\n\
-          float and --cc-threshold-double.\n\
+          available for verrou, mcaquad and checkdenorm backends. The level of\n\
+          detected cancellations can be configured with --cc-threshold-float\n\
+          and --cc-threshold-double.\n\
 \n\
       --cc-threshold-float=<integer> [default=24]\n\
-          Configure the cancellation detection threshold for float\n\
-          operations. Default value is still experimental and could have to\n\
-          change.\n\
+          Configure the cancellation detection threshold for float operations.\n\
+          Default value is still experimental and could have to change.\n\
 \n\
       --cc-threshold-double=<integer> [default=40]\n\
-          Configure the cancellation detection threshold for double\n\
-          operations. Default value is still experimental and could have to\n\
-          change.\n\
+          Configure the cancellation detection threshold for double operations.\n\
+          Default value is still experimental and could have to change.\n\
 \n\
       --check-denorm=yes|no [default=no]\n\
           Activate denormal number detection. Denormal number produced by\n\
@@ -371,4 +393,87 @@
       --check-max-float=yes|no [default=no]\n\
           Activate max float detection. This functionality is compatible only\n\
           with verrou backend.\n\
+\n\
+    VPREC options\n\
+      The vprec backend implementation come from Verificarlo : More information\n\
+      on Verificalo github[3]\n\
+\n\
+      --vprec-mode=<ieee|full|ib|ob> [default=ob]\n\
+          Select the given vprec mode for operations instrumented with the\n\
+          vprec backend. Supported vprec modes are:\n\
+\n\
+          •   ieee : The program uses standard IEEE arithmetic, no rounding are\n\
+              introduced.\n\
+\n\
+          •   ib : InBound precision only\n\
+\n\
+          •   ob : OutBound precision only (default mode)\n\
+\n\
+          •   full : Inbound and outbound mode combined\n\
+\n\
+          This option can be activated with the env variable VERROU_VPREC_MODE.\n\
+\n\
+      --vprec-precision-binary64= [default=52]\n\
+          Configure the precision (length of pseudo-mantissa) used by vprec\n\
+          backend for double operations.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_VPREC_PRECISION_BINARY64.\n\
+\n\
+      --vprec-range-binary64= [default=11]\n\
+          Configure the range (length of pseudo-exponent) used by vprec backend\n\
+          for double operations.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_VPREC_RANGE_BINARY64.\n\
+\n\
+      --vprec-precision-binary32= [default=23]\n\
+          Configure the precision (length of pseudo-mantissa) used by vprec\n\
+          backend for float operations.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_VPREC_PRECISION_BINARY32.\n\
+\n\
+      --vprec-range-binary32= [default=8]\n\
+          Configure the range (length of pseudo-exponent) used by vprec backend\n\
+          for float operations.\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_VPREC_RANGE_BINARY32.\n\
+\n\
+      --vprec-preset=<binary16|fp16|binary32|fp32|bfloat16|bf16|tensorfloat|tf32|fp24|PXR24|pxr24>\n\
+          Select the given vprec mode for operations instrumented with the\n\
+          vprec backend (flt/binary32 and dbl/binary64).\n\
+\n\
+          Table 1.1. Alias definition\n\
+             ┌──────────────────┬──────────────────┬──────────┬──────────┐\n\
+             │ Alias compatible │ Alias compatible │ Exponent │ Mantissa │\n\
+             │ with             │ with verificarlo │          │          │\n\
+             │ verrou_plot_stat │                  │          │          │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │       fp16       │     binary16     │    5     │    10    │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │       fp32       │     binary32     │    8     │    23    │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │       bf16       │     bfloat16     │    8     │    7     │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │       tf32       │   tensorfloat    │    8     │    10    │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │       fp24       │       fp24       │    7     │    16    │\n\
+             ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+             │      pxr24       │      PXR24       │    8     │    15    │\n\
+             └──────────────────┴──────────────────┴──────────┴──────────┘\n\
+\n\
+          This option can be activated with the env variable\n\
+          VERROU_VPREC_PRESET.\n\
+\n\
+      --vprec-daz\n\
+          Sets denormals inputs to zero.\n\
+\n\
+          This option can be activated with the env variable VERROU_VPREC_DAZ.\n\
+\n\
+      --vprec-ftz\n\
+          Sets denormals outputs to zero.\n\
+\n\
+          This option can be activated with the env variable VERROU_VPREC_FTZ.\n\
 "

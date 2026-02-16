@@ -13,7 +13,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -155,33 +155,50 @@ inline bool vr_rand_bool (Vr_Rand * r) {
 
 
 
-//#ifndef VERROU_NUM_AVG
-//#define VERROU_NUM_AVG 2
+//#ifndef VERROU_NUM_NEARNESS
+//#define VERROU_NUM_NEARNESS 2
 //#endif
 
-#if VERROU_NUM_AVG==8
-constexpr uint64_t maskAvg = 0x00000000000000FF;  ;
-constexpr uint64_t shiftAvgTab[]= {0, 8 , 16, 24, 32, 40, 48, 56 };
-constexpr uint32_t loopAvg = 8  ;
-constexpr double maxAvgInv(1./256.);
-#elif VERROU_NUM_AVG==4
-constexpr uint64_t maskAvg = 0x000000000000FFFF;  ;
-constexpr uint64_t shiftAvgTab[]= {0,16, 32, 48};
-constexpr uint32_t loopAvg = 4  ;
-constexpr double maxAvgInv(1/65536.);
-#elif VERROU_NUM_AVG==3
-constexpr uint64_t maskAvg = 0x00000000001FFFFF;// 21bit
-constexpr uint64_t shiftAvgTab[]={0,21,42} ;
-constexpr uint32_t loopAvg = 3  ;
-constexpr double maxAvgInv(1/2097152.);
-#elif VERROU_NUM_AVG==2
-constexpr uint64_t maskAvg = 0x00000000FFFFFFFF;  ;
-constexpr uint64_t shiftAvgTab[]={0,32} ;
-constexpr uint32_t loopAvg = 2  ;
-constexpr double maxAvgInv(1/4294967296.);
-#elif VERROU_NUM_AVG==1
+#if VERROU_NUM_NEARNESS==2
+constexpr uint64_t maskNearness = 0x00000000FFFFFFFF;  ;
+constexpr uint64_t shiftNearnessTab[]={0,32} ;
+constexpr uint32_t loopNearness = 2  ;
+constexpr double maxNearnessInv(1/4294967296.);
+#elif VERROU_NUM_NEARNESS==3
+constexpr uint64_t maskNearness = 0x00000000001FFFFF;// 21bit
+constexpr uint64_t shiftNearnessTab[]={0,21,42} ;
+constexpr uint32_t loopNearness = 3  ;
+constexpr double maxNearnessInv(1/2097152.);
+#elif VERROU_NUM_NEARNESS==4
+constexpr uint64_t maskNearness = 0x000000000000FFFF;  ;
+constexpr uint64_t shiftNearnessTab[]= {0,16, 32, 48};
+constexpr uint32_t loopNearness = 4  ;
+constexpr double maxNearnessInv(1/65536.);
+#elif VERROU_NUM_NEARNESS==8
+constexpr uint64_t maskNearness = 0x00000000000000FF;  ;
+constexpr uint64_t shiftNearnessTab[]= {0, 8 , 16, 24, 32, 40, 48, 56 };
+constexpr uint32_t loopNearness = 8  ;
+constexpr double maxNearnessInv(1./256.);
+#elif VERROU_NUM_NEARNESS==16
+constexpr uint64_t maskNearness = 0x000000000000000F;  ;
+constexpr uint64_t shiftNearnessTab[]= {0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60};
+constexpr uint32_t loopNearness = 16  ;
+constexpr double maxNearnessInv(.25);
+#elif VERROU_NUM_NEARNESS==32
+constexpr uint64_t maskNearness = 0x0000000000000003;  ;
+constexpr uint64_t shiftNearnessTab[]= {0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,38,40,42,44,46,48,50,52,54,56,58,60,62};
+constexpr uint32_t loopNearness = 32  ;
+constexpr double maxNearnessInv(.5);
+#elif VERROU_NUM_NEARNESS==64
+//only for test purpose (should be equivalent to random)
+constexpr uint64_t maskNearness = 0x0000000000000001;  ;
+constexpr uint64_t shiftNearnessTab[]= {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63};
+constexpr uint32_t loopNearness = 64  ;
+constexpr double maxNearnessInv(1.);
+
+#elif VERROU_NUM_NEARNESS==1
 #else
-#error 'VERROU_NUM_AVG is not defined'
+#error 'VERROU_NUM_NEARNESS is not defined'
 #endif
 
 
@@ -190,7 +207,7 @@ inline REALTYPE vr_rand_ratio(Vr_Rand *r);
 
 template<>
 inline double vr_rand_ratio<double>(Vr_Rand *r){
-#if VERROU_NUM_AVG==1
+#if VERROU_NUM_NEARNESS==1
 #ifndef USE_XOSHIRO
   const double res=tinymt64_generate_double(&(r->gen_) );
 #else
@@ -199,20 +216,20 @@ inline double vr_rand_ratio<double>(Vr_Rand *r){
 #endif
   return res;
 #else
-  if(r->count_==loopAvg){
+  if(r->count_==loopNearness){
 #ifndef USE_XOSHIRO
     const uint64_t localGen=tinymt64_generate_uint64(&(r->gen_) );
 #else
     const uint64_t localGen=xoshiro256plus_next(r->rng256_);
 #endif
-    const uint64_t local= localGen & maskAvg;
-    const double res = local *maxAvgInv;
+    const uint64_t local= localGen & maskNearness;
+    const double res = local *maxNearnessInv;
     r->count_=1;
     r->current_= localGen;
     return res;
   }
-  const uint64_t local= (r->current_ >> (shiftAvgTab[r->count_])) & maskAvg;
-  const double res = local *maxAvgInv;
+  const uint64_t local= (r->current_ >> (shiftNearnessTab[r->count_])) & maskNearness;
+  const double res = local *maxNearnessInv;
   (r->count_)++;
   return res;
 #endif
@@ -221,7 +238,7 @@ inline double vr_rand_ratio<double>(Vr_Rand *r){
 
 template<>
 inline float vr_rand_ratio<float>(Vr_Rand *r){
-#if VERROU_NUM_AVG==1
+#if VERROU_NUM_NEARNESS==1
 #ifndef USE_XOSHIRO
   const double res=tinymt64_generate_double(&(r->gen_) );
 #else
@@ -230,20 +247,20 @@ inline float vr_rand_ratio<float>(Vr_Rand *r){
 #endif
   return res;
 #else
-  if(r->count_==loopAvg){
+  if(r->count_==loopNearness){
 #ifndef USE_XOSHIRO
     const uint64_t localGen=tinymt64_generate_uint64(&(r->gen_) );
 #else
     const uint64_t localGen=xoshiro256plus_next(r->rng256_);
 #endif
-    const uint32_t local= localGen & maskAvg;
-    const float res = local *maxAvgInv;
+    const uint32_t local= localGen & maskNearness;
+    const float res = local *maxNearnessInv;
     r->count_=1;
     r->current_= localGen;
     return res;
   }
-  const uint32_t local= (r->current_ >> (shiftAvgTab[r->count_])) & maskAvg;
-  const float res = local *maxAvgInv;
+  const uint32_t local= (r->current_ >> (shiftNearnessTab[r->count_])) & maskNearness;
+  const float res = local *maxNearnessInv;
   (r->count_)++;
   return res;
 #endif

@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -508,7 +508,7 @@ public:
 
 
 template<class OP, class RAND>
-class RoundingAverage{
+class RoundingNearness{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
@@ -559,7 +559,7 @@ public:
 };
 
 template<class OP, class RAND>
-class RoundingSAverage{
+class RoundingSNearness{
 public:
   typedef typename OP::RealType RealType;
   typedef typename OP::PackArgs PackArgs;
@@ -918,14 +918,14 @@ public:
       return RoundingSRMonotonic<OP, vr_rand_det<OP> >::apply (p);
     case VR_SR_SMONOTONIC:
       return RoundingSRSMonotonic<OP, vr_rand_det<OP> >::apply (p);
-    case VR_AVERAGE:
-      return RoundingAverage<OP, vr_rand_prng<OP> >::apply (p);
-    case VR_AVERAGE_DET:
-      return RoundingAverage<OP,vr_rand_det<OP> >::apply (p);
-    case VR_AVERAGE_COMDET:
-      return RoundingAverage<OP, vr_rand_comdet<OP> >::apply (p);
-    case VR_AVERAGE_SCOMDET:
-      return RoundingSAverage<OP, vr_rand_scomdet<OP> >::apply (p);
+    case VR_NEARNESS:
+      return RoundingNearness<OP, vr_rand_prng<OP> >::apply (p);
+    case VR_NEARNESS_DET:
+      return RoundingNearness<OP,vr_rand_det<OP> >::apply (p);
+    case VR_NEARNESS_COMDET:
+      return RoundingNearness<OP, vr_rand_comdet<OP> >::apply (p);
+    case VR_NEARNESS_SCOMDET:
+      return RoundingSNearness<OP, vr_rand_scomdet<OP> >::apply (p);
     case VR_PRANDOM:
       return RoundingPRandom<OP, vr_rand_p<OP,vr_rand_prng> >::apply (p);
     case VR_PRANDOM_DET:

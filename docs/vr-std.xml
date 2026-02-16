@@ -165,10 +165,12 @@
 		  option <xref linkend="vr-manual.feat.updatepfunc"/>.
 		    This rounding mode is designed to try to get wider distribution (useful for debug).</para>
         </listitem>
-        <listitem><para><command>average:</command> Randomly choose between upward and downward
+        <listitem><para><command>nearness:</command> Randomly choose between upward and downward
             rounding mode, in such a way that the expectation of the random result equals the exact
             operation result (without rounding). This is called "uniform_absolute output randomization"
-            or "SR-nearness" in the MCA literature.</para></listitem>
+            or "SR-nearness" in the MCA literature. In the first versions of verrou, this rounding-mode was
+	    called average. It is still accepted but considered deprecated.
+	</para></listitem>
 	<listitem><para><command>random_det:</command> Randomly choose between upward and downward
         rounding mode, with equal probabilities but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
@@ -183,10 +185,10 @@
 	If the p is modified dynamically, determinism is no longer assured.
 	</para>
         </listitem>
-	<listitem><para><command>average_det:</command> Randomly choose between upward and downward
-        rounding mode, with the same probability law as <command>average</command> but insuring that, for a given seed, the same computation
+	<listitem><para><command>nearness_det:</command> Randomly choose between upward and downward
+        rounding mode, with the same probability law as <command>nearness</command> but insuring that, for a given seed, the same computation
         (same inputs and operation) will always be rounded in the same way.
-        This is a variant of the <command>average</command> rounding mode that improves determinism and
+        This is a variant of the <command>nearness</command> rounding mode that improves determinism and
         removes the need to use <xref linkend="vr-manual.feat.deterministic"/>.</para>
         </listitem>
 	<listitem><para><command>random_comdet:</command> variant of <command>random_det</command>
@@ -195,7 +197,7 @@
 	<listitem><para><command>prandom_comdet:</command> variant of <command>prandom_det</command>
 	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
         </listitem>
-	<listitem><para><command>average_comdet:</command> variant of <command>average_det</command>
+	<listitem><para><command>nearness_comdet:</command> variant of <command>nearness_det</command>
 	    ensuring that <command>x op y</command> and  <command>y op x </command> will be rounded in the same way for commutative op (+,x, fma).</para>
         </listitem>
 
@@ -220,7 +222,7 @@
 	  </para>
         </listitem>
 
-	<listitem><para><command>average_scomdet:</command> variant of <command>average_det</command> which respects the same constraints as <command>random_scomdet</command></para> 
+	<listitem><para><command>nearness_scomdet:</command> variant of <command>nearness_det</command> which respects the same constraints as <command>random_scomdet</command></para>
         </listitem>
 	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
             rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. 
@@ -235,10 +237,10 @@
 
       </itemizedlist>
       A pseudo-Random Number Generator (pRNG) is used to generate the randomness used in the
-      modes <command>average</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
+      modes <command>nearness</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <xref linkend="vr-opt.seed"/>
-      command-line option. For the modes <command>average_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <command>nearness_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
 
 
     </para>

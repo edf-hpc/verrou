@@ -26,7 +26,7 @@ int  main(int argc, char** argv){
   const double ap=nextafter(a,4);
 
 
-  std::vector<vr_RoundingMode> roundingMode={VR_RANDOM, VR_NEAREST, VR_DOWNWARD, VR_AVERAGE, VR_SR_MONOTONIC, VR_SR_SMONOTONIC };
+  std::vector<vr_RoundingMode> roundingMode={VR_RANDOM, VR_NEAREST, VR_DOWNWARD, VR_NEARNESS, VR_SR_MONOTONIC, VR_SR_SMONOTONIC };
 
   tinymt64_t rng;
   //init the generator for seed update (required for stochastic/determinist rounding mode)
@@ -111,7 +111,7 @@ int  main(int argc, char** argv){
       // assert(std::abs(pp-0.25) <tol );
     }
 
-    if(roundingMode[rnd]==VR_AVERAGE || roundingMode[rnd]==VR_SR_MONOTONIC || roundingMode[rnd]==VR_SR_SMONOTONIC ){
+    if(roundingMode[rnd]==VR_NEARNESS || roundingMode[rnd]==VR_SR_MONOTONIC || roundingMode[rnd]==VR_SR_SMONOTONIC ){
       std::cout << "pmm: "<< pmm<<std::endl;
       std::cout << "pm: "<< pm<<std::endl;
       std::cout << "pe: "<< pe<<std::endl;

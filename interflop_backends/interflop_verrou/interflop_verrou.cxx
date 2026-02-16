@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -123,14 +123,14 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "SR_MONOTONIC";
   case VR_SR_SMONOTONIC:
     return "SR_SMONOTONIC";
-  case VR_AVERAGE:
-    return "AVERAGE";
-  case VR_AVERAGE_DET:
-    return "AVERAGE_DET";
-  case VR_AVERAGE_COMDET:
-    return "AVERAGE_COMDET";
-  case VR_AVERAGE_SCOMDET:
-    return "AVERAGE_SCOMDET";
+  case VR_NEARNESS:
+    return "NEARNESS";
+  case VR_NEARNESS_DET:
+    return "NEARNESS_DET";
+  case VR_NEARNESS_COMDET:
+    return "NEARNESS_COMDET";
+  case VR_NEARNESS_SCOMDET:
+    return "NEARNESS_SCOMDET";
   case VR_PRANDOM:
     return "PRANDOM";
   case VR_PRANDOM_DET:
@@ -233,24 +233,27 @@ double verrou_prandom_pvalue (void) {
 struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config=interflop_backend_empty_interface;
 
-  config.add_float = & IFV_FCTNAME(add_float);
-  config.sub_float = & IFV_FCTNAME(sub_float);
-  config.mul_float = & IFV_FCTNAME(mul_float);
-  config.div_float = & IFV_FCTNAME(div_float);
-  config.sqrt_float = & IFV_FCTNAME(sqrt_float);
+  config.interflop_add_float = & IFV_FCTNAME(add_float);
+  config.interflop_sub_float = & IFV_FCTNAME(sub_float);
+  config.interflop_mul_float = & IFV_FCTNAME(mul_float);
+  config.interflop_div_float = & IFV_FCTNAME(div_float);
 
-  config.add_double = & IFV_FCTNAME(add_double);
-  config.sub_double = & IFV_FCTNAME(sub_double);
-  config.mul_double = & IFV_FCTNAME(mul_double);
-  config.div_double = & IFV_FCTNAME(div_double);
-  config.sqrt_double = & IFV_FCTNAME(sqrt_double);
+  config.interflop_add_double = & IFV_FCTNAME(add_double);
+  config.interflop_sub_double = & IFV_FCTNAME(sub_double);
+  config.interflop_mul_double = & IFV_FCTNAME(mul_double);
+  config.interflop_div_double = & IFV_FCTNAME(div_double);
 
-  config.cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
+#ifdef USE_VERROU_SQRT
+  config.interflop_sqrt_float = & IFV_FCTNAME(sqrt_float);
+  config.interflop_sqrt_double = & IFV_FCTNAME(sqrt_double);
+#endif
 
-  config.madd_float  = & IFV_FCTNAME(madd_float);
-  config.madd_double = & IFV_FCTNAME(madd_double);
+  config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
 
-  config.finalize = & IFV_FCTNAME(finalize);
+  config.interflop_madd_float  = & IFV_FCTNAME(madd_float);
+  config.interflop_madd_double = & IFV_FCTNAME(madd_double);
+
+  config.interflop_finalize = & IFV_FCTNAME(finalize);
 
   return config;
 }
@@ -282,7 +285,7 @@ static const char key_seed_str[] = "seed";
 
 static struct argp_option options[] = {
   {key_rounding_mode_str, KEY_ROUNDING_MODE, "ROUNDING MODE", 0,
-   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, sr_monotonic, sr_smonotonic, average, average_det, average_comdet, average_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
+   "select rounding mode among {nearest, upward, downward, toward_zero, random, random_det, random_comdet, random_scomdet, sr_monotonic, sr_smonotonic, nearness, nearness_det, nearness_comdet, nearness_scomdet, prandom, prandom_det, prandom_comdet, farthest,float,native,ftz}", 0},
   {key_seed_str, KEY_SEED, "SEED", 0, "fix the random generator seed", 0},
   {0}};
 
@@ -314,14 +317,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_SR_MONOTONIC;
     } else if (strcasecmp("sr_smonotonic", arg) == 0) {
       conf->mode=VR_SR_SMONOTONIC;
-    } else if (strcasecmp("average", arg) == 0) {
-      conf->mode=VR_AVERAGE;
-    } else if (strcasecmp("average_det", arg) == 0) {
-      conf->mode=VR_AVERAGE_DET;
-    } else if (strcasecmp("average_comdet", arg) == 0) {
-      conf->mode=VR_AVERAGE_COMDET;
-    } else if (strcasecmp("average_scomdet", arg) == 0) {
-      conf->mode=VR_AVERAGE_SCOMDET;
+    } else if (strcasecmp("nearness", arg) == 0) {
+      conf->mode=VR_NEARNESS;
+    } else if (strcasecmp("nearness_det", arg) == 0) {
+      conf->mode=VR_NEARNESS_DET;
+    } else if (strcasecmp("nearness_comdet", arg) == 0) {
+      conf->mode=VR_NEARNESS_COMDET;
+    } else if (strcasecmp("nearness_scomdet", arg) == 0) {
+      conf->mode=VR_NEARNESS_SCOMDET;
     } else if (strcasecmp("prandom", arg) == 0) {
       conf->mode=VR_PRANDOM;
     } else if (strcasecmp("prandom_det", arg) == 0) {
@@ -338,7 +341,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
       conf->mode=VR_FTZ;
     } else {
       std::cerr << key_rounding_mode_str <<" invalid value provided, must be one of: "
-		<<" nearest, upward, downward, toward_zero, random, random_det, random_comdet,average, average_det, average_comdet,farthest,float,native,ftz."
+		<<" nearest, upward, downward, toward_zero, random, random_det, random_comdet,nearness, nearness_det, nearness_comdet,farthest,float,native,ftz."
 		<<std::endl;
       exit(42);
     }

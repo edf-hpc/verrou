@@ -13,7 +13,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -34,11 +34,11 @@
 
 #ifdef    USE_VERROU_SQRT
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 #include  <immintrin.h>
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 #include "arm_neon.h"
 #endif
 
@@ -46,7 +46,7 @@
 template<class REALTYPE>
 inline REALTYPE vr_sqrt(const REALTYPE&);
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 template<>
 inline double vr_sqrt<double>(const double& a){
   double d;
@@ -58,7 +58,7 @@ inline double vr_sqrt<double>(const double& a){
 }
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 template<>
 inline double vr_sqrt<double>(const double& a){
   const float64x1_t ap=vld1_f64(&a);
@@ -69,7 +69,7 @@ inline double vr_sqrt<double>(const double& a){
 }
 #endif
 
-#if defined(VGA_amd64)
+#if defined(VGA_amd64) || defined(__x86_64__)
 template<>
 inline float vr_sqrt<float>(const float& a){
   float d;
@@ -81,7 +81,7 @@ inline float vr_sqrt<float>(const float& a){
 }
 #endif
 
-#if defined(VGA_arm64)
+#if defined(VGA_arm64) || defined(__aarch64__)
 template<>
 inline float vr_sqrt<float>(const float& a){
 

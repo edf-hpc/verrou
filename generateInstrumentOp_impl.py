@@ -74,10 +74,10 @@ includePatternSoftNearest="""\tif(!vr.float_conv){
 
 
 roundingList=[["NEAREST","NATIVE"],
-              ["RANDOM"], ["AVERAGE"],
-              ["RANDOM_DET"],["AVERAGE_DET"],
-              ["RANDOM_COMDET"],["AVERAGE_COMDET"],
-              ["RANDOM_SCOMDET"],["AVERAGE_SCOMDET"],
+              ["RANDOM"], ["NEARNESS"],
+              ["RANDOM_DET"],["NEARNESS_DET"],
+              ["RANDOM_COMDET"],["NEARNESS_COMDET"],
+              ["RANDOM_SCOMDET"],["NEARNESS_SCOMDET"],
               ["SR_MONOTONIC"],["SR_SMONOTONIC"],
               ["UPWARD"],["DOWNWARD"],["ZERO"],
               ["AWAY_ZERO"],["FARTHEST"],["FLOAT"],
@@ -121,7 +121,11 @@ def generateVerrouRounding(handler,roundingList):
 
         includeMacro="""\tif(vr.instrument_soft_used|| vr.instrument_soft_back_used){\n""" + includeMacroSoft+"\t}else{//instrument hard\n"+includeMacroHard+"\t}\n"
         strWrite=checkStr + includeMacro+ "}\n"
+        if roundingMode!="NEAREST":
+            handler.write("#ifdef USE_VERROU_OPTIM\n")
         handler.write(strWrite)
+        if roundingMode!="NEAREST":
+            handler.write("#endif //USE_VERROU_OPTIM\n")
 
 def checkPostbackend(backendName, postBackendList, postBackendName):
     res="vr.backend=="+backendName+" "
@@ -197,6 +201,11 @@ if __name__=="__main__":
                           postBackendList= [{"postBackendName":"","boolCheck":None, "convFloat":True ,"ccOnly":False },
                                             {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
                            ])
+
+    generateVerrouGeneric(handler, backendEnum="vr_vprec", backendName="vprec",
+                          postBackendList= [ {"postBackendName":"","boolCheck":None, "convFloat":True ,"ccOnly":False },
+                                             {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
+                                            ])
 
     handler.write("#ifdef USE_VERROU_QUADMATH\n")
     handler.write("#define IGNORESQRT\n")

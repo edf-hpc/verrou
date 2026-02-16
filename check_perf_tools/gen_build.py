@@ -12,7 +12,7 @@ gitRepository="origin/"
 gitRepository=""
 
 branch="master"
-valgrind_version="valgrind-3.25.0"
+valgrind_version="valgrind-3.26.0"
 
 verrouConfigListHash={
     #good idea to keep the same definition of "current" and "current_fast" (see bellow)
@@ -37,8 +37,8 @@ verrouConfigListCmpBranch={
 #    "stable":           { "tag":"v2.5.0" ,"flags":"--enable-verrou-fma" },
     "master_fast":{ "valgrind":valgrind_version, "branch_verrou":"master" ,"flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
     "master":     { "valgrind":valgrind_version, "branch_verrou":"master" ,   "flags":""},
-    "back":       { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":""},
-    "back_fast":  { "valgrind":valgrind_version, "branch_verrou":"bl/backtrace", "flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
+    "vprec":       { "valgrind":valgrind_version, "branch_verrou":"bl/vprec", "flags":""},
+    "vprec_fast":  { "valgrind":valgrind_version, "branch_verrou":"bl/vprec", "flags":"--enable-verrou-check-naninf=no --with-verrou-denorm-hack=none"},
 }
 
 
@@ -56,6 +56,7 @@ valgrindConfigList={
     "valgrind-3.23.0": {"file": "valgrind-3.23.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.23.0.tar.bz2"},
     "valgrind-3.24.0": {"file": "valgrind-3.24.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.24.0.tar.bz2"},
     "valgrind-3.25.0": {"file": "valgrind-3.25.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.25.0.tar.bz2"},
+    "valgrind-3.26.0": {"file": "valgrind-3.26.0.tar.bz2", "url":"https://sourceware.org/pub/valgrind/valgrind-3.26.0.tar.bz2"},
     "v2.3.1":          {"file": "v2.3.1.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.3.1/valgrind-3.17.0_verrou-2.3.1.tar.gz"},
     "v2.4.0":          {"file": "v2.4.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.4.0/valgrind-3.20.0_verrou-2.4.0.tar.gz"},
     "v2.5.0":          {"file": "v2.5.0.tar.gz","url":"https://github.com/edf-hpc/verrou/releases/download/v2.5.0/valgrind-3.21.0_verrou-2.5.0.tar.gz"},

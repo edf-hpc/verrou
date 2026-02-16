@@ -14,7 +14,7 @@
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
+   published by the Free Software Foundation; either version 3 of the
    License, or (at your option) any later version.
 
    This program is distributed in the hope that it will be useful, but
@@ -64,7 +64,7 @@
 #include "vr_exclude_back.h"
 #define VR_FNNAME_BUFSIZE 4096
 
-typedef enum vr_backend_name{vr_verrou,vr_mcaquad, vr_checkdenorm} vr_backend_name_t;
+typedef enum vr_backend_name{vr_verrou,vr_mcaquad,vr_vprec,vr_checkdenorm} vr_backend_name_t;
 
 typedef enum vr_backendpost_name{vr_nopost,vr_checkcancellation, vr_check_float_max} vr_backendpost_name_t;
 
@@ -216,6 +216,7 @@ typedef struct {
   HChar* outputIOMatchRep;
   HChar* outputTraceRep;
 
+  vprec_conf_t vprec_conf;
 } Vr_State;
 
 extern Vr_State vr;

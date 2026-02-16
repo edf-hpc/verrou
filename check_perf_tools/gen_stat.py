@@ -28,8 +28,8 @@ if not len(sys.argv) in [1,2]:
 #cmpBranch
 
 buildConfList=[ "master","master_fast","back", "back_fast"]
-detRounding=["random_det","average_det", "random_comdet","average_comdet", "random_scomdet","average_scomdet", "sr_monotonic", "sr_smonotonic"]
-roundingListNum=["random", "average", "nearest", "upward", "downward"]
+detRounding=["random_det","nearness_det", "random_comdet","nearness_comdet", "random_scomdet","nearness_scomdet", "sr_monotonic", "sr_smonotonic"]
+roundingListNum=["random", "nearness", "nearest", "upward", "downward"]
 refName="master"
 
 #cmpHash
@@ -114,7 +114,7 @@ def extractStat():
 
 def checkCoherence(stat):
     for code in ["Seqdouble", "Seqfloat", "Recdouble", "Recfloat"]:
-        for rounding in ["random","average","all"]:
+        for rounding in ["random","nearness","all"]:
             try:
                 resTab =[stat[conf][code][rounding]["bit"] for conf in buildConfList]
             except:
@@ -135,7 +135,7 @@ def checkCoherence(stat):
             return False
     return True
 
-def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
+def feedTab(stat, rndList=["random","nearness","sr_monotonic","sr_smonotonic" ] ,detTab=["_det","_comdet"], extraRounding=[], ref=None, precisionVar="bit", buildConfList=buildConfList):
 
     codeTab=["Seqfloat","Seqdouble", "Recfloat","Recdouble"]
     codeTabName=[x.replace("float","<float>").replace("double","<double>")for x in codeTab]
@@ -156,7 +156,7 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
             break
         if not rd in  ["sr_monotonic", "sr_smonotonic"]:
             roundingTab+=[(rd, rd,refName)]
-        if rd=="average":
+        if rd=="nearness":
             for gen in buildConfListXoshiro:
                 roundingTab+=[(rd+ "("+gen+")" ,rd ,gen )]
         if rd=="random":
@@ -167,7 +167,7 @@ def feedTab(stat, rndList=["random","average","sr_monotonic","sr_smonotonic" ] ,
         for gen in buildConfList:
             if gen=="current":
                 continue
-            if rd in ["random","average"]:
+            if rd in ["random","nearness"]:
                 for detType in detTab:
                     roundingTab+=[(rd+detType+"("+gen+")",rd+detType,gen)]
             else:
@@ -235,33 +235,33 @@ if __name__=="__main__":
         print("checkCoherence FAILURE")
 
     tab=tabularLatex("lcccc", output="tabDet.tex")
-    feedTab(statRes,rndList=["random","average"],detTab=["_det"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","nearness"],detTab=["_det"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabComDet.tex")
-    feedTab(statRes,rndList=["random","average"],detTab=["_comdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","nearness"],detTab=["_comdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabScomDet.tex")
-    feedTab(statRes,rndList=["random","average"],detTab=["_scomdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","nearness"],detTab=["_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMono.tex")
-    feedTab(statRes,rndList=["average","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["nearness","sr_monotonic","sr_smonotonic"],detTab=["_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMaxDiff.tex")
-    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1)
+    feedTab(statRes,rndList=["random","nearness","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1)
 
     tab=tabularLatex("lcccc", output="tabMCA.tex")
-    feedTab(statRes,rndList=["random","average","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")
+    feedTab(statRes,rndList=["random","nearness","sr_monotonic", "sr_smonotonic"],detTab=["_det","_comdet","_scomdet"], ref=2**20*0.1, precisionVar="mca_bit")
 
     if what=="cmpHash":
         name="mersenne_twister"
         repNum=workDirectory / "buildRep-%s"%(name) / "num"
-        cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=random,average,nearest,upward,downward,random_det,average_det --png=Recfloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        cmd="ALGO=Rec ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=random,nearness,nearest,upward,downward,random_det,nearness_det --png=Recfloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)
 
-        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep="+ repNum +" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det  --png=SeqFloat"+name+"DetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --nb-bin=200 --rep="+ repNum +" --seed=42 --relative=104857.6 --rounding-list=nearness,random,random_det,nearness_det  --png=SeqFloat"+name+"DetZoom.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)
-        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=average,random,random_det,average_det,nearest,downward,upward  --png=SeqFloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
+        cmd="ALGO=Seq ALGO_TYPE=float verrou_plot_stat --rep="+repNum+" --seed=42 --relative=104857.6 --rounding-list=nearness,random,random_det,nearness_det,nearest,downward,upward  --png=SeqFloat"+name+"Det.png ../unitTest/checkStatRounding/run.sh ../unitTest/checkStatRounding/extract.py"
         print(cmd)
         runCmd(cmd)

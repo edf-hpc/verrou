@@ -133,7 +133,7 @@ def postRunTrace(runDir):
             f.write(log)
 
     if len(listOfTraceBBFile)==0:
-        print("Problem in trace generation detected: %s",runDir)
+        print("Problem in trace generation detected: ",runDir)
         sys.exit(42)
 
     cmd="genCovBB --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
@@ -265,6 +265,8 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             runEnvSav=copy.deepcopy(runEnv)
             for rounding in roundNonDetTab:
                 newNbRun=nbRun
+                if rounding.startswith("vprec"):
+                    newNbRun=1
                 if rounding=="":
                     ddminNewRep=ddminNewInstr / "default"
                     if ddmin.name=="ref":
