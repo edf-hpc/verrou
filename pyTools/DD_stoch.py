@@ -167,7 +167,9 @@ class stochTask:
             return self.dirname / (subDirRunPattern % (i))
 
     def _replacePattern(self, value, i):
-        return str(value).replace("%DDRUN%", self._nameDir(i,True))
+        res= str(value).replace("%DDRUN%", self._nameDir(i,True))
+        res= res.replace("%DDRUNABS%", str(self._nameDir(i,False)))
+        return res
 
     def runOneSample(self, i):
         rundir= self._nameDir(i)

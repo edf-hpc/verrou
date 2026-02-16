@@ -11,6 +11,10 @@ import post_config
 import rounding_tool
 from pathlib import Path
 
+def failure():
+    sys.exit(42)
+
+
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
     res=[]
     for fileSym in refDir.glob("dd.sym.*"):
@@ -23,12 +27,17 @@ def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
                 if fnmatch.fnmatch(objectVerrou, expr) and objectVerrou not in res:
                     res+=[objectVerrou]
                     break
+    if len(res)==0:
+        print("defaultTrace is empty")
+        failure()
+
     outputFileName=refDir / "defaultTrace"
     output=open(outputFileName,"w")
     for objectVerrou in res:
         output.write("*\t"+objectVerrou+"\n")
     output.close()
     return outputFileName
+
 
 
 def getSortedPidList(rep):
@@ -179,7 +188,7 @@ def buildRunEnv(parsedCmd,ddmin, instr):
                 runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
             if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
                 runEnv["VERROU_BACKTRACE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE_BACKTRACE"]
-            runEnv["VERROU_EXCLUD"]=ddmin / "dd.sym.exclude"
+            runEnv["VERROU_EXCLUDE"]=ddmin / "dd.sym.exclude"
 
         elif "verrou_dd_line" in parsedCmd["cmd"]:
             if "VERROU_SOURCE" in parsedCmd["env"]:
@@ -200,8 +209,23 @@ def buildRunEnv(parsedCmd,ddmin, instr):
                 runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
             runEnv["VERROU_EXCLUDE_BACKTRACE"] = ddmin / "dd.back.exclude"
 
+        elif "verrou_dd_stdout" in parsedCmd["cmd"]:
+            if "VERROU_IOMATCH_CLR" in parsedCmd["env"]:
+                print("Warning VERROU_IOMATCH_CLR overwritten")
+            if "VERROU_OUTPUT_IOMATCH_REP" in parsedCmd["env"]:
+                print("Warning VERROU_OUTPUT_IOMATCH_REP overwritten")
+            if "VERROU_SOURCE" in parsedCmd["env"]:
+                runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
+            if "VERROU_EXCLUDE" in parsedCmd["env"]:
+                runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
+            if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
+                runEnv["VERROU_EXCLUDE_BACKTRACE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_BACKTRACE"]
+
+            runEnv["VERROU_IOMATCH_CLR"]= ddmin / "vr_iomatch.txt"
+            runEnv["VERROU_OUTPUT_IOMATCH_REP"]= "%DDRUNABS%"
+
         else:
-            print("post_verrou_dd works only with verrou_dd_sym,verrou_dd_line and verrou_dd_back")
+            print("post_verrou_dd works only with verrou_dd_sym,verrou_dd_line, verrou_dd_back and verrou_dd_stdout")
             failure()
 
     if instr!="":
@@ -213,7 +237,7 @@ def buildRunEnv(parsedCmd,ddmin, instr):
             runEnv["VERROU_INSTR"]=parsedCmd["env"]["VERROU_INSTR"]
 
     for i in parsedCmd["env"]:
-        if i in ["VERROU_INSTR", "VERROU_SOURCE", "VERROU_EXCLUDE", "VERROU_INSTR", "VERROU_EXCLUDE_BACKTRACE"]:
+        if i in ["VERROU_INSTR", "VERROU_SOURCE", "VERROU_EXCLUDE", "VERROU_INSTR", "VERROU_EXCLUDE_BACKTRACE", "VERROU_IOMATCH_CLR","VERROU_OUTPUT_IOMATCH_REP"]:
             continue # treated above
         if i in ["PWD"]:
             continue
