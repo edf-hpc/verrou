@@ -115,6 +115,17 @@ class DDstdout(DD_stoch.DDStoch):
             if task in taskRes:
                 taskRes.remove(task)
                 taskRes.append(task)
+        maximumAcceptedTask=2000
+        if len(taskRes)> maximumAcceptedTask:
+            print("To many tasks detected: ", len(taskRes))
+            print("\t maximum accepted : ", maximumAcceptedTask)
+            print("\t to increase this value you have to modify verrou_dd_stdout and MATCH_MAX in vr_IOMatch_clr.c")
+            print("Possible work around:")
+            print("\t- verrou_dd_task do not have this limitation")
+            print("\t- with --custom-search-space= it is possible to regroup task thanks wildcard")
+            print("\t- with --filter-cmd= it is possible to regroup task as you want (can be tricky)")
+            sys.exit(42)
+
         return taskRes
 
 
