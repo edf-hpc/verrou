@@ -115,6 +115,7 @@ HChar vr_postApplyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
 SizeT vr_nbPostApplyMatch[MATCH_MAX];
 HChar* vr_matchPattern[MATCH_MAX];
 Bool  vr_BreakMatchPattern[MATCH_MAX];
+Bool  vr_exactMatchPattern[MATCH_MAX];
 SizeT vr_countMatchPattern[MATCH_MAX];
 SizeT vr_nbMatch=0;
 
@@ -293,7 +294,24 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp)
 }
 
 
+inline static Bool vr_containWildCard(const HChar* matchString){
+   int i=0;
+   while(matchString[i]!=(HChar)0){
+      if(matchString[i]=='*' || matchString[i]=='?'){
+         return True;
+      }
+      i++;
+   }
+   return False;
+}
 
+inline static Bool vr_string_match(SizeT matchIndex, const HChar* filtered_line){
+   if(vr_exactMatchPattern[matchIndex]){
+      return (VG_(strcmp)(vr_matchPattern[matchIndex],filtered_line)==0);
+   }else{
+      return VG_(string_match)(vr_matchPattern[matchIndex],filtered_line);
+   }
+}
 
 
 static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly){
@@ -607,7 +625,8 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_bmatchKeyStrSize;
       VG_(fprintf)(vr_IOmatchCLRFileLog, "bmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
-      vr_matchPattern[vr_nbMatch]=VG_(strdup)("bmath.patterndup", matchPattern);
+      vr_matchPattern[vr_nbMatch]=VG_(strdup)("bmatch.patterndup", matchPattern);
+      vr_exactMatchPattern[vr_nbMatch]=!(vr_containWildCard(matchPattern));
       vr_nbApplyMatch[vr_nbMatch]=0;
       vr_countMatchPattern[vr_nbMatch]=0;
       vr_BreakMatchPattern[vr_nbMatch]=True;
@@ -620,7 +639,8 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_cmatchKeyStrSize;
       VG_(fprintf)(vr_IOmatchCLRFileLog, "cmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
-      vr_matchPattern[vr_nbMatch]=VG_(strdup)("cmath.patterndup", matchPattern);
+      vr_matchPattern[vr_nbMatch]=VG_(strdup)("cmatch.patterndup", matchPattern);
+      vr_exactMatchPattern[vr_nbMatch]=!(vr_containWildCard(matchPattern));
       vr_nbApplyMatch[vr_nbMatch]=0;
       vr_countMatchPattern[vr_nbMatch]=0;
       vr_BreakMatchPattern[vr_nbMatch]=False;
@@ -911,9 +931,9 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
          if(previousMatchIndex==-1){
 	     Bool matchFound=False;
 	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
-	       if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
-		 matchFound=True;
-		 //The line match the expect pattern
+              if( vr_string_match(matchIndex, filteredBuf)){
+                matchFound=True;
+                //The line match the expect pattern
 		 if(IOMatch_verbose>0){
 		   VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
 		 }
