@@ -850,17 +850,14 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
        continue;
     }
 
-    if(IOMatch_verbose>0){
-       VG_(umsg)("Unused line : %s\n", vr_IOmatch_CmdLine);
-       VG_(tool_panic)("vr_IOmatchCLR: bad IOMatch script\n");
-    }
+    VG_(umsg)("Unused line : %s\n", vr_IOmatch_CmdLine);
+    VG_(tool_panic)("vr_IOmatchCLR: bad IOMatch script\n");
   }//End while loop over line
 
   VG_(free)(vr_IOmatch_CmdLine);
   VG_(close)(vr.IOMatchCLRFileInput);
 
   vr_IOmatch_apply_clr("init", True);
-//  VG_(umsg)("expectCLR init done\n");
 }
 
 
@@ -892,8 +889,7 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
    SizeT totalSize= (vr_writeLineBuffCurrent - vr_writeLineBuff) + size;
    if(totalSize >=  LINE_SIZEMAX){
-      VG_(umsg)("sizemax excedeed\n");
-      VG_(exit(1));
+      VG_(tool_panic)("vr_IOmatchCLR: line sizemax excedeed\n");
    }
    VG_(strncat)(vr_writeLineBuffCurrent , writeLine, size);
    vr_writeLineBuff[totalSize]=0;
@@ -971,14 +967,17 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
                     VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
                  }
                  (current_match->count_match)++;
-
-                 VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
+                 if(IOMatch_verbose>0){
+                    VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
+                 }
 		 if(vr_filter){
-		   if(IOMatch_verbose>0){
+		   if(IOMatch_verbose>1){
 		     VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
 		   }
-		   VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
-		 }
+                   if(IOMatch_verbose>0){
+                      VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
+                   }
+                 }
 		 //Loop apply to DO
                  if(current_match->nb_apply_match==0){
                     vr_IOmatch_apply_clr("default", False);
@@ -995,9 +994,10 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
               }
 	     }
 	     if( matchFound==False){
-                VG_(fprintf)(vr_IOmatchCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
-                VG_(fprintf)(vr_IOmatchCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
                 if(IOMatch_verbose>1){
+                   VG_(fprintf)(vr_IOmatchCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+                   VG_(fprintf)(vr_IOmatchCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
+
                    VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
                    VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
                 }
@@ -1034,12 +1034,20 @@ void vr_IOmatch_clr_finalize (void){
     previousMatchIndex=-1;
   }
 
-  VG_(fprintf)(vr_IOmatchCLRFileLog,"match pattern count\n");
-  VG_(umsg)("match pattern count\n");
+  if(IOMatch_verbose>0){
+     VG_(fprintf)(vr_IOmatchCLRFileLog,"match pattern count\n");
+  }
+  if(IOMatch_verbose>0){
+     VG_(umsg)("match pattern count\n");
+  }
   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
      SizeT count=vr_match_tab[matchIndex].count_match;
-     VG_(fprintf)(vr_IOmatchCLRFileLog,"\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
-     VG_(umsg)("\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
+     if(IOMatch_verbose>0){
+        VG_(fprintf)(vr_IOmatchCLRFileLog,"\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
+     }
+     if(IOMatch_verbose>0){
+        VG_(umsg)("\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
+     }
   }
 
    //free and close evrything

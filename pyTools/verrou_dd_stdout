@@ -124,7 +124,7 @@ class DDstdout(DD_stoch.DDStoch):
         refPath=self.ref_ / "vr_iomatch_ref.txt"
         refFile=open(refPath,"w")
 
-        refFile.write("verbose: 2\n")
+        refFile.write("verbose: "+str(self.config_.getIoMatchVerbose())+"\n")
         refFile.write("dump-stdout: \n")
         refFile.write(self.config_.get_ioMatchHeader()+"\n")
 
@@ -184,7 +184,7 @@ class DDstdout(DD_stoch.DDStoch):
             f.write("nb-match-max: %d\n"%(len(self.config_.get_ioMatchHeader().split("\n")) + len(self.getDelta0())))
             f.write(self.config_.get_ioMatchHeader()+"\n")
 
-            f.write("verbose: 2\n")
+            f.write("verbose: "+str(self.config_.getIoMatchVerbose())+"\n")
             f.write("dump-stdout: \n" )
             if not self.config_.get_filterCmd() in [None,""]:
                 f.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
@@ -259,6 +259,7 @@ class stdoutConfig(dd_config.ddConfig):
         self.addRegistry("ignoreEmptyLine", "bool", "IGNORE_EMPTY_LINE",["--ignore-empty-line="],True, None )
         self.addRegistry("filterCmd", "string", "FILTER_CMD",["--filter-cmd="],None, None )
         self.addRegistry("ioMatchHeaderFile", "string", "IOMATCH_HEADER",["--IOmatch-header="], None, "file_exists")
+        self.addRegistry("ioMatchVerbose", "int", "IOMATCH_VERBOSE",["--IOmatch-verbose="], 2, None)
         self.addRegistry("customSearchSpace", "string", "CUSTOM_SEARCH_SPACE",["--custom-search-space="], None, "file_exists")
         self.addRegistry("filePattern", "string", "FILE_PATTERN",["--file-pattern="], None, None)
         self.addRegistry("referenceRounding", "string", "REFERENCE_ROUNDING",["--reference-rounding="],"native",["native","nearest"] )
@@ -311,6 +312,9 @@ class stdoutConfig(dd_config.ddConfig):
                 sys.exit(42)
 
             self.ioMatchHeader="\n".join(lines)
+
+    def getIoMatchVerbose(self):
+        return self.ioMatchVerbose
 
     def get_unknownTask(self):
         return self.unknownTask
