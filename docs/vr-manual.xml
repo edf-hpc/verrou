@@ -1103,6 +1103,12 @@ det2
 	</varlistentry>
 
 	<varlistentry>
+	  <term><computeroutput>nb-match-max: NB_MAX</computeroutput></term>
+	  <listitem><para> Set the maximum number of bmatch or cmatch keys (default 100). Can not be used after a bmatch or cmatch keys.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry>
 	  <term><computeroutput>ignore-empty-line:</computeroutput></term>
 	  <listitem><para>
 	    If this key is present, the empty lines are ignored.

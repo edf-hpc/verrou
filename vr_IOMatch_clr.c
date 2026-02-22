@@ -83,6 +83,9 @@ Bool ignoreEmptyLine=True;
 const HChar vr_verboseKeyStr[]=  "verbose: ";
 SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
 
+const HChar vr_nbMatchMaxKeyStr[]=  "nb-match-max: ";
+SizeT vr_nbMatchMaxKeyStrSize=sizeof(vr_nbMatchMaxKeyStr)-1;
+
 const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
 SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
 Bool vr_dumpStdout=False;
@@ -104,8 +107,8 @@ HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
 SizeT vr_nbpostInit=0;
 SizeT vr_countPostInit=0;
 
+static int vr_nb_match_max=100;
 
-#define MATCH_MAX 2000
 #define APPLY_PER_MATCH_MAX 5
 #define POST_APPLY_PER_MATCH_MAX 2
 #define MATCH_SIZE_MAX 30
@@ -121,8 +124,17 @@ typedef struct vr_match_data {
    SizeT nb_post_apply_match;
 } vr_match_data_t;
 
-vr_match_data_t vr_match_tab[MATCH_MAX];
+vr_match_data_t* vr_match_tab=NULL;
 SizeT vr_nbMatch=0;
+
+static inline void vr_allocate_match_if_needed(void){
+   if(vr_match_tab==NULL){
+      vr_match_tab=VG_(malloc)("vr_allocate_match_if_needed", vr_nb_match_max*sizeof(vr_match_data_t));
+      if(vr_match_tab==NULL){
+         VG_(tool_panic)("vr_IOmatch_clr : allocation failed");
+      }
+   }
+}
 
 
 Int previousMatchIndex=-1;
@@ -625,7 +637,8 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
     //Treat bmatch key
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_bmatchKeyStr, vr_bmatchKeyStrSize)==0 ){
-      if(vr_nbMatch> MATCH_MAX){
+      vr_allocate_match_if_needed();
+      if(vr_nbMatch> vr_nb_match_max){
 	VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_bmatchKeyStrSize;
@@ -640,7 +653,8 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       continue;
     }
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_cmatchKeyStr, vr_cmatchKeyStrSize)==0 ){
-      if(vr_nbMatch> MATCH_MAX){
+       vr_allocate_match_if_needed();
+       if(vr_nbMatch> vr_nb_match_max){
 	VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_cmatchKeyStrSize;
@@ -693,11 +707,19 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       continue;
     }
 
-
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_verboseKeyStr, vr_verboseKeyStrSize)==0 ){
       const HChar* verboseStr=stripSpace(vr_IOmatch_CmdLine+vr_verboseKeyStrSize);
       IOMatch_verbose=VG_(strtoull10)(verboseStr,  NULL);
       continue;
+    }
+
+    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_nbMatchMaxKeyStr, vr_nbMatchMaxKeyStrSize)==0 ){
+       if(vr_nbMatch>0){
+          VG_(tool_panic)("vr_IOmatch_clr : nb-match-max is invalid after bmatch of cmatch");
+       }
+       const HChar* nbMatchMaxStr=stripSpace(vr_IOmatch_CmdLine+vr_nbMatchMaxKeyStrSize);
+       vr_nb_match_max=VG_(strtoull10)(nbMatchMaxStr,  NULL);
+       continue;
     }
 
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0 ){
