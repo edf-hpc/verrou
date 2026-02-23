@@ -125,12 +125,15 @@ class DDstdout(DD_stoch.DDStoch):
         refFile=open(refPath,"w")
 
         refFile.write("verbose: "+str(self.config_.getIoMatchVerbose())+"\n")
-        refFile.write("dump-stdout: \n")
+        refFile.write("log-level: "+str(max(1,self.config_.getIoMatchVerbose()))+"\n")
+        if self.config_.getIoMatchVerbose()>0:
+            refFile.write("dump-stdout: \n")
         refFile.write(self.config_.get_ioMatchHeader()+"\n")
 
         if not self.config_.get_filterCmd() in [None,""]:
             refFile.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
-            refFile.write("dump-filtered-stdout: \n")
+            if self.config_.getIoMatchVerbose()>0:
+                refFile.write("dump-filtered-stdout: \n")
 
         if self.config_.get_ignoreEmptyLine():
             refFile.write("ignore-empty-line: true\n")
@@ -181,18 +184,21 @@ class DDstdout(DD_stoch.DDStoch):
             print("error unknownTask:", unknownTask)
 
         with open(dirname / "vr_iomatch.txt", "w") as f:
-            f.write("nb-match-max: %d\n"%(len(self.config_.get_ioMatchHeader().split("\n")) + len(self.getDelta0())))
+            f.write("nb-match-max: %d\n"%(self.config_.get_ioMatchHeaderShift() + len(self.getDelta0())))
             f.write(self.config_.get_ioMatchHeader()+"\n")
 
             f.write("verbose: "+str(self.config_.getIoMatchVerbose())+"\n")
-            f.write("dump-stdout: \n" )
+            f.write("log-level: "+str(self.config_.getIoMatchVerbose())+"\n")
+            if self.config_.getIoMatchVerbose()>0:
+                f.write("dump-stdout: \n" )
             if not self.config_.get_filterCmd() in [None,""]:
                 f.write("filter_line_exec: "+self.config_.get_filterCmd()+"\n")
-                f.write("dump-filtered-stdout: \n")
+                if self.config_.getIoMatchVerbose()>0:
+                    f.write("dump-filtered-stdout: \n")
             if self.config_.get_ignoreEmptyLine():
                 f.write("ignore-empty-line: true\n")
-            else:
-                f.write("ignore-empty-line: false\n")
+            #else:
+            #    f.write("ignore-empty-line: false\n")
             if "__verrou__stdout__init__" in excludes:
                 if "__verrou__stdout__init__" in deltas:
                     f.write("init: %s\n"%(self.startCmd))
