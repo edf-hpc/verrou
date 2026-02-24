@@ -89,6 +89,10 @@ SizeT vr_logLevelKeyStrSize=sizeof(vr_logLevelKeyStr)-1;
 const HChar vr_nbMatchMaxKeyStr[]=  "nb-match-max: ";
 SizeT vr_nbMatchMaxKeyStrSize=sizeof(vr_nbMatchMaxKeyStr)-1;
 
+const HChar vr_permutableBmatchIndexesKeyStr[]=  "permutable-bmatch-indexes: ";
+SizeT vr_permutableBmatchIndexesKeyStrSize=sizeof(vr_permutableBmatchIndexesKeyStr)-1;
+
+
 const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
 SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
 Bool vr_dumpStdout=False;
@@ -129,6 +133,9 @@ typedef struct vr_match_data {
 
 vr_match_data_t* vr_match_tab=NULL;
 SizeT vr_nbMatch=0;
+SizeT vr_reorgBegin=1;
+SizeT vr_reorgEnd=0;
+SizeT vr_lastReorgMatch=0;
 
 static inline void vr_allocate_match_if_needed(void){
    if(vr_match_tab==NULL){
@@ -757,6 +764,18 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
        continue;
     }
 
+    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_permutableBmatchIndexesKeyStr, vr_permutableBmatchIndexesKeyStrSize)==0 ){
+
+       HChar* indexesStr=stripSpace(vr_IOmatch_CmdLine+vr_permutableBmatchIndexesKeyStrSize);
+       HChar* next;
+       vr_reorgBegin  =VG_(strtoull10)(indexesStr, &next );
+       vr_reorgEnd =VG_(strtoull10)(next, NULL );
+       if(vr_reorgEnd <=vr_reorgBegin){
+          VG_(tool_panic)("vr_IOmatch_clr : vr_reorgEnd < vr_reorgBegin");
+       }
+       continue;
+    }
+
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0 ){
        const HChar* dumpStr=stripSpace(vr_IOmatch_CmdLine+vr_dumpStdoutKeyStrSize);
        vr_dumpStdout=True;
@@ -916,7 +935,46 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   return -1;
 };
 
-
+static inline Bool isApplyMatchBreakable(Bool* isMatchPtr,//inout,
+                                         Int* previousMatchIndexPtr,//out
+                                         SizeT matchIndex, const HChar* filteredBuf)//in
+{
+   if( vr_string_match(matchIndex, filteredBuf)){
+      *isMatchPtr=True;
+      vr_match_data_t* current_match=&(vr_match_tab[matchIndex]);
+      //The line match the expect pattern
+      if(IOMatch_verbose>0){
+         VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
+      }
+      (current_match->count_match)++;
+      if(IOMatch_log_level>0){
+         VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
+      }
+      if(vr_filter){
+         if(IOMatch_verbose>1){
+            VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
+         }
+         if(IOMatch_log_level>0){
+            VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
+         }
+      }
+      //Loop apply to DO
+      if(current_match->nb_apply_match==0){
+         vr_IOmatch_apply_clr("default", False);
+      }
+      for(SizeT applyIndex=0 ; applyIndex< current_match->nb_apply_match; applyIndex++){
+         vr_IOmatch_apply_clr((current_match->apply_match)[applyIndex], False);
+      }
+      if(current_match->nb_post_apply_match!=0){
+         *previousMatchIndexPtr=matchIndex;
+      }
+      if(current_match->is_break_match_pattern){
+         return True;
+         //break; //match only once
+      }
+   }
+   return False;
+}
 
 void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
    /*As the syscall to not give always a full line we need to create a buffer and to treat the buffer only we detect the end of line*/
@@ -995,41 +1053,26 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
          if(previousMatchIndex==-1){
 	     Bool matchFound=False;
+             Bool needToBreak=False;
+
 	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
-              if( vr_string_match(matchIndex, filteredBuf)){
-                 matchFound=True;
-                 vr_match_data_t* current_match=&(vr_match_tab[matchIndex]);
-                 //The line match the expect pattern
-                 if(IOMatch_verbose>0){
-                    VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
-                 }
-                 (current_match->count_match)++;
-                 if(IOMatch_log_level>0){
-                    VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
-                 }
-		 if(vr_filter){
-		   if(IOMatch_verbose>1){
-		     VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
-		   }
-                   if(IOMatch_log_level>0){
-                      VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
+                SizeT matchIndexReorg=matchIndex;
+                if( (vr_reorgBegin <= matchIndex) &&  (matchIndex <= vr_reorgEnd)){
+                   matchIndexReorg= vr_lastReorgMatch + (matchIndex-vr_reorgBegin);
+                   if(matchIndexReorg> vr_reorgEnd){
+                      matchIndexReorg = matchIndexReorg -vr_reorgEnd+vr_reorgBegin-1;
                    }
-                 }
-		 //Loop apply to DO
-                 if(current_match->nb_apply_match==0){
-                    vr_IOmatch_apply_clr("default", False);
-		 }
-                 for(SizeT applyIndex=0 ; applyIndex< current_match->nb_apply_match; applyIndex++){
-                    vr_IOmatch_apply_clr((current_match->apply_match)[applyIndex], False);
-		 }
-                 if(current_match->nb_post_apply_match!=0){
-                    previousMatchIndex=matchIndex;
-                 }
-                 if(current_match->is_break_match_pattern){
-                    break; //match only once
-                 }
-              }
+                }
+
+                needToBreak=isApplyMatchBreakable(&matchFound, &previousMatchIndex,
+                                                       matchIndexReorg,filteredBuf);
+                if(matchFound){
+                   vr_lastReorgMatch=matchIndexReorg;
+                }
+                if(needToBreak)  break;
 	     }
+
+
 	     if( matchFound==False){
                 if(IOMatch_log_level>1){
                    VG_(fprintf)(vr_IOmatchCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);

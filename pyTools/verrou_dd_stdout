@@ -208,9 +208,17 @@ class DDstdout(DD_stoch.DDStoch):
                     f.write("init: stop\n" )
                     if unknownTask in ["start"]:
                         f.write("post-init: %s\n"%(self.startCmd))
+            bmatchPermutableBegin=self.config_.get_ioMatchHeaderShift()
+            bmatchPermutableEnd=bmatchPermutableBegin-1
+            bmatchPermutableContinue=True
             for line in excludes:
                 if line=="__verrou__stdout__init__":
                     continue
+                if bmatchPermutableContinue and not (("?" in line) or ("*" in line)):
+                    bmatchPermutableEnd+=1
+                else:
+                    bmatchPermutableContinue=False
+
                 f.write("bmatch: "+ line+"\n")
                 if line in deltas:
                     f.write("apply: %s\n"%(self.startCmd))
@@ -220,6 +228,8 @@ class DDstdout(DD_stoch.DDStoch):
                     f.write("apply: %s\n"%(self.stopCmd))
                     if unknownTask in ["start"]:
                         f.write("post-apply: %s\n"%(self.startCmd))
+            if (bmatchPermutableEnd - bmatchPermutableBegin) > 4:
+                f.write("permutable-bmatch-indexes: "+str(bmatchPermutableBegin)+" "+ str(bmatchPermutableEnd)+"\n")
 
         if include:
             with open(dirname / (dd+".include"), "w") as f:
