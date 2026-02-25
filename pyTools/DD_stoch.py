@@ -1257,7 +1257,7 @@ class DDStoch(DD.DD):
                                         if earlyConfExit=="anyPass" or subTaskDataTab[cWork][1]>=deltaIndex:
                                             activeDataTab[cWork]=False
                         else:
-                            if resTab[deltaIndex]==None and earlyExit:
+                            if resTab[deltaIndex] in [None, self.PASS] and earlyExit:
                                 print(stochTaskTab[deltaIndex].pathToPrint+strLenDeltas(deltasTab[deltaIndex]) +"--(/run/) -> FAIL(%i)"%(sampleIndex))
                             resTab[deltaIndex]=self.FAIL
                             failIndexesTab[deltaIndex]+=[sampleIndex]
