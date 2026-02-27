@@ -1109,6 +1109,12 @@ det2
 	</varlistentry>
 
 	<varlistentry>
+	  <term><computeroutput>permutable-bmatch-indexes: INDEX_BEGIN INDEX_END</computeroutput></term>
+	  <listitem><para> Define a section of permutable bmatch keys. Indexes take into account bmatch and cmatch keys. Can be used anytime (if smaller than nb-match-max default value), but better after <computeroutput>nb-match-max</computeroutput> key. This key is useful to enable performance optimisation (used by <computeroutput>verrou_dd_stdout</computeroutput>)
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry>
 	  <term><computeroutput>ignore-empty-line:</computeroutput></term>
 	  <listitem><para>
 	    If this key is present, the empty lines are ignored.

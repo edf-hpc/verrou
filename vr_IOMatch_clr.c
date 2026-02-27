@@ -770,8 +770,12 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
        HChar* next;
        vr_reorgBegin  =VG_(strtoull10)(indexesStr, &next );
        vr_reorgEnd =VG_(strtoull10)(next, NULL );
+
        if(vr_reorgEnd <=vr_reorgBegin){
           VG_(tool_panic)("vr_IOmatch_clr : vr_reorgEnd < vr_reorgBegin");
+       }
+       if(vr_reorgEnd >=vr_nb_match_max){
+          VG_(tool_panic)("vr_IOmatch_clr : vr_reorgEnd >= vr_nb_match_max");
        }
        continue;
     }
@@ -1054,7 +1058,9 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
          if(previousMatchIndex==-1){
 	     Bool matchFound=False;
              Bool needToBreak=False;
-
+             if(vr_reorgEnd >=vr_nbMatch){
+                VG_(tool_panic)("vr_IOmatchCLR: vr_reorgEnd>=vr_nbMatch\n");
+             }
 	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
                 SizeT matchIndexReorg=matchIndex;
                 if( (vr_reorgBegin <= matchIndex) &&  (matchIndex <= vr_reorgEnd)){
