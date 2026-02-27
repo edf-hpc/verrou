@@ -62,6 +62,15 @@ _post_verrou_dd()
             cur=${cur#*=}
             return
             ;;
+        --IOmatch-header=*)
+            cur=${cur#*=}
+            _filedir
+            return
+            ;;
+        --IOmatch-verbose=*)
+            cur=${cur#*=}
+            return
+            ;;
 
     esac
 
@@ -69,7 +78,7 @@ _post_verrou_dd()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --nruns= --num-threads= --quiet --rep= --sub-rep= --configuration= --instr= --rounding= --trace-bin --trace-pattern= --trace-file= --seed= --count-denorm' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --nruns= --num-threads= --quiet --rep= --sub-rep= --configuration= --instr= --rounding= --trace-bin --trace-pattern= --trace-file= --seed= --count-denorm --IOmatch-header= --IOmatch-verbose=' -- "$cur"))
 
     _filedir
 

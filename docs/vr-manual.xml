@@ -1750,9 +1750,7 @@ compilation terminated.
 			</listitem>
 			<listitem>
 			  <para>
-			    You can have a thinner control with hardware fma (line localization and <option>-vr-instr=mAdd,mSub</option>). With libm
-			    you can select libm function only with <option>--exclude</option> or <option>--source=</option>: the limitation comes from
-			    the lack of backtrace localization.
+			    You can have a thinner control with hardware fma (line localization and <option>-vr-instr=mAdd,mSub</option>).
 			  </para>
 			</listitem>
 			<listitem>

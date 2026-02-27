@@ -177,15 +177,53 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     DD_stoch.runMultipleStochTask([task],config.get_maxNbPROC())
 
 
+def mergeIOmatchScript(config, mainIOMatchFile, destRep):
+    destFile=str(destRep) + "/merged_IOMatch.txt"
+    destHandler=open(destFile, "w")
+    headerIOMatchLines=config.get_ioMatchHeader()
 
-def buildRunEnv(parsedCmd,ddmin, instr):
+    if mainIOMatchFile==None:
+        destHandler.write(headerIOMatch)
+        return destFile
+    isHeaderWritten=False
+    for line in open(mainIOMatchFile,"r").readlines():
+        if line.startswith("verbose:"):
+            destHandler.write("verbose: "+str(config.getIoMatchVerbose())+"\n")
+            continue
+        if line.startswith("bmatch:") or line.startswith("cmatch:"):
+            if not isHeaderWritten:
+                destHandler.write(headerIOMatchLines+"\n")
+            destHandler.write(line)
+            isHeaderWritten=True
+            continue
+        if line.startswith("nb-match-max:"):
+            value=int(line.split(":")[1])+config.get_ioMatchHeaderShift()
+            destHandler.write("nb-match-max: "+str(value)+"\n")
+            continue
+        if line.startswith("permutable-bmatch-indexes:"):
+            valueTab=line.split()[1:3]
+            value1,value2=[int(x)+ config.get_ioMatchHeaderShift() for x in valueTab]
+            destHandler.write("permutable-bmatch-indexes: "+ str(value1)+ " "+str(value2)+"\n")
+            continue
+        destHandler.write(line)
+    if not isHeaderWritten:
+        destHandler.write(headerIOMatchLines+"\n")
+
+    destHandler.close()
+    return destFile
+
+def buildRunEnv(config,parsedCmd,ddmin, instr, ddminNew):
     runEnv={}
+
     if ddmin.name != "ref":
         if "verrou_dd_sym" in parsedCmd["cmd"]:
             if "VERROU_EXCLUDE" in parsedCmd["env"]:
                 print("Warning VERROU_EXCLUDE overwritten")
             if "VERROU_SOURCE" in parsedCmd["env"]:
                 runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
+            if "VERROU_IOMATCH_CLR" in parsedCmd["env"]:
+                runEnv["VERROU_IOMATCH_CLR"]= mergeIOmatchScript(config, Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_IOMATCH_CLR"], ddminNew)
+                runEnv["VERROU_OUTPUT_IOMATCH_REP"]= "%DDRUNABS%"
             if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
                 runEnv["VERROU_BACKTRACE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE_BACKTRACE"]
             runEnv["VERROU_EXCLUDE"]=ddmin / "dd.sym.exclude"
@@ -197,6 +235,9 @@ def buildRunEnv(parsedCmd,ddmin, instr):
                print("Warning VERROU_WARN_UNKNOWN_SOURCE overwritten")
             if "VERROU_EXCLUDE" in parsedCmd["env"]:
                 runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
+            if "VERROU_IOMATCH_CLR" in parsedCmd["env"]:
+                runEnv["VERROU_IOMATCH_CLR"]= mergeIOmatchScript(config, Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_IOMATCH_CLR"], ddminNew)
+                runEnv["VERROU_OUTPUT_IOMATCH_REP"]= "%DDRUNABS%"
             runEnv["VERROU_SOURCE"]=ddmin / "dd.line.include"
             runEnv["VERROU_WARN_UNKNOWN_SOURCE"]= ddmin / "dd.line.exclude"
 
@@ -207,6 +248,9 @@ def buildRunEnv(parsedCmd,ddmin, instr):
                 runEnv["VERROU_SOURCE"]=Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_SOURCE"]
             if "VERROU_EXCLUDE" in parsedCmd["env"]:
                 runEnv["VERROU_EXCLUDE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_EXCLUDE"]
+            if "VERROU_IOMATCH_CLR" in parsedCmd["env"]:
+                runEnv["VERROU_IOMATCH_CLR"]= mergeIOmatchScript(config, Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_IOMATCH_CLR"], ddminNew)
+                runEnv["VERROU_OUTPUT_IOMATCH_REP"]= "%DDRUNABS%"
             runEnv["VERROU_EXCLUDE_BACKTRACE"] = ddmin / "dd.back.exclude"
 
         elif "verrou_dd_stdout" in parsedCmd["cmd"]:
@@ -221,7 +265,7 @@ def buildRunEnv(parsedCmd,ddmin, instr):
             if "VERROU_EXCLUDE_BACKTRACE" in parsedCmd["env"]:
                 runEnv["VERROU_EXCLUDE_BACKTRACE"]==Path(parsedCmd["env"]["PWD"]) / parsedCmd["env"]["VERROU_BACKTRACE"]
 
-            runEnv["VERROU_IOMATCH_CLR"]= ddmin / "vr_iomatch.txt"
+            runEnv["VERROU_IOMATCH_CLR"]= mergeIOmatchScript(config, ddmin / "vr_iomatch.txt" , ddminNew)
             runEnv["VERROU_OUTPUT_IOMATCH_REP"]= "%DDRUNABS%"
 
         else:
@@ -274,10 +318,8 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
             ddminNewInstr=ddminNew.with_name( ddminNew.name+"-"+instr)
             if instr=="":
                 ddminNewInstr=ddminNew
-
-            runEnv=buildRunEnv(parsedCmd,ddmin,instr)
-
             ddminNewInstr.mkdir(exist_ok=True)
+            runEnv=buildRunEnv(config,parsedCmd,ddmin,instr, ddminNewInstr)
 
             roundNonDetTab=config.getNonDetTab()
             roundDetTab=config.getDetTab()
