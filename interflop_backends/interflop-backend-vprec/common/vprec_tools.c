@@ -272,8 +272,8 @@ inline float round_binary32_underflow(float x, int emin, int precision) {
   //  If x is greater than or equal to half of the smallest subnormal number,
   //  rounds to the smallest subnormal number with the same sign.
   //  Otherwise, rounds to zero while preserving the sign.
-  // checks if x is greater than or equal to half of the smallest subnormal
-  if (b32_x.ieee.exponent >= half_smallest_subnormal.ieee.exponent) {
+  // checks if x is greater than to half of the smallest subnormal
+  if (__builtin_fabsf(b32_x.f32) >  half_smallest_subnormal.f32) {
     // then round to the smallest subnormal number with the same sign
     b32_x.ieee.exponent = half_smallest_subnormal.ieee.exponent + 1;
     b32_x.ieee.mantissa = 0;
@@ -317,8 +317,8 @@ inline double round_binary64_underflow(double x, int emin, int precision) {
   //  If x is greater than or equal to half of the smallest subnormal number,
   //  rounds to the smallest subnormal number with the same sign.
   //  Otherwise, rounds to zero while preserving the sign.
-  // checks if x is greater than or equal to half of the smallest subnormal
-  if (b64_x.ieee.exponent >= half_smallest_subnormal.ieee.exponent) {
+  // checks if x is greater than to half of the smallest subnormal
+  if (__builtin_fabs(b64_x.f64)  > half_smallest_subnormal.f64) {
     // then round to the smallest subnormal number with the same sign
     b64_x.ieee.exponent = half_smallest_subnormal.ieee.exponent + 1;
     b64_x.ieee.mantissa = 0;
