@@ -1381,10 +1381,11 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
 
     switch (st->tag) {
     case Ist_IMark: {
-      vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
-                               doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
-			       *fnnamePtr,*filenamePtr,*linenumPtr);
-
+      if(i!=0){
+         vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
+                                  doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
+                                  *fnnamePtr,*filenamePtr,*linenumPtr);
+      }
       doLineContainFloat=False;
       doLineContainFloatCmp=False;
 
