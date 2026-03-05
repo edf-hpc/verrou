@@ -520,6 +520,24 @@ if __name__=="__main__":
     </simplesect>
 
     <simplesect>
+      <title>Specific options of <command>verrou_dd_back</command></title>
+      <para id="verrou_dd_back.specific.option">
+	<variablelist>
+	  <varlistentry>
+	    <term>
+	      <computeroutput>--hide-below-python</computeroutput> or <computeroutput>VERROU_DD_HIDE_BELOW_PYTHON</computeroutput>. This option hides the python backtrace which can be long and difficult to read.
+            </term>
+	  </varlistentry>
+	    <varlistentry>
+	    <term>
+	      <computeroutput>--hide-common</computeroutput> or <computeroutput>VERROU_DD_HIDE_COMMON</computeroutput>. This option hides the part of the backtrace that is common to all the backtraces in the search space.
+            </term>
+	  </varlistentry>
+	</variablelist>
+      </para>
+    </simplesect>
+
+    <simplesect>
       <title>Specific option of <command>verrou_dd_task</command> and <command>verrou_dd_stdout</command> </title>
       <para id="verrou_dd_task_stdout.specific.option">
 	<variablelist>
