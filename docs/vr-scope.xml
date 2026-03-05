@@ -7,7 +7,7 @@
   <title>Restriction of the perturbations scope</title>
 
   <para>
-    There is a number of reasons why it could be desirable to only perturb parts of a program:
+    There are a number of reasons why it could be desirable to only perturb parts of a program:
     <itemizedlist>
       <listitem><para>when an algorithm is designed to work only in standard "rounding to nearest"
       mode, such as the <literal>libm</literal> example described in the <link
@@ -16,7 +16,7 @@
       particularly stable; </para></listitem>
       <listitem><para>to help locating the origin of numerical instabilities by studying the overall
       impact of localized perturbation; see the <xref linkend="vr-manual.localization.dd"/> section
-      for an instability localization method that build upon this idea.</para>
+      for an instability localization method that builds upon this idea.</para>
       </listitem>
     </itemizedlist>
 
@@ -66,7 +66,7 @@
         </para>
       </warning>
 
-      <para>A recommenced procedure to find the correct library path is the following: <screen>
+      <para>A recommended procedure to find the correct library path is as follows: <screen>
 <prompt>$</prompt> ldd <replaceable>program</replaceable>
         linux-vdso.so.1 (0x00007fffebbc6000)
         libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fdbe1760000)

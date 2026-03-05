@@ -73,7 +73,7 @@ int main(int argc, char** argv){
   muller(12,true,withEmptyLine, debugPrev, debugPost);
   //  muller(3000,true,withEmptyLine, debugPrev, debugPost);
 #ifdef WITH_VERROU_TASK
-  verrou_task_finalyze();
+  verrou_task_finalize();
 #endif
 
 }

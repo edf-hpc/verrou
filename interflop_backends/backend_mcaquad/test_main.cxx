@@ -71,7 +71,7 @@ int main(int argc, char** argv){
 
   //  ifmcaquad.interflop_madd_double(a,b,c1,&c2,context)
   
-  interflop_mcaquad_finalyze(context);
+  interflop_mcaquad_finalize(context);
   
 
   return 0;

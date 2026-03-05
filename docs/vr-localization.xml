@@ -50,9 +50,9 @@
 	  <command>verrou_dd_task</command> uses verrou task search space (<link linkend="vr-manual.verrou_task" > See how to perform instrumentation</link>). This search space enable temporal localization. The task instrumentation can be automatic with python code but is intrusive for compiled codes. <command>verrou_dd_task</command> has <link linkend="verrou_dd_task_stdout.specific.option" > one specific option</link>.
 	</simpara></listitem>
 	<listitem><simpara>
-	  <command>verrou_dd_stdout</command> performs localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the float are replace by * and address by ?).</simpara>
+	  <command>verrou_dd_stdout</command> performs localization in terms of code section defined by the lines of the stdout. The search space is not directly the stdout lines because from one perturbed execution to an other the lines may differ. To bypass the problem the search space is a list of wildcard expression (With the default search space, the floating-point numbers are replace by * and address by ?).</simpara>
 	  <simpara>
-	    The user do not need to instrument the code but may need to modify the dataset to increase the verbosity. As the command works without code recompilation, it is possible to work from one result of an other <command>verrou_dd_*</command> commands, without rerunning the previous search.
+	    The user does not need to instrument the code but may need to modify the dataset to increase the verbosity. As the command works without code recompilation, it is possible to work from one result of an other <command>verrou_dd_*</command> commands, without rerunning the previous search.
 	  </simpara>
 	  <simpara>
 	    The user has to pay attention to bufferization. <command>verrou_dd_stdout</command> automatically setup the PYTHONUNBUFFERED env variable and deactivate the c bufferization of stdout (not FILE*) but it not always sufficient.
@@ -453,7 +453,7 @@ if __name__=="__main__":
           </term>
           <listitem>
             <para>
-	      Option to define an heuristics defined by an include file. Can be used muliple times (with option but not with environment variable). Usually
+	      Option to define an heuristics defined by an include file. Can be used multiple times (with option but not with environment variable). Usually
 	      <option>--rddmin-heuristics-rep=</option> is preferred, this option is useful if you want to create your own heuristics.
 	    </para>
           </listitem>
@@ -643,7 +643,7 @@ To avoid problem with bufferization, we need to write your own <computeroutput>r
 	    </para>
 
 	    <para>
-	      The first argument of <computeroutput>CMD</computeroutput> has to be an absolute path (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the spaces are used to separate command arguments. To prevent this behaviour, the only way is to escape the spaces by backslash.
+	      The first argument of <computeroutput>CMD</computeroutput> has to be an absolute path (or relative if there is no CWD change in <replaceable>run_script</replaceable>). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the spaces are used to separate command arguments. To prevent this behavior, the only way is to escape the spaces by backslash.
 	    </para>
               </listitem>
             </varlistentry>
@@ -659,7 +659,7 @@ To avoid problem with bufferization, we need to write your own <computeroutput>r
               <listitem><para>The line order can be modified. Indeed if a line matches two wildcard expressions, the first one is taken into account. So if one expression is more specific than an other one, we should place it first.</para></listitem>
 
 
-	      <listitem><para>By default the float are wildcarded by * and integer kept. But if we want specified iteration by the error order it is possible to rewrite the following example:
+	      <listitem><para>By default the floating-point numbers are wildcarded by * and integer kept. But if we want specified iteration by the error order it is possible to rewrite the following example:
 		  <programlisting>
 		    IT=0 ERRS=*
 		    IT=1 ERRS=*
@@ -704,7 +704,7 @@ cat strace_verrou.*</programlisting>
       <para>
       A verrou task is defined by a key string and an index integer. The integer is usually used to specify a line of code or an iteration number. If you want to use both, you have to build a string post-fixed by one of both integers. If you need neither of both, 0 is fine.
 
-      The task represents the code between the verrou task call and the next one (or finalyze call).
+      The task represents the code between the verrou task call and the next one (or finalize call).
       </para>
       <variablelist>
       <varlistentry><term>C API</term>
@@ -714,7 +714,7 @@ cat strace_verrou.*</programlisting>
 	    <programlisting>
 void verrou_task_init();
 void verrou_task(char const*const key, int index);
-void verrou_task_finalyze();</programlisting>
+void verrou_task_finalize();</programlisting>
 	    To link you need to use the following link flag : <computeroutput>-lverrouTask</computeroutput>
 	  </para>
 	</listitem>
@@ -723,7 +723,7 @@ void verrou_task_finalyze();</programlisting>
       <varlistentry><term>Python API</term>
 	<listitem>
 	  <para>
-	    The python API does not contain init and finalyze as it is done automatically by the module import.
+	    The python API does not contain init and finalize as it is done automatically by the module import.
 	    <programlisting>
 #!/usr/bin/python3
 import valgrind.verrouPyBinding as verrou
@@ -880,7 +880,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
     </para>
 
     <para>
-      If you need to run the second <command>verrou_dd_</command> command for muliple ddmin, it is highly recommanded to use the option
+      If you need to run the second <command>verrou_dd_</command> command for multiple ddmin, it is highly recommanded to use the option
       <option>--rep=dd.back.fromLineDDmin0</option>.
     </para>
 
@@ -891,7 +891,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
     <simplesect>
       <title>Decription</title>
       <para id="vr-manual.verrou_dd_clean.description">
-	The tool <command>verrou_dd_clean</command> enables to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
+	The tool <command>verrou_dd_clean</command> allows to clean the cache repository produced by <command>verrou_dd_*</command> commands (The cache directory is the first argument,
 	  and the default value is <command>./</command>).
 	  In practice the command removes intermediate configurations which are not result (directories with hash name which are not pinpointed by a symlink).
 	</para>
@@ -923,7 +923,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
             </term>
             <listitem>
               <para>
-	      Only print what will do the command. Useful if you need to check carefuly what will be deleted.
+	      Only print what will do the command. Useful if you need to check carefully what will be deleted.
 	      </para>
             </listitem>
           </varlistentry>
@@ -987,7 +987,7 @@ genCovBB trace_bb_cov.log-*
     <simplesect>
       <title>Description</title>
       <para id="vr-manual.post_verrou_dd.description">
-	The tool <command>post_verrou_dd</command> enables to post-treat the result repository obtained by <command>verrou_dd_line</command>, <command>verrou_dd_sym</command> <command>verrou_dd_back</command>commands. The tool is not yet able to post-treat the result coming from  <command>verrou_dd_stdout</command> and  <command>verrou_dd_task</command>.
+	The tool <command>post_verrou_dd</command> allows to post-treat the result repository obtained by <command>verrou_dd_line</command>, <command>verrou_dd_sym</command> <command>verrou_dd_back</command>commands. The tool is not yet able to post-treat the result coming from  <command>verrou_dd_stdout</command> and  <command>verrou_dd_task</command>.
 	The post-treatment consists to run for each selected ddmin configuration new runs with modified (or not) configurations (rounding mode, instruction types).
 	For each run it is possible to activate the Basic Bloc coverage generation.
 	The scripts <command>run_script</command> and <command>cmp_script</command> are the same parameters of the <command>verrou_dd_line</command> command.
@@ -1178,7 +1178,7 @@ genCovBB trace_bb_cov.log-*
     <simplesect>
       <title>Description</title>
       <para id="vr-manual.plotstat.description">
-	The tool <command>verrou_plot_stat</command> enables to visualize the histogram
+	The tool <command>verrou_plot_stat</command> allows to visualize the histogram
 	of the result (extracted with <command> extract_script</command>) of a code run under verrou and to compute the non-gaussian error estimator (results are printed in <command>stdout</command> and in a file <command>stat.last</command>).
 
 
@@ -1431,7 +1431,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
             <computeroutput>--specific-pattern=</computeroutput>
           </term>
           <listitem>
-            <para> This option enables to plot histogram for computation run without the framework or after files renaming.
+            <para> This option allows to plot histogram for computation run without the framework or after files renaming.
 	      Typical calls are:
 	    </para>
 	    <para>

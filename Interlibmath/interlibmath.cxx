@@ -528,7 +528,7 @@ public:
     }
   }
 
-  static void finalyze(){}
+  static void finalize(){}
 
   static void inc(size_t param, size_t enumLibm, size_t typeIndex, size_t instrumentStatus){
     data_[param][6*enumLibm + typeIndex*2 + instrumentStatus ]++;
@@ -1804,14 +1804,14 @@ void __attribute__((constructor)) init_interlibmath(){
 }
 
 
-void __attribute__((destructor)) finalyze_interlibmath(){
+void __attribute__((destructor)) finalize_interlibmath(){
 #ifndef INTERLIBM_STAND_ALONE
   generateExcludeSource();
 #endif
   if(VERROU_COUNT_OP){
     printCounter();
   }
-  libMathCounter::finalyze();
+  libMathCounter::finalize();
 
   for(size_t i=0; i <enum_libm_function1_name_size;i++){
     function1NameTab[i].liberate();

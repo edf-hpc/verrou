@@ -38,7 +38,7 @@ extern "C" {
 #endif
   void verrou_task_init();
   void verrou_task(char const*const key, int index);
-  void verrou_task_finalyze();
+  void verrou_task_finalize();
 #ifdef __cplusplus
 };
 #endif
@@ -46,4 +46,4 @@ extern "C" {
 
 #define VERROU_TASK_INIT verrou_task_init();
 #define VERROU_TASK(a,b) verrou_task(a,b);
-#define VERROU_TASK_FINALIZE verrou_task_finalyze();
+#define VERROU_TASK_FINALIZE verrou_task_finalize();
