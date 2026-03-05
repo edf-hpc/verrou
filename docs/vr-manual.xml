@@ -849,6 +849,18 @@ det2
 	      <para>This option can be activated with the environment variable <command>VERROU_OUTPUT_IOMATCH_REP</command>.</para>
             </listitem>
           </varlistentry>
+
+	  <varlistentry id="vr-opt.iomatch-file-pattern" xreflabel="--IOmatch-file-pattern">
+            <term><option><![CDATA[--IOmatch-file-pattern=WILDCARDEXPR]]></option></term>
+            <listitem>
+              <para>
+		Apply IOmatch to the first file matching the wildcard pattern instead of the sdtout stream.
+	      </para>
+
+	      <para>This option can be activated with the environment variable <command>VERROU_IOMATCH_FILE_PATTERN</command>.</para>
+            </listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
