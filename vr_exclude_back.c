@@ -34,20 +34,22 @@
 #include "vr_main.h"
 #include "vr_exclude_back.h"
 
+
 static void vr_freeAddrList (Vr_Addr_List* list);
 static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
 static void vr_dumpExcludeBack(Vr_Exclude_Back* list, VgFile* openFile, const HChar* fname);
 static void vr_dumpAddrList(Vr_Addr_List* list, VgFile* openFile, const HChar* fname);
-static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, Int nbBack, Addr* ip, Bool used);
+static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, uint32_t hash, Int nbBack, Addr* ip, Bool used);
 static Vr_Exclude_Back* vr_loadExcludeBack(Vr_Exclude_Back* list, const HChar* fname);
 static Vr_Addr_List* vr_addAddrList(Vr_Addr_List* addrList, Addr ip);
 static void vr_printf_back( Int nbBack, Addr* ip);
 
 
 
-static Vr_Exclude_Back* vr_addExcludeBack (Vr_Exclude_Back* list, Int nbBack, Addr* ip, Bool used) {
+static Vr_Exclude_Back* vr_addExcludeBack (Vr_Exclude_Back* list, uint32_t hash, Int nbBack, Addr* ip, Bool used) {
   Vr_Exclude_Back * cell = VG_(malloc)("vr.addExcludeBack.1", sizeof(Vr_Exclude_Back));
-  cell->nbBack    = nbBack;
+  cell->hash = hash;
+  cell->nbBack = nbBack;
   for(Int i =0; i<nbBack ; i++){
      (cell->ip)[i]=ip[i];
      cell->used=used;
@@ -64,12 +66,13 @@ static Vr_Addr_List* vr_addAddrList (Vr_Addr_List* list, Addr ip) {
 }
 
 static Vr_Exclude_Back *
-vr_findExcludeBack (Vr_Exclude_Back* list, Int nbBack, Addr* ip) {
+vr_findExcludeBack (Vr_Exclude_Back* list, uint32_t hash, Int nbBack, Addr* ip) {
   Vr_Exclude_Back * exclude;
 
-  Int count=0;
   for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
-     count++;
+     if(exclude->hash==hash){
+        continue;
+     }
      if (exclude->nbBack != nbBack){
       continue;
      }
@@ -100,10 +103,82 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
   return NULL;
 }
 
+static uint64_t random_tab[60]={
+   2985842423061390143u,
+   6155994775641341576u,
+   11133449992811317908u,
+   2809993047858131118u,
+   343786130611462202u,
+   10690702445040133432u,
+   4472513001295944961u,
+   2637892484857255287u,
+   15189824055630787375u,
+   471453054957249064u,
+   16552904328305087823u,
+   16881247611676794125u,
+   12152756136273148605u,
+   3535861666160102650u,
+   4951063668586377889u,
+   10775862766476761754u,
+   3748389828156510984u,
+   2626395394426996450u,
+   13170924636444605068u,
+   7799449480253520417u,
+   5122313439138483079u,
+   2159572797422004593u,
+   3136432834710339610u,
+   12915487189227830479u,
+   6496157115756572912u,
+   7607983774205437223u,
+   13287476727360348339u,
+   9340551607431390514u,
+   8013023239282372496u,
+   9699839932870471558u,
+   8513220962990564476u,
+   1054323830018557827u,
+   2296323699372013602u,
+   15424791006065552493u,
+   9042448944516228065u,
+   6264448299341813139u,
+   5063398896814650533u,
+   11020122929152178401u,
+   17671784740069361653u,
+   7153875437183966428u,
+   16885889230938066065u,
+   16745672200074323915u,
+   8154495383720775682u,
+   15269517765492493200u,
+   6823217064475791746u,
+   17662671531950591504u,
+   7579988816145209287u,
+   6528958726939472121u,
+   14980161600902429607u,
+   9652664859464035868u,
+   7703324691731719795u,
+   8076745247662332549u,
+   10528203704637706849u,
+   7752710728204745783u,
+   3247272757173584161u,
+   6391961793109400208u,
+   13925765315525301671u,
+   14906710822340923727u,
+   15786857429020403268u,
+   13118961848124046344u
+};
+
+uint32_t hash_back(Int nbBack, Addr* ip){
+   uint32_t res=random_tab[0];
+   for(int i=0; i< nbBack; i++){
+      res+= random_tab[i+1]*(uint64_t)(ip[i]);
+   }
+   return res;
+}
+
 void vr_addBackGen(Vr_Back* vrBack, Int nbBack, Addr* ip){
-   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->gen_exclude, nbBack, ip);
+   uint32_t hash=hash_back(nbBack, ip);
+   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->gen_exclude, hash, nbBack, ip);
    if(excludeBack==NULL){
-      vrBack->gen_exclude=vr_addExcludeBack(vrBack->gen_exclude, nbBack, ip, True);
+      vrBack->gen_exclude=vr_addExcludeBack(vrBack->gen_exclude, hash, nbBack, ip, True);//TOTO
       for(Int i=0; i< nbBack; i++){
          Vr_Addr_List * cell=vr_findAddr(vrBack->addr_list, ip[i]);
          if(cell==NULL){
@@ -304,7 +379,7 @@ static Vr_Exclude_Back* vr_loadExcludeBack(Vr_Exclude_Back* list, const HChar* f
         addrTab[addrIndex]=addr;
         addrLine=c+1;
      }
-     list = vr_addExcludeBack(list, nb, addrTab, False);
+     list = vr_addExcludeBack(list, hash_back(nb, addrTab), nb, addrTab, False);
    }
    VG_(free)(line);
    VG_(close)(fd);
@@ -320,7 +395,8 @@ void vr_loadBack(Vr_Back* vrBack, const HChar* filename){
 }
 
 Bool vr_isInstrumentedBack(Vr_Back* vrBack, Int nbBack, Addr* ip){
-   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->exclude , nbBack, ip);
+   uint32_t hash=hash_back(nbBack, ip);
+   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->exclude , hash, nbBack, ip);
    if(excludeBack==NULL){
       return True;
    }else{
