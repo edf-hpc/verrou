@@ -18,11 +18,13 @@ struct Vr_Addr_List_ {
    Vr_Addr_List* next;
 };
 
+#define HASH_TABLE_SIZE 128
+#define HASH_TABLE_MASK 0x7f
 
 typedef struct Vr_Back_ Vr_Back;
 struct Vr_Back_ {
-   Vr_Exclude_Back* exclude;
-   Vr_Exclude_Back* gen_exclude;
+   Vr_Exclude_Back* exclude[HASH_TABLE_SIZE];
+   Vr_Exclude_Back* gen_exclude[HASH_TABLE_SIZE];
    Vr_Addr_List*    addr_list;
    HChar* gen_exclude_file;
    VgFile * handlerGenExclude;
