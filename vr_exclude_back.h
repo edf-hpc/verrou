@@ -18,8 +18,8 @@ struct Vr_Addr_List_ {
    Vr_Addr_List* next;
 };
 
-#define HASH_TABLE_SIZE 128
-#define HASH_TABLE_MASK 0x7f
+#define HASH_TABLE_SIZE 256
+#define HASH_TABLE_MASK 0xff
 
 typedef struct Vr_Back_ Vr_Back;
 struct Vr_Back_ {

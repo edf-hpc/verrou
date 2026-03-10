@@ -36,7 +36,7 @@
 
 
 static void vr_freeAddrList (Vr_Addr_List* list);
-static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
+static UInt vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
 static void vr_dumpExcludeBack(Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], VgFile* openFile, const HChar* fname);
 static void vr_dumpAddrList(Vr_Addr_List* list, VgFile* openFile, const HChar* fname);
 static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, uint64_t hash, Int nbBack, Addr* ip, Bool used);
@@ -249,9 +249,11 @@ void vr_back_init(Vr_Back* vrBack, Bool genExclude, const HChar* rep){
    }
 }
 
-static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
-  while (list != NULL) {
-     if(verbose){
+static UInt vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
+   UInt count=0;
+   while (list != NULL) {
+      count++;
+      if(verbose){
         if(!(list->used)){
            VG_(umsg)("Warning unused backtrace exclude: ");
            vr_printf_back(list->nbBack, list->ip);
@@ -263,6 +265,7 @@ static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
      VG_(free)(list);
      list = next;
   }
+  return count;
 }
 
 static void vr_freeAddrList (Vr_Addr_List* list) {
@@ -274,10 +277,33 @@ static void vr_freeAddrList (Vr_Addr_List* list) {
 }
 
 void vr_back_finalize(Vr_Back* vrBack){
+   VG_(umsg)("vrback->exclude hashmap repartition\n");
+   UInt emptyCount=0;
+   VG_(printf)("\t");
    for(int i=0; i< HASH_TABLE_SIZE; i++){
-      vr_freeExcludeBack(vrBack->exclude[i], True);
-      vr_freeExcludeBack(vrBack->gen_exclude[i], False);
+      UInt count=vr_freeExcludeBack(vrBack->exclude[i], True);
+      if(count!=0){
+         VG_(printf)("%u ", count);
+      }else{
+         emptyCount++;
+      }
    }
+   VG_(printf)("(empty cases: %u)\n", emptyCount);
+
+   VG_(umsg)("vrback->gen_exclude hashmap repartition\n");
+   emptyCount=0;
+   VG_(printf)("\t");
+   for(int i=0; i< HASH_TABLE_SIZE; i++){
+      UInt count=vr_freeExcludeBack(vrBack->gen_exclude[i], False);
+      if(count!=0){
+         VG_(printf)("%u ", count);
+      }else{
+         emptyCount++;
+      }
+   }
+   VG_(printf)("(empty cases: %u)\n", emptyCount);
+
+
    vr_freeAddrList(vrBack->addr_list);
 }
 
