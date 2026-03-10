@@ -32,7 +32,6 @@ struct Vr_Back_ {
    VgFile * handlerAddrList;
 };
 
-uint64_t hash_back(Int nbBack, Addr* ip);
 
 void vr_back_init(Vr_Back* vrBack, Bool genExclude, const HChar* rep);
 void vr_back_finalize(Vr_Back* vrBack);

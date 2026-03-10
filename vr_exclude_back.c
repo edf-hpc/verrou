@@ -103,7 +103,7 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
   return NULL;
 }
 
-static uint64_t random_tab[60]={
+static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
    2985842423061390143u,
    6155994775641341576u,
    11133449992811317908u,
@@ -163,15 +163,52 @@ static uint64_t random_tab[60]={
    13925765315525301671u,
    14906710822340923727u,
    15786857429020403268u,
-   13118961848124046344u
+   13118961848124046344u,
+   9061602297803521817u,
+   14602810107122255403u,
+   5181387183074701763u,
+   12455440596304530655u,
+   9488500234855566716u,
+   2840795029857820201u,
+   10637415451187460530u,
+   9526742773740779915u,
+   12993957145109984077u,
+   16595983440426650519u,
+   3068904279573555455u,
+   4536579437332634936u,
+   14391189681883609427u,
+   2987416569882863943u,
+   15305567246421999454u,
+   15227420318761939354u,
+   12404560068799548348u,
+   15738609249941343559u,
+   2577779507510210097u,
+   5250821968302244420u,
+   15436811984011331066u
 };
+/*This tab is generated with :
+#include <random>
+#include <iostream>
+int main(int argc, char** argv){
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dis;
+    for(int i=0; i< atoi(argv[1]); i++){
+      std::cout << "    "<<dis(gen) << "u,"<<std::endl;
+    }
+    return 0;
+}*/
 
-uint64_t hash_back(Int nbBack, Addr* ip){
+
+static inline uint64_t hash_back(Int nbBack, Addr* ip){
    uint64_t res=random_tab[0];
    for(int i=0; i< nbBack; i++){
-      res+= random_tab[i+1]*(uint64_t)(ip[i]);
-      // ip[i] should be divided into 2 uint32_t and
-      // random_tab size should multiply by 2;
+      uint64_t val64=ip[i];
+      uint32_t val32_1=val64;
+      uint32_t val32_2=(val64>>32);
+
+      res+= random_tab[2*i+1]*val32_1;
+      res+= random_tab[2*i+2]*val32_2;
    }
    return res;
 }
