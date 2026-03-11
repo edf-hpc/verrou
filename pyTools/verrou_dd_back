@@ -68,6 +68,17 @@ class BackAddrPrint:
         (sym,filename,linenum)=tupleName
         return sym+"\t"+filename+":"+str(linenum)
 
+    def compressAddr(self, addrTab):
+        if addrTab==[]:
+            return []
+        res=[[addrTab[0],1]]
+        for addr in addrTab[1:]:
+            if addr==res[-1][0]:
+                res[-1][1]+=1
+            else:
+                res+=[[addr,1]]
+        return res
+
     def backTraceToStr(self, line, ignoreCommon=False):
         nb,sep,remain=line.strip().partition(":")
         addrTab=remain.split(",")
@@ -76,11 +87,11 @@ class BackAddrPrint:
 
         res=line+"\n"
         index=0
-        for addr in addrTab:
+        for addr,count in self.compressAddr(addrTab):
             tupleName=self.addrToTuple[addr]
             addrStr=self.addrToString(tupleName)
             if "(below main)" in addrStr:
-                res+="\t\t"+str(index)+"+:  (below main)\n"
+                res+="\t"+str(index)+"+:  (below main)\n"
                 break
 
             if self.config_.hideBelowPython:
@@ -93,11 +104,15 @@ class BackAddrPrint:
                                                     "PyEval_EvalCode"]]):
                     res+="\t\t"+str(index)+"+:  (below python)\n"
                     break
-
-            res+="\t\t"+str(index)+":  "+addrStr+"\n"
-            index+=1
+            maxSpace=6
+            if count==1:
+                strIndex=str(index)
+            else:
+                strIndex=str(index)+"-"+ str(index+count-1)
+            res+="\t"+strIndex+":"+(" "*max(0,maxSpace-len(strIndex))) +addrStr+"\n"
+            index+=count
         if ignoreCommon and self.commonIndex>0:
-            res+="\t\t"+str(index)+"-"+str(index+self.commonIndex-1)+":\t(common stack)"
+            res+="\t"+str(index)+"-"+str(index+self.commonIndex-1)+":\t(common stack)"
 
         return res
 
