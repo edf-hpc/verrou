@@ -23,5 +23,8 @@ smallExpo: smallExpo.c $(SRC)
 infCheck: infCheck.c $(SRC)
 	gcc $(FLAGS) $(INCLUDE) infCheck.c $(SRC) -o infCheck $(LDFLAGS)
 
+denormCheck: denormCheck.c $(SRC)
+	gcc $(FLAGS) $(INCLUDE) denormCheck.c $(SRC) -o denormCheck $(LDFLAGS)
+
 clean:
 	rm infCheck cmpFloat

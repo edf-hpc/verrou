@@ -83,6 +83,16 @@ Bool ignoreEmptyLine=True;
 const HChar vr_verboseKeyStr[]=  "verbose: ";
 SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
 
+const HChar vr_logLevelKeyStr[]=  "log-level: ";
+SizeT vr_logLevelKeyStrSize=sizeof(vr_logLevelKeyStr)-1;
+
+const HChar vr_nbMatchMaxKeyStr[]=  "nb-match-max: ";
+SizeT vr_nbMatchMaxKeyStrSize=sizeof(vr_nbMatchMaxKeyStr)-1;
+
+const HChar vr_permutableBmatchIndexesKeyStr[]=  "permutable-bmatch-indexes: ";
+SizeT vr_permutableBmatchIndexesKeyStrSize=sizeof(vr_permutableBmatchIndexesKeyStr)-1;
+
+
 const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
 SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
 Bool vr_dumpStdout=False;
@@ -104,19 +114,37 @@ HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
 SizeT vr_nbpostInit=0;
 SizeT vr_countPostInit=0;
 
+static int vr_nb_match_max=100;
 
-#define MATCH_MAX 2000
 #define APPLY_PER_MATCH_MAX 5
 #define POST_APPLY_PER_MATCH_MAX 2
 #define MATCH_SIZE_MAX 30
-HChar vr_applyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
-SizeT vr_nbApplyMatch[MATCH_MAX];
-HChar vr_postApplyMatch[MATCH_MAX][APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
-SizeT vr_nbPostApplyMatch[MATCH_MAX];
-HChar* vr_matchPattern[MATCH_MAX];
-Bool  vr_BreakMatchPattern[MATCH_MAX];
-SizeT vr_countMatchPattern[MATCH_MAX];
+
+typedef struct vr_match_data {
+   HChar* match_pattern;
+   Bool  is_break_match_pattern;
+   Bool  is_exact_match_pattern;
+   SizeT count_match;
+   HChar apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+   SizeT nb_apply_match;
+   HChar post_apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+   SizeT nb_post_apply_match;
+} vr_match_data_t;
+
+vr_match_data_t* vr_match_tab=NULL;
 SizeT vr_nbMatch=0;
+SizeT vr_reorgBegin=1;
+SizeT vr_reorgEnd=0;
+SizeT vr_lastReorgMatch=0;
+
+static inline void vr_allocate_match_if_needed(void){
+   if(vr_match_tab==NULL){
+      vr_match_tab=VG_(malloc)("vr_allocate_match_if_needed", vr_nb_match_max*sizeof(vr_match_data_t));
+      if(vr_match_tab==NULL){
+         VG_(tool_panic)("vr_IOmatch_clr : allocation failed");
+      }
+   }
+}
 
 
 Int previousMatchIndex=-1;
@@ -165,6 +193,7 @@ SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), size
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
 UInt IOMatch_verbose=1;
+UInt IOMatch_log_level=1;
 
 static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
 
@@ -293,7 +322,24 @@ static Bool get_fullnc_line ( Int fd, HChar** bufpp)
 }
 
 
+inline static Bool vr_containWildCard(const HChar* matchString){
+   int i=0;
+   while(matchString[i]!=(HChar)0){
+      if(matchString[i]=='*' || matchString[i]=='?'){
+         return True;
+      }
+      i++;
+   }
+   return False;
+}
 
+inline static Bool vr_string_match(SizeT matchIndex, const HChar* filtered_line){
+   if(vr_match_tab[matchIndex].is_exact_match_pattern){
+      return (VG_(strcmp)(vr_match_tab[matchIndex].match_pattern,filtered_line)==0);
+   }else{
+      return VG_(string_match)(vr_match_tab[matchIndex].match_pattern,filtered_line);
+   }
+}
 
 
 static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly){
@@ -320,7 +366,9 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     }else{
       vr_set_instrument_state ("IO Match CLR", False, True);
     }
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: stop\n");
+    if( IOMatch_log_level>0 ){
+       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: stop\n");
+    }
     return;
   case startKey:
     if(noIntrusiveOnly){
@@ -328,24 +376,34 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     }else{
       vr_set_instrument_state ("IO Match CLR", True, True);
     }
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: start\n");
+    if( IOMatch_log_level>0 ){
+       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: start\n");
+    }
     return;
   case stopSoftKey:
     vr_set_instrument_state ("IO Match CLR", False, False);
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: stop soft\n");
+    if( IOMatch_log_level>0 ){
+       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: stop soft\n");
+    }
     return;
   case startSoftKey:
     vr_set_instrument_state ("IO Match CLR", True, False);
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: start soft\n");
+    if( IOMatch_log_level>0 ){
+       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: start soft\n");
+    }
     return;
   case displayCounterKey:
     vr_ppOpCount();
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: display_counter\n");
+    if( IOMatch_log_level>0 ){
+       VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: display_counter\n");
+    }
     return;
   case nbInstrKey:
   {
      UInt nbInstr=vr_count_fp_instrumented();
-     VG_(fprintf)(vr_IOmatchCLRFileLog,"fp_instr: %u\n", nbInstr );
+     if( IOMatch_log_level>0 ){
+        VG_(fprintf)(vr_IOmatchCLRFileLog,"fp_instr: %u\n", nbInstr );
+     }
      return;
   }
   case resetCounterKey:
@@ -357,7 +415,9 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     {
       SizeT ret;
       ret=vr_traceBB_dumpCov();
-      VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: dump_cover : %lu\n", ret);
+      if( IOMatch_log_level>0 ){
+         VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: dump_cover : %lu\n", ret);
+      }
       return;
     }
   case denormCounterKey:
@@ -383,7 +443,9 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     }
   case exitKey:
     {
-      VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: exit\n");
+      if( IOMatch_log_level>0 ){
+          VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: exit\n");
+      }
       if(vr_filter){
          char msgEnd[]="";
          VG_(write)(filter_fdin[1], msgEnd, 1);
@@ -532,7 +594,9 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
           VG_(umsg)("default action str : %s\n", defaultAction);
        }
        if (vr_valid_apply_cmd(defaultAction)){
-	 VG_(fprintf)(vr_IOmatchCLRFileLog, "default action [%lu] : %s\n",vr_nbDefault ,defaultAction);
+         if(IOMatch_log_level>0){
+             VG_(fprintf)(vr_IOmatchCLRFileLog, "default action [%lu] : %s\n",vr_nbDefault ,defaultAction);
+         }
 	 VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
 	 vr_nbDefault++;
        }else{
@@ -573,8 +637,10 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
           VG_(umsg)("init action str : %s\n", initAction);
        }
        if (vr_valid_apply_cmd(initAction)){
-	 VG_(fprintf)(vr_IOmatchCLRFileLog, "init action [%lu] : %s\n",vr_nbInit , initAction);
-	 VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
+         if( IOMatch_log_level>0){
+            VG_(fprintf)(vr_IOmatchCLRFileLog, "init action [%lu] : %s\n",vr_nbInit , initAction);
+         }
+         VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
 	 vr_nbInit++;
        }else{
           VG_(umsg)("init action %s is not valid", initAction);
@@ -590,7 +656,9 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
           VG_(umsg)("post-init action str : %s\n", postinitAction);
        }
        if (vr_valid_apply_cmd(postinitAction)){
-	 VG_(fprintf)(vr_IOmatchCLRFileLog, "postinit action [%lu] : %s\n",vr_nbpostInit , postinitAction);
+         if( IOMatch_log_level>0){
+            VG_(fprintf)(vr_IOmatchCLRFileLog, "postinit action [%lu] : %s\n",vr_nbpostInit , postinitAction);
+         }
 	 VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
 	 vr_nbpostInit++;
        }else{
@@ -602,28 +670,38 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
     //Treat bmatch key
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_bmatchKeyStr, vr_bmatchKeyStrSize)==0 ){
-      if(vr_nbMatch> MATCH_MAX){
+      vr_allocate_match_if_needed();
+      if(vr_nbMatch> vr_nb_match_max){
 	VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_bmatchKeyStrSize;
-      VG_(fprintf)(vr_IOmatchCLRFileLog, "bmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
-      vr_matchPattern[vr_nbMatch]=VG_(strdup)("bmath.patterndup", matchPattern);
-      vr_nbApplyMatch[vr_nbMatch]=0;
-      vr_countMatchPattern[vr_nbMatch]=0;
-      vr_BreakMatchPattern[vr_nbMatch]=True;
+      if( IOMatch_log_level>0){
+         VG_(fprintf)(vr_IOmatchCLRFileLog, "bmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
+      }
+      vr_match_tab[vr_nbMatch].match_pattern=VG_(strdup)("bmatch.patterndup", matchPattern);
+      vr_match_tab[vr_nbMatch].is_break_match_pattern=True;
+      vr_match_tab[vr_nbMatch].is_exact_match_pattern=!(vr_containWildCard(matchPattern));
+      vr_match_tab[vr_nbMatch].count_match=0;
+      vr_match_tab[vr_nbMatch].nb_apply_match=0;
+      vr_match_tab[vr_nbMatch].nb_post_apply_match=0;
       vr_nbMatch++;
       continue;
     }
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_cmatchKeyStr, vr_cmatchKeyStrSize)==0 ){
-      if(vr_nbMatch> MATCH_MAX){
+       vr_allocate_match_if_needed();
+       if(vr_nbMatch> vr_nb_match_max){
 	VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_cmatchKeyStrSize;
-      VG_(fprintf)(vr_IOmatchCLRFileLog, "cmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
-      vr_matchPattern[vr_nbMatch]=VG_(strdup)("cmath.patterndup", matchPattern);
-      vr_nbApplyMatch[vr_nbMatch]=0;
-      vr_countMatchPattern[vr_nbMatch]=0;
-      vr_BreakMatchPattern[vr_nbMatch]=False;
+      if( IOMatch_log_level>0){
+         VG_(fprintf)(vr_IOmatchCLRFileLog, "cmatch pattern [%lu] : %s\n",vr_nbMatch ,matchPattern);
+      }
+      vr_match_tab[vr_nbMatch].match_pattern=VG_(strdup)("cmatch.patterndup", matchPattern);
+      vr_match_tab[vr_nbMatch].is_break_match_pattern=False;
+      vr_match_tab[vr_nbMatch].is_exact_match_pattern=!(vr_containWildCard(matchPattern));
+      vr_match_tab[vr_nbMatch].count_match=0;
+      vr_match_tab[vr_nbMatch].nb_apply_match=0;
+      vr_match_tab[vr_nbMatch].nb_post_apply_match=0;
       vr_nbMatch++;
       continue;
     }
@@ -633,14 +711,15 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       if(IOMatch_verbose>2){
          VG_(umsg)("apply : %s\n", applyCmd);
       }
-      if(vr_nbApplyMatch<0){
+      if(vr_nbMatch<=0){
 	VG_(tool_panic)("vr_IOmatch_clr : match expected before apply ");
       }
-      vr_nbApplyMatch[vr_nbMatch-1]++;
-      if(vr_nbApplyMatch[vr_nbMatch-1]>=APPLY_PER_MATCH_MAX ){
+      vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
+      (last_match_data->nb_apply_match)++;
+      if( (last_match_data->nb_apply_match) >= APPLY_PER_MATCH_MAX ){
 	VG_(tool_panic)("vr_IOmatch_clr : too many apply per match ");
       }
-      VG_(strncpy)(vr_applyMatch[vr_nbMatch-1][vr_nbApplyMatch[vr_nbMatch-1]-1],applyCmd, MATCH_SIZE_MAX);
+      VG_(strncpy)( last_match_data->apply_match[last_match_data->nb_apply_match -1], applyCmd, MATCH_SIZE_MAX);
       continue;
     }
 
@@ -649,40 +728,70 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
       if(IOMatch_verbose>2){
          VG_(umsg)("post_apply : %s\n", applyCmd);
       }
-      if(vr_nbApplyMatch<0){
+      if(vr_nbMatch<0){
 	VG_(tool_panic)("vr_IOmatch_clr : match expected before post-apply ");
       }
-      if(!(vr_BreakMatchPattern[vr_nbMatch-1])){
+      vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
+      if(!(last_match_data->is_break_match_pattern)){
          VG_(tool_panic)("cmatch and post_apply are incompatible ");
       }
 
-      vr_nbPostApplyMatch[vr_nbMatch-1]++;
-      if(vr_nbPostApplyMatch[vr_nbMatch-1]>=POST_APPLY_PER_MATCH_MAX ){
+      (last_match_data->nb_post_apply_match)++;
+      if((last_match_data->nb_post_apply_match)>=POST_APPLY_PER_MATCH_MAX ){
 	VG_(tool_panic)("vr_IOmatch_clr : too many post-apply per match ");
       }
-      VG_(strncpy)(vr_postApplyMatch[vr_nbMatch-1][vr_nbPostApplyMatch[vr_nbMatch-1]-1],applyCmd, MATCH_SIZE_MAX);
+      VG_(strncpy)( last_match_data->post_apply_match[last_match_data->nb_post_apply_match -1], applyCmd, MATCH_SIZE_MAX);
       continue;
     }
-
 
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_verboseKeyStr, vr_verboseKeyStrSize)==0 ){
       const HChar* verboseStr=stripSpace(vr_IOmatch_CmdLine+vr_verboseKeyStrSize);
       IOMatch_verbose=VG_(strtoull10)(verboseStr,  NULL);
       continue;
     }
+    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_logLevelKeyStr, vr_logLevelKeyStrSize)==0 ){
+      const HChar* logLevelStr=stripSpace(vr_IOmatch_CmdLine+vr_logLevelKeyStrSize);
+      IOMatch_log_level=VG_(strtoull10)(logLevelStr,  NULL);
+      continue;
+    }
+
+    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_nbMatchMaxKeyStr, vr_nbMatchMaxKeyStrSize)==0 ){
+       if(vr_nbMatch>0){
+          VG_(tool_panic)("vr_IOmatch_clr : nb-match-max is invalid after bmatch of cmatch");
+       }
+       const HChar* nbMatchMaxStr=stripSpace(vr_IOmatch_CmdLine+vr_nbMatchMaxKeyStrSize);
+       vr_nb_match_max=VG_(strtoull10)(nbMatchMaxStr,  NULL);
+       continue;
+    }
+
+    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_permutableBmatchIndexesKeyStr, vr_permutableBmatchIndexesKeyStrSize)==0 ){
+
+       HChar* indexesStr=stripSpace(vr_IOmatch_CmdLine+vr_permutableBmatchIndexesKeyStrSize);
+       HChar* next;
+       vr_reorgBegin  =VG_(strtoull10)(indexesStr, &next );
+       vr_reorgEnd =VG_(strtoull10)(next, NULL );
+
+       if(vr_reorgEnd <=vr_reorgBegin){
+          VG_(tool_panic)("vr_IOmatch_clr : vr_reorgEnd < vr_reorgBegin");
+       }
+       if(vr_reorgEnd >=vr_nb_match_max){
+          VG_(tool_panic)("vr_IOmatch_clr : vr_reorgEnd >= vr_nb_match_max");
+       }
+       continue;
+    }
 
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0 ){
        const HChar* dumpStr=stripSpace(vr_IOmatch_CmdLine+vr_dumpStdoutKeyStrSize);
        vr_dumpStdout=True;
        vr_IOmatchCLRFileStdout=openOutputIOMatchFile(dumpStr,fileName,".stdout-%p");
-      continue;
+       continue;
     }
 
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpFilteredStdoutKeyStr, vr_dumpFilteredStdoutKeyStrSize)==0 ){
        const HChar* dumpStr=stripSpace(vr_IOmatch_CmdLine+vr_dumpFilteredStdoutKeyStrSize);
        vr_dumpFilteredStdout=True;
        vr_IOmatchCLRFileFilteredStdout=openOutputIOMatchFile(dumpStr,fileName,".filtered.stdout-%p");
-      continue;
+       continue;
     }
 
 
@@ -799,17 +908,14 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
        continue;
     }
 
-    if(IOMatch_verbose>0){
-       VG_(umsg)("Unused line : %s\n", vr_IOmatch_CmdLine);
-       VG_(tool_panic)("vr_IOmatchCLR: bad IOMatch script\n");
-    }
+    VG_(umsg)("Unused line : %s\n", vr_IOmatch_CmdLine);
+    VG_(tool_panic)("vr_IOmatchCLR: bad IOMatch script\n");
   }//End while loop over line
 
   VG_(free)(vr_IOmatch_CmdLine);
   VG_(close)(vr.IOMatchCLRFileInput);
 
   vr_IOmatch_apply_clr("init", True);
-//  VG_(umsg)("expectCLR init done\n");
 }
 
 
@@ -833,7 +939,46 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   return -1;
 };
 
-
+static inline Bool isApplyMatchBreakable(Bool* isMatchPtr,//inout,
+                                         Int* previousMatchIndexPtr,//out
+                                         SizeT matchIndex, const HChar* filteredBuf)//in
+{
+   if( vr_string_match(matchIndex, filteredBuf)){
+      *isMatchPtr=True;
+      vr_match_data_t* current_match=&(vr_match_tab[matchIndex]);
+      //The line match the expect pattern
+      if(IOMatch_verbose>0){
+         VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
+      }
+      (current_match->count_match)++;
+      if(IOMatch_log_level>0){
+         VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
+      }
+      if(vr_filter){
+         if(IOMatch_verbose>1){
+            VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
+         }
+         if(IOMatch_log_level>0){
+            VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
+         }
+      }
+      //Loop apply to DO
+      if(current_match->nb_apply_match==0){
+         vr_IOmatch_apply_clr("default", False);
+      }
+      for(SizeT applyIndex=0 ; applyIndex< current_match->nb_apply_match; applyIndex++){
+         vr_IOmatch_apply_clr((current_match->apply_match)[applyIndex], False);
+      }
+      if(current_match->nb_post_apply_match!=0){
+         *previousMatchIndexPtr=matchIndex;
+      }
+      if(current_match->is_break_match_pattern){
+         return True;
+         //break; //match only once
+      }
+   }
+   return False;
+}
 
 void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
    /*As the syscall to not give always a full line we need to create a buffer and to treat the buffer only we detect the end of line*/
@@ -841,8 +986,7 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
    SizeT totalSize= (vr_writeLineBuffCurrent - vr_writeLineBuff) + size;
    if(totalSize >=  LINE_SIZEMAX){
-      VG_(umsg)("sizemax excedeed\n");
-      VG_(exit(1));
+      VG_(tool_panic)("vr_IOmatchCLR: line sizemax excedeed\n");
    }
    VG_(strncat)(vr_writeLineBuffCurrent , writeLine, size);
    vr_writeLineBuff[totalSize]=0;
@@ -885,10 +1029,12 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
 	 if(first){
 	   if( !ignoreEmptyLine || (filteredBuf[0]!=0) ){
-	     VG_(fprintf)(vr_IOmatchCLRFileLog,"post-init:\n");
-	     vr_IOmatch_apply_clr("post-init", False);
-	     vr_countPostInit+=1;
-	     first=False;
+              if( IOMatch_log_level>0){
+                 VG_(fprintf)(vr_IOmatchCLRFileLog,"post-init:\n");
+              }
+              vr_IOmatch_apply_clr("post-init", False);
+              vr_countPostInit+=1;
+              first=False;
 	   }
 	 }
 
@@ -898,58 +1044,52 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 	       VG_(umsg)("empty Line ignored: \n");
 	     }
 	   }else{
-	       if(IOMatch_verbose >0){
+              if(IOMatch_verbose >0){
 		 VG_(umsg)("post apply:\n");
-	       }
-	       for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
-		 vr_IOmatch_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], False);
-	       }
-	       previousMatchIndex=-1;
+              }
+              vr_match_data_t* previous_match=&(vr_match_tab[previousMatchIndex]);
+              for(SizeT postApplyIndex=0 ; postApplyIndex< previous_match->nb_post_apply_match; postApplyIndex++){
+                 vr_IOmatch_apply_clr((previous_match->post_apply_match)[postApplyIndex], False);
+              }
+              previousMatchIndex=-1;
 	   }
 	 }
 
          if(previousMatchIndex==-1){
 	     Bool matchFound=False;
+             Bool needToBreak=False;
+             if(vr_reorgEnd >=vr_nbMatch){
+                VG_(tool_panic)("vr_IOmatchCLR: vr_reorgEnd>=vr_nbMatch\n");
+             }
 	     for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
-	       if( VG_(string_match)(vr_matchPattern[matchIndex],filteredBuf)){
-		 matchFound=True;
-		 //The line match the expect pattern
-		 if(IOMatch_verbose>0){
-		   VG_(umsg)("match [%lu]: |%s|\n",matchIndex ,vr_writeLineBuffCurrent);
-		 }
-                 vr_countMatchPattern[matchIndex]++;
+                SizeT matchIndexReorg=matchIndex;
+                if( (vr_reorgBegin <= matchIndex) &&  (matchIndex <= vr_reorgEnd)){
+                   matchIndexReorg= vr_lastReorgMatch + (matchIndex-vr_reorgBegin);
+                   if(matchIndexReorg> vr_reorgEnd){
+                      matchIndexReorg = matchIndexReorg -vr_reorgEnd+vr_reorgBegin-1;
+                   }
+                }
 
-		 VG_(fprintf)(vr_IOmatchCLRFileLog,"match [%lu]: %s\n",matchIndex ,vr_writeLineBuffCurrent);
-		 if(vr_filter){
-		   if(IOMatch_verbose>0){
-		     VG_(umsg)("match(filtered): |%s|\n", filteredBuf);
-		   }
-		   VG_(fprintf)(vr_IOmatchCLRFileLog,"match(filtered): %s\n", filteredBuf);
-		 }
-		 //Loop apply to DO
-		 if(vr_nbApplyMatch[matchIndex]==0){
-		   vr_IOmatch_apply_clr("default", False);
-		 }
-		 for(SizeT applyIndex=0 ; applyIndex< vr_nbApplyMatch[matchIndex]; applyIndex++){
-		   vr_IOmatch_apply_clr(vr_applyMatch[matchIndex][applyIndex], False);
-		 }
-	       if(vr_nbPostApplyMatch[matchIndex]!=0){
-		 previousMatchIndex=matchIndex;
-	       }
-               if(vr_BreakMatchPattern[matchIndex]){
-                  break; //match only once
-	       }
-               }
+                needToBreak=isApplyMatchBreakable(&matchFound, &previousMatchIndex,
+                                                       matchIndexReorg,filteredBuf);
+                if(matchFound){
+                   vr_lastReorgMatch=matchIndexReorg;
+                }
+                if(needToBreak)  break;
 	     }
+
+
 	     if( matchFound==False){
-	       VG_(fprintf)(vr_IOmatchCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
-	       VG_(fprintf)(vr_IOmatchCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
-	       if(IOMatch_verbose>1){
-	       VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
-	       VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
-	       }
+                if(IOMatch_log_level>1){
+                   VG_(fprintf)(vr_IOmatchCLRFileLog,"line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+                   VG_(fprintf)(vr_IOmatchCLRFileLog,"line(filtered) unmatch: |%s|\n", filteredBuf);
+                }
+                if(IOMatch_verbose>1){
+                   VG_(umsg)("line unmatch          : |%s|\n", vr_writeLineBuffCurrent);
+                   VG_(umsg)("line(filtered) unmatch: |%s|\n", filteredBuf);
+                }
 	     }
-	   }
+         }
 	 vr_writeLineBuffCurrent= vr_writeLineBuff+i+1;
        }
    }
@@ -967,25 +1107,36 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
 void vr_IOmatch_clr_finalize (void){
   if(vr_countPostInit==0 && vr_nbpostInit!=0){
-    VG_(fprintf)(vr_IOmatchCLRFileLog,"post-init:\n");
-    vr_IOmatch_apply_clr("post-init", True);
+     if( IOMatch_log_level>0 ){
+        VG_(fprintf)(vr_IOmatchCLRFileLog,"post-init:\n");
+     }
+     vr_IOmatch_apply_clr("post-init", True);
   }
 
 
   // If post_apply need to be applied
   if(previousMatchIndex!=-1){
-    for(SizeT postApplyIndex=0 ; postApplyIndex< vr_nbPostApplyMatch[previousMatchIndex]; postApplyIndex++){
-      vr_IOmatch_apply_clr(vr_postApplyMatch[previousMatchIndex][postApplyIndex], True);
+    vr_match_data_t* previous_match=&(vr_match_tab[previousMatchIndex]);
+    for(SizeT postApplyIndex=0 ; postApplyIndex< previous_match->nb_post_apply_match; postApplyIndex++){
+       vr_IOmatch_apply_clr((previous_match->post_apply_match)[postApplyIndex], True);
     }
     previousMatchIndex=-1;
   }
 
-  VG_(fprintf)(vr_IOmatchCLRFileLog,"match pattern count\n");
-  VG_(umsg)("match pattern count\n");
+  if(IOMatch_log_level>0){
+     VG_(fprintf)(vr_IOmatchCLRFileLog,"match pattern count\n");
+  }
+  if(IOMatch_verbose>0){
+     VG_(umsg)("match pattern count\n");
+  }
   for(SizeT matchIndex=0; matchIndex< vr_nbMatch; matchIndex++){
-     SizeT count=vr_countMatchPattern[matchIndex];
-     VG_(fprintf)(vr_IOmatchCLRFileLog,"\t%lu : %s\n", count,vr_matchPattern[matchIndex]);
-     VG_(umsg)("\t%lu : %s\n", count,vr_matchPattern[matchIndex]);
+     SizeT count=vr_match_tab[matchIndex].count_match;
+     if(IOMatch_log_level>0){
+        VG_(fprintf)(vr_IOmatchCLRFileLog,"\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
+     }
+     if(IOMatch_verbose>0){
+        VG_(umsg)("\t%lu : %s\n", count, vr_match_tab[matchIndex].match_pattern);
+     }
   }
 
    //free and close evrything
@@ -1002,7 +1153,7 @@ void vr_IOmatch_clr_finalize (void){
    }
 
    for(SizeT i=0; i< vr_nbMatch; i++){
-     VG_(free)(vr_matchPattern[i]);
+     VG_(free)(vr_match_tab[i].match_pattern);
    }
 
    VG_(fclose)(vr_IOmatchCLRFileLog);

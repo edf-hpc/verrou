@@ -125,7 +125,7 @@ class ddConfig(gen_config.gen_config):
             splitTab=[self.nbRUN]
         if self.param_dicho_tab=="half":
             splitTab=[ int(math.ceil(self.nbRUN / 2.))]
-        if self.param_dicho_tab in [str(i) for i in range(1, self.nbRUN+1) ]:
+        if self.param_dicho_tab in range(1, self.nbRUN+1) :
             splitTab=[self.param_dicho_tab]
         return splitTab
 

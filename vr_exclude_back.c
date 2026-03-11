@@ -34,20 +34,22 @@
 #include "vr_main.h"
 #include "vr_exclude_back.h"
 
+
 static void vr_freeAddrList (Vr_Addr_List* list);
-static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
-static void vr_dumpExcludeBack(Vr_Exclude_Back* list, VgFile* openFile, const HChar* fname);
+static UInt vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose);
+static void vr_dumpExcludeBack(Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], VgFile* openFile, const HChar* fname);
 static void vr_dumpAddrList(Vr_Addr_List* list, VgFile* openFile, const HChar* fname);
-static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, Int nbBack, Addr* ip, Bool used);
-static Vr_Exclude_Back* vr_loadExcludeBack(Vr_Exclude_Back* list, const HChar* fname);
+static Vr_Exclude_Back* vr_addExcludeBack(Vr_Exclude_Back* excludeBack, uint64_t hash, Int nbBack, Addr* ip, Bool used);
+static void vr_loadExcludeBack(Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], const HChar* fname);
 static Vr_Addr_List* vr_addAddrList(Vr_Addr_List* addrList, Addr ip);
 static void vr_printf_back( Int nbBack, Addr* ip);
 
 
 
-static Vr_Exclude_Back* vr_addExcludeBack (Vr_Exclude_Back* list, Int nbBack, Addr* ip, Bool used) {
+static Vr_Exclude_Back* vr_addExcludeBack (Vr_Exclude_Back* list, uint64_t hash, Int nbBack, Addr* ip, Bool used) {
   Vr_Exclude_Back * cell = VG_(malloc)("vr.addExcludeBack.1", sizeof(Vr_Exclude_Back));
-  cell->nbBack    = nbBack;
+  cell->hash = hash;
+  cell->nbBack = nbBack;
   for(Int i =0; i<nbBack ; i++){
      (cell->ip)[i]=ip[i];
      cell->used=used;
@@ -64,12 +66,13 @@ static Vr_Addr_List* vr_addAddrList (Vr_Addr_List* list, Addr ip) {
 }
 
 static Vr_Exclude_Back *
-vr_findExcludeBack (Vr_Exclude_Back* list, Int nbBack, Addr* ip) {
+vr_findExcludeBack (Vr_Exclude_Back* list, uint64_t hash, Int nbBack, Addr* ip) {
   Vr_Exclude_Back * exclude;
 
-  Int count=0;
   for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
-     count++;
+     if(exclude->hash!=hash){
+        continue;
+     }
      if (exclude->nbBack != nbBack){
       continue;
      }
@@ -100,10 +103,120 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
   return NULL;
 }
 
+static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
+   2985842423061390143u,
+   6155994775641341576u,
+   11133449992811317908u,
+   2809993047858131118u,
+   343786130611462202u,
+   10690702445040133432u,
+   4472513001295944961u,
+   2637892484857255287u,
+   15189824055630787375u,
+   471453054957249064u,
+   16552904328305087823u,
+   16881247611676794125u,
+   12152756136273148605u,
+   3535861666160102650u,
+   4951063668586377889u,
+   10775862766476761754u,
+   3748389828156510984u,
+   2626395394426996450u,
+   13170924636444605068u,
+   7799449480253520417u,
+   5122313439138483079u,
+   2159572797422004593u,
+   3136432834710339610u,
+   12915487189227830479u,
+   6496157115756572912u,
+   7607983774205437223u,
+   13287476727360348339u,
+   9340551607431390514u,
+   8013023239282372496u,
+   9699839932870471558u,
+   8513220962990564476u,
+   1054323830018557827u,
+   2296323699372013602u,
+   15424791006065552493u,
+   9042448944516228065u,
+   6264448299341813139u,
+   5063398896814650533u,
+   11020122929152178401u,
+   17671784740069361653u,
+   7153875437183966428u,
+   16885889230938066065u,
+   16745672200074323915u,
+   8154495383720775682u,
+   15269517765492493200u,
+   6823217064475791746u,
+   17662671531950591504u,
+   7579988816145209287u,
+   6528958726939472121u,
+   14980161600902429607u,
+   9652664859464035868u,
+   7703324691731719795u,
+   8076745247662332549u,
+   10528203704637706849u,
+   7752710728204745783u,
+   3247272757173584161u,
+   6391961793109400208u,
+   13925765315525301671u,
+   14906710822340923727u,
+   15786857429020403268u,
+   13118961848124046344u,
+   9061602297803521817u,
+   14602810107122255403u,
+   5181387183074701763u,
+   12455440596304530655u,
+   9488500234855566716u,
+   2840795029857820201u,
+   10637415451187460530u,
+   9526742773740779915u,
+   12993957145109984077u,
+   16595983440426650519u,
+   3068904279573555455u,
+   4536579437332634936u,
+   14391189681883609427u,
+   2987416569882863943u,
+   15305567246421999454u,
+   15227420318761939354u,
+   12404560068799548348u,
+   15738609249941343559u,
+   2577779507510210097u,
+   5250821968302244420u,
+   15436811984011331066u
+};
+/*This tab is generated with :
+#include <random>
+#include <iostream>
+int main(int argc, char** argv){
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dis;
+    for(int i=0; i< atoi(argv[1]); i++){
+      std::cout << "    "<<dis(gen) << "u,"<<std::endl;
+    }
+    return 0;
+}*/
+
+
+static inline uint64_t hash_back(Int nbBack, Addr* ip){
+   uint64_t res=random_tab[0];
+   for(int i=0; i< nbBack; i++){
+      uint64_t val64=ip[i];
+      uint32_t val32_1=val64;
+      uint32_t val32_2=(val64>>32);
+      res+= (random_tab[2*i+1]+val32_1) * (random_tab[2*i+2]*val32_2);
+   }
+   return res;
+}
+
 void vr_addBackGen(Vr_Back* vrBack, Int nbBack, Addr* ip){
-   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->gen_exclude, nbBack, ip);
+   uint64_t hash=hash_back(nbBack, ip);
+   uint32_t hashKey= hash & HASH_TABLE_MASK;
+   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->gen_exclude[hashKey], hash, nbBack, ip);
    if(excludeBack==NULL){
-      vrBack->gen_exclude=vr_addExcludeBack(vrBack->gen_exclude, nbBack, ip, True);
+      vrBack->gen_exclude[hashKey]=vr_addExcludeBack(vrBack->gen_exclude[hashKey], hash, nbBack, ip, True);
       for(Int i=0; i< nbBack; i++){
          Vr_Addr_List * cell=vr_findAddr(vrBack->addr_list, ip[i]);
          if(cell==NULL){
@@ -117,8 +230,10 @@ void vr_addBackGen(Vr_Back* vrBack, Int nbBack, Addr* ip){
 Bool vr_is_dir ( const HChar* f ); // declaration : implem in .vr_traceBB_impl.h
 
 void vr_back_init(Vr_Back* vrBack, Bool genExclude, const HChar* rep){
-   vrBack->exclude=NULL;
-   vrBack->gen_exclude=NULL;
+   for(int i=0; i < HASH_TABLE_SIZE; i++){
+      vrBack->exclude[i]=NULL;
+      vrBack->gen_exclude[i]=NULL;
+   }
    vrBack->addr_list=NULL;
    vrBack->gen_exclude_file=NULL;
    vrBack->gen_addr_file=NULL;
@@ -169,9 +284,11 @@ void vr_back_init(Vr_Back* vrBack, Bool genExclude, const HChar* rep){
    }
 }
 
-static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
-  while (list != NULL) {
-     if(verbose){
+static UInt vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
+   UInt count=0;
+   while (list != NULL) {
+      count++;
+      if(verbose){
         if(!(list->used)){
            VG_(umsg)("Warning unused backtrace exclude: ");
            vr_printf_back(list->nbBack, list->ip);
@@ -183,6 +300,7 @@ static void vr_freeExcludeBack (Vr_Exclude_Back* list, Bool verbose) {
      VG_(free)(list);
      list = next;
   }
+  return count;
 }
 
 static void vr_freeAddrList (Vr_Addr_List* list) {
@@ -194,23 +312,50 @@ static void vr_freeAddrList (Vr_Addr_List* list) {
 }
 
 void vr_back_finalize(Vr_Back* vrBack){
-   vr_freeExcludeBack(vrBack->exclude, True);
-   vr_freeExcludeBack(vrBack->gen_exclude, False);
+   VG_(umsg)("vrback->exclude hashmap repartition\n");
+   UInt emptyCount=0;
+   VG_(printf)("\t");
+   for(int i=0; i< HASH_TABLE_SIZE; i++){
+      UInt count=vr_freeExcludeBack(vrBack->exclude[i], True);
+      if(count!=0){
+         VG_(printf)("%u ", count);
+      }else{
+         emptyCount++;
+      }
+   }
+   VG_(printf)("(empty cases: %u)\n", emptyCount);
+
+   VG_(umsg)("vrback->gen_exclude hashmap repartition\n");
+   emptyCount=0;
+   VG_(printf)("\t");
+   for(int i=0; i< HASH_TABLE_SIZE; i++){
+      UInt count=vr_freeExcludeBack(vrBack->gen_exclude[i], False);
+      if(count!=0){
+         VG_(printf)("%u ", count);
+      }else{
+         emptyCount++;
+      }
+   }
+   VG_(printf)("(empty cases: %u)\n", emptyCount);
+
+
    vr_freeAddrList(vrBack->addr_list);
 }
 
-static void vr_dumpExcludeBack (Vr_Exclude_Back* list, VgFile* fd, const HChar* fname) {
+static void vr_dumpExcludeBack (Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], VgFile* fd, const HChar* fname) {
   if (VG_(clo_verbosity) >0){
     VG_(umsg)("Dumping backtrace exclusions list to `%s'... ", fname);
   }
 
   Vr_Exclude_Back * exclude;
-  for (exclude = list ; exclude != NULL ; exclude = exclude->next) {
-     VG_(fprintf)(fd,"%d:%lu",exclude->nbBack,exclude->ip[0]);
-     for( Int i=1; i<exclude->nbBack; i++){
-        VG_(fprintf)(fd,",%lu",exclude->ip[i]);
+  for ( Int indexHash=0; indexHash< HASH_TABLE_SIZE;indexHash++){
+     for (exclude = listTab[indexHash] ; exclude != NULL ; exclude = exclude->next) {
+        VG_(fprintf)(fd,"%d:%lu",exclude->nbBack,exclude->ip[0]);
+        for( Int i=1; i<exclude->nbBack; i++){
+           VG_(fprintf)(fd,",%lu",exclude->ip[i]);
+        }
+        VG_(fprintf)(fd,"\n");
      }
-     VG_(fprintf)(fd,"\n");
   }
   VG_(fclose)(fd);
   if(VG_(clo_verbosity) >0){
@@ -264,7 +409,7 @@ void vr_dumpBack(Vr_Back* vrBack){
 
 #define LINE_SIZEMAX 512
 
-static Vr_Exclude_Back* vr_loadExcludeBack(Vr_Exclude_Back* list, const HChar* fname){
+static void vr_loadExcludeBack(Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], const HChar* fname){
    if (VG_(clo_verbosity) >0){
       VG_(umsg)("Loading backtrace exclusions list from `%s'... ", fname);
    }
@@ -304,23 +449,26 @@ static Vr_Exclude_Back* vr_loadExcludeBack(Vr_Exclude_Back* list, const HChar* f
         addrTab[addrIndex]=addr;
         addrLine=c+1;
      }
-     list = vr_addExcludeBack(list, nb, addrTab, False);
+     uint64_t hash=hash_back(nb, addrTab);
+     uint32_t hashKey=hash & HASH_TABLE_MASK;
+     listTab[hashKey] = vr_addExcludeBack(listTab[hashKey], hash, nb, addrTab, False);
    }
    VG_(free)(line);
    VG_(close)(fd);
    if (VG_(clo_verbosity) >0){
       VG_(umsg)("OK.\n");
    }
-   return list;
 }
 #undef LINE_SIZEMAX
 
 void vr_loadBack(Vr_Back* vrBack, const HChar* filename){
-   vrBack->exclude= vr_loadExcludeBack(vrBack->exclude, filename);
+   vr_loadExcludeBack(vrBack->exclude, filename);
 }
 
 Bool vr_isInstrumentedBack(Vr_Back* vrBack, Int nbBack, Addr* ip){
-   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->exclude , nbBack, ip);
+   uint64_t hash=hash_back(nbBack, ip);
+   uint32_t hashKey= hash & HASH_TABLE_MASK;
+   Vr_Exclude_Back * excludeBack=vr_findExcludeBack (vrBack->exclude[hashKey] , hash, nbBack, ip);
    if(excludeBack==NULL){
       return True;
    }else{

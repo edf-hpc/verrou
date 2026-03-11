@@ -3,7 +3,7 @@
           "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 
 <chapter id="vr-manual" xreflabel="Verrou">
-  <title>Verrou: a floating-point rounding errors checker</title>
+  <title>Verrou: a floating-point rounding error checker</title>
 
   <para>
     To use this tool, you must specify <option>--tool=verrou</option> on the
@@ -37,7 +37,7 @@
       </para>
 
       <note><para>
-	Before to use this option, you should think about to use the <computeroutput>_det</computeroutput>, <computeroutput>_comdet</computeroutput> or  <computeroutput>_scomdet</computeroutput> rounding modes (See <xref linkend="vr-opt.rounding-mode"/> option).
+	Before using this option, you should consider using the <computeroutput>_det</computeroutput>, <computeroutput>_comdet</computeroutput> or  <computeroutput>_scomdet</computeroutput> rounding modes (See <xref linkend="vr-opt.rounding-mode"/> option).
       </para></note>
 
       <programlisting>
@@ -106,7 +106,7 @@ int main () {
 --8523-- Entering deterministic section 70660: det() (deterministic.c:4)
 --8523-- Leaving deterministic section: det() (deterministic.c:6) </screen>
 
-          Here we can see that both calls to the <function>det()</function> functions used
+          Here we can see that both calls to the <function>det()</function> function used
           the same value to seed the pRNG (based on the client request location in the
           source).
         </para>
@@ -170,10 +170,10 @@ det2
 
         <para>
           It is possible to give
-          the <computeroutput>VERROU_START_DETERMINISTIC</computeroutput> a non-0 LEVEL
-          argument to look at the source location of a calling function in the stack. In
+          the <computeroutput>VERROU_START_DETERMINISTIC</computeroutput> a non-zero LEVEL
+          argument to look at the source location of a calling function on the stack. In
           the case described above, replacing
-          the <function>verrou_startDeterminisic</function>
+          the <function>verrou_startDeterministic</function>
           and <function>verrou_stopDeterministic</function> function definitions like
           this:
           <programlisting>
@@ -231,7 +231,7 @@ det2
                 Toggle <link linkend="vr-manual.feat.count">floating-point
                   operations counting</link>.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_COUNT_OP</command></para>
+	      <para>This option can be activated with the environment variable <command>VERROU_COUNT_OP</command></para>
 	    </listitem>
           </varlistentry>
 
@@ -242,15 +242,15 @@ det2
 		<computeroutput>checkdenorm</computeroutput> or <computeroutput>vprec</computeroutput>
 		backend. <computeroutput>verrou</computeroutput>
 		enables to perform several rounding mode (See <xref linkend="vr-opt.rounding-mode"/> option).
-		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetics)
-		based on extended precision in quad (See <xref linkend="vr-opt.mca-mode"/>,
+		<computeroutput>mcaquad</computeroutput> enables to perform MCA (Monte Carlo Arithmetic)
+		based on extended precision in quad precision (See <xref linkend="vr-opt.mca-mode"/>,
 		<xref linkend="vr-opt.mca-precision-double"/> and  <xref linkend="vr-opt.mca-precision-float"/>  options).
 		The integration of <computeroutput>mcaquad</computeroutput> backend in the frontend verrou
 		is still considered as experimental. <computeroutput>checkdenorm</computeroutput> enables
 		the <computeroutput>daz,ftz,dazftz</computeroutput> rounding-modes, and the <computeroutput>--check-denorm</computeroutput> and <computeroutput>--cd[io]-gen-file</computeroutput> options.
 		<computeroutput>vprec</computeroutput> implements all reduced precisions.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_BACKEND</command></para>
+	      <para>This option can be activated with the environment variable <command>VERROU_BACKEND</command></para>
 
 	    </listitem>
           </varlistentry>
@@ -310,7 +310,7 @@ det2
 		    <computeroutput>float</computeroutput>,
                 </para></listitem>
               </itemizedlist>
-	      <para>This option can be activated with the env variable <command>VERROU_ROUNDING_MODE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_ROUNDING_MODE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -329,11 +329,11 @@ det2
 
 		  <listitem><para>
 		      Options <option>--rounding-mode=nearest --float=yes</option> instrument float operations by nearest wrapper function. So if your code contains float operations, it can be
-		      useful to use <link linkend="vr-opt.instr-TYPE">--vr-instr-float=no</link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over float operations.
+		      useful to use <link linkend="vr-opt.instr-TYPE">--vr-instr-float=no</link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as NaN and Inf checks) over float operations.
 		  </para></listitem>
 
 		</itemizedlist>
-		<para>This option can be activated with the env variable <command>VERROU_FLOAT</command>.</para>
+		<para>This option can be activated with the environment variable <command>VERROU_FLOAT</command>.</para>
 
 	      </listitem>
 	    </varlistentry>
@@ -341,7 +341,7 @@ det2
 	      <term><option><![CDATA[--unfused=<yes|no> [default=no]]]></option></term>
 		<listitem>
 		  <para>
-		    With this option, mAdd (mSub resp.) operations are replaced by a Mul and a Add (resp. Sub) 
+		    With this option, mAdd (mSub resp.) operations are replaced by a Mul and an Add (resp. Sub) 
 		    in the frontend. Hence this option is compatible with all <option>--rounding-mode</option> options and with all other backends.
 		  </para>
 		  <itemizedlist>
@@ -349,11 +349,11 @@ det2
 			The fma function of libm is not modified.
 		    </para></listitem>
 		    <listitem><para>
-			Used with the nearest rounding mode, it is ofen pertinent to add the option 
-			 <link linkend="vr-opt.instr"><option>--vr-instr=mAdd,mSub</option></link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as Nan and Inf checks) over other floating point operations.
+			Used with the nearest rounding mode, it is often pertinent to add the option 
+			 <link linkend="vr-opt.instr"><option>--vr-instr=mAdd,mSub</option></link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as NaN and Inf checks) over other floating-point operations.
 		    </para></listitem>
 		  </itemizedlist>
-		  <para>This option can be activated with the env variable <command>VERROU_UNFUSED</command>.</para>
+		  <para>This option can be activated with the environment variable <command>VERROU_UNFUSED</command>.</para>
 
 		</listitem>
 	      </varlistentry>
@@ -365,10 +365,10 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>auto_exclude</command> : The default python exclusion list is activated.
+                  <command>auto_exclude</command>: The default python exclusion list is activated.
                 </para></listitem>
                 <listitem><para>
-                    <command>manual_exclude</command> : The default python exclusion list is ignored. The user has to manually define his own list.
+                    <command>manual_exclude</command>: The default python exclusion list is ignored. The user has to manually define his own list.
                 </para></listitem>
               </itemizedlist>
             </listitem>
@@ -381,13 +381,13 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>auto_exclude</command> : The libm exclusion is automatically detected thanks pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
+                  <command>auto_exclude</command>: The libm exclusion is automatically detected thanks to pattern detection. The library detected  are libm, vgpreload_verrou, interlibmath, libquadmath and libgcc_s. If you need to perturb libgcc_s, we will need to use libgcc_s.
                 </para></listitem>
                 <listitem><para>
-                  <command>manual_exclude</command> : The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is useful if the pattern detection detect object you need to perturb.
+                  <command>manual_exclude</command>: The automatic detection is ignored and the user has to define manually the exclusion thanks <command>--exclude</command> option. This option is useful if the pattern detection detects objects you need to perturb.
                 </para></listitem>
 		<listitem><para>
-                  <command>instrumented</command> : the interposition library Interlibmath is loaded (The complex libm function are not yet instrumented). This option is valid only with verrou backend. This option imply implicitly the libm exclusion.
+                  <command>instrumented</command>: the interposition library Interlibmath is loaded (The complex libm function are not yet instrumented). This option is valid only with verrou backend. This option implicitly implies the libm exclusion.
                 </para></listitem>
               </itemizedlist>
 
@@ -397,13 +397,13 @@ det2
             </listitem>
 	  </varlistentry>
 	  <varlistentry id="vr-opt.libm-noinst-rounding-mode" xreflabel="--libm-noinst-rounding-mode=">
-            <term><option><![CDATA[--libm-noinst-rounding-mode==<native|nearest> [default=native]]]></option></term>
+            <term><option><![CDATA[--libm-noinst-rounding-mode=<native|nearest> [default=native]]]></option></term>
 	      <listitem>
 	      <para>
-		Select the behavior of libm (when <option>--libm=instrumented</option> is activated) when libm function are not instrumented (thanks <option>--exclude</option> or <option>--source</option>) between <command>native</command> and <command>nearest</command>.
+		Select the behavior of libm (when <option>--libm=instrumented</option> is activated) when libm functions are not instrumented (thanks <option>--exclude</option> or <option>--source</option>) between <command>native</command> and <command>nearest</command>.
 	      </para>
 
-	      <para>This option can be activated with the env variable <command>VERROU_LIBM_NOINST_ROUNDING_MODE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_LIBM_NOINST_ROUNDING_MODE</command>.</para>
 	      </listitem>
 	  </varlistentry>
 			  <varlistentry id="vr-opt.mca-mode" xreflabel="--mca-mode">
@@ -414,22 +414,22 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>mca : </command> <computeroutput>full mca</computeroutput> (default)
+                  <command>mca: </command> <computeroutput>full mca</computeroutput> (default)
                 </para></listitem>
                 <listitem><para>
-                  <command>rr : </command> <computeroutput> random rounding</computeroutput>
+                  <command>rr: </command> <computeroutput> random rounding</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>pb : </command> <computeroutput> precision bounding</computeroutput>
+                  <command>pb: </command> <computeroutput> precision bounding</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>ieee : </command> <computeroutput> ieee (rounding to nearest)</computeroutput>
+                  <command>ieee: </command> <computeroutput> ieee (rounding to nearest)</computeroutput>
                 </para></listitem>
               </itemizedlist>
 
-	      <para> The mcaquad backend implementation come from Verificarlo : <ulink url="https://github.com/verificarlo/verificarlo"> More information on Verificalo github </ulink>
+	      <para> The mcaquad backend implementation comes from Verificarlo: <ulink url="https://github.com/verificarlo/verificarlo"> More information on Verificarlo github </ulink>
 	      </para>
-	      <para>This option can be activated with the env variable <command>VERROU_MCA_MODE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_MCA_MODE</command>.</para>
             </listitem>
           </varlistentry>
 	  <varlistentry id="vr-opt.mca-precision-double" xreflabel="--mca-precision-double">
@@ -438,7 +438,7 @@ det2
               <para>
                 Configure the magnitude of inexact function used by mcaquad backend for double operation.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_DOUBLE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_MCA_PRECISION_DOUBLE</command>.</para>
 
             </listitem>
           </varlistentry>
@@ -449,7 +449,7 @@ det2
               <para>
                 Configure the magnitude of inexact function used by mcaquad backend for float operation.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_MCA_PRECISION_FLOAT</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_MCA_PRECISION_FLOAT</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -467,7 +467,7 @@ det2
               <para>If this option is omitted, the pRNG is seeded with a value
               based on the current time and process id, so that it should change
               at each execution.</para>
-	      <para>This option can be activated with the env variable <command>VERROU_SEED</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_SEED</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -475,13 +475,13 @@ det2
 	  <varlistentry id="vr-manual.feat.updatepfunc" xreflabel="--prandom-update">
             <term><option><![CDATA[--prandom-update=func [default=none]]]></option></term>
             <listitem>
-              <para>If present, this option the p-value of the prandom[|det|comdet] rounding mode is
+              <para>With this option the p-value of the prandom[|det|comdet] rounding modes is
 		updated (with an uniform random selection between 0 and 1) at the beginning of each function call.
 		Be careful the option is highly sensitive
-		to the program compilation option. If each the update is inserted between each floating point
+		to the program compilation options. If each the update is inserted between each floating-point
 		operations the  <link linkend="vr-manual.feat.rounding-mode">prandom and random modes</link> are equivalent.
 		</para>
-		<para>This option can be activated with the env variable <command>VERROU_PRANDOM_UPDATE</command>.</para>
+		<para>This option can be activated with the environment variable <command>VERROU_PRANDOM_UPDATE</command>.</para>
               </listitem>
           </varlistentry>
 
@@ -494,7 +494,7 @@ det2
 		If P is equal to 1., prandom and downward are equivalent.
 		If P is equal to .5, prandom and random are equivalent.
 	      </para>
-		<para>This option can be activated with the env variable <command>VERROU_PRANDOM_PVALUE</command>.</para>
+		<para>This option can be activated with the environment variable <command>VERROU_PRANDOM_PVALUE</command>.</para>
               </listitem>
           </varlistentry>
 
@@ -508,7 +508,7 @@ det2
                 operations.</para>
               <para>If this option is not provided, all supported operations
 		types are instrumented.</para>
-	      <para>This option can be activated with the env variable <command>VERROU_INSTR</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_INSTR</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -552,8 +552,8 @@ det2
       </section>
       <section>
         <title>VPREC options</title>
-	<para> The vprec backend implementation come from Verificarlo :
-	  <ulink url="https://github.com/verificarlo/verificarlo/blob/master/doc/02-Backends.md#vprec-backend-libinterflop_vprecso"> More information on Verificalo github </ulink>
+	<para> The vprec backend implementation comes from Verificarlo:
+	  <ulink url="https://github.com/verificarlo/verificarlo/blob/master/doc/02-Backends.md#vprec-backend-libinterflop_vprecso"> More information on Verificarlo github </ulink>
 	  </para>
 
         <variablelist id="vr.opts.vprec.list">
@@ -565,20 +565,20 @@ det2
               </para>
               <itemizedlist>
                 <listitem><para>
-                  <command>ieee : </command> The program uses standard IEEE arithmetic, no rounding are introduced.
+                  <command>ieee: </command> The program uses standard IEEE arithmetic, no rounding are introduced.
                 </para></listitem>
 		<listitem><para>
-                  <command>ib : </command> <computeroutput> InBound precision only</computeroutput>
+                  <command>ib: </command> <computeroutput> InBound precision only</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>ob : </command> <computeroutput> OutBound precision only (default mode)</computeroutput>
+                  <command>ob: </command> <computeroutput> OutBound precision only (default mode)</computeroutput>
                 </para></listitem>
 		<listitem><para>
-                  <command>full : </command> <computeroutput>Inbound and outbound mode combined</computeroutput>
+                  <command>full: </command> <computeroutput>Inbound and outbound mode combined</computeroutput>
                 </para></listitem>
               </itemizedlist>
 
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_MODE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_MODE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -588,7 +588,7 @@ det2
               <para>
                 Configure the precision (length of pseudo-mantissa) used by vprec backend for double operations.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY64</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_PRECISION_BINARY64</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -598,7 +598,7 @@ det2
               <para>
                 Configure the range (length of pseudo-exponent) used by vprec backend for double operations.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY64</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_RANGE_BINARY64</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -608,7 +608,7 @@ det2
               <para>
                 Configure the precision (length of pseudo-mantissa) used by vprec backend for float operations.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRECISION_BINARY32</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_PRECISION_BINARY32</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -618,7 +618,7 @@ det2
               <para>
                 Configure the range (length of pseudo-exponent) used by vprec backend for float operations.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_RANGE_BINARY32</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_RANGE_BINARY32</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -666,7 +666,7 @@ det2
 		  </tbody>
 	      </tgroup></table>
 	      </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_PRESET</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_PRESET</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -676,7 +676,7 @@ det2
               <para>
 		Sets denormals inputs to zero.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_DAZ</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_DAZ</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -686,7 +686,7 @@ det2
               <para>
 		Sets denormals outputs to zero.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_VPREC_FTZ</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_VPREC_FTZ</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -703,7 +703,7 @@ det2
                   with <link linkend="vr-cr.start-instrumentation">client
                     requests</link>.
 		</para>
-		<para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART</command>.</para>
+		<para>This option can be activated with the environment variable <command>VERROU_INSTR_ATSTART</command>.</para>
 	      </listitem>
             </varlistentry>
 
@@ -714,7 +714,7 @@ det2
                     with <link linkend="vr-cr.start-instrumentation">client
                       requests</link>.
 		  </para>
-		  <para>This option can be activated with the env variable <command>VERROU_INSTR_ATSTART_SOFT</command>.</para>
+		  <para>This option can be activated with the environment variable <command>VERROU_INSTR_ATSTART_SOFT</command>.</para>
 		</listitem>
               </varlistentry>
 
@@ -724,7 +724,7 @@ det2
                 in <computeroutput>FILE</computeroutput> will be
                 left <link linkend="vr-manual.feat.exclude">uninstrumented</link>.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_EXCLUDE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -732,7 +732,7 @@ det2
             <term><option><![CDATA[--gen-exclude=FILE]]></option></term>
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> a list of
-                all symbols (which contain perturbed floating point instruction)
+                all symbols (which contain perturbed floating-point instruction)
 		encountered during program execution. This is useful
                 to build an <link linkend="vr-manual.feat.exclude">exclusion
                 list</link>.</para>
@@ -750,7 +750,7 @@ det2
                 advised to avoid perturbing rounding-modes
                 using <xref linkend="vr-opt.rounding-mode"/><![CDATA[=nearest]]>.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_GEN_EXCLUDE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_GEN_EXCLUDE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -760,15 +760,15 @@ det2
                 coming from <link linkend="vr-manual.feat.source">source code
                 lines</link> listed in <computeroutput>FILE</computeroutput>
                 are instrumented.</para>
-	      <para>This option can be activated with the env variable <command>VERROU_SOURCE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_SOURCE</command>.</para>
 	    </listitem>
           </varlistentry>
 
 	  <varlistentry id="vr-opt.warn-unknown-source" xreflabel="--warn-unknown-source">
             <term><option><![CDATA[--warn-unknown-source=FILE]]></option></term>
-            <listitem><para> This option requires the use of <command>--source</command> option. When used, verrou generates warning for each line of code (which execute floating point operation) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
+            <listitem><para> This option requires the use of <command>--source</command> option. When used, verrou generates warnings for each line of code (which execute floating-point operations) neither present in the FILE defined by <command>--source</command> option  nor in the FILE provided by <command>--warn-unknown-source</command> option.
 	      </para>
-	      <para>This option can be activated with the env variable <command>VERROU_WARN_UNKNOWN_SOURCE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_WARN_UNKNOWN_SOURCE</command>.</para>
 	    </listitem>
           </varlistentry>
 
@@ -777,19 +777,19 @@ det2
             <listitem>
               <para>Generate in <computeroutput>FILE</computeroutput> the list
                 of all <link linkend="vr-manual.feat.source">source code
-                  lines</link> (which contain perturbed floating point instruction)
+                  lines</link> (which contain perturbed floating-point instruction)
 		encountered during program execution.</para>
               <para>In combination with
                 <xref linkend="vr-opt.source"/>, only list
                 source code lines which were not already present in the provided
                 list.</para>
-	      <para>This option can be activated with the env variable <command>VERROU_GEN_SOURCE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_GEN_SOURCE</command>.</para>
             </listitem>
           </varlistentry>
 
 	  <varlistentry id="vr-opt.exclude-backtrace" xreflabel="--exclude-backtrace">
             <term><option><![CDATA[--exclude-backtrace=FILE]]></option></term>
-            <listitem><para>Backtrace listed
+            <listitem><para>Backtraces listed
                 in <computeroutput>FILE</computeroutput> will be
                 left uninstrumented. In practice <computeroutput>FILE</computeroutput> is a subset of the file <computeroutput>backInfo-<replaceable>PID</replaceable></computeroutput> generated by the <option>--gen-backtrace</option> option.
 		To keep addresses compatible between  <option>--exclude-backtrace</option> and  <option>--gen-backtrace</option> it is mandatory to disable ASLR (automatically done by <command>verrou_dd_back</command>).
@@ -799,7 +799,7 @@ det2
 	      <para>
 		This option is used by <command>verrou_dd_back</command>. Manual use is not expected but possible.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_EXCLUDE_BACKTRACE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_EXCLUDE_BACKTRACE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -816,14 +816,14 @@ det2
 		</para></listitem>
 
 		<listitem><para>
-		  <computeroutput>backAddrInfo-<replaceable>PID</replaceable></computeroutput> contains for each addresses of <computeroutput>BackInfo</computeroutput> file, the corresponding symbol and debug info (filename and linenum). The separator is the tabulation.
+		  <computeroutput>backAddrInfo-<replaceable>PID</replaceable></computeroutput> contains for each address in <computeroutput>BackInfo</computeroutput> file, the corresponding symbol and debug info (filename and linenum). The separator is a tab character.
 		</para></listitem>
 		</itemizedlist>
 	      </para>
               <para>
 		This option is used by <command>verrou_dd_back</command>. Manual use is not expected but possible.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_GEN_BACKTRACE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_GEN_BACKTRACE</command>.</para>
             </listitem>
           </varlistentry>
 
@@ -831,24 +831,36 @@ det2
             <term><option><![CDATA[--IOmatch-clr=IOMATCH_FILE]]></option></term>
             <listitem>
               <para> When this option is present the IOMatch script is read. This file
-		defines the interaction between verrou and the stdout (<link linkend= "id.iomatch.format">See IOMatch format</link>). The main idea behind this format is to apply client request action when a line match a <computeroutput>bmatch:</computeroutput> (b for break) or <computeroutput>cmatch:</computeroutput> (c for continue) line. If a line match a bmatch the following match (b or c) are not tried. With a <computeroutput>cmatch:</computeroutput> the following match are tried.</para>
+		defines the interaction between verrou and stdout (<link linkend= "id.iomatch.format">See IOMatch format</link>). The main idea behind this format is to apply client request action when a line match a <computeroutput>bmatch:</computeroutput> (b for break) or <computeroutput>cmatch:</computeroutput> (c for continue) line. If a line match a bmatch the following match (b or c) are not tried. With a <computeroutput>cmatch:</computeroutput> the following match are tried.</para>
 
-	      <para> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED env variable. In C we proposed the library <computeroutput>verrouUnbuffered.so</computeroutput> (Loadable with LD_PRELOAD), to deactivate bufferization of stdout (For other file descriptors you have to flush manually, as it require more complex development). <command> verrou_dd_task</command> automatically use this two tricks.
+	      <para> The use of this option, may be sensitive to the bufferization of the program. In C++ std::endl flush the output, so we usually avoid the problem. In python, you can use PYTHONUNBUFFERED environment variable. In C we proposed the library <computeroutput>verrouUnbuffered.so</computeroutput> (Loadable with LD_PRELOAD), to disable bufferization of stdout (for other file descriptors you have to flush manually, as it requires more complex development). <command> verrou_dd_task</command> automatically use these two tricks.
 	      </para>
-	      <para>This option can be activated with the env variable <command>VERROU_IOMATCH_CLR</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_IOMATCH_CLR</command>.</para>
 	    </listitem>
           </varlistentry>
 
 	  <varlistentry id="vr-opt.output-iomatch-rep" xreflabel="--output-IOmatch-rep">
             <term><option><![CDATA[--output-IOmatch-rep=REP]]></option></term>
             <listitem>
-              <para> Specify the repository of IOmatch log file. By default the log file is
+              <para> Specify the repository for IOmatch log files. By default the log files are
 		<computeroutput>IOMATCH_FILE.log-PID</computeroutput>. With this option it is <computeroutput>REP/IOMatch.log-PID</computeroutput>. This option as also influence on the keys <computeroutput> dump-stdout:</computeroutput> and <computeroutput> dump-filtered-stdout:</computeroutput>of the <link linkend= "id.iomatch.format">IOMatch format</link>).
 	      </para>
 
-	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_IOMATCH_REP</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_OUTPUT_IOMATCH_REP</command>.</para>
             </listitem>
           </varlistentry>
+
+	  <varlistentry id="vr-opt.iomatch-file-pattern" xreflabel="--IOmatch-file-pattern">
+            <term><option><![CDATA[--IOmatch-file-pattern=WILDCARDEXPR]]></option></term>
+            <listitem>
+              <para>
+		Apply IOmatch to the first file matching the wildcard pattern instead of the sdtout stream.
+	      </para>
+
+	      <para>This option can be activated with the environment variable <command>VERROU_IOMATCH_FILE_PATTERN</command>.</para>
+            </listitem>
+          </varlistentry>
+
         </variablelist>
       </section>
 
@@ -861,7 +873,7 @@ det2
             <listitem><para>
 		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_TRACE</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_TRACE</command>.</para>
 	    </listitem>
           </varlistentry>
 
@@ -870,7 +882,7 @@ det2
             <listitem><para>
 		Specify the <computeroutput>REP</computeroutput> directory for the trace output files.
               </para>
-	      <para>This option can be activated with the env variable <command>VERROU_OUTPUT_TRACE_REP</command>.</para>
+	      <para>This option can be activated with the environment variable <command>VERROU_OUTPUT_TRACE_REP</command>.</para>
 	    </listitem>
           </varlistentry>
 	</variablelist>
@@ -1090,15 +1102,27 @@ det2
     <section id="id.iomatch.format" xreflabel="IOMatch format">
       <title>IOMatch script</title>
       <para>
-	The IOMatch script is activated thanks the option <xref linkend="vr-opt.iomatch-clr"/><option>=IOMATCH_FILE</option>.
+	The IOMatch script is activated thanks to the option <xref linkend="vr-opt.iomatch-clr"/><option>=IOMATCH_FILE</option>.
 	The comment symbol is <computeroutput>#</computeroutput>.
       </para>
       <para>
-      The file can contain the configuration keys :
+      The file can contain the configuration keys:
       <variablelist>
 	<varlistentry>
 	  <term><computeroutput>verbose: LEVEL</computeroutput></term>
 	  <listitem><para> Configure the verbosity level (default 1)
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>nb-match-max: NB_MAX</computeroutput></term>
+	  <listitem><para> Set the maximum number of bmatch or cmatch keys (default 100). Can not be used after a bmatch or cmatch keys.
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>permutable-bmatch-indexes: INDEX_BEGIN INDEX_END</computeroutput></term>
+	  <listitem><para> Define a section of permutable bmatch keys. Indexes take into account bmatch and cmatch keys. Can be used anytime (if smaller than nb-match-max default value), but better after <computeroutput>nb-match-max</computeroutput> key. This key is useful to enable performance optimisation (used by <computeroutput>verrou_dd_stdout</computeroutput>)
 	  </para></listitem>
 	</varlistentry>
 
@@ -1115,7 +1139,7 @@ det2
 	    Activate the line replacement with CMD.
 	    </para>
 	    <para>
-	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> env variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
+	      The first argument of <computeroutput>CMD</computeroutput> has to be a path absolute (or relative if there is no CWD change). This option is not (yet) able to read the <computeroutput>$PATH</computeroutput> environment variable. All the space are used to separate command arguments. To prevent this behaviour, the only way is to escape the space by a backslash.</para>
 	  </listitem>
 
 	</varlistentry>
@@ -1169,7 +1193,7 @@ det2
 	<varlistentry>
 	  <term><computeroutput>bmatch: PATTERN</computeroutput></term>
 	  <listitem><para>
-	    Setup a break match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after :
+	    Setup a break match section. <computeroutput>PATTERN</computeroutput> is a wildcard expression with * and ?. The first space after:
 	    is a part of the format. Every space after this one is meaningful. The order of match section is important.
 	    If the first match is *. All following match section are ignored. The action associated to the section are
 	    defined in the following lines by <computeroutput>apply:</computeroutput> and <computeroutput>post-apply:</computeroutput>.
@@ -1198,14 +1222,14 @@ det2
 	  <term><computeroutput>post-apply: ACTION</computeroutput></term>
 	  <listitem><para>
 	    Add the ACTION to current <computeroutput>match</computeroutput> section. This action will be applied to the end of the match section.
-	    If no post-action is defined, nothing is done (ie. no <computeroutput>default</computeroutput> action).
+	    If no post-action is defined, nothing is done (i.e. no <computeroutput>default</computeroutput> action).
 	  </para></listitem>
 	</varlistentry>
       </variablelist>
       </para>
 
       <para>
-The different possible actions are :
+The different possible actions are:
       <variablelist>
 	<varlistentry>
 	  <term><computeroutput>start</computeroutput></term>
@@ -1244,13 +1268,13 @@ The different possible actions are :
 	<varlistentry>
 	  <term><computeroutput>nb_instr</computeroutput></term>
 	  <listitem><para>
-	    Display the number of instrumented floating point operation in the log file.
+	    Display the number of instrumented floating-point operation in the log file.
 	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
 	  <term><computeroutput>reset_counter</computeroutput></term>
 	  <listitem><para>
-	    Set all floating point counters to zero.
+	    Set all floating-point counters to zero.
 	  </para></listitem>
 	</varlistentry>
 	<varlistentry>
@@ -1338,7 +1362,7 @@ The different possible actions are :
 		    <qandaentry id="faq.stoch.docbook">
 		      <question>
 			<para>
-			  What's going wrong with the following error during documentation compilation :
+			  What is going wrong with the following error during documentation compilation:
 			  <screen>
 compilation error: file ../docs/lib/vg-html-common.xsl line 4 element import
 xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl</screen>
@@ -1354,7 +1378,7 @@ xsl:import : unable to load http://docbook.sourceforge.net/release/xsl/current/h
 		    <qandaentry id="faq.compil.cc1">
 		      <question>
 			<para>
-			  What's going wrong with the following error during documentation compilation :
+			  What is going wrong with the following error during documentation compilation:
 			  <screen>
 gcc -DHAVE_CONFIG_H -I. -I..  -I.. -I../include -I../include -I../VEX/pub -I../VEX/pub -DVGA_amd64=1 -DVGO_linux=1 -DVGP_amd64_linux=1 -DVGPV_amd64_linux_vanilla=1   -m64 -O2 -g -Wall -Wmissing-prototypes -Wshadow -Wpointer-arith -Wstrict-prototypes -Wmissing-declarations -Wno-unused-result -Wcast-align -Wcast-qual -Wwrite-strings -Wempty-body -Wformat -Wformat-signedness -Wformat-security -Wignored-qualifiers -Wmissing-parameter-type -Wlogical-op -Wenum-conversion -Wimplicit-fallthrough=2 -Wold-style-declaration -finline-functions -fno-stack-protector -fno-strict-aliasing -fno-builtin   -fomit-frame-pointer -mno-avx512f -march=native -mfma -DUSE_VERROU_FMA -DUSE_VERROU_SQRT -DUSE_VERROU_QUADMATH  -DUSE_XOSHIRO  -DVERROU_DENORM_HACKS_FLOAT  -DUSE_VERROU_OPTIM -DVERROU_NUM_AVG=1 -DVERROU_DET_HASH=vr_xxhash_hash -DINTERFLOP_STATIC_INTERFACE_ENABLED  -MT verrou_amd64_linux-vr_main.o -MD -MP -MF .deps/verrou_amd64_linux-vr_main.Tpo -c -o verrou_amd64_linux-vr_main.o `test -f 'vr_main.c' || echo './'`vr_main.c
 gcc: fatal error: Killed signal terminated program cc1
@@ -1376,7 +1400,7 @@ compilation terminated.
 		<qandaentry id="faq.stoch.sample">
 		  <question id="q-stoch.sample">
 		    <para>
-		      How-many sample do I need for stochastic rounding?
+		      How many samples do I need for stochastic rounding?
 		    </para>
 		  </question>
 		  <answer>
@@ -1396,7 +1420,7 @@ compilation terminated.
 		      With these estimators, the number of samples can be computed before the runs from the expected probability and confidence level:
 
 		      <table frame='all'>
-			<title>Number of sample</title>
+			<title>Number of samples</title>
  <tgroup cols='10' align='center' colsep='1' rowsep='1'>
  <colspec colname='c1'/>
  <colspec colname='c2'/>
@@ -1441,7 +1465,7 @@ compilation terminated.
 		      </table>
 		    </para>
 		    <para>
-		      The confidence interval say us if it is useful to do more samples, but it say us nothing about the quality of stochastic modelization. You can remark, that the number of samples does not depend on the kind of rounding.
+		      The confidence interval tells us if it is useful to do more samples, but it say us nothing about the quality of stochastic modeling. You can remark, that the number of samples does not depend on the kind of rounding.
 		    </para>
 		  </answer>
 		</qandaentry>
@@ -1455,7 +1479,7 @@ compilation terminated.
 		  <answer>
 		    <para>
 		      Interval arithmetic is very attractive because it provide guarantee and you do not have to deal with confidence intervals.
-		      But it has of several disadvantages:
+		      But it has several disadvantages:
 		    </para>
 		    <itemizedlist>
 
@@ -1467,7 +1491,7 @@ compilation terminated.
 		  </listitem>
 		  <listitem>
 		    <para> Interval arithmetic is designed to provide reference results not to verify an existing code. In fact, interval arithmetic often
-		      imply to modify the algorithm (ie a specific algorithm for newton iteration is needed).
+		      implies modifying the algorithm (ie a specific algorithm for newton iteration is needed).
 		    </para>
 		  </listitem>
 
@@ -1475,16 +1499,15 @@ compilation terminated.
 		    <para>
 		      Interval arithmetic is incompatible with binary instrumentation (at least to my knowledge). In fact to implement interval arithmetic we need a
 		      shadow memory for floating-point data that works without any assumptions (with assumptions you will lose the main interest: guarantee).
-		      I don't know a perfect shadow memory implementation. It is a very hard task, because the compiler can generate floating-point code in integer registers.
-		      The best, but not perfect, floating point shadow memory for binary instrumentation is done (at least to my knowledge) by the impressive tool
-		      <ulink url="https://github.com/SciCompKL/derivgrind"> derivgrind </ulink>
+		      I do not know a perfect shadow memory implementation. It is a very hard task, because the compiler can generate floating-point code in integer registers.
+		      The best, but not perfect, floating-point shadow memory for binary instrumentation is done (at least to my knowledge) by the impressive tool <ulink url="https://github.com/SciCompKL/derivgrind"> derivgrind </ulink>
 		    </para>
 		  </listitem>
 
 		    </itemizedlist>
 		    <para>
-		      Interval arithmetic and stochastic arithmetic are complementary. Indeed since verrou relies on stochastic arithmetic modelling, we need
-		      ground truth references for validation. This reference can be provided by multi-precision interval arithmetic.
+		      Interval arithmetic and stochastic arithmetic are complementary. Indeed since verrou relies on stochastic arithmetic modeling, we need
+		      ground-truth references for validation. This reference can be provided by multi-precision interval arithmetic.
 		    </para>
 
 		  </answer>
@@ -1497,7 +1520,7 @@ compilation terminated.
 		<qandaentry id="faq.instr.noverrou">
 		  <question id="q-instr.noverrou">
 
-		    <para> What's going wrong when I get the following error?
+		    <para> What is going wrong when I get the following error?
 <screen>valgrind: failed to start tool 'verrou' for platform 'amd64-linux': No such file or directory</screen></para>
 		  </question>
 		  <answer id="a-instr.noverrou">
@@ -1505,7 +1528,7 @@ compilation terminated.
 		    <itemizedlist>
 		      <listitem>
 			<para>
-			  You may have forgotten to load the verrou environment :
+			  You may have forgotten to load the verrou environment:
 		      <screen>source INSTALL_PREFIX/env.sh</screen>
 		      You can easily check this with <option>which</option> command. You will get this error if another installation without verrou is found.
 			</para>
@@ -1530,7 +1553,7 @@ compilation terminated.
 		    <itemizedlist>
 		      <listitem>
 			<para>
-			  Your program does not perform floating-point operations :)
+			  Your program does not perform floating-point operations:)
 			</para>
 		      </listitem>
 		      <listitem>
@@ -1573,7 +1596,7 @@ compilation terminated.
 		    <itemizedlist>
 		      <listitem>
 			<para>
-			  You are only instrumenting a wrapper (see specfic question).
+			  You are only instrumenting a wrapper (see specific question).
 			</para>
 		      </listitem>
 		      <listitem>
@@ -1583,13 +1606,13 @@ compilation terminated.
 		      </listitem>
 		      </itemizedlist>
 
-		      <para> If you need to change output format</para>
+		      <para> If you need to change the output format</para>
 		      <itemizedlist>
 		      <listitem>
 			<para>
 			  For C++ code: <programlisting><![CDATA[std::cout <<std::setprecision(17);]]></programlisting>
 
-			  If your code does not use any formatting. You can use an LD_PRELOAD trick to force this command at the beginning of your program.
+			  If your code does not use any formatting, you can use an LD_PRELOAD trick to force this command at the beginning of your program.
 			  <programlisting><![CDATA[LD_PRELOAD=verrouExtendStdoutPrecision.so]]></programlisting>
 
 			</para>
@@ -1615,12 +1638,12 @@ compilation terminated.
 		<qandaentry id="faq.inst.emul">
 		  <question id="q-inst.emul">
 		    <para>
-		      My code use emulated floating point type (such as float128 or quad). What can I do?
+		      My code uses emulated floating-point types (such as float128 or quad). What can I do?
 		    </para>
 		  </question>
 		  <answer>
 		    <para>
-		      Nothing
+		      Nothing.
 		    </para>
 		  </answer>
 		</qandaentry>
@@ -1628,7 +1651,7 @@ compilation terminated.
 		<qandaentry id="faq.inst.windows">
 		  <question id="q-inst.windows">
 		    <para>
-		      My code runs under windows. What can I do?
+		      My code runs on Windows. What can I do?
 		    </para>
 		  </question>
 		  <answer>
@@ -1690,7 +1713,7 @@ compilation terminated.
 		<qandaentry id="faq.inst.native">
 		  <question id="q-inst.native">
 		    <para>
-		      Verrou with nearest rounding-mode and the native execution (my program without valgrind) do not give the same result.  What can I do?
+		      Verrou with the nearest rounding-mode and the native execution (my program without valgrind) does not give the same result.  What can I do?
 		    </para>
 		  </question>
 		  <answer>
@@ -1706,13 +1729,13 @@ compilation terminated.
 		      </listitem>
 			<listitem>
 			  <para>
-			    This is a valgrind emulation problem. If you use x87 opcodes, or fp flags (such as floating point trap or rounding mode setting) in your code, you may encounter this problem.
+			    This is a valgrind emulation problem. If you use x87 opcodes, or fp flags (such as floating-point trap or rounding mode setting) in your code, you may encounter this problem.
 			    To check this, you can use <option> valgrind --tool=none  --show-emwarns=yes</option>. With  amd64 architecture, if you see Scal instructions with verrou, it means you have x87 opcode.
 			  </para>
 			</listitem>
 			<listitem>
 			<para>
-			  Your code is doing introspection: your code can choose one algorithm or another depending on a computing time or memory consumption. In this can you should use an option to disable this introspection. If this is not possible, I have no solution for you.
+			  Your code is doing introspection: your code can choose one algorithm or another depending on a computing time or memory consumption. In this case you should use an option to disable this introspection. If this is not possible, I have no solution for you.
 			</para>
 		      </listitem>
 		      </itemizedlist>
@@ -1744,9 +1767,7 @@ compilation terminated.
 			</listitem>
 			<listitem>
 			  <para>
-			    You can have a thinner control with hardware fma (line localization and <option>-vr-instr=mAdd,mSub</option>). With libm
-			    you can select libm function only with <option>--exclude</option> or <option>--source=</option>: the limitation comes from
-			    the lack of backtrace localization.
+			    You can have a thinner control with hardware fma (line localization and <option>-vr-instr=mAdd,mSub</option>).
 			  </para>
 			</listitem>
 			<listitem>
@@ -1756,10 +1777,10 @@ compilation terminated.
 			</listitem>
 			<listitem>
 			  <para>
-			    fma hardware and fma libm are compatible with stochastic-deterministic rounding mode ([nearness,random]_[[s[com]]det] and sr_[s]monotonic).
+			    fma hardware and fma libm are compatible with stochastic-deterministic rounding modes ([nearness,random]_[[s[com]]det] and sr_[s]monotonic).
 			  </para>
 			  <para>
-			    sqrt hardware and sqrt libm are considered as independent functions for stochastic-deterministic rounding mode.
+			    sqrt hardware and sqrt libm are considered as independent functions for stochastic-deterministic rounding modes.
 			  </para>
 
 			</listitem>
@@ -1776,14 +1797,14 @@ compilation terminated.
 		  </question>
 		  <answer>
 		    <para>
-		      This operation is neither counted nor perturbed and it should be.
+		      This operation is neither counted nor perturbed, but it should be.
 		    </para>
 		    <para>
 		      Many of these operations come from the x87 instruction set and can be avoided by using the dynamic library libm.
 		    </para>
 
 		    <para>
-		      If you really need to instrument this operation, you should contact the verrou developer. You will increase your chance of convincing me
+		      If you really need to instrument this operation, you should contact the verrou developer. You will increase your chances of convincing me
 		      if you are able to compute the error done by this operation without any dependencies.
 		    </para>
 
@@ -1858,27 +1879,27 @@ compilation terminated.
 
 		      <listitem>
 			<para>
-			Sometimes the individual runs (FAIL or SUCCESS) can be very long due to quasi infinite noisy iterations  or due to NaN computation.
-			To solve this problem, you can reduce the maximum number of iterations or introduce early exit. This can be done with manual code modification, with <option>--exit-on-first-error=yes</option> (in conjunction of <option>--suppression</option> to filter errors), or with an IOmatch script.
+			Sometimes the individual runs (FAIL or SUCCESS) can be very long due to quasi-infinite noisy iterations  or due to NaN computation.
+			To solve this problem, you can reduce the maximum number of iterations or introduce early exit. This can be done with manual code modification, with <option>--exit-on-first-error=yes</option> (in conjunction with <option>--suppression</option> to filter errors), or with an IOmatch script.
 			</para>
 			</listitem>
 
 		      <listitem>
 			<para>
-			  If your script RUN and CMP are reentrant you can use the <option>--num-threads=</option> option. On a cluster it is possible to integrate the distribution into the RUN script.
+			  If your RUN and CMP scripts are re-entrant you can use the <option>--num-threads=</option> option. On a cluster it is possible to integrate the distribution into the RUN script.
 			</para>
 		      </listitem>
 
 		      <listitem>
 			<para>
-			  The <option>--rddmin-heuristics-*=</option> options are useful to speed-up the delta-debug, if you think
+			  The <option>--rddmin-heuristics-*=</option> options are useful to speed up delta-debug, if you think
 			  you will find the same unstable lines again.
 			</para>
 		      </listitem>
 
 		      <listitem>
 			<para>
-			  The <option>--exclude=</option> option (not the environment variable VERROU_EXCLUDE) is helpful to reduce the search space.
+			  The <option>--exclude=</option> option (not the environment variable VERROU_EXCLUDE) is helpful for reducing the search space.
 			</para>
 		      </listitem>
 
@@ -1912,12 +1933,12 @@ compilation terminated.
 		    <itemizedlist>
 		      <listitem>
 			<para>
-			 In ddRun script, you should only store useful data.
+			 In the ddRun script, you should only store useful data.
 			</para>
 		      </listitem>
 		      <listitem>
 			<para>
-			 You can compress data, in ddRun script. In ddCmp script you must be able to read compressed data.
+			 You can compress data, in the ddRun script. In the ddCmp script you must be able to read compressed data.
 			</para>
 		      </listitem>
 
@@ -1942,13 +1963,13 @@ compilation terminated.
 	    <qandaentry>
 	      <question>
 		<para>
-		  The cache is corrupted because all computations fail due to full disk error.
+		  The cache is corrupted because all computations fail due to a full disk error.
 		</para>
 	      </question>
 
 	      <answer>
 
-		<para>To avoid to rerun all the delta-debug process, you should follow these steps</para>
+		<para>To avoid rerunning all the delta-debug process, you should follow these steps</para>
 		    <itemizedlist>
 		      <listitem>
 			<para>

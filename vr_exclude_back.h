@@ -1,9 +1,11 @@
 #pragma once
 
 #define BACKTRACE_SIZE 40
+#include <stdint.h>
 
 typedef struct Vr_Exclude_Back_ Vr_Exclude_Back;
 struct Vr_Exclude_Back_ {
+   uint64_t hash;
    Int nbBack;
    Addr ip[BACKTRACE_SIZE];
    Bool used;
@@ -16,11 +18,13 @@ struct Vr_Addr_List_ {
    Vr_Addr_List* next;
 };
 
+#define HASH_TABLE_SIZE 256
+#define HASH_TABLE_MASK 0xff
 
 typedef struct Vr_Back_ Vr_Back;
 struct Vr_Back_ {
-   Vr_Exclude_Back* exclude;
-   Vr_Exclude_Back* gen_exclude;
+   Vr_Exclude_Back* exclude[HASH_TABLE_SIZE];
+   Vr_Exclude_Back* gen_exclude[HASH_TABLE_SIZE];
    Vr_Addr_List*    addr_list;
    HChar* gen_exclude_file;
    VgFile * handlerGenExclude;

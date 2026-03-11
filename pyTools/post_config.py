@@ -30,6 +30,8 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("trace_file", "string",   "TRACE_FILE",    ["--trace-file="],    None)
         self.addRegistry("seed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
         self.addRegistry("count_denorm", "bool", "COUNT_DENORM", ["--count-denorm"],False)
+        self.addRegistry("ioMatchHeaderFile", "string", "IOMATCH_HEADER",["--IOmatch-header="], None, "file_exists")
+        self.addRegistry("ioMatchVerbose", "int", "IOMATCH_VERBOSE",["--IOmatch-verbose="], 2, None)
 
     def usageCmd(self):
         print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
@@ -45,6 +47,7 @@ class postConfig(gen_config.gen_config):
 
 
     def normalize(self):
+        self.normalizeIOMatchHeader()
         self.rep=Path(self.rep).absolute()
         if self.trace_file!=None:
             self.trace_file=Path(self.trace_file).absolute()
@@ -82,6 +85,47 @@ class postConfig(gen_config.gen_config):
         else:
             self.usageCmd()
             self.failure()
+
+    def normalizeIOMatchHeader(self):
+        self.shiftMatch=0
+        if self.ioMatchHeaderFile==None:
+            self.ioMatchHeader=""
+        else:
+            lines=(open(self.ioMatchHeaderFile)).readlines()
+            lines=[line.replace("\n","") for line in lines]
+            error=False
+            for line in lines:
+                if not ":" in line:
+                    print("IOMatch header need a : separator")
+                    error=True
+                    break
+                if line.startswith("bmatch:"):
+                    self.shiftMatch+=1
+                    continue
+                if line.startswith("cmatch:"):
+                    self.shiftMatch+=1
+                    continue
+                if line.startswith("apply: ") or line.startswith("post-apply: "):
+                    value=line.split(" ")[1].replace("\n","")
+                    correctValueTab=["nop","panic","exit", "nb_instr",
+                                     "display_counter","dump_cover", "backtrace"]
+                    if value in correctValueTab:
+                        continue
+                    else:
+                        error=True
+                        print("IOMatch header : invalid value : ", value )
+                        print("value need to be in ", correctValueTab)
+
+                        break
+                error=True
+                break
+
+            if error:
+                print("invalid line: ", line)
+                print("%s should be a correct expect header file"%self.iomatchHeaderFile )
+                sys.exit(42)
+
+            self.ioMatchHeader="\n".join(lines)
 
     def check_instr_tab(self):
         for instrConfig in self.instr:
@@ -186,6 +230,15 @@ class postConfig(gen_config.gen_config):
 
     def get_count_denorm(self):
         return self.count_denorm
+
+    def get_ioMatchHeader(self):
+        return self.ioMatchHeader
+
+    def get_ioMatchHeaderShift(self):
+        return self.shiftMatch
+
+    def getIoMatchVerbose(self):
+        return self.ioMatchVerbose
 
     def findDDmin(self, rep):
         ddminList =[x.absolute() for x in  rep.glob("ddmin*") if re.match("^ddmin[0-9]+$",x.name) if x.is_symlink()]

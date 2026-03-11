@@ -33,8 +33,8 @@
         <term><command>Floating-point precision:</command></term>
         <listitem><para>
             <itemizedlist>
-              <listitem><simpara><command>sht</command>: half precision (IEEE-754
-              <computeroutput>binary16</computeroutput>)</simpara></listitem>
+              <!-- <listitem><simpara><command>sht</command>: half precision (IEEE-754 -->
+              <!-- <computeroutput>binary16</computeroutput>)</simpara></listitem> -->
               <listitem><simpara><command>flt</command>: single precision (C
               <computeroutput>float</computeroutput> / IEEE-754
               <computeroutput>binary32</computeroutput>)</simpara></listitem>

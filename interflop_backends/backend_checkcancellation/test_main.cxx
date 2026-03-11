@@ -37,7 +37,7 @@ int main(int argc, char** argv){
   std::cout << std::setprecision(16);
   std::cout << "c: "<<c << std::endl;
 
-  interflop_checkcancellation_finalyze(context);
+  interflop_checkcancellation_finalize(context);
 
   return 0;
 }

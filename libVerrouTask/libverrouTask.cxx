@@ -64,16 +64,16 @@ void readDebug();
 
 void verrou_task_generate_trace_init();
 void verrou_task_generate_trace(const std::string& strName, int index);
-void verrou_task_generate_trace_finalyze();
+void verrou_task_generate_trace_finalize();
 
 void verrou_task_generate_trace_fp_init();
 void verrou_task_generate_trace_fp(const std::string& strName, int index);
-void verrou_task_generate_trace_fp_finalyze();
+void verrou_task_generate_trace_fp_finalize();
 
 
 void verrou_task_activation_init();
 void verrou_task_activation(const std::string& strName, int index);
-void verrou_task_activation_finalyze();
+void verrou_task_activation_finalize();
 
 void fileToActiveInactiveStore(std::ifstream& input, storeTaskType& store);
 
@@ -105,10 +105,10 @@ void verrou_task(char const * const name, int index){
   verrou_task_activation(strName,index);
 }
 
-void verrou_task_finalyze(){
-  verrou_task_generate_trace_finalyze();
-  verrou_task_generate_trace_fp_finalyze();
-  verrou_task_activation_finalyze();
+void verrou_task_finalize(){
+  verrou_task_generate_trace_finalize();
+  verrou_task_generate_trace_fp_finalize();
+  verrou_task_activation_finalize();
 }
 
 
@@ -151,7 +151,7 @@ void verrou_task_generate_trace(const std::string& strName, int index){
   }
 }
 
-void verrou_task_generate_trace_finalyze(){
+void verrou_task_generate_trace_finalize(){
   if(generateTrace){
     outputTraceFile.close();
   }
@@ -186,7 +186,7 @@ void verrou_task_generate_trace_fp(const std::string& strName, int index){
 }
 
 
-void verrou_task_generate_trace_fp_finalyze(){
+void verrou_task_generate_trace_fp_finalize(){
   if(generateTraceFP){
     long int count=VERROU_COUNT_FP_INSTRUMENTED;
     if(countOld!=count){
@@ -313,7 +313,7 @@ void verrou_task_activation(const std::string& strName, int index){
   }
 }
 
-void verrou_task_activation_finalyze(){
+void verrou_task_activation_finalize(){
   if(stopStart_hard){
     VERROU_STOP_INSTRUMENTATION;
   }else{

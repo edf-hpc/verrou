@@ -140,6 +140,32 @@ Type "help", "copyright", "credits" or "license" for more information.
       After program termination, a summary of floating point operations will be printed on
       screen. See <xref linkend="vr-manual.feat.count"/> for more details.
     </para>
+
+    <para>
+      In the previous example the multiple stochastic runs are done in the same python3 process.
+      To test verrou interactively it is very convenient but not representative of real-world
+      application. A standard way to use it is :
+
+<screen>
+<prompt>>>></prompt> python3 -c "print(sum([0.1*i for i in range(1000)]))"
+49950.0
+<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=nearest --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+49950.0
+<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+49950.00000000023
+<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+49950.0000000002
+<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+49950.00000000016
+</screen>
+    </para>
+    <para>      
+      The  <option>--quiet --count-op=no</option> options are used here to simplify the output for documentationpurposes. In practice, keeping Verrou’s verbosity enabled is important to verify that the expected code is being instrumented, and not only a wrapper (see <xref linkend="faq.instr.wrapper"/>).
+    </para>
+    <para>      
+      With the two first commands, we first assert valgrind and verrou are performing the instrumentation correctly . With the two last commands, we introduce the stochastic evaluation. See <xref linkend="faq.stoch.sample"/> for more details about the number of samples.
+    </para>
+
   </section>
 
   <section id="vr-manual.overview.scope">
@@ -151,9 +177,9 @@ Type "help", "copyright", "credits" or "license" for more information.
     </para>
 
     <para>
-      This is for example the case of the douple-precision cosine implementation of the Gnu
+      This is for example the case of the double-precision cosine implementation of the Gnu
       mathematical library (<literal>libm</literal>). By default the libm is not instrumented, so to illustrate
-      the problem we add use the option <xref linkend="vr-opt.libm"/><option>=manual_exclude</option>.
+      the problem we use the option <xref linkend="vr-opt.libm"/><option>=manual_exclude</option>.
 
       Getting back to the previous python example:
     </para>
@@ -175,7 +201,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 </screen>
 
     <para>
-      Here, we see that the same calculation performed several times did not only produce different
+      Here, we see that the same calculation performed several times did not only produced different
       results; it also produced completely wrong values, well outside the expected
       <literal>[-1;1]</literal> interval.
     </para>
@@ -214,8 +240,8 @@ Type "help", "copyright", "credits" or "license" for more information.
       example above works as expected: the cosine is accurately computed, as usual. See <xref
 											  linkend="vr-manual.feat.exclude"/> for more details about exclusion lists.
 
-      But by doing this you are no able to measure the floating point error implied by <literal>libm</literal>. To pertub
-      libm we need to use the option <xref linkend="vr-opt.libm"/><option>=instrumentation</option>, which replace the dynamically loaded <literal>libm</literal> by your own
+      But by doing this you are not able to measure the floating point error implied by <literal>libm</literal>. To perturb
+      libm we need to use the option <xref linkend="vr-opt.libm"/><option>=instrumentation</option>, which replaces the dynamically loaded <literal>libm</literal> by your own
       stochastic implementation. If libm is statically linked with your application (Please don't do it), you will need to exclude yourself each <literal>libm</literal> symbol and it is not possible to measure floating point error implied by <literal>libm</literal>.
     </para>
   </section>

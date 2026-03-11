@@ -34,7 +34,7 @@ class bindingTaskLib:
         self.lib.verrou_task.argtypes = [ ctypes.c_char_p, ctypes.c_int]
         self.lib.verrou_task_init()
     def __del__(self):
-        self.lib.verrou_task_finalyze()
+        self.lib.verrou_task_finalize()
 
 bindTask=bindingTaskLib()
 

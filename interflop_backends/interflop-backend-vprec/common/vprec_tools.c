@@ -264,18 +264,26 @@ inline int has_underflow_binary32(float x, int emin, int precision) {
  * number. */
 inline float round_binary32_underflow(float x, int emin, int precision) {
   binary32 b32_x = {.f32 = x};
-  binary32 half_smallest_subnormal = {
-      .ieee = {.sign = 0,
-               .exponent = FLOAT_EXP_COMP + (emin - precision) - 1,
-               .mantissa = 0}};
+  int32_t half_smallest_subnormal_expo=FLOAT_EXP_COMP + (emin - precision) - 1;
+  binary32 half_smallest_subnormal;
+  half_smallest_subnormal.ieee.sign=0;
+  if( half_smallest_subnormal_expo>0){
+     half_smallest_subnormal.ieee.exponent = half_smallest_subnormal_expo,
+     half_smallest_subnormal.ieee.mantissa = 0;
+  }else{
+     int32_t one=1;
+     int32_t mantissa= one << (FLOAT_PMAN_SIZE -1 +half_smallest_subnormal_expo );
+     half_smallest_subnormal.ieee.exponent = 0;
+     half_smallest_subnormal.ieee.mantissa = mantissa;
+  }
 
   //  If x is greater than or equal to half of the smallest subnormal number,
   //  rounds to the smallest subnormal number with the same sign.
   //  Otherwise, rounds to zero while preserving the sign.
-  // checks if x is greater than or equal to half of the smallest subnormal
-  if (b32_x.ieee.exponent >= half_smallest_subnormal.ieee.exponent) {
+  // checks if x is greater than to half of the smallest subnormal
+  if (__builtin_fabsf(x) >  half_smallest_subnormal.f32) {
     // then round to the smallest subnormal number with the same sign
-    b32_x.ieee.exponent = half_smallest_subnormal.ieee.exponent + 1;
+    b32_x.ieee.exponent = half_smallest_subnormal_expo + 1;
     b32_x.ieee.mantissa = 0;
   } else {
     // otherwise, round to zero while preserving the sign
@@ -309,18 +317,26 @@ inline int has_underflow_binary64(double x, int emin, int precision) {
  * number. */
 inline double round_binary64_underflow(double x, int emin, int precision) {
   binary64 b64_x = {.f64 = x};
-  binary64 half_smallest_subnormal = {
-      .ieee = {.sign = 0,
-               .exponent = DOUBLE_EXP_COMP + (emin - precision) - 1,
-               .mantissa = 0}};
+  int64_t half_smallest_subnormal_expo= DOUBLE_EXP_COMP + (emin - precision) - 1;
+  binary64 half_smallest_subnormal;
+  half_smallest_subnormal.ieee.sign =0;
+  if( half_smallest_subnormal_expo>0){
+     half_smallest_subnormal.ieee.exponent = half_smallest_subnormal_expo,
+     half_smallest_subnormal.ieee.mantissa = 0;
+  }else{
+     int64_t one=1;
+     int64_t mantissa= one << (DOUBLE_PMAN_SIZE -1 + half_smallest_subnormal_expo );
+     half_smallest_subnormal.ieee.exponent = 0;
+     half_smallest_subnormal.ieee.mantissa = mantissa;
+  }
 
   //  If x is greater than or equal to half of the smallest subnormal number,
   //  rounds to the smallest subnormal number with the same sign.
   //  Otherwise, rounds to zero while preserving the sign.
-  // checks if x is greater than or equal to half of the smallest subnormal
-  if (b64_x.ieee.exponent >= half_smallest_subnormal.ieee.exponent) {
+  // checks if x is greater than to half of the smallest subnormal
+  if (__builtin_fabs(x)  > half_smallest_subnormal.f64) {
     // then round to the smallest subnormal number with the same sign
-    b64_x.ieee.exponent = half_smallest_subnormal.ieee.exponent + 1;
+    b64_x.ieee.exponent = half_smallest_subnormal_expo + 1;
     b64_x.ieee.mantissa = 0;
   } else {
     // otherwise, round to zero while preserving the sign

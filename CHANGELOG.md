@@ -1,12 +1,27 @@
 ## [UNRELEASED]
 
-This version is based on Valgrind-3.21.0.
+This version is based on Valgrind-3.26.0.
 
 ### Added
-
+	- Added verrou_dd_back to perform delta-debugging with the backtrace search space.
+	- Enabled chaining of all verrou_dd_* with post_verrou_dd.
+	- Improved delta-debugging parallelism.
+	- Improved delta-debugging progress reporting.
+	- Added delta-debugging cache cleanup triggered on keyboard interruption (e.g., Ctrl‑C).
+	- Added a practical summary to delta-debugging tools.
+	- Integrated VPREC (many thanks to Yohan Chatelain and the Verificarlo team).
+	- Improved performance of verrou_dd_stdout thanks to the new IOMatch key permutable-bmatch-indexes.
+	- Added a FAQ section to the documentation.
+	- Added counters for operations involving subnormal numbers.
+	- Added a --enable-verrou-optim=no configure flag to reduce memory usage during compilation.
+	- Added daz/dazftz rounding modes.
+	- Added an unfused FMA option.
 
 ### Changed
-
+	- Updated GPL and LGPL to version 3 to match the Valgrind license.
+	- Marked average and average_[[[s]com]det] rounding modes as deprecated.
+	- Renamed average and average_[[[s]com]det] rounding modes to nearness and nearness_[[[s]com]det].
+	- Various bug fixes.
 
 ---
 

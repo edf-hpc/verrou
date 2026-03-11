@@ -221,7 +221,7 @@ class gen_config:
             if value in acceptedValue or None in acceptedValue:
                 exec(cmd)
                 return
-            elif conv_type=="string/int":
+            elif conv_type in ["string/int", "int/string"] :
                 try:
                     value=int(value)
                     exec(cmd)

@@ -1,3 +1,4 @@
+verbose: 1
 cmatch: res[5] ==
 apply: start_soft
 bmatch: res[8] !=

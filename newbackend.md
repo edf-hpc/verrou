@@ -26,7 +26,7 @@ This document aims to explain shortly how to add a new backend in verrou.
    - add instanciation of backend_NEWNAME and  backend_NEWNAME_context as for verrou or mcaquad
    - modify vr_instrumentOp with a new switch. If there are missing call in the backend you can
    change the inclusion with #define macro. You may need to customize the file vr_instrumentOp_impl.h.
-   - add   interflop_NEWNAME_finalyze(backend_NEWNAME_context) in vr_fini
+   - add   interflop_NEWNAME_finalize(backend_NEWNAME_context) in vr_fini
 
    - configure the backend in vr_post_clo_init
    - add message to display option taken into account
