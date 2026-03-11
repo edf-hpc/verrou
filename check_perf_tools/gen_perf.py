@@ -48,9 +48,9 @@ if what=="cmpHash":
 
 
 if what=="cmpInst":
-    buildConfigList=["vprec"]
+    buildConfigList=["master"]
     roundingListPerf=["tool_none", "nearest", "gen_exclude", "exclude_all", "gen_source", "source_nothing", "gen_backtrace","exclude_all_backtrace", "random"]
-    roundingListPerf=["tool_none", "nearest", "random", "vprec_float", "float"]
+#    roundingListPerf=["tool_none", "nearest", "random", "vprec_float", "float"]
     ref_name=buildConfigList[0]
 
 drop=10
