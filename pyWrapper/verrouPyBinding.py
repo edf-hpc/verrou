@@ -15,8 +15,7 @@ def searchDefaultPath(fileName):
                    dirName / ".." / ".."/".."/".."/"libexec"/"valgrind",
                    Path.cwd()/ ".."
                    ]
-
-    print(pathPrefixTab, file=sys.stderr)
+    #print(pathPrefixTab, file=sys.stderr)
     for pathPrefix in pathPrefixTab:
         absPath=pathPrefix / fileName
         if absPath.is_file():
@@ -113,7 +112,7 @@ def set_rounding(roundingStr):
 
 def compute_verrou_tolerance(functor,
                              tabDet=["upward", "downward", "toward_zero", "farthest", "away_zero"],
-                             tabSto=["random","average","sr_smonotonic","sr_monotonic"],
+                             tabSto=["random","nearness","sr_smonotonic","sr_monotonic"],
                              nbSamples=1000):
     set_rounding("nearest")
     res_ref=functor()
