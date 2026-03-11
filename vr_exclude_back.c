@@ -206,9 +206,7 @@ static inline uint64_t hash_back(Int nbBack, Addr* ip){
       uint64_t val64=ip[i];
       uint32_t val32_1=val64;
       uint32_t val32_2=(val64>>32);
-
-      res+= random_tab[2*i+1]*val32_1;
-      res+= random_tab[2*i+2]*val32_2;
+      res+= (random_tab[2*i+1]+val32_1) * (random_tab[2*i+2]*val32_2);
    }
    return res;
 }
