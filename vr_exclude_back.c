@@ -103,6 +103,7 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
   return NULL;
 }
 
+#ifdef MULTIPLY_SHIFT_HASH_BACK
 static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
    2985842423061390143u,
    6155994775641341576u,
@@ -145,6 +146,9 @@ static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
    17671784740069361653u,
    7153875437183966428u,
    16885889230938066065u,
+#else
+static uint64_t random_tab[HASH_TABLE_SIZE + 1]={ //41
+#endif
    16745672200074323915u,
    8154495383720775682u,
    15269517765492493200u,
@@ -204,9 +208,15 @@ static inline uint64_t hash_back(Int nbBack, Addr* ip){
    uint64_t res=random_tab[0];
    for(int i=0; i< nbBack; i++){
       uint64_t val64=ip[i];
+#ifdef MULTIPLY_SHIFT_HASH_BACK
       uint32_t val32_1=val64;
       uint32_t val32_2=(val64>>32);
       res+= (random_tab[2*i+1]+val32_1) * (random_tab[2*i+2]*val32_2);
+#else
+      // a priori less accurate but faster
+      // accuracy no needed: vr_findExcludeBack perform full verification
+      res+= (random_tab[i+1]+val64);
+#endif
    }
    return res;
 }
