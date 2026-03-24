@@ -1,4 +1,4 @@
-## [UNRELEASED]
+## v2.7.0 - 2026-03-24
 
 This version is based on Valgrind-3.26.0.
 

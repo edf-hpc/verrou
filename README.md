@@ -27,6 +27,15 @@ documentation generation is required (see below).
 
 Documentation and support can also be found in the [verrou_support repository](https://github.com/edf-hpc/verrou_support).
 
+<p>&nbsp</p>
+
+**NB:** This is released version 2.7.0 of Verrou, based on Valgrind v3.26.0. The
+development version of Verrou can always be found in the
+[`master`](https://github.com/edf-hpc/verrou/) branch. For other versions,
+please consult the list of
+[releases](https://github.com/edf-hpc/verrou/releases).
+
+
 ## Installation
 
 ### Get the sources
