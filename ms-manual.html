@@ -631,12 +631,21 @@ various places online.
       <code class="option">--stacks=&lt;yes|no&gt; [default: no] </code>
     </span>
 </dt>
-<dd><p>Specifies whether stack profiling should be done.  This option
+<dd>
+<p>Specifies whether stack profiling should be done.  This option
       slows Massif down greatly, and so is off by default.  Note that Massif
       assumes that the main stack has size zero at start-up.  This is not
       true, but doing otherwise accurately is difficult.  Furthermore,
       starting at zero better indicates the size of the part of the main
-      stack that a user program actually has control over.</p></dd>
+      stack that a user program actually has control over.</p>
+<p>If you give at least 4 <code class="option">-v</code> verbosity arguments,
+        then massif produces a trace for each stack increase and decrease.
+        The stack increase trace contains the IP address that increased the stack.
+        Note that to get fully precise IP address, you must specify the options
+        <code class="option">-px-default=unwindregs-at-mem-access
+          --px-file-backed=unwindregs-at-mem-access</code>.
+      </p>
+</dd>
 <dt>
 <a name="opt.pages-as-heap"></a><span class="term">
       <code class="option">--pages-as-heap=&lt;yes|no&gt; [default: no] </code>

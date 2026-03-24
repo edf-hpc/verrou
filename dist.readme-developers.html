@@ -26,6 +26,9 @@
 To build/install from the GIT repository or from a distribution<br>
 tarball, refer to the section with the same name in README.<br>
 <br>
+Building Valgrind requires autoconf, GNU make and a suitable C<br>
+compiler.<br>
+<br>
 <br>
 Building and not installing it<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
@@ -57,7 +60,7 @@ will also attempt to build the documentation.<br>
 If you only want to test whether the generated tarball is complete and runs<br>
 regression tests successfully, building documentation is not needed.<br>
 <br>
-  make dist BUILD_ALL_DOCS=no<br>
+  make dist BUILD_DOCS=none<br>
 <br>
 If you insist on building documentation some embarrassing instructions<br>
 can be found in docs/README.<br>
@@ -65,19 +68,67 @@ can be found in docs/README.<br>
 <br>
 Running the regression tests<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+Running the regression tests requires GNU sed, python 3.9 or later, gdb,<br>
+and a suitable C++ compiler<br>
+<br>
 To build and run all the regression tests, run "make [--quiet] regtest".<br>
 <br>
 To run a subset of the regression tests, execute:<br>
 <br>
-  perl tests/vg_regtest &lt;name&gt;<br>
+  tests/vg_regtest &lt;name&gt;<br>
 <br>
 where &lt;name&gt; is a directory (all tests within will be run) or a single<br>
 .vgtest test file, or the name of a program which has a like-named .vgtest<br>
 file.  Eg:<br>
 <br>
-  perl tests/vg_regtest memcheck<br>
-  perl tests/vg_regtest memcheck/tests/badfree.vgtest<br>
-  perl tests/vg_regtest memcheck/tests/badfree<br>
+  tests/vg_regtest memcheck<br>
+  tests/vg_regtest memcheck/tests/badfree.vgtest<br>
+  tests/vg_regtest memcheck/tests/badfree<br>
+<br>
+The details of each vgtest run are logged to individual "vgtest.log"<br>
+files.  These are listed, and non-passing tests detailed, in the<br>
+test-suite-overall.log file.  (Token *.trs and test-suite.log files<br>
+are also created, for emulating automake-style testsuites, as expected<br>
+by tools such as bunsen.)<br>
+<br>
+<br>
+Platform-specific setup for regression tests<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+On some platforms some setup is required otherwise some of the tests<br>
+will fail.<br>
+<br>
+Inherited inotifier file descriptors<br>
+------------------------------------<br>
+Seen on openSUSE amd64 KDE, all processes seem to inherit an inotify<br>
+file descriptor which interferes with some of the fdleak tests in the<br>
+none directory. Here is an example<br>
+<br>
+lsof | grep inotify | grep bash<br>
+bash      13128                      paulf   31r  a_inode               0,14         0         46 inotify<br>
+<br>
+I don't know how to turn this off completely. You can close the<br>
+file descriptor for the current shell by using<br>
+<br>
+MY_INOTIFIER=$(lsof 2&gt;&amp;1 | grep $$ | grep inotify | awk '{print $4}' | sed 's/r//')<br>
+<br>
+if [ -n ${MY_INOTIFIER} ] ; then<br>
+   exec {MY_INOTIFIER}&lt;&amp;-<br>
+fi<br>
+<br>
+FreeBSD kernel modules and stack guard page<br>
+-------------------------------------------<br>
+The sctp and mqueuefs kernel modules need to be loaded. As root<br>
+<br>
+kldload sctp mqueuefs<br>
+<br>
+Additionally FreeBSD has strange belt and braces thread stack protection<br>
+with both the kernel and the allocated thread stack providing guard pages.<br>
+This interferes with the memcheck descr_belowsp test. The extra kernel<br>
+guard page can be turned off with the following command run as root<br>
+<br>
+sysctl security.bsd.stack_guard_page=0<br>
 <br>
 <br>
 Running the performance tests<br>
@@ -86,23 +137,120 @@ To build and run all the performance tests, run "make [--quiet] perf"
 <br>
 To run a subset of the performance suite, execute:<br>
 <br>
-  perl perf/vg_perf &lt;name&gt;<br>
+  perf/vg_perf &lt;name&gt;<br>
 <br>
 where &lt;name&gt; is a directory (all tests within will be run) or a single<br>
 .vgperf test file, or the name of a program which has a like-named .vgperf<br>
 file.  Eg:<br>
 <br>
-  perl perf/vg_perf perf/<br>
-  perl perf/vg_perf perf/bz2.vgperf<br>
-  perl perf/vg_perf perf/bz2<br>
+  perf/vg_perf perf/<br>
+  perf/vg_perf perf/bz2.vgperf<br>
+  perf/vg_perf perf/bz2<br>
 <br>
 To compare multiple versions of Valgrind, use the --vg= option multiple<br>
 times.  For example, if you have two Valgrinds next to each other, one in<br>
 trunk1/ and one in trunk2/, from within either trunk1/ or trunk2/ do this to<br>
 compare them on all the performance tests:<br>
 <br>
-  perl perf/vg_perf --vg=../trunk1 --vg=../trunk2 perf/<br>
+  perf/vg_perf --vg=../trunk1 --vg=../trunk2 perf/<br>
 <br>
+Writing regression tests<br>
+~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+Each tool has a tests directory containing regression tests. There is also<br>
+the gdbserver_tests directory at the top level. Test directories may have<br>
+architecture, OS and and architecture-OS sub-directories for tests that are<br>
+specific to one architecture, OS or both.<br>
+<br>
+Once you have written a C or C++ executable that performs the required<br>
+tests you will have to modify and create several files. The new files that<br>
+will need adding are<br>
+(a) a .vgtest file, which controls the test<br>
+(b) a .stderr.exp file, which is the golden reference for any Valgrind output<br>
+    Note that even if Valgrind doesn't produce any output you will need to<br>
+    create an empty .stderr.exp file.<br>
+(c) [optional] a .stdout.exp file, the golden reference for any output from the<br>
+    test executable<br>
+(d) [optional] filter files (see the test directories for examples).<br>
+<br>
+Quite often the output will depend on the platform the test is run on.<br>
+Getting the tests to be 'portable' can require filtering or adding multiple<br>
+.stderr.exp reference files.<br>
+<br>
+If the test only runs under certain conditions like the availability of functions<br>
+in libc or C++ standard versions you will need to modify configure.ac in the<br>
+top level directory. See AC_CHECK_FUNCS and the various blocks starting with<br>
+AC_MSG_CHECKING.<br>
+<br>
+In the test directory, modify Makefile.am. Add to EXTRA_DIST the .vgtest,<br>
+.stderr.exp and .stderr.out files. Add any filters to dist_noinst_SCRIPTS.<br>
+Add the test executable name to check_PROGRAMS. Try to respect the<br>
+formatting and alphabetical ordering of the Makefile.am. For simple C files that is<br>
+sufficient. If you needed to add a feature test to configure.ac then you should<br>
+use the same condition to add the executable name to check_PROGRAMS. If the<br>
+executable uses C++ you need to add exename_SOURCES. If the executable needs<br>
+special compilation or link options, use exename_CFLAGS, exename_CXXFLAGS,<br>
+exename_LDFLAGS or exename_LDADD. Finally in Makefile.am it's nice not to<br>
+have any warnings, even if they were done on purpose. See configure.ac<br>
+and various Makefile.am files for examples of using FLAG_W_*.<br>
+<br>
+The vgtest file contains the instructions for running the test. Typically<br>
+it will contain (with examples in quotes)<br>
+(a) the name of the test executable:      "prog: exename"<br>
+(b) arguments for the test executable:    "args: hello world"<br>
+(c) arguments for the Valgrind tool:      "vgopts: -q"<br>
+(d) [optional] a check for prerequisites: "prereq: ! ../../tests/os_test darwin"<br>
+(e) [optional] a filter:                  "stderr_filter: filter_fdleak"<br>
+<br>
+See tests/vg_regtest for a full description of all possible vgtest directives.<br>
+<br>
+The easiest way to generate the expected files is to run the test. Create empty<br>
+files with touch (otherwise the test won't run) then run the test from the<br>
+top directory using vg_regtest script (as in the "Running the<br>
+regression tests" section. Then copy "tool/tests/newtest.stderr.out" to<br>
+"tool/tests/newtest.stderr.exp". It is better to generate the .stdout.exp<br>
+file directly from the testcase. You can do that by redirecting stdout to<br>
+the expected file, for instance (in the test directory)<br>
+    ./newtest arg1 arg2 &gt; newtest.stdout.exp<br>
+This is not always possible - sometimes there are tests that depend on the use<br>
+of client requests or have imperfect emulation of opcodes.<br>
+Make sure that the test runs and passes.<br>
+<br>
+The last file to change is .gitignore in the top directory. Add a new entry,<br>
+for example "/tool/tests/newtest".<br>
+<br>
+The 'scalar' tests are something of a special case. Scalar in this sense<br>
+refers to the registers (or stack slots) used to pass in arguments. These tests<br>
+directly use the 'syscall' syscall via a macro, SY. They make little effort<br>
+to use the sysall in a realistic manner. Rather, the objective is to<br>
+exhaustively test all of the arguemnts and referenced memory of syscalls.<br>
+The variable 'x0' is a long integer, containing the value of 0 but<br>
+also uninitialised. It can be used on its own or with some other value<br>
+to ensure that all of the syscall arguemts are uninitialised.<br>
+A second macro, GO, is used precede the syscall (and subsequent errors)<br>
+with a header. The GO string includes the name of the syscall, a count of<br>
+expected scalar errors and a count of memory errors. The tests are usually<br>
+followed by the FAIL macro, which ensures that the syscall failed.<br>
+An example scalar test is<br>
+<br>
+   /* SYS_link                    9 */<br>
+   GO(SYS_link, "2s 2m");<br>
+   SY(SYS_link, x0, x0); FAIL;<br>
+<br>
+<br>
+This syscall takes two strings so the expected errors are<br>
+2 scalar (for the pointer arguments) and 2 memory (for<br>
+the strings themselves).<br>
+<br>
+When your test is done check for mistakes in Makefile.am.<br>
+In the top directory run<br>
+<br>
+    make post-regtest-checks<br>
+<br>
+You should only see<br>
+    ...checking makefile consistency<br>
+    ...checking header files and include directives<br>
+and no messages related to EXTRA_DIST.<br>
 <br>
 Commit access and try branches<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
@@ -146,12 +294,12 @@ without too much problem by following these steps:<br>
       export VALGRIND_LIB=$DIR/.in_place<br>
 <br>
     VALGRIND_LIB is where the default.supp and vgpreload_ libraries<br>
-    are found (which is under /usr/libexec/valgrind for an installed<br>
+    are found (which is under /usr/local/libexec/valgrind for an installed<br>
     version).<br>
 <br>
 (2) Run gdb on the tool executable.  Eg:<br>
 <br>
-      gdb /usr/local/lib/valgrind/lackey-ppc32-linux<br>
+      gdb /usr/local/libexec/valgrind/lackey-ppc32-linux<br>
 <br>
     or<br>
 <br>
@@ -168,9 +316,13 @@ without too much problem by following these steps:<br>
 <br>
 (4) Set any breakpoints you want and proceed as normal for gdb. The<br>
     macro VG_(FUNC) is expanded to vgPlain_FUNC, so If you want to set<br>
-    a breakpoint VG_(do_exec), you could do like this in GDB:<br>
+    a breakpoint VG_(do_exec_inner), you could do like this in GDB:<br>
 <br>
-    (gdb) b vgPlain_do_exec<br>
+    (gdb) b vgPlain_do_exec_inner<br>
+<br>
+    Note: This is just an example, for various reasons internal<br>
+          function names might be renamed or optimized out<br>
+          (for example when building with --enable-lto).<br>
 <br>
 (5) Run the tool with required options (the --tool option is required<br>
     for correct setup), e.g.<br>
@@ -273,16 +425,16 @@ When using self-hosting with an outer Callgrind tool, use '--pop-on-jum
 (B) Regression tests in an outer/inner setup:<br>
 <br>
  To run all the regression tests with an outer memcheck, do :<br>
-   perl tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
-                         --all<br>
+   tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
+                    --all<br>
 <br>
  To run a specific regression tests with an outer memcheck, do:<br>
-   perl tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
-                         none/tests/args.vgtest<br>
+   tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
+                    none/tests/args.vgtest<br>
 <br>
  To run regression tests with another outer tool:<br>
-   perl tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
-                         --outer-tool=helgrind --all<br>
+   tests/vg_regtest --outer-valgrind=../outer/.../bin/valgrind \<br>
+                    --outer-tool=helgrind --all<br>
 <br>
  --outer-args allows to give specific arguments to the outer tool,<br>
  replacing the default one provided by vg_regtest.<br>
@@ -341,20 +493,20 @@ the guest stacktrace that did the allocation.<br>
 (C) Performance tests in an outer/inner setup:<br>
 <br>
  To run all the performance tests with an outer cachegrind, do :<br>
-    perl perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind perf<br>
+    perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind perf<br>
 <br>
  To run a specific perf test (e.g. bz2) in this setup, do :<br>
-    perl perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind perf/bz2<br>
+    perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind perf/bz2<br>
 <br>
  To run all the performance tests with an outer callgrind, do :<br>
-    perl perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind \<br>
-                      --outer-tool=callgrind perf<br>
+    perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind \<br>
+                 --outer-tool=callgrind perf<br>
 <br>
 Note: --outer-valgrind must be a "make install"-ed valgrind.<br>
 Do *not* use vg-in-place.<br>
 <br>
  To compare the performance of multiple Valgrind versions, do :<br>
-    perl perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind \<br>
+    perf/vg_perf --outer-valgrind=../outer/.../bin/valgrind \<br>
       --outer-tool=callgrind \<br>
       --vg=../inner_xxxx --vg=../inner_yyyy perf<br>
   (where inner_xxxx and inner_yyyy are the toplevel directories of<br>
@@ -369,7 +521,7 @@ output files will be created for each test:<br>
  (where tt is the two letters abbreviation for the inner tool(s) run).<br>
 <br>
 For example, the command<br>
-    perl perf/vg_perf \<br>
+    perf/vg_perf \<br>
       --outer-valgrind=../outer_trunk/install/bin/valgrind \<br>
       --outer-tool=callgrind \<br>
       --vg=../inner_tchain --vg=../inner_trunk perf/many-loss-records<br>
@@ -415,6 +567,31 @@ integration with a text editor, it is possible to reformat arbitrary 
 of code with a single keystroke.  Refer to the upstream documentation which<br>
 describes integration with various editors and IDEs:<br>
 https://clang.llvm.org/docs/ClangFormat.html.<br>
+<br>
+Updating zstd<br>
+~~~~~~~~~~~~~<br>
+Similar to libiberty, we have to import a copy of zstd rather than linking<br>
+with a library. There isn't (yet) a script to automate this, so it has to be<br>
+done manually.<br>
+<br>
+The version currently in use can be seen in coregrind/m_debuginfo/zstd.h.<br>
+Look for ZSTD_VERSION_MAJOR ZSTD_VERSION_MINOR and ZSTD_VERSION_RELEASE.<br>
+<br>
+ - Get the source of zstd from<br>
+<br>
+   https://github.com/facebook/zstd<br>
+<br>
+ - Checkout the latest release tag (should be vMAJ.MIN.REL)<br>
+<br>
+ - Copy {zstd git repo}/lib/zstd.h to coregrind/m_debuginfo/zstd.h<br>
+ <br>
+ -  cd to {zstd git repo}/build/single_file_libs and run ./create_single_file_decoder.sh<br>
+ <br>
+ - You cannot simply copy and use the generated zstddeclib.c!<br>
+   All calls to libc functions in this file need replacing with VG_ versions.<br>
+   Merge the newly generated zstddeclib.c with coregrind/m_debuginfo/zstddeclib.c.<br>
+   Make sure to keep the copy of the BSD license in the C file.<br>
+   <br>
 <br>
     </p></div>
 </div>

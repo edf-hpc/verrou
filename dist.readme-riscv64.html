@@ -1,0 +1,85 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>12. README.riscv64</title>
+<link rel="stylesheet" type="text/css" href="vg_basic.css">
+<meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
+<link rel="home" href="index.html" title="Valgrind Documentation">
+<link rel="up" href="dist.html" title="Valgrind Distribution Documents">
+<link rel="prev" href="dist.readme-mips.html" title="11. README.mips">
+<link rel="next" href="dist.readme-solaris.html" title="13. README.solaris">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div><table class="nav" width="100%" cellspacing="3" cellpadding="3" border="0" summary="Navigation header"><tr>
+<td width="22px" align="center" valign="middle"><a accesskey="p" href="dist.readme-mips.html"><img src="images/prev.png" width="18" height="21" border="0" alt="Prev"></a></td>
+<td width="25px" align="center" valign="middle"><a accesskey="u" href="dist.html"><img src="images/up.png" width="21" height="18" border="0" alt="Up"></a></td>
+<td width="31px" align="center" valign="middle"><a accesskey="h" href="index.html"><img src="images/home.png" width="27" height="20" border="0" alt="Up"></a></td>
+<th align="center" valign="middle">Valgrind Distribution Documents</th>
+<td width="22px" align="center" valign="middle"><a accesskey="n" href="dist.readme-solaris.html"><img src="images/next.png" width="18" height="21" border="0" alt="Next"></a></td>
+</tr></table></div>
+<div class="chapter">
+<div class="titlepage"><div><div><h1 class="title">
+<a name="dist.readme-riscv64"></a>12. README.riscv64</h1></div></div></div>
+<div class="literallayout"><p><br>
+      <br>
+Status<br>
+~~~~~~<br>
+<br>
+The RISC-V port targets the 64-bit RISC-V architecture and the Linux operating<br>
+system. The port has been tested to work on real hardware and under QEMU.<br>
+<br>
+The following ISA base and extensions are currently supported:<br>
+<br>
+| Name         | Description                       | #Instrs | Notes    |<br>
+| ------------ | --------------------------------- | ------- | -------- |<br>
+| RV64I        | Base instruction set              |   52/52 |          |<br>
+| RV64M        | Integer multiplication &amp; division |   12/13 | (1)      |<br>
+| RV64A        | Atomic                            |   22/22 | (2)      |<br>
+| RV64F        | Single-precision floating-point   |   30/30 | (3)      |<br>
+| RV64D        | Double-precision floating-point   |   32/32 |          |<br>
+| RV64Zicsr    | Control &amp; status register         |     3/6 | (4), (5) |<br>
+| RV64Zifencei | Instruction-fetch fence           |     0/1 | (6)      |<br>
+| RV64C        | Compressed                        |   37/37 |          |<br>
+<br>
+Notes:<br>
+(1) MULHSU is not recognized.<br>
+(2) LR and SC use the VEX "fallback" method which suffers from the ABA problem.<br>
+(3) Operations do not check if the input operands are correctly NaN-boxed.<br>
+(4) CSRRWI, CSRRSI and CSRRCI are not recognized.<br>
+(5) Only registers fflags, frm and fcsr are accepted.<br>
+(6) FENCE.I is not recognized.<br>
+<br>
+<br>
+Implementation tidying-up/TODO notes<br>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+<br>
+* Implement a proper "non-fallback" method for LR and SC instructions.<br>
+* Add a check for correct NaN-boxing of 32-bit floating-point operands.<br>
+* Optimize instruction selection, in particular make more use of &lt;instr&gt;i<br>
+  variants.<br>
+* Optimize handling of floating-point exceptions. Avoid helpers and calculate<br>
+  exception flags using the same instruction which produced an actual result.<br>
+* Review register usage by the codegen.<br>
+* Avoid re-use of Intel-constants CFIC_IA_SPREL and CFIC_IA_BPREL. Generalize<br>
+  them for all architectures or introduce same CFIC_RISCV64_ variants.<br>
+* Get rid of the typedef of vki_modify_ldt_t in include/vki/vki-riscv64-linux.h.<br>
+* Review if setup_client_stack() should expose AT_SYSINFO_EHDR to clients.<br>
+* Make sure that the final exit sequence in run_a_thread_NORETURN() is not racy<br>
+  in regards to accessing the thread state.<br>
+<br>
+    </p></div>
+</div>
+<div>
+<br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
+<tr>
+<td rowspan="2" width="40%" align="left">
+<a accesskey="p" href="dist.readme-mips.html">&lt;&lt; 11. README.mips</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
+<td rowspan="2" width="40%" align="right"> <a accesskey="n" href="dist.readme-solaris.html">13. README.solaris &gt;&gt;</a>
+</td>
+</tr>
+<tr><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td></tr>
+</table>
+</div>
+</body>
+</html>

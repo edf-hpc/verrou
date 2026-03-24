@@ -1,12 +1,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>13. README.freebsd</title>
+<title>14. README.freebsd</title>
 <link rel="stylesheet" type="text/css" href="vg_basic.css">
 <meta name="generator" content="DocBook XSL Stylesheets Vsnapshot">
 <link rel="home" href="index.html" title="Valgrind Documentation">
 <link rel="up" href="dist.html" title="Valgrind Distribution Documents">
-<link rel="prev" href="dist.readme-solaris.html" title="12. README.solaris">
+<link rel="prev" href="dist.readme-solaris.html" title="13. README.solaris">
 <link rel="next" href="licenses.html" title="GNU Licenses">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -19,7 +19,7 @@
 </tr></table></div>
 <div class="chapter">
 <div class="titlepage"><div><div><h1 class="title">
-<a name="dist.readme-freebsd"></a>13. README.freebsd</h1></div></div></div>
+<a name="dist.readme-freebsd"></a>14. README.freebsd</h1></div></div></div>
 <div class="literallayout"><p><br>
       Installing from ports or via pkg<br>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
@@ -119,9 +119,10 @@ When you add syscalls you will need to modify several files<br>
       or only input arguments just need a BSDX_ macro (before only). Syscalls<br>
       with output arguments need a BSDXY macro (before and after).<br>
    d) If the syscall uses 64bit arguments (long long) then instead of putting<br>
-      the wrapper definitions in syswrap-freebsd.c there will be one definition<br>
-      for each platform amd64 and x86 in syswrap-x86-freebsd.c and<br>
-      syswrap-amd64-freebsd.c.<br>
+      the wrapper definitions in syswrap-freebsd.c there will be two kinds of<br>
+      definition. A 32bit version with split 64bit arguments for x86 in<br>
+      syswrap-x86-freebsd.c and 64bit versions without any splitting for amd64<br>
+      and arm64 in syswrap-amd64-freebsd.c/syswrap-arm64-freebsd.c.<br>
       Each long long needs to be split into two ARGs in the x86 version.<br>
 <br>
 The PRE (before) wrapper<br>
@@ -167,6 +168,12 @@ They just contain a POST_MEM_WRITE macro for each output argument.<br>
 - Additions to auxv. Depending on the entry it may need to be simply copied<br>
   from the host to the guest, it may need to be modified for the guest or<br>
   it may need to be ignored. See initimg-freebsd.c.<br>
+- Versioned ioctls. ioctls such as CAMIOCOMMAND are versioned (with<br>
+  CAM_VERSION). When the version number is increased the result is a new<br>
+  ioctl ID. That means that the ioctl checking code no longer gets called.<br>
+  New versions require updates to the version number and the structs that<br>
+  are used. (Backwards compatibility is maintained by adding fixed macros<br>
+  like CAM_VERSION_0x19, but these are not currently supported in Valgrind).<br>
 - ELF PT_LOAD mappings. Either Valgrind will assert or there will be no source<br>
   information in error reports. See VG_(di_notify_mmap) in debuginfo.c<br>
 - Because they contain many deliberate errors the regression tests are prone<br>
@@ -190,13 +197,70 @@ you will need to install coreutils (for GNU cp) and modify the<br>
 nightly/conf/freebsd.* files. The default configuration<br>
 sends an e-mail to the valgrind-testresults mailing list.<br>
 <br>
+3. Version specific code<br>
+<br>
+For its own use of syscalls and memory layout Valgrind sometimes needs<br>
+to detect which version of FreeBSD it is being built on. Historically<br>
+that was done using 'uname' at configure time. It can also be achieved<br>
+using the __FreeBSD_version macro (in osreldate.h and sys/param.h).<br>
+The former header just defines that macro. To see what changes are associated<br>
+with different values of the macro you can search the FreeBSD source and<br>
+git history. You can also look at<br>
+<br>
+https://docs.freebsd.org/en/books/porters-handbook/versions/<br>
+<br>
+Capsicum enabled applications<br>
+-----------------------------<br>
+Valgrind will not work well with Capsicum enabled applications. As an example,<br>
+if you run<br>
+<br>
+valgrind --tool=massif echo hello<br>
+<br>
+you will get something like this in the output:<br>
+<br>
+==66088==<br>
+==66088== WARNING: Valgrind may not operate correctly in capability mode.<br>
+==66088==          Please consider disabling capability by using the RUNNING_ON_VALGRIND mechanism.<br>
+==66088==          See http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.clientreq<br>
+hello<br>
+==66088==<br>
+==66088== Error: can not open xtree output file `/home/paulf/massif.out.66088'<br>
+<br>
+Additionally capabilities mode can affect how the kernel uses syscall<br>
+parameters. An example of this is the fd argument of the *at() syscall<br>
+family. In capability mode fd must not be AT_FDCWD. The consequence<br>
+of this is that we ought do adapt the syscall parameter checking depending<br>
+on whether the guest is running in capability mode or not. Since we do not<br>
+recommend running Capsicum enabled applications under Valgrind the checks<br>
+are not adapted to to capability mode. Not to mention that adding checks<br>
+for this would add a lot of complexity to these syscall wrappers<br>
+<br>
+One way that you might conditionally disable capabilities in your code as the<br>
+above warning suggests is to do as follows.<br>
+<br>
+#if !defined(NDEBUG)<br>
+#include &lt;valgrind/valgrind.h&gt;<br>
+#endif<br>
+<br>
+void do_capsicum_setup(void); // contains capabilities code<br>
+<br>
+#if !defined(NDEBUG)<br>
+    if (!RUNNING_ON_VALGRIND)<br>
+    {<br>
+#endif<br>
+        do_capsicum_setup();<br>
+#if !defined(NDEBUG)<br>
+    }<br>
+#endif<br>
+<br>
+<br>
 Feedback<br>
 ~~~~~~~~<br>
 <br>
 If you find any problems please create a bugzilla report at<br>
 https://bugs.kde.org using the Valgrind product.<br>
 <br>
-Alternatively you can use the FreeBSD bugilla<br>
+Alternatively you can use the FreeBSD bugzilla<br>
 https://bugs.freebsd.org<br>
 <br>
 Credits<br>
@@ -248,7 +312,7 @@ Yuri<br>
 <br><table class="nav" width="100%" cellspacing="3" cellpadding="2" border="0" summary="Navigation footer">
 <tr>
 <td rowspan="2" width="40%" align="left">
-<a accesskey="p" href="dist.readme-solaris.html">&lt;&lt; 12. README.solaris</a> </td>
+<a accesskey="p" href="dist.readme-solaris.html">&lt;&lt; 13. README.solaris</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="dist.html">Up</a></td>
 <td rowspan="2" width="40%" align="right"> <a accesskey="n" href="licenses.html">GNU Licenses &gt;&gt;</a>
 </td>

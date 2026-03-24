@@ -35,7 +35,7 @@
 function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.realocsizezero">4.2.8. Realloc size zero</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.reallocsizezero">4.2.8. Realloc size zero</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.alignment">4.2.9. Alignment Errors</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.10. Memory leak detection</a></span></dt>
 </dl></dd>
@@ -298,7 +298,21 @@ Mismatched free() / delete / delete []
    by 0x4C21788F: OLEFilter::convert(QCString const &amp;) (olefilter.cc:272)
 </pre>
 <p>In <code class="literal">C++</code> it's important to deallocate memory in a
-way compatible with how it was allocated.  The deal is:</p>
+way compatible with how it was allocated.</p>
+<p>Most of the time in C++ you will write code that
+uses <code class="function">new expression</code> and <code class="function">delete
+expression</code>
+(see <a class="ulink" href="https://en.cppreference.com/w/cpp/language/new" target="_top">cppreference
+new expression</a>
+and <a class="ulink" href="https://en.cppreference.com/w/cpp/language/delete" target="_top">cppreference
+delete expression</a>). A new expression will
+call <code class="function">operator new</code> to perform the allocation and
+then call the constructor (if one exists) on the object. Similarly a
+delete expression will call the destructor on the object (if one
+exists) and then call <code class="function">operator delete</code>. The array
+overloads call constructors/destructors for each object in the
+array.</p>
+<p>The deal is:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>If allocated with
     <code class="function">malloc</code>,
@@ -312,18 +326,24 @@ way compatible with how it was allocated.  The deal is:</p>
 <li class="listitem"><p>If allocated with <code class="function">new[]</code>, you must
     deallocate with <code class="function">delete[]</code>.</p></li>
 </ul></div>
-<p>The worst thing is that on Linux apparently it doesn't matter if
-you do mix these up, but the same program may then crash on a
-different platform, Solaris for example.  So it's best to fix it
-properly.  According to the KDE folks "it's amazing how many C++
-programmers don't know this".</p>
+<p>Mixing types of allocators and deallocators is undefined
+behaviour.  That means that on some platforms you might not have any
+problems, but the same program may then crash on a different platform,
+Solaris for example.  So it's best to fix it properly.  According to
+the KDE folks "it's amazing how many C++ programmers don't know
+this".</p>
 <p>The reason behind the requirement is as follows.  In some C++
 implementations, <code class="function">delete[]</code> must be used for
 objects allocated by <code class="function">new[]</code> because the compiler
 stores the size of the array and the pointer-to-member to the
 destructor of the array's content just before the pointer actually
-returned.  <code class="function">delete</code> doesn't account for this and will get
-confused, possibly corrupting the heap.</p>
+returned.  <code class="function">delete</code> doesn't account for this and
+will get confused, possibly corrupting the heap. Even if there is no
+corruption there are likely to be resource leaks since using the wrong
+delete may result in the wrong number of destructors being
+called.</p>
+<p>C++ aligned allocations need to be freed using aligned delete
+with the same alignment.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
@@ -402,7 +422,7 @@ as "silly arguments" and no back-trace was included.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.realocsizezero"></a>4.2.8. Realloc size zero</h3></div></div></div>
+<a name="mc-manual.reallocsizezero"></a>4.2.8. Realloc size zero</h3></div></div></div>
 <p>The (ab)use or realloc to also do the job of <code class="function">free</code>
 has been poorly understood for a long time. In the C17 standard
 ISO/IEC 9899:2017] the behaviour of realloc when the size argument
@@ -493,7 +513,8 @@ several ways we know of that an interior-pointer can occur:</p>
     this case, some compilers store a "magic cookie" containing the array
     length at the start of the allocated block, and return a pointer to just
     past that magic cookie, i.e. an interior-pointer.
-    See <a class="ulink" href="https://docs.freebsd.org/info/gxxint/gxxint.info.Free_Store.html" target="_top">this
+    
+    See <a class="ulink" href="https://www.math.utah.edu/docs/info/gxxint_1.html#SEC17" target="_top">this
     page</a> for more information.</p></li>
 <li class="listitem"><p>It might be a pointer to an inner part of a C++ object using
     multiple inheritance. </p></li>
@@ -822,7 +843,7 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
         automatically sets the options <code class="option">--leak-check=full</code>
         and <code class="option">--show-leak-kinds=all</code>, to allow
         xtree visualisation tools such as kcachegrind to select what kind
-        to leak to visualise.
+        to leak to visualize.
         The produced file will contain the following events:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p><code class="option">RB</code> : Reachable Bytes</p></li>

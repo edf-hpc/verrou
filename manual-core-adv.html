@@ -1257,7 +1257,9 @@ gdb prog
 <dd><p>Options to run valgrind with, in extended-remote
     mode. For example <code class="option">-q</code>. Everything
     following <code class="option">--vargs</code> will be provided as arguments
-    to valgrind as is. </p></dd>
+    to valgrind as is. This is only for supplying valgrind options.
+    The program executable and its arguments are specified separately
+    by GDB and should NOT be included here.</p></dd>
 <dt><span class="term"><code class="option">-c</code></span></dt>
 <dd>
 <p>To give more than one command to a

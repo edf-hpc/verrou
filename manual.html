@@ -22,8 +22,8 @@
 <div>
 <div><h1 class="title">
 <a name="manual"></a>Valgrind User Manual</h1></div>
-<div><p class="releaseinfo">Release 3.23.0.verrou-dev 26 Apr 2024</p></div>
-<div><p class="copyright">Copyright © 2000-2022 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
+<div><p class="releaseinfo">Release 3.26.0.verrou-dev 24 Oct 2025</p></div>
+<div><p class="copyright">Copyright © 2000-2025 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
 <div><div class="legalnotice">
 <a name="manual-legal"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
 </div></div>
@@ -109,7 +109,7 @@
 function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.realocsizezero">4.2.8. Realloc size zero</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.reallocsizezero">4.2.8. Realloc size zero</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.alignment">4.2.9. Alignment Errors</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.10. Memory leak detection</a></span></dt>
 </dl></dd>
@@ -296,11 +296,11 @@ function</a></span></dt>
 <dt><span class="sect1"><a href="lk-manual.html#lk-manual.overview">11.1. Overview</a></span></dt>
 <dt><span class="sect1"><a href="lk-manual.html#lk-manual.options">11.2. Lackey Command-line Options</a></span></dt>
 </dl></dd>
-<dt><span class="chapter"><a href="vr-manual.html">12. Verrou: a floating-point rounding errors checker</a></span></dt>
+<dt><span class="chapter"><a href="vr-manual.html">12. Verrou: a floating-point rounding error checker</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview">12.1. Overview</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#idm6699">12.1.1. Basic usage</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#id8058">12.1.1. Basic usage</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.overview.scope">12.1.2. Restriction of the perturbations scope</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.feat">12.2. Standard features</a></span></dt>
@@ -315,11 +315,13 @@ function</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.localization">12.4. Debugging and error localization</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span>, <span class="command"><strong>verrou_dd_line</strong></span>, <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> commands</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.coverage">12.4.2. Code coverage comparison</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.CovBB">12.4.3. Basic Block coverage comparison</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.post">12.4.4.  post_verrou_dd</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#vr-manual.plotstat">12.4.5.  verrou_plot_stat</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.dd">12.4.1. Delta-debugging with the <span class="command"><strong>verrou_dd_sym</strong></span>, <span class="command"><strong>verrou_dd_line</strong></span>, <span class="command"><strong>verrou_dd_back</strong></span>, <span class="command"><strong>verrou_dd_task</strong></span> and <span class="command"><strong>verrou_dd_stdout</strong></span> commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#id9017">12.4.2. Sequence of call between different <span class="command"><strong>verrou_dd_*</strong></span></a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.verrou_dd_clean">12.4.3.  verrou_dd_clean</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.coverage">12.4.4. Code coverage comparison</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.CovBB">12.4.5. Basic Block coverage comparison</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.localization.post">12.4.6.  post_verrou_dd</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#vr-manual.plotstat">12.4.7.  verrou_plot_stat</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.advanced">12.5. Advanced features</a></span></dt>
 <dd><dl><dt><span class="section"><a href="vr-manual.html#vr-manual.feat.deterministic">12.5.1. Deterministic sections</a></span></dt></dl></dd>
@@ -328,8 +330,9 @@ function</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.clo">12.6.1. Command-line options</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#vr-manual.client-requests">12.6.2. Client requests</a></span></dt>
 <dt><span class="section"><a href="vr-manual.html#id.iomatch.format">12.6.3. IOMatch script</a></span></dt>
-<dt><span class="section"><a href="vr-manual.html#idm8672">12.6.4. Monitor commands</a></span></dt>
+<dt><span class="section"><a href="vr-manual.html#id10425">12.6.4. Monitor commands</a></span></dt>
 </dl></dd>
+<dt><span class="section"><a href="vr-manual.html#id10444">12.7. Frequently Asked Questions</a></span></dt>
 </dl></dd>
 <dt><span class="chapter"><a href="nl-manual.html">13. Nulgrind: the minimal Valgrind tool</a></span></dt>
 <dd><dl><dt><span class="sect1"><a href="nl-manual.html#nl-manual.overview">13.1. Overview</a></span></dt></dl></dd>
@@ -344,6 +347,15 @@ function</a></span></dt>
 <dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.validation">14.7. Validation</a></span></dt>
 <dt><span class="sect1"><a href="bbv-manual.html#bbv-manual.performance">14.8. Performance</a></span></dt>
 </dl></dd>
+</dl>
+</div>
+<div class="list-of-tables">
+<p><b>List of Tables</b></p>
+<dl>
+<dt>12.1. <a href="vr-manual.html#id9861">Alias definition</a>
+</dt>
+<dt>12.2. <a href="vr-manual.html#id10497">Number of samples</a>
+</dt>
 </dl>
 </div>
 </div>
