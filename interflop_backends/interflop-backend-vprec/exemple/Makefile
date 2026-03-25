@@ -4,7 +4,7 @@ INCLUDE=-I.. -I../../..
 SRC= ../interflop_vprec.c ../common/vprec_tools.c ../../../interflop/interflop_stdlib.c ../../../interflop/iostream/logger.c ../../../interflop/sqrt/interflop_sqrt.c ../../../interflop/fma/interflop_fma.c 
 
 
-FLAGS= -Wall -Wextra -Wno-varargs -O0 -g -fno-builtin -DIGNORE_VFI_CONTEXT -msse2
+FLAGS= -Wall -Wextra -Wno-varargs -O0 -g -fno-builtin -DIGNORE_VFI_CONTEXT -msse2  -Wno-unused-parameter
 LDFLAGS=-lm -lmpfr
 
 all: debugCheckVPREC cmpFloat infCheck smallExpo
