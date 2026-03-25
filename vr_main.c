@@ -1137,7 +1137,7 @@ static HChar const * fnnoname=UNAMED_FUNCTION_VERROU;
 static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
-inline
+static inline
 void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool includeSource,
                               Bool doLineContainFloat, Bool doLineContainFloatMod, Bool doLineContainFloatCmp,
                               HChar const *  fnname,   const HChar * filename, const UInt linenum){
