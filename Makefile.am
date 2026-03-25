@@ -27,7 +27,7 @@ completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${complet
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
 		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
 		   ${completion_dir}/bash_completion_verrou_dd_back
-completion_install_dir=${prefix}/usr/share/completions
+completion_install_dir=${prefix}/share/completions
 
 # bash completion code generation
 # bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean are not generated
