@@ -11,6 +11,15 @@
  ****************************************************************************/
 
 #include "interflop_fma.h"
+
+#if defined(VGA_amd64) || defined(__x86_64__)
+#include  <immintrin.h>
+#endif
+
+#if defined(VGA_arm64) || defined(__aarch64__)
+#include "arm_neon.h"
+#endif
+
 #ifndef HAS_QUADMATH
 #include "pfp128.h"
 #endif
