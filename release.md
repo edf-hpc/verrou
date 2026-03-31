@@ -117,6 +117,7 @@ git add vr_clo.txt
     git clone --branch=v${VERSION} --single-branch https://github.com/edf-hpc/verrou
     rm -rf verrou/.git
     cat verrou/valgrind.*diff | patch -p1
+    ./autogen.sh
     cd ..
     tar cvzf ${VALGRIND}_verrou-${VERSION}.tar.gz ${VALGRIND}+verrou-${VERSION}
     ```
