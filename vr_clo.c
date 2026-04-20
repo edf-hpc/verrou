@@ -136,6 +136,8 @@ void vr_clo_defaults (void) {
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
+  vr_trace_init0(&(vr.traceBack));
+
   vr.outputTraceRep = NULL;
   vr.outputIOMatchRep = NULL;
   vr.outputIOMatchFilePattern= NULL;

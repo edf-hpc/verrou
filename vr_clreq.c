@@ -321,7 +321,7 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     *ret = 0; /* meaningless */
     break;
   case VR_USERREQ__DUMP_COVER:
-    *ret=vr_traceBB_dumpCov();
+    *ret=vr_dumpCov();
     break;
   case VR_USERREQ__PRINT_PROFILING_EXACT:
 #ifdef PROFILING_EXACT

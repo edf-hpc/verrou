@@ -52,16 +52,16 @@ static Vr_Exclude_Back* vr_addExcludeBack (Vr_Exclude_Back* list, uint64_t hash,
   cell->nbBack = nbBack;
   for(Int i =0; i<nbBack ; i++){
      (cell->ip)[i]=ip[i];
-     cell->used=used;
   }
-  cell->next    = list;
+  cell->used = used;
+  cell->next = list;
   return cell;
 }
 
 static Vr_Addr_List* vr_addAddrList (Vr_Addr_List* list, Addr ip) {
   Vr_Addr_List * cell = VG_(malloc)("vr.addAddrList.1", sizeof(Vr_Addr_List));
-  cell->ip=ip;
-  cell->next    = list;
+  cell->ip   = ip;
+  cell->next = list;
   return cell;
 }
 
@@ -104,7 +104,7 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
 }
 
 #ifdef MULTIPLY_SHIFT_HASH_BACK
-static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
+static uint64_t random_tab[BACKTRACE_SIZE*2 + 1]={ //81
    2985842423061390143u,
    6155994775641341576u,
    11133449992811317908u,
@@ -147,7 +147,7 @@ static uint64_t random_tab[HASH_TABLE_SIZE*2 + 1]={ //81
    7153875437183966428u,
    16885889230938066065u,
 #else
-static uint64_t random_tab[HASH_TABLE_SIZE + 1]={ //41
+static uint64_t random_tab[BACKTRACE_SIZE + 1]={ //41
 #endif
    16745672200074323915u,
    8154495383720775682u,
@@ -215,11 +215,30 @@ static inline uint64_t hash_back(Int nbBack, Addr* ip){
 #else
       // a priori less accurate but faster
       // accuracy no needed: vr_findExcludeBack perform full verification
-      res+= (random_tab[i+1]+val64);
+      res+= (random_tab[i+1]*val64);
 #endif
    }
    return res;
 }
+
+static inline uint64_t hash_back_bb(Addr bbAddr, Int nbBack, Addr* ip){
+   uint64_t res=hash_back(nbBack, ip);
+
+#ifdef MULTIPLY_SHIFT_HASH_BACK
+   uint64_t random1=3824729890850305536u;
+   uint64_t random2=13663754934037571754u;
+
+   uint32_t val32_1=bbAddr;
+   uint32_t val32_2=(bbAdrr>>32);
+   res+= (random1+val32_1) * (random2+val32_2);
+#else
+   uint64_t random=3824729890850305536u;
+   uint64_t val64=bbAddr;
+   res+= (random*val64);
+#endif
+   return res;
+}
+
 
 void vr_addBackGen(Vr_Back* vrBack, Int nbBack, Addr* ip){
    uint64_t hash=hash_back(nbBack, ip);
@@ -495,3 +514,4 @@ Bool vr_isInstrumentedBack(Vr_Back* vrBack, Int nbBack, Addr* ip){
 }
 
 
+#include "vr_trace_back.c"

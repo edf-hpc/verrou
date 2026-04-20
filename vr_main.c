@@ -46,6 +46,7 @@ extern Bool VG_(get_fnname_raw) ( DiEpoch ep, Addr a, const HChar** buf );
 extern Bool VG_(resolve_filename) ( Int fd, const HChar** buf );
 
 #include "vr_exclude_back.h"
+#include "vr_trace_back.h"
 
 Int reduced_nb_below_main(Addr*ips, Int nb);
 
@@ -1138,7 +1139,9 @@ static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
 static inline
-void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool includeSource,
+void vr_treat_line_from_imark(traceBB_t* traceBB,
+                              Addr bbAddr,
+                              Bool excludeIrsb, Bool includeSource,
                               Bool doLineContainFloat, Bool doLineContainFloatMod, Bool doLineContainFloatCmp,
                               HChar const *  fnname,   const HChar * filename, const UInt linenum){
   if( !excludeIrsb && doLineContainFloatMod){
@@ -1156,6 +1159,11 @@ void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool include
      vr_traceBB_trace_imark(traceBB,
                             fnname, filename,linenum,
                             doLineContainFloat, doLineContainFloatCmp);
+  }
+  if(vr.genTrace){
+     vr_trace_set_debugdata_for_bbAddr(&(vr.traceBack), bbAddr,
+                                       filename,linenum,
+                                       doLineContainFloat, doLineContainFloatCmp);
   }
 }
 
@@ -1350,7 +1358,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   if(genIRSBTrace){
     traceBB=getNewTraceBB(sbIn);
     vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
-    //vr_traceBB_trace_backtrace(traceBB);
+
+    vr_traceBackIRSB(sbOut, addr);
   }
 
   /*Data for Imark localisation*/
@@ -1382,7 +1391,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     switch (st->tag) {
     case Ist_IMark: {
       if(i!=0){
-         vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
+         vr_treat_line_from_imark(traceBB, addr,
+                                  excludeIrsb,includeSource,
                                   doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
                                   *fnnamePtr,*filenamePtr,*linenumPtr);
       }
@@ -1440,10 +1450,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
      VG_(tool_panic)("doIRSBFContainFloatMod!= backTraceInstr");
   }
 
-  vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
-                           doLineContainFloat,
-                           doLineContainFloatMod,
-                           doLineContainFloatCmp,
+  vr_treat_line_from_imark(traceBB, addr,
+                           excludeIrsb,includeSource,
+                           doLineContainFloat, doLineContainFloatMod, doLineContainFloatCmp,
 			   *fnnamePtr,*filenamePtr,*linenumPtr);
 
   if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloatMod){
@@ -1495,8 +1504,10 @@ static void vr_fini(Int exitcode)
   }
 
   if(vr.genTrace){
-    vr_traceBB_dumpCov();
+    vr_dumpCov();
     vr_traceBB_finalize();
+    vr_trace_finalize( &(vr.traceBack));
+
     if(vr.outputTraceRep!=NULL){
        VG_(free)(vr.outputTraceRep);
     }
@@ -1761,7 +1772,9 @@ static void vr_post_clo_init(void)
 
   if(vr.genTrace){
      vr_traceBB_initialize(vr.outputTraceRep);
-   }
+
+     vr_trace_init_rep( &(vr.traceBack), vr.outputTraceRep);
+  }
 
   if(vr.genBackTraceBool || vr.useBackTraceBool){
      vr_back_init(&vr.backTraceTool, vr.genBackTraceBool, vr.genBackTraceRep);

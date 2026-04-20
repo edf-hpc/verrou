@@ -414,7 +414,7 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
   case dumpCoverKey:
     {
       SizeT ret;
-      ret=vr_traceBB_dumpCov();
+      ret=vr_dumpCov();
       if( IOMatch_log_level>0 ){
          VG_(fprintf)(vr_IOmatchCLRFileLog,"apply: dump_cover : %lu\n", ret);
       }

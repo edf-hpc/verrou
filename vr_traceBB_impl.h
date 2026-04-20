@@ -191,7 +191,7 @@ void vr_traceBB_finalize(void){
 
 }
 
-
+void vr_traceBB_resetCov(void);
 void vr_traceBB_resetCov(void){
   traceBB_t* current=traceList;
   while (current != NULL) {
@@ -201,14 +201,8 @@ void vr_traceBB_resetCov(void){
 }
 
 
-
-UInt vr_traceBB_dumpCov(void){
-  static UInt numPartialCov=0;
-  if(vr_out_bb_cov==NULL){
-     numPartialCov+=1;
-     return numPartialCov-1;
-  }
-  
+void vr_traceBB_dumpCov(UInt numPartialCov);
+void vr_traceBB_dumpCov(UInt numPartialCov){
   VG_(fprintf)(vr_out_bb_cov, "cover-%u\n", numPartialCov);
   traceBB_t* current=traceList;
   while (current != NULL) {
@@ -217,11 +211,25 @@ UInt vr_traceBB_dumpCov(void){
     }
     current = current->next;
   }
-  numPartialCov+=1;
-  vr_traceBB_resetCov();
-  return numPartialCov-1;
 }
 
+
+
+UInt vr_dumpCov(void){
+  static UInt numPartialCov=0;
+  if(vr_out_bb_cov==NULL){
+     numPartialCov+=1;
+     return numPartialCov-1;
+  }
+
+  vr_traceBB_dumpCov(numPartialCov);
+  vr_traceBB_resetCov();
+
+  vr_trace_dump_and_clear(&(vr.traceBack), numPartialCov);
+
+  numPartialCov+=1;
+  return numPartialCov-1;
+}
 
 
 
