@@ -11,9 +11,12 @@ import post_config
 import rounding_tool
 from pathlib import Path
 
+from BBTools import traceName
+
 def failure():
     sys.exit(42)
 
+tName=traceName("back")
 
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
     res=[]
@@ -41,7 +44,8 @@ def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
 
 
 def getSortedPidList(rep):
-    pidList=[(int((x.name).replace("trace_bb_cov.log-","")), x.stat().st_mtime) for x in  rep.glob("trace_bb_cov.log-*") if x.name !="trace_bb_cov.log-seqCount" ]
+    pidList=[(int((x.name).replace(tName.covPrefixName(),"")), x.stat().st_mtime)
+             for x in  rep.glob(tName.covPrefixName()+"*") if x.name != (tName.covPrefixName()+"seqCount") ]
     sortedPidList=sorted(pidList, key=lambda x: x[1])
     return sortedPidList
 
@@ -73,11 +77,11 @@ def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verb
     for pidTuple in pidList:
         pid=pidTuple[0]
         coverOldFileList=[x.name for x in rep.glob("cover*-"+str(pid))]
-        otherOldFileList=[x.name for x in list(rep.glob("trace_bb_cov.log-"+str(pid)))+
-                                          list(rep.glob("trace_bb_info.log-"+str(pid)))]
+        otherOldFileList=[x.name for x in list(rep.glob("*-"+str(pid)))]
+        otherOldFileList=[x for x in otherOldFileList if not x in coverOldFileList]
 
         if ignoreEmpty:
-            fileName="trace_bb_info.log-"+str(pid)
+            fileName=tName.bbName(pid)
             pathFile=rep / fileName
             if  fileName in  otherOldFileList and (pathFile.stat()).st_size==0:
                 if clean:
@@ -127,12 +131,12 @@ def parseLastCmd(rep, instr_prefix="VERROU"):
 
 
 def postRunTrace(runDir):
-    globListOfTraceBBFile=runDir.glob("cover/trace_bb_cov.log*")
+    globListOfTraceBBFile=runDir.glob("cover/"+tName.covPrefixName()+"*")
 
     listOfTraceBBFile=[]
     log=""
     for traceBBFile in globListOfTraceBBFile:
-        traceInfo=traceBBFile.with_name( (traceBBFile.name).replace("cov","info"))
+        traceInfo=traceBBFile.with_name( tName.bbNameForCovName(traceBBFile.name))
         if (traceInfo.stat()).st_size!=0:
             listOfTraceBBFile+=[traceBBFile]
         else:
@@ -145,7 +149,7 @@ def postRunTrace(runDir):
         print("Problem in trace generation detected: ",runDir)
         sys.exit(42)
 
-    cmd="genCovBB --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
+    cmd="genCovBB --genCovBack --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
     os.system(cmd+ "  >> %s"%( runDir/ "covBBLog"))
     rename_pid_for_one_rep(runDir / "cover",what="cover", clean=True, ignoreEmpty=True)
 
