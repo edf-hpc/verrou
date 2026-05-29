@@ -39,82 +39,82 @@
 #define STDOUT_FILENO 1
 
 
-VgFile* vr_IOmatchCLRFileLog;
-VgFile* vr_IOmatchCLRFileStdout;
-VgFile* vr_IOmatchCLRFileFilteredStdout;
+static VgFile* vr_IOmatchCLRFileLog;
+static VgFile* vr_IOmatchCLRFileStdout;
+static VgFile* vr_IOmatchCLRFileFilteredStdout;
 
 #define LINE_SIZEMAX 40000
 #define FILTER_SIZEMAX 512
 
 
-const HChar vr_defaultKeyStr[]="default: ";
-SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
+static const HChar vr_defaultKeyStr[]="default: ";
+static const SizeT vr_defaultKeyStrSize=sizeof(vr_defaultKeyStr)-1;
 
-const HChar vr_initKeyStr[]="init: ";
-SizeT vr_initKeyStrSize=sizeof(vr_initKeyStr)-1;
+static const HChar vr_initKeyStr[]="init: ";
+static const SizeT vr_initKeyStrSize=sizeof(vr_initKeyStr)-1;
 
-const HChar vr_postinitKeyStr[]="post-init: ";
-SizeT vr_postinitKeyStrSize=sizeof(vr_postinitKeyStr)-1;
-
-
-const HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
-SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
-
-const HChar vr_cmatchKeyStr[]= "cmatch: ";
-SizeT vr_cmatchKeyStrSize=sizeof(vr_cmatchKeyStr)-1;
-
-const HChar vr_bmatchKeyStr[]= "bmatch: ";
-SizeT vr_bmatchKeyStrSize=sizeof(vr_bmatchKeyStr)-1;
+static const HChar vr_postinitKeyStr[]="post-init: ";
+static const SizeT vr_postinitKeyStrSize=sizeof(vr_postinitKeyStr)-1;
 
 
-const HChar vr_applyKeyStr[]=  "apply: ";
-SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
+static const HChar vr_filterLineExecKeyStr[]="filter_line_exec: ";
+static const SizeT vr_filterLineExecKeyStrSize=sizeof(vr_filterLineExecKeyStr)-1 ;
 
-const HChar vr_postApplyKeyStr[]=  "post-apply: ";
-SizeT vr_postApplyKeyStrSize=sizeof(vr_postApplyKeyStr)-1;
+static const HChar vr_cmatchKeyStr[]= "cmatch: ";
+static const SizeT vr_cmatchKeyStrSize=sizeof(vr_cmatchKeyStr)-1;
 
-
-const HChar vr_ignoreEmptyLineKeyStr[]=  "ignore-empty-line: ";
-SizeT vr_ignoreEmptyLineKeyStrSize=sizeof(vr_ignoreEmptyLineKeyStr)-1;
-
-
-Bool ignoreEmptyLine=True;
-
-const HChar vr_verboseKeyStr[]=  "verbose: ";
-SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
-
-const HChar vr_logLevelKeyStr[]=  "log-level: ";
-SizeT vr_logLevelKeyStrSize=sizeof(vr_logLevelKeyStr)-1;
-
-const HChar vr_nbMatchMaxKeyStr[]=  "nb-match-max: ";
-SizeT vr_nbMatchMaxKeyStrSize=sizeof(vr_nbMatchMaxKeyStr)-1;
-
-const HChar vr_permutableBmatchIndexesKeyStr[]=  "permutable-bmatch-indexes: ";
-SizeT vr_permutableBmatchIndexesKeyStrSize=sizeof(vr_permutableBmatchIndexesKeyStr)-1;
+static const HChar vr_bmatchKeyStr[]= "bmatch: ";
+static const SizeT vr_bmatchKeyStrSize=sizeof(vr_bmatchKeyStr)-1;
 
 
-const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
-SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
-Bool vr_dumpStdout=False;
+static const HChar vr_applyKeyStr[]=  "apply: ";
+static const SizeT vr_applyKeyStrSize=sizeof(vr_applyKeyStr)-1;
 
-const HChar vr_dumpFilteredStdoutKeyStr[]=  "dump-filtered-stdout:";//no space : no param
-SizeT vr_dumpFilteredStdoutKeyStrSize=sizeof(vr_dumpFilteredStdoutKeyStr)-1;
-Bool vr_dumpFilteredStdout=False;
+static const HChar vr_postApplyKeyStr[]=  "post-apply: ";
+static const SizeT vr_postApplyKeyStrSize=sizeof(vr_postApplyKeyStr)-1;
+
+
+static const HChar vr_ignoreEmptyLineKeyStr[]=  "ignore-empty-line: ";
+static const SizeT vr_ignoreEmptyLineKeyStrSize=sizeof(vr_ignoreEmptyLineKeyStr)-1;
+
+
+static Bool ignoreEmptyLine=True;
+
+static const HChar vr_verboseKeyStr[]=  "verbose: ";
+static const SizeT vr_verboseKeyStrSize=sizeof(vr_verboseKeyStr)-1;
+
+static const HChar vr_logLevelKeyStr[]=  "log-level: ";
+static const SizeT vr_logLevelKeyStrSize=sizeof(vr_logLevelKeyStr)-1;
+
+static const HChar vr_nbMatchMaxKeyStr[]=  "nb-match-max: ";
+static const SizeT vr_nbMatchMaxKeyStrSize=sizeof(vr_nbMatchMaxKeyStr)-1;
+
+static const HChar vr_permutableBmatchIndexesKeyStr[]=  "permutable-bmatch-indexes: ";
+static const SizeT vr_permutableBmatchIndexesKeyStrSize=sizeof(vr_permutableBmatchIndexesKeyStr)-1;
+
+
+static const HChar vr_dumpStdoutKeyStr[]=  "dump-stdout:";//no space : no param
+static const SizeT vr_dumpStdoutKeyStrSize=sizeof(vr_dumpStdoutKeyStr)-1;
+static Bool vr_dumpStdout=False;
+
+static const HChar vr_dumpFilteredStdoutKeyStr[]=  "dump-filtered-stdout:";//no space : no param
+static const SizeT vr_dumpFilteredStdoutKeyStrSize=sizeof(vr_dumpFilteredStdoutKeyStr)-1;
+static Bool vr_dumpFilteredStdout=False;
 
 
 #define DEFAULT_MAX 10
 #define DEFAULT_SIZE_MAX 30
-HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
-SizeT vr_nbDefault=0;
+static HChar vr_applyDefault[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+static SizeT vr_nbDefault=0;
 
-HChar vr_applyInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
-SizeT vr_nbInit=0;
+static HChar vr_applyInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+static SizeT vr_nbInit=0;
 
-HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
-SizeT vr_nbpostInit=0;
-SizeT vr_countPostInit=0;
+static HChar vr_applypostInit[DEFAULT_MAX][DEFAULT_SIZE_MAX];
+static SizeT vr_nbpostInit=0;
+static SizeT vr_countPostInit=0;
 
-static int vr_nb_match_max=100;
+static SizeT vr_nb_match_max=100; // not const
 
 #define APPLY_PER_MATCH_MAX 5
 #define POST_APPLY_PER_MATCH_MAX 2
@@ -131,11 +131,11 @@ typedef struct vr_match_data {
    SizeT nb_post_apply_match;
 } vr_match_data_t;
 
-vr_match_data_t* vr_match_tab=NULL;
-SizeT vr_nbMatch=0;
-SizeT vr_reorgBegin=1;
-SizeT vr_reorgEnd=0;
-SizeT vr_lastReorgMatch=0;
+static vr_match_data_t* vr_match_tab=NULL;
+static SizeT vr_nbMatch=0;
+static SizeT vr_reorgBegin=1;
+static SizeT vr_reorgEnd=0;
+static SizeT vr_lastReorgMatch=0;
 
 static inline void vr_allocate_match_if_needed(void){
    if(vr_match_tab==NULL){
@@ -147,53 +147,50 @@ static inline void vr_allocate_match_if_needed(void){
 }
 
 
-Int previousMatchIndex=-1;
+static Int previousMatchIndex=-1;
 
-HChar* vr_IOmatch_CmdLine =NULL;
-HChar* vr_writeLineBuff =NULL;
-HChar* vr_writeLineBuffCurrent =NULL;
+static HChar* vr_IOmatch_CmdLine =NULL;
+static HChar* vr_writeLineBuff =NULL;
+static HChar* vr_writeLineBuffCurrent =NULL;
 
-//SizeT vr_last_expect_lineNo=0;
-
-Bool vr_filter=False;
-HChar vr_filter_cmd[FILTER_SIZEMAX];
-Int filter_fdin[2];
-Int filter_fdout[2];
-Int filter_pid;
-HChar* vr_filtered_buff;
-
+static Bool vr_filter=False;
+static HChar vr_filter_cmd[FILTER_SIZEMAX];
+static Int filter_fdin[2];
+static Int filter_fdout[2];
+static Int filter_pid;
+static HChar* vr_filtered_buff;
 #define ARGV_FILTER_MAX 10
-const HChar *argvFiltered[ARGV_FILTER_MAX];
+static const HChar *argvFiltered[ARGV_FILTER_MAX];
 
 
-const HChar nopStr[]="nop";
-const HChar emptyStr[]="";
-const HChar defaultStr[]="default";
-const HChar initStr[]="init";
-const HChar postinitStr[]="post-init";
-const HChar stopStr[]="stop";
-const HChar startStr[]="start";
-const HChar stopSoftStr[]="stop_soft";
-const HChar startSoftStr[]="start_soft";
-const HChar displayCounterStr[]="display_counter";
-const HChar nbInstrStr[]="nb_instr";
-const HChar resetCounterStr[]="reset_counter";
-const HChar dumpCoverStr[]="dump_cover";
-const HChar panicStr[]="panic";
-const HChar exitStr[]="exit";
-const HChar denormCounterStr[]="print_denorm_counter";
-const HChar resetDenormCounterStr[]="reset_denorm_counter";
-const HChar backtraceStr[]="backtrace";
+static const HChar nopStr[]="nop";
+static const HChar emptyStr[]="";
+static const HChar defaultStr[]="default";
+static const HChar initStr[]="init";
+static const HChar postinitStr[]="post-init";
+static const HChar stopStr[]="stop";
+static const HChar startStr[]="start";
+static const HChar stopSoftStr[]="stop_soft";
+static const HChar startSoftStr[]="start_soft";
+static const HChar displayCounterStr[]="display_counter";
+static const HChar nbInstrStr[]="nb_instr";
+static const HChar resetCounterStr[]="reset_counter";
+static const HChar dumpCoverStr[]="dump_cover";
+static const HChar panicStr[]="panic";
+static const HChar exitStr[]="exit";
+static const HChar denormCounterStr[]="print_denorm_counter";
+static const HChar resetDenormCounterStr[]="reset_denorm_counter";
+static const HChar backtraceStr[]="backtrace";
 
 typedef enum {nopKey=0, emptyKey, defaultKey, initKey, postinitKey, stopKey, startKey, stopSoftKey, startSoftKey,displayCounterKey, nbInstrKey, resetCounterKey, dumpCoverKey, panicKey, exitKey, denormCounterKey,resetDenormCounterKey,backtraceKey} Vr_applyKey;
 static const SizeT actionNumber=18;
-const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr, denormCounterStr, resetDenormCounterStr,backtraceStr};
-SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr), sizeof(denormCounterStr), sizeof(resetDenormCounterStr),sizeof(backtraceStr)};
+static const HChar* actionStrTab[]={nopStr, emptyStr, defaultStr, initStr, postinitStr, stopStr, startStr, stopSoftStr, startSoftStr, displayCounterStr, nbInstrStr, resetCounterStr, dumpCoverStr, panicStr, exitStr, denormCounterStr, resetDenormCounterStr,backtraceStr};
+static SizeT actionSizeTab[]={sizeof(nopStr), sizeof(emptyStr),sizeof(defaultStr), sizeof(initStr),  sizeof(postinitStr), sizeof(stopStr), sizeof(startStr),sizeof(stopSoftStr), sizeof(startSoftStr), sizeof(displayCounterStr), sizeof(nbInstrStr), sizeof(resetCounterStr), sizeof(dumpCoverStr),sizeof(panicStr),sizeof(exitStr), sizeof(denormCounterStr), sizeof(resetDenormCounterStr),sizeof(backtraceStr)};
 
 //Bool actionRequireCacheCleanTab[]={False, False, False, False, False, True, True, False, False, False, False, False, False };
 
-UInt IOMatch_verbose=1;
-UInt IOMatch_log_level=1;
+static UInt IOMatch_verbose=1;
+static UInt IOMatch_log_level=1;
 
 static Vr_applyKey vr_CmdToEnum(const HChar* cmd){
 
@@ -410,18 +407,16 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
     }
     return;
   case nbInstrKey:
-  {
+    {
      UInt nbInstr=vr_count_fp_instrumented();
      if( IOMatch_log_level>0 ){
         VG_(fprintf)(vr_IOmatchCLRFileLog,"fp_instr: %u\n", nbInstr );
      }
      return;
-  }
+    }
   case resetCounterKey:
-  {
      vr_resetCount();
      return;
-  }
   case dumpCoverKey:
     {
       SizeT ret;
@@ -432,28 +427,18 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
       return;
     }
   case denormCounterKey:
-  {
      vr_print_denorm_counter();
      return;
-  }
   case resetDenormCounterKey:
-  {
      vr_reset_denorm_counter();
      return;
-  }
   case backtraceKey:
-  {
      VG_(get_and_pp_StackTrace)(VG_(get_running_tid)(), VG_(clo_backtrace_size));
      return;
-  }
-
   case panicKey:
-    {
       VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: panic\n");
       VG_(tool_panic)("apply: panic");
-    }
   case exitKey:
-    {
       if( IOMatch_log_level>0 ){
           VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: exit\n");
       }
@@ -461,7 +446,6 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
          vr_close_filter();
       }
       VG_(exit)(1);
-    }
   }
   VG_(umsg)("vr_applyCmd :  unknown cmd : |%s|\n", cmd);
   VG_(exit)(1);
@@ -508,8 +492,8 @@ void vr_IOmatch_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
 
 
 
-VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost);
-VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost){
+static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost);
+static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost){
   /*Open output File*/
   HChar strFilename[512];
   if( VG_(strncmp)(fileName, "",512)==0){
@@ -545,8 +529,8 @@ VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMa
 };
 
 
-HChar* stripSpace(HChar* str);
-HChar* stripSpace(HChar* str){
+static HChar* stripSpace(HChar* str);
+static HChar* stripSpace(HChar* str){
    if(str[0]==0) return str;
 
    HChar* res=str;
@@ -563,8 +547,8 @@ HChar* stripSpace(HChar* str){
    return res;
 }
 
-Bool vrIO_Parse_filterLineExec(void);
-Bool vrIO_Parse_filterLineExec(void){
+static Bool vrIO_Parse_filterLineExec(void);
+static Bool vrIO_Parse_filterLineExec(void){
    //Treat filter line exec key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_filterLineExecKeyStr, vr_filterLineExecKeyStrSize)==0 ){
       const HChar* filterExecCmd=stripSpace(vr_IOmatch_CmdLine+vr_filterLineExecKeyStrSize);
@@ -680,8 +664,8 @@ Bool vrIO_Parse_filterLineExec(void){
    return False;
 }
 
-Bool vrIO_Parse_default(void);
-Bool vrIO_Parse_default(void){
+static Bool vrIO_Parse_default(void);
+static Bool vrIO_Parse_default(void){
    //Treat default key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_defaultKeyStr, vr_defaultKeyStrSize)==0  ){
       const HChar* defaultAction=stripSpace(vr_IOmatch_CmdLine+vr_defaultKeyStrSize);
@@ -703,8 +687,8 @@ Bool vrIO_Parse_default(void){
    return False;
 }
 
-Bool vrIO_Parse_emptyLine(void);
-Bool vrIO_Parse_emptyLine(void){
+static Bool vrIO_Parse_emptyLine(void);
+static Bool vrIO_Parse_emptyLine(void){
    //Treat ignoreEmptyLine key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_ignoreEmptyLineKeyStr, vr_ignoreEmptyLineKeyStrSize)==0  ){
       const HChar* boolStr=stripSpace(vr_IOmatch_CmdLine+vr_ignoreEmptyLineKeyStrSize);
@@ -731,8 +715,8 @@ Bool vrIO_Parse_emptyLine(void){
    return False;
 }
 
-Bool vrIO_Parse_init(void);
-Bool vrIO_Parse_init(void){
+static Bool vrIO_Parse_init(void);
+static Bool vrIO_Parse_init(void){
      //Treat init key
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_initKeyStr, vr_initKeyStrSize)==0  ){
        const HChar* initAction=stripSpace(vr_IOmatch_CmdLine+vr_initKeyStrSize);
@@ -754,8 +738,8 @@ Bool vrIO_Parse_init(void){
     return False;
 }
 
-Bool vrIO_Parse_postinit(void);
-Bool vrIO_Parse_postinit(void){
+static Bool vrIO_Parse_postinit(void);
+static Bool vrIO_Parse_postinit(void){
          //Treat postinit key
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_postinitKeyStr, vr_postinitKeyStrSize)==0  ){
        const HChar* postinitAction=stripSpace(vr_IOmatch_CmdLine+vr_postinitKeyStrSize);
@@ -777,8 +761,8 @@ Bool vrIO_Parse_postinit(void){
     return False;
 }
 
-Bool vrIO_Parse_bmatch(void);
-Bool vrIO_Parse_bmatch(void){
+static Bool vrIO_Parse_bmatch(void);
+static Bool vrIO_Parse_bmatch(void){
    //Treat bmatch key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_bmatchKeyStr, vr_bmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
@@ -801,8 +785,8 @@ Bool vrIO_Parse_bmatch(void){
    return False;
 }
 
-Bool vrIO_Parse_cmatch(void);
-Bool vrIO_Parse_cmatch(void){
+static Bool vrIO_Parse_cmatch(void);
+static Bool vrIO_Parse_cmatch(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_cmatchKeyStr, vr_cmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
       if(vr_nbMatch> vr_nb_match_max){
@@ -824,8 +808,8 @@ Bool vrIO_Parse_cmatch(void){
    return False;
 }
 
-Bool vrIO_Parse_apply(void);
-Bool vrIO_Parse_apply(void){
+static Bool vrIO_Parse_apply(void);
+static Bool vrIO_Parse_apply(void){
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_applyKeyStr, vr_applyKeyStrSize)==0 ){
       const HChar* applyCmd=stripSpace(vr_IOmatch_CmdLine+vr_applyKeyStrSize);
       if(IOMatch_verbose>2){
@@ -845,8 +829,8 @@ Bool vrIO_Parse_apply(void){
    return False;
 }
 
-Bool vrIO_Parse_postapply(void);
-Bool vrIO_Parse_postapply(void){
+static Bool vrIO_Parse_postapply(void);
+static Bool vrIO_Parse_postapply(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_postApplyKeyStr, vr_postApplyKeyStrSize)==0 ){
       const HChar* applyCmd=stripSpace(vr_IOmatch_CmdLine+vr_postApplyKeyStrSize);
       if(IOMatch_verbose>2){
@@ -870,8 +854,8 @@ Bool vrIO_Parse_postapply(void){
    return False;
 }
 
-Bool vrIO_Parse_verbose(void);
-Bool vrIO_Parse_verbose(void){
+static Bool vrIO_Parse_verbose(void);
+static Bool vrIO_Parse_verbose(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_verboseKeyStr, vr_verboseKeyStrSize)==0 ){
       const HChar* verboseStr=stripSpace(vr_IOmatch_CmdLine+vr_verboseKeyStrSize);
       IOMatch_verbose=VG_(strtoull10)(verboseStr,  NULL);
@@ -881,8 +865,8 @@ Bool vrIO_Parse_verbose(void){
 }
 
 
-Bool vrIO_Parse_logLevel(void);
-Bool vrIO_Parse_logLevel(void){
+static Bool vrIO_Parse_logLevel(void);
+static Bool vrIO_Parse_logLevel(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_logLevelKeyStr, vr_logLevelKeyStrSize)==0 ){
       const HChar* logLevelStr=stripSpace(vr_IOmatch_CmdLine+vr_logLevelKeyStrSize);
       IOMatch_log_level=VG_(strtoull10)(logLevelStr,  NULL);
@@ -891,8 +875,8 @@ Bool vrIO_Parse_logLevel(void){
    return False;
 }
 
-Bool vrIO_Parse_matchMax(void);
-Bool vrIO_Parse_matchMax(void){
+static Bool vrIO_Parse_matchMax(void);
+static Bool vrIO_Parse_matchMax(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_nbMatchMaxKeyStr, vr_nbMatchMaxKeyStrSize)==0 ){
       if(vr_nbMatch>0){
          VG_(tool_panic)("vr_IOmatch_clr : nb-match-max is invalid after bmatch of cmatch");
@@ -905,8 +889,8 @@ Bool vrIO_Parse_matchMax(void){
 }
 
 
-Bool vrIO_Parse_permutableBmatchIndexes(void);
-Bool vrIO_Parse_permutableBmatchIndexes(void){
+static Bool vrIO_Parse_permutableBmatchIndexes(void);
+static Bool vrIO_Parse_permutableBmatchIndexes(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_permutableBmatchIndexesKeyStr, vr_permutableBmatchIndexesKeyStrSize)==0 ){
       HChar* indexesStr=stripSpace(vr_IOmatch_CmdLine+vr_permutableBmatchIndexesKeyStrSize);
       HChar* next;
@@ -924,8 +908,8 @@ Bool vrIO_Parse_permutableBmatchIndexes(void){
    return False;
 }
 
-Bool vrIO_Parse_dumpStdout(const HChar * fileName);
-Bool vrIO_Parse_dumpStdout(const HChar * fileName){
+static Bool vrIO_Parse_dumpStdout(const HChar * fileName);
+static Bool vrIO_Parse_dumpStdout(const HChar * fileName){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpStdoutKeyStr, vr_dumpStdoutKeyStrSize)==0 ){
       const HChar* dumpStr=stripSpace(vr_IOmatch_CmdLine+vr_dumpStdoutKeyStrSize);
       vr_dumpStdout=True;
@@ -935,8 +919,8 @@ Bool vrIO_Parse_dumpStdout(const HChar * fileName){
    return False;
 }
 
-Bool vrIO_Parse_dumpFilteredStdout(const HChar * fileName);
-Bool vrIO_Parse_dumpFilteredStdout(const HChar * fileName){
+static Bool vrIO_Parse_dumpFilteredStdout(const HChar * fileName);
+static Bool vrIO_Parse_dumpFilteredStdout(const HChar * fileName){
     if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_dumpFilteredStdoutKeyStr, vr_dumpFilteredStdoutKeyStrSize)==0 ){
        const HChar* dumpStr=stripSpace(vr_IOmatch_CmdLine+vr_dumpFilteredStdoutKeyStrSize);
        vr_dumpFilteredStdout=True;
@@ -1002,8 +986,8 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
 
 
-int readlineCharByChar(int fd, char* msgRead,int sizeMax);
-int readlineCharByChar(int fd, char* msgRead,int sizeMax){
+static int readlineCharByChar(int fd, char* msgRead,int sizeMax);
+static int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   int totalSize=0;
   while(totalSize<sizeMax){
     char buffer[1];
