@@ -342,6 +342,17 @@ inline static Bool vr_string_match(SizeT matchIndex, const HChar* filtered_line)
 }
 
 
+inline static void vr_close_filter(void){
+   char msgEnd[]="";
+   VG_(write)(filter_fdin[1], msgEnd, 1);
+
+   VG_(close)(filter_fdout[0]);
+   VG_(close)(filter_fdin[1]);
+   VG_(waitpid)(filter_pid, NULL, 0);
+
+   VG_(free)(vr_filtered_buff);
+}
+
 static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly){
   if(IOMatch_verbose>2){
      VG_(umsg)("vr_applyCmd : %s\n", cmd);
@@ -447,16 +458,8 @@ static void vr_applyCmd(Vr_applyKey key, const HChar* cmd,  Bool noIntrusiveOnly
           VG_(fprintf)(vr_IOmatchCLRFileLog, "apply: exit\n");
       }
       if(vr_filter){
-         char msgEnd[]="";
-         VG_(write)(filter_fdin[1], msgEnd, 1);
-
-         VG_(close)(filter_fdout[0]);
-         VG_(close)(filter_fdin[1]);
-         VG_(waitpid)(filter_pid, NULL, 0);
-
-         VG_(free)(vr_filtered_buff);
+         vr_close_filter();
       }
-
       VG_(exit)(1);
     }
   }
@@ -1223,14 +1226,7 @@ void vr_IOmatch_clr_finalize (void){
    //free and close evrything
    VG_(free)(vr_writeLineBuff);
    if(vr_filter){
-     char msgEnd[]="";
-     VG_(write)(filter_fdin[1], msgEnd, 1);
-
-     VG_(close)(filter_fdout[0]);
-     VG_(close)(filter_fdin[1]);
-     VG_(waitpid)(filter_pid, NULL, 0);
-
-     VG_(free)(vr_filtered_buff);
+      vr_close_filter();
    }
 
    for(SizeT i=0; i< vr_nbMatch; i++){
