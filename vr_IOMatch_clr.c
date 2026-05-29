@@ -1014,6 +1014,8 @@ int readlineCharByChar(int fd, char* msgRead,int sizeMax){
          totalSize+=1;
       }
       continue;
+    }else{
+       return -1;
     }
   }
   return -1;
@@ -1095,7 +1097,7 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
              Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 
              if(sizeRead <0){
-                VG_(umsg)("vr_IOmatchCLR: read error\n");
+                VG_(umsg)("vr_IOmatchCLR: filter read error\n");
              }
              if(sizeRead >=LINE_SIZEMAX){
                 VG_(umsg)("vr_IOmatchCLR: read error sizemax\n");
