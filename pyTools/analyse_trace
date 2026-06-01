@@ -1,0 +1,264 @@
+#!/usr/bin/env python3
+import sys
+from pathlib import Path
+import math
+
+def findCoverRep(baseRep):
+    return baseRep.glob("*-trace/**/cover/")
+
+def loadCover(path):
+    resTab=[]
+    for line in open(path).readlines():
+        spline=[x.strip() for x in line.split(":")]
+        count=int(spline[0])
+        bbRep=spline[1]
+        resTab+=[(bbRep, count)]
+    return resTab
+
+def analyseCoverRep(path):
+    coverDict={"dataPath":{},
+               "dataCover":{}
+               }
+    coverFileTab=path.glob("cover*-seqCount*")
+    maxCoverIndex=[]
+    maxSeqIndex=-1
+    for path in coverFileTab:
+        strPath=str(path.name)
+        coverIndex= int((strPath.split("-")[0]).replace("cover",""))
+        seqIndex  = int((strPath.split("-")[1]).replace("seqCount",""))
+        if seqIndex>maxSeqIndex:
+            maxSeqIndex=seqIndex
+            maxCoverIndex+= ([-1]*(seqIndex-maxSeqIndex+1))
+        if coverIndex>maxCoverIndex[seqIndex]:
+            maxCoverIndex[seqIndex]=coverIndex
+
+        coverDict["dataPath"][(coverIndex, seqIndex)]=path
+    coverDict["nbSeq"]=maxSeqIndex+1
+    coverDict["nbCoverTab"]=[x+1 for x in maxCoverIndex]
+    for seq in range(coverDict["nbSeq"]):
+        for cov in range(coverDict["nbCoverTab"][seq]):
+            if not (cov,seq) in coverDict["dataPath"].keys():
+                print("cov/seq", cov, seq)
+                print("data", coverDict["dataPath"].keys())
+                print("data missing")
+                sys.exit(42)
+            coverDict["dataCover"][(cov, seq)]=loadCover(coverDict["dataPath"][(cov, seq)])
+    return coverDict
+
+def analysePath(baseRep, path):
+    relativePathStr=str(path.relative_to(baseRep))
+    print("relativePathStr", relativePathStr)
+    dataStr=relativePathStr.split("/")
+    conf_name=dataStr[0].replace("-trace","")
+    rounding=dataStr[1]
+    indexNext=2
+    if dataStr[1]=="det":
+        rounding=dataStr[2]
+        indexNext=3
+    ddRunIndex=int( dataStr[indexNext].replace("dd.run",""))
+
+    returnPath=path / ".." / "dd.return.value"
+    returnValue=int(open(returnPath).readline())
+    returnStr="OK"
+    if returnValue!=0:
+        returnStr="KO"
+    computationData={"path":path,
+                     "runIndex":ddRunIndex,
+                     "rounding": rounding,
+                     "conf_name": conf_name,
+                     "return_value": returnStr,
+                     "cover":analyseCoverRep(path)
+                     };
+    return computationData
+
+def keyConf(conf):
+    if conf=="NoPerturbation":
+        return 0
+    if conf=="FullPerturbation":
+        return 1
+    if conf=="rddmin-cmp":
+        return 2
+    if conf.startswith("ddmin"):
+        return 10+ int( conf.replace("ddmin","")) # 10 we keep margin
+
+def keyRounding(rounding):
+    tab=["default", "nearest", "downward", "upward", "random", "nearness", "sr_monotonic", "sr_smonotonic"]
+    if rounding in tab:
+        return tab.index(rounding)
+    return len(tab)
+
+
+
+def sortDataParsed(computationDataTab):
+    return sorted(computationDataTab,key=lambda x: (keyConf(x["conf_name"]), keyRounding(x["rounding"]), x["runIndex"]))
+
+
+def getRefIndex(dataParsedTab):
+    for index in range(len(dataParsedTab)):
+        if dataParsedTab[index]["conf_name"]=="NoPerturbation":
+            return index
+    return 0
+
+def getNewBBStrIndexMultipleBB(mergeData, bbStr):
+    lastIndex=-1;
+    for data in mergeData:
+        if bbStr==data["bbStr"]:
+            lastIndex=max(lastIndex,data["index-multipleBB"])
+    return lastIndex+1
+
+def getBBStrIndexMultipleBB(currentData, bbStr):
+    lastIndex=-1;
+    for bbData,covData in currentData:
+        if bbStr==bbData:
+            lastIndex+=1
+    return lastIndex
+
+
+def mergeDataForOnePartialCover(dataParsedTab, seqIndex, covIndex):
+    refIndex=getRefIndex(dataParsedTab)
+
+    mergeData=[]
+
+    dataRef=dataParsedTab[refIndex]["cover"]["dataCover"][(covIndex, seqIndex)]
+    for bbStr,cover in dataRef:
+        dictData={"bbStr":bbStr,
+                  "index-multipleBB": getNewBBStrIndexMultipleBB(mergeData,bbStr),
+                  "covTab": [None for i in range(len(dataParsedTab)) ]
+                  }
+        dictData["covTab"][refIndex]=cover
+        mergeData.append(dictData)
+
+    for currentIndex in range(len(dataParsedTab)):
+        if currentIndex== refIndex:
+            continue
+        dataCurrent=dataParsedTab[currentIndex]["cover"]["dataCover"][(covIndex, seqIndex)]
+        mergeCurrent=[]
+        for bbStr,cover in dataCurrent:
+            dictData={"bbStr":bbStr,
+                      "index-multipleBB": getNewBBStrIndexMultipleBB(mergeCurrent,bbStr),
+                      "cov": cover
+                      }
+            mergeCurrent.append(dictData)
+
+        for dicData in mergeCurrent:
+            bbStr=dicData["bbStr"]
+            index_multipleBB=dicData["index-multipleBB"]
+            cov=dicData["cov"]
+
+            isMerged=False
+            for mergeItem in mergeData:
+                if mergeItem["bbStr"]==bbStr and mergeItem["index-multipleBB"]==index_multipleBB:
+                    mergeItem["covTab"][currentIndex]=cov
+                    isMerged=True
+                    break
+            if isMerged:
+                continue
+            tabCov=[None for i in range(len(dataParsedTab)) ]
+            tabCov[currentIndex]=cov
+            mergeData.append( {"bbStr": bbStr , "index-multipleBB":index_multipleBB, "covTab":tabCov})
+    return mergeData
+
+def mergeData(dataParsedTab):
+    nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
+    nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
+    for dataParsed in dataParsedTab:
+        nbSeq=dataParsed["cover"]["nbSeq"]
+        nbCoverTab=dataParsed["cover"]["nbCoverTab"]
+        if nbSeq!=nbSeqRef  or nbCoverTab!=nbCoverTabRef:
+            print("incoherent data")
+            sys.exit(42)
+    mergedDataRes=[[None for cov in range(nbCoverTabRef[seq])] for seq in range(nbSeqRef) ]
+    for seqIndex in range(nbSeqRef):
+        for covIndex in range(nbCoverTabRef[seqIndex]):
+            mergedDataRes[seqIndex][covIndex]=mergeDataForOnePartialCover(dataParsedTab, seqIndex, covIndex)
+    return mergedDataRes
+
+
+def computeBBEstimator( tabCount, tabStatus, refIndex, estimatorTab):
+    countRef=tabCount[refIndex]
+    statusRef=tabStatus[refIndex]
+    assert(statusRef=="OK")
+
+    equalOK, diffOK, equalKO, diffKO=(0,0,0,0)
+    for index in range(len(tabCount)):
+        isEqual= (tabCount[index]==countRef)
+        isOK= (tabStatus[index]=="OK")
+
+        if isEqual and isOK: equalOK+=1
+        if isEqual and (not isOK): equalKO+=1
+        if (not isEqual) and isOK: diffOK+=1
+        if (not isEqual) and (not isOK): diffKO+=1
+
+    #https://arxiv.org/pdf/1306.4546
+    n11,n10,n01,n00  = diffKO,diffOK,equalKO,equalOK #notation for ochiai and tarantual
+
+    res={}
+    for estimatorStr in estimatorTab:
+        estim=None
+        if estimatorStr=="biased":
+            estim= 0.5* (float(diffKO)/ float(diffKO+equalKO) + float(equalOK)/float(equalOK+diffOK))
+        if estimatorStr=="standard":
+            estim= float(diffKO + equalOK)/ float(equalOK + equalKO+ diffOK+diffKO)
+        if estimatorStr=="ochiai":
+            estim=n11 / math.sqrt( (n11+ n01) * (n11+ n10 ) )
+        if estimatorStr=="tarantula":
+            estim= (n11/ (n11+n01)) / ((n11 / (n11+n01)) + (n10 / (n10+n00)))
+        res[estimatorStr]=estim
+
+    return res
+
+
+def updateEstimator(mergedData,dataParsedTab,estimatorTab=["standard","biased","ochiai", "tarantula"]):
+    nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
+    nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
+    refIndex=getRefIndex(dataParsedTab)
+
+    for seqIndex in range(nbSeqRef):
+        for covIndex in range(nbCoverTabRef[seqIndex]):
+            for indexBB in range(len(mergedData[seqIndex][covIndex])):
+                bbDict=mergedData[seqIndex][covIndex][indexBB]
+                bbDict["estimator"]=computeBBEstimator(bbDict["covTab"],
+                                                       [x["return_value"] for x in dataParsedTab],
+                                                       refIndex,
+                                                       estimatorTab)
+
+
+def dumpCSVdata( mergeData, dataParsedTab, estimatorTab, output="."):
+    nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
+    nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
+
+    for seqIndex in range(nbSeqRef):
+        for covIndex in range(nbCoverTabRef[seqIndex]):
+            outPutHandler=open(str(output)+ "/coverageData_seq%i_cover%i.csv"%(seqIndex, covIndex),"w")
+            #header
+            outPutHandler.write("" +"\t" + "\t".join(estimatorTab)+"\n")
+            outPutHandler.write("conf_name" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["conf_name"]) for x in dataParsedTab]) +"\n" )
+            outPutHandler.write("indexRun" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["runIndex"]) for x in dataParsedTab])  +"\n")
+            outPutHandler.write("rounding" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["rounding"]) for x in dataParsedTab])  +"\n")
+            outPutHandler.write("return_value" +"\t" +"\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["return_value"]) for x in dataParsedTab])  +"\n")
+
+            #data
+            mergeDataSeqCov=mergeData[seqIndex][covIndex]
+            for bb in mergeDataSeqCov:
+                outPutHandler.write(bb["bbStr"] +"\t"+ "\t".join([str(bb["estimator"][key]) for key in estimatorTab])+"\t"  + "\t".join([str(x) for x in  bb["covTab"]])+"\n")
+            outPutHandler.close()
+
+
+if __name__=="__main__":
+    baseRep=Path(".")
+    if len(sys.argv)==2:
+        baseRep=Path(sys.argv[1])
+
+    pathTab=list(findCoverRep(baseRep))
+    if len(pathTab)==0:
+        print("invalid baseRep:" , baseRep)
+        sys.exit(42)
+
+    dataParsed=[analysePath(baseRep,path) for path in pathTab]
+    dataParsed=sortDataParsed(dataParsed)
+
+    estimatorTab=["standard","biased"] #, "ochiai","tarantula"]
+    dataMerged=mergeData(dataParsed)
+    updateEstimator(dataMerged, dataParsed, estimatorTab)
+
+    dumpCSVdata(dataMerged , dataParsed, estimatorTab)
