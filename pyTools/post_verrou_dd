@@ -70,32 +70,47 @@ def mapRename(rep, pid, count, listOfFile,verbose):
         oldPath.rename(newPath)
 
 
-def rename_pid_for_one_rep(rep, what="cover", clean=False, ignoreEmpty=True,verbose=False):
+def rename_pid_for_one_rep(rep, what=["cover"], clean=False, ignoreEmpty=True,verbose=False):
+    if "all" in what:
+        assert(len(what)==1)
+
     pidList=getSortedPidList(rep)
     count=0
     convList=[]
     for pidTuple in pidList:
         pid=pidTuple[0]
         coverOldFileList=[x.name for x in rep.glob("cover*-"+str(pid))]
+        backOldFileList=[x.name for x in rep.glob("coverBack*-"+str(pid)) if not (x.name in coverOldFileList)]
         otherOldFileList=[x.name for x in list(rep.glob("*-"+str(pid)))]
-        otherOldFileList=[x for x in otherOldFileList if not x in coverOldFileList]
+        otherOldFileList=[x for x in otherOldFileList if not x in coverOldFileList+backOldFileList]
 
         if ignoreEmpty:
             fileName=tName.bbName(pid)
             pathFile=rep / fileName
             if  fileName in  otherOldFileList and (pathFile.stat()).st_size==0:
                 if clean:
-                    mapClean(rep,otherOldFileList+coverOldFileList, verbose)
+                    mapClean(rep,otherOldFileList+coverOldFileList+backOldFileList, verbose)
                 continue
-
-        if what=="all":
+        if "all" in what:
             mapRename(rep,pid,count, coverOldFileList, verbose)
+            mapRename(rep,pid,count, backOldFileList, verbose)
             mapRename(rep,pid,count, otherOldFileList, verbose)
 
-        if what=="cover":
+        if ("cover" in what) and ("back" in what) :
             mapRename(rep,pid,count, coverOldFileList, verbose)
+            mapRename(rep,pid,count, backOldFileList, verbose)
             if clean:
                 mapClean(rep,otherOldFileList,verbose)
+
+        if ("cover" in what) and not ("back" in what):
+            mapRename(rep,pid,count, coverOldFileList, verbose)
+            if clean:
+                mapClean(rep,otherOldFileList+backOldFileList,verbose)
+
+        if not ("cover" in what) and ("back" in what):
+            mapRename(rep,pid,count, backOldFileList, verbose)
+            if clean:
+                mapClean(rep,otherOldFileList+coverOldFileList,verbose)
         count+=1
 
 
@@ -151,7 +166,7 @@ def postRunTrace(runDir):
 
     cmd="genCovBB --genCovBack --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
     os.system(cmd+ "  >> %s"%( runDir/ "covBBLog"))
-    rename_pid_for_one_rep(runDir / "cover",what="cover", clean=True, ignoreEmpty=True)
+    rename_pid_for_one_rep(runDir / "cover",what=["cover","back"], clean=True, ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):

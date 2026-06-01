@@ -116,6 +116,9 @@ class config_option:
         if len(self.listOfFiles)<1 and self.genCov:
             print("--genCov required at least 1 argument")
             self.usage()
+        if len(self.listOfFiles)<1 and self.genCovBack:
+            print("--genCovBack required at least 1 argument")
+            self.usage()
         if len(self.listOfFiles)<2 and self.genCovCorrelation:
             print("--genCovCorrelation required at least 2 arguments")
             self.usage()
