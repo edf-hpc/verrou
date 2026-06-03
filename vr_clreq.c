@@ -120,23 +120,25 @@ static void vr_deterministic_section_name (unsigned int level,
   Addr  addr;
   DiEpoch de = VG_(current_DiEpoch)();
 
-  VG_(get_StackTrace)(VG_(get_running_tid)(),
-                      ips, 8,
-                      NULL, NULL,
-                      0);
-  addr = ips[level];
+  Int n_ips=VG_(get_StackTrace)(VG_(get_running_tid)(),
+                                ips, 8,
+                                NULL, NULL,
+                                0);
+  if(level< n_ips){
+     addr = ips[level];
+     VG_(get_fnname)(de, addr, &fnname);
 
-  //fnname[0] = 0;
-  VG_(get_fnname)(de, addr, &fnname);
+     VG_(get_filename_linenum)(de,
+                               addr,
+                               &filename,
+                               NULL,
+                               &linenum);
+     VG_(snprintf)(name, len,
+                   "%s (%s:%u)", fnname, filename, linenum);
+  }else{
+     VG_(tool_panic)("invalid level for vr_deterministic_section_name");
 
-  //  filename[0] = 0;
-  VG_(get_filename_linenum)(de,
-                            addr,
-                            &filename,
-                            NULL,
-                            &linenum);
-  VG_(snprintf)(name, len,
-                "%s (%s:%u)", fnname, filename, linenum);
+  }
 }
 
 static ULong vr_deterministic_section_hash (HChar const*const name)
