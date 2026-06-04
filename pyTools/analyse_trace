@@ -2,6 +2,7 @@
 import sys
 from pathlib import Path
 import math
+import re
 
 def findCoverRep(baseRep):
     return baseRep.glob("*-trace/**/cover/")
@@ -15,34 +16,124 @@ def loadCover(path):
         resTab+=[(bbRep, count)]
     return resTab
 
+def countInitTab(line):
+    count=0
+    for i in range(len(line)):
+        if line[i]!='\t':
+            return count
+        else:
+            count+=1
+    return count
+
+regExpBack=re.compile("([^\t]+)\t([^\t]*)\:([0-9]+)")
+regExpBB_Fcmp=re.compile("([^\t]+) F\?\t([0-9]+)")
+regExpBB_F=re.compile("([^\t]+) F\t([0-9]+)")
+regExpBB=re.compile("([^\t]+)\t([0-9]+)")
+
+def loadBack(path):
+    resTab=[]
+    for line in open(path).readlines():
+        level=countInitTab(line)
+        remain=line[level:]
+        if remain.endswith('\n'):
+            remain=remain[0:-1]
+        backMatch=regExpBack.match(remain)
+        BB_FcmpMatch=regExpBB_Fcmp.match(remain)
+        BB_FMatch=regExpBB_F.match(remain)
+        BB_Match=regExpBB.match(remain)
+
+        if backMatch!=None and (BB_FMatch!=None or BB_FMatch!=None or BB_FcmpMatch!=None):
+            print("conflict regexp")
+            sys.exit(42)
+
+        if backMatch!=None:
+            sym=backMatch.group(1)
+            fileName=backMatch.group(2)
+            lineNum=backMatch.group(3)
+            resTab+=[("back", level, sym, fileName, lineNum)]
+            #print("resTab[-1]", resTab[-1])
+            continue
+
+        #print("remain", [remain])
+        if remain==":0":
+            resTab+=[("back", level, "","",0)]
+            #print("resTab[-1]", resTab[-1])
+            continue
+        if BB_FcmpMatch!=None or BB_FMatch!=None or BB_Match!=None:
+            BBRep=None
+            count=None
+            containF=None
+            containCMP=None
+            if BB_FcmpMatch!=None:
+                BBRep=BB_FcmpMatch.group(1)
+                count=BB_FcmpMatch.group(2)
+                containF=True
+                containCMP=True
+            if BB_FMatch!=None and containCMP==None:
+                BBRep=BB_FMatch.group(1)
+                count=BB_FMatch.group(2)
+                containF=True
+                containCMP=False
+            if BB_Match!=None and containF==None:
+                BBRep=BB_Match.group(1)
+                count=BB_Match.group(2)
+                containF=False
+                containCMP=False
+                print("dhnjuiczsjbhufzejbhzefjbhufzeiuh")
+                sys.exit(42)
+            resTab+=[("BB", level, BBRep,containF, containCMP, int(count))]
+            #print("resTab[-1]", resTab[-1])
+            continue
+        print("unmatch", [remain])
+        sys.exit(42)
+    return resTab
+
 def analyseCoverRep(path):
-    coverDict={"dataPath":{},
-               "dataCover":{}
+    coverDict={"pathCover":{},
+               "dataCover":{},
+               "pathBack":{},
+               "dataBack":{},
                }
     coverFileTab=path.glob("cover*-seqCount*")
     maxCoverIndex=[]
     maxSeqIndex=-1
     for path in coverFileTab:
         strPath=str(path.name)
-        coverIndex= int((strPath.split("-")[0]).replace("cover",""))
+        isBack=("coverBack" in strPath)
+        coverOrcoverBack="cover"
+        if isBack:
+            coverOrcoverBack="coverBack"
+
+        coverIndex= int((strPath.split("-")[0]).replace(coverOrcoverBack,""))
         seqIndex  = int((strPath.split("-")[1]).replace("seqCount",""))
         if seqIndex>maxSeqIndex:
             maxSeqIndex=seqIndex
             maxCoverIndex+= ([-1]*(seqIndex-maxSeqIndex+1))
         if coverIndex>maxCoverIndex[seqIndex]:
             maxCoverIndex[seqIndex]=coverIndex
-
-        coverDict["dataPath"][(coverIndex, seqIndex)]=path
+        if isBack:
+            coverDict["pathBack"][(coverIndex, seqIndex)]=path
+        else:
+            coverDict["pathCover"][(coverIndex, seqIndex)]=path
     coverDict["nbSeq"]=maxSeqIndex+1
     coverDict["nbCoverTab"]=[x+1 for x in maxCoverIndex]
     for seq in range(coverDict["nbSeq"]):
         for cov in range(coverDict["nbCoverTab"][seq]):
-            if not (cov,seq) in coverDict["dataPath"].keys():
+            if not (cov,seq) in coverDict["pathCover"].keys():
                 print("cov/seq", cov, seq)
-                print("data", coverDict["dataPath"].keys())
+                print("data", coverDict["pathCover"].keys())
                 print("data missing")
                 sys.exit(42)
-            coverDict["dataCover"][(cov, seq)]=loadCover(coverDict["dataPath"][(cov, seq)])
+            if not (cov,seq) in coverDict["pathBack"].keys() and coverDict["pathBack"]!={}:
+                print("cov/seq", cov, seq)
+                print("data", coverDict["pathBack"].keys())
+                print("data missing")
+                sys.exit(42)
+
+            coverDict["dataCover"][(cov, seq)]=loadCover(coverDict["pathCover"][(cov, seq)])
+            if coverDict["pathBack"]!={}:
+                coverDict["dataBack"][(cov, seq)]=loadBack(coverDict["pathBack"][(cov, seq)])
+    #print(coverDict)
     return coverDict
 
 def analysePath(baseRep, path):
@@ -106,11 +197,12 @@ def getNewBBStrIndexMultipleBB(mergeData, bbStr):
             lastIndex=max(lastIndex,data["index-multipleBB"])
     return lastIndex+1
 
-def getBBStrIndexMultipleBB(currentData, bbStr):
+def getNewBackStrIndexMultipleBB(currentDataTab, tupleData):
     lastIndex=-1;
-    for bbData,covData in currentData:
-        if bbStr==bbData:
-            lastIndex+=1
+    for currentData in currentDataTab:
+        if all( [currentData["tupleData"][0:-1] == tupleData[0][0:-1], #count is removed
+                 currentData["backtrace"] == tupleData[1]]):
+            lastIndex=max(lastIndex,currentData["index-multipleBB"])
     return lastIndex
 
 
@@ -158,7 +250,84 @@ def mergeDataForOnePartialCover(dataParsedTab, seqIndex, covIndex):
             mergeData.append( {"bbStr": bbStr , "index-multipleBB":index_multipleBB, "covTab":tabCov})
     return mergeData
 
-def mergeData(dataParsedTab):
+
+
+def lineTabToMergeTab(lineTab, isRef=True, numberOfSample=0, indexCurrent=0):
+    backtrace=[]
+    mergeData=[]
+    for tupleData in lineTab:
+        #resTab+=[("back", level, sym, fileName, lineNum)]
+        if tupleData[0]=="back":
+            level=tupleData[1]
+            if level==len(backtrace):
+                backtrace+=[tupleData]
+            elif level<len(backtrace):
+                backtrace=backtrace[0:level+1]
+                backtrace[level]=tupleData
+            else:
+                print("bogue backtrace?")
+                print("lineTab",lineTab)
+                print("backtrace", backtrace)
+                print("tupleData",tupleData)
+                sys.exit()
+
+        #resTab+=[("BB", level, BBRep,containF, containCMP, int(count))]
+        if tupleData[0]=="BB":
+            level=tupleData[1]
+            backtrace=backtrace[0:level]
+
+        dictData={"tupleData":tupleData,
+                  "backtrace":backtrace,
+                  "index-multipleBB": getNewBackStrIndexMultipleBB(mergeData,(tupleData,backtrace)),
+                  }
+        #if isRef:
+        dictData["backTab"]= [None for i in range(numberOfSample) ]
+
+        if tupleData[0]=="BB":
+            countData=tupleData[5]
+            dictData["backTab"][indexCurrent]=countData
+        mergeData.append(dictData)
+    return mergeData
+
+def mergeDataForOnePartialBack(dataParsedTab, seqIndex, covIndex):
+    refIndex=getRefIndex(dataParsedTab)
+    mergeData=[]
+    dataRef=dataParsedTab[refIndex]["cover"]["dataBack"][(covIndex, seqIndex)]
+
+    mergeData=lineTabToMergeTab(dataRef, True, len(dataParsedTab), refIndex)
+
+    for currentIndex in range(len(dataParsedTab)):
+        if currentIndex== refIndex:
+            continue
+        dataCurrent=dataParsedTab[currentIndex]["cover"]["dataBack"][(covIndex, seqIndex)]
+        mergeCurrent=lineTabToMergeTab(dataCurrent, False,  len(dataParsedTab), currentIndex)
+
+        for dicData in mergeCurrent:
+            tupleData=dicData["tupleData"]
+            backtrace=dicData["backtrace"]
+            index_multipleBB=dicData["index-multipleBB"]
+            count=None
+            if tupleData[0]=="BB":
+                count=tupleData[5]
+
+            isMerged=False
+            for mergeItem in mergeData:
+                if mergeItem["tupleData"][0:-1]==tupleData[0:-1] and mergeItem["backtrace"]==backtrace and mergeItem["index-multipleBB"]==index_multipleBB:
+                    mergeItem["backTab"][currentIndex]=count
+                    isMerged=True
+                    break
+            if isMerged:
+                continue
+            backTab=[None for i in range(len(dataParsedTab)) ]
+            backTab[currentIndex]=count
+            #mergeData.append( {"bbStr": bbStr , "index-multipleBB":index_multipleBB, "covTab":tabCov})
+            print("insertion not obvious to code: ignored: ", tupleData)
+
+    return mergeData
+
+
+
+def mergeData(dataParsedTab, mergeBack=False):
     nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
     nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
     for dataParsed in dataParsedTab:
@@ -170,7 +339,10 @@ def mergeData(dataParsedTab):
     mergedDataRes=[[None for cov in range(nbCoverTabRef[seq])] for seq in range(nbSeqRef) ]
     for seqIndex in range(nbSeqRef):
         for covIndex in range(nbCoverTabRef[seqIndex]):
-            mergedDataRes[seqIndex][covIndex]=mergeDataForOnePartialCover(dataParsedTab, seqIndex, covIndex)
+            if mergeBack:
+                mergedDataRes[seqIndex][covIndex]=mergeDataForOnePartialBack(dataParsedTab, seqIndex, covIndex)
+            else:
+                mergedDataRes[seqIndex][covIndex]=mergeDataForOnePartialCover(dataParsedTab, seqIndex, covIndex)
     return mergedDataRes
 
 
@@ -208,39 +380,68 @@ def computeBBEstimator( tabCount, tabStatus, refIndex, estimatorTab):
     return res
 
 
-def updateEstimator(mergedData,dataParsedTab,estimatorTab=["standard","biased","ochiai", "tarantula"]):
+def updateEstimator(mergedData,dataParsedTab,estimatorTab=["standard","biased","ochiai", "tarantula"], backVersion=False):
     nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
     nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
     refIndex=getRefIndex(dataParsedTab)
+    keyTab="covTab"
+    if backVersion:
+        keyTab="backTab"
 
     for seqIndex in range(nbSeqRef):
         for covIndex in range(nbCoverTabRef[seqIndex]):
             for indexBB in range(len(mergedData[seqIndex][covIndex])):
                 bbDict=mergedData[seqIndex][covIndex][indexBB]
-                bbDict["estimator"]=computeBBEstimator(bbDict["covTab"],
+
+                bbDict["estimator"]=computeBBEstimator(bbDict[keyTab],
                                                        [x["return_value"] for x in dataParsedTab],
                                                        refIndex,
                                                        estimatorTab)
 
 
-def dumpCSVdata( mergeData, dataParsedTab, estimatorTab, output="."):
+def dumpCSVdata( mergeData, dataParsedTab, estimatorTab, output=".", backVersion=False):
     nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
     nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
 
     for seqIndex in range(nbSeqRef):
         for covIndex in range(nbCoverTabRef[seqIndex]):
-            outPutHandler=open(str(output)+ "/coverageData_seq%i_cover%i.csv"%(seqIndex, covIndex),"w")
+            name="coverage"
+            if backVersion:
+                name="backCover"
+            outPutHandler=open(str(output)+ "/"+name+"Data_seq%i_cover%i.csv"%(seqIndex, covIndex),"w")
             #header
-            outPutHandler.write("" +"\t" + "\t".join(estimatorTab)+"\n")
-            outPutHandler.write("conf_name" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["conf_name"]) for x in dataParsedTab]) +"\n" )
-            outPutHandler.write("indexRun" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["runIndex"]) for x in dataParsedTab])  +"\n")
-            outPutHandler.write("rounding" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["rounding"]) for x in dataParsedTab])  +"\n")
-            outPutHandler.write("return_value" +"\t" +"\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["return_value"]) for x in dataParsedTab])  +"\n")
+            levelPrefix=""
+            if backVersion:
+                levelPrefix="\t"
+
+            outPutHandler.write(levelPrefix+"" +"\t" + "\t".join(estimatorTab)+"\n")
+            outPutHandler.write(levelPrefix+"conf_name" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["conf_name"]) for x in dataParsedTab]) +"\n" )
+            outPutHandler.write(levelPrefix+"indexRun" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["runIndex"]) for x in dataParsedTab])  +"\n")
+            outPutHandler.write(levelPrefix+"rounding" +"\t" + "\t".join([""]*len(estimatorTab))+ "\t"+"\t".join([str(x["rounding"]) for x in dataParsedTab])  +"\n")
+            outPutHandler.write(levelPrefix+"return_value" +"\t" +"\t".join([""]*len(estimatorTab))+ "\t"+ "\t".join([str(x["return_value"]) for x in dataParsedTab])  +"\n")
 
             #data
             mergeDataSeqCov=mergeData[seqIndex][covIndex]
-            for bb in mergeDataSeqCov:
-                outPutHandler.write(bb["bbStr"] +"\t"+ "\t".join([str(bb["estimator"][key]) for key in estimatorTab])+"\t"  + "\t".join([str(x) for x in  bb["covTab"]])+"\n")
+            if backVersion:
+                print("mergeDataSeqCov",mergeDataSeqCov)
+                for backLine in mergeDataSeqCov:
+                    if backLine["tupleData"][0]=="BB":
+                        level=backLine["tupleData"][1]
+                        BBName=backLine["tupleData"][2]
+
+                        outPutHandler.write(str(level)+"\t"+BBName +"\t"+ "\t".join([str(backLine["estimator"][key]) for key in estimatorTab])+"\t"  + "\t".join([str(x) for x in  backLine["backTab"]])+"\n")
+                    if backLine["tupleData"][0]=="back":
+                        level=backLine["tupleData"][1]
+                        sym=backLine["tupleData"][2]
+                        fileName=backLine["tupleData"][3]
+                        lineNum=backLine["tupleData"][4]
+                        name=sym+" "+fileName+":"+str(lineNum)
+
+                        outPutHandler.write(str(level)+"\t"+name +"\t"+ "\t".join(["" for key in estimatorTab])+"\t"  + "\t".join(["" for x in  backLine["backTab"]])+"\n")
+
+            else:
+                for bb in mergeDataSeqCov:
+                    outPutHandler.write(bb["bbStr"] +"\t"+ "\t".join([str(bb["estimator"][key]) for key in estimatorTab])+"\t"  + "\t".join([str(x) for x in  bb["covTab"]])+"\n")
             outPutHandler.close()
 
 
@@ -258,7 +459,9 @@ if __name__=="__main__":
     dataParsed=sortDataParsed(dataParsed)
 
     estimatorTab=["standard","biased"] #, "ochiai","tarantula"]
-    dataMerged=mergeData(dataParsed)
-    updateEstimator(dataMerged, dataParsed, estimatorTab)
+    backVersion=True
+    dataMerged=mergeData(dataParsed,backVersion)
+    updateEstimator(dataMerged, dataParsed, estimatorTab, backVersion=backVersion)
 
-    dumpCSVdata(dataMerged , dataParsed, estimatorTab)
+#    print(dataMerged)
+    dumpCSVdata(dataMerged , dataParsed, estimatorTab, backVersion=backVersion)
