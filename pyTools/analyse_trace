@@ -437,7 +437,7 @@ def dumpCSVdata( mergeData, dataParsedTab, estimatorTab, output=".", backVersion
                         lineNum=backLine["tupleData"][4]
                         name=sym+" "+fileName+":"+str(lineNum)
 
-                        outPutHandler.write(str(level)+"\t"+name +"\t"+ "\t".join(["" for key in estimatorTab])+"\t"  + "\t".join(["" for x in  backLine["backTab"]])+"\n")
+                        outPutHandler.write("|"+str(level)+"\t"+name +"\t"+ "\t".join(["" for key in estimatorTab])+"\t"  + "\t".join(["" for x in  backLine["backTab"]])+"\n")
 
             else:
                 for bb in mergeDataSeqCov:
