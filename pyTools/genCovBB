@@ -57,6 +57,7 @@ class config_option:
         self.genCov=False
         self.genCovBack=False
         self.genCovCorrelation=False
+        self.genBackCorrelation=False
         self.select_default=None
         self.run_cmp=None
         self.run_eval=None
@@ -67,12 +68,12 @@ class config_option:
         self.parseOpt(argv[1:])
 
     def usage(self):
-        print ("Usage: %s [--help] [--genCov] [--genCovBack] [--genCovCorrelation] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* "%(self.argv[0]) )
+        print ("Usage: %s [--help] [--genCov] [--genCovBack] [--genCovCorrelation] [--genBackCorrelation] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* "%(self.argv[0]) )
         sys.exit(42)
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovBack","genCovCorrelation", "pidRename", "select-default=","run-cmp=", "run-eval="])
+            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovBack","genCovCorrelation","genBackCorrelation","pidRename", "select-default=","run-cmp=", "run-eval="])
         except getopt.GetoptError:
             self.usage()
 
@@ -88,6 +89,8 @@ class config_option:
                 self.pidRename=True
             if opt in ["--genCovCorrelation"]:
                 self.genCovCorrelation=True
+            if opt in ["--genBackCorrelation"]:
+                self.genBackCorrelation=True
             if opt in ["--run-cmp"]:
                 self.run_cmp=arg
             if opt in ["--run-eval"]:
@@ -99,7 +102,7 @@ class config_option:
                     self.select_default=int(arg)
 
         #default configuartion : genCov
-        if not (self.genCovCorrelation or self.genCov):
+        if not (self.genCovCorrelation or self.genCov or self.genBackCorrelation or self.genCovBack):
             self.genCov=True
         if self.run_eval!=None and self.run_cmp!=None:
             print("--run-cmp= and --run-eval= are incompatible option")
@@ -122,6 +125,10 @@ class config_option:
         if len(self.listOfFiles)<2 and self.genCovCorrelation:
             print("--genCovCorrelation required at least 2 arguments")
             self.usage()
+        if len(self.listOfFiles)<2 and self.genBackCorrelation:
+            print("--genBackCorrelation required at least 2 arguments")
+            self.usage()
+
         self.listOfFiles=[Path(x) for x in self.listOfFiles]
 
     def search_default_param(self):
@@ -167,4 +174,9 @@ if __name__=="__main__":
     if options.genCovCorrelation:
         cmp.findRefForMerge()
         cmp.writeMergedCov("biased")
+#        cmp.writeMergedCov("standard")
+
+    if options.genBackCorrelation:
+        cmp.findRefForMergePost()
+        cmp.writeMergedBack(["standard","biased","data"])
 #        cmp.writeMergedCov("standard")

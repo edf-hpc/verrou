@@ -165,8 +165,9 @@ def postRunTrace(runDir):
         sys.exit(42)
 
     cmd="genCovBB --genCovBack --genCov %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
+    print("cmd: ", cmd)
     os.system(cmd+ "  >> %s"%( runDir/ "covBBLog"))
-    rename_pid_for_one_rep(runDir / "cover",what=["cover","back"], clean=True, ignoreEmpty=True)
+    rename_pid_for_one_rep(runDir / "cover",what=["cover","back"], clean=False, ignoreEmpty=True)
 
 
 def preRunTrace(runDir, env):
@@ -401,8 +402,20 @@ def sortSubRep(subRepTab):
 
     return res
 
+#warning copy past from verrou_dd_back
+def disable_ASLR():
+    import ctypes
+    import ctypes.util
+    # We call personality(ADDR_NO_RANDOMIZE) to disable ASLR, so that addresses during reference run
+    # always match addresses during sample runs (even for .so code).
+    ADDR_NO_RANDOMIZE = 0x0040000
+    libc_name = ctypes.util.find_library("c")
+    libc = ctypes.CDLL(libc_name)
+    personality = libc.personality
+    personality(ADDR_NO_RANDOMIZE)
 
 if __name__=="__main__":
+    disable_ASLR()
     config=post_config.postConfig(sys.argv,os.environ)
 
     repSubRep=config.get_rep_sub_rep()

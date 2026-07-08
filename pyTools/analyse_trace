@@ -56,7 +56,7 @@ def loadBack(path):
 
         #print("remain", [remain])
         if remain==":0":
-            resTab+=[("back", level, "","",0)]
+            resTab+=[("back", max(0,level-1), "","",0)]
             #print("resTab[-1]", resTab[-1])
             continue
         if BB_FcmpMatch!=None or BB_FMatch!=None or BB_Match!=None:
@@ -79,8 +79,7 @@ def loadBack(path):
                 count=BB_Match.group(2)
                 containF=False
                 containCMP=False
-                print("dhnjuiczsjbhufzejbhzefjbhufzeiuh")
-                sys.exit(42)
+
             resTab+=[("BB", level, BBRep,containF, containCMP, int(count))]
             #print("resTab[-1]", resTab[-1])
             continue
@@ -322,7 +321,6 @@ def mergeDataForOnePartialBack(dataParsedTab, seqIndex, covIndex):
             backTab[currentIndex]=count
             #mergeData.append( {"bbStr": bbStr , "index-multipleBB":index_multipleBB, "covTab":tabCov})
             print("insertion not obvious to code: ignored: ", tupleData)
-
     return mergeData
 
 
@@ -423,7 +421,6 @@ def dumpCSVdata( mergeData, dataParsedTab, estimatorTab, output=".", backVersion
             #data
             mergeDataSeqCov=mergeData[seqIndex][covIndex]
             if backVersion:
-                print("mergeDataSeqCov",mergeDataSeqCov)
                 for backLine in mergeDataSeqCov:
                     if backLine["tupleData"][0]=="BB":
                         level=backLine["tupleData"][1]
@@ -454,6 +451,8 @@ if __name__=="__main__":
     if len(pathTab)==0:
         print("invalid baseRep:" , baseRep)
         sys.exit(42)
+    else:
+        print("number of path configuration : ", len(pathTab))
 
     dataParsed=[analysePath(baseRep,path) for path in pathTab]
     dataParsed=sortDataParsed(dataParsed)
