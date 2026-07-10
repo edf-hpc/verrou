@@ -91,15 +91,15 @@ def print_backtrace(backData):
 def main():
     ap = argparse.ArgumentParser(prog='verrou_control')
     ap.add_argument('targets', nargs='*')
-    ap.add_argument('-b', '--back', action='store_true')
+    ap.add_argument('--backtrace', action='store_true')
     ap.add_argument('-k', '--kill', action='store_true')
     ap.add_argument('--hard-instr', choices=['stop', 'start'])
     ap.add_argument('--soft-instr', choices=['stop', 'start'])
-    ap.add_argument('-v','--verbose', choices=['on', 'off'])
+    ap.add_argument('--verbose', choices=['on', 'off'])
     ap.add_argument('-i', '--instr-status', action='store_true')
     ap.add_argument('-c', '--count', action='store_true')
-    ap.add_argument('-z', '--countreset', action='store_true')
-    ap.add_argument('-r', '--rounding', choices=rounding_tool.roundingDetTabWithoutFloatPrefix + rounding_tool.roundingNonDetTabWithoutFloatPrefix)
+    ap.add_argument('-z', '--count-reset', action='store_true')
+    ap.add_argument('--rounding', choices=rounding_tool.roundingDetTabWithoutFloatPrefix + rounding_tool.roundingNonDetTabWithoutFloatPrefix)
     ap.add_argument('--vgdb-prefix', default='')
     args = ap.parse_args()
 
@@ -121,50 +121,54 @@ def main():
                     if info['cmdline'].endswith(t):
                         selected.append(pid)
 
-    command = None
+    commands = []
     wait = False
 
     if args.kill:
-        command = 'v.kill'
-    elif args.instr_status:
-        command = f'status instrumentation'
+        commands.append('v.kill')
+    if args.instr_status:
+        commands.append(f'status instrumentation')
         wait = True
-    elif args.hard_instr:
-        command = f'instrumentation {args.hard_instr} hard'
+    if args.hard_instr:
+        commands.append(f'instrumentation {args.hard_instr} hard')
         wait=True #debug
-    elif args.soft_instr:
-        command = f'instrumentation {args.soft_instr} soft'
+    if args.soft_instr:
+        commands.append(f'instrumentation {args.soft_instr} soft')
         wait=True #debug
-    elif args.back:
-        command = 'status back'
+    if args.backtrace:
+        commands.append('status back')
         wait = True
-    elif args.count:
-        command = 'count'
+    if args.count:
+        commands.append('count')
         wait = True
-    elif args.countreset:
-        command = 'countreset'
+    if args.count_reset:
+        commands.append('countreset')
         wait = True
-    elif args.rounding:
-        command = f'rounding {args.rounding.upper()}'
+    if args.rounding:
+        commands.append(f'rounding {args.rounding.upper()}')
         wait= True
-    elif args.verbose:
-        command = f'verbose {args.verbose}'
+    if args.verbose:
+        commands.append(f'verbose {args.verbose}')
         wait= True
-    if command==None:
+
+    if commands==[]:
         print(f'undefined command')
+        return 1
+    if len(commands)!=1:
+        print('support for multiple commands is not yet implemented')
         return 1
 
     for pid in sorted(set(selected)):
         print(f'PID {pid}: {processes[pid]["cmdline"]}')
-        result = ctl.request(pid, command)
+        result = ctl.request(pid, commands[0])
         if not wait:
             print('  OK.\n')
             continue
         else:
-            if args.back:
+            if args.backtrace:
                 data = parse_back(result)
                 print_backtrace(data)
-            elif args.count or args.countreset or args.instr_status or args.rounding or args.verbose:
+            elif args.count or args.count_reset or args.instr_status or args.rounding or args.verbose:
                 for line in result: print(line)
             else:
                 #debug

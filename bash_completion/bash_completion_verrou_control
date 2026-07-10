@@ -1,0 +1,63 @@
+# verrou_control completion *- shell-script -*-
+
+#modification
+shopt -s extglob || return
+
+_verrou_control()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    # local i
+    # # Note: intentionally using COMP_WORDS and COMP_CWORD instead of
+    # # words and cword here due to splitting on = causing index differences
+    # # (_command_offset assumes the former).
+    # for ((i = 1; i <= COMP_CWORD; i++)); do
+    #     if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i - 1]} != = ]]; then
+    #         _command_offset $i
+    #         return
+    #     fi
+    # done
+
+
+    case $prev in
+        -h | --help)
+            return
+            ;;
+
+	 --hard-instr | --soft-instr)
+	     COMPREPLY=($(compgen -W 'start stop' -- "$cur"))
+             return
+	     ;;
+	 -v | --verbose)
+	     COMPREPLY=($(compgen -W 'on off' -- "$cur"))
+             return
+	     ;;
+
+	 -r | --rounding)
+	     ROUNDING_LIST=($( verrou_control --help | grep -- '\[--rounding' |sed 's/}]//' | sed 's/\[--rounding {//' ))
+	     CMP_LIST=$(echo ${ROUNDING_LIST} |sed 's/,/ /g')
+	     COMPREPLY=($(compgen -W "${CMP_LIST}" -- "$cur"))
+             return
+	     ;;
+
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+	#modification filter bad verrou parsing
+	OPTION_LIST=$(_parse_help "$1" "--help")
+	for equalOption in verbose soft-instr hard-instr rounding
+	do
+	    OPTION_LIST=${OPTION_LIST/--${equalOption}/--${equalOption}=}
+	done
+
+        COMPREPLY=($(compgen -W "${OPTION_LIST}" -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+    complete -F _verrou_control verrou_control
+
+# ex: filetype=sh

@@ -26,11 +26,13 @@ completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${complet
 		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
 		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
-		   ${completion_dir}/bash_completion_verrou_dd_back
+		   ${completion_dir}/bash_completion_verrou_dd_back    ${completion_dir}/bash_completion_verrou_control
 completion_install_dir=${prefix}/share/completions
 
 # bash completion code generation
-# bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean are not generated
+# bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean
+#${completion_dir}/bash_completion_verrou_control are not generated
+
 ${completion_dir}/bash_completion_verrou_dd_back:
 	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_back bash_completion
 ${completion_dir}/bash_completion_verrou_dd_sym:
