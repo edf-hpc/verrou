@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	docs/verrou_dd-manpage.xml \
 	docs/verrou_postdd-manpage.xml \
 	docs/verrou_plotstat-manpage.xml
+	docs/verrou_control-manpage.xml
 
 pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 

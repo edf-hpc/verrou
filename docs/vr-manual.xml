@@ -26,6 +26,121 @@
   <section id="vr-manual.advanced" xreflabel="Advanced features">
     <title>Advanced features</title>
 
+
+    <section id="cl-manual.verrou_control-options" xreflabel="verrou_control Command-line Options">
+      <title>verrou_control Command-line Options</title>
+
+      <simplesect>
+	<title>Synopsis</title>
+
+	<screen><cmdsynopsis id="vr-manual.verrou_control.synopsis">
+	  <command>verrou_control [options] [pids]</command>
+	</cmdsynopsis></screen>
+      </simplesect>
+      <simplesect>
+	<title> Description </title>
+	<para  id="verrou_control.description">By default, verrou_control acts on all programs run by the
+	current user under verrou.  It is possible to limit the actions to
+	specified verrou runs by providing a list of pids or program names as
+	argument. verrou_control is highly inspirated from callgrind_control (you may see similarities in documentation and working principle).</para>
+      </simplesect>
+      <simplesect>
+	<title>Options</title>
+	<!-- start of xi:include in the manpage -->
+	<variablelist id="verrou_control.opts.list">
+
+	  <varlistentry>
+	    <term><option>-h --help</option></term>
+	    <listitem>
+	      <para>Show a short description, usage, and summary of options.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>--backtrace</option></term>
+	    <listitem>
+	      <para>Show backtraces of each thread in active verrou runs.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>-k --kill</option></term>
+	    <listitem>
+	      <para>Force a verrou run to be terminated.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>-c --count</option></term>
+	    <listitem>
+	      <para>Display instruction counter.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>-z --count_reset</option></term>
+	    <listitem>
+	      <para>Display instruction counters and then reset counters.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option><![CDATA[--verbose=<on|off>]]></option></term>
+	    <listitem>
+	      <para>Modify dynamically the verbosity status of verrou runs.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>-i --instr-status</option></term>
+	    <listitem>
+	      <para>Print the instrumentation status (which can be modified with <computeroutput>--hard-instr</computeroutput> or <computeroutput>--soft-instr</computeroutput>).</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option><![CDATA[--hard-instr=<stop|start>]]></option></term>
+	    <listitem>
+	      <para>Switch instrumentation mode start or stop. It is equivalent
+	      to the use of client request
+	      <computeroutput>VERROU_START_INSTRUMENTATION</computeroutput> and
+	      <computeroutput>VERROU_STOP_INSTRUMENTATION</computeroutput>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option><![CDATA[--soft-instr=<stop|start>]]></option></term>
+	    <listitem>
+	      <para>Switch soft instrumentation mode start or stop. It is equivalent
+	      to the use of client request
+	      <computeroutput>VERROU_START_SOFT_INSTRUMENTATION</computeroutput> and
+	      <computeroutput>VERROU_STOP_SOFT_INSTRUMENTATION</computeroutput>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option><![CDATA[--rounding=<nearest|upward|downward|toward_zero|away_zero|farthest|float|ftz|daz|dazftz|native|random|random_det|random_comdet|nearness|nearness_det|nearness_comdet|prandom|prandom_det|prandom_comdet|random_scomdet|nearness_scomdet|sr_monotonic|sr_smonotonic>]]></option></term>
+	    <listitem>
+	      <para>Switch the rounding mode.</para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option><![CDATA[--vgdb-prefix=<prefix>]]></option></term>
+	    <listitem>
+	      <para>Specify the vgdb prefix to use by verrou_control.
+	      verrou_control internally uses vgdb to find and control the active
+	      verrou runs. If the <option>--vgdb-prefix</option> option was used
+	      for launching valgrind, then the same option must be given to
+	      verrou_control.</para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </simplesect>
+    </section>
+
     <section id="vr-manual.feat.deterministic" xreflabel="Deterministic sections">
       <title>Deterministic sections</title>
       <para>
@@ -1335,6 +1450,12 @@ The different possible actions are:
       </para>
 
       <variablelist>
+	<varlistentry id="vr.monitor_verbose" xreflabel="verbose">
+          <term><computeroutput>verbose on|off</computeroutput></term>
+          <listitem><para>Modify the verbosity status.
+          </para></listitem>
+        </varlistentry>
+
         <varlistentry id="vr.monitor_count" xreflabel="count">
           <term><computeroutput>count</computeroutput></term>
           <listitem><para>Display the
@@ -1342,8 +1463,32 @@ The different possible actions are:
                 counters</link>.
           </para></listitem>
         </varlistentry>
+
+	<varlistentry id="vr.monitor_countreset" xreflabel="countreset">
+          <term><computeroutput>countreset</computeroutput></term>
+          <listitem><para>Display the
+              current <link linkend="vr-manual.feat.count">instructions
+                counters</link> and set them to zero.
+          </para></listitem>
+        </varlistentry>
+
+	<varlistentry id="vr.monitor_rounding" xreflabel="rounding">
+          <term><computeroutput>rounding ROUNDING_MODE</computeroutput></term>
+          <listitem><para>Set ROUNDING_MODE (operate only if verrou backend is used).
+          </para></listitem>
+        </varlistentry>
+
+	<varlistentry id="vr.monitor_status" xreflabel="status">
+	  <term><computeroutput>status back|instrumentation </computeroutput></term>
+          <listitem>
+	    <para>
+	      Display the backtrace for each thread or the instrumentation status.
+	    </para>
+	  </listitem>
+        </varlistentry>
+
         <varlistentry id="vr.monitor_instrumentation" xreflabel="instrumentation">
-          <term><computeroutput>instrumentation [on|off]</computeroutput></term>
+          <term><computeroutput>instrumentation [on|start|off|stop] [hard(default)|soft]</computeroutput></term>
           <listitem><para> Set the
               current <link linkend="vr-manual.feat.instr">instrumentation
               state</link> (or print it if
@@ -1810,6 +1955,51 @@ compilation terminated.
 
 		  </answer>
 		</qandaentry>
+
+
+		<qandaentry id="faq.inst.deadlock">
+		  <question id="q-inst.deadlock">
+		    <para>
+		      With verrou, my program looks to deadlock or to be in infinite loop.
+		    </para>
+		  </question>
+		  <answer>
+		    <itemizedlist>
+		      <listitem>
+			<para>
+			  To debug this issue, you can use <command>verrou_control --backtrace</command> multiple times to determine where the potential deadlock occurs.
+			  To distinguish between deadlock and infinite loop you can also use <command>verrou_control --count-reset</command>. If there are no operations between two calls you face to a deadlock issue.
+
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  Another test is to deactivate dynamically the instrumentation with the command <command>verrou_control --hard-instr=stop</command>. The interpretation of the results is highly case-dependent. Sometimes this command help to recover the convergence of an iterative algorithm.
+			</para>
+		      </listitem>
+		      <listitem>
+			<para>
+			  The most common cases are related to the convergence test of iterative algorithms.
+			  With perturbations (such as precision reduction or stochastic rounding) the stopping criteria may never be reached.
+			  For exemple, if you are searching a mixed precision configuration using <option>--float</option>  or <option>--rounding-mode=float</option> while keeping a convergence threshold of 1.e-10, an infinite loop is a likely outcome. As a best practice, always define a maximum number of iteration when testing convergence.
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+	A less common case involves convergence criteria that are evaluated independently by each MPI process. If, in order to avoid communication overhead, each process recomputes the convergence criterion locally, you must ensure that all processes obtain the same result; otherwise, a deadlock may occur. In such situations, it may be necessary to use a stochastic-deterministic rounding mode with the same seed on every MPI process. 
+			</para>
+		      </listitem>
+
+		      <listitem>
+			<para>
+			If you need to use delta-debug with this type of deadlock, you can use the <command>timeout</command> command in your DD_RUN script.			</para>
+		      </listitem>
+		    </itemizedlist>
+
+		  </answer>
+		</qandaentry>
+
 
 	      </qandadiv>
 

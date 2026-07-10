@@ -347,9 +347,13 @@ static Bool vr_handle_monitor_help (void) {
   VG_(gdb_printf)("verrou monitor commands:\n");
   VG_(gdb_printf)("  help                     : print this help\n");
   VG_(gdb_printf)("  count                    : print instruction counters\n");
+  VG_(gdb_printf)("  countreset               : print then reset instruction counters\n");
+  VG_(gdb_printf)("  rounding ROUNDING_MODE   : switch to ROUNDING_MODE\n");
   VG_(gdb_printf)("  instrumentation [on|start|off|stop] [hard|soft] : set instrumentation state\n");
   VG_(gdb_printf)("  status back              : print backtrace foreach tread\n");
   VG_(gdb_printf)("  status instrumentation   : print instrumentation status\n");
+  VG_(gdb_printf)("  verbose on|off           : set verbose status\n");
+
   VG_(gdb_printf)("\n");
   return True;
 }
