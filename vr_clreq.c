@@ -36,7 +36,9 @@
 #include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 
-#include "../coregrind/pub_core_threadstate.h"
+//#include "../coregrind/pub_core_threadstate.h"
+extern Bool VG_(is_valid_tid) ( ThreadId tid );
+//redefinition as workaround to avoid check of coregrind/pub_core_ include 
 
 //#ifdef PROFILING_EXACT
 #include "interflop_backends/interflop_verrou/interflop_verrou.h"
