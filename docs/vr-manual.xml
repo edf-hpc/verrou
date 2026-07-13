@@ -57,7 +57,7 @@
 	  </varlistentry>
 
 	  <varlistentry>
-	    <term><option>--backtrace</option></term>
+	    <term><option>-b --backtrace</option></term>
 	    <listitem>
 	      <para>Show backtraces of each thread in active verrou runs.</para>
 	    </listitem>
@@ -71,14 +71,14 @@
 	  </varlistentry>
 
 	  <varlistentry>
-	    <term><option>-c --count</option></term>
+	    <term><option>-c --display-counter</option></term>
 	    <listitem>
 	      <para>Display instruction counter.</para>
 	    </listitem>
 	  </varlistentry>
 
 	  <varlistentry>
-	    <term><option>-z --count_reset</option></term>
+	    <term><option>-z --display-and-reset-counter</option></term>
 	    <listitem>
 	      <para>Display instruction counters and then reset counters.</para>
 	    </listitem>
@@ -1201,7 +1201,7 @@ det2
 
 	  <varlistentry id="vr-manual.feat.set_seed"
                       xreflabel="VERROU_SET_SEED">
-          <term><computeroutput>VERROU_SET_ROUNDING_MODE</computeroutput></term>
+          <term><computeroutput>VERROU_SET_SEED</computeroutput></term>
           <listitem><para>Set the seed.</para></listitem>
 	</varlistentry>
 
@@ -1457,7 +1457,7 @@ The different possible actions are:
         </varlistentry>
 
         <varlistentry id="vr.monitor_count" xreflabel="count">
-          <term><computeroutput>count</computeroutput></term>
+          <term><computeroutput>display_counter</computeroutput></term>
           <listitem><para>Display the
               current <link linkend="vr-manual.feat.count">instructions
                 counters</link>.
@@ -1465,10 +1465,9 @@ The different possible actions are:
         </varlistentry>
 
 	<varlistentry id="vr.monitor_countreset" xreflabel="countreset">
-          <term><computeroutput>countreset</computeroutput></term>
-          <listitem><para>Display the
-              current <link linkend="vr-manual.feat.count">instructions
-                counters</link> and set them to zero.
+          <term><computeroutput>reset_counter</computeroutput></term>
+          <listitem><para> Set to zero <link linkend="vr-manual.feat.count">instructions
+                counters</link>.
           </para></listitem>
         </varlistentry>
 
@@ -1987,7 +1986,7 @@ compilation terminated.
 
 		      <listitem>
 			<para>
-	A less common case involves convergence criteria that are evaluated independently by each MPI process. If, in order to avoid communication overhead, each process recomputes the convergence criterion locally, you must ensure that all processes obtain the same result; otherwise, a deadlock may occur. In such situations, it may be necessary to use a stochastic-deterministic rounding mode with the same seed on every MPI process. 
+	A less common case involves convergence criteria that are evaluated independently by each MPI process. If, in order to avoid communication overhead, each process recomputes the convergence criterion locally, you must ensure that all processes obtain the same result; otherwise, a deadlock may occur. In such situations, it may be necessary to use a stochastic-deterministic rounding mode with the same seed on every MPI process.
 			</para>
 		      </listitem>
 

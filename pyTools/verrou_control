@@ -27,7 +27,7 @@ class VerrouControl:
                 return str(p)
         return 'vgdb'
 
-    def run(self, cmd: str):
+    def run(self, cmd:str):
         full = f"{self.vgdb} {self.vgdb_prefix} {cmd}".strip()
         p = subprocess.run(full, shell=True, text=True, capture_output=True)
         return p.stdout.splitlines()
@@ -48,8 +48,9 @@ class VerrouControl:
             pids[pid] = {'cmdline': cleaned, 'raw': cmdline}
         return pids
 
-    def request(self, pid: int, command: str):
-        return self.run(f'--pid={pid} {command}')
+    def request(self, pid: int, cmdTab: str):
+        cmd=" -c ".join(cmdTab)
+        return self.run(f'--pid={pid} {cmd}')
 
 def parse_back(lines):
     res=[]
@@ -91,14 +92,14 @@ def print_backtrace(backData):
 def main():
     ap = argparse.ArgumentParser(prog='verrou_control')
     ap.add_argument('targets', nargs='*')
-    ap.add_argument('--backtrace', action='store_true')
+    ap.add_argument('-b', '--backtrace', action='store_true')
     ap.add_argument('-k', '--kill', action='store_true')
     ap.add_argument('--hard-instr', choices=['stop', 'start'])
     ap.add_argument('--soft-instr', choices=['stop', 'start'])
     ap.add_argument('--verbose', choices=['on', 'off'])
     ap.add_argument('-i', '--instr-status', action='store_true')
-    ap.add_argument('-c', '--count', action='store_true')
-    ap.add_argument('-z', '--count-reset', action='store_true')
+    ap.add_argument('-c', '--display-counter', action='store_true')
+    ap.add_argument('-z', '--display-and-reset-counter', action='store_true')
     ap.add_argument('--rounding', choices=rounding_tool.roundingDetTabWithoutFloatPrefix + rounding_tool.roundingNonDetTabWithoutFloatPrefix)
     ap.add_argument('--vgdb-prefix', default='')
     args = ap.parse_args()
@@ -125,30 +126,30 @@ def main():
     wait = False
 
     if args.kill:
-        commands.append('v.kill')
+        commands.append(['v.kill'])
     if args.instr_status:
-        commands.append(f'status instrumentation')
+        commands.append([f'status instrumentation'])
         wait = True
     if args.hard_instr:
-        commands.append(f'instrumentation {args.hard_instr} hard')
+        commands.append([f'instrumentation {args.hard_instr} hard'])
         wait=True #debug
     if args.soft_instr:
-        commands.append(f'instrumentation {args.soft_instr} soft')
+        commands.append([f'instrumentation {args.soft_instr} soft'])
         wait=True #debug
     if args.backtrace:
-        commands.append('status back')
+        commands.append(['status back'])
         wait = True
-    if args.count:
-        commands.append('count')
+    if args.display_counter:
+        commands.append(['display_counter'])
         wait = True
-    if args.count_reset:
-        commands.append('countreset')
+    if args.display_and_reset_counter:
+        commands.append(['display_counter','reset_counter'])
         wait = True
     if args.rounding:
-        commands.append(f'rounding {args.rounding.upper()}')
+        commands.append([f'rounding {args.rounding.upper()}'])
         wait= True
     if args.verbose:
-        commands.append(f'verbose {args.verbose}')
+        commands.append([f'verbose {args.verbose}'])
         wait= True
 
     if commands==[]:
@@ -168,7 +169,7 @@ def main():
             if args.backtrace:
                 data = parse_back(result)
                 print_backtrace(data)
-            elif args.count or args.count_reset or args.instr_status or args.rounding or args.verbose:
+            elif args.display_counter or args.display_and_reset_counter or args.instr_status or args.rounding or args.verbose or args.hard_instr or args.soft_instr:
                 for line in result: print(line)
             else:
                 #debug

@@ -284,7 +284,7 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
 
   if(instrStatus!= VR_INSTR){
      HChar * subarg = VG_(strtok_r)(0, " ", ssaveptr);
-     Bool isSoft=False;
+     Bool isHard=True;
      if(arg!=NULL){
         switch (VG_(keyword_id) ("hard soft", subarg, kwd_report_duplicated_matches)) {
         case -2: /* multiple matches */
@@ -292,14 +292,14 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
         case -1: /* not found */
            return False;
         case 0:
-           isSoft=False;
+           isHard=True;
            break;
         case 1:
-           isSoft=True;
+           isHard=False;
            break;
         }
      }
-     vr_set_instrument_state("Monitor", instrStatus, isSoft);
+     vr_set_instrument_state("Monitor", instrStatus, isHard);
      vr_handle_monitor_instrumentation_print();
      return True;
   }
@@ -346,8 +346,8 @@ static Bool vr_handle_monitor_help (void) {
   VG_(gdb_printf)("\n");
   VG_(gdb_printf)("verrou monitor commands:\n");
   VG_(gdb_printf)("  help                     : print this help\n");
-  VG_(gdb_printf)("  count                    : print instruction counters\n");
-  VG_(gdb_printf)("  countreset               : print then reset instruction counters\n");
+  VG_(gdb_printf)("  display_counter          : print instruction counters\n");
+  VG_(gdb_printf)("  reset_counter            : reset instruction counters\n");
   VG_(gdb_printf)("  rounding ROUNDING_MODE   : switch to ROUNDING_MODE\n");
   VG_(gdb_printf)("  instrumentation [on|start|off|stop] [hard|soft] : set instrumentation state\n");
   VG_(gdb_printf)("  status back              : print backtrace foreach tread\n");
@@ -366,7 +366,7 @@ static Bool vr_handle_monitor_command (HChar * req) {
     VG_(strcpy)(s, req);
 
     wcmd = VG_(strtok_r)(s, " ", &ssaveptr);
-    switch (VG_(keyword_id) ("help instrumentation count countreset status rounding verbose",
+    switch (VG_(keyword_id) ("help instrumentation display_counter reset_counter status rounding verbose",
                              wcmd, kwd_report_duplicated_matches)) {
     case -2: /* multiple matches */
       return True;
@@ -376,11 +376,10 @@ static Bool vr_handle_monitor_command (HChar * req) {
       return vr_handle_monitor_help ();
     case 1: /* instrumentation */
       return vr_handle_monitor_instrumentation (&ssaveptr);
-    case 2: /* count */
+    case 2: /* display_counter */
       vr_ppOpCount();
       return True;
-    case 3: /* countreset */
-      vr_ppOpCount();
+    case 3: /* reset_counter */
       vr_resetCount();
       return True;
     case 4: /* status */

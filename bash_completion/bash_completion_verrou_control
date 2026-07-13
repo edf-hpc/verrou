@@ -8,18 +8,6 @@ _verrou_control()
     local cur prev words cword split
     _init_completion -s || return
 
-    # local i
-    # # Note: intentionally using COMP_WORDS and COMP_CWORD instead of
-    # # words and cword here due to splitting on = causing index differences
-    # # (_command_offset assumes the former).
-    # for ((i = 1; i <= COMP_CWORD; i++)); do
-    #     if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i - 1]} != = ]]; then
-    #         _command_offset $i
-    #         return
-    #     fi
-    # done
-
-
     case $prev in
         -h | --help)
             return
