@@ -2,11 +2,13 @@ SOURCE=infiniteLoop.cxx
 EXEC=infiniteLoop
 
 export INSTALLPATH = $(shell bash ../installpath)
-FLAGS += -Wall -Wno-unused
-FLAGS += -O0 -g
+export BASH_ENV=$(INSTALLPATH)/env.sh
+export SHELL=bash
 
-VALGRIND_BIN=$(INSTALLPATH)/bin/valgrind
-VERROU_CONTROL=$(INSTALLPATH)/bin/verrou_control
+FLAGS=-O0 -g
+
+VALGRIND_BIN=valgrind
+VERROU_CONTROL=verrou_control
 
 TRACE=trace.dat
 TRACE_CONTROL=trace_control.dat

@@ -1,16 +1,16 @@
-$PATH/verrou_control --backtrace
+verrou_control --backtrace
 PID FILTERED_PID: ./infiniteLoop
 Threads: 1
 	0-  0xFFFFFF: main (infiniteLoop.cxx:21)
 	1-  0xFFFFFF: infLoop(double) (infiniteLoop.cxx:7)
 
-$PATH/verrou_control --verbose=off
+verrou_control --verbose=off
 PID FILTERED_PID: ./infiniteLoop
 
-$PATH/verrou_control --verbose=on
+verrou_control --verbose=on
 PID FILTERED_PID: ./infiniteLoop
 
-$PATH/verrou_control --display-counter
+verrou_control --display-counter
 PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID==  Operation                            Instruction count
@@ -26,14 +26,14 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 
-$PATH/verrou_control --hard-instr=stop
+verrou_control --hard-instr=stop
 PID FILTERED_PID: ./infiniteLoop
 --FILTERED_PID-- Monitor: instrumentation switched OFF
 instrumentation status:
 	soft: ON
 	hard: OFF
 
-$PATH/verrou_control --display-and-reset-counter
+verrou_control --display-and-reset-counter
 PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID==  Operation                            Instruction count
@@ -49,7 +49,7 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 
-$PATH/verrou_control --display-counter
+verrou_control --display-counter
 PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID==  Operation                            Instruction count
@@ -65,7 +65,7 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 
-$PATH/verrou_control --kill
+verrou_control --kill
 PID FILTERED_PID: ./infiniteLoop
   OK.
 
