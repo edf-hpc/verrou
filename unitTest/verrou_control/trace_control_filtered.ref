@@ -19,7 +19,7 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== div NON_NULL_VALUE NON_NULL_VALUE (100%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE NON_NULL_VALUE (100%)
-==FILTERED_PID== `- llo NON_NULL_VALUE NON_NULL_VALUE (100%)
+==FILTERED_PID== `- scal NON_NULL_VALUE NON_NULL_VALUE (100%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
@@ -42,7 +42,7 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== div NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
-==FILTERED_PID== `- llo NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
+==FILTERED_PID== `- scal NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
@@ -58,7 +58,7 @@ PID FILTERED_PID: ./infiniteLoop
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== div NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
-==FILTERED_PID== `- llo NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID==  ---------------------------------------------------------------------
 ==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
 ==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)

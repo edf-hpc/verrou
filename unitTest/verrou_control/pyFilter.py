@@ -48,7 +48,8 @@ def filterCounter(tabLines):
         if any([value in line for value in tabValue ]):
             for value in tabValue:
                 line=line.replace(value, "NON_NULL_VALUE")
-
+                line=line.replace("llo","scal") #homogene between x86 and arm
+                #we chose arm reference to avoid to parse differently div and cmp
             line=replaceMultipleSpace(line)
         res+=[line]    
     return res
@@ -59,7 +60,7 @@ def filterAddress(tabLines):
     res=[]
     for line in tabLines:
         if filterActive:
-            m=re.match("\t\d+-\s*0x([0-9ABCDEF]*): .*\n",line)
+            m=re.match(r"\t\d+-\s*0x([0-9ABCDEF]*): .*\n",line)
             if m!=None:
                 res+=[line.replace(m.group(1), "FFFFFF")]
             else:
@@ -74,7 +75,7 @@ def filterAddress(tabLines):
 def filterPath(tabLines):
     res=[]
     for line in tabLines:
-        m=re.match("(.+)verrou_control -.*\n",line)
+        m=re.match(r"(.+)verrou_control -.*\n",line)
         if m!=None:
             line=line.replace(m.group(1), "$PATH/")
         res+=[line]
