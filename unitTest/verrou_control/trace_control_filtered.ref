@@ -1,0 +1,71 @@
+verrou_control --backtrace
+PID FILTERED_PID: ./infiniteLoop
+Threads: 1
+	0-  0xFFFFFF: main (infiniteLoop.cxx:21)
+	1-  0xFFFFFF: infLoop(double) (infiniteLoop.cxx:7)
+
+verrou_control --verbose=off
+PID FILTERED_PID: ./infiniteLoop
+
+verrou_control --verbose=on
+PID FILTERED_PID: ./infiniteLoop
+
+verrou_control --display-counter
+PID FILTERED_PID: ./infiniteLoop
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID==  Operation                            Instruction count
+==FILTERED_PID==   `- Precision
+==FILTERED_PID==       `- Vectorization          Total             Instrumented
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== div NON_NULL_VALUE NON_NULL_VALUE (100%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE NON_NULL_VALUE (100%)
+==FILTERED_PID== `- scal NON_NULL_VALUE NON_NULL_VALUE (100%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+
+verrou_control --hard-instr=stop
+PID FILTERED_PID: ./infiniteLoop
+--FILTERED_PID-- Monitor: instrumentation switched OFF
+instrumentation status:
+	soft: ON
+	hard: OFF
+
+verrou_control --display-and-reset-counter
+PID FILTERED_PID: ./infiniteLoop
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID==  Operation                            Instruction count
+==FILTERED_PID==   `- Precision
+==FILTERED_PID==       `- Vectorization          Total             Instrumented
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== div NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
+==FILTERED_PID== `- scal NON_NULL_VALUE NON_NULL_VALUE ( NON_NULL_VALUE%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+
+verrou_control --display-counter
+PID FILTERED_PID: ./infiniteLoop
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID==  Operation                            Instruction count
+==FILTERED_PID==   `- Precision
+==FILTERED_PID==       `- Vectorization          Total             Instrumented
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== div NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+==FILTERED_PID== cmp NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- dbl NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID== `- scal NON_NULL_VALUE 0 ( 0%)
+==FILTERED_PID==  ---------------------------------------------------------------------
+
+verrou_control --kill
+PID FILTERED_PID: ./infiniteLoop
+  OK.
+

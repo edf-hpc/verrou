@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+
+#This code is highly inspirated from callgrind_control (via an automatic perl to python conversion)
+#This script provides the way to control dynamically running verrou executable.   
+
+
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import rounding_tool
+
+class VerrouControl:
+    def __init__(self, vgdb_prefix: str = ""):
+        self.vgdb_prefix = vgdb_prefix
+        self.vgdb = self._find_vgdb()
+
+    def _find_vgdb(self):
+        here = Path(__file__).resolve().parent
+        for p in (here / 'vgdb', here / '../coregrind/vgdb'):
+            p = p.resolve()
+            if p.exists():
+                return str(p)
+        return 'vgdb'
+
+    def run(self, cmd:str):
+        full = f"{self.vgdb} {self.vgdb_prefix} {cmd}".strip()
+        p = subprocess.run(full, shell=True, text=True, capture_output=True)
+        return p.stdout.splitlines()
+
+    def get_verrou_pids(self):
+        pids = {}
+        for line in self.run('-l'):
+            m = re.match(r'^use --pid=(\d+) for \S*?valgrind\s+(.*?)\s*$', line)
+            if not m:
+                continue
+            pid = int(m.group(1))
+            cmdline = m.group(2)
+            if '--tool=verrou' not in cmdline:
+                continue
+            cleaned = cmdline
+            while re.match(r'^-+\S+\s+', cleaned):
+                cleaned = re.sub(r'^-+\S+\s+', '', cleaned, count=1)
+            pids[pid] = {'cmdline': cleaned, 'raw': cmdline}
+        return pids
+
+    def request(self, pid: int, cmdTab: str):
+        cmd=" -c ".join(cmdTab)
+        return self.run(f'--pid={pid} {cmd}')
+
+def parse_back(lines):
+    res=[]
+    tabBack=[]
+    tid=None
+    for line in lines:
+        if line.startswith("Thread tid:"):
+            tid=int(line.split(":")[1])
+            continue
+        if line=="":
+            res+=[(tid,tabBack)]
+            tid=None
+            tabBack=[]
+            continue
+        if line.startswith("\t"):
+            tabBack+=[line[1:]]
+    return res
+
+def compressBackData(backData):
+    tidTabTab=[]
+    backTabTab=[]
+    for (tid,backTab) in backData:
+        if backTab in backTabTab:
+            index=backTabTab.index(backTab)
+            tidTabTab[index]+=[tid]
+        else:
+            tidTabTab+=[[tid]]
+            backTabTab+=[backTab]
+    return zip(tidTabTab, backTabTab)
+
+def print_backtrace(backData):
+    for (tidTab,backTab) in compressBackData(backData):
+        print("Threads:", (str(tidTab)[1:-1]).replace(" ","") )
+        nbBack=len(backTab)
+        for index in range(nbBack):
+            print("\t%i-  %s"%(index, backTab[nbBack-index-1]))
+
+
+def main():
+    ap = argparse.ArgumentParser(prog='verrou_control')
+    ap.add_argument('targets', nargs='*')
+    ap.add_argument('-b', '--backtrace', action='store_true')
+    ap.add_argument('-k', '--kill', action='store_true')
+    ap.add_argument('--hard-instr', choices=['stop', 'start'])
+    ap.add_argument('--soft-instr', choices=['stop', 'start'])
+    ap.add_argument('--verbose', choices=['on', 'off'])
+    ap.add_argument('-i', '--instr-status', action='store_true')
+    ap.add_argument('-c', '--display-counter', action='store_true')
+    ap.add_argument('-z', '--display-and-reset-counter', action='store_true')
+    ap.add_argument('--rounding', choices=rounding_tool.roundingDetTabWithoutFloatPrefix + rounding_tool.roundingNonDetTabWithoutFloatPrefix)
+    ap.add_argument('--vgdb-prefix', default='')
+    args = ap.parse_args()
+
+    ctl = VerrouControl(args.vgdb_prefix)
+    processes = ctl.get_verrou_pids()
+
+    if not processes:
+        print('No active verrou runs detected.')
+        return 0
+
+    selected = list(processes.keys())
+    if args.targets:
+        selected = []
+        for t in args.targets:
+            if t.isdigit() and int(t) in processes:
+                selected.append(int(t))
+            else:
+                for pid, info in processes.items():
+                    if info['cmdline'].endswith(t):
+                        selected.append(pid)
+
+    commands = []
+    wait = False
+
+    if args.kill:
+        commands.append(['v.kill'])
+    if args.instr_status:
+        commands.append([f'status instrumentation'])
+        wait = True
+    if args.hard_instr:
+        commands.append([f'instrumentation {args.hard_instr} hard'])
+        wait=True #debug
+    if args.soft_instr:
+        commands.append([f'instrumentation {args.soft_instr} soft'])
+        wait=True #debug
+    if args.backtrace:
+        commands.append(['status back'])
+        wait = True
+    if args.display_counter:
+        commands.append(['display_counter'])
+        wait = True
+    if args.display_and_reset_counter:
+        commands.append(['display_counter','reset_counter'])
+        wait = True
+    if args.rounding:
+        commands.append([f'rounding {args.rounding.upper()}'])
+        wait= True
+    if args.verbose:
+        commands.append([f'verbose {args.verbose}'])
+        wait= True
+
+    if commands==[]:
+        print(f'undefined command')
+        return 1
+    if len(commands)!=1:
+        print('support for multiple commands is not yet implemented')
+        return 1
+
+    for pid in sorted(set(selected)):
+        print(f'PID {pid}: {processes[pid]["cmdline"]}')
+        result = ctl.request(pid, commands[0])
+        if not wait:
+            print('  OK.\n')
+            continue
+        else:
+            if args.backtrace:
+                data = parse_back(result)
+                print_backtrace(data)
+            elif args.display_counter or args.display_and_reset_counter or args.instr_status or args.rounding or args.verbose or args.hard_instr or args.soft_instr:
+                for line in result: print(line)
+            else:
+                #debug
+                print(result)
+        print()
+
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

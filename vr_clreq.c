@@ -36,6 +36,10 @@
 #include "pub_tool_transtab.h"       // VG_(discard_translations_safely)
 // * Start-stop instrumentation
 
+//#include "../coregrind/pub_core_threadstate.h"
+extern Bool VG_(is_valid_tid) ( ThreadId tid );
+//redefinition as workaround to avoid check of coregrind/pub_core_ include 
+
 //#ifdef PROFILING_EXACT
 #include "interflop_backends/interflop_verrou/interflop_verrou.h"
 //#endif
@@ -103,6 +107,10 @@ void vr_set_rounding_mode(const char* modeStr){
          if(vr.verbose){
             VG_(umsg)("New rounding mode: %s", modeStr);
          }
+      }else{
+         if(vr.verbose){
+            VG_(umsg)("Keep rounding mode: %s", modeStr);
+         }
       }
    }
 }
@@ -120,23 +128,25 @@ static void vr_deterministic_section_name (unsigned int level,
   Addr  addr;
   DiEpoch de = VG_(current_DiEpoch)();
 
-  VG_(get_StackTrace)(VG_(get_running_tid)(),
-                      ips, 8,
-                      NULL, NULL,
-                      0);
-  addr = ips[level];
+  Int n_ips=VG_(get_StackTrace)(VG_(get_running_tid)(),
+                                ips, 8,
+                                NULL, NULL,
+                                0);
+  if(level< n_ips){
+     addr = ips[level];
+     VG_(get_fnname)(de, addr, &fnname);
 
-  //fnname[0] = 0;
-  VG_(get_fnname)(de, addr, &fnname);
+     VG_(get_filename_linenum)(de,
+                               addr,
+                               &filename,
+                               NULL,
+                               &linenum);
+     VG_(snprintf)(name, len,
+                   "%s (%s:%u)", fnname, filename, linenum);
+  }else{
+     VG_(tool_panic)("invalid level for vr_deterministic_section_name");
 
-  //  filename[0] = 0;
-  VG_(get_filename_linenum)(de,
-                            addr,
-                            &filename,
-                            NULL,
-                            &linenum);
-  VG_(snprintf)(name, len,
-                "%s (%s:%u)", fnname, filename, linenum);
+  }
 }
 
 static ULong vr_deterministic_section_hash (HChar const*const name)
@@ -211,9 +221,43 @@ void vr_reset_denorm_counter(void){
 
 // ** GDB monitor commands
 
+static void printIpDescGdb(UInt n, DiEpoch ep, Addr ip, void* uu_opaque) {
+   InlIPCursor *iipc = VG_(new_IIPC)(ep, ip);
+   do {
+      const HChar *buf = VG_(describe_IP)(ep, ip, iipc);
+      VG_(gdb_printf)( "\t%s\n", buf);
+   } while (VG_(next_IIPC)(iipc));
+   VG_(delete_IIPC)(iipc);
+}
+
+
+
 static void vr_handle_monitor_instrumentation_print (void) {
-  VG_(gdb_printf) ("instrumentation: %s\n",
-                   (vr.instrument_hard && vr.instrument_soft) ==VR_INSTR_ON ? "on" : "off");
+  VG_(gdb_printf)("instrumentation status:\n");
+  VG_(gdb_printf)("\tsoft: %s\n", (vr.instrument_soft==VR_INSTR_ON) ? "ON" : "OFF");
+  VG_(gdb_printf)("\thard: %s\n", (vr.instrument_hard==VR_INSTR_ON) ? "ON" : "OFF");
+}
+
+static Bool vr_handle_monitor_verbose (HChar ** ssaveptr) {
+  HChar * arg = VG_(strtok_r)(0, " ", ssaveptr);
+
+  if (!arg) { /* no argument */
+     return False;
+  }
+
+  switch (VG_(keyword_id) ("on off", arg, kwd_report_duplicated_matches)) {
+  case -2: /* multiple matches */
+    return True;
+  case -1: /* not found */
+    return False;
+  case 0:/* on */
+     vr.verbose=True;
+     return True;
+  case 1: /* off */
+     vr.verbose=False;
+     return True;
+  }
+  return False;
 }
 
 static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
@@ -224,30 +268,94 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
     return True;
   }
 
-  switch (VG_(keyword_id) ("on off", arg, kwd_report_duplicated_matches)) {
+  Vr_Instr instrStatus= VR_INSTR;
+  switch (VG_(keyword_id) ("on start off stop", arg, kwd_report_duplicated_matches)) {
   case -2: /* multiple matches */
     return True;
   case -1: /* not found */
     return False;
-  case 0: /* on */
-     vr_set_instrument_state("Monitor", VR_INSTR_ON, False);
-     vr_handle_monitor_instrumentation_print();
-     return True;
-  case 1: /* off */
-     vr_set_instrument_state("Monitor", VR_INSTR_OFF, False);
+  case 0:/* on */
+  case 1:
+     instrStatus=VR_INSTR_ON;
+     break;
+  case 2: /* off */
+  case 3:
+     instrStatus=VR_INSTR_OFF;
+     break;
+  }
+
+  if(instrStatus!= VR_INSTR){
+     HChar * subarg = VG_(strtok_r)(0, " ", ssaveptr);
+     Bool isHard=True;
+     if(arg!=NULL){
+        switch (VG_(keyword_id) ("hard soft", subarg, kwd_report_duplicated_matches)) {
+        case -2: /* multiple matches */
+           return True;
+        case -1: /* not found */
+           return False;
+        case 0:
+           isHard=True;
+           break;
+        case 1:
+           isHard=False;
+           break;
+        }
+     }
+     vr_set_instrument_state("Monitor", instrStatus, isHard);
      vr_handle_monitor_instrumentation_print();
      return True;
   }
   return False;
 }
 
+static Bool vr_handle_monitor_status (HChar ** ssaveptr) {
+   HChar* arg = VG_(strtok_r) (0, " ", ssaveptr);
+   if (arg && (VG_(strcmp)(arg, "back") == 0)) {
+      unsigned int tid;
+      for(tid = 1; tid < VG_N_THREADS; tid++){
+         if( ! VG_(is_valid_tid) (tid )){
+            continue;
+         }
+         VG_(gdb_printf)("Thread tid: %u\n",tid);
+         static const UInt max_ips=40;
+         Addr ips[max_ips];
+         UInt n_ips
+            = VG_(get_StackTrace)(tid, ips, max_ips,
+                                  NULL/*array to dump SP values in*/,
+                                  NULL/*array to dump FP values in*/,
+                                  0/*first_ip_delta*/);
+         VG_(apply_StackTrace)( printIpDescGdb, NULL, VG_(current_DiEpoch)(), ips, n_ips );
+         VG_(gdb_printf)("\n");
+      }
+      return True;
+   }
+   if (arg && (VG_(strcmp)(arg, "instrumentation") == 0)) {
+      vr_handle_monitor_instrumentation_print ();
+      return True;
+   }
+
+   VG_(gdb_printf)("status invalid key %s\n", arg);
+   return False;
+}
+
+static Bool vr_handle_monitor_rounding (HChar ** ssaveptr) {
+   HChar* arg = VG_(strtok_r) (0, " ", ssaveptr);
+   vr_set_rounding_mode((char const*const)arg);
+   return True;
+}
+
 static Bool vr_handle_monitor_help (void) {
   VG_(gdb_printf)("\n");
   VG_(gdb_printf)("verrou monitor commands:\n");
   VG_(gdb_printf)("  help                     : print this help\n");
-  VG_(gdb_printf)("  count                    : print instruction counters\n");
-  VG_(gdb_printf)("  instrumentation          : get instrumentation state\n");
-  VG_(gdb_printf)("  instrumentation [on|off] : set instrumentation state\n");
+  VG_(gdb_printf)("  display_counter          : print instruction counters\n");
+  VG_(gdb_printf)("  reset_counter            : reset instruction counters\n");
+  VG_(gdb_printf)("  rounding ROUNDING_MODE   : switch to ROUNDING_MODE\n");
+  VG_(gdb_printf)("  instrumentation [on|start|off|stop] [hard|soft] : set instrumentation state\n");
+  VG_(gdb_printf)("  status back              : print backtrace foreach tread\n");
+  VG_(gdb_printf)("  status instrumentation   : print instrumentation status\n");
+  VG_(gdb_printf)("  verbose on|off           : set verbose status\n");
+
   VG_(gdb_printf)("\n");
   return True;
 }
@@ -260,7 +368,7 @@ static Bool vr_handle_monitor_command (HChar * req) {
     VG_(strcpy)(s, req);
 
     wcmd = VG_(strtok_r)(s, " ", &ssaveptr);
-    switch (VG_(keyword_id) ("help instrumentation count",
+    switch (VG_(keyword_id) ("help instrumentation display_counter reset_counter status rounding verbose",
                              wcmd, kwd_report_duplicated_matches)) {
     case -2: /* multiple matches */
       return True;
@@ -270,9 +378,18 @@ static Bool vr_handle_monitor_command (HChar * req) {
       return vr_handle_monitor_help ();
     case 1: /* instrumentation */
       return vr_handle_monitor_instrumentation (&ssaveptr);
-    case 2: /* count */
+    case 2: /* display_counter */
       vr_ppOpCount();
       return True;
+    case 3: /* reset_counter */
+      vr_resetCount();
+      return True;
+    case 4: /* status */
+       return vr_handle_monitor_status (&ssaveptr);
+    case 5:
+       return vr_handle_monitor_rounding (&ssaveptr);
+    case 6:
+       return vr_handle_monitor_verbose (&ssaveptr);
     }
     return False;
 }

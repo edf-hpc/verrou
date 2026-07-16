@@ -135,7 +135,7 @@ diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
 index 17a81c99f..2086f49eb 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
-@@ -78,6 +78,34 @@
+@@ -78,6 +78,40 @@
      parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
  </chapter>
  
@@ -167,6 +167,12 @@ index 17a81c99f..2086f49eb 100644
 +    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 +</chapter>
 +
++<!-- verrou_control -->
++<chapter>
++<title>verrou_control</title>
++<xi:include href="../../verrou/docs/verrou_control-manpage.xml"
++    parse="xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
++</chapter>
  </book>
  </set>
  

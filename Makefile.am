@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	docs/verrou_dd-manpage.xml \
 	docs/verrou_postdd-manpage.xml \
 	docs/verrou_plotstat-manpage.xml
+	docs/verrou_control-manpage.xml
 
 pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
@@ -14,7 +15,8 @@ pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
 PYTHON_REP=pyTools
 
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout  ${PYTHON_REP}/verrou_dd_back  ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py ${PYTHON_REP}/find_dd_fail ${PYTHON_REP}/analyse_trace
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout  ${PYTHON_REP}/verrou_dd_back  ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py ${PYTHON_REP}/find_dd_fail ${PYTHON_REP}/verrou_control ${PYTHON_REP}/analyse_trace
+
 
 pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py ${PYTHON_REP}/BBTools.py pyWrapper/verrouPyBinding.py
 
@@ -26,11 +28,13 @@ completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${complet
 		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
 		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
-		   ${completion_dir}/bash_completion_verrou_dd_back
+		   ${completion_dir}/bash_completion_verrou_dd_back    ${completion_dir}/bash_completion_verrou_control
 completion_install_dir=${prefix}/share/completions
 
 # bash completion code generation
-# bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean are not generated
+# bash_completion_valgrind and ${completion_dir}/bash_completion_verrou_dd_clean
+#${completion_dir}/bash_completion_verrou_control are not generated
+
 ${completion_dir}/bash_completion_verrou_dd_back:
 	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_back bash_completion
 ${completion_dir}/bash_completion_verrou_dd_sym:

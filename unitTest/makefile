@@ -1,4 +1,4 @@
-SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover checkVPREC
+SUBREPLIST=checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover checkVPREC verrou_control
 
 SUBREPLISTPYTHON=checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddCover
 
