@@ -331,6 +331,9 @@ class addrBackReader:
             print("unknown addr", addr)
             return "?("+addr+")"
 
+    def isBelowMain(self, addr):
+        return ("below main" in self.data[addr][0])
+
 class mergeAddrBackReader:
     def __init__(self, backReader):
         self.backReader=backReader
@@ -353,6 +356,8 @@ class mergeAddrBackReader:
     def getBackStr(self, addr):
         return self.backReader.getBackStr(addr)
 
+    def isBelowMain(self, addr):
+        return self.backReader.isBelowMain(addr)
 
 class backCovReader:
     def __init__(self,pid, rep, status,trace_kind, mergeRoot=False):
@@ -379,7 +384,6 @@ class backCovReader:
         self.backCov=self.readBackCov(covFile)
 
     def addMerge(self, backCurrent):
-        #faut ajouter une coherence self.bbInfo et self.addrBackInfo
 
         if not self.addrBackInfo.addBackReader(backCurrent.addrBackInfo, verbose=True):
             print("incoherent merge addrBackInfo ")
@@ -444,11 +448,20 @@ class backCovReader:
                 num=splineRemain[1]
                 index=splineRemain[2]
                 backTabStr=splineRemain[0].split(':')[1]
+                backTabStr=self.removeBelowMain(backTabStr)
                 if self.mergeIndex!=0:
                     dictRes[(addr, backTabStr)]=(int(num), int(index))
                 else:
                     dictRes[(addr, backTabStr)]=[(int(num), int(index))]
         return res
+
+    def removeBelowMain(self, backTabStr):
+        addrTab=backTabStr.split(',')
+        for i in range(len(addrTab)):
+            addr=addrTab[i]
+            if self.addrBackInfo.isBelowMain(addr):
+                return ",".join(addrTab[0:i])
+        return backTabStr
 
     def structureData(self):
         #[ ("addrBack", [...]) ,("addrBB", minIndex,addrrBB, flatIndex,dataBB), ("addrBack",minIndex [.. ]) ]
@@ -797,8 +810,9 @@ class cmpToolsCov:
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
+            print("debug rep",rep)
             covBack=backCovReader(pid,Path(rep), None, self.trace_kind)
-            covBack.writePartialBackCover(filenamePrefix, pidMap=pidMap)
+            covBack.writePartialBackCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
 
     # def writeStatus(self):
     #     for i in range(len(self.tabPidRep)):
