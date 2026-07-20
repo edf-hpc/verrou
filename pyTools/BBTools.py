@@ -178,11 +178,12 @@ class bbInfoReader:
 
 class mergebbInfoReader:
 
-    def __init__(self, bbInfoReaderRoot):
+    def __init__(self, bbInfoReaderRoot, verbose=False):
         self.bbInfoReaderRoot=bbInfoReaderRoot
         self.data=self.bbInfoReaderRoot.data
+        self.verbose=verbose
 
-    def addBBInfoReader(self, newBBInfo, verbose=False):
+    def addBBInfoReader(self, newBBInfo):
         data=self.data
         newdata=newBBInfo.data
         for addr in newdata:
@@ -192,7 +193,7 @@ class mergebbInfoReader:
                     print("addr ["+str(addr)+"]" ,str( data[addr]), "=>", str(newdata[addr]))
                     return False
             else:
-                if verbose:
+                if self.verbose:
                     print("newData[",addr,"]", newdata[addr])
                 data[addr]=newdata[addr]
         return True
@@ -335,11 +336,11 @@ class addrBackReader:
         return ("below main" in self.data[addr][0])
 
 class mergeAddrBackReader:
-    def __init__(self, backReader):
+    def __init__(self, backReader, verbose=False):
         self.backReader=backReader
+        self.verbose=verbose
 
-
-    def addBackReader(self, newBack, verbose=False):
+    def addBackReader(self, newBack):
         newData=newBack.data
         data=self.backReader.data
         for addr in newData:
@@ -349,7 +350,7 @@ class mergeAddrBackReader:
                     print(addr, "=>", data[addr], "!=", newData[addr])
                     return False
             else:
-                if verbose:
+                if self.verbose:
                     print("New back addr", addr,  newData[addr])
                 data[addr]=newData[addr]
         return True
@@ -374,8 +375,8 @@ class backCovReader:
             self.mergeIndex=0
             self.mergeNum=1
             self.statusTab=[status]
-            self.addrBackInfo=mergeAddrBackReader(self.addrBackInfo)
-            self.bbInfo=mergebbInfoReader(self.bbInfo)
+            self.addrBackInfo=mergeAddrBackReader(self.addrBackInfo, verbose=False)
+            self.bbInfo=mergebbInfoReader(self.bbInfo,verbose=False)
         else:
             self.mergeIndex=None
             self.mergeNum=None
@@ -385,10 +386,10 @@ class backCovReader:
 
     def addMerge(self, backCurrent):
 
-        if not self.addrBackInfo.addBackReader(backCurrent.addrBackInfo, verbose=True):
+        if not self.addrBackInfo.addBackReader(backCurrent.addrBackInfo):
             print("incoherent merge addrBackInfo ")
             sys.exit(42)
-        if not self.bbInfo.addBBInfoReader(backCurrent.bbInfo, verbose=True):
+        if not self.bbInfo.addBBInfoReader(backCurrent.bbInfo):
             print("incoherent merge bbInfo ")
             sys.exit(42)
 
@@ -406,7 +407,7 @@ class backCovReader:
                         self.backCov[indexCov][key]+=[(0,None) for i in range(self.mergeNum-1- size)]
                     self.backCov[indexCov][key].append(data)
                 else:
-                    print("debug ignored key", key, "mergeIndex", backCurrent.mergeIndex)
+                    #print("debug ignored key", key, "mergeIndex", backCurrent.mergeIndex)
                     buildOld=[(0,None) for i in range(self.mergeNum-1)]
                     buildOld.append(data)
                     self.backCov[indexCov][key]=buildOld
@@ -507,7 +508,7 @@ class backCovReader:
         if tabBack==[]:
             minCallI=None
             if self.mergeIndex==0:
-                print("dataBB", dataBB)
+                #print("dataBB", dataBB)
                 minCallI=min([x[1] for x in dataBB if x[1]!=None])
             else:
                 minCallI=dataBB[1]
@@ -523,25 +524,41 @@ class backCovReader:
             tree+=[{"addrKind":"addrBack", "addrBack":lastAddrBack , "child":[]}]
             self.addTreeNode(tree[-1]["child"], addrBB, remainBack,dataBB)
 
-    def writeTree(self, handler, tree, deep=0):
+    def writeTree(self, handler, tree, deep=0, outputTypeTab=["data"],csvFormat=False):
         for subTree in tree:
             if subTree["addrKind"]=="addrBack":
                 addrBack=subTree["addrBack"]
-                handler.write("\t"*deep+self.addrBackInfo.getBackStr(addrBack)+"\n")
-                self.writeTree(handler, subTree["child"], deep+1)
+                deepStr="\t"*deep
+                if csvFormat:
+                    deepStr= "|"+str(deep)+"\t"
+                handler.write(deepStr+self.addrBackInfo.getBackStr(addrBack)+"\n")
+                self.writeTree(handler, subTree["child"], deep+1, outputTypeTab=outputTypeTab, csvFormat=csvFormat)
             if subTree["addrKind"]=="addrBB":
                 addrBB=subTree["addrBB"]
                 dataBBStr=None
                 if self.mergeIndex !=0:
+                    assert(outputTypeTab==["data"])
                     dataBBStr=str(subTree["data"][0])
                 else:
-                    dataTab=[ x[0] for x in subTree["data"]]
+                    dataTab=[]
+                    for outputType in outputTypeTab:
+                        coverTab=[ x[0] for x in subTree["data"]]
+                        if outputType=="data":
+                            dataTab+=coverTab
+                        elif outputType in ["biased","standard", "biased-stol", "fdr-stol"]:
+                            dataTab+=computeEstimator( self.statusTab  , coverTab, [outputType])
+                        else:
+                            print("unknown outputType", outputType)
+                            sys.exit(42)
                     dataBBStr="\t".join([str(x) for x in  dataTab])
+                deepStr="\t"*deep
+                if csvFormat:
+                    deepStr= str(deep)+"\t"
 
-                handler.write("\t"*deep+ self.bbInfo.compressMarksWithoutSym(addrBB) +"\t"+dataBBStr +"\n" )
+                handler.write(deepStr+ self.bbInfo.compressMarksWithoutSym(addrBB) +"\t"+dataBBStr +"\n" )
 
 
-    def writePartialBackCover(self,outputDir=None,filenamePrefix="", pidMap=None, typeIndicator=[]):
+    def writePartialBackCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
         self.structureData()
         if pidMap!=None:
             handler=openGz(self.rep / "pidMap" ,"w")
@@ -557,9 +574,94 @@ class backCovReader:
             if outputDir!=None:
                 outDir=outputDir
             handler=openGz(Path(outDir) / ("%scoverBack%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
-            self.writeTree(handler,self.backTreeCov[numCov])
-        print("typeIndicator ignored")
+            self.writeTree(handler,self.backTreeCov[numCov], outputTypeTab=outputTypeTab,csvFormat=False)
 
+    def writeCSV(self, pathStr, header="", outputTypeTab=["data"]):
+        self.structureData()
+
+        for numCov in range(len(self.backTreeCov)):
+            handler=openGz(Path(pathStr.replace("__NUM_COV__", "%i"%(numCov))),"w")
+            handler.write(header)
+            self.writeTree(handler,self.backTreeCov[numCov], outputTypeTab=outputTypeTab,csvFormat=True)
+
+def isIntegerEqualWithTol(value, ref, tol ):
+    if value >= ref+tol[0] and value <= ref+tol[1]:
+        return True
+    return False
+
+def countForEstimator(statusTab, counterTab, refIndex, tol=[0,0]):
+    assert(statusTab[refIndex]==True)
+    assert(len(statusTab) == len(counterTab))
+    nbSuccess=0
+    nbFail=0
+    nbFailDiff, nbFailEqual, nbSuccessDiff, nbSuccessEqual=(0,0,0,0)
+
+    for i in range(len(statusTab)):
+        assert(statusTab[i] in [True,False])
+        if statusTab[i]==True:
+            nbSuccess+=1
+            if  isIntegerEqualWithTol(counterTab[i], counterTab[refIndex], tol):
+                nbSuccessEqual+=1
+            else:
+                nbSuccessDiff+=1
+        else:
+            nbFail+=1
+            if  isIntegerEqualWithTol(counterTab[i], counterTab[refIndex], tol):
+                nbFailEqual+=1
+            else:
+                nbFailDiff+=1
+    dicRes= {"nbSuccess": nbSuccess, "nbFail":nbFail,
+            "nbFailDiff":nbFailDiff,
+            "nbFailEqual":nbFailEqual,
+            "nbSuccessDiff":nbSuccessDiff,
+            "nbSuccessEqual":nbSuccessEqual}
+    return dicRes
+
+
+def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
+    assert(statusTab[refIndex]==True)
+    assert(len(statusTab) == len(counterTab))
+
+    countData=countForEstimator(statusTab, counterTab, refIndex)
+    nbSuccess=countData["nbSuccess"]
+    nbFail=countData["nbFail"]
+    nbFailDiff=countData["nbFailDiff"]
+    nbFailEqual=countData["nbFailEqual"]
+    nbSuccessDiff=countData["nbSuccessDiff"]
+    nbSuccessEqual=countData["nbSuccessEqual"]
+
+    res=[]
+    for estimator in estimatorTab:
+        if estimator=="standard":
+            res+=[float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)]
+        elif estimator=="biased":
+            res+=[0.5* (float(nbFailDiff)/ float(nbFail) + float(nbSuccessEqual)/float(nbSuccess))]
+        elif "-stol" in estimator:
+            tolTab=[counterTab[i] -counterTab[refIndex] for i in range(len(statusTab)) if statusTab[i]]
+            tolMin, tolMax=min(tolTab), max(tolTab)
+
+            countDataTol=countForEstimator(statusTab, counterTab, refIndex, tol=[tolMin, tolMax])
+            nbFailDiffTol=countDataTol["nbFailDiff"]
+            #nbFailEqualTol=countDataTol["nbFailEqual"]
+            nbSuccessDiffTol=countDataTol["nbSuccessDiff"]
+            if nbSuccessDiffTol!=0:
+                print("Bug nbSuccessDiff")
+                print ("counterTab", counterTab)
+                print ("countDataTol", countDataTol)
+                sys.exit(42)
+
+            nbSuccessEqualTol=countDataTol["nbSuccessEqual"]
+            if estimator=="biased-stol":
+                res+=[0.5* (float(nbFailDiffTol)/ float(nbFail) + float(nbSuccessEqualTol)/float(nbSuccess))]
+            elif estimator=="fdr-stol": #fail diff ratio
+                res+=[(float(nbFailDiffTol)/ float(nbFail))]
+            else:
+                print("unknown estimator", estimator)
+                sys.exit(42)
+
+        else:
+            print("unknown estimator", estimator)
+    return res
 
 
 class covMerge:
@@ -810,7 +912,6 @@ class cmpToolsCov:
         """Write partial cover for each execution (defined by a tab of pid)"""
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
-            print("debug rep",rep)
             covBack=backCovReader(pid,Path(rep), None, self.trace_kind)
             covBack.writePartialBackCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
 
@@ -918,15 +1019,8 @@ class cmpToolsCov:
         covMerged.writePartialCover(typeIndicator=estimator)
 
 
-    def writeMergedBack(self,estimatorTab):
-        """Write merged Back with correlation indice  between coverage difference and sucess/failure status"""
-
-        #check the presence of success and failure
-        (nbSuccess, nbFail)=self.countStatus()
-        print("NbSuccess: %d \t nbFail %d"%(nbSuccess,nbFail))
-        if nbFail==0 or nbSuccess==0:
-            print("mergeCov need Success/Fail partition")
-            sys.exit()
+    def writeMergedBack(self,estimatorTab , csvFormat=False):
+        """Write merged Back with correlation indice  between coverage difference and success/failure status"""
 
         pidRef,repRef=self.tabPidRep[self.refIndex]
         statusRef=self.getStatus(pidRef,repRef)
@@ -948,6 +1042,6 @@ class cmpToolsCov:
                 if i >=self.refIndex:
                     pourcent=float(i)/ float(len(self.tabPidRep)-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
-        #covMerged.writePartialCover(typeIndicator="standard")
+
         backMerged.endMerge()
-        backMerged.writePartialBackCover(outputDir=Path("."), typeIndicator=estimatorTab)
+        backMerged.writePartialBackCover(outputDir=Path("."), outputTypeTab=estimatorTab, csvFormat=csvFormat)

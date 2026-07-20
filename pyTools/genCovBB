@@ -178,5 +178,5 @@ if __name__=="__main__":
 
     if options.genBackCorrelation:
         cmp.findRefForMergePost()
-        cmp.writeMergedBack(["standard","biased","data"])
-#        cmp.writeMergedCov("standard")
+        cmp.writeMergedBack(["biased"], csvFormat=False)
+
