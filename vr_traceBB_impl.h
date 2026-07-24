@@ -27,9 +27,9 @@
 
 
 struct traceBB_T {
-  IRSB* irsb;
   UInt index;
   UInt counter;
+  Addr addr;
   struct traceBB_T*  next;
 };
 
@@ -90,8 +90,8 @@ static void vr_traceIRSB (IRSB* out, UInt  index, UInt* counterPtr){//, typeInst
   addStmtToIRSB (out, IRStmt_Dirty (di));
 }
 
-traceBB_t* getNewTraceBB(IRSB* irsb_in);
-traceBB_t* getNewTraceBB(IRSB* irsb_in){
+traceBB_t* getNewTraceBB(Addr addr);
+traceBB_t* getNewTraceBB(Addr addr){
   traceBB_t * res = VG_(malloc)("vr.getNewTraceBB", sizeof(traceBB_t));
   res->next=traceList;
   res->counter=0;
@@ -100,7 +100,8 @@ traceBB_t* getNewTraceBB(IRSB* irsb_in){
   }else{
     res->index=0;
   }
-  res->irsb=irsb_in;
+  res->addr=addr;
+  //res->irsb=irsb_in;
 
   traceList=res;
   return res;
@@ -207,7 +208,7 @@ void vr_traceBB_dumpCov(UInt numPartialCov){
   traceBB_t* current=traceList;
   while (current != NULL) {
     if(current->counter!=0){
-      VG_(fprintf)(vr_out_bb_cov,"%u:%u\n",(current->index),(current->counter));
+       VG_(fprintf)(vr_out_bb_cov,"%lu|%u:%u\n",(current->addr),(current->index),(current->counter));
     }
     current = current->next;
   }
@@ -237,8 +238,8 @@ void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * fil
 			    Bool doLineContainFloat, Bool doLineContainFloatCmp);
 void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
 			    Bool doLineContainFloat, Bool doLineContainFloatCmp){
-  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u : %s : %s\n",
-	       (tr->index), fnname, filename, lineNum,
+  VG_(fprintf)(vr_out_bb_info, "%lu|%u : %s : %s : %u : %s : %s\n",
+	       (tr->addr),(tr->index), fnname, filename, lineNum,
 	       doLineContainFloat?"1":"0",
 	       doLineContainFloatCmp?"1":"0");
 }

@@ -1356,7 +1356,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   traceBB_t* traceBB=NULL;
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
-    traceBB=getNewTraceBB(sbIn);
+    traceBB=getNewTraceBB(addr);
     vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
 
     vr_traceBackIRSB(sbOut, addr);

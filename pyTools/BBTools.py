@@ -78,7 +78,7 @@ class bbInfoReader:
         self.data={}
         regularExp=None
         if self.trace_kind=="bb":
-            regularExp=re.compile(r"([0-9]+) : (.*) : (\S*) : ([0-9]+) : ([0,1]) : ([0,1])")
+            regularExp=re.compile(r"([0-9]+)\|([0-9]+) : (.*) : (\S*) : ([0-9]+) : ([0,1]) : ([0,1])")
         else:
             #[67133584] unamed_filename_verrou	0	F	!
             regularExp=re.compile(r"\[([0-9]+)\]() (\S*)\t([0-9]+)\t([F,I])\t([?,!])")
@@ -91,14 +91,20 @@ class bbInfoReader:
             if m==None :
                 print("error read fileName line:",[line])
                 sys.exit()
-            addr, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
+            #addr,index, sym, sourceFile, lineNum, containFloat, containFloatCmp, index=(None,None,None,None,None,None,None,None)
+            if self.trace_kind=="bb":
+                addr,index, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
+            else:
+                addr,sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
+                index=None
             containFloat=(containFloat in ["1","F"])
             containFloatCmp=(containFloatCmp in ["1","?"])
+
             if addr in self.data:
-                if not (sym,sourceFile,lineNum,containFloat, containFloatCmp) in self.data[addr]:
-                    self.data[addr]+=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
+                if not (sym,sourceFile,lineNum,containFloat, containFloatCmp, index) in self.data[addr]:
+                    self.data[addr]+=[(sym,sourceFile,lineNum,containFloat,containFloatCmp, index)]
             else:
-                self.data[addr]=[(sym,sourceFile,lineNum,containFloat,containFloatCmp)]
+                self.data[addr]=[(sym,sourceFile,lineNum,containFloat,containFloatCmp, index)]
             line=fileHandler.readline()
 
 
@@ -174,7 +180,7 @@ class bbInfoReader:
         return False
 
     def getListOfSym(self,addr):
-        return list(set([sym for sym,fileName,num, containFloatMod, containFloatCmp in self.data[addr]]))
+        return list(set([sym for sym,fileName,num, containFloatMod, containFloatCmp, index in self.data[addr]]))
 
 class mergebbInfoReader:
 
@@ -267,8 +273,9 @@ class covReader:
                 dictRes={}
                 continue
             if self.tName.trace_kind=="bb":
-                (index,sep, num)=(line).strip().partition(":")
-                dictRes[index]=int(num)
+                (key,sep, num)=(line).strip().partition(":")
+                (addr,sep,index)=key.partition("|")
+                dictRes[addr]=int(num)
             if self.tName.trace_kind=="back":
                 #"[76699587] 9:76699587,77091480,77146041,67113775,67114088,79412601,67113353,137422174823,27     5       9325"
                 spline=line.strip().split(' ')
@@ -359,6 +366,147 @@ class mergeAddrBackReader:
 
     def isBelowMain(self, addr):
         return self.backReader.isBelowMain(addr)
+
+
+class coverageReader:
+    def __init__(self, pid, rep, status, trace_kind, mergeRoot=False):
+        self.pid=pid
+        self.rep=rep
+        assert(trace_kind in ["bb"])
+        self.tName=traceName(trace_kind)
+
+        self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
+        self.status=status
+
+        if mergeRoot:
+            self.mergeIndex=0
+            self.mergeNum=1
+            self.statusTab=[status]
+            self.bbInfo=mergebbInfoReader(self.bbInfo,verbose=True)
+        else:
+            self.mergeIndex=None
+            self.mergeNum=None
+            self.statusTab=None
+        covFile=openGz(self.rep / self.tName.covName(pid))
+        self.dataCov=self.readCoverage(covFile)
+
+    def addMerge(self, covCurrent): #attention ne marche qu'avec le mode addr
+        #add check bbInfo Coherence
+        if not self.bbInfo.addBBInfoReader(covCurrent.bbInfo):
+            print("incoherent merge bbInfo ")
+
+        covCurrent.mergeIndex=self.mergeNum
+        self.mergeNum+=1
+        self.statusTab+=[covCurrent.status]
+
+        for indexCov in range(len(self.dataCov)):
+            for key in covCurrent.dataCov[indexCov]:
+                data=covCurrent.dataCov[indexCov][key]
+                if key in self.dataCov[indexCov]:
+                    size=len(self.dataCov[indexCov][key])
+                    if size < self.mergeNum-1:
+                        self.dataCov[indexCov][key]+=[(0,None) for i in range(self.mergeNum-1- size)]
+                    self.dataCov[indexCov][key].append(data)
+                else:
+                    buildOld=[(0,None) for i in range(self.mergeNum-1)]
+                    buildOld.append(data)
+                    self.dataCov[indexCov][key]=buildOld
+
+    def endMerge(self):
+        for indexCov in range(len(self.dataCov)):
+            for key in self.dataCov[indexCov]:
+                size=len(self.dataCov[indexCov][key])
+                if size < self.mergeNum:
+                    self.dataCov[indexCov][key]+= [(0,None) for i in range(self.mergeNum- size)]
+
+    def readCoverage(self, cov):
+        #attention duplication from covReader
+        res=[] # tab indexed by cov index. Each element is a dict {addr/index: num}.  
+        currentNumber=-1
+        dictRes={}
+        while True:
+            line=cov.readline()
+            if line in [None,""]:
+                if currentNumber!=-1:
+                    res+=[dictRes]
+                break
+            if line=="cover-"+str(currentNumber+1)+"\n":
+                if currentNumber!=-1:
+                    res+=[dictRes]
+                currentNumber+=1
+                dictRes={}
+                continue
+            if self.tName.trace_kind=="bb":
+                (addrindex,sep, num)=(line).strip().partition(":")
+                (addr,sep,index)=addrindex.partition("|")
+                if self.mergeIndex!=0:
+                    dictRes[addr]=(int(num), int(index))
+                else:
+                    dictRes[addr]=[(int(num), int(index))]
+            else:
+                print("error only bb trace_kind is implemented")
+                sys.exit()
+        return res
+
+    def structureData(self):
+        nbCov=len(self.dataCov)
+        self.dataSortCov=[ self.sortCov(self.dataCov[g] )   for  g in range(nbCov)]
+        #add sort
+
+    def minCallIndex(self, numIndexTab):
+        return min([x for x in numIndexTab if x!=None])
+
+    def sortCov(self, addrToNumIndexTab):
+        res=[(addrBB, [x[0] for x in addrToNumIndexTab[addrBB]], self.minCallIndex([x[1] for x in  addrToNumIndexTab[addrBB]]) ) for addrBB in addrToNumIndexTab ]
+        res.sort(key=lambda x: x[2])
+        return res
+
+    def writeData(self,handler, sortCov, outputTypeTab=["data"]):
+        for bbAddr,rawDataTab,minCallIndex in sortCov:
+            name=self.bbInfo.compressMarksWithoutSym(bbAddr)
+            dataBBStr=None
+            if self.mergeIndex !=0:
+                assert(outputTypeTab==["data"])
+                dataBBStr=str(rawDataTab[0])
+            else:
+                dataTab=[]
+                for outputType in outputTypeTab:
+                    if outputType=="data":
+                        dataTab+=rawDataTab
+                    elif outputType in ["biased","standard", "biased-stol", "fdr-stol"]:
+                        dataTab+=computeEstimator( self.statusTab  , rawDataTab, [outputType])
+                    else:
+                        print("unknown outputType", outputType)
+                        sys.exit(42)
+                dataBBStr="\t".join([str(x) for x in  dataTab])
+            handler.write(name +"\t"+ dataBBStr+"\n")
+
+    def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
+        self.structureData()
+        if pidMap!=None:
+            handler=openGz(self.rep / "pidMap" ,"w")
+            for pid in pidMap:
+                handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
+
+        for numCov in range(len(self.dataSortCov)):
+            pidStr=str(self.pid)
+            if pidMap!=None:
+                pidStr=pidMap[self.pid]
+
+            outDir=self.rep
+            if outputDir!=None:
+                outDir=outputDir
+            handler=openGz(Path(outDir) / ("%scover%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
+            self.writeData(handler,self.dataSortCov[numCov], outputTypeTab=outputTypeTab)
+
+    def writeCSV(self, pathStr, header="", outputTypeTab=["data"]):
+        self.structureData()
+
+        for numCov in range(len(self.dataSortCov)):
+            handler=openGz(Path(pathStr.replace("__NUM_COV__", "%i"%(numCov))),"w")
+            handler.write(header)
+            self.writeData(handler,self.dataSortCov[numCov], outputTypeTab=outputTypeTab)
+
 
 class backCovReader:
     def __init__(self,pid, rep, status,trace_kind, mergeRoot=False):

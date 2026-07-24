@@ -5,7 +5,7 @@ import math
 import re
 
 
-from BBTools import backCovReader, traceName
+from BBTools import backCovReader, coverageReader, traceName
 
 def findCoverRep(baseRep):
     return baseRep.glob("*-trace/**/cover/")
@@ -34,13 +34,13 @@ def selectSortedPidFromGlob(fileNameTab,trace_kind="bb"):
     return [x[0:2] for x in sortedPidList ]
 
 
-def searchSeq( conf):
-    fileCoverBackTab=list(conf.glob("backCoverInfo-*"))
-    pidPathTab=selectSortedPidFromGlob(fileCoverBackTab, trace_kind="back")
+def searchSeq( conf, trace_kind):
+    fileCoverBackTab=list(conf.glob(traceName(trace_kind).covPrefixName()+"*"))
+    pidPathTab=selectSortedPidFromGlob(fileCoverBackTab, trace_kind=trace_kind)
     return pidPathTab
 
 
-def analysePath(baseRep, pathConf):
+def analysePath(baseRep, pathConf, trace_kind):
     relativePathStr=str(pathConf.relative_to(baseRep))
     print("relativePathStr", relativePathStr)
     dataStr=relativePathStr.split("/")
@@ -58,7 +58,7 @@ def analysePath(baseRep, pathConf):
     if returnValue!=0:
         returnStr="KO"
 
-    pidPathTab=searchSeq(pathConf)
+    pidPathTab=searchSeq(pathConf, trace_kind)
     confData={"pathConf":pathConf,
               "runIndex":ddRunIndex,
               "rounding": rounding,
@@ -99,8 +99,12 @@ def getRefIndex(confDataTab):
 
 
 
-def csvHeader(dataParsedTab, estimatorTab):
-    levelPrefix="\t" #column for deep
+def csvHeader(dataParsedTab, estimatorTab, trace_kind):
+    levelPrefix=None
+    if trace_kind=="bb":
+        levelPrefix=""
+    elif trace_kind=="back":
+        levelPrefix="\t" #column for deep
 
     estTab=[x for x in estimatorTab if x!="data"]
     res=levelPrefix+"" +"\t" + "\t".join(estTab)+"\n"
@@ -112,11 +116,34 @@ def csvHeader(dataParsedTab, estimatorTab):
     return res
 
 
-if __name__=="__main__":
-    baseRep=Path(".")
-    if len(sys.argv)==2:
-        baseRep=Path(sys.argv[1])
 
+class genMerge:
+
+    def __init__(self, pidRef, pathRef,statusRef, trace_kind):
+
+        if trace_kind=="back":
+            self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
+        elif trace_kind=="bb":
+            self.root=coverageReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
+        else:
+            pass
+
+    def current(self,  pid, path, status, trace_kind):
+        if trace_kind=="back":
+            return backCovReader( pid, path, status, trace_kind, mergeRoot=False)
+        elif trace_kind=="bb":
+            return coverageReader(pid, path,status, trace_kind, mergeRoot=False)
+
+    def addMerge(self, current):
+        self.root.addMerge(current)
+
+    def endMerge(self):
+        self.root.endMerge()
+
+    def writeCSV(self, pathStr, header, outputTypeTab):
+        self.root.writeCSV(pathStr, header, outputTypeTab=estimatorTab)
+
+def generateTraceAnalysis(baseRep,trace_kind, estimatorTab):
     pathTab=list(findCoverRep(baseRep))
     if len(pathTab)==0:
         print("invalid baseRep:" , baseRep)
@@ -124,19 +151,17 @@ if __name__=="__main__":
     else:
         print("number of path configuration : ", len(pathTab))
 
-    dataParsed=[analysePath(baseRep,path) for path in pathTab]
+    dataParsed=[analysePath(baseRep,path, trace_kind) for path in pathTab]
     dataParsed=sortDataParsed(dataParsed)
 
     maxSeq=max([len(config["pidPathOrderList"]) for config in dataParsed])
     minSeq=max([len(config["pidPathOrderList"]) for config in dataParsed])
-
     if maxSeq != minSeq:
         print("incoherent number of process")
         print("dataParsed", dataParsed)
         sys.exit(42)
 
-    estimatorTab=["standard","biased","biased-stol","fdr-stol", "data"]
-    header=csvHeader(dataParsed, estimatorTab)
+    header=csvHeader(dataParsed, estimatorTab, trace_kind)
 
     statusTab=[data ["return_value"]=="OK" for data in dataParsed]
     statusRef=statusTab[0]
@@ -149,21 +174,33 @@ if __name__=="__main__":
         pidRef=pidTab[0]
         repRef=pathRepTab[0]
 
-        backMerged=backCovReader(pidRef, Path(repRef),statusRef, "back", mergeRoot=True)
+        mergeTool=genMerge(pidRef, Path(repRef),statusRef, trace_kind)
 
         printIndex=[int(float(p) * mergeSize /100.)  for p in (list(range(0,100,10))+[1,5])]
         printIndex +=[1,  mergeSize-1]
 
         for i in range(1,mergeSize):
-            currentBackCov=backCovReader(pidTab[i], pathRepTab[i], statusTab[i], "back", mergeRoot=False)
-            backMerged.addMerge(currentBackCov)
+            current=mergeTool.current(pidTab[i], pathRepTab[i], statusTab[i], trace_kind)
+            mergeTool.addMerge(current)
             if i in printIndex:
                 pourcent=float(i)/ float(mergeSize-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
 
-        backMerged.endMerge()
+        mergeTool.endMerge()
 
         output="."
-        pathStr= str(output)+ "/"+"backCover"+"Data_seq%i_cover__NUM_COV__.csv"%(seqIndex)
+        pathStr= str(output)+ "/"+str(trace_kind)+"Cover"+"Data_seq%i_cover__NUM_COV__.csv"%(seqIndex)
 
-        backMerged.writeCSV(pathStr, header, outputTypeTab=estimatorTab)
+        mergeTool.writeCSV(pathStr, header, outputTypeTab=estimatorTab)
+
+
+if __name__=="__main__":
+    baseRep=Path(".")
+    if len(sys.argv)==2:
+        baseRep=Path(sys.argv[1])
+
+    trace_kind="back"
+    trace_kind="bb"
+    estimatorTab=["standard","biased","biased-stol","fdr-stol", "data"]
+
+    generateTraceAnalysis(baseRep, trace_kind, estimatorTab)
