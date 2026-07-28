@@ -74,8 +74,8 @@ def cmpRepToRef(rep, repRef):
             for line in dataRef:
                 print("ref\t"+line, end="")
 
-            print("data:")
-            for line in dataRef:
+            print("dataFiltered:")
+            for line in dataFiltered:
                 print("filtered data\t"+line, end="")
 
             sizeNew=len(dataFiltered)
