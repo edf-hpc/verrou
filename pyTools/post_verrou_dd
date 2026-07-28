@@ -203,7 +203,7 @@ class trace_handler:
                 failure()
 
             cmd="genCovBB "+option+" %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
-            print("cmd: ", cmd)
+            #print("cmd: ", cmd)
             os.system(cmd+ "  >> %s"%( runDir/ "covLog"))
 
         rename_pid_for_one_rep(self.config, runDir / "cover",what=[config.get_trace_type()],
@@ -220,9 +220,10 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     cmpScript=config.get_cmpScript()
 
     seedTab=None
-    if config.seed!=None:
+    seed=config.getSeed()
+    if seed!=None:
         import random
-        random.seed(config.seed)
+        random.seed(seed)
         seedTab=random.sample(range(0,2**32-1), config.get_nbRUN())
 
     if traceFile!=None:

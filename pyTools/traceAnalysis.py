@@ -11,8 +11,6 @@ def findCoverRep(baseRep):
 
 def extractPidPathTime(fileName, trace_kind="bb"):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
-    print("fileName", fileName)
-
     rep=fileName.parent
     if rep=="":
         rep="."
@@ -144,7 +142,6 @@ class genMerge:
 
 
 def cleanIntermediateFile(dataParsedTab, trace_kind):
-    print("cleanIntermediateFile")
     fileToDelTab=[]
     patternTab=[]
     if trace_kind=="bb":

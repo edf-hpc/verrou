@@ -75,10 +75,14 @@ dd.line.integer.post: dd.line.integer
 
 dd.line.integer.post.assert: dd.line.integer.post
 	./assertCover.py dd.line.integer.post 1 8 3 0 nearness Back
-
+#	./filterBackCover.py generateRef dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
+	./filterBackCover.py cmpRepToRef dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
 
 dd.line.post.assert: dd.line.post
 	./assertCover.py dd.line.post 2 8 3 0 nearness Back
+#	./filterBackCover.py generateRef dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
+	./filterBackCover.py cmpRepToRef dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
+
 
 dd.line.postmatch: dd.line
 	cp -r dd.line dd.line.postmatch
@@ -86,6 +90,8 @@ dd.line.postmatch: dd.line
 
 dd.line.postmatch.assert: dd.line.postmatch
 	./assertCover.py dd.line.postmatch 2 8 4 2 default Back
+#	./filterBackCover.py generateRef  dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+	./filterBackCover.py cmpRepToRef dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
 
 diff.assert: dd.line.integer.post dd.line.post
 	./assertDiffCover.py
