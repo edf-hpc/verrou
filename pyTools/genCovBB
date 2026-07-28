@@ -63,7 +63,6 @@ class config_option:
         self.run_eval=None
         self.argv=argv
         self.pidRename=None
-        self.trace_kind="back"
         #parse Argv
         self.parseOpt(argv[1:])
 
@@ -83,14 +82,18 @@ class config_option:
                 sys.exit()
             if opt in ["--genCov"]:
                 self.genCov=True
+                self.trace_kind="bb"
             if opt in ["--genCovBack"]:
                 self.genCovBack=True
+                self.trace_kind="back"
             if opt in ["--pidRename"]:
                 self.pidRename=True
             if opt in ["--genCovCorrelation"]:
                 self.genCovCorrelation=True
+                self.trace_kind="bb"
             if opt in ["--genBackCorrelation"]:
                 self.genBackCorrelation=True
+                self.trace_kind="back"
             if opt in ["--run-cmp"]:
                 self.run_cmp=arg
             if opt in ["--run-eval"]:
@@ -155,7 +158,7 @@ if __name__=="__main__":
         for pidRepTuple in pidList:
             pid=pidRepTuple[0]
             rep=pidRepTuple[1]
-            pidMap[pid]="rank"+str(rank)
+            pidMap[pid]="seqCount"+str(rank)
             rank+=1
 
     cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval, options.trace_kind)

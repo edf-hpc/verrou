@@ -5,10 +5,10 @@ from pathlib import Path
 
 # test only that expected generated files exists
 
-def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default"):
+def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default", bbOrBack="back"):
     res=[]
     symLinkTab=["NoPerturbation", "FullPerturbation","rddmin-cmp"]+ ["ddmin"+str(i) for i in range(ddminNumber)]
-
+    assert(bbOrBack in ["BB","Back"])
 
     for symLink in symLinkTab:
         pathWithoutTrace=rep / symLink
@@ -21,7 +21,7 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
         if "NoPerturbation" == symLink:
             pathWithTrace= rep /  (symLink+"-trace") / "default"
 
-        fileTabCov=fileTab+["covBBLog"]+ [Path("cover") / ("cover0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
+        fileTabCov=fileTab+["covLog"]+ [Path("cover") / ("cover"+ bbOrBack+"0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
         def sampleNumberPostLambda(path):
             if "NoPerturbation-trace" in str(path):
                 return 1
@@ -54,8 +54,9 @@ if __name__=="__main__":
     sampleNumberPost=int(sys.argv[4])
     dumpCoverNumber=int(sys.argv[5])
     rounding=sys.argv[6]
+    bbOrBack=sys.argv[7]
 
-    listOfFile=listOfFileToCheck(rep,ddminNumber,sampleNumberDD,sampleNumberPost, dumpCoverNumber, fileTab, rounding)
+    listOfFile=listOfFileToCheck(rep,ddminNumber,sampleNumberDD,sampleNumberPost, dumpCoverNumber, fileTab, rounding, bbOrBack)
     check=checkExit(listOfFile)
     if not check:
         sys.exit(42)

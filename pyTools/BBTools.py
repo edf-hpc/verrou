@@ -569,7 +569,8 @@ class backCovReader:
                 if size < self.mergeNum:
                     self.backCov[indexCov][key]+= [(0,None) for i in range(self.mergeNum- size)]
 
-
+        if not False in self.statusTab:
+            print("Warning: failure expected to provide correlation estimator")
 
     def readBackCov(self, covFile):
         res=[]
@@ -781,9 +782,15 @@ def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
     res=[]
     for estimator in estimatorTab:
         if estimator=="standard":
-            res+=[float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)]
+            if (nbFail+nbSuccess)==0:
+                res+=[float("Nan")]
+            else:
+                res+=[float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)]
         elif estimator=="biased":
-            res+=[0.5* (float(nbFailDiff)/ float(nbFail) + float(nbSuccessEqual)/float(nbSuccess))]
+            if nbFail==0 or nbSuccess==0:
+                res+=[float("Nan")]
+            else:
+                res+=[0.5* (float(nbFailDiff)/ float(nbFail) + float(nbSuccessEqual)/float(nbSuccess))]
         elif "-stol" in estimator:
             tolTab=[counterTab[i] -counterTab[refIndex] for i in range(len(statusTab)) if statusTab[i]]
             tolMin, tolMax=min(tolTab), max(tolTab)
@@ -800,9 +807,15 @@ def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
 
             nbSuccessEqualTol=countDataTol["nbSuccessEqual"]
             if estimator=="biased-stol":
-                res+=[0.5* (float(nbFailDiffTol)/ float(nbFail) + float(nbSuccessEqualTol)/float(nbSuccess))]
+                if nbFail==0 or nbSuccess==0:
+                    res+=[float("Nan")]
+                else:
+                    res+=[0.5* (float(nbFailDiffTol)/ float(nbFail) + float(nbSuccessEqualTol)/float(nbSuccess))]
             elif estimator=="fdr-stol": #fail diff ratio
-                res+=[(float(nbFailDiffTol)/ float(nbFail))]
+                if nbFail==0 or nbSuccess==0:
+                    res+=[float("Nan")]
+                else:
+                    res+=[(float(nbFailDiffTol)/ float(nbFail))]
             else:
                 print("unknown estimator", estimator)
                 sys.exit(42)
