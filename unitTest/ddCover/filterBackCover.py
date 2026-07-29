@@ -9,13 +9,21 @@ stdBBPattern=["iomanip\(\d+\)", "std_abs.h\(\d+\)", "stl_algobase.h\([0-9,]+\)"]
 regExpBBTab=[ re.compile(stdBB) for stdBB in stdBBPattern]
 regExpAddr=re.compile("\+\d+\t")
 
-def filterBack(content):
-    drop=True
+
+dropInitLine="|0\tmain\tunitTest.cxx:58"
+
+
+def filterBack(content, dropInit=None):
+    drop=False
+    if dropInit:
+        drop=True
+
     res=[]
     for line in content:
-        if line.startswith("|0\tmain\tunitTest.cxx:58"):
-            drop=False
-        if drop: continue
+        if drop:
+            if line.startswith(dropInit):
+                drop=False
+            if drop: continue
 
         spline=line.split("\t")
         if any([spline[1].startswith(pattern) for pattern in dropPattern]):
@@ -36,7 +44,10 @@ def parse(filename):
     lines=open(filename,"r").readlines()
     header=lines[0:5]
     content=lines[5:]
-    return header+filterBack(content)
+    dropInit=None
+    if "cover0.csv" in filename.name:
+        dropInit=dropInitLine
+    return header+filterBack(content,dropInit=dropInit)
 
 def loadRef(filename):
     lines=open(filename,"r").readlines()
@@ -70,14 +81,14 @@ def cmpRepToRef(rep, repRef):
         dataRef=loadRef(repRef/(name+".filtered"))
 
         if dataFiltered!=dataRef:
-            print("dataRef:")
+            print("BEGIN DATAREF")
             for line in dataRef:
-                print("ref\t"+line, end="")
-
-            print("dataFiltered:")
+                print(line, end="")
+            print("END DATAREF")
+            print("BEGIN DATA FILTERED")
             for line in dataFiltered:
-                print("filtered data\t"+line, end="")
-
+                print(line, end="")
+            print("END DATA FILTERED")
             sizeNew=len(dataFiltered)
             sizeRef=len(dataRef)
             print("size: ", sizeNew , sizeRef)

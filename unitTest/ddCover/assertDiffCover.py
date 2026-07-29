@@ -91,7 +91,7 @@ print("integer loop")
 
 for i in range(NUM_RUN + 1):
     for subrep in ("FullPerturbation", "rddmin-cmp", "ddmin0"):
-        dir1 = f"{REP_INTEGER}/{subrep}-trace/nearness/dd.run{i}/cover"
+        dir1 = f"{REP_INTEGER}/{subrep}-trace/nearness_scomdet/dd.run{i}/cover"
         dir2 = f"{REP_INTEGER}/NoPerturbation-trace/default/dd.run0/cover"
 
         print(f"diff {dir1} {dir2}")
@@ -102,7 +102,7 @@ for i in range(NUM_RUN + 1):
 print("float loop")
 
 for i in range(NUM_RUN + 1):
-    dir1 = f"{REP}/FullPerturbation-trace/nearness/dd.run{i}/cover"
+    dir1 = f"{REP}/FullPerturbation-trace/nearness_scomdet/dd.run{i}/cover"
     dir2 = f"{REP}/NoPerturbation-trace/default/dd.run0/cover"
 
     print(f"diff {dir1} {dir2} diff expected")
@@ -113,7 +113,7 @@ for i in range(NUM_RUN + 1):
 
     # On ne vérifie pas ddmin0 et ddmin1
     for subrep in ("rddmin-cmp",):
-        dir1 = f"{REP}/{subrep}-trace/nearness/dd.run{i}/cover"
+        dir1 = f"{REP}/{subrep}-trace/nearness_scomdet/dd.run{i}/cover"
         dir2 = f"{REP}/NoPerturbation-trace/default/dd.run0/cover"
 
         print(f"diff {dir1} {dir2}")

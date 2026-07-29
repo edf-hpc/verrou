@@ -229,6 +229,7 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile
 
+    print("seedTab:", seedTab)
     task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript, envvars , seedTab=seedTab, seedEnvVar="VERROU_SEED")
     task.setNbRun(nbRun)
     if config.get_trace():

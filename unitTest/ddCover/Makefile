@@ -9,6 +9,9 @@ export SHELL=bash
 
 FLAGS=-Wall -g -O0
 
+#BACKCOV_OP=generateRef
+BACKCOV_OP=cmpRepToRef
+
 
 all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert
 #dd.back.line.integer.post.assert dd.back.line.post.assert
@@ -67,21 +70,19 @@ dd.back.line.assert: dd.back.line
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
-	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
-	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 
 dd.line.integer.post.assert: dd.line.integer.post
-	./assertCover.py dd.line.integer.post 1 8 3 0 nearness Back
-#	./filterBackCover.py generateRef dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
-	./filterBackCover.py cmpRepToRef dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
+	./assertCover.py dd.line.integer.post 1 8 3 0 nearness_scomdet Back
+	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
 
 dd.line.post.assert: dd.line.post
-	./assertCover.py dd.line.post 2 8 3 0 nearness Back
-#	./filterBackCover.py generateRef dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
-	./filterBackCover.py cmpRepToRef dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
+	./assertCover.py dd.line.post 2 8 3 0 nearness_scomdet Back
+	./filterBackCover.py $(BACKCOV_OP) dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
 
 
 dd.line.postmatch: dd.line
@@ -90,8 +91,7 @@ dd.line.postmatch: dd.line
 
 dd.line.postmatch.assert: dd.line.postmatch
 	./assertCover.py dd.line.postmatch 2 8 4 2 default Back
-#	./filterBackCover.py generateRef  dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
-	./filterBackCover.py cmpRepToRef dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
 
 diff.assert: dd.line.integer.post dd.line.post
 	./assertDiffCover.py

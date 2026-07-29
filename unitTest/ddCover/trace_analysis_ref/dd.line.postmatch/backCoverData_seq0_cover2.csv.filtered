@@ -3,3 +3,18 @@
 	indexRun					0	0	1	2	3	0	1	2	3	0	1	2	3	0	1	2	3
 	rounding					default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default
 	return_value					OK	KO	KO	KO	KO	OK	OK	OK	OK	KO	KO	KO	OK	KO	KO	KO	KO
+|0	main+ADDR	unitTest.cxx:63
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26)STDBB(X) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(25-26) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:36
+2	unitTest.cxx(36) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|0	main+ADDR	unitTest.cxx:64
+1	unitTest.cxx(64-65) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
