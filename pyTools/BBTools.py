@@ -336,7 +336,7 @@ class addrBackReader:
             sym,sourceFile,lineNum=self.data[addr]
             return sym + "\t" + sourceFile+":"+lineNum
         else:
-            print("unknown addr", addr)
+            print("\twarning: unknown addr: ?(", addr,")")
             return "?("+addr+")"
 
     def isBelowMain(self, addr):

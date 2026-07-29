@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 dropPattern=["std::","ios_base.h", "cmath", "stl"]
-stdBBPattern=["iomanip\(\d+\)", "std_abs.h\(\d+\)", "stl_algobase.h\([0-9,]+\)"]
+stdBBPattern=[r"iomanip\(\d+\)", r"std_abs.h\(\d+\)", r"stl_algobase.h\([0-9,]+\)"]
 regExpBBTab=[ re.compile(stdBB) for stdBB in stdBBPattern]
 regExpAddr=re.compile("\+\d+\t")
 
