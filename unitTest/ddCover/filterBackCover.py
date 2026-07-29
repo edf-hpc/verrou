@@ -12,6 +12,7 @@ regExpAddr=re.compile("\+\d+\t")
 
 dropInitLine="|0\tmain\tunitTest.cxx:58"
 
+dropInitLineMatch="2\tunitTest.cxx(26) F"
 
 def filterBack(content, dropInit=None):
     drop=False
@@ -47,6 +48,8 @@ def parse(filename):
     dropInit=None
     if "cover0.csv" in filename.name:
         dropInit=dropInitLine
+    else:
+        dropInit=dropInitLineMatch
     return header+filterBack(content,dropInit=dropInit)
 
 def loadRef(filename):
