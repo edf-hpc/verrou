@@ -9,9 +9,8 @@ export SHELL=bash
 
 FLAGS=-Wall -g -O0
 
-#BACKCOV_OP=generateRef
 BACKCOV_OP=cmpRepToRef
-
+#BACKCOV_OP=generateRef
 
 all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert
 #dd.back.line.integer.post.assert dd.back.line.post.assert
@@ -78,10 +77,12 @@ dd.line.integer.post: dd.line.integer
 
 dd.line.integer.post.assert: dd.line.integer.post
 	./assertCover.py dd.line.integer.post 1 8 3 0 nearness_scomdet Back
+	find dd.line.integer.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
 
 dd.line.post.assert: dd.line.post
 	./assertCover.py dd.line.post 2 8 3 0 nearness_scomdet Back
+	find dd.line.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
 
 
@@ -91,6 +92,7 @@ dd.line.postmatch: dd.line
 
 dd.line.postmatch.assert: dd.line.postmatch
 	./assertCover.py dd.line.postmatch 2 8 4 2 default Back
+	find dd.line.postmatch -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
 
 diff.assert: dd.line.integer.post dd.line.post
