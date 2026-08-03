@@ -6,7 +6,7 @@ SUBREPLISTPYTHON=ddCover checkStatRounding ddTest check-verrou-dd-task ddStdOut 
 
 all:
 	for i in $(SUBREPLIST) ; do \
-		make -C "./$$i" || exit 42; \
+		make -C "./$$i" -j1|| exit 42; \
 	done
 
 python:

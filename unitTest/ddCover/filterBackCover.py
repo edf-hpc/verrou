@@ -19,15 +19,16 @@ renameDic={
 }
 
 compressDic={
-    ("integrate.hxx(11,13,15) F", 1,"integrate.hxx(16) F?") : "integrate.hxx(11,13,15-16) F?",
+    ("integrate.hxx(11,13,15) F", None,"integrate.hxx(16) F?") : "integrate.hxx(11,13,15-16) F?",
     ("unitTest.cxx(36) F", 1, "unitTest.cxx(36) F"): "unitTest.cxx(36) F",
     ("unitTest.cxx(64-65) F", 1, "unitTest.cxx(65) F"): "unitTest.cxx(64-65) F",
     ("integrate.hxx(11,13,20) F", 1, "integrate.hxx(20) F"): "integrate.hxx(11,13,20) F",
 }
 
 
-keepMiddlePost=("float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR\tintegrate.hxx:26",
-                "integrate.hxx(11,13,15-16) F?")
+keepMiddlePost=None
+#("float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR\tintegrate.hxx:26",
+#                "integrate.hxx(11,13,15-16) F?")
 
 
 def keepBetween(content,conf):
@@ -107,7 +108,22 @@ def compressBB(content):
 
         if key in compressDicReorder:
             (nbInter, end, dest)= compressDicReorder[key]
-            if i+nbInter+1 < size:
+            if nbInter==None:
+                inter=1
+                while i+inter+1 < size:
+                    line2=content[i+inter+1]
+                    spline2=line2.split("\t")
+                    if end in spline2[1]:
+                        if spline[2:]==spline2[2:]:
+                            res+=["C-"+line.replace(key,dest)]
+                            interContent=content[i+1:i+inter+1-1] #-1 we remove the back line before the end line
+                            remain=content[i+inter+2:]
+                            return res+compressBB(interContent+remain)
+                        else:
+                            break
+                    else:
+                        inter+=1
+            elif i+nbInter+1 < size:
                 line2=content[i+nbInter+1]
                 spline2=line2.split("\t")
                 if spline[2:]==spline2[2:] and end in spline2[1] :
@@ -143,8 +159,8 @@ def parse(filename, needToPermutate):
 #    else:
 #        dropInit=dropInitLineMatch
     keepData=None
-    if "cover1.csv" in filename.name:
-        keepData=keepMiddlePost
+#    if "cover1.csv" in filename.name:
+#        keepData=keepMiddlePost
     if needToPermutate:
         newHeader, newContent=permutateDDMIN(header, filterBack(content,dropInit=dropInit, keep=keepData))
         res= newHeader+ newContent
@@ -233,21 +249,28 @@ def cmpRepToRef(rep, repRef):
         dataFiltered=parse(data,perm)
         name=data.name
         dataRef=loadRef(repRef/(name+".filtered"))
-        if "cover1.csv" in name:
-            continue
+#        if "cover1.csv" in name:
+#            continue
 
         if dataFiltered!=dataRef:
-            print("BEGIN DATAREF")
+            print("BEGIN DATAREF: ", (repRef/(name+".filtered")).name)
             for line in dataRef:
                 print(line, end="")
             print("END DATAREF")
-            print("BEGIN DATA FILTERED")
+            print("BEGIN DATA FILTERED: ", data.name)
             for line in dataFiltered:
                 print(line, end="")
             print("END DATA FILTERED")
+
+            dataBrut=loadRef(data)
+            print("BEGIN DATA BRUT: ", data.name)
+            for line in dataBrut:
+                print(line, end="")
+            print("END DATA BRUT")
+
             sizeNew=len(dataFiltered)
             sizeRef=len(dataRef)
-            print("size: ", sizeNew , sizeRef)
+            print("size (new/ref): ", sizeNew , sizeRef)
             for index in range(min(sizeRef, sizeNew)):
                 lineRef=dataRef[index]
                 lineFiltered=dataFiltered[index]
@@ -255,6 +278,10 @@ def cmpRepToRef(rep, repRef):
                     print("First failing line")
                     print("lineRef:      ", [lineRef])
                     print("lineFiltered: ", [lineFiltered])
+
+
+
+
                     break
             sys.exit(42)
         print(data.name +": OK")

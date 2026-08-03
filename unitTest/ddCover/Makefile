@@ -79,21 +79,24 @@ dd.line.integer.post.assert: dd.line.integer.post
 	./assertCover.py dd.line.integer.post 1 8 3 0 nearness_scomdet Back
 	find dd.line.integer.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
+#	find trace_analysis_ref/dd.line.integer.post-aarch64 -name "*.prop" -print -exec cat \{\} \;
 
 dd.line.post.assert: dd.line.post
 	./assertCover.py dd.line.post 2 8 3 0 nearness_scomdet Back
 	find dd.line.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
-
+#	find trace_analysis_ref/dd.line.post-aarch64 -name "*.prop" -print -exec cat \{\} \;
 
 dd.line.postmatch: dd.line
 	cp -r dd.line dd.line.postmatch
 	post_verrou_dd --nruns=4 --num-thread=4 --rep=dd.line.postmatch --trace-bin --trace-gen-local --seed=42 ./ddRunMatch.sh ./ddCmp.py
 
+
 dd.line.postmatch.assert: dd.line.postmatch
 	./assertCover.py dd.line.postmatch 2 8 4 2 default Back
 	find dd.line.postmatch -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+#	find trace_analysis_ref/dd.line.postmatch-aarch64 -name "*.prop" -print -exec cat \{\} \;
 
 diff.assert: dd.line.integer.post dd.line.post
 	./assertDiffCover.py

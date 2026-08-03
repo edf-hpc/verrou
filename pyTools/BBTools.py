@@ -458,7 +458,7 @@ class coverageReader:
 
     def sortCov(self, addrToNumIndexTab):
         res=[(addrBB, [x[0] for x in addrToNumIndexTab[addrBB]], self.minCallIndex([x[1] for x in  addrToNumIndexTab[addrBB]]) ) for addrBB in addrToNumIndexTab ]
-        res.sort(key=lambda x: x[2])
+        res.sort(key=lambda x: (x[2],x[0]))
         return res
 
     def writeData(self,handler, sortCov, outputTypeTab=["data"]):
@@ -631,7 +631,7 @@ class backCovReader:
         if tree==[]:
             return None
         minIndex=min([self.minIndexAndSortChild(subTree)  for subTree in tree])
-        tree.sort(key=itemgetter("minCallIndex"))
+        tree.sort(key=itemgetter("minCallIndex","addr"))
         return minIndex
 
     def minIndexAndSortChild(self, subTree):
@@ -661,29 +661,29 @@ class backCovReader:
                 minCallI=min([x[1] for x in dataBB if x[1]!=None])
             else:
                 minCallI=dataBB[1]
-            tree+=[{"addrKind":"addrBB", "addrBB":addrBB, "flatIndex":None, "minCallIndex":minCallI ,"data":dataBB}]
+            tree+=[{"addrKind":"addrBB", "addr":addrBB, "flatIndex":None, "minCallIndex":minCallI ,"data":dataBB}]
         else:
             lastAddrBack=tabBack[-1]
             remainBack=tabBack[0:-1]
             for subTree in tree:
                 if subTree["addrKind"]=="addrBack":
-                    if subTree["addrBack"]==lastAddrBack:
+                    if subTree["addr"]==lastAddrBack:
                         self.addTreeNode(subTree["child"], addrBB, remainBack, dataBB)
                         return
-            tree+=[{"addrKind":"addrBack", "addrBack":lastAddrBack , "child":[]}]
+            tree+=[{"addrKind":"addrBack", "addr":lastAddrBack , "child":[]}]
             self.addTreeNode(tree[-1]["child"], addrBB, remainBack,dataBB)
 
     def writeTree(self, handler, tree, deep=0, outputTypeTab=["data"],csvFormat=False):
         for subTree in tree:
             if subTree["addrKind"]=="addrBack":
-                addrBack=subTree["addrBack"]
+                addrBack=subTree["addr"]
                 deepStr="\t"*deep
                 if csvFormat:
                     deepStr= "|"+str(deep)+"\t"
                 handler.write(deepStr+self.addrBackInfo.getBackStr(addrBack)+"\n")
                 self.writeTree(handler, subTree["child"], deep+1, outputTypeTab=outputTypeTab, csvFormat=csvFormat)
             if subTree["addrKind"]=="addrBB":
-                addrBB=subTree["addrBB"]
+                addrBB=subTree["addr"]
                 dataBBStr=None
                 if self.mergeIndex !=0:
                     assert(outputTypeTab==["data"])
