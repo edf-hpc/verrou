@@ -12,7 +12,7 @@ FLAGS=-Wall -g -O0
 BACKCOV_OP=cmpRepToRef
 #BACKCOV_OP=generateRef
 
-all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert
+all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert dd.line.postbb.assert
 #dd.back.line.integer.post.assert dd.back.line.post.assert
 
 unitTest: unitTest.cxx integrate.hxx
@@ -71,6 +71,18 @@ dd.line.post: dd.line
 	cp -r dd.line dd.line.post
 	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
+dd.line.postbb: dd.line
+	cp -r dd.line dd.line.postbb
+	post_verrou_dd --rep=dd.line.postbb --trace-bin --trace-gen-local --trace-type=bb --trace-clean=clean --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+
+dd.line.postbb.assert: dd.line.postbb
+	./assertCover.py dd.line.postbb 2 8 3 0 nearness_scomdet BB
+	find dd.line.postbb -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+#	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+#we should add reference with an equivalent to filterBackCover.py. We prefer to get more REX to do that
+
+
+
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
 	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
@@ -104,3 +116,4 @@ diff.assert: dd.line.integer.post dd.line.post
 clean:
 	rm -rf unitTest unitTestInteger dd.line dd.line.integer dd.line.integer.vprec dd.line.post dd.line.integer.post dd.line.postmatch matchLast.script.log-* *~
 	rm -rf dd.back.line.integer.post dd.back.line.post dd.back.line.integer dd.back.line dd.back
+	rm -rf dd.line.postbb

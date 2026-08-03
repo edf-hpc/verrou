@@ -35,9 +35,14 @@ class openGz:
     """ Class to read/write  gzip file or ascii file """
     def __init__(self,name, mode="r", compress=None):
         self.name=name
-        if (name.with_suffix(".gz")).is_file() and compress==None:
-            self.name=name.with_suffix(".gz")
+        print("debug openGz: ", self.name)
+        potentialName=name.parent / (name.name + ".gz")
+        print("debug potentialName: ", potentialName)
+        print("debug isFile:", potentialName.is_file())
+        if potentialName.is_file() and compress==None:
+            self.name=potentialName
 
+        print("debug2 openGz: ", self.name)
         if (self.name.suffix==".gz" and compress==None) or compress==True:
             self.compress=True
             self.handler=gzip.open(self.name, mode)
@@ -83,7 +88,7 @@ class bbInfoReader:
             #[67133584] unamed_filename_verrou	0	F	!
             regularExp=re.compile(r"\[([0-9]+)\]() (\S*)\t([0-9]+)\t([F,I])\t([?,!])")
             #() is there to avoid sym shift in m.groups()
-        fileHandler=openGz(fileName)
+        fileHandler=openGz(fileName,"r")
 
         line=fileHandler.readline()
         while not line in [None, ''] :
@@ -252,7 +257,7 @@ class covReader:
         self.rep=rep
         self.tName=traceName(trace_kind)
         self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
-        covFile=openGz(self.rep / self.tName.covName(pid))
+        covFile=openGz(self.rep / self.tName.covName(pid), "r")
 
         self.cov=self.readCov(covFile)
 
@@ -301,7 +306,7 @@ class covReader:
             if pidMap!=None:
                 pidStr=pidMap[self.pid]
 
-            handler=openGz(self.rep / ("%scover%05d-%s"%(filenamePrefix ,num, pidStr)),"w")
+            handler=openGz(self.rep / ("%scoverBB%05d-%s"%(filenamePrefix ,num, pidStr)),"w")
             for (index,count,sym, strBB) in resTab:
                 handler.write("%d\t: %s\n"%(count,strBB))
 
@@ -318,7 +323,7 @@ class addrBackReader:
             print("invalid trace kind")
             sys.exit(42)
 
-        fileHandler=openGz(fileName)
+        fileHandler=openGz(fileName,"r")
         line=fileHandler.readline()
         while not line in [None, ''] :
             spline=(line.strip()).split('\t')
@@ -387,7 +392,7 @@ class coverageReader:
             self.mergeIndex=None
             self.mergeNum=None
             self.statusTab=None
-        covFile=openGz(self.rep / self.tName.covName(pid))
+        covFile=openGz(self.rep / self.tName.covName(pid), "r")
         self.dataCov=self.readCoverage(covFile)
 
     def addMerge(self, covCurrent): #attention ne marche qu'avec le mode addr
@@ -496,7 +501,7 @@ class coverageReader:
             outDir=self.rep
             if outputDir!=None:
                 outDir=outputDir
-            handler=openGz(Path(outDir) / ("%scover%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
+            handler=openGz(Path(outDir) / ("%scoverBB%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
             self.writeData(handler,self.dataSortCov[numCov], outputTypeTab=outputTypeTab)
 
     def writeCSV(self, pathStr, header="", outputTypeTab=["data"]):
@@ -529,7 +534,7 @@ class backCovReader:
             self.mergeIndex=None
             self.mergeNum=None
             self.statusTab=None
-        covFile=openGz(self.rep / self.tName.covName(pid))
+        covFile=openGz(self.rep / self.tName.covName(pid), "r")
         self.backCov=self.readBackCov(covFile)
 
     def addMerge(self, backCurrent):

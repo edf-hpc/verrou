@@ -5,7 +5,7 @@ from pathlib import Path
 
 # test only that expected generated files exists
 
-def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default", bbOrBack="back"):
+def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCoverNumber,  fileTab, rounding="default", bbOrBack="Back"):
     res=[]
     symLinkTab=["NoPerturbation", "FullPerturbation","rddmin-cmp"]+ ["ddmin"+str(i) for i in range(ddminNumber)]
     assert(bbOrBack in ["BB","Back"])
