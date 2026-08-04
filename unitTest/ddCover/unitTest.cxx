@@ -56,7 +56,7 @@ TO strTo (const std::string & str) {
    The default value is 10 if no argument is supplied.
  */
 int main (int argc, char **argv) {
-  RealType step = 10;
+  RealType step = 10.;
   if (argc > 1)
     step = strTo<RealType> (argv[1]);
 
