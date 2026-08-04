@@ -103,10 +103,11 @@ def removeDuplicationBack(content):
 
 
 
+def reduceKey(key):
+    return (key.replace(" F"," ")).replace(" F?"," ?")
+
 def equalBBKey(key1, key2):
-    keyAlter1=(key1.replace(" F"," ")).replace(" F?"," ?")
-    keyAlter2=(key2.replace(" F"," ")).replace(" F?"," ?")
-    return keyAlter1==keyAlter2
+    return reduceKey(key1)==reduceKey(key2)
 
 def compressBB(content):
     compressDicReorder={ begin: (nbInter, end, compressDic[(begin,nbInter, end)]) for (begin,nbInter, end) in compressDic }
@@ -119,7 +120,7 @@ def compressBB(content):
         spline=line.split("\t")
         key=spline[1]
 
-        if key in compressDicReorder:
+        if reduceKey(key) in [reduceKey(x) for x in compressDicReorder]:
             (nbInter, end, dest)= compressDicReorder[key]
             if nbInter==None:
                 inter=1
