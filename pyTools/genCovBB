@@ -26,7 +26,7 @@ import sys
 import getopt
 from pathlib import Path
 
-def extractPidRep(fileName, trace_kind="bb"):
+def extractPidRep(fileName, trace_kind="bb_cover"):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
     rep=fileName.parent
     if rep=="":
@@ -40,11 +40,11 @@ def extractPidRep(fileName, trace_kind="bb"):
         return (pid,rep,mtime)
     return None
 
-def selectPidFromFile(fileNameTab, trace_kind="bb"):
+def selectPidFromFile(fileNameTab, trace_kind="bb_cover"):
     """Return a list of pid from a list of file by using extractPidRep"""
     return [extractPidRep(fileName,trace_kind)[0:2] for fileName in fileNameTab]
 
-def selectSortedPidFromFile(fileNameTab,trace_kind="bb"):
+def selectSortedPidFromFile(fileNameTab,trace_kind="bb_cover"):
     """Return a list of pid from a list of file by using extractPidRep"""
     pidList=[extractPidRep(fileName,trace_kind) for fileName in fileNameTab]
     sortedPidList=sorted(pidList, key=lambda x: x[2])
@@ -82,18 +82,18 @@ class config_option:
                 sys.exit()
             if opt in ["--genCov"]:
                 self.genCov=True
-                self.trace_kind="bb"
+                self.trace_kind="bb_cover"
             if opt in ["--genCovBack"]:
                 self.genCovBack=True
-                self.trace_kind="back"
+                self.trace_kind="back_cover"
             if opt in ["--pidRename"]:
                 self.pidRename=True
             if opt in ["--genCovCorrelation"]:
                 self.genCovCorrelation=True
-                self.trace_kind="bb"
+                self.trace_kind="bb_cover"
             if opt in ["--genBackCorrelation"]:
                 self.genBackCorrelation=True
-                self.trace_kind="back"
+                self.trace_kind="back_cover"
             if opt in ["--run-cmp"]:
                 self.run_cmp=arg
             if opt in ["--run-eval"]:

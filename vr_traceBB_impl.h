@@ -218,16 +218,18 @@ void vr_traceBB_dumpCov(UInt numPartialCov){
 
 UInt vr_dumpCov(void){
   static UInt numPartialCov=0;
-  if(vr_out_bb_cov==NULL){
-     numPartialCov+=1;
-     return numPartialCov-1;
+
+  if(vr.traceType==VR_BB_COVER){
+     if(vr_out_bb_cov==NULL){
+        numPartialCov+=1;
+        return numPartialCov-1;
+     }
+     vr_traceBB_dumpCov(numPartialCov);
+     vr_traceBB_resetCov();
   }
-
-  vr_traceBB_dumpCov(numPartialCov);
-  vr_traceBB_resetCov();
-
-  vr_trace_dump_and_clear(&(vr.traceBack), numPartialCov);
-
+  if(vr.traceType==VR_BACK_COVER){
+     vr_trace_dump_and_clear(&(vr.traceBack), numPartialCov);
+  }
   numPartialCov+=1;
   return numPartialCov-1;
 }

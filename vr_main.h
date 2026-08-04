@@ -125,6 +125,10 @@ typedef enum {
 } Vr_Prandom_update;
 
 
+typedef enum {
+   VR_BACK_COVER,
+   VR_BB_COVER,
+} Vr_Trace_Type;
 
 
 typedef struct {
@@ -207,6 +211,7 @@ typedef struct {
 
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
+  Vr_Trace_Type traceType;
   Vr_Trace traceBack;
 
   Bool useIOMatchCLR;

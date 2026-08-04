@@ -9,7 +9,7 @@ from BBTools import backCovReader, coverageReader, traceName
 def findCoverRep(baseRep):
     return baseRep.glob("*-trace/**/cover/")
 
-def extractPidPathTime(fileName, trace_kind="bb"):
+def extractPidPathTime(fileName, trace_kind="bb_cover"):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
     rep=fileName.parent
     if rep=="":
@@ -24,7 +24,7 @@ def extractPidPathTime(fileName, trace_kind="bb"):
     return None
 
 
-def selectSortedPidFromGlob(fileNameTab,trace_kind="bb"):
+def selectSortedPidFromGlob(fileNameTab,trace_kind="bb_cover"):
     """Return a list of pid from a list of file by using extractPidRep"""
     pidPathTimeList=[extractPidPathTime(fileName,trace_kind) for fileName in fileNameTab]
     sortedPidList=sorted(pidPathTimeList, key=lambda x: x[2])
@@ -98,9 +98,9 @@ def getRefIndex(confDataTab):
 
 def csvHeader(dataParsedTab, estimatorTab, trace_kind):
     levelPrefix=None
-    if trace_kind=="bb":
+    if trace_kind=="bb_cover":
         levelPrefix=""
-    elif trace_kind=="back":
+    elif trace_kind=="back_cover":
         levelPrefix="\t" #column for deep
 
     estTab=[x for x in estimatorTab if x!="data"]
@@ -118,17 +118,17 @@ class genMerge:
 
     def __init__(self, pidRef, pathRef,statusRef, trace_kind):
 
-        if trace_kind=="back":
+        if trace_kind=="back_cover":
             self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
-        elif trace_kind=="bb":
+        elif trace_kind=="bb_cover":
             self.root=coverageReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
         else:
             pass
 
     def current(self,  pid, path, status, trace_kind):
-        if trace_kind=="back":
+        if trace_kind=="back_cover":
             return backCovReader( pid, path, status, trace_kind, mergeRoot=False)
-        elif trace_kind=="bb":
+        elif trace_kind=="bb_cover":
             return coverageReader(pid, path,status, trace_kind, mergeRoot=False)
 
     def addMerge(self, current):
@@ -144,9 +144,9 @@ class genMerge:
 def cleanIntermediateFile(dataParsedTab, trace_kind):
     fileToDelTab=[]
     patternTab=[]
-    if trace_kind=="bb":
+    if trace_kind=="bb_cover":
         patternTab+=["trace_bb_cov.log-","trace_bb_info.log-"]
-    if trace_kind=="back":
+    if trace_kind=="back_cover":
         patternTab+=["backAddrInfo-","backCoverInfo-","bbAddrInfo-"]
 
     for config in dataParsedTab:
@@ -204,7 +204,7 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
 
         output=baseRep / "trace_analysis"
         output.mkdir(exist_ok=True)
-        pathStr= str(output)+ "/"+str(trace_kind)+"Cover"+"Data_seq%i_cover__NUM_COV__.csv"%(seqIndex)
+        pathStr= str(output)+ "/"+str(trace_kind).replace("_cover","Cover")+"Data_seq%i_cover__NUM_COV__.csv"%(seqIndex)
 
         mergeTool.writeCSV(pathStr, header, outputTypeTab=estimatorTab)
     if clean:

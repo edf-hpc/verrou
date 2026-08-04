@@ -35,14 +35,10 @@ class openGz:
     """ Class to read/write  gzip file or ascii file """
     def __init__(self,name, mode="r", compress=None):
         self.name=name
-        print("debug openGz: ", self.name)
         potentialName=name.parent / (name.name + ".gz")
-        print("debug potentialName: ", potentialName)
-        print("debug isFile:", potentialName.is_file())
         if potentialName.is_file() and compress==None:
             self.name=potentialName
 
-        print("debug2 openGz: ", self.name)
         if (self.name.suffix==".gz" and compress==None) or compress==True:
             self.compress=True
             self.handler=gzip.open(self.name, mode)
@@ -82,7 +78,7 @@ class bbInfoReader:
     def read(self,fileName):
         self.data={}
         regularExp=None
-        if self.trace_kind=="bb":
+        if self.trace_kind=="bb_cover":
             regularExp=re.compile(r"([0-9]+)\|([0-9]+) : (.*) : (\S*) : ([0-9]+) : ([0,1]) : ([0,1])")
         else:
             #[67133584] unamed_filename_verrou	0	F	!
@@ -97,7 +93,7 @@ class bbInfoReader:
                 print("error read fileName line:",[line])
                 sys.exit()
             #addr,index, sym, sourceFile, lineNum, containFloat, containFloatCmp, index=(None,None,None,None,None,None,None,None)
-            if self.trace_kind=="bb":
+            if self.trace_kind=="bb_cover":
                 addr,index, sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
             else:
                 addr,sym, sourceFile, lineNum, containFloat, containFloatCmp= m.groups()
@@ -216,24 +212,24 @@ class mergebbInfoReader:
 class traceName:
     def __init__(self, trace_kind):
         self.trace_kind=trace_kind
-        if not trace_kind in ["bb","back"]:
-            print('error trace_kind sould be in ["bb","back"]')
+        if not trace_kind in ["bb_cover","back_cover"]:
+            print('error trace_kind sould be in ["bb_cover","back_cover"]')
             sys.exit(42)
 
     def bbPrefixName(self):
-        if self.trace_kind=="bb":
+        if self.trace_kind=="bb_cover":
             return "trace_bb_info.log-"
-        if self.trace_kind=="back":
+        if self.trace_kind=="back_cover":
             return "bbAddrInfo-"
 
     def covPrefixName(self):
-        if self.trace_kind=="bb":
+        if self.trace_kind=="bb_cover":
             return "trace_bb_cov.log-"
-        if self.trace_kind=="back":
+        if self.trace_kind=="back_cover":
             return "backCoverInfo-"
 
     def backAddrPrefixName(self):
-        if self.trace_kind=="back":
+        if self.trace_kind=="back_cover":
             return "backAddrInfo-"
         print("Invalid Trace Kind")
         sys.exit(42)
@@ -277,11 +273,11 @@ class covReader:
                 currentNumber+=1
                 dictRes={}
                 continue
-            if self.tName.trace_kind=="bb":
+            if self.tName.trace_kind=="bb_cover":
                 (key,sep, num)=(line).strip().partition(":")
                 (addr,sep,index)=key.partition("|")
                 dictRes[addr]=int(num)
-            if self.tName.trace_kind=="back":
+            if self.tName.trace_kind=="back_cover":
                 #"[76699587] 9:76699587,77091480,77146041,67113775,67114088,79412601,67113353,137422174823,27     5       9325"
                 spline=line.strip().split(' ')
                 addr=spline[0][1:-1]
@@ -319,7 +315,7 @@ class addrBackReader:
 
     def read(self,fileName):
         self.data={}
-        if not self.trace_kind in ["back"]:
+        if not self.trace_kind in ["back_cover"]:
             print("invalid trace kind")
             sys.exit(42)
 
@@ -377,7 +373,7 @@ class coverageReader:
     def __init__(self, pid, rep, status, trace_kind, mergeRoot=False):
         self.pid=pid
         self.rep=rep
-        assert(trace_kind in ["bb"])
+        assert(trace_kind in ["bb_cover"])
         self.tName=traceName(trace_kind)
 
         self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
@@ -441,7 +437,7 @@ class coverageReader:
                 currentNumber+=1
                 dictRes={}
                 continue
-            if self.tName.trace_kind=="bb":
+            if self.tName.trace_kind=="bb_cover":
                 (addrindex,sep, num)=(line).strip().partition(":")
                 (addr,sep,index)=addrindex.partition("|")
                 if self.mergeIndex!=0:
@@ -517,7 +513,7 @@ class backCovReader:
     def __init__(self,pid, rep, status,trace_kind, mergeRoot=False):
         self.pid=pid
         self.rep=rep
-        assert(trace_kind in ["back"])
+        assert(trace_kind in ["back_cover"])
         self.tName=traceName(trace_kind)
 
         self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
@@ -594,7 +590,7 @@ class backCovReader:
                 dictRes={}
                 continue
 
-            if self.tName.trace_kind=="back":
+            if self.tName.trace_kind=="back_cover":
                 #"[76699587] 9:76699587,77091480,77146041,67113775,67114088,79412601,67113353,137422174823,27     5       9325"
                 spline=line.strip().split(' ')
                 addr=spline[0][1:-1]
@@ -1048,7 +1044,7 @@ class cmpToolsCov:
     with writePartialCover the object write a partial cover for each execution
     with mergedCov the object write one merged partial cover with correlation information"""
 
-    def __init__(self, tabPidRep, runCmp=None, runEval=None, trace_kind="bb"):
+    def __init__(self, tabPidRep, runCmp=None, runEval=None, trace_kind="bb_cover"):
         self.tabPidRep=tabPidRep
         self.runCmp=runCmp
         self.runEval=runEval

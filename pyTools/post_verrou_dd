@@ -85,7 +85,7 @@ def mapRename(rep, pid, count, listOfFile, compress,verbose):
             os.system(cmd)
 
 
-def rename_pid_for_one_rep(config, rep, what=["bb"], clean=False, ignoreEmpty=True,verbose=False):
+def rename_pid_for_one_rep(config, rep, what=["bb_cover"], clean=False, ignoreEmpty=True,verbose=False):
     if "all" in what:
         assert(len(what)==1)
     tName=traceName(config.get_trace_type())
@@ -95,8 +95,8 @@ def rename_pid_for_one_rep(config, rep, what=["bb"], clean=False, ignoreEmpty=Tr
     convList=[]
     for pidTuple in pidList:
         pid=pidTuple[0]
-        bbOldFileList=[x.name for x in rep.glob("cover*-"+str(pid))]
-        backOldFileList=[x.name for x in rep.glob("coverBack*-"+str(pid)) if not (x.name in bbOldFileList)]
+        bbOldFileList=[x.name for x in rep.glob("coverBB*-"+str(pid))]
+        backOldFileList=[x.name for x in rep.glob("coverBack*-"+str(pid))]
         otherOldFileList=[x.name for x in list(rep.glob("*-"+str(pid)))]
         otherOldFileList=[x for x in otherOldFileList if not x in bbOldFileList+backOldFileList]
 
@@ -112,7 +112,7 @@ def rename_pid_for_one_rep(config, rep, what=["bb"], clean=False, ignoreEmpty=Tr
             mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(), verbose)
             mapRename(rep,pid,count, otherOldFileList, config.get_trace_compress(), verbose)
 
-        if ("bb" in what) and ("back" in what) :
+        if ("bb_cover" in what) and ("back_cover" in what) :
             mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(), verbose)
             mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(), verbose)
             if clean:
@@ -120,14 +120,14 @@ def rename_pid_for_one_rep(config, rep, what=["bb"], clean=False, ignoreEmpty=Tr
             else:
                 mapCompress(rep,otherOldFileList,verbose)
 
-        if ("bb" in what) and not ("back" in what):
+        if ("bb_cover" in what) and not ("back_cover" in what):
             mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(),verbose)
             if clean:
                 mapClean(rep,otherOldFileList+backOldFileList,verbose)
             else:
                 mapCompress(rep,otherOldFileList+backOldFileList,verbose)
 
-        if not ("bb" in what) and ("back" in what):
+        if not ("bb_cover" in what) and ("back_cover" in what):
             mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(),verbose)
             if clean:
                 mapClean(rep,otherOldFileList+bbOldFileList,verbose)
@@ -194,9 +194,9 @@ class trace_handler:
 
         if self.config.get_trace_gen_local():
             option="--pidRename "
-            if config.get_trace_type()=="bb":
+            if config.get_trace_type()=="bb_cover":
                 option+="--genCov"
-            elif config.get_trace_type()=="back":
+            elif config.get_trace_type()=="back_cover":
                 option+="--genCovBack"
             else:
                 print("error unknown trace_type")
@@ -208,7 +208,6 @@ class trace_handler:
 
         rename_pid_for_one_rep(self.config, runDir / "cover",what=[config.get_trace_type()],
                                clean=False, ignoreEmpty=True)
-
 
     def preRunTrace(self, runDir, env):
         coverRep=runDir / "cover"
@@ -228,8 +227,8 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
 
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile
+        envvars["VERROU_TRACE_TYPE"]=config.get_trace_type()
 
-    print("seedTab:", seedTab)
     task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript, envvars , seedTab=seedTab, seedEnvVar="VERROU_SEED")
     task.setNbRun(nbRun)
     if config.get_trace():

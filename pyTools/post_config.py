@@ -28,7 +28,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("trace_bin",     "bool",   "TRACE_BIN",         ["--trace-bin"], False)
         self.addRegistry("trace_pattern", "string", "TRACE_PATTERN",     ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file",    "string", "TRACE_FILE",        ["--trace-file="],    None)
-        self.addRegistry("trace_type",    "string", "TRACE_TYPE",        ["--trace-type="], "back", ["bb","back"])
+        self.addRegistry("trace_type",    "string", "TRACE_TYPE",        ["--trace-type="], "back_cover", ["bb_cover","back_cover"])
         self.addRegistry("trace_clean",   "string", "TRACE_CLEAN_POLICY",["--trace-clean-policy="], "clean", ["none", "gz","clean"])
         self.addRegistry("trace_gen_local", "bool",  "TRACE_GEN_LOCAL",   ["--trace-gen-local"], False)
         self.addRegistry("postSeed",         "int",    "SEED",              ["--seed="], None, None)
@@ -221,9 +221,6 @@ class postConfig(gen_config.gen_config):
 
     def get_trace_file(self):
         return self.trace_file
-
-    def get_trace_type(self):
-        return self.trace_type
 
     def get_trace_type(self):
         return self.trace_type

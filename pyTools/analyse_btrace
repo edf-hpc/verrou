@@ -9,8 +9,8 @@ if __name__=="__main__":
     if len(sys.argv)==2:
         baseRep=Path(sys.argv[1])
 
-    trace_kind="back"
-    trace_kind="bb"
+    trace_kind="back_trace"
+    trace_kind="bb_trace"
     estimatorTab=["standard","biased","biased-stol","fdr-stol", "data"]
     clean=False
 

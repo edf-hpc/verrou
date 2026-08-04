@@ -1155,12 +1155,12 @@ void vr_treat_line_from_imark(traceBB_t* traceBB,
       vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,fnname,filename,linenum);//to print only once
     }
   }
-  if(traceBB!=NULL){
+  if(traceBB!=NULL && vr.traceType==VR_BB_COVER){
      vr_traceBB_trace_imark(traceBB,
                             fnname, filename,linenum,
                             doLineContainFloat, doLineContainFloatCmp);
   }
-  if(vr.genTrace){
+  if(vr.genTrace && vr.traceType==VR_BACK_COVER){
      vr_trace_set_debugdata_for_bbAddr(&(vr.traceBack), bbAddr,
                                        filename,linenum,
                                        doLineContainFloat, doLineContainFloatCmp);
@@ -1356,10 +1356,13 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   traceBB_t* traceBB=NULL;
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
-    traceBB=getNewTraceBB(addr);
-    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
-
-    vr_traceBackIRSB(sbOut, addr);
+     if( vr.traceType==VR_BB_COVER){
+        traceBB=getNewTraceBB(addr);
+        vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
+     }
+     if( vr.traceType==VR_BACK_COVER){
+        vr_traceBackIRSB(sbOut, addr);
+     }
   }
 
   /*Data for Imark localisation*/
@@ -1505,9 +1508,12 @@ static void vr_fini(Int exitcode)
 
   if(vr.genTrace){
     vr_dumpCov();
-    vr_traceBB_finalize();
-    vr_trace_finalize( &(vr.traceBack));
-
+    if(vr.traceType==VR_BB_COVER){
+       vr_traceBB_finalize();
+    }
+    if(vr.traceType==VR_BACK_COVER){
+       vr_trace_finalize( &(vr.traceBack));
+    }
     if(vr.outputTraceRep!=NULL){
        VG_(free)(vr.outputTraceRep);
     }
@@ -1771,9 +1777,12 @@ static void vr_post_clo_init(void)
   }
 
   if(vr.genTrace){
-     vr_traceBB_initialize(vr.outputTraceRep);
-
-     vr_trace_init_rep( &(vr.traceBack), vr.outputTraceRep);
+     if(vr.traceType==VR_BB_COVER){
+        vr_traceBB_initialize(vr.outputTraceRep);
+     }
+     if(vr.traceType==VR_BACK_COVER){
+        vr_trace_init_rep( &(vr.traceBack), vr.outputTraceRep);
+     }
   }
 
   if(vr.genBackTraceBool || vr.useBackTraceBool){
