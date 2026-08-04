@@ -21,7 +21,7 @@ def listOfFileToCheck(rep, ddminNumber, sampleNumberDD, sampleNumberPost, dumpCo
         if "NoPerturbation" == symLink:
             pathWithTrace= rep /  (symLink+"-trace") / "default"
 
-        fileTabCov=fileTab+["covLog"]+ [Path("cover") / ("cover"+ bbOrBack+"0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
+        fileTabCov=fileTab+["gen_trace_log"]+ [Path("cover") / ("cover"+ bbOrBack+"0000"+str(dumpIndex)+"-seqCount0") for dumpIndex in range(dumpCoverNumber+1) ]
         def sampleNumberPostLambda(path):
             if "NoPerturbation-trace" in str(path):
                 return 1

@@ -54,10 +54,8 @@ def selectSortedPidFromFile(fileNameTab,trace_kind="bb_cover"):
 class config_option:
     def __init__(self,argv):
         #default Value
-        self.genCov=False
-        self.genCovBack=False
-        self.genCovCorrelation=False
-        self.genBackCorrelation=False
+        self.trace_kind="back_cover"
+        self.output_kind="individual"
         self.select_default=None
         self.run_cmp=None
         self.run_eval=None
@@ -72,7 +70,7 @@ class config_option:
 
     def parseOpt(self,argv):
         try:
-            opts,args=getopt.getopt(argv, "h",["help","genCov","genCovBack","genCovCorrelation","genBackCorrelation","pidRename", "select-default=","run-cmp=", "run-eval="])
+            opts,args=getopt.getopt(argv, "h",["help","trace-type=","output-type=","pidRename", "select-default=","run-cmp=", "run-eval="])
         except getopt.GetoptError:
             self.usage()
 
@@ -80,20 +78,20 @@ class config_option:
             if opt in ["-h", "--help"]:
                 self.usage()
                 sys.exit()
-            if opt in ["--genCov"]:
-                self.genCov=True
-                self.trace_kind="bb_cover"
-            if opt in ["--genCovBack"]:
-                self.genCovBack=True
-                self.trace_kind="back_cover"
+            if opt in ["--trace-type"]:
+                if not arg in ["back_cover","bb_cover"]:
+                    print("invalid trace-type arg:" , arg)
+                    self.usage()
+                self.trace_kind=arg
+
+            if opt in ["--output-type"]:
+                if not arg in ["individual","with_correlation"]:
+                    print("invalid output-type arg:" , arg)
+                    self.usage()
+                self.output_kind=arg
+
             if opt in ["--pidRename"]:
                 self.pidRename=True
-            if opt in ["--genCovCorrelation"]:
-                self.genCovCorrelation=True
-                self.trace_kind="bb_cover"
-            if opt in ["--genBackCorrelation"]:
-                self.genBackCorrelation=True
-                self.trace_kind="back_cover"
             if opt in ["--run-cmp"]:
                 self.run_cmp=arg
             if opt in ["--run-eval"]:
@@ -104,9 +102,6 @@ class config_option:
                 else:
                     self.select_default=int(arg)
 
-        #default configuartion : genCov
-        if not (self.genCovCorrelation or self.genCov or self.genBackCorrelation or self.genCovBack):
-            self.genCov=True
         if self.run_eval!=None and self.run_cmp!=None:
             print("--run-cmp= and --run-eval= are incompatible option")
             self.usage()
@@ -119,17 +114,11 @@ class config_option:
                 listArgToAdd+=[arg]
         self.listOfFiles=listArgToAdd +self.listOfFiles
 
-        if len(self.listOfFiles)<1 and self.genCov:
-            print("--genCov required at least 1 argument")
+        if len(self.listOfFiles)<1 and self.output_kind=="individual":
+            print("--output-type=individual required at least 1 argument")
             self.usage()
-        if len(self.listOfFiles)<1 and self.genCovBack:
-            print("--genCovBack required at least 1 argument")
-            self.usage()
-        if len(self.listOfFiles)<2 and self.genCovCorrelation:
-            print("--genCovCorrelation required at least 2 arguments")
-            self.usage()
-        if len(self.listOfFiles)<2 and self.genBackCorrelation:
-            print("--genBackCorrelation required at least 2 arguments")
+        if len(self.listOfFiles)<2 and self.output_kind=="with_correlation":
+            print("--output-type=with_correlation required at least 2 arguments")
             self.usage()
 
         self.listOfFiles=[Path(x) for x in self.listOfFiles]
@@ -162,24 +151,17 @@ if __name__=="__main__":
             rank+=1
 
     cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval, options.trace_kind)
-    if options.genCov:
-        if options.pidRename:
+    if options.output_kind=="individual":
+        if options.trace_kind=="bb_cover":
             cmp.writePartialCover(pidMap=pidMap)
         else:
-            cmp.writePartialCover()
-
-    if options.genCovBack:
-        if options.pidRename:
             cmp.writePartialBack(pidMap=pidMap)
-        else:
-            cmp.writePartialBack()
 
-    if options.genCovCorrelation:
-        cmp.findRefForMerge()
-        cmp.writeMergedCov("biased")
-#        cmp.writeMergedCov("standard")
-
-    if options.genBackCorrelation:
-        cmp.findRefForMergePost()
-        cmp.writeMergedBack(["biased"], csvFormat=False)
+    if options.output_kind=="with_correlation":
+        if options.trace_kind=="bb_cover":
+            cmp.findRefForMerge()
+            cmp.writeMergedCov("biased")
+        if options.trace_kind=="back_cover":
+            cmp.findRefForMergePost()
+            cmp.writeMergedBack(["biased"], csvFormat=False)
 

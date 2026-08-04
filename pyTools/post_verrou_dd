@@ -185,7 +185,7 @@ class trace_handler:
             else:
                 log+="traceBBFile %s ignored\n"%(traceBBFile)
         if log!="":
-            with open(runDir / "covBBLog", "w") as f:
+            with open(runDir / "gen_trace_log", "w") as f:
                 f.write(log)
 
         if len(listOfTraceBBFile)==0:
@@ -193,18 +193,11 @@ class trace_handler:
             sys.exit(42)
 
         if self.config.get_trace_gen_local():
-            option="--pidRename "
-            if config.get_trace_type()=="bb_cover":
-                option+="--genCov"
-            elif config.get_trace_type()=="back_cover":
-                option+="--genCovBack"
-            else:
-                print("error unknown trace_type")
-                failure()
+            option="--pidRename --trace-type=%s --output-type=individual"%(config.get_trace_type())
 
-            cmd="genCovBB "+option+" %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
+            cmd="verrou_gen_trace "+option+" %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
             #print("cmd: ", cmd)
-            os.system(cmd+ "  >> %s"%( runDir/ "covLog"))
+            os.system(cmd+ "  >> %s"%( runDir/ "gen_trace_log"))
 
         rename_pid_for_one_rep(self.config, runDir / "cover",what=[config.get_trace_type()],
                                clean=False, ignoreEmpty=True)
