@@ -18,7 +18,7 @@
 2	unitTest.cxx(28)integrate.hxx(9,11,13,15) F	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:28
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:16
-3	integrate.hxx(16) F?	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
+3	integrate.hxx(16) ?	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:26
 3	integrate.hxx(26) 	0.8235294117647058	0.8333333333333333	0.8333333333333333	0.6666666666666666	11110	11110	11111	11111	11111	11110	11110	11110	11110	11110	11111	11111	11111	11110	11110	11110	11110
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:26
@@ -26,7 +26,7 @@ R-3	integrate.hxx(15-17,26) F?	0.8235294117647058	0.8333333333333333	0.833333333
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:28
 3	integrate.hxx(28-29) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:28
-2	unitTest.cxx(28,31)STDBB(X) F	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
+2	unitTest.cxx(28,31)STDBB(X) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:31
 2	unitTest.cxx(31,34)STDBB(X) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:34
@@ -44,7 +44,7 @@ R-3	integrate.hxx(15-17,26) F?	0.8235294117647058	0.8333333333333333	0.833333333
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:34
 2	unitTest.cxx(34)unamed_filename_verrou(0) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26
-2	unitTest.cxx(26)STDBB(X) F	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
+2	unitTest.cxx(26)STDBB(X) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26
 2	unitTest.cxx(26)STDBB(X) 	0.47058823529411764	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26

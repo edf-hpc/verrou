@@ -31,6 +31,7 @@ keepFFlagTab=[
     "integrate.hxx(11,13,15-16) F?",
     "unitTest.cxx(28)integrate.hxx(9,11) F",
     "integrate.hxx(15-17,26) F?",
+    "unitTest.cxx(28)integrate.hxx(9,11,13,15) F",
 ]
 
 keepMiddlePost=None
