@@ -85,6 +85,7 @@ dd.line.postbb.assert: dd.line.postbb
 
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=1 --trace-clean-policy=gz --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 
 dd.line.integer.post.assert: dd.line.integer.post

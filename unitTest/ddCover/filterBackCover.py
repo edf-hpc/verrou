@@ -104,13 +104,14 @@ def removeDuplicationBack(content):
 
 
 def reduceKey(key):
-    return (key.replace(" F"," ")).replace(" F?"," ?")
+    return key.replace(" F"," ")
 
 def equalBBKey(key1, key2):
     return reduceKey(key1)==reduceKey(key2)
 
 def compressBB(content):
-    compressDicReorder={ begin: (nbInter, end, compressDic[(begin,nbInter, end)]) for (begin,nbInter, end) in compressDic }
+    compressDicReorder={ reduceKey(begin): (nbInter, reduceKey(end), compressDic[(begin,nbInter, end)]) for (begin,nbInter, end) in compressDic }
+    reducedRenameDic={reduceKey(x): reduceKey(renameDic[x])  for x in renameDic}
 
     size=len(content)
     res=[]
@@ -118,18 +119,19 @@ def compressBB(content):
     while i<size:
         line=content[i]
         spline=line.split("\t")
-        key=spline[1]
+        reducedKey=reduceKey(spline[1])
 
-        if reduceKey(key) in [reduceKey(x) for x in compressDicReorder]:
-            (nbInter, end, dest)= compressDicReorder[key]
+        if reducedKey in compressDicReorder:
+            (nbInter, reducedEnd, dest)= compressDicReorder[reducedKey]
+            reducedDest=reduceKey(dest)
             if nbInter==None:
                 inter=1
                 while i+inter+1 < size:
                     line2=content[i+inter+1]
                     spline2=line2.split("\t")
-                    if equalBBKey(end,spline2[1]):
-                        if spline[2:]==spline2[2:]:
-                            res+=["C-"+line.replace(key,dest)]
+                    if reducedEnd==reduceKey(spline2[1]):
+                        if spline[2:]==spline2[2:]: #data equality
+                            res+=["C-"+line.replace(spline[1], dest)]
                             interContent=content[i+1:i+inter+1-1] #-1 we remove the back line before the end line
                             remain=content[i+inter+2:]
                             return res+compressBB(interContent+remain)
@@ -140,21 +142,23 @@ def compressBB(content):
             elif i+nbInter+1 < size:
                 line2=content[i+nbInter+1]
                 spline2=line2.split("\t")
-                if spline[2:]==spline2[2:] and equalBBKey(end,spline2[1]) :
-                    res+=["C-"+line.replace(key,dest)]
+                if spline[2:]==spline2[2:] and equalBBKey(reducedEnd,spline2[1]) :
+                    res+=["C-"+line.replace(spline[1],dest)]
                     i+=nbInter+2
                     continue
 
-        if key in [compressDic[x] for x  in compressDic]:
+        if reducedKey in [reduceKey(compressDic[x]) for x  in compressDic]:
             res+=["C-"+line]
             i+=1
             continue
 
-        if key in renameDic:
-            res+=["R-"+line.replace(key,renameDic[key])]
+        if reducedKey in reducedRenameDic:
+            ignoreCmpKey=reducedKey.replace(" ?"," ")
+            renameIgnoreCmpKey=(reducedRenameDic[reducedKey]).replace(" ?"," ")
+            res+=["R-"+line.replace(ignoreCmpKey, renameIgnoreCmpKey)]
             i+=1
             continue
-        if key in [renameDic[x] for x  in renameDic]:
+        if reducedKey in [reducedRenameDic[x] for x  in reducedRenameDic]:
             res+=["R-"+line]
             i+=1
             continue

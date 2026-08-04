@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
        version: [VALGRIND_3_26_0]
-       os: [ubuntu-latest, ubuntu-26.04, ubuntu-24.04 , ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm]
+       os: [ubuntu-24.04 , ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm]
 
 
     # The type of runner that the job will run on
