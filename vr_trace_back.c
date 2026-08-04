@@ -257,12 +257,12 @@ void vr_trace_dump_and_clear(Vr_Trace* vrTrace, UInt indexCov ){
    vrTrace->currentIndexFirst=0;
 }
 
-static void vr_printf_back_BB( Int nbBack, Addr* ip, Addr* bb){
-   VG_(umsg)("[%lu] %d:%lu",*bb,nbBack, ip[0]);
-   for( Int i=1; i<nbBack; i++){
-      VG_(umsg)(",%lu",ip[i]);
-   }
-}
+/* static void vr_printf_back_BB( Int nbBack, Addr* ip, Addr* bb){ */
+/*    VG_(umsg)("[%lu] %d:%lu",*bb,nbBack, ip[0]); */
+/*    for( Int i=1; i<nbBack; i++){ */
+/*       VG_(umsg)(",%lu",ip[i]); */
+/*    } */
+/* } */
 
 Bool vr_trace_is_bbAddr_already_defined(Vr_Trace* vrTrace, Addr bbAddr){
    Vr_Addr_List* res=vr_findAddr (vrTrace->bb_addr_list, bbAddr);
@@ -304,8 +304,9 @@ void vr_trace_set_debugdata_for_bbAddr(Vr_Trace* vrTrace, Addr bbAddr,
 }
 
 
+extern Int reduced_nb_below_main(Addr*ips, Int nb); //defined in vr_main.c
 
-
+VG_REGPARM(0) void vr_trace_dyn_IRSB(HWord addrBB);
 VG_REGPARM(0) void vr_trace_dyn_IRSB(HWord addrBB){
    Addr bbAddr=(Addr)addrBB;
    Addr ips[BACKTRACE_SIZE];
