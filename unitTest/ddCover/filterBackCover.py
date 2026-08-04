@@ -26,6 +26,13 @@ compressDic={
 }
 
 
+keepFFlagTab=[
+    "integrate.hxx(11,13,20) F",
+    "integrate.hxx(11,13,15-16) F?",
+    "unitTest.cxx(28)integrate.hxx(9,11) F",
+    "integrate.hxx(15-17,26) F?",
+]
+
 keepMiddlePost=None
 #("float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR\tintegrate.hxx:26",
 #                "integrate.hxx(11,13,15-16) F?")
@@ -95,6 +102,11 @@ def removeDuplicationBack(content):
 
 
 
+def equalBBKey(key1, key2):
+    keyAlter1=(key1.replace(" F"," ")).replace(" F?"," ?")
+    keyAlter2=(key2.replace(" F"," ")).replace(" F?"," ?")
+    return keyAlter1==keyAlter2
+
 def compressBB(content):
     compressDicReorder={ begin: (nbInter, end, compressDic[(begin,nbInter, end)]) for (begin,nbInter, end) in compressDic }
 
@@ -113,7 +125,7 @@ def compressBB(content):
                 while i+inter+1 < size:
                     line2=content[i+inter+1]
                     spline2=line2.split("\t")
-                    if end in spline2[1]:
+                    if equalBBKey(end,spline2[1]):
                         if spline[2:]==spline2[2:]:
                             res+=["C-"+line.replace(key,dest)]
                             interContent=content[i+1:i+inter+1-1] #-1 we remove the back line before the end line
@@ -126,7 +138,7 @@ def compressBB(content):
             elif i+nbInter+1 < size:
                 line2=content[i+nbInter+1]
                 spline2=line2.split("\t")
-                if spline[2:]==spline2[2:] and end in spline2[1] :
+                if spline[2:]==spline2[2:] and equalBBKey(end,spline2[1]) :
                     res+=["C-"+line.replace(key,dest)]
                     i+=nbInter+2
                     continue
@@ -166,7 +178,22 @@ def parse(filename, needToPermutate):
         res= newHeader+ newContent
     else:
         res= header+filterBack(content,dropInit=dropInit, keep=keepData)
+    return removeFFlag(res)
+
+def removeFFlag(content):
+    res=[]
+    for line in content:
+        spline=line.split("\t")
+        name=spline[1]
+
+        if any([name in keepF for keepF in keepFFlagTab]):
+            res+=[line]
+        else:
+            newLine=line.replace(" F\t", " \t")
+            newLine=newLine.replace(" F?\t", " ?\t")
+            res+=[newLine]
     return res
+
 
 def permutateLine(line, indexDDmin0Tab, indexDDmin1Tab):
     spline=line[0:-1].split("\t")
