@@ -4,7 +4,7 @@ import filecmp
 import sys
 import re
 from pathlib import Path
-from BBTools import openGz
+from sysTools import openGz
 
 NUM_RUN = 2
 

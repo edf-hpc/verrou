@@ -18,7 +18,7 @@ PYTHON_REP=pyTools
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/verrou_gen_trace ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout  ${PYTHON_REP}/verrou_dd_back  ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py ${PYTHON_REP}/find_dd_fail ${PYTHON_REP}/verrou_control ${PYTHON_REP}/verrou_analyse_trace
 
 
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py ${PYTHON_REP}/BBTools.py ${PYTHON_REP}/traceAnalysis.py pyWrapper/verrouPyBinding.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py ${PYTHON_REP}/sysTools.py ${PYTHON_REP}/mergeTools.py ${PYTHON_REP}/estimatorTools.py ${PYTHON_REP}/coverTools.py ${PYTHON_REP}/traceAnalysis.py pyWrapper/verrouPyBinding.py
 
 #----------------------------------------------------------------------------
 # bash completion script

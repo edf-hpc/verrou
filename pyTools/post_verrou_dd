@@ -11,8 +11,9 @@ import post_config
 import rounding_tool
 from pathlib import Path
 
-from BBTools import traceName
+from coverTools import traceName
 from traceAnalysis import  generateTraceAnalysis
+from sysTools import disable_ASLR
 
 def failure():
     sys.exit(42)
@@ -428,17 +429,6 @@ def sortSubRep(subRepTab):
 
     return res
 
-#warning copy past from verrou_dd_back
-def disable_ASLR():
-    import ctypes
-    import ctypes.util
-    # We call personality(ADDR_NO_RANDOMIZE) to disable ASLR, so that addresses during reference run
-    # always match addresses during sample runs (even for .so code).
-    ADDR_NO_RANDOMIZE = 0x0040000
-    libc_name = ctypes.util.find_library("c")
-    libc = ctypes.CDLL(libc_name)
-    personality = libc.personality
-    personality(ADDR_NO_RANDOMIZE)
 
 if __name__=="__main__":
     disable_ASLR()

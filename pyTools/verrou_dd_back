@@ -34,6 +34,8 @@ import DD_exec_stat
 import ctypes
 import ctypes.util
 
+from sysTools import disable_ASLR
+
 class BackAddrPrint:
 
     def __init__(self, refDir, config):
@@ -157,14 +159,6 @@ class DDback(DD_stoch.DDStoch):
 
 
 #code coming from verificarlo : https://github.com/verificarlo/verificarlo/blob/master/src/tools/ddebug/main.py
-def disable_ASLR():
-    # We call personality(ADDR_NO_RANDOMIZE) to disable ASLR, so that addresses during reference run
-    # always match addresses during sample runs (even for .so code).
-    ADDR_NO_RANDOMIZE = 0x0040000
-    libc_name = ctypes.util.find_library("c")
-    libc = ctypes.CDLL(libc_name)
-    personality = libc.personality
-    personality(ADDR_NO_RANDOMIZE)
 
 class ddBackConfig(dd_config.ddConfig):
 

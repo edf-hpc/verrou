@@ -2,65 +2,12 @@
 import re
 import sys
 from operator import itemgetter, attrgetter
-import gzip
 import os
 import copy
-
-import subprocess
-
 from pathlib import Path
 
-def runCmdAsync(cmd, fname, envvars=None):
-    """Run CMD, adding ENVVARS to the current environment, and redirecting standard
-    and error outputs to FNAME.out and FNAME.err respectively.
-
-    Returns CMD's exit code."""
-    if envvars is None:
-        envvars = {}
-
-    with open("%s.out"%fname, "w") as fout:
-        with open("%s.err"%fname, "w") as ferr:
-            env = copy.deepcopy(os.environ)
-            for var in envvars:
-                env[var] = envvars[var]
-            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
-
-def getResult(subProcess):
-    subProcess.wait()
-    return subProcess.returncode
-
-
-
-class openGz:
-    """ Class to read/write  gzip file or ascii file """
-    def __init__(self,name, mode="r", compress=None):
-        self.name=name
-        potentialName=name.parent / (name.name + ".gz")
-        if potentialName.is_file() and compress==None:
-            self.name=potentialName
-
-        if (self.name.suffix==".gz" and compress==None) or compress==True:
-            self.compress=True
-            self.handler=gzip.open(self.name, mode)
-        else:
-            self.compress=False
-            self.handler=open(self.name, mode)
-
-    def readline(self):
-        if self.compress:
-            return self.handler.readline().decode("ascii")
-        else:
-            return self.handler.readline()
-    def readlines(self):
-        if self.compress:
-            return [line.decode("ascii") for line in self.handler.readlines()]
-        else:
-            return self.handler.readlines()
-
-
-    def write(self, line):
-        self.handler.write(line)
-
+from sysTools import runCmdAsync,getResult,openGz
+from estimatorTools import computeEstimator
 
 class bbInfoReader:
     """ Class to read trace_bb_info_log-PID(.gz) file and to provide a string describing
@@ -247,65 +194,6 @@ class traceName:
         return covName.replace(self.covPrefixName(), self.bbPrefixName())
 
 
-class covReader:
-    def __init__(self,pid, rep, trace_kind):
-        self.pid=pid
-        self.rep=rep
-        self.tName=traceName(trace_kind)
-        self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
-        covFile=openGz(self.rep / self.tName.covName(pid), "r")
-
-        self.cov=self.readCov(covFile)
-
-    def readCov(self, cov):
-        res=[]
-        currentNumber=-1
-        dictRes={}
-        while True:
-            line=cov.readline()
-            if line in [None,""]:
-                if currentNumber!=-1:
-                    res+=[dictRes]
-                break
-            if line=="cover-"+str(currentNumber+1)+"\n":
-                if currentNumber!=-1:
-                    res+=[dictRes]
-                currentNumber+=1
-                dictRes={}
-                continue
-            if self.tName.trace_kind=="bb_cover":
-                (key,sep, num)=(line).strip().partition(":")
-                (addr,sep,index)=key.partition("|")
-                dictRes[addr]=int(num)
-            if self.tName.trace_kind=="back_cover":
-                #"[76699587] 9:76699587,77091480,77146041,67113775,67114088,79412601,67113353,137422174823,27     5       9325"
-                spline=line.strip().split(' ')
-                addr=spline[0][1:-1]
-                num=spline[1].split('\t')[1]
-                if addr in dictRes:
-                    dictRes[addr]+=int(num)
-                else:
-                    dictRes[addr]=int(num)
-
-        return res
-
-    def writePartialCover(self,filenamePrefix="", pidMap=None):
-        if pidMap!=None:
-            handler=openGz(self.rep / "pidMap" ,"w")
-            for pid in pidMap:
-                handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
-
-        for num in range(len(self.cov)):
-            resTab=[(index,num,self.bbInfo.getListOfSym(index),self.bbInfo.compressMarksWithoutSym(index)) for index,num in self.cov[num].items() ]
-            resTab.sort( key= itemgetter(2,3,0)) # 2 sym  3 compress string 0 index
-            pidStr=str(self.pid)
-            if pidMap!=None:
-                pidStr=pidMap[self.pid]
-
-            handler=openGz(self.rep / ("%scoverBB%05d-%s"%(filenamePrefix ,num, pidStr)),"w")
-            for (index,count,sym, strBB) in resTab:
-                handler.write("%d\t: %s\n"%(count,strBB))
-
 
 class addrBackReader:
 
@@ -437,28 +325,27 @@ class coverageReader:
                 currentNumber+=1
                 dictRes={}
                 continue
-            if self.tName.trace_kind=="bb_cover":
-                (addrindex,sep, num)=(line).strip().partition(":")
-                (addr,sep,index)=addrindex.partition("|")
-                if self.mergeIndex!=0:
-                    dictRes[addr]=(int(num), int(index))
-                else:
-                    dictRes[addr]=[(int(num), int(index))]
+
+            (addrindex,sep, num)=(line).strip().partition(":")
+            (addr,sep,index)=addrindex.partition("|")
+            if self.mergeIndex!=0:
+                dictRes[addr]=(int(num), int(index))
             else:
-                print("error only bb trace_kind is implemented")
-                sys.exit()
+                dictRes[addr]=[(int(num), int(index))]
         return res
 
     def structureData(self):
         nbCov=len(self.dataCov)
         self.dataSortCov=[ self.sortCov(self.dataCov[g] )   for  g in range(nbCov)]
-        #add sort
 
     def minCallIndex(self, numIndexTab):
         return min([x for x in numIndexTab if x!=None])
 
     def sortCov(self, addrToNumIndexTab):
-        res=[(addrBB, [x[0] for x in addrToNumIndexTab[addrBB]], self.minCallIndex([x[1] for x in  addrToNumIndexTab[addrBB]]) ) for addrBB in addrToNumIndexTab ]
+        if self.mergeIndex is None:
+            res=[(addrBB, addrToNumIndexTab[addrBB][0], addrToNumIndexTab[addrBB][1]) for addrBB in addrToNumIndexTab ]
+        else:
+            res=[(addrBB, [x[0] for x in addrToNumIndexTab[addrBB]], self.minCallIndex([x[1] for x in  addrToNumIndexTab[addrBB]]) ) for addrBB in addrToNumIndexTab ]
         res.sort(key=lambda x: (x[2],x[0]))
         return res
 
@@ -466,9 +353,9 @@ class coverageReader:
         for bbAddr,rawDataTab,minCallIndex in sortCov:
             name=self.bbInfo.compressMarksWithoutSym(bbAddr)
             dataBBStr=None
-            if self.mergeIndex !=0:
+            if self.mergeIndex is None:
                 assert(outputTypeTab==["data"])
-                dataBBStr=str(rawDataTab[0])
+                dataBBStr=str(rawDataTab)
             else:
                 dataTab=[]
                 for outputType in outputTypeTab:
@@ -489,6 +376,7 @@ class coverageReader:
             for pid in pidMap:
                 handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
 
+        print("self.dataSortCov", self.dataSortCov)
         for numCov in range(len(self.dataSortCov)):
             pidStr=str(self.pid)
             if pidMap!=None:
@@ -497,7 +385,9 @@ class coverageReader:
             outDir=self.rep
             if outputDir!=None:
                 outDir=outputDir
-            handler=openGz(Path(outDir) / ("%scoverBB%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
+
+            fullPathName=Path(outDir) / ("%scoverBB%05d-%s"%(filenamePrefix ,numCov, pidStr))
+            handler=openGz(fullPathName,"w")
             self.writeData(handler,self.dataSortCov[numCov], outputTypeTab=outputTypeTab)
 
     def writeCSV(self, pathStr, header="", outputTypeTab=["data"]):
@@ -733,336 +623,3 @@ class backCovReader:
             handler=openGz(Path(pathStr.replace("__NUM_COV__", "%i"%(numCov))),"w")
             handler.write(header)
             self.writeTree(handler,self.backTreeCov[numCov], outputTypeTab=outputTypeTab,csvFormat=True)
-
-def isIntegerEqualWithTol(value, ref, tol ):
-    if value >= ref+tol[0] and value <= ref+tol[1]:
-        return True
-    return False
-
-def countForEstimator(statusTab, counterTab, refIndex, tol=[0,0]):
-    assert(statusTab[refIndex]==True)
-    assert(len(statusTab) == len(counterTab))
-    nbSuccess=0
-    nbFail=0
-    nbFailDiff, nbFailEqual, nbSuccessDiff, nbSuccessEqual=(0,0,0,0)
-
-    for i in range(len(statusTab)):
-        assert(statusTab[i] in [True,False])
-        if statusTab[i]==True:
-            nbSuccess+=1
-            if  isIntegerEqualWithTol(counterTab[i], counterTab[refIndex], tol):
-                nbSuccessEqual+=1
-            else:
-                nbSuccessDiff+=1
-        else:
-            nbFail+=1
-            if  isIntegerEqualWithTol(counterTab[i], counterTab[refIndex], tol):
-                nbFailEqual+=1
-            else:
-                nbFailDiff+=1
-    dicRes= {"nbSuccess": nbSuccess, "nbFail":nbFail,
-            "nbFailDiff":nbFailDiff,
-            "nbFailEqual":nbFailEqual,
-            "nbSuccessDiff":nbSuccessDiff,
-            "nbSuccessEqual":nbSuccessEqual}
-    return dicRes
-
-
-def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
-    assert(statusTab[refIndex]==True)
-    assert(len(statusTab) == len(counterTab))
-
-    countData=countForEstimator(statusTab, counterTab, refIndex)
-    nbSuccess=countData["nbSuccess"]
-    nbFail=countData["nbFail"]
-    nbFailDiff=countData["nbFailDiff"]
-    nbFailEqual=countData["nbFailEqual"]
-    nbSuccessDiff=countData["nbSuccessDiff"]
-    nbSuccessEqual=countData["nbSuccessEqual"]
-
-    res=[]
-    for estimator in estimatorTab:
-        if estimator=="dc":
-            if (nbFail+nbSuccess)==0:
-                res+=[float("Nan")]
-            else:
-                res+=[float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)]
-        elif estimator=="wdc":
-            if nbFail==0 or nbSuccess==0:
-                res+=[float("Nan")]
-            else:
-                res+=[0.5* (float(nbFailDiff)/ float(nbFail) + float(nbSuccessEqual)/float(nbSuccess))]
-        elif "-stol" in estimator:
-            tolTab=[counterTab[i] -counterTab[refIndex] for i in range(len(statusTab)) if statusTab[i]]
-            tolMin, tolMax=min(tolTab), max(tolTab)
-
-            countDataTol=countForEstimator(statusTab, counterTab, refIndex, tol=[tolMin, tolMax])
-            nbFailDiffTol=countDataTol["nbFailDiff"]
-            #nbFailEqualTol=countDataTol["nbFailEqual"]
-            nbSuccessDiffTol=countDataTol["nbSuccessDiff"]
-            if nbSuccessDiffTol!=0:
-                print("Bug nbSuccessDiff")
-                print ("counterTab", counterTab)
-                print ("countDataTol", countDataTol)
-                sys.exit(42)
-
-            nbSuccessEqualTol=countDataTol["nbSuccessEqual"]
-            if estimator=="wdc-stol":
-                if nbFail==0 or nbSuccess==0:
-                    res+=[float("Nan")]
-                else:
-                    res+=[0.5* (float(nbFailDiffTol)/ float(nbFail) + float(nbSuccessEqualTol)/float(nbSuccess))]
-            elif estimator=="fdr-stol": #fail diff ratio
-                if nbFail==0 or nbSuccess==0:
-                    res+=[float("Nan")]
-                else:
-                    res+=[(float(nbFailDiffTol)/ float(nbFail))]
-            else:
-                print("unknown estimator", estimator)
-                sys.exit(42)
-
-        else:
-            print("unknown estimator", estimator)
-    return res
-
-
-class statusReader:
-    """Class to provide the status of a run"""
-    # should maybe be a function instead of a class
-    def __init__(self,pid, rep, runEval=None,runCmp=None, repRef=None):
-        self.pid=pid
-        self.rep=rep
-
-        self.remoteRep=self.searchRemoteRep(self.rep)
-        if self.remoteRep==None:
-            self.remoteRep=rep
-        self.isSuccess=None
-        if runCmp!=None:
-            self.runCmpScript(runCmp, repRef)
-            return
-        if runEval!=None:
-            self.runEvalScript(runEval)
-            return
-        self.read()
-
-    def searchRemoteRep(self,rep, coverName="cover"):
-        res=rep
-        if (res / "dd.return.value").is_file():
-            return res
-        if rep.name==coverName:
-            res=rep.parent
-            if (res / "dd.return.value").is_file():
-                return res
-        return None
-
-
-    def runCmpScript(self,runCmp,repref):
-        subProcessRun=runCmdAsync([runCmp, repref,self.rep], self.rep / ("cmpCmd%i"%(self.pid)))
-        res=getResult(subProcessRun)
-        if res==0:
-            self.isSuccess=True
-        else:
-            self.isSuccess=False
-
-    def runEvalScript(self,runEval):
-        subProcessRun=runCmdAsync([runEval,self.rep], self.rep / ("evalCmd%i"%(self.pid)))
-        res=getResult(subProcessRun)
-        if res==0:
-            self.isSuccess=True
-        else:
-            self.isSuccess=False
-
-    def read(self, level=0):
-        pathName=self.remoteRep /"dd.return.value"
-        if pathName.is_file():
-            try:
-                value=int(open(pathName).readline().strip())
-                if value==0:
-                    self.isSuccess=True
-                else:
-                    self.isSuccess=False
-            except:
-                print("Error while  reading "+pathName )
-                self.isSuccess=None
-        else:
-            if self.rep.name=="ref":
-                print("Consider ref as a success")
-                self.isSuccess=True
-            else:
-                self.isSuccess=None
-
-    def getStatus(self):
-        return self.isSuccess
-
-
-class cmpToolsCov:
-    """Class to write partial cover of several executions :
-    with writePartialCover the object write a partial cover for each execution
-    with mergedCov the object write one merged partial cover with correlation information"""
-
-    def __init__(self, tabPidRep, runCmp=None, runEval=None, trace_kind="bb_cover"):
-        self.tabPidRep=tabPidRep
-        self.runCmp=runCmp
-        self.runEval=runEval
-        self.trace_kind=trace_kind
-
-    def findRefForMerge(self):
-        if self.runCmp!=None:
-            self.refIndex=self.findRef(patternList=["ref","Ref","nearest","Nearest"])
-            return
-        if self.runEval!=None:
-            self.refIndex=self.findRefDD(pattern="ref", optionalPattern="Nearest")
-            return
-        self.refIndex=self.findRefDD(pattern="ref", optionalPattern="dd.line/ref")
-
-    def findRefForMergePost(self):
-        self.refIndex=self.findRefDD(pattern="NoPerturbation-trace")
-
-    def writePartialCover(self,filenamePrefix="", pidMap=None):
-        """Write partial cover for each execution (defined by a tab of pid)"""
-        for i in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[i]
-            cov=covReader(pid,Path(rep), self.trace_kind)
-            cov.writePartialCover(filenamePrefix, pidMap=pidMap)
-
-
-    def writePartialBack(self,filenamePrefix="", pidMap=None):
-        """Write partial cover for each execution (defined by a tab of pid)"""
-        for i in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[i]
-            covBack=backCovReader(pid,Path(rep), None, self.trace_kind)
-            covBack.writePartialBackCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
-
-    # def writeStatus(self):
-    #     for i in range(len(self.tabPidRep)):
-    #         pid,rep=self.tabPidRep[i]
-    #         status=statusReader(pid,rep)
-    #         success=status.getStatus()
-    #         print( rep+":" + str(success))
-    def getStatus(self,pid,rep):
-        if self.runCmp!=None:
-            status=statusReader(pid,rep, self.runCmp, self.tabPidRep[self.refIndex][1])
-            return status.getStatus()
-        if self.runEval!=None:
-            status=statusReader(pid,rep, runEval=self.runEval)
-            return status.getStatus()
-        status=statusReader(pid,rep)
-        return status.getStatus()
-
-    def countStatus(self):
-        """ Count the number of Success/Fail"""
-        nbSuccess=0
-        nbFail=0
-        listPidRepoIgnore=[]
-        for i in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[i]
-            success=self.getStatus(pid,rep)
-            if success==None:
-                listPidRepoIgnore+=[(pid,rep)]
-            else:
-                if success:
-                    nbSuccess+=1
-                else:
-                    nbFail+=1
-        for (pid,rep) in listPidRepoIgnore:
-            print("directory ignored : "+rep)
-            self.tabPidRep.remove((pid,rep))
-
-        return (nbSuccess, nbFail)
-
-
-    def findRefDD(self, pattern="ref", optionalPattern=None):
-        "return the index of the reference (required for correlation)"
-        if optionalPattern!=None:
-            for index in range(len(self.tabPidRep)):
-                (pid,rep)=self.tabPidRep[index]
-                success=self.getStatus(pid,rep)
-                if str(rep).endswith(pattern) and optionalPattern in str(rep) and success:
-                    return index
-            print('Optional failed')
-        for index in range(len(self.tabPidRep)):
-            (pid,rep)=self.tabPidRep[index]
-            success=self.getStatus(pid,rep)
-            if str(rep).endswith(pattern) and success:
-                return index
-        print("Warning : pattern not found" )
-        print("Switch to first Success reference selection")
-        for index in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[index]
-            success=self.getStatus(pid,rep)
-            if success:
-                return index
-        print("Error fail only : cmpToolsCov is ineffective" )
-        sys.exit(42)
-
-    def findRef(self, patternList):
-        "return the index of the reference (required for correlation)"
-
-        for index in range(len(self.tabPidRep)):
-            rep=self.tabPidRep[index][1]
-            for pattern in patternList:
-                if pattern in rep:
-                    return index
-        return 0
-
-
-    def writeMergedBB(self,estimatorTab):
-        """Write merged BB with correlation indice  between coverage difference and success/failure status"""
-        (nbSuccess, nbFail)=self.countStatus()
-        print("NbSuccess: %d \t nbFail %d"%(nbSuccess,nbFail))
-        if nbFail==0 or nbSuccess==0:
-            print("mergeCov need Success/Fail partition")
-            sys.exit()
-
-        pidRef,repRef=self.tabPidRep[self.refIndex]
-        statusRef=self.getStatus(pidRef,repRef)
-
-
-        bbMerged=coverageReader(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
-        #Loop with addMerge to reduce memory peak
-
-        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
-        printIndex +=[1,  len(self.tabPidRep)-1]
-
-        for i in range(len(self.tabPidRep)):
-            if i==self.refIndex:
-                continue
-            pid,rep=self.tabPidRep[i]
-            currentBBCov=coverageReader(pid,Path(rep),self.getStatus(pid,rep),self.trace_kind, mergeRoot=False)
-            bbMerged.addMerge(currentBBCov)
-            if i in printIndex:
-                pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
-                if i >=self.refIndex:
-                    pourcent=float(i)/ float(len(self.tabPidRep)-1)
-                print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
-
-        bbMerged.endMerge()
-        bbMerged.writePartialCover(outputDir=Path("."), outputTypeTab=estimatorTab)
-
-
-    def writeMergedBack(self,estimatorTab):
-        """Write merged Back with correlation indice  between coverage difference and success/failure status"""
-
-        pidRef,repRef=self.tabPidRep[self.refIndex]
-        statusRef=self.getStatus(pidRef,repRef)
-
-        backMerged=backCovReader(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
-        #Loop with addMerge to reduce memory peak
-
-        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
-        printIndex +=[1,  len(self.tabPidRep)-1]
-
-        for i in range(len(self.tabPidRep)):
-            if i==self.refIndex:
-                continue
-            pid,rep=self.tabPidRep[i]
-            currentBackCov=backCovReader(pid,Path(rep),self.getStatus(pid,rep),self.trace_kind, mergeRoot=False)
-            backMerged.addMerge(currentBackCov)
-            if i in printIndex:
-                pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
-                if i >=self.refIndex:
-                    pourcent=float(i)/ float(len(self.tabPidRep)-1)
-                print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
-
-        backMerged.endMerge()
-        backMerged.writePartialBackCover(outputDir=Path("."), outputTypeTab=estimatorTab)

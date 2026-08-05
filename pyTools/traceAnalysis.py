@@ -4,7 +4,9 @@ import math
 import re
 
 
-from BBTools import backCovReader, coverageReader, traceName
+from coverTools import backCovReader, coverageReader, traceName
+from mergeTools import genMerge
+from estimatorTools import computeEstimator
 
 def findCoverRep(baseRep):
     return baseRep.glob("*-trace/**/cover/")
@@ -128,32 +130,6 @@ def csvHeader(dataParsedTab, estimatorTab, trace_kind):
     return res
 
 
-
-class genMerge:
-
-    def __init__(self, pidRef, pathRef,statusRef, trace_kind):
-
-        if trace_kind=="back_cover":
-            self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
-        elif trace_kind=="bb_cover":
-            self.root=coverageReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
-        else:
-            pass
-
-    def current(self,  pid, path, status, trace_kind):
-        if trace_kind=="back_cover":
-            return backCovReader( pid, path, status, trace_kind, mergeRoot=False)
-        elif trace_kind=="bb_cover":
-            return coverageReader(pid, path,status, trace_kind, mergeRoot=False)
-
-    def addMerge(self, current):
-        self.root.addMerge(current)
-
-    def endMerge(self):
-        self.root.endMerge()
-
-    def writeCSV(self, pathStr, header, outputTypeTab):
-        self.root.writeCSV(pathStr, header, outputTypeTab=outputTypeTab)
 
 
 def cleanIntermediateFile(dataParsedTab, trace_kind):

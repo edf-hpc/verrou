@@ -20,11 +20,11 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
-
-from BBTools import cmpToolsCov, traceName
 import sys
 import getopt
 from pathlib import Path
+from mergeTools import cmpToolsCov
+from coverTools import traceName
 
 def extractPidRep(fileName, trace_kind="bb_cover"):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""

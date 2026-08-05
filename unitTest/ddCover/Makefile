@@ -73,7 +73,7 @@ dd.line.post: dd.line
 
 dd.line.postbb: dd.line
 	cp -r dd.line dd.line.postbb
-	post_verrou_dd --rep=dd.line.postbb --trace-bin --trace-gen-local --trace-type=bb_cover --trace-clean=clean --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.postbb --trace-bin --trace-gen-local --trace-type=bb_cover --trace-clean=gz --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
 dd.line.postbb.assert: dd.line.postbb
 	./assertCover.py dd.line.postbb 2 8 3 0 nearness_scomdet BB
