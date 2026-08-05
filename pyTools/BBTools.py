@@ -422,7 +422,7 @@ class coverageReader:
 
     def readCoverage(self, cov):
         #attention duplication from covReader
-        res=[] # tab indexed by cov index. Each element is a dict {addr/index: num}.  
+        res=[] # tab indexed by cov index. Each element is a dict {addr/index: num}.
         currentNumber=-1
         dictRes={}
         while True:

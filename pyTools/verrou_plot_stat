@@ -23,7 +23,7 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
-import matplotlib.pyplot as plt
+
 import sys
 import os
 import copy
@@ -32,8 +32,9 @@ import math
 from fractions import Fraction
 import shutil
 import datetime
-import numpy as np
 from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
 
 import DD_stoch
 import rounding_tool

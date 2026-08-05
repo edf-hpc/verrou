@@ -35,13 +35,14 @@ import datetime
 import math
 import threading
 import time
+from pathlib import Path
 
 import convNumLineTool
 import DD
 
-from pathlib import Path
 
-class myTask:
+
+class timeTask:
     def __init__(self,cmd,fname,envvars):
         self.cmd=cmd
         self.fname=fname
@@ -68,7 +69,7 @@ class cmdLogTask:
     def __init__(self,fileName):
         self.handler=open(fileName,"w")
     def initTask(self,cmd,fname,envvars):
-        task=myTask(cmd,fname,envvars)
+        task=timeTask(cmd,fname,envvars)
         task.start()
         return task
     def closeTask(self,myTask, res):
@@ -316,8 +317,8 @@ def md5Name(deltas):
 
 
 def prepareOutput(dirname):
-     shutil.rmtree(dirname, ignore_errors=True)
-     dirname.mkdir()
+    shutil.rmtree(dirname, ignore_errors=True)
+    dirname.mkdir()
 
 
 def failure():
@@ -380,7 +381,7 @@ class DDStoch(DD.DD):
 
     def cleanSymLink(self):
         """Delete all symlink in the cache"""
-        self.saveCleabSymLink=[]
+        self.saveCleanSymLink=[]
         symLinkTab=self.searchSymLink()
         for symLink in symLinkTab:
             symLink.unlink()
@@ -587,7 +588,7 @@ class DDStoch(DD.DD):
         if deltas==None:
             deltas=self.getDelta0()
 
-        if(len(deltas)==0):
+        if len(deltas)==0:
             self.emptySearchSpaceFailure()
 
         #basic verification
@@ -606,7 +607,7 @@ class DDStoch(DD.DD):
         if testResult!=self.PASS:
             self.noPerturbationFailsFailure()
 
-        if(len(deltas)==1):
+        if len(deltas)==1:
             self.configuration_found("ddmin0",deltas)
             self.configuration_found("rddmin-cmp",[])
             return deltas
@@ -1166,25 +1167,25 @@ class DDStoch(DD.DD):
             subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in sToC["indexesToRun"] ]
 
         if earlyConfExit=="anyFail":
-             if self.FAIL in resTab:
-                 return (resTab,None,None, cacheTab)
+            if self.FAIL in resTab:
+                return (resTab,None,None, cacheTab)
         if earlyConfExit=="anyPass":
-             if self.PASS in resTab:
-                 return (resTab,None,None, cacheTab)
+            if self.PASS in resTab:
+                return (resTab,None,None, cacheTab)
         if earlyConfExit=="firstFail":
-             if self.FAIL in resTab:
-                 index=resTab.index(self.FAIL)
-                 if not (None in resTab[0:index] ):
-                      return (resTab,None,None, cacheTab)
+            if self.FAIL in resTab:
+                index=resTab.index(self.FAIL)
+                if not (None in resTab[0:index] ):
+                    return (resTab,None,None, cacheTab)
         if earlyConfExit=="firstPass":
-             if self.PASS in resTab:
-                 index=resTab.index(self.PASS)
-                 if not (None in resTab[0:index] ):
+            if self.PASS in resTab:
+                index=resTab.index(self.PASS)
+                if not (None in resTab[0:index] ):
                     return (resTab,None,None, cacheTab)
 
         subTaskDataTab=[]
         if sortOrder=="outerSampleInnerConf":
-            sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+            sampleTab= list(set([x[2] for x in subTaskDataUnorderTab]))
             sampleTab.sort()
             for sample in sampleTab:
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
@@ -1232,7 +1233,7 @@ class DDStoch(DD.DD):
         with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
             try:
                 futurePool= [executor.submit(stochTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
-                dataIndexPool=[i for i in range(numThread)]
+                dataIndexPool=list(range(numThread))
                 poolLoop=futurePool
                 currentWork=numThread
 
