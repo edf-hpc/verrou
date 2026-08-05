@@ -22,9 +22,9 @@ C-3	integrate.hxx(11,13,20) F	0.7692307692307693	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:22
 3	integrate.hxx(22) 	0.7692307692307693	0.5	0.5	0.0	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:22
-3	integrate.hxx(22,26) 	0.7692307692307693	0.5	0.5	0.0	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111
+3	integrate.hxx(22,26) F	0.7692307692307693	0.5	0.5	0.0	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:26
-3	integrate.hxx(20,26) 	0.7692307692307693	0.5	0.5	0.0	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111
+3	integrate.hxx(20,26) F	0.7692307692307693	0.5	0.5	0.0	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111	11111
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:28
 3	integrate.hxx(28-29) 	0.7692307692307693	0.5	0.5	0.0	5	5	5	5	5	5	5	5	5	5	5	5	5
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:28

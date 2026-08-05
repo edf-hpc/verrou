@@ -12,11 +12,11 @@
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:26
 R-3	integrate.hxx(15-17,26) F?	0.8235294117647058	0.8636363636363636	0.8636363636363636	0.7272727272727273	9999	10000	10000	10000	10000	9999	9999	9999	9999	10000	10000	10000	10000	9999	9999	9999	9999
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:16
-3	integrate.hxx(16) F?	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+3	integrate.hxx(16) ?	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |2	float integrate<float (*)(float), float>(float (* const&)(float), float, float, unsigned int)+ADDR	integrate.hxx:28
 3	integrate.hxx(28-29) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:28
-2	unitTest.cxx(28,31)STDBB(X) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+2	unitTest.cxx(28,31)STDBB(X) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:31
 2	unitTest.cxx(31,34)STDBB(X) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:34
@@ -34,7 +34,7 @@ R-3	integrate.hxx(15-17,26) F?	0.8235294117647058	0.8636363636363636	0.863636363
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:34
 2	unitTest.cxx(34)unamed_filename_verrou(0) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26
-2	unitTest.cxx(26)STDBB(X) F	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+2	unitTest.cxx(26)STDBB(X) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26
 2	unitTest.cxx(26)STDBB(X) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
 |1	testConvergence(float const&)+ADDR	unitTest.cxx:26
