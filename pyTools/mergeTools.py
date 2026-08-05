@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from coverTools import backCovReader, coverageReader, traceName
+from coverTools import backCovReader, coverageReader
 
 
 class statusReader:

@@ -26,13 +26,9 @@
 
 import sys
 import os
-import subprocess
 import dd_config
 import DD_stoch
 import DD_exec_stat
-
-import ctypes
-import ctypes.util
 
 from sysTools import disable_ASLR
 
@@ -157,8 +153,6 @@ class DDback(DD_stoch.DDStoch):
         return "\n  " + "\n  ".join([transform(line) for line in delta_config])
 
 
-
-#code coming from verificarlo : https://github.com/verificarlo/verificarlo/blob/master/src/tools/ddebug/main.py
 
 class ddBackConfig(dd_config.ddConfig):
 

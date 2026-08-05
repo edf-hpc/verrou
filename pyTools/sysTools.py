@@ -1,9 +1,7 @@
-import sys
 import gzip
 import os
 
 import subprocess
-from pathlib import Path
 
 
 def runCmdAsync(cmd, fname, envvars=None):

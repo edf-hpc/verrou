@@ -1,9 +1,7 @@
 
 import re
 import sys
-from operator import itemgetter, attrgetter
-import os
-import copy
+from operator import itemgetter
 from pathlib import Path
 
 from sysTools import runCmdAsync,getResult,openGz

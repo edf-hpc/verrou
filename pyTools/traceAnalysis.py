@@ -1,12 +1,9 @@
 import sys
 from pathlib import Path
-import math
-import re
 
-
-from coverTools import backCovReader, coverageReader, traceName
+from coverTools import traceName
 from mergeTools import genMerge
-from estimatorTools import computeEstimator
+
 
 def findCoverRep(baseRep):
     return baseRep.glob("*-trace/**/cover/")
