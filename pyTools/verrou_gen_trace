@@ -65,7 +65,7 @@ class config_option:
         self.parseOpt(argv[1:])
 
     def usage(self):
-        print ("Usage: %s [--help] [--genCov] [--genCovBack] [--genCovCorrelation] [--genBackCorrelation] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* "%(self.argv[0]) )
+        print ("Usage: %s [--help] [--trace-type=[back_cover|bb_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
         sys.exit(42)
 
     def parseOpt(self,argv):
@@ -85,7 +85,7 @@ class config_option:
                 self.trace_kind=arg
 
             if opt in ["--output-type"]:
-                if not arg in ["individual","with_correlation"]:
+                if not arg in ["individual","merge"]:
                     print("invalid output-type arg:" , arg)
                     self.usage()
                 self.output_kind=arg
@@ -117,8 +117,8 @@ class config_option:
         if len(self.listOfFiles)<1 and self.output_kind=="individual":
             print("--output-type=individual required at least 1 argument")
             self.usage()
-        if len(self.listOfFiles)<2 and self.output_kind=="with_correlation":
-            print("--output-type=with_correlation required at least 2 arguments")
+        if len(self.listOfFiles)<2 and self.output_kind=="merge":
+            print("--output-type=merge required at least 2 arguments")
             self.usage()
 
         self.listOfFiles=[Path(x) for x in self.listOfFiles]
@@ -157,11 +157,11 @@ if __name__=="__main__":
         else:
             cmp.writePartialBack(pidMap=pidMap)
 
-    if options.output_kind=="with_correlation":
+    if options.output_kind=="merge":
         if options.trace_kind=="bb_cover":
             cmp.findRefForMerge()
-            cmp.writeMergedCov("wdc")
+            cmp.writeMergedBB(["wdc"])
         if options.trace_kind=="back_cover":
             cmp.findRefForMergePost()
-            cmp.writeMergedBack(["wdc"], csvFormat=False)
+            cmp.writeMergedBack(["wdc"])
 
