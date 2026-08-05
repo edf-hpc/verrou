@@ -1,4 +1,4 @@
-		standard	biased	biased-stol	fdr-stol
+		dc	wdc	wdc-stol	fdr-stol
 	conf_name					NoPerturbation	FullPerturbation	FullPerturbation	FullPerturbation	FullPerturbation	rddmin-cmp	rddmin-cmp	rddmin-cmp	rddmin-cmp	ddmin0	ddmin0	ddmin0	ddmin0	ddmin1	ddmin1	ddmin1	ddmin1
 	indexRun					0	0	1	2	3	0	1	2	3	0	1	2	3	0	1	2	3
 	rounding					default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default

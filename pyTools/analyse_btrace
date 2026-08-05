@@ -11,7 +11,7 @@ if __name__=="__main__":
 
     trace_kind="back_trace"
     trace_kind="bb_trace"
-    estimatorTab=["standard","biased","biased-stol","fdr-stol", "data"]
+    estimatorTab=["dc","wdc","wdc-stol","fdr-stol", "data"]
     clean=False
 
     generateTraceAnalysis(baseRep, trace_kind, estimatorTab, clean)

@@ -365,9 +365,9 @@ def computeBBEstimator( tabCount, tabStatus, refIndex, estimatorTab):
     res={}
     for estimatorStr in estimatorTab:
         estim=None
-        if estimatorStr=="biased":
+        if estimatorStr=="wdc":
             estim= 0.5* (float(diffKO)/ float(diffKO+equalKO) + float(equalOK)/float(equalOK+diffOK))
-        if estimatorStr=="standard":
+        if estimatorStr=="dc":
             estim= float(diffKO + equalOK)/ float(equalOK + equalKO+ diffOK+diffKO)
         if estimatorStr=="ochiai":
             estim=n11 / math.sqrt( (n11+ n01) * (n11+ n10 ) )
@@ -378,7 +378,7 @@ def computeBBEstimator( tabCount, tabStatus, refIndex, estimatorTab):
     return res
 
 
-def updateEstimator(mergedData,dataParsedTab,estimatorTab=["standard","biased","ochiai", "tarantula"], backVersion=False):
+def updateEstimator(mergedData,dataParsedTab,estimatorTab=["dc","wdc","ochiai", "tarantula"], backVersion=False):
     nbSeqRef=dataParsedTab[0]["cover"]["nbSeq"]
     nbCoverTabRef=dataParsedTab[0]["cover"]["nbCoverTab"]
     refIndex=getRefIndex(dataParsedTab)
@@ -457,7 +457,7 @@ if __name__=="__main__":
     dataParsed=[analysePath(baseRep,path) for path in pathTab]
     dataParsed=sortDataParsed(dataParsed)
 
-    estimatorTab=["standard","biased"] #, "ochiai","tarantula"]
+    estimatorTab=["dc","wdc"] #, "ochiai","tarantula"]
     backVersion=True
     dataMerged=mergeData(dataParsed,backVersion)
     updateEstimator(dataMerged, dataParsed, estimatorTab, backVersion=backVersion)

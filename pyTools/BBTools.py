@@ -474,7 +474,7 @@ class coverageReader:
                 for outputType in outputTypeTab:
                     if outputType=="data":
                         dataTab+=rawDataTab
-                    elif outputType in ["biased","standard", "biased-stol", "fdr-stol"]:
+                    elif outputType in ["wdc","dc", "wdc-stol", "fdr-stol"]:
                         dataTab+=computeEstimator( self.statusTab  , rawDataTab, [outputType])
                     else:
                         print("unknown outputType", outputType)
@@ -695,7 +695,7 @@ class backCovReader:
                         coverTab=[ x[0] for x in subTree["data"]]
                         if outputType=="data":
                             dataTab+=coverTab
-                        elif outputType in ["biased","standard", "biased-stol", "fdr-stol"]:
+                        elif outputType in ["wdc","dc", "wdc-stol", "fdr-stol"]:
                             dataTab+=computeEstimator( self.statusTab  , coverTab, [outputType])
                         else:
                             print("unknown outputType", outputType)
@@ -782,12 +782,12 @@ def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
 
     res=[]
     for estimator in estimatorTab:
-        if estimator=="standard":
+        if estimator=="dc":
             if (nbFail+nbSuccess)==0:
                 res+=[float("Nan")]
             else:
                 res+=[float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)]
-        elif estimator=="biased":
+        elif estimator=="wdc":
             if nbFail==0 or nbSuccess==0:
                 res+=[float("Nan")]
             else:
@@ -807,7 +807,7 @@ def computeEstimator(statusTab, counterTab, estimatorTab, refIndex=0):
                 sys.exit(42)
 
             nbSuccessEqualTol=countDataTol["nbSuccessEqual"]
-            if estimator=="biased-stol":
+            if estimator=="wdc-stol":
                 if nbFail==0 or nbSuccess==0:
                     res+=[float("Nan")]
                 else:
@@ -936,10 +936,10 @@ class covMerge:
             return None
 
 
-        if name=="standard":
+        if name=="dc":
             return float(nbFailDiff + nbSuccessEqual)/ float(nbSuccess+nbFail)
 
-        if name=="biased":
+        if name=="wdc":
             return 0.5* (float(nbFailDiff)/ float(nbFail) + float(nbSuccessEqual)/float(nbSuccess))
 
         return None

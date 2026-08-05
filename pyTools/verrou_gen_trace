@@ -160,8 +160,8 @@ if __name__=="__main__":
     if options.output_kind=="with_correlation":
         if options.trace_kind=="bb_cover":
             cmp.findRefForMerge()
-            cmp.writeMergedCov("biased")
+            cmp.writeMergedCov("wdc")
         if options.trace_kind=="back_cover":
             cmp.findRefForMergePost()
-            cmp.writeMergedBack(["biased"], csvFormat=False)
+            cmp.writeMergedBack(["wdc"], csvFormat=False)
 

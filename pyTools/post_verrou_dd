@@ -478,7 +478,7 @@ if __name__=="__main__":
         runSubRepForOneInstr(config, rep, refDir, ddMinList)
 
         #insert Analyse
-        estimatorTab=["standard","biased","biased-stol","fdr-stol", "data"]
+        estimatorTab=["dc","wdc","wdc-stol","fdr-stol", "data"]
 
         clean=config.get_trace_clean_intermediate()
         generateTraceAnalysis(rep, config.get_trace_type() , estimatorTab, clean)
