@@ -12,7 +12,7 @@ FLAGS=-Wall -g -O0
 BACKCOV_OP=cmpRepToRef
 #BACKCOV_OP=generateRef
 
-all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert dd.line.postbb.assert
+all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert dd.line.postbb.assert dd.line.integer.post2.assert
 #dd.back.line.integer.post.assert dd.back.line.post.assert
 
 unitTest: unitTest.cxx integrate.hxx
@@ -88,11 +88,22 @@ dd.line.integer.post: dd.line.integer
 	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=1 --trace-clean-policy=gz --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 
+dd.line.integer.post2: dd.line.integer.post
+	cp -r dd.line.integer.post dd.line.integer.post2
+	rm -rf dd.line.integer.post2/trace_analysis
+	verrou_analyse_trace dd.line.integer.post2
+
 dd.line.integer.post.assert: dd.line.integer.post
 	./assertCover.py dd.line.integer.post 1 8 3 0 nearness_scomdet Back
 	find dd.line.integer.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
 	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
 #	find trace_analysis_ref/dd.line.integer.post-aarch64 -name "*.prop" -print -exec cat \{\} \;
+
+dd.line.integer.post2.assert: dd.line.integer.post2
+	./assertCover.py dd.line.integer.post2 1 8 3 0 nearness_scomdet Back
+	find dd.line.integer.post2 -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post2/trace_analysis trace_analysis_ref/dd.line.integer.post
+
 
 dd.line.post.assert: dd.line.post
 	./assertCover.py dd.line.post 2 8 3 0 nearness_scomdet Back
@@ -117,4 +128,4 @@ diff.assert: dd.line.integer.post dd.line.post
 clean:
 	rm -rf unitTest unitTestInteger dd.line dd.line.integer dd.line.integer.vprec dd.line.post dd.line.integer.post dd.line.postmatch matchLast.script.log-* *~
 	rm -rf dd.back.line.integer.post dd.back.line.post dd.back.line.integer dd.back.line dd.back
-	rm -rf dd.line.postbb
+	rm -rf dd.line.postbb dd.line.integer.post2

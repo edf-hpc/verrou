@@ -58,6 +58,16 @@ _post_verrou_dd()
             cur=${cur#*=}
             return
             ;;
+        --trace-type=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'bb_cover back_cover' -- "$cur"))
+            return
+            ;;
+        --trace-clean-policy=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'none gz clean' -- "$cur"))
+            return
+            ;;
         --seed=*)
             cur=${cur#*=}
             return
@@ -78,7 +88,7 @@ _post_verrou_dd()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --nruns= --num-threads= --quiet --rep= --sub-rep= --configuration= --instr= --rounding= --trace-bin --trace-pattern= --trace-file= --seed= --count-denorm --IOmatch-header= --IOmatch-verbose=' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --nruns= --num-threads= --quiet --rep= --sub-rep= --configuration= --instr= --rounding= --trace-bin --trace-pattern= --trace-file= --trace-type= --trace-clean-policy= --trace-gen-local --seed= --count-denorm --IOmatch-header= --IOmatch-verbose=' -- "$cur"))
 
     _filedir
 

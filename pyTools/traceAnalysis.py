@@ -23,6 +23,21 @@ def extractPidPathTime(fileName, trace_kind="bb_cover"):
         return (pid,fileName, mtime)
     return None
 
+def detect_trace_kind(baseRep):
+    listBBNum=len(list(baseRep.glob("*-trace/**/cover/trace_bb_cov.log-*")))
+    listBackNum=len(list(baseRep.glob("*-trace/**/cover/backCoverInfo-*")))
+    if listBackNum!=0 and listBBNum!=0:
+        print("incompatible trace format")
+        sys.exit(42)
+    if listBackNum==0 and listBBNum==0:
+        print("no trace found")
+        sys.exit(42)
+    if listBBNum!=0:
+        return "bb_cover"
+    if listBackNum!=0:
+        return "back_cover"
+    return None
+
 
 def selectSortedPidFromGlob(fileNameTab,trace_kind="bb_cover"):
     """Return a list of pid from a list of file by using extractPidRep"""

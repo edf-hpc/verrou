@@ -85,10 +85,9 @@ def mapRename(rep, pid, count, listOfFile, compress,verbose):
             os.system(cmd)
 
 
-def rename_pid_for_one_rep(config, rep, what=["bb_cover"], clean=False, ignoreEmpty=True,verbose=False):
-    if "all" in what:
-        assert(len(what)==1)
+def rename_pid_for_one_rep(config, rep, ignoreEmpty=True,verbose=False):
     tName=traceName(config.get_trace_type())
+    trace_kind=config.get_trace_type()
 
     pidList=getSortedPidList(config,rep)
     count=0
@@ -104,35 +103,15 @@ def rename_pid_for_one_rep(config, rep, what=["bb_cover"], clean=False, ignoreEm
             fileName=tName.bbName(pid)
             pathFile=rep / fileName
             if  fileName in  otherOldFileList and (pathFile.stat()).st_size==0:
-                if clean:
-                    mapClean(rep,otherOldFileList+bbOldFileList+backOldFileList, verbose)
-                continue
-        if "all" in what:
-            mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(), verbose)
-            mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(), verbose)
-            mapRename(rep,pid,count, otherOldFileList, config.get_trace_compress(), verbose)
+                mapClean(rep,otherOldFileList+bbOldFileList+backOldFileList, verbose)
 
-        if ("bb_cover" in what) and ("back_cover" in what) :
-            mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(), verbose)
-            mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(), verbose)
-            if clean:
-                mapClean(rep,otherOldFileList,verbose)
-            else:
-                mapCompress(rep,otherOldFileList,verbose)
-
-        if ("bb_cover" in what) and not ("back_cover" in what):
+        if trace_kind=="bb_cover":
             mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(),verbose)
-            if clean:
-                mapClean(rep,otherOldFileList+backOldFileList,verbose)
-            else:
-                mapCompress(rep,otherOldFileList+backOldFileList,verbose)
+            mapCompress(rep,otherOldFileList+backOldFileList,verbose)
 
-        if not ("bb_cover" in what) and ("back_cover" in what):
+        if  trace_kind=="back_cover":
             mapRename(rep,pid,count, backOldFileList, config.get_trace_compress(),verbose)
-            if clean:
-                mapClean(rep,otherOldFileList+bbOldFileList,verbose)
-            else:
-                mapCompress(rep,otherOldFileList+bbOldFileList,verbose)
+            mapCompress(rep,otherOldFileList+bbOldFileList,verbose)
         count+=1
 
 
@@ -199,8 +178,7 @@ class trace_handler:
             #print("cmd: ", cmd)
             os.system(cmd+ "  >> %s"%( runDir/ "gen_trace_log"))
 
-        rename_pid_for_one_rep(self.config, runDir / "cover",what=[config.get_trace_type()],
-                               clean=False, ignoreEmpty=True)
+        rename_pid_for_one_rep(self.config, runDir / "cover", ignoreEmpty=True)
 
     def preRunTrace(self, runDir, env):
         coverRep=runDir / "cover"

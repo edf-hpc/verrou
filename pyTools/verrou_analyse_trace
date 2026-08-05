@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from traceAnalysis import generateTraceAnalysis
+from traceAnalysis import generateTraceAnalysis,detect_trace_kind
 from pathlib import Path
 import sys
 
@@ -9,8 +9,7 @@ if __name__=="__main__":
     if len(sys.argv)==2:
         baseRep=Path(sys.argv[1])
 
-    trace_kind="back_trace"
-    trace_kind="bb_trace"
+    trace_kind=detect_trace_kind(baseRep)
     estimatorTab=["dc","wdc","wdc-stol","fdr-stol", "data"]
     clean=False
 
