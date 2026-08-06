@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from coverTools import backCovReader, coverageReader
+from coverTools import backCovReader, bbCovReader
 
 
 class statusReader:
@@ -74,22 +74,22 @@ class statusReader:
         return self.isSuccess
 
 
-class genMerge:
+class genericMergeCover:
 
     def __init__(self, pidRef, pathRef,statusRef, trace_kind):
-
+        self.trace_kind=trace_kind
         if trace_kind=="back_cover":
             self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
         elif trace_kind=="bb_cover":
-            self.root=coverageReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
+            self.root=bbCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
         else:
             pass
 
-    def current(self,  pid, path, status, trace_kind):
-        if trace_kind=="back_cover":
-            return backCovReader( pid, path, status, trace_kind, mergeRoot=False)
-        elif trace_kind=="bb_cover":
-            return coverageReader(pid, path,status, trace_kind, mergeRoot=False)
+    def current(self,  pid, path, status):
+        if self.trace_kind=="back_cover":
+            return backCovReader( pid, path, status, self.trace_kind, mergeRoot=False)
+        elif self.trace_kind=="bb_cover":
+            return bbCovReader(pid, path,status, self.trace_kind, mergeRoot=False)
 
     def addMerge(self, current):
         self.root.addMerge(current)
@@ -100,7 +100,9 @@ class genMerge:
     def writeCSV(self, pathStr, header, outputTypeTab):
         self.root.writeCSV(pathStr, header, outputTypeTab=outputTypeTab)
 
-    
+    def writePartialCover(outputDir, outputTypeTab):
+        self.root.writePartialCover(outputDir=outputDir, outputTypeTab=outputTypeTab)
+
 
 class cmpToolsCov:
     """Class to write partial cover of several executions :
@@ -125,27 +127,17 @@ class cmpToolsCov:
     def findRefForMergePost(self):
         self.refIndex=self.findRefDD(pattern="NoPerturbation-trace")
 
-    def writePartialCover(self,filenamePrefix="", pidMap=None):
-        """Write partial cover for each execution (defined by a tab of pid)"""
+
+    def writePartialCover(self, filenamePrefix="", pidMap=None):
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
-            cov=coverageReader(pid,Path(rep), None, self.trace_kind)
-            cov.writePartialCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
+            genCov=None
+            if self.trace_kind=="back_cover":
+                genCov=backCovReader(pid,Path(rep), None, self.trace_kind)
+            if self.trace_kind=="bb_cover":
+                genCov=bbCovReader(pid,Path(rep), None, self.trace_kind)
+            genCov.writePartialCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
 
-
-    def writePartialBack(self,filenamePrefix="", pidMap=None):
-        """Write partial cover for each execution (defined by a tab of pid)"""
-        for i in range(len(self.tabPidRep)):
-            pid,rep=self.tabPidRep[i]
-            covBack=backCovReader(pid,Path(rep), None, self.trace_kind)
-            covBack.writePartialBackCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
-
-    # def writeStatus(self):
-    #     for i in range(len(self.tabPidRep)):
-    #         pid,rep=self.tabPidRep[i]
-    #         status=statusReader(pid,rep)
-    #         success=status.getStatus()
-    #         print( rep+":" + str(success))
     def getStatus(self,pid,rep):
         if self.runCmp!=None:
             status=statusReader(pid,rep, self.runCmp, self.tabPidRep[self.refIndex][1])
@@ -213,7 +205,7 @@ class cmpToolsCov:
         return 0
 
 
-    def writeMergedBB(self,estimatorTab):
+    def writeMerged(self,estimatorTab):
         """Write merged BB with correlation indice  between coverage difference and success/failure status"""
         (nbSuccess, nbFail)=self.countStatus()
         print("NbSuccess: %d \t nbFail %d"%(nbSuccess,nbFail))
@@ -225,7 +217,7 @@ class cmpToolsCov:
         statusRef=self.getStatus(pidRef,repRef)
 
 
-        bbMerged=coverageReader(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
+        gCov=genericMergeCover(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
         #Loop with addMerge to reduce memory peak
 
         printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
@@ -235,43 +227,16 @@ class cmpToolsCov:
             if i==self.refIndex:
                 continue
             pid,rep=self.tabPidRep[i]
-            currentBBCov=coverageReader(pid,Path(rep),self.getStatus(pid,rep),self.trace_kind, mergeRoot=False)
-            bbMerged.addMerge(currentBBCov)
+            current=gCov.current(pid,Path(rep),self.getStatus(pid,rep))
+            gCov.addMerge(current)
             if i in printIndex:
                 pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
                 if i >=self.refIndex:
                     pourcent=float(i)/ float(len(self.tabPidRep)-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
 
-        bbMerged.endMerge()
-        bbMerged.writePartialCover(outputDir=Path("."), outputTypeTab=estimatorTab)
+        gCov.endMerge()
+        gCov.writePartialCover(outputDir=Path("."), outputTypeTab=estimatorTab)
 
-
-    def writeMergedBack(self,estimatorTab):
-        """Write merged Back with correlation indice  between coverage difference and success/failure status"""
-
-        pidRef,repRef=self.tabPidRep[self.refIndex]
-        statusRef=self.getStatus(pidRef,repRef)
-
-        backMerged=backCovReader(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
-        #Loop with addMerge to reduce memory peak
-
-        printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
-        printIndex +=[1,  len(self.tabPidRep)-1]
-
-        for i in range(len(self.tabPidRep)):
-            if i==self.refIndex:
-                continue
-            pid,rep=self.tabPidRep[i]
-            currentBackCov=backCovReader(pid,Path(rep),self.getStatus(pid,rep),self.trace_kind, mergeRoot=False)
-            backMerged.addMerge(currentBackCov)
-            if i in printIndex:
-                pourcent=float(i+1)/ float(len(self.tabPidRep)-1)
-                if i >=self.refIndex:
-                    pourcent=float(i)/ float(len(self.tabPidRep)-1)
-                print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
-
-        backMerged.endMerge()
-        backMerged.writePartialBackCover(outputDir=Path("."), outputTypeTab=estimatorTab)
 
 

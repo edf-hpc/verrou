@@ -255,7 +255,7 @@ class mergeAddrBackReader:
         return self.backReader.isBelowMain(addr)
 
 
-class coverageReader:
+class bbCovReader:
     def __init__(self, pid, rep, status, trace_kind, mergeRoot=False):
         self.pid=pid
         self.rep=rep
@@ -275,7 +275,7 @@ class coverageReader:
             self.mergeNum=None
             self.statusTab=None
         covFile=openGz(self.rep / self.tName.covName(pid), "r")
-        self.dataCov=self.readCoverage(covFile)
+        self.dataCov=self.readBBCov(covFile)
 
     def addMerge(self, covCurrent): #attention ne marche qu'avec le mode addr
         #add check bbInfo Coherence
@@ -306,8 +306,7 @@ class coverageReader:
                 if size < self.mergeNum:
                     self.dataCov[indexCov][key]+= [(0,None) for i in range(self.mergeNum- size)]
 
-    def readCoverage(self, cov):
-        #attention duplication from covReader
+    def readBBCov(self, cov):
         res=[] # tab indexed by cov index. Each element is a dict {addr/index: num}.
         currentNumber=-1
         dictRes={}
@@ -374,7 +373,6 @@ class coverageReader:
             for pid in pidMap:
                 handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
 
-        print("self.dataSortCov", self.dataSortCov)
         for numCov in range(len(self.dataSortCov)):
             pidStr=str(self.pid)
             if pidMap!=None:
@@ -596,7 +594,7 @@ class backCovReader:
                 handler.write(deepStr+ self.bbInfo.compressMarksWithoutSym(addrBB) +"\t"+dataBBStr +"\n" )
 
 
-    def writePartialBackCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
+    def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
         self.structureData()
         if pidMap!=None:
             handler=openGz(self.rep / "pidMap" ,"w")

@@ -152,16 +152,11 @@ if __name__=="__main__":
 
     cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval, options.trace_kind)
     if options.output_kind=="individual":
-        if options.trace_kind=="bb_cover":
-            cmp.writePartialCover(pidMap=pidMap)
-        else:
-            cmp.writePartialBack(pidMap=pidMap)
+        cmp.writePartialCover(pidMap=pidMap)
 
     if options.output_kind=="merge":
         if options.trace_kind=="bb_cover":
             cmp.findRefForMerge()
-            cmp.writeMergedBB(["wdc"])
         if options.trace_kind=="back_cover":
             cmp.findRefForMergePost()
-            cmp.writeMergedBack(["wdc"])
-
+        cmp.writeMerged(["wdc"])

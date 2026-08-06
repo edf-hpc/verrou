@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from coverTools import traceName
-from mergeTools import genMerge
+from mergeTools import genericMergeCover
 
 
 def findCoverRep(baseRep):
@@ -176,13 +176,13 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
         pidRef=pidTab[0]
         repRef=pathRepTab[0]
 
-        mergeTool=genMerge(pidRef, Path(repRef),statusRef, trace_kind)
+        mergeTool=genericMergeCover(pidRef, Path(repRef),statusRef, trace_kind)
 
         printIndex=[int(float(p) * mergeSize /100.)  for p in (list(range(0,100,10))+[1,5])]
         printIndex +=[1,  mergeSize-1]
 
         for i in range(1,mergeSize):
-            current=mergeTool.current(pidTab[i], pathRepTab[i], statusTab[i], trace_kind)
+            current=mergeTool.current(pidTab[i], pathRepTab[i], statusTab[i])
             mergeTool.addMerge(current)
             if i in printIndex:
                 pourcent=float(i)/ float(mergeSize-1)
