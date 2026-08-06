@@ -13,9 +13,9 @@ def filterPID(tabLines):
     if pid==None:
         print("Unknown PID")
         sys.exit(42)
-    res=[line.replace(pid,"FILTERED_PID") for line in tabLines]    
+    res=[line.replace(pid,"FILTERED_PID") for line in tabLines]
     return res
-        
+
 
 def findNonNullCounterNumber(tabLines, keyTab=["div","cmp"]):
     res=[]
@@ -25,6 +25,11 @@ def findNonNullCounterNumber(tabLines, keyTab=["div","cmp"]):
             if line.startswith(begin):
                 restLine=line.replace(begin," ").strip()
                 m=re.match(r"(\d*)\s*(\d*)\s*\(\s*(\d+)%\)", restLine)
+                if m is None:
+                    print("invalid regexp")
+                    print("line", line)
+                    print("tabLines", tabLines)
+
                 res+=[m.group(1),m.group(2)]
                 if m.group(3)!="100":
                     res+=[m.group(3)]
@@ -32,15 +37,13 @@ def findNonNullCounterNumber(tabLines, keyTab=["div","cmp"]):
     res=[x for x in res if x!="0"]
     res.sort(key=lambda x: len(x), reverse=True)
     return res
-                          
 
-                          
+
 def replaceMultipleSpace(line):
     if "  " in line:
         return replaceMultipleSpace(line.replace("  "," "))
     return line
 
-    
 def filterCounter(tabLines):
     tabValue=findNonNullCounterNumber(tabLines, keyTab=["div","cmp"])
     res=[]
@@ -51,9 +54,9 @@ def filterCounter(tabLines):
                 line=line.replace("llo","scal") #homogene between x86 and arm
                 #we chose arm reference to avoid to parse differently div and cmp
             line=replaceMultipleSpace(line)
-        res+=[line]    
+        res+=[line]
     return res
-    
+
 def filterAddress(tabLines):
     #    0-  0x4001203: main (infiniteLoop.cxx:21)
     filterActive=True
@@ -65,7 +68,7 @@ def filterAddress(tabLines):
                 res+=[line.replace(m.group(1), "FFFFFF")]
             else:
                 res+=[line]
-                
+
             if "verrou_control --verbose=off" in line:
                 filterActive=False
         else:
@@ -80,7 +83,7 @@ def filterPath(tabLines):
             line=line.replace(m.group(1), "$PATH/")
         res+=[line]
     return res
-    
+
 
 
 def output(tabLines):
@@ -93,9 +96,5 @@ if __name__=="__main__":
     tabLines=filterPath(tabLines)
     tabLines=filterAddress(tabLines)
     tabLines=filterCounter(tabLines)
-    
+
     output(tabLines)
-    
-    
-    
-    
