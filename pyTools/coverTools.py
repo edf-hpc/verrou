@@ -368,11 +368,6 @@ class bbCovReader:
 
     def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
         self.structureData()
-        if pidMap!=None:
-            handler=openGz(self.rep / "pidMap" ,"w")
-            for pid in pidMap:
-                handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
-
         for numCov in range(len(self.dataSortCov)):
             pidStr=str(self.pid)
             if pidMap!=None:
@@ -596,10 +591,6 @@ class backCovReader:
 
     def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
         self.structureData()
-        if pidMap!=None:
-            handler=openGz(self.rep / "pidMap" ,"w")
-            for pid in pidMap:
-                handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
 
         for numCov in range(len(self.backTreeCov)):
             pidStr=str(self.pid)

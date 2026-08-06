@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 from coverTools import backCovReader, bbCovReader
-
+from sysTools import openGz
 
 class statusReader:
     """Class to provide the status of a run"""
@@ -131,11 +131,18 @@ class cmpToolsCov:
     def writePartialCover(self, filenamePrefix="", pidMap=None):
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
+
+            if pidMap!=None:
+                handler=openGz(Path(rep) / "pidMap" ,"w")
+                for pid in pidMap:
+                    handler.write(str(pid)+ " => "+pidMap[pid]+ "\n")
+
             genCov=None
             if self.trace_kind=="back_cover":
                 genCov=backCovReader(pid,Path(rep), None, self.trace_kind)
             if self.trace_kind=="bb_cover":
                 genCov=bbCovReader(pid,Path(rep), None, self.trace_kind)
+
             genCov.writePartialCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
 
     def getStatus(self,pid,rep):
