@@ -986,9 +986,18 @@ det2
           <varlistentry id="vr.opt.trace" xreflabel="--trace">
             <term><option><![CDATA[--trace=FILE]]></option></term>
             <listitem><para>
-		Activate the <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> for the symbols specified in <computeroutput> FILE</computeroutput>.
+		Activate the trace module for the symbols specified in <computeroutput> FILE</computeroutput>.
               </para>
 	      <para>This option can be activated with the environment variable <command>VERROU_TRACE</command>.</para>
+	    </listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.trace_type" xreflabel="--trace-type">
+            <term><option><![CDATA[--trace-type=<bb_cover|back_cover>]]></option></term>
+            <listitem><para>
+		Select the trace type  <computeroutput>bb_cover</computeroutput> for <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> or  <computeroutput>back_cover</computeroutput> <link linkend="vr-manual.localization.CovBack" >Backtrace Coverage</link> 
+              </para>
+	      <para>This option can be activated with the environment variable <command>VERROU_TRACE_TYPE</command>.</para>
 	    </listitem>
           </varlistentry>
 

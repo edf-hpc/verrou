@@ -15,14 +15,14 @@ installConfig= subprocess.Popen(["./config.status", "--config"],
 
 line = (installConfig.stdout.readline()).decode("utf8").replace("'","")
 spline=(line.strip()).split()
-pathInstall="./install"
+pathInstall=Path("./install")
 for conf in spline:
     if conf.startswith("--prefix"):
         pathInstall=Path((conf.partition('='))[2])
 
 manPath=pathInstall / "share" / "man" / "man1" / "valgrind.1"
 if not manPath.is_file():
-    print("unable to find valgrind man file : "+ manPath)
+    print("unable to find valgrind man file : "+ str(manPath))
     sys.exit(42)
 
 man = subprocess.Popen(["man", manPath],

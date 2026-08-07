@@ -358,11 +358,17 @@
 \n\
     Coverage generation\n\
       --trace=FILE\n\
-          Activate the Basic Blocks Coverage for the symbols specified in\n\
-          FILE.\n\
+          Activate the trace module for the symbols specified in FILE.\n\
 \n\
           This option can be activated with the environment variable\n\
           VERROU_TRACE.\n\
+\n\
+      --trace-type=bb_cover|back_cover\n\
+          Select the trace type bb_cover for Basic Blocks Coverage or\n\
+          back_cover Backtrace Coverage\n\
+\n\
+          This option can be activated with the environment variable\n\
+          VERROU_TRACE_TYPE.\n\
 \n\
       --output-trace-rep=REP\n\
           Specify the REP directory for the trace output files.\n\

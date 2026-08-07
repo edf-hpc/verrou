@@ -186,39 +186,39 @@ if __name__=="__main__":
     </simplesect>
 
     <simplesect>
-      <title>Options and environment variables</title>
+      <title>Options</title>
 
       <para>
-        The following options or environment variables affect the behavior of <command>verrou_dd_sym</command>,  <command>verrou_dd_line</command>,  <command>verrou_dd_task</command>  and  <command>verrou_dd_stdout</command>:
+        The following options affect the behavior of <command>verrou_dd_sym</command>,  <command>verrou_dd_line</command>,  <command>verrou_dd_task</command>  and  <command>verrou_dd_stdout</command>:
       </para>
 
       <variablelist id="vr-manual.verrou_dd.envvars">
         <varlistentry>
           <term>
-            <computeroutput>--nruns</computeroutput> or <computeroutput>VERROU_DD_NRUNS</computeroutput>
+            <computeroutput>--nruns=NRUN</computeroutput>
           </term>
           <listitem>
             <para>An integer setting the required number successful runs needed to consider a
-            configuration as stable. If this environment variable is not set, the default value is
-            5.</para>
+              configuration as stable. If this option is not set, the default value is 5.
+	    </para>
           </listitem>
         </varlistentry>
 
 
 	<varlistentry>
           <term>
-             <computeroutput>--num-threads</computeroutput> or <computeroutput>VERROU_DD_NUM_THREADS</computeroutput>
+             <computeroutput>--num-threads=NUM_THREADS</computeroutput>
           </term>
           <listitem>
-            <para> Allows to perform <computeroutput>VERROU_DD_NUM_THREADS</computeroutput> runs in parallel.
-	     If this environment variable is not set, the parallelism is not activated.
+            <para> Allows to perform <computeroutput>NUM_THREADS</computeroutput> runs in parallel.
+	     If this option is not set, the parallelism is not activated.
 	    </para>
           </listitem>
         </varlistentry>
 
 	<varlistentry>
           <term>
-            <computeroutput>--reference-rounding</computeroutput> or <computeroutput>VERROU_REFERENCE_ROUNDING</computeroutput> [default native].
+            <computeroutput>--reference-rounding</computeroutput> [default native].
 	  </term>
 	  <listitem>
 	  <para>
@@ -230,7 +230,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-             <computeroutput>--res-with-all-samples </computeroutput> or <computeroutput>VERROU_DD_RES_WITH_ALL_SAMPLES</computeroutput>
+             <computeroutput>--res-with-all-samples </computeroutput>
           </term>
           <listitem>
             <para> Disable the early exit for result directories. It is useful to compute estimator for all
@@ -242,7 +242,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-            <computeroutput>--algo=</computeroutput> or <computeroutput>VERROU_DD_ALGO</computeroutput>
+            <computeroutput>--algo=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -264,7 +264,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-            <computeroutput>--rddmin=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN</computeroutput>
+            <computeroutput>--rddmin=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -289,7 +289,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-            <computeroutput>--rddmin-tab=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_TAB</computeroutput>
+            <computeroutput>--rddmin-tab=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -297,15 +297,15 @@ if __name__=="__main__":
 	    </para>
 	    <para>
 	      <computeroutput>exp</computeroutput>: increases the number of samples from 1 to
-	      <computeroutput>VERROU_DD_NRUNS</computeroutput> with exponential rate.
+	      <computeroutput>NRUNS</computeroutput> with exponential rate.
 	    </para>
 	    <para>
 	      <computeroutput>all</computeroutput>: consecutively try all numbers of samples from 1
-	      to <computeroutput>VERROU_DD_NRUNS</computeroutput>.
+	      to <computeroutput>NRUNS</computeroutput>.
 	    </para>
 	    <para>
 	      <computeroutput>single</computeroutput>: directly use the number of samples given by
-	      <computeroutput>VERROU_DD_NRUNS</computeroutput>. srddmin is equivalent to rddmin in
+	      <computeroutput>NRUNS</computeroutput>. srddmin is equivalent to rddmin in
               this case.
 	    </para>
 
@@ -317,7 +317,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-	    <computeroutput>--dicho-tab=</computeroutput> or <computeroutput>VERROU_DD_DICHO_TAB</computeroutput>
+	    <computeroutput>--dicho-tab=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -326,23 +326,23 @@ if __name__=="__main__":
 	    </para>
 	    <para>
 	      <computeroutput>exp</computeroutput>: increases the number of samples from 1 to
-	      <computeroutput>VERROU_DD_NRUNS</computeroutput> with exponential rate.
+	      <computeroutput>NRUNS</computeroutput> with exponential rate.
 	    </para>
 	    <para>
 	      <computeroutput>all</computeroutput>: consecutively try all numbers of samples from 1
-	      to <computeroutput>VERROU_DD_NRUNS</computeroutput>.
+	      to <computeroutput>NRUNS</computeroutput>.
 	    </para>
 	    <para>
 	      <computeroutput>single</computeroutput>: use the number of samples given by
-	      <computeroutput>VERROU_DD_NRUNS</computeroutput>.
+	      <computeroutput>NRUNS</computeroutput>.
 	    </para>
 	    <para>
 	      <computeroutput>half</computeroutput>: use half the number of samples given by
-	      <computeroutput>VERROU_DD_NRUNS</computeroutput>.
+	      <computeroutput>NRUNS</computeroutput>.
 	    </para>
 	    <para>
 	      <replaceable>N</replaceable>: user-provided value (must be an integer 
-	      between 1 and <computeroutput>VERROU_DD_NRUNS</computeroutput>).
+	      between 1 and <computeroutput>NRUNS</computeroutput>).
 	    </para>
 
 	    <para>
@@ -353,7 +353,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-            <computeroutput>--dicho-granularity=</computeroutput> or <computeroutput>VERROU_DD_DICHO_GRANULARITY</computeroutput>
+            <computeroutput>--dicho-granularity=</computeroutput>
           </term>
         <listitem>
             <para>
@@ -367,7 +367,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-            <computeroutput>--quiet</computeroutput> or <computeroutput>VERROU_DD_QUIET</computeroutput>
+            <computeroutput>--quiet</computeroutput>
           </term>
         <listitem>
             <para>
@@ -379,7 +379,7 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
-	    <computeroutput>--cache=</computeroutput> or <computeroutput>VERROU_DD_CACHE</computeroutput>
+	    <computeroutput>--cache=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -413,7 +413,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--rddmin-heuristics-cache=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_CACHE</computeroutput>
+	    <computeroutput>--rddmin-heuristics-cache=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -437,7 +437,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--rddmin-heuristics-rep=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_REP</computeroutput>
+	    <computeroutput>--rddmin-heuristics-rep=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -449,7 +449,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--rddmin-heuristics-file=</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_FILE</computeroutput>
+	    <computeroutput>--rddmin-heuristics-file=</computeroutput>
           </term>
           <listitem>
             <para>
@@ -461,7 +461,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--rddmin-heuristics-line-conv</computeroutput> or <computeroutput>VERROU_DD_RDDMIN_HEURISTICS_LINE_CONV</computeroutput>
+	    <computeroutput>--rddmin-heuristics-line-conv</computeroutput>
           </term>
           <listitem>
             <para>
@@ -473,7 +473,7 @@ if __name__=="__main__":
 
 	<varlistentry>
 	  <term>
-	    <computeroutput>--seed</computeroutput> or <computeroutput>VERROU_DD_SEED</computeroutput>
+	    <computeroutput>--seed=VERROU_DD_SEED</computeroutput>
           </term>
           <listitem>
             <para>
@@ -525,7 +525,7 @@ if __name__=="__main__":
 	<variablelist>
 	  <varlistentry>
 	    <term>
-	      <computeroutput>--hide-below-python</computeroutput> or <computeroutput>VERROU_DD_HIDE_BELOW_PYTHON</computeroutput>.
+	      <computeroutput>--hide-below-python</computeroutput>.
             </term>
 	    <listitem>
 	    <para>
@@ -535,7 +535,7 @@ if __name__=="__main__":
 	    </varlistentry>
 	    <varlistentry>
 	    <term>
-	      <computeroutput>--hide-common</computeroutput> or <computeroutput>VERROU_DD_HIDE_COMMON</computeroutput>.
+	      <computeroutput>--hide-common</computeroutput>.
             </term>
 	    <listitem>
 	    <para>
@@ -553,7 +553,7 @@ if __name__=="__main__":
 	<variablelist>
 	  <varlistentry>
 	    <term>
-	      <computeroutput>--stop_start=</computeroutput> or <computeroutput>VERROU_DD_STOP_START</computeroutput>
+	      <computeroutput>--stop_start=</computeroutput>
             </term>
 	      <listitem>
 		<para>
@@ -574,7 +574,7 @@ if __name__=="__main__":
         <variablelist>
 	  <varlistentry>
 	    <term>
-	      <computeroutput>--unknown-task=</computeroutput> or <computeroutput>VERROU_DD_UNKNOWN_TASK</computeroutput>
+	      <computeroutput>--unknown-task=</computeroutput>
             </term>
             <listitem>
               <para>
@@ -598,7 +598,7 @@ if __name__=="__main__":
 
 	  <varlistentry>
 	      <term>
-		<computeroutput>--ignore-empty-line=[true[default]|false]</computeroutput> or <computeroutput>VERROU_DD_IGNORE_EMPTY_LINE</computeroutput>
+		<computeroutput>--ignore-empty-line=[true[default]|false]</computeroutput>
               </term>
               <listitem>
 		<para>
@@ -609,7 +609,7 @@ if __name__=="__main__":
 
 	    <varlistentry>
 	      <term>
-		<computeroutput>--IOmatch-header=FILE</computeroutput> or <computeroutput>VERROU_DD_IOMATCH_HEADER</computeroutput>
+		<computeroutput>--IOmatch-header=FILE</computeroutput>
               </term>
               <listitem>
 		<para>
@@ -627,7 +627,7 @@ Be careful the match expression should not match any line of the reference compu
 
 	    <varlistentry>
 	      <term>
-		<computeroutput>--filter-cmd=CMD</computeroutput> or <computeroutput>VERROU_DD_FILTER_CMD</computeroutput>
+		<computeroutput>--filter-cmd=CMD</computeroutput>
               </term>
               <listitem>
             <para>
@@ -678,7 +678,7 @@ To avoid problem with bufferization, we need to write your own <computeroutput>r
 
 	    <varlistentry>
 	      <term>
-		<computeroutput>--custom-search-space=FILE</computeroutput> or <computeroutput>VERROU_DD_CUSTOM_SEARCH_SPACE</computeroutput>
+		<computeroutput>--custom-search-space=FILE</computeroutput>
               </term>
               <listitem>
 		<para>
@@ -709,7 +709,7 @@ To avoid problem with bufferization, we need to write your own <computeroutput>r
 
 	    <varlistentry>
 	      <term>
-		<computeroutput>--file-pattern=FILE_PATTERN</computeroutput> or <computeroutput>VERROU_DD_FILE_PATTERN</computeroutput>
+		<computeroutput>--file-pattern=FILE_PATTERN</computeroutput>
               </term>
               <listitem>
 		<para>
@@ -980,15 +980,15 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
 echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc</programlisting>
 
 	With the <computeroutput> trace.inc</computeroutput> the BB coverage instrumentation can be activated with the <computeroutput>--trace=</computeroutput> option:
-	<programlisting>
-valgrind --tool=verrou --rounding-mode=random --trace=trace.inc <replaceable>program args</replaceable></programlisting>
+	<programlisting>valgrind --tool=verrou --rounding-mode=random --trace=trace.inc --trace-type=bb_cover <replaceable>program args</replaceable></programlisting>
 
 	Hence two files <computeroutput>trace_bb_cov.log-PID</computeroutput> and <computeroutput>trace_bb_info.log-PID</computeroutput> are generated.
 	The first one contains counter information for each Basic Blocks and the second one contains debug information for each Basic Bloc. These two files (which must be moved together)
-	can be post-treated to be as readable as possible with the <computeroutput>genCovBB</computeroutput> command.
-	<programlisting>
-genCovBB trace_bb_cov.log-*
-</programlisting>
+	can be post-treated to be as readable as possible with the <computeroutput>verrou_gen_trace</computeroutput> command.
+	<programlisting>verrou_gen_trace --trace_kind=bb_cover --output_kind=individual --select_default=0 trace_bb_cov.log-*</programlisting>
+	or
+	<programlisting>verrou_gen_trace --trace_kind=bb_cover --output_kind=individual</programlisting>
+
 
 	The differences between generated coverage  are more difficult to analyze compared to the ones generated by code coverage tools, because the code structure is lost. Nevertheless
 	it is easier to generate  and can produced really powerful
@@ -999,6 +999,25 @@ genCovBB trace_bb_cov.log-*
       </para>
     </section>
 
+    <section id="vr-manual.localization.CovBack" xreflabel="CovBack">
+      <title>Backtrace coverage comparison</title>
+      The Basic Block coverage may be difficult to read. With the backtrace trace mode you can keep structure with a more expensive mode.
+      <programlisting>
+	valgrind --tool=verrou --rounding-mode=random --trace=trace.inc --trace-type=back_cover <replaceable>program args</replaceable></programlisting>
+
+      Hence 3 files <computeroutput>backAddrInfo-PID</computeroutput>, <computeroutput>bbAddrInfo-PID</computeroutput>
+      and  <computeroutput>backCoverInfo-PID</computeroutput> are generated.
+      These three files (which must be moved together) can be post-treated to be as readable as possible with the <computeroutput>verrou_gen_trace</computeroutput> command.
+	<programlisting>
+verrou_gen_trace --trace_kind=back_cover --output_kind=individual --select_default=0 backCoverInfo-*</programlisting>
+	or
+	<programlisting>
+verrou_gen_trace --trace_kind=back_cover --output_kind=individual</programlisting>
+
+	<para>
+	  The Backtrace coverage generation can be simplified by <command>post_verrou_dd</command>.
+	</para>
+    </section>
     <section id="vr-manual.localization.post" xreflabel="Post_verrou_dd">
       <title> post_verrou_dd</title>
     <simplesect>
@@ -1028,7 +1047,7 @@ genCovBB trace_bb_cov.log-*
       <variablelist id="vr-manual.post_verrou_dd.envvars">
         <varlistentry>
           <term>
-            <computeroutput>--nruns=</computeroutput> or <computeroutput>VERROU_POST_NRUNS</computeroutput>
+            <computeroutput>--nruns=</computeroutput>
           </term>
           <listitem>
             <para>An integer setting the run number of each configuration. If this variable is not set, the default value is
@@ -1038,10 +1057,10 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-             <computeroutput>--num-threads=</computeroutput> or <computeroutput>VERROU_POST_NUM_THREADS</computeroutput>
+             <computeroutput>--num-threads=NUM_THREADS</computeroutput>
           </term>
           <listitem>
-            <para> Allows to perform <computeroutput>VERROU_POST_NUM_THREADS</computeroutput> runs in parallel.
+            <para> Allows to perform <computeroutput>NUM_THREADS</computeroutput> runs in parallel.
 	    If this variable is not set, the parallelism is not activated.
 	    To use this option <command> run_script </command> has to be thread safe.
 	    </para>
@@ -1050,7 +1069,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-             <computeroutput>--rep=</computeroutput> or <computeroutput>VERROU_POST_REP</computeroutput>
+             <computeroutput>--rep=VERROU_POST_REP</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1063,7 +1082,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-             <computeroutput>--configuration=</computeroutput> or <computeroutput>--sub-rep=</computeroutput> or <computeroutput>VERROU_POST_CONFIGURATION</computeroutput>
+             <computeroutput>--configuration=</computeroutput> or <computeroutput>--sub-rep=</computeroutput>
           </term>
 
           <listitem>
@@ -1077,7 +1096,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-             <computeroutput>--instr</computeroutput> or <computeroutput>VERROU_POST_INSTR</computeroutput>.
+             <computeroutput>--instr</computeroutput>
 	  </term>
 	  <listitem>
 	    <para>
@@ -1097,7 +1116,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-             <computeroutput>--rounding=</computeroutput> or <computeroutput>--rounding-mode=</computeroutput> or <computeroutput>VERROU_POST_ROUNDING</computeroutput>.
+             <computeroutput>--rounding=</computeroutput> or <computeroutput>--rounding-mode=</computeroutput>
 	     The option can be called several times to generate a list of rounding mode (
 	     <computeroutput>random[_[[s]com]det]</computeroutput>,
 	     <computeroutput>prandom[_[com]det]</computeroutput>,
@@ -1149,11 +1168,11 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--trace-bin</computeroutput> or <computeroutput>VERROU_POST_TRACE_BIN</computeroutput>
+            <computeroutput>--trace-bin</computeroutput>
           </term>
           <listitem>
             <para>
-	      Activate the BB coverage trace generation. The verrou trace file is automatically generated with the binary
+	      Activate the BB or back coverage trace generation. The verrou trace file is automatically generated with the binary
 	      object (without libraries). If the trace file
 	      is not the one expected, the option <computeroutput>--trace-file=</computeroutput> has to be used.
 	    </para>
@@ -1162,11 +1181,11 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--trace-pattern=</computeroutput> or <computeroutput>VERROU_POST_TRACE_PATTERN</computeroutput>
+            <computeroutput>--trace-pattern=</computeroutput>
           </term>
           <listitem>
             <para>
-	      Activate the BB coverage trace generation. The verrou trace file is automatically generated thanks pattern (* and ?). If the trace file
+	      Activate the BB or back coverage trace generation. The verrou trace file is automatically generated thanks pattern (* and ?). If the trace file
 	      is not the one expected, the option <computeroutput>--trace-file=</computeroutput> has to be used.
 	      This option is compatible with <computeroutput>--trace-bin=</computeroutput>. This option can be called several times.
 	    </para>
@@ -1175,11 +1194,11 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--trace-file=</computeroutput> or <computeroutput>VERROU_POST_TRACE_FILE</computeroutput>
+            <computeroutput>--trace-file=</computeroutput>
           </term>
           <listitem>
             <para>
-	      Activates the BB coverage trace generation. The user has to provide  directly a specific trace-file (See Verrou format). This option is incompatible with  
+	      Activates the BB or back coverage trace generation. The user has to provide  directly a specific trace-file (See Verrou format). This option is incompatible with  
 	      <computeroutput>--trace-bin</computeroutput> and <computeroutput>--trace-pattern=</computeroutput>. This option
 	      is less convenient than the two previous one but may be required for few corner cases.
 	    </para>
@@ -1188,7 +1207,50 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--count_denorm</computeroutput> or <computeroutput>VERROU_POST_COUNT_DENORM</computeroutput>
+            <computeroutput>--trace-type=back_cover|bb_cover [default=back_cover]</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Select between BB and back coverage trace generation.</para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--trace-clean-policy=none|gz|clean [default=gz]</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Select the clean mode:
+	      <itemizedlist>
+                <listitem><para>
+                    <command>none</command> keep intermediate files
+		</para></listitem>
+		<listitem><para>
+		    <command>gz</command> compress intermediate files
+		</para></listitem>
+		<listitem><para>
+		    <command>clean</command> suppress  intermediate files. May produce error in case of multiple post_verrou_dd with the same directory.
+                </para></listitem>
+	      </itemizedlist>
+	    </para>
+	  </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--trace-local-gen</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Generate the cover file for each run. If not set only the csv summary files in <computeroutput>trace_analysis</computeroutput> are generated. The individual cover file can be generated later (if the clean mode is not set) with <command>verrou_gen_trace</command></para>
+          </listitem>
+        </varlistentry>
+
+
+	<varlistentry>
+          <term>
+            <computeroutput>--count_denorm</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1199,7 +1261,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--seed=INTEGER</computeroutput> or <computeroutput>VERROU_POST_SEED</computeroutput>
+            <computeroutput>--seed=VERROU_POST_SEED</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1213,7 +1275,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--IOmatch-header=FILE</computeroutput> or <computeroutput>VERROU_POST_IOMATCH_HEADER</computeroutput>
+            <computeroutput>--IOmatch-header=FILE</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1224,7 +1286,7 @@ genCovBB trace_bb_cov.log-*
 
 	<varlistentry>
           <term>
-            <computeroutput>--IOmatch-verbose=LEVEL [default=2]</computeroutput> or <computeroutput>VERROU_POST_IOMATCH_VERBOSE</computeroutput>
+            <computeroutput>--IOmatch-verbose=LEVEL [default=2]</computeroutput>
           </term>
           <listitem>
             <para>
