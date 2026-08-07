@@ -100,8 +100,8 @@ class genericMergeCover:
     def writeCSV(self, pathStr, header, outputTypeTab):
         self.root.writeCSV(pathStr, header, outputTypeTab=outputTypeTab)
 
-    def writePartialCover(outputDir, outputTypeTab):
-        self.root.writePartialCover(outputDir=outputDir, outputTypeTab=outputTypeTab)
+    def writePartialCover(self,outputDir=None, pidMap=None, outputTypeTab=["data"] ):
+        self.root.writePartialCover(outputDir=outputDir, pidMap=pidMap, outputTypeTab=outputTypeTab)
 
 
 class cmpToolsCov:
@@ -128,7 +128,7 @@ class cmpToolsCov:
         self.refIndex=self.findRefDD(pattern="NoPerturbation-trace")
 
 
-    def writePartialCover(self, filenamePrefix="", pidMap=None):
+    def writePartialCover(self, outputTypeTab, pidMap=None):
         for i in range(len(self.tabPidRep)):
             pid,rep=self.tabPidRep[i]
 
@@ -142,8 +142,7 @@ class cmpToolsCov:
                 genCov=backCovReader(pid,Path(rep), None, self.trace_kind)
             if self.trace_kind=="bb_cover":
                 genCov=bbCovReader(pid,Path(rep), None, self.trace_kind)
-
-            genCov.writePartialCover(filenamePrefix=filenamePrefix, pidMap=pidMap)
+            genCov.writePartialCover(outputDir=Path(rep), pidMap=pidMap, outputTypeTab=outputTypeTab)
 
     def getStatus(self,pid,rep):
         if self.runCmp!=None:
@@ -212,7 +211,7 @@ class cmpToolsCov:
         return 0
 
 
-    def writeMerged(self,estimatorTab):
+    def writeMerged(self,outputDir, estimatorTab, pidMap=None):
         """Write merged BB with correlation indice  between coverage difference and success/failure status"""
         (nbSuccess, nbFail)=self.countStatus()
         print("NbSuccess: %d \t nbFail %d"%(nbSuccess,nbFail))
@@ -224,7 +223,7 @@ class cmpToolsCov:
         statusRef=self.getStatus(pidRef,repRef)
 
 
-        gCov=genericMergeCover(pidRef, Path(repRef),statusRef,self.trace_kind, mergeRoot=True)
+        gCov=genericMergeCover(pidRef, Path(repRef),statusRef,self.trace_kind)
         #Loop with addMerge to reduce memory peak
 
         printIndex=[int(float(p) * len(self.tabPidRep) /100.)  for p in (list(range(0,100,10))+[1,5])]
@@ -243,7 +242,6 @@ class cmpToolsCov:
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
 
         gCov.endMerge()
-        gCov.writePartialCover(outputDir=Path("."), outputTypeTab=estimatorTab)
-
+        gCov.writePartialCover(outputDir=outputDir, pidMap=pidMap, outputTypeTab=estimatorTab )
 
 

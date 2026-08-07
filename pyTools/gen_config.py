@@ -72,11 +72,14 @@ class gen_config:
                         self.readOneOption(arg,registry["attribut"], registry["type"], registry["ENV"],registryName,registry["checkParam"], registry["additive"], parse="parse")
                         break
 
-        if len(args) in lengthValidTab:
-            self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+        if lengthValidTab == None:
+            self.unknown_args=[x for x in args]
         else:
-            self.usageCmd()
-            self.failure()
+            if len(args) in lengthValidTab:
+                self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+            else:
+                self.usageCmd()
+                self.failure()
 
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption

@@ -170,9 +170,9 @@ class trace_handler:
             sys.exit(42)
 
         if self.config.get_trace_gen_local():
-            option="--pidRename --trace-type=%s --output-type=individual"%(config.get_trace_type())
+            option="--rep=%s --pidRename --select_default=-1 --trace-type=%s --output-type=individual"%(str(runDir/"cover"),config.get_trace_type())
 
-            cmd="verrou_gen_trace "+option+" %s"%(" ".join([str(x) for x in listOfTraceBBFile]))
+            cmd="verrou_gen_trace "+option
             #print("cmd: ", cmd)
             os.system(cmd+ "  >> %s"%( runDir/ "gen_trace_log"))
 

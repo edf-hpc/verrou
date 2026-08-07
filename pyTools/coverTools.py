@@ -366,7 +366,7 @@ class bbCovReader:
                 dataBBStr="\t".join([str(x) for x in  dataTab])
             handler.write(name +"\t"+ dataBBStr+"\n")
 
-    def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
+    def writePartialCover(self,outputDir=None, pidMap=None, outputTypeTab=["data"] ):
         self.structureData()
         for numCov in range(len(self.dataSortCov)):
             pidStr=str(self.pid)
@@ -377,7 +377,7 @@ class bbCovReader:
             if outputDir!=None:
                 outDir=outputDir
 
-            fullPathName=Path(outDir) / ("%scoverBB%05d-%s"%(filenamePrefix ,numCov, pidStr))
+            fullPathName=Path(outDir) / ("coverBB%05d-%s"%(numCov, pidStr))
             handler=openGz(fullPathName,"w")
             self.writeData(handler,self.dataSortCov[numCov], outputTypeTab=outputTypeTab)
 
@@ -589,7 +589,7 @@ class backCovReader:
                 handler.write(deepStr+ self.bbInfo.compressMarksWithoutSym(addrBB) +"\t"+dataBBStr +"\n" )
 
 
-    def writePartialCover(self,outputDir=None,filenamePrefix="", pidMap=None, outputTypeTab=["data"]):
+    def writePartialCover(self,outputDir=None, pidMap=None, outputTypeTab=["data"] ):
         self.structureData()
 
         for numCov in range(len(self.backTreeCov)):
@@ -600,7 +600,7 @@ class backCovReader:
             outDir=self.rep
             if outputDir!=None:
                 outDir=outputDir
-            handler=openGz(Path(outDir) / ("%scoverBack%05d-%s"%(filenamePrefix ,numCov, pidStr)),"w")
+            handler=openGz(Path(outDir) / ("coverBack%05d-%s"%(numCov, pidStr)),"w")
             self.writeTree(handler,self.backTreeCov[numCov], outputTypeTab=outputTypeTab,csvFormat=False)
 
     def writeCSV(self, pathStr, header="", outputTypeTab=["data"]):

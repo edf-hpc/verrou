@@ -20,13 +20,16 @@
 
 # The GNU Lesser General Public License is contained in the file COPYING.
 
+import os
 import sys
 import getopt
 from pathlib import Path
 from mergeTools import cmpToolsCov
 from coverTools import traceName
+import gen_config
 
-def extractPidRep(fileName, trace_kind="bb_cover"):
+
+def extractPidRep(fileName, trace_kind):
     """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
     rep=fileName.parent
     if rep=="":
@@ -40,76 +43,47 @@ def extractPidRep(fileName, trace_kind="bb_cover"):
         return (pid,rep,mtime)
     return None
 
-def selectPidFromFile(fileNameTab, trace_kind="bb_cover"):
+def selectPidFromFile(fileNameTab, trace_kind):
     """Return a list of pid from a list of file by using extractPidRep"""
     return [extractPidRep(fileName,trace_kind)[0:2] for fileName in fileNameTab]
 
-def selectSortedPidFromFile(fileNameTab,trace_kind="bb_cover"):
+def selectSortedPidFromFile(fileNameTab,trace_kind):
     """Return a list of pid from a list of file by using extractPidRep"""
     pidList=[extractPidRep(fileName,trace_kind) for fileName in fileNameTab]
     sortedPidList=sorted(pidList, key=lambda x: x[2])
     return [x[0:2] for x in sortedPidList ]
 
 
-class config_option:
-    def __init__(self,argv):
-        #default Value
-        self.trace_kind="back_cover"
-        self.output_kind="individual"
-        self.select_default=None
-        self.run_cmp=None
-        self.run_eval=None
-        self.argv=argv
-        self.pidRename=None
-        #parse Argv
-        self.parseOpt(argv[1:])
+class config_option(gen_config.gen_config):
+    def __init__(self,argv, environ):
+        super().__init__(argv,environ, config_keys=[], lengthValidTab=None)
+        self.normalize()
 
-    def usage(self):
-        print ("Usage: %s [--help] [--trace-type=[back_cover|bb_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
+    def registerOptions(self):
+        self.addRegistry("rep", "string", None, ["--rep="], ".", "rep_exists")
+        self.addRegistry("trace_kind",  "string", None, ["--trace-type="], "back_cover", ["bb_cover","back_cover"])
+        self.addRegistry("output_kind", "string", None, ["--output-type="], "individual", ["individual","merge"])
+        self.addRegistry("pidRename",    "bool", None,        ["--pidRename"],        False)
+        self.addRegistry("select_default","int", None, ["--select_default="], -1 )
+        self.addRegistry("run_cmp","string",  None, ["--run-cmp="], None, "file_exists")
+        self.addRegistry("run_eval","string", None, ["--run-eval="], None, "file_exists")
+
+    def usageCmd(self):
+        print ("Usage: %s [--help] [--rep=] [--trace-type=[back_cover|bb_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
         sys.exit(42)
 
-    def parseOpt(self,argv):
-        try:
-            opts,args=getopt.getopt(argv, "h",["help","trace-type=","output-type=","pidRename", "select-default=","run-cmp=", "run-eval="])
-        except getopt.GetoptError:
-            self.usage()
-
-        for opt, arg in opts:
-            if opt in ["-h", "--help"]:
-                self.usage()
-                sys.exit()
-            if opt in ["--trace-type"]:
-                if not arg in ["back_cover","bb_cover"]:
-                    print("invalid trace-type arg:" , arg)
-                    self.usage()
-                self.trace_kind=arg
-
-            if opt in ["--output-type"]:
-                if not arg in ["individual","merge"]:
-                    print("invalid output-type arg:" , arg)
-                    self.usage()
-                self.output_kind=arg
-
-            if opt in ["--pidRename"]:
-                self.pidRename=True
-            if opt in ["--run-cmp"]:
-                self.run_cmp=arg
-            if opt in ["--run-eval"]:
-                self.run_eval=arg
-            if opt in ["--select-default"]:
-                if arg=="0":
-                    self.select_default=True
-                else:
-                    self.select_default=int(arg)
-
+    def normalize(self):
+        self.rep=Path(self.rep)
         if self.run_eval!=None and self.run_cmp!=None:
             print("--run-cmp= and --run-eval= are incompatible option")
             self.usage()
 
-        self.listOfFiles=self.search_default_param()
+        self.listOfFiles=[]
+        if self.select_default!=0:
+            self.listOfFiles+=self.search_default_param()
 
         listArgToAdd=[]
-        for arg in args:
+        for arg in self.unknown_args:
             if arg not in self.listOfFiles:
                 listArgToAdd+=[arg]
         self.listOfFiles=listArgToAdd +self.listOfFiles
@@ -124,21 +98,22 @@ class config_option:
         self.listOfFiles=[Path(x) for x in self.listOfFiles]
 
     def search_default_param(self):
-        import pathlib
-        addFile=[str(x) for x in pathlib.Path(".").rglob(traceName(self.trace_kind).covPrefixName() +"*")]
-        if self.select_default==True:
+        addFile=[str(x) for x in self.rep.rglob(traceName(self.trace_kind).covPrefixName() +"*")]
+        if self.select_default==-1:
             return addFile
-        if isinstance(self.select_default,int):
+        else:
             return addFile[0:self.select_default]
-        return []
 
 
 if __name__=="__main__":
-    options=config_option(sys.argv)
+
+    options=config_option(sys.argv, os.environ)
+    #print(options.optionToStr())
+
     pidList=None
     pidMap=None
 
-    if options.pidRename==None:
+    if not options.pidRename:
         pidList=selectPidFromFile(options.listOfFiles, options.trace_kind)
     else:
         pidList=selectSortedPidFromFile(options.listOfFiles, options.trace_kind)
@@ -152,11 +127,11 @@ if __name__=="__main__":
 
     cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval, options.trace_kind)
     if options.output_kind=="individual":
-        cmp.writePartialCover(pidMap=pidMap)
+        cmp.writePartialCover(["data"], pidMap=pidMap)
 
     if options.output_kind=="merge":
         if options.trace_kind=="bb_cover":
             cmp.findRefForMerge()
         if options.trace_kind=="back_cover":
             cmp.findRefForMergePost()
-        cmp.writeMerged(["wdc"])
+        cmp.writeMerged(options.rep, ["wdc"], pidMap)

@@ -28,7 +28,8 @@ completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${complet
 		   ${completion_dir}/bash_completion_verrou_dd_stdout  ${completion_dir}/bash_completion_verrou_dd_task\
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
 		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
-		   ${completion_dir}/bash_completion_verrou_dd_back    ${completion_dir}/bash_completion_verrou_control
+		   ${completion_dir}/bash_completion_verrou_dd_back    ${completion_dir}/bash_completion_verrou_control \
+		   ${completion_dir}/bash_completion_verrou_gen_trace
 completion_install_dir=${prefix}/share/completions
 
 # bash completion code generation
