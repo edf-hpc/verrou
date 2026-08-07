@@ -87,9 +87,11 @@ class gen_config:
 
         for registry in self.registryTab:
             try:
-                strValue=self.environ[self.PREFIX+"_"+registry["ENV"]]
+                prefixedRegistry=self.PREFIX+"_"+registry["ENV"]
+                strValue=self.environ[prefixedRegistry]
                 param=[registry["attribut"], registry["type"], registry["ENV"], registry["tabOptionAll"][0],registry["checkParam"], registry["additive"]]
                 self.readOneOption(strValue,*param, parse="environ")
+                print("Warning use of %s is deprecated"%(prefixedRegistry))
             except KeyError:
                 pass
 
@@ -101,9 +103,9 @@ class gen_config:
                 if env.startswith(prefix):
                     find=False
                     for registry in self.registryTab:
-                        if env==self.prefix+"_"+registry["ENV"]:
+                        if env==prefix+"_"+registry["ENV"]:
                             strValue=self.environ[env]
-                            resEnv+="\t"+self.prefix+"_"+registry["ENV"] + "="+strValue+"\n"
+                            resEnv+="\t"+prefix+"_"+registry["ENV"] + "="+strValue+"\n"
                             find=True
                             break
                     if not find:
@@ -155,7 +157,7 @@ class gen_config:
             self.write_bashCompletion_script()
             sys.exit(0)
         print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
-        print(self.get_EnvDoc(self.config_keys[-1]))
+        print(self.get_EnvDoc())
 
     def failure(self):
         sys.exit(42)
@@ -349,7 +351,7 @@ _%s()
         handler.write(end)
 
 
-    def get_EnvDoc(self,PREFIX="INTERFLOP"):
+    def get_EnvDoc(self):
         doc="""List of env variables and options :\n"""
         for registry in self.registryTab:
 #            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
@@ -359,7 +361,7 @@ _%s()
                 optionStr=str(optionTab[0])
             else:
                 optionStr=" or ".join(optionTab)
-            optionNameStr="%s or %s"%(PREFIX+"_"+registry["ENV"], optionStr)
+            optionNameStr=optionStr
 
             expectedValue=registry["checkParam"]
             expectedValueStr=""
