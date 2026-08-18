@@ -767,7 +767,7 @@ class DDStoch(DD.DD):
             if result==self.FAIL:
                 if not self.config_.get_quiet():
                     print("Heuristics not 1-Minimal")
-                return algoRddmin(deltaMin1Tab[indexRes], nbRun)
+                return algoRddmin(deltaMin1Tab[indexRes])
 
         self.configuration_found("ddmin%d"%(self.rddminIndex), deltasHeuristic)
         self.rddminIndex+=1
