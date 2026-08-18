@@ -102,7 +102,7 @@ def rename_pid_for_one_rep(config, rep, ignoreEmpty=True,verbose=False):
             pathFile=rep / fileName
             if  fileName in  otherOldFileList and (pathFile.stat()).st_size==0:
                 mapClean(rep,otherOldFileList+bbOldFileList+backOldFileList, verbose)
-
+                continue
         if trace_kind=="bb_cover":
             mapRename(rep,pid,count, bbOldFileList, config.get_trace_compress(),verbose)
             mapCompress(rep,otherOldFileList+backOldFileList,verbose)
