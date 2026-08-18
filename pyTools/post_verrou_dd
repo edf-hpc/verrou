@@ -208,6 +208,40 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     DD_stoch.runMultipleStochTask([task],config.get_maxNbPROC())
 
 
+def runOneConfigMultipleDet(config, refDir, detDir, roundingTab, instr, envvars,traceFile=None):
+    runScript=config.get_runScript()
+    cmpScript=config.get_cmpScript()
+
+
+    def taskRounding(env, rounding):
+        newEnv=copy.deepcopy(env)
+        newEnv=rounding_tool.roundingToEnvVar(rounding, newEnv)
+        detRep=detDir/ rounding
+        detRep.mkdir(exist_ok=True)
+
+        if instr!="":
+            newEnv["VERROU_INSTR"]=instr
+
+        if config.get_count_denorm():
+            if rounding_tool.isRoundingCompatibleWithDenorm(rounding):
+                newEnv["VERROU_COUNT_DENORM"]="yes"
+
+        if traceFile!=None:
+            newEnv["VERROU_TRACE"]=traceFile
+            newEnv["VERROU_TRACE_TYPE"]=config.get_trace_type()
+
+        task=DD_stoch.stochTask(detRep , refDir, runScript, cmpScript, newEnv)
+        task.setNbRun(1)
+        if config.get_trace():
+            traceTool=trace_handler(config)
+            task.setPreRun(traceTool.preRunTrace)
+            task.setPostRun(traceTool.postRunTrace)
+        return task
+
+    taskTab=[ taskRounding(envvars, rounding) for rounding in roundingTab]
+    DD_stoch.runMultipleStochTask(taskTab, config.get_maxNbPROC())
+
+
 def mergeIOmatchScript(config, mainIOMatchFile, destRep):
     destFile=str(destRep) + "/merged_IOMatch.txt"
     destHandler=open(destFile, "w")
@@ -395,18 +429,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
                 ddminNewRep=ddminNewInstr / "det"
                 ddminNewRep.mkdir(exist_ok=True)
 
-                for det in roundDetTab:
-                    runEnv=rounding_tool.roundingToEnvVar(det,runEnvSav)
-                    if instr!="":
-                        runEnv["VERROU_INSTR"]=instr
-
-                    if config.get_count_denorm():
-                        if rounding_tool.isRoundingCompatibleWithDenorm(det):
-                            runEnv["VERROU_COUNT_DENORM"]="yes"
-
-                    detRep=ddminNewRep/ det
-                    detRep.mkdir(exist_ok=True)
-                    runOneConfig(config, refDir, detRep, runEnv, 1, traceFile)
+                runOneConfigMultipleDet(config, refDir, ddminNewRep, roundDetTab, instr, runEnvSav,traceFile)
 
 def sortSubRep(subRepTab):
     refTab=[x for x in subRepTab if x.name in ["ref","NoPerturbation"] ]
