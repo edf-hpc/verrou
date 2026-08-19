@@ -94,8 +94,8 @@ class genericMergeCover:
     def addMerge(self, current):
         self.root.addMerge(current)
 
-    def endMerge(self):
-        self.root.endMerge()
+    def addMergeEmpty(self, status):
+        self.root.addMergeEmpty(status)
 
     def writeCSV(self, pathStr, header, outputTypeTab):
         self.root.writeCSV(pathStr, header, outputTypeTab=outputTypeTab)

@@ -145,6 +145,20 @@ def cleanIntermediateFile(dataParsedTab, trace_kind):
     for fileToDel in fileToDelTab:
         fileToDel.unlink()
 
+
+def getPidAndPathRepTabs(dataParsed, seqIndex):
+    pidTab=[]
+    pathRepTab=[]
+    for data in dataParsed:
+        pidPathOrderList=data["pidPathOrderList"]
+        if seqIndex< len(pidPathOrderList):
+            pidTab+=[pidPathOrderList[seqIndex][0]]
+            pathRepTab+=[(pidPathOrderList[seqIndex][1]).parent]
+        else:
+            pidTab+=[None]
+            pathRepTab+=[None]
+    return pidTab, pathRepTab
+
 def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
     pathTab=list(findCoverRep(baseRep))
     if len(pathTab)==0:
@@ -157,11 +171,12 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
     dataParsed=sortDataParsed(dataParsed)
 
     maxSeq=max([len(config["pidPathOrderList"]) for config in dataParsed])
-    minSeq=max([len(config["pidPathOrderList"]) for config in dataParsed])
+    minSeq=min([len(config["pidPathOrderList"]) for config in dataParsed])
+    refSeq=len(dataParsed[0]["pidPathOrderList"])
     if maxSeq != minSeq:
-        print("incoherent number of process")
-        print("dataParsed", dataParsed)
-        sys.exit(42)
+        print("incoherent number of process:")
+        print("\tminSeq:", minSeq,"\tmaxSeq:", maxSeq)
+        print("\trefSeq:", refSeq)
 
     header=csvHeader(dataParsed, estimatorTab, trace_kind)
 
@@ -169,10 +184,8 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
     statusRef=statusTab[0]
     mergeSize=len(statusTab)
 
-    for seqIndex in range(maxSeq):
-        pidTab=[data["pidPathOrderList"][seqIndex][0] for data in dataParsed]
-        pathRepTab=[ (data["pidPathOrderList"][seqIndex][1]).parent for data in dataParsed] 
-
+    for seqIndex in range(refSeq):
+        pidTab,pathRepTab= getPidAndPathRepTabs(dataParsed,seqIndex)
         pidRef=pidTab[0]
         repRef=pathRepTab[0]
 
@@ -182,13 +195,14 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
         printIndex +=[1,  mergeSize-1]
 
         for i in range(1,mergeSize):
-            current=mergeTool.current(pidTab[i], pathRepTab[i], statusTab[i])
-            mergeTool.addMerge(current)
+            if pidTab[i]!=None:
+                current=mergeTool.current(pidTab[i], pathRepTab[i], statusTab[i])
+                mergeTool.addMerge(current)
+            else:
+                mergeTool.addMergeEmpty(statusTab[i])
             if i in printIndex:
                 pourcent=float(i)/ float(mergeSize-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
-
-        mergeTool.endMerge()
 
         output=baseRep / "trace_analysis"
         output.mkdir(exist_ok=True)

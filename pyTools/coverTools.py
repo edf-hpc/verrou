@@ -35,7 +35,7 @@ class bbInfoReader:
         while not line in [None, ''] :
             m=(regularExp.match(line.strip()))
             if m==None :
-                print("error read fileName line:",[line])
+                print("error read fileName %s line: %s"%(str(fileName), str([line])))
                 sys.exit()
             #addr,index, sym, sourceFile, lineNum, containFloat, containFloatCmp, index=(None,None,None,None,None,None,None,None)
             if self.trace_kind=="bb_cover":
@@ -135,12 +135,16 @@ class mergebbInfoReader:
         self.data=self.bbInfoReaderRoot.data
         self.verbose=verbose
 
+    def extractDataToCmp(self, bbDebugInfoTab):
+        return [x[0:-1] for x in bbDebugInfoTab]
+
+
     def addBBInfoReader(self, newBBInfo):
         data=self.data
         newdata=newBBInfo.data
         for addr in newdata:
             if addr in data:
-                if data[addr]!=newdata[addr]:
+                if self.extractDataToCmp(data[addr])!= self.extractDataToCmp(newdata[addr]):
                     print("incompatible .bbInfoReader")
                     print("addr ["+str(addr)+"]" ,str( data[addr]), "=>", str(newdata[addr]))
                     return False
@@ -298,8 +302,14 @@ class bbCovReader:
                     buildOld=[(0,None) for i in range(self.mergeNum-1)]
                     buildOld.append(data)
                     self.dataCov[indexCov][key]=buildOld
+        self._endMerge()
 
-    def endMerge(self):
+    def addMergeEmpty(self, status):
+        self.mergeNum+=1
+        self.statusTab+=[status]
+        self._endMerge()
+
+    def _endMerge(self):
         for indexCov in range(len(self.dataCov)):
             for key in self.dataCov[indexCov]:
                 size=len(self.dataCov[indexCov][key])
@@ -442,9 +452,14 @@ class backCovReader:
                     buildOld.append(data)
                     self.backCov[indexCov][key]=buildOld
                 #backCurrent.backCov[indexCov][key]
+        self._endMerge()
 
+    def addMergeEmpty(self, status):
+        self.mergeNum+=1
+        self.statusTab+=[status]
+        self._endMerge()
 
-    def endMerge(self):
+    def _endMerge(self):
         for indexCov in range(len(self.backCov)):
             for key in self.backCov[indexCov]:
                 size=len(self.backCov[indexCov][key])
