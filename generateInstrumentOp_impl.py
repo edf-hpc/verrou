@@ -201,11 +201,12 @@ if __name__=="__main__":
                           postBackendList= [{"postBackendName":"","boolCheck":None, "convFloat":True ,"ccOnly":False },
                                             {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
                            ])
-
+    handler.write("#ifdef USE_VERROU_VPREC\n")
     generateVerrouGeneric(handler, backendEnum="vr_vprec", backendName="vprec",
                           postBackendList= [ {"postBackendName":"","boolCheck":None, "convFloat":True ,"ccOnly":False },
                                              {"postBackendName":"checkcancellation","boolCheck":"checkCancellation","convFloat":True ,"ccOnly":True }
                                             ])
+    handler.write("#endif //USE_VERROU_VPREC\n")
 
     handler.write("#ifdef USE_VERROU_QUADMATH\n")
     handler.write("#define IGNORESQRT\n")

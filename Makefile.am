@@ -118,15 +118,7 @@ VERROU_SOURCES_COMMON = \
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
-	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx\
-	interflop_backends/interflop-backend-vprec/interflop_vprec.c\
-	interflop_backends/interflop-backend-vprec/common/vprec_tools.c\
-	interflop/interflop_stdlib.c\
-	interflop/iostream/logger.c\
-	interflop/fma/interflop_fma.c\
-	interflop/sqrt/interflop_sqrt.c\
-	interflop_valgrind_stdlib.c
-
+	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx
 
 VERROU_FLAG_CXX = $(subst \
 	-Wmissing-prototypes,,$(subst \
@@ -193,6 +185,20 @@ if USE_VERROU_OPTIM
 VERROU_FLAG_CXX +=  -DUSE_VERROU_OPTIM
 VERROU_FLAG_C   +=  -DUSE_VERROU_OPTIM
 endif
+
+if USE_VERROU_VPREC
+VERROU_FLAG_CXX +=  -DUSE_VERROU_VPREC
+VERROU_FLAG_C   +=  -DUSE_VERROU_VPREC
+VERROU_SOURCES_COMMON += \
+	interflop_backends/interflop-backend-vprec/interflop_vprec.c\
+	interflop_backends/interflop-backend-vprec/common/vprec_tools.c\
+	interflop/interflop_stdlib.c\
+	interflop/iostream/logger.c\
+	interflop/fma/interflop_fma.c\
+	interflop/sqrt/interflop_sqrt.c\
+	interflop_valgrind_stdlib.c
+endif
+
 
 VERROU_FLAG_C +=-DVERROU_NUM_NEARNESS=@VERROU_NUM_NEARNESS@
 VERROU_FLAG_CXX +=-DVERROU_NUM_NEARNESS=@VERROU_NUM_NEARNESS@

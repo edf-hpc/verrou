@@ -176,6 +176,8 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
     for backend in listOfBackend:
         if backend=="mcaquad":
             fileOut.write("#ifdef USE_VERROU_QUADMATH\n")
+        if backend=="vprec":
+            fileOut.write("#ifdef USE_VERROU_VPREC\n")
 
         for op in listOfOp:
             for rounding in roundingTab:
@@ -192,6 +194,8 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
                     fileOut.write("#endif //USE_VERROU_OPTIM\n")
         if backend=="mcaquad":
             fileOut.write("#endif //USE_VERROU_QUADMATH\n")
+        if backend=="vprec":
+            fileOut.write("#endif //USE_VERROU_VPREC\n")
 
 
 def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):

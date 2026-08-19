@@ -191,6 +191,7 @@ void vr_clo_defaults (void) {
   vr.cancellationSource=NULL;
   vr.checkFloatMax=False;
 
+#ifdef USE_VERROU_VPREC
   vr.vprec_conf.preset = (UInt)(-1);
   vr.vprec_conf.precision_binary32 = VPREC_PRECISION_BINARY32_DEFAULT;
   vr.vprec_conf.range_binary32 = VPREC_RANGE_BINARY32_DEFAULT;
@@ -201,7 +202,7 @@ void vr_clo_defaults (void) {
   vr.vprec_conf.max_abs_err_exponent = -DOUBLE_EXP_MIN;
   vr.vprec_conf.daz = False;
   vr.vprec_conf.ftz = False;
-
+#endif
 }
 
 
@@ -216,7 +217,11 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
     else if (VG_XACT_CLOM (cloPD, arg, "--backend=vprec",
-                         vr.backend, vr_vprec)) {}
+                         vr.backend, vr_vprec)) {
+#ifndef USE_VERROU_VPREC
+       VG_(tool_panic) ( "\tverrou is not compiled with vprec backend enabled\n");
+#endif
+    }
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
                          vr.backend, vr_checkdenorm)) {}
 

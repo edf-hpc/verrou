@@ -31,7 +31,9 @@
 #include "float.h"
 #include "pub_tool_seqmatch.h"
 
+#ifdef USE_VERROU_VPREC
 #include "interflop_valgrind_stdlib.h"
+#endif
 
 //#include "coregrind/pub_core_transtab.h"
 #include "pub_tool_transtab.h"
@@ -1492,7 +1494,9 @@ static void vr_fini(Int exitcode)
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
 
+#ifdef USE_VERROU_VPREC
   interflop_vprec_finalize(backend_vprec_context);
+#endif
 
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
   interflop_check_float_max_finalize(backend_check_float_max_context);
@@ -1668,6 +1672,7 @@ static void vr_post_clo_init(void)
    mcaquad_set_seed(vr.firstSeed);
 #endif
 
+#ifdef USE_VERROU_VPREC
    //init interflop
    interflop_set_handler("malloc", _interflop_valgrind_malloc);
    interflop_set_handler("fopen", _interflop_valgrind_fopen);
@@ -1705,6 +1710,7 @@ static void vr_post_clo_init(void)
          interflop_vprec_print_header(backend_vprec_context);
       }
    }
+#endif //USE_VERROU_VPREC
 
    /*Init outfile cancellation*/
    checkcancellation_conf_t checkcancellation_conf;
