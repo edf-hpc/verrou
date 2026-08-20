@@ -241,7 +241,6 @@ class cmpToolsCov:
                     pourcent=float(i)/ float(len(self.tabPidRep)-1)
                 print( "%.1f"%(pourcent*100)    +"% of coverage data merged")
 
-        gCov.endMerge()
         gCov.writePartialCover(outputDir=outputDir, pidMap=pidMap, outputTypeTab=estimatorTab )
 
 

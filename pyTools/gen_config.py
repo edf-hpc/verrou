@@ -140,7 +140,7 @@ class gen_config:
         strRes=self.confToStr()+"\n"
 
         for arg in self.exec_arg:
-            content=open(arg).read()
+            content=open(str(arg)).read()
             md5Script=hashlib.md5((content).encode('utf-8')).hexdigest()
             strRes+=("arg: "+ str(arg) + " (md5="+md5Script+")\n")
             if content.count("\n") < 100:
@@ -148,7 +148,7 @@ class gen_config:
                 strRes+=content
                 strRes+="--end content--\n"
 
-        with open(fileName,"w") as f:
+        with open(str(fileName),"w") as f:
             f.write(strRes)
         self._md5Param=hashlib.md5((strRes).encode('utf-8')).hexdigest()
 
@@ -166,12 +166,12 @@ class gen_config:
         return self._md5Param
 
     def checkScriptPath(self,fpath,hardFailure=True):
-        if fpath.is_file() and os.access(fpath, os.X_OK):
+        if fpath.is_file() and os.access(str(fpath), os.X_OK):
             return fpath.absolute()
         else:
             if hardFailure:
                 print("Invalid Cmd:"+str(sys.argv))
-                if fpath.is_file() and not os.access(fpath, os.X_OK):
+                if fpath.is_file() and not os.access(str(fpath), os.X_OK):
                     print(fpath , " should be executable")
                 if not fpath.is_file():
                     print(fpath , " is not a file")

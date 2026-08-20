@@ -4,7 +4,7 @@
 #This script provides the way to control dynamically running verrou executable.   
 
 
-from __future__ import annotations
+#from __future__ import annotations
 
 import argparse
 import re
@@ -28,8 +28,11 @@ class VerrouControl:
         return 'vgdb'
 
     def run(self, cmd:str):
-        full = f"{self.vgdb} {self.vgdb_prefix} {cmd}".strip()
-        p = subprocess.run(full, shell=True, text=True, capture_output=True)
+        full = (self.vgdb+ " " +self.vgdb_prefix+" "+cmd).strip()
+        p = subprocess.run(full,
+                           shell=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           universal_newlines=True)
         return p.stdout.splitlines()
 
     def get_verrou_pids(self):
@@ -50,7 +53,7 @@ class VerrouControl:
 
     def request(self, pid: int, cmdTab: str):
         cmd=" -c ".join(cmdTab)
-        return self.run(f'--pid={pid} {cmd}')
+        return self.run('--pid='+str(pid)+" " +cmd)
 
 def parse_back(lines):
     res=[]
@@ -128,13 +131,13 @@ def main():
     if args.kill:
         commands.append(['v.kill'])
     if args.instr_status:
-        commands.append([f'status instrumentation'])
+        commands.append(['status instrumentation'])
         wait = True
     if args.hard_instr:
-        commands.append([f'instrumentation {args.hard_instr} hard'])
+        commands.append(["instrumentation "+str(args.hard_instr)+" hard"])
         wait=True #debug
     if args.soft_instr:
-        commands.append([f'instrumentation {args.soft_instr} soft'])
+        commands.append(["instrumentation "+str(args.soft_instr)+" soft"])
         wait=True #debug
     if args.backtrace:
         commands.append(['status back'])
@@ -146,21 +149,21 @@ def main():
         commands.append(['display_counter','reset_counter'])
         wait = True
     if args.rounding:
-        commands.append([f'rounding {args.rounding.upper()}'])
+        commands.append(["rounding "+args.rounding.upper()])
         wait= True
     if args.verbose:
-        commands.append([f'verbose {args.verbose}'])
+        commands.append(["verbose "+str(args.verbose)])
         wait= True
 
     if commands==[]:
-        print(f'undefined command')
+        print('undefined command')
         return 1
     if len(commands)!=1:
         print('support for multiple commands is not yet implemented')
         return 1
 
     for pid in sorted(set(selected)):
-        print(f'PID {pid}: {processes[pid]["cmdline"]}')
+        print('PID '+str(pid)+": "+ str(processes[pid]["cmdline"]))
         result = ctl.request(pid, commands[0])
         if not wait:
             print('  OK.\n')

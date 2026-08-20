@@ -19,7 +19,7 @@ def failure():
 def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
     res=[]
     for fileSym in refDir.glob("dd.sym.*"):
-        for line in open(fileSym):
+        for line in open(str(fileSym)):
             objectVerrou=(line.strip()).split("\t")[1]
             if binary and (".so" not in objectVerrou and objectVerrou not in res):
                 res+=[objectVerrou]
@@ -33,7 +33,7 @@ def genDefaultTraceFile(config, refDir, binary=True ,listOfExpr=[]):
         failure()
 
     outputFileName=refDir / "defaultTrace"
-    output=open(outputFileName,"w")
+    output=open(str(outputFileName),"w")
     for objectVerrou in res:
         output.write("*\t"+objectVerrou+"\n")
     output.close()
@@ -121,7 +121,7 @@ def parseLastCmd(rep, instr_prefix="VERROU"):
         print(fileName, "missing")
         return None
     res={}
-    handler=open(fileName,"r")
+    handler=open(str(fileName),"r")
     line=handler.readline()
     cmd=line.replace("ENV ","").replace(":\n","")
     res["cmd"]=cmd
@@ -162,7 +162,7 @@ class trace_handler:
             else:
                 log+="traceBBFile %s ignored\n"%(traceBBFile)
         if log!="":
-            with open(runDir / "gen_trace_log", "w") as f:
+            with open(str(runDir / "gen_trace_log"), "w") as f:
                 f.write(log)
 
         if len(listOfTraceBBFile)==0:
@@ -244,14 +244,14 @@ def runOneConfigMultipleDet(config, refDir, detDir, roundingTab, instr, envvars,
 
 def mergeIOmatchScript(config, mainIOMatchFile, destRep):
     destFile=str(destRep) + "/merged_IOMatch.txt"
-    destHandler=open(destFile, "w")
+    destHandler=open(str(destFile), "w")
     headerIOMatchLines=config.get_ioMatchHeader()
 
     if mainIOMatchFile==None:
         destHandler.write(headerIOMatch)
         return destFile
     isHeaderWritten=False
-    for line in open(mainIOMatchFile,"r").readlines():
+    for line in open(str(mainIOMatchFile),"r").readlines():
         if line.startswith("verbose:"):
             destHandler.write("verbose: "+str(config.getIoMatchVerbose())+"\n")
             continue

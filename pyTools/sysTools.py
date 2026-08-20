@@ -17,7 +17,7 @@ def runCmdAsync(cmd, fname, envvars=None):
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = envvars[var]
-            return subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr)
+            return subprocess.Popen([str(x) for x in cmd], env=env, stdout=fout, stderr=ferr)
 
 def getResult(subProcess):
     subProcess.wait()
@@ -46,10 +46,10 @@ class openGz:
 
         if (self.name.suffix==".gz" and compress==None) or compress==True:
             self.compress=True
-            self.handler=gzip.open(self.name, mode)
+            self.handler=gzip.open(str(self.name), mode)
         else:
             self.compress=False
-            self.handler=open(self.name, mode)
+            self.handler=open(str(self.name), mode)
 
     def readline(self):
         if self.compress:

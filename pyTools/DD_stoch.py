@@ -67,7 +67,7 @@ class noLogTask:
 
 class cmdLogTask:
     def __init__(self,fileName):
-        self.handler=open(fileName,"w")
+        self.handler=open(str(fileName),"w")
     def initTask(self,cmd,fname,envvars):
         task=timeTask(cmd,fname,envvars)
         task.start()
@@ -87,13 +87,13 @@ def runCmdAsync(cmd, fname, envvars=None):
     if envvars is None:
         envvars = {}
 
-    with open(Path(fname).with_suffix(fname.suffix+".out"), "w") as fout:
-        with open(Path(fname).with_suffix(fname.suffix+".err"), "w") as ferr:
+    with open(str(Path(fname).with_suffix(fname.suffix+".out")), "w") as fout:
+        with open(str(Path(fname).with_suffix(fname.suffix+".err")), "w") as ferr:
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = str(envvars[var])
             taskLog=logTool.initTask(cmd,fname,envvars)
-            return (subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr), taskLog)
+            return (subprocess.Popen([str(x) for x in cmd], env=env, stdout=fout, stderr=ferr), taskLog)
 
 def getResult(subProcessTuple):
     subProcess, taskLog=subProcessTuple
@@ -197,7 +197,7 @@ class stochTask:
         retval = runCmd([self.cmpCmd, self.refDir, rundir],
                         rundir / "dd.compare")
 
-        with open(rundir / ddReturnFileName,"w") as f:
+        with open(str(rundir / ddReturnFileName),"w") as f:
             f.write(str(retval))
         if retval != 0:
             return self.FAIL
@@ -220,7 +220,7 @@ class stochTask:
             returnValuePath=self.dirname / runDir / ddReturnFileName
             ddRunIndex=int(runDir.replace(subDirRun,""))
             if returnValuePath.is_file():
-                statusCmp=int((open(returnValuePath).readline()))
+                statusCmp=int((open(str(returnValuePath)).readline()))
                 if statusCmp!=0:
                     if earlyExit:
                         return None
@@ -251,7 +251,7 @@ def getEstimatedFailProbability(dirname):
     cacheFail=0.
     for returnValuePath in returnValuePathTab:
         cacheCounter+=1.
-        statusCmp=int((open(returnValuePath).readline()))
+        statusCmp=int((open(str(returnValuePath)).readline()))
         if statusCmp!=0:
             cacheFail+=1.
     return cacheFail / cacheCounter
@@ -304,7 +304,7 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
                     pathToClean=stochTaskTab._nameDir(runToDo)
                     print("clean :", pathToClean)
                     if pathToClean.is_dir():
-                        shutil.rmdir(pathToClean)
+                        shutil.rmdir(str(pathToClean))
 
         raise KeyboardInterrupt
 
@@ -376,7 +376,7 @@ class DDStoch(DD.DD):
         relSrc=src.relative_to(self.prefix_)
         relDist=dst.relative_to(self.prefix_)
         relPrefix=self.prefix_.relative_to(Path.cwd())
-        os.symlink(relSrc, relPrefix/ relDist)
+        os.symlink(str(relSrc), str(relPrefix/ relDist))
 
 
     def cleanSymLink(self):
@@ -464,7 +464,7 @@ class DDStoch(DD.DD):
 
     def loadDeltaFile(self,fileName):
         if fileName.is_file():
-            deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
+            deltasTab=[ x.rstrip() for x in (open(str(fileName))).readlines()]
             return deltasTab
         else:
             print(fileName + " do not exist")
@@ -478,19 +478,19 @@ class DDStoch(DD.DD):
             self.cleanSymLink()
             return
         if cache=="clean":
-            shutil.rmtree(self.prefix_, ignore_errors=True)
+            shutil.rmtree(str(self.prefix_), ignore_errors=True)
             self.prefix_.mkdir()
             return
 
         if cache=="rename_keep_result":
             #delete unusefull rep : rename treated later
             symLinkTab=self.searchSymLink()
-            repToKeep=[os.readlink(x) for x in symLinkTab]
+            repToKeep=[os.readlink(str(x)) for x in symLinkTab]
             print(repToKeep)
             #loop over rep with md5 format
             for md5rep in [x for x in self.prefix.glob("[a-f0-9]"*32) if x.is_dir()]:
                 if not md5rep.name in repToKeep:
-                    shutil.rmtree(md5rep)
+                    shutil.rmtree(str(md5rep))
 
         if cache.startswith("rename"):
             if self.prefix_.is_dir():
@@ -553,7 +553,7 @@ class DDStoch(DD.DD):
         for excludeFile in listOfExcludeFile:
             lines=None
             if parseRef==None:
-                with open(dirname / excludeFile, "r") as f:
+                with open(str(dirname / excludeFile), "r") as f:
                     lines=[x.rstrip() for x in f.readlines()]
             else:
                 lines=parseRef(dirname / excludeFile)
@@ -562,7 +562,7 @@ class DDStoch(DD.DD):
                 if line not in excludeMerged:
                     excludeMerged+=[line]
 
-        with open(dirname / name, "w" )as f:
+        with open(str(dirname / name), "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
 
@@ -652,11 +652,11 @@ class DDStoch(DD.DD):
 
     def rddminSummary(self):
         print("RDDMIN summary:")
-        summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
+        summaryHandler=open(str(self.config_.get_cacheRep() / "rddmin_summary"),"w")
         for ddminIndex in range(self.rddminIndex):
 
             confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
-            ddminDeltas=open(confDirName /( self.getDeltaFileName()+".include"),"r").readlines()
+            ddminDeltas=open(str(confDirName /( self.getDeltaFileName()+".include")),"r").readlines()
 
             listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
             failureIndex=[]
@@ -666,7 +666,7 @@ class DDStoch(DD.DD):
                 returnValuePath= confDirName / runDir / ddReturnFileName
                 ddRunIndex=int(runDir.replace(subDirRun,""))
                 if returnValuePath.is_file():
-                    statusCmp=int((open(returnValuePath).readline()))
+                    statusCmp=int((open(str(returnValuePath)).readline()))
                     if statusCmp!=0:
                         failureIndex+=[ddRunIndex]
                 else:
@@ -1042,12 +1042,12 @@ class DDStoch(DD.DD):
         dd=self.getDeltaFileName()
 
         if include:
-            with open(dirname / (dd+".include"), "w") as f:
+            with open(str(dirname / (dd+".include")), "w") as f:
                 for d in deltas:
                     f.write(d+"\n")
 
         if exclude:
-            with open(dirname / (dd+".exclude"), "w") as f:
+            with open(str(dirname / (dd+".exclude")), "w") as f:
                 for d in deltas:
                     excludes.remove(d)
 

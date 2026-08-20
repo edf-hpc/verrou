@@ -64,7 +64,7 @@ def analysePath(baseRep, pathConf, trace_kind):
     ddRunIndex=int( dataStr[indexNext].replace("dd.run",""))
 
     returnPath=pathConf / ".." / "dd.return.value"
-    returnValue=int(open(returnPath).readline())
+    returnValue=int(open(str(returnPath)).readline())
     returnStr="OK"
     if returnValue!=0:
         returnStr="KO"
