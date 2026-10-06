@@ -205,18 +205,30 @@ static UInt vr_freeTraceBack (Vr_Trace_Back* list) {
 
 void vr_trace_finalize(Vr_Trace* vrTrace){
    VG_(umsg)("vrTrace->trace hashmap repartition\n");
-   UInt emptyCount=0;
-   VG_(printf)("\t");
+
+   UInt sumMax=0;
+   UInt countTab[12];
+   for( UInt countIndex=0 ; countIndex<12; countIndex++){
+      countTab[countIndex]=0;
+   }
+
    for(int i=0; i< HASH_TABLE_TRACE_SIZE; i++){
       UInt count=vr_freeTraceBack(vrTrace->trace[i]);
-      if(count!=0){
-         VG_(printf)("%u ", count);
+      if(count>10){
+         countTab[11]++;
+         sumMax+=count;
       }else{
-         emptyCount++;
+         countTab[count]++;
       }
    }
-   VG_(printf)("(empty cases: %u)\n", emptyCount);
-
+   for( UInt countIndex=0 ; countIndex<11; countIndex++){
+      if( countTab[countIndex]>0){
+         VG_(printf)("\t#%u -> %u\n", countIndex, countTab[countIndex]);
+      }
+   }
+   if(countTab[11]>0){
+      VG_(printf)("\t>%u (avg %u)-> %u\n", (UInt)10, (UInt) ((double)sumMax / (double)countTab[11]) ,countTab[11]);
+   }
    vr_freeAddrList(vrTrace->back_addr_list);
    vr_freeAddrList(vrTrace->bb_addr_list);
 

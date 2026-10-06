@@ -16,8 +16,8 @@ struct Vr_Trace_Back_ {
 };
 
 
-#define HASH_TABLE_TRACE_SIZE 256
-#define HASH_TABLE_TRACE_MASK 0xff
+#define HASH_TABLE_TRACE_SIZE 131072
+#define HASH_TABLE_TRACE_MASK 0x1ffff
 
 typedef struct Vr_Trace_ Vr_Trace;
 struct Vr_Trace_ {
