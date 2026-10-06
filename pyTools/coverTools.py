@@ -18,6 +18,7 @@ class bbInfoReader:
     """
     def __init__(self,fileName, trace_kind):
         self.trace_kind=trace_kind
+        self.fileName=fileName
         self.read(fileName)
 
     def read(self,fileName):
@@ -147,6 +148,8 @@ class mergebbInfoReader:
                 if self.extractDataToCmp(data[addr])!= self.extractDataToCmp(newdata[addr]):
                     print("incompatible .bbInfoReader")
                     print("addr ["+str(addr)+"]" ,str( data[addr]), "=>", str(newdata[addr]))
+                    print("\troot fileName:", self.bbInfoReaderRoot.fileName)
+                    print("\tcurrent fileName:", newBBInfo.fileName)
                     return False
             else:
                 if self.verbose:
@@ -201,6 +204,7 @@ class addrBackReader:
 
     def __init__(self,fileName, trace_kind):
         self.trace_kind=trace_kind
+        self.fileName=fileName
         self.read(fileName)
 
     def read(self,fileName):
@@ -246,6 +250,8 @@ class mergeAddrBackReader:
                 if data[addr]!=newData[addr]:
                     print("incompatible addr")
                     print(addr, "=>", data[addr], "!=", newData[addr])
+                    print("\troot fileName:", self.backReader.fileName)
+                    print("\tcurrent fileName:", newBack.fileName)
                     return False
             else:
                 if self.verbose:

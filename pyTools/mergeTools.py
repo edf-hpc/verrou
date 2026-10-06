@@ -55,7 +55,7 @@ class statusReader:
         pathName=self.remoteRep /"dd.return.value"
         if pathName.is_file():
             try:
-                value=int(open(pathName).readline().strip())
+                value=int(open(str(pathName)).readline().strip())
                 if value==0:
                     self.isSuccess=True
                 else:
