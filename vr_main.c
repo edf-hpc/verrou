@@ -1143,7 +1143,7 @@ static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 static inline
 void vr_treat_line_from_imark(traceBB_t* traceBB,
                               Addr bbAddr,
-                              Bool excludeIrsb, Bool includeSource,
+                              Bool excludeIrsb, Bool includeSource, Bool genIRSBTrace,
                               Bool doLineContainFloat, Bool doLineContainFloatMod, Bool doLineContainFloatCmp,
                               HChar const *  fnname,   const HChar * filename, const UInt linenum){
   if( !excludeIrsb && doLineContainFloatMod){
@@ -1157,12 +1157,13 @@ void vr_treat_line_from_imark(traceBB_t* traceBB,
       vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,fnname,filename,linenum);//to print only once
     }
   }
-  if(traceBB!=NULL && vr.traceType==VR_BB_COVER){
+  if(genIRSBTrace && vr.traceType==VR_BB_COVER){
      vr_traceBB_trace_imark(traceBB,
                             fnname, filename,linenum,
                             doLineContainFloat, doLineContainFloatCmp);
   }
-  if(vr.genTrace && vr.traceType==VR_BACK_COVER){
+
+  if(genIRSBTrace && vr.traceType==VR_BACK_COVER){
      vr_trace_set_debugdata_for_bbAddr(&(vr.traceBack), bbAddr,
                                        filename,linenum,
                                        doLineContainFloat, doLineContainFloatCmp);
@@ -1397,7 +1398,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     case Ist_IMark: {
       if(i!=0){
          vr_treat_line_from_imark(traceBB, addr,
-                                  excludeIrsb,includeSource,
+                                  excludeIrsb,includeSource,genIRSBTrace,
                                   doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
                                   *fnnamePtr,*filenamePtr,*linenumPtr);
       }
@@ -1456,7 +1457,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   }
 
   vr_treat_line_from_imark(traceBB, addr,
-                           excludeIrsb,includeSource,
+                           excludeIrsb,includeSource,genIRSBTrace,
                            doLineContainFloat, doLineContainFloatMod, doLineContainFloatCmp,
 			   *fnnamePtr,*filenamePtr,*linenumPtr);
 
