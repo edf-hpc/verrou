@@ -1889,18 +1889,23 @@ static
 void vr_post_syscall(ThreadId tid, UInt syscallno,
                      UWord* args, UInt nArgs, SysRes res){
    if(vr.excludeDetect){
-     if(syscallno==VR_OPEN_AT_SYSCALLNO){//openat
+      //   if(syscallno==VR_OPEN_AT_SYSCALLNO){//openat
+      if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO)){//syscall openat open
         SizeT fd= sr_Res(res);
         if(fd>0){
-	 const HChar* buffer;
-	 Bool resolved=VG_(resolve_filename)(fd,&buffer);
-	 if(resolved){
-       	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
-	 }else{
-	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
-	 }
-       }
-     }
+           const HChar* buffer;
+           Bool resolved=VG_(resolve_filename)(fd,&buffer);
+           if(resolved){
+              vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
+           }else{
+              if(syscallno==VR_OPEN_AT_SYSCALLNO){
+                 vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
+              }else{
+                 vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[0]);
+              }
+           }
+        }
+      }
    }
 
    if(vr.useIOMatchCLR){
