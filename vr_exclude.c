@@ -169,7 +169,6 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   static const HChar libquadmathPattern[]="*libquadmath*.so*";
   static const HChar libgccPattern[]="*libgcc_s*.so*";
 
-
 #define LIB_NB_PATTERN 7
   const HChar* libPattern[LIB_NB_PATTERN]={libmPattern1, libmPattern2,
 					   libumathPattern,
@@ -195,7 +194,9 @@ Vr_Exclude * vr_addPythonSymbols(Vr_Exclude * list){
    res=vr_addExclude (res, "_Py_dg_dtoa", star, True, False);
    res=vr_addExclude (res, "_Py_dg_strtod", star, True, False);
    res=vr_addExclude (res, "_Py_HashDouble", star, True, False);
-   res=vr_addExclude (res, "_PyTime_AsSecondsDouble", star, True, False);
+   res=vr_addExclude (res, "PyLong_FromDouble", star, True, False);
+   res=vr_addExclude (res, "PyLong_FromString", star, True, False);
+   res=vr_addExclude (res, "PyByteArray_Resize", star, True, False);
    return res;
 }
 
