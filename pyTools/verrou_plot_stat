@@ -351,7 +351,7 @@ def verrou_extract_paraview_var(extract_var, rep, listOfStat):
 
 def prepareDataForParaview(dataTime,dataVar, rep):
 
-    csvTime=open(rep / "paraviewTime.csv","w")
+    csvTime=open(str(rep / "paraviewTime.csv"),"w")
     first=True
     for rounding in dataTime:
         tabResult=dataTime[rounding]
@@ -383,7 +383,7 @@ def prepareDataForParaview(dataTime,dataVar, rep):
     keys.sort(key=lambda x:x[0])
     keys.sort(key=lambda x:x[1])
 
-    csvParam=open(rep / "paraviewParam.csv","w")
+    csvParam=open(str(rep / "paraviewParam.csv"),"w")
     first=True
     for rounding in dataVar:
         tabResult=dataVar[rounding]
@@ -415,10 +415,28 @@ def runParaview(rep):
     paraviewHelp()
     process.wait()
 
+def maxIgnoringNone(vect):
+    if vect==None:
+        return None
+    removeNone=[x for x in vect if x!=None]
+    if removeNone==[]:
+        return None
+    else:
+        return max(removeNone)
+
+def minIgnoringNone(vect):
+    if vect==None:
+        return None
+    removeNone=[x for x in vect if x!=None]
+    if removeNone==[]:
+        return None
+    else:
+        return min(removeNone)
+
 
 def listOfHistogram(listOfBrutData, nb_bin):
-    maxValue=max([max([a for a in data if a!=float("inf") if a!="fail"]) for data in listOfBrutData])
-    minValue=min([min([a for a in data if a!=float("-inf")if a!="fail"]) for data in listOfBrutData])
+    maxValue=maxIgnoringNone([maxIgnoringNone([a for a in data if a!=float("inf") if a!="fail"]) for data in listOfBrutData])
+    minValue=minIgnoringNone([minIgnoringNone([a for a in data if a!=float("-inf")if a!="fail"]) for data in listOfBrutData])
 
     numOfSpecialFloat=[ {"-inf":data.count(float("-inf")), "inf":data.count(float("inf")),"NaN":data.count(float("NaN")),"fail":data.count("fail") } for data in listOfBrutData]
     listOfFilteredBrutData=[[x for x in data if x!=(float("inf")) and x!=(float("-inf")) and x!=float("NaN") and x!="fail"] for data in listOfBrutData  ]
@@ -583,6 +601,8 @@ def plot_time(dataBrut, conf):
         plt.show()
 
 def maxDiff(tab,ref):
+    if tab==[]:
+        return None
     res=max([abs(x-ref) for x in tab ])
     return res
 
@@ -622,7 +642,7 @@ def print_stat(data, conf):
         timeStr=(timeValue.strftime("%m-%d-%Y_%Hh%Mm%Ss"))
         pathName.rename(pathName.with_name( pathName.name.replace(".last","."+timeStr)))
 
-    handler=open(pathName ,"w")
+    handler=open(str(pathName) ,"w")
     handler.write("md5 cmd.last: "+ conf.md5Param()+"\n" )
     def localPrint(strValue):
         print(strValue)

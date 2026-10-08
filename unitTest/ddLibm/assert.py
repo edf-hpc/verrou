@@ -14,7 +14,7 @@ def checkDD(rep, symOrLine, listOfInstableFunction):
     
     ddminCmpPath=rep / "rddmin-cmp" / ("dd."+symOrLine+".include")
     if ddminCmpPath.is_file():
-        lines=open(ddminCmpPath).readlines()
+        lines=open(str(ddminCmpPath)).readlines()
         if len(lines)!=len(listOfStableFunction):
             print("KO incoherent ddmin")
             return False
@@ -33,7 +33,7 @@ def checkDD(rep, symOrLine, listOfInstableFunction):
     for i in range(len(listOfInstableFunction)):
         ddminCmpPath=rep / ("ddmin"+str(i)) / ("dd."+symOrLine+".include")
         if ddminCmpPath.is_file():
-            lines=open(ddminCmpPath).readlines()
+            lines=open(str(ddminCmpPath)).readlines()
             if len(lines)!=1:
                 print(ddminCmpPath, "bad size")
                 return False
