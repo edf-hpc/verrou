@@ -122,9 +122,7 @@ void vr_trace_inc(Vr_Trace* vrTrace, Addr bbAddr, Int nbBack, Addr* ip){
 
 
 void vr_trace_init0(Vr_Trace* vrTrace){
-   for(int i=0; i < HASH_TABLE_TRACE_SIZE; i++){
-      vrTrace->trace[i]=NULL;
-   }
+   vrTrace->trace=NULL;
    vrTrace->back_addr_list=NULL;
    vrTrace->bb_addr_list=NULL;
    vrTrace->currentIndexFirst=0;
@@ -139,6 +137,7 @@ void vr_trace_init0(Vr_Trace* vrTrace){
 
 void vr_trace_init_rep(Vr_Trace* vrTrace, const HChar* rep){
    vr_trace_init0(vrTrace);
+   vrTrace->trace=VG_(calloc)("vr.trace.hashTable", HASH_TABLE_TRACE_SIZE, sizeof(Vr_Trace_Back*));
 
    const HChar * strBackAddr="backAddrInfo-%p";
    const HChar * strBBAddr="bbAddrInfo-%p";
@@ -204,6 +203,9 @@ static UInt vr_freeTraceBack (Vr_Trace_Back* list) {
 
 
 void vr_trace_finalize(Vr_Trace* vrTrace){
+   if(vrTrace->trace==NULL){
+      return;
+   }
    VG_(umsg)("vrTrace->trace hashmap repartition\n");
 
    UInt sumMax=0;
@@ -229,6 +231,8 @@ void vr_trace_finalize(Vr_Trace* vrTrace){
    if(countTab[11]>0){
       VG_(printf)("\t>%u (avg %u)-> %u\n", (UInt)10, (UInt) ((double)sumMax / (double)countTab[11]) ,countTab[11]);
    }
+   VG_(free)(vrTrace->trace);
+   vrTrace->trace=NULL;
    vr_freeAddrList(vrTrace->back_addr_list);
    vr_freeAddrList(vrTrace->bb_addr_list);
 
@@ -265,6 +269,9 @@ static void vr_trace_dump_and_clear_aux (Vr_Trace_Back* listTab[HASH_TABLE_TRACE
 }
 
 void vr_trace_dump_and_clear(Vr_Trace* vrTrace, UInt indexCov ){
+   if(vrTrace->trace==NULL){
+      return;
+   }
    vr_trace_dump_and_clear_aux(vrTrace->trace, vrTrace->handlerCover, vrTrace->cover_file, indexCov);
    vrTrace->currentIndexFirst=0;
 }
