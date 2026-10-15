@@ -993,7 +993,7 @@ det2
           </varlistentry>
 
 	  <varlistentry id="vr.opt.trace_type" xreflabel="--trace-type">
-            <term><option><![CDATA[--trace-type=<bb_cover|back_cover>]]></option></term>
+            <term><option><![CDATA[--trace-type=<bb_cover|back_cover> [default=bb_cover]]]></option></term>
             <listitem><para>
 		Select the trace type  <computeroutput>bb_cover</computeroutput> for <link linkend="vr-manual.localization.CovBB" >Basic Blocks Coverage</link> or  <computeroutput>back_cover</computeroutput> <link linkend="vr-manual.localization.CovBack" >Backtrace Coverage</link> 
               </para>
