@@ -676,6 +676,9 @@ static Bool vrIO_Parse_default(void){
          if(IOMatch_log_level>0){
              VG_(fprintf)(vr_IOmatchCLRFileLog, "default action [%lu] : %s\n",vr_nbDefault ,defaultAction);
          }
+         if(vr_nbDefault>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many default actions");
+         }
          VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
          vr_nbDefault++;
       }else{
@@ -727,6 +730,9 @@ static Bool vrIO_Parse_init(void){
          if( IOMatch_log_level>0){
             VG_(fprintf)(vr_IOmatchCLRFileLog, "init action [%lu] : %s\n",vr_nbInit , initAction);
          }
+         if(vr_nbInit>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many init actions");
+         }
          VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
          vr_nbInit++;
        }else{
@@ -749,6 +755,9 @@ static Bool vrIO_Parse_postinit(void){
        if (vr_valid_apply_cmd(postinitAction)){
          if( IOMatch_log_level>0){
             VG_(fprintf)(vr_IOmatchCLRFileLog, "postinit action [%lu] : %s\n",vr_nbpostInit , postinitAction);
+         }
+         if(vr_nbpostInit>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many post-init actions");
          }
          VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
          vr_nbpostInit++;
