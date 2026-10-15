@@ -695,9 +695,10 @@ def print_stat(data, conf):
                 localPrint(r"%s (100\% fail) :"%(rounding))
             else:
                 estim=    maxDiff([x for x in data[rounding] if x!="fail"],refValue)
-                maxEstim=max(estim,maxEstim)
-                estimRel, estimRelBit=computeRelative(estim, refValue)
-                localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
+                if estim!=None:
+                    maxEstim=max(estim,maxEstim)
+                    estimRel, estimRelBit=computeRelative(estim, refValue)
+                    localPrint("%s (%.1f%% fail) :\t%e\t%.4e\t%.2fbit"%(rounding, 100.*nbError/float(len(data)) ,estim,estimRel, estimRelBit))
                 if mca_estimator:
                     estimRel, estimRelBit=estimMca([x for x in data[rounding] if x!="fail"])
                     tabValue+=[x for x in data[rounding] if x!="fail"]
@@ -713,7 +714,8 @@ def print_stat(data, conf):
                 tabValue+=data[rounding]
 
             estim=    maxDiff(data[rounding],refValue)
-            maxEstim=max(estim,maxEstim)
+            if estim!=None:
+                maxEstim=max(estim,maxEstim)
         else:
             localPrint("Warning %s failing")
 
