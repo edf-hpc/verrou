@@ -197,6 +197,9 @@ Vr_Exclude * vr_addPythonSymbols(Vr_Exclude * list){
    res=vr_addExclude (res, "PyLong_FromDouble", star, True, False);
    res=vr_addExclude (res, "PyLong_FromString", star, True, False);
    res=vr_addExclude (res, "PyByteArray_Resize", star, True, False);
+   res=vr_addExclude (res, "_PyTime_AsSecondsDouble",star,True,False);
+   res=vr_addExclude (res, "_Py_hashtable_set",star,True,False);
+
    return res;
 }
 
