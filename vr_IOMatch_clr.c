@@ -676,6 +676,9 @@ static Bool vrIO_Parse_default(void){
          if(IOMatch_log_level>0){
              VG_(fprintf)(vr_IOmatchCLRFileLog, "default action [%lu] : %s\n",vr_nbDefault ,defaultAction);
          }
+         if(vr_nbDefault>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many default actions");
+         }
          VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
          vr_nbDefault++;
       }else{
@@ -727,6 +730,9 @@ static Bool vrIO_Parse_init(void){
          if( IOMatch_log_level>0){
             VG_(fprintf)(vr_IOmatchCLRFileLog, "init action [%lu] : %s\n",vr_nbInit , initAction);
          }
+         if(vr_nbInit>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many init actions");
+         }
          VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
          vr_nbInit++;
        }else{
@@ -750,6 +756,9 @@ static Bool vrIO_Parse_postinit(void){
          if( IOMatch_log_level>0){
             VG_(fprintf)(vr_IOmatchCLRFileLog, "postinit action [%lu] : %s\n",vr_nbpostInit , postinitAction);
          }
+         if(vr_nbpostInit>=DEFAULT_MAX){
+            VG_(tool_panic)("vr_IOmatch_clr : too many post-init actions");
+         }
          VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
          vr_nbpostInit++;
        }else{
@@ -766,7 +775,7 @@ static Bool vrIO_Parse_bmatch(void){
    //Treat bmatch key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_bmatchKeyStr, vr_bmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
-      if(vr_nbMatch> vr_nb_match_max){
+      if(vr_nbMatch>= vr_nb_match_max){
          VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_bmatchKeyStrSize;
@@ -789,7 +798,7 @@ static Bool vrIO_Parse_cmatch(void);
 static Bool vrIO_Parse_cmatch(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_cmatchKeyStr, vr_cmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
-      if(vr_nbMatch> vr_nb_match_max){
+      if(vr_nbMatch>= vr_nb_match_max){
          VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_cmatchKeyStrSize;
@@ -836,7 +845,7 @@ static Bool vrIO_Parse_postapply(void){
       if(IOMatch_verbose>2){
          VG_(umsg)("post_apply : %s\n", applyCmd);
       }
-      if(vr_nbMatch<0){
+      if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before post-apply ");
       }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
