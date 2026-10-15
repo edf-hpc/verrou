@@ -775,7 +775,7 @@ static Bool vrIO_Parse_bmatch(void){
    //Treat bmatch key
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_bmatchKeyStr, vr_bmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
-      if(vr_nbMatch> vr_nb_match_max){
+      if(vr_nbMatch>= vr_nb_match_max){
          VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_bmatchKeyStrSize;
@@ -798,7 +798,7 @@ static Bool vrIO_Parse_cmatch(void);
 static Bool vrIO_Parse_cmatch(void){
    if( VG_(strncmp)(vr_IOmatch_CmdLine, vr_cmatchKeyStr, vr_cmatchKeyStrSize)==0 ){
       vr_allocate_match_if_needed();
-      if(vr_nbMatch> vr_nb_match_max){
+      if(vr_nbMatch>= vr_nb_match_max){
          VG_(tool_panic)("vr_IOmatch_clr : to many match");
       }
       const HChar* matchPattern=vr_IOmatch_CmdLine+vr_cmatchKeyStrSize;
