@@ -363,9 +363,7 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
       VG_(tool_panic)("invalid load source list file");
       continue;
     }
-    if (*c==0) {
-      c = line + LINE_SIZEMAX;
-    } else {
+    if (*c!=0) {
       *c = 0;
       ++c;
     }
@@ -376,6 +374,11 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
 	 ++c) {}
     HChar* fnname = c;
+    if (*fnname == 0) {
+      VG_(umsg)("ERROR (parse3: missing fnname) : %s\t%u (line %d of %s)\n",filename,linenum,lineno,fname);
+      VG_(tool_panic)("invalid load source list file");
+      continue;
+    }
 
     list = vr_addIncludeSource (list,fnname,filename,linenum);
   }
