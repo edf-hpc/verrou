@@ -171,7 +171,7 @@ def compressBB(content):
     return res
 
 def parse(filename, needToPermutate):
-    lines=open(filename,"r").readlines()
+    lines=open(str(filename),"r").readlines()
     header=lines[0:5]
     content=lines[5:]
     dropInit=None
@@ -243,9 +243,9 @@ def permutateDDMIN(header, content):
 
 
 def needToPermutate(repOrigin):
-    ddmin0Line= open(repOrigin/".."/"ddmin0"/"dd.line.include").readline()
+    ddmin0Line= open(str(repOrigin/".."/"ddmin0"/"dd.line.include")).readline()
     try:
-        ddmin1Line= open(repOrigin/".."/"ddmin1"/"dd.line.include").readline()
+        ddmin1Line= open(str(repOrigin/".."/"ddmin1"/"dd.line.include")).readline()
     except:
         return False
     res=(ddmin0Line > ddmin1Line)
@@ -254,11 +254,11 @@ def needToPermutate(repOrigin):
     return res
 
 def loadRef(filename):
-    lines=open(filename,"r").readlines()
+    lines=open(str(filename),"r").readlines()
     return lines
 
 def export(filenameNew, lines):
-    handler=open(filenameNew, "w")
+    handler=open(str(filenameNew), "w")
     for line in lines:
         handler.write(line)
 

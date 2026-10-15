@@ -69,7 +69,7 @@ dd.back.line.assert: dd.back.line
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
-	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
 
 dd.line.postbb: dd.line
 	cp -r dd.line dd.line.postbb
@@ -85,8 +85,8 @@ dd.line.postbb.assert: dd.line.postbb
 
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
-	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=1 --trace-clean-policy=gz --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
-	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=1 --trace-clean-policy=gz --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
 
 dd.line.integer.post2: dd.line.integer.post
 	cp -r dd.line.integer.post dd.line.integer.post2
@@ -113,7 +113,7 @@ dd.line.post.assert: dd.line.post
 
 dd.line.postmatch: dd.line
 	cp -r dd.line dd.line.postmatch
-	post_verrou_dd --nruns=4 --num-thread=4 --rep=dd.line.postmatch --trace-bin --trace-gen-local --seed=42 ./ddRunMatch.sh ./ddCmp.py
+	post_verrou_dd --nruns=4 --num-thread=4 --rep=dd.line.postmatch --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 ./ddRunMatch.sh ./ddCmp.py
 
 
 dd.line.postmatch.assert: dd.line.postmatch
