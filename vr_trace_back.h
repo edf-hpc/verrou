@@ -23,7 +23,7 @@ struct Vr_Trace_Back_ {
 
 typedef struct Vr_Trace_ Vr_Trace;
 struct Vr_Trace_ {
-   Vr_Trace_Back* trace[HASH_TABLE_TRACE_SIZE];
+   Vr_Trace_Back** trace; // HASH_TABLE_TRACE_SIZE buckets, allocated only by vr_trace_init_rep
    Vr_Addr_List*    back_addr_list;
    Vr_Addr_List*    bb_addr_list;
    uint64_t currentIndexFirst;
