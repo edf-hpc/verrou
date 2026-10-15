@@ -845,7 +845,7 @@ static Bool vrIO_Parse_postapply(void){
       if(IOMatch_verbose>2){
          VG_(umsg)("post_apply : %s\n", applyCmd);
       }
-      if(vr_nbMatch<0){
+      if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before post-apply ");
       }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
