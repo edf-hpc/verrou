@@ -8,16 +8,16 @@ from pathlib import Path
 
 class gen_config:
 
-    def __init__(self, argv, environ,config_keys=["INTERFLOP"], lengthValidTab=[2]):
+    def __init__(self, argv, environ,config_keys=["INTERFLOP"], lengthValidTab=[2], isExecutableArg=True):
         self.config_keys=config_keys
         self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
-        if sys.argv[1]=="bash_completion":
+        if len(sys.argv)>=2 and sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
             sys.exit(0)
         self.argv=argv
-        self.parseArgv(argv, lengthValidTab)
+        self.parseArgv(argv, lengthValidTab, isExecutableArg)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
 
@@ -51,7 +51,7 @@ class gen_config:
             strOption+="\t%s : %s\n"%(registry["attribut"], getattr(self, registry["attribut"]))
         return strOption
 
-    def parseArgv(self,argv, lengthValidTab):
+    def parseArgv(self,argv, lengthValidTab, isExecutableArg):
         shortOptionsForGetOpt="h" + "".join([y[1:]  for x in self.registryTab for y in x["tabOptionAll"] if y.startswith("-") and y[1]!="-"])
         longOptionsForGetOpt=["help"]   +   [y[2:]  for x in self.registryTab for y in x["tabOptionAll"] if y.startswith("--")]
         try:
@@ -76,8 +76,12 @@ class gen_config:
             self.unknown_args=[x for x in args]
         else:
             if len(args) in lengthValidTab:
-                self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+                if isExecutableArg:
+                    self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+                else:
+                    self.exec_arg=[Path(arg) for arg in args]
             else:
+                print("invalid number of arguments:", args)
                 self.usageCmd()
                 self.failure()
 

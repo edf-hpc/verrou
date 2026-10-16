@@ -37,8 +37,8 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("ioMatchVerbose", "int",    "IOMATCH_VERBOSE",["--IOmatch-verbose="], 2, None)
 
     def usageCmd(self):
-        print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
-        print(self.get_EnvDoc(self.config_keys[-1]))
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] [rep]")
+        print(self.get_EnvDoc())
 
         print("Valid rounding modes are:")
         print("\t",  ",".join(rounding_tool.roundingDetTabWithoutFloatPrefix  ))

@@ -2,15 +2,56 @@
 
 from traceAnalysis import generateTraceAnalysis,detect_trace_kind
 from pathlib import Path
+import gen_config
 import sys
+import os
+
+class traceAnalysisConfig(gen_config.gen_config):
+
+    def __init__(self, argv, environ):
+        self.availEstim=["dc","wdc","wdc-stol","fdr-stol", "data"]
+        super().__init__(argv,environ, config_keys=[], lengthValidTab=[0,1], isExecutableArg=False)
+        self.normalize()
+
+    def registerOptions(self):
+        self.addRegistry("estimatorTab", "string", "ESTIMATOR", ["--estimator="], [], checkParam=self.availEstim, additive=True)
+
+    def usageCmd(self):
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] [rep]")
+        print(self.get_EnvDoc())
+
+
+    def normalizeEstimTab(self):
+
+        if self.estimatorTab==[]:
+            self.estimatorTab=self.availEstim
+        else:
+            for x in self.estimatorTab:
+                if x not in self.availEstim:
+                    print("Error:", x , "not in ", str(availEstim))
+                    self.failure()
+                if self.estimatorTab.count(x)!=1:
+                    print("Error:", x , "defined multiple times")
+                    self.failure()
+
+    def normalize(self):
+        self.normalizeEstimTab()
+        self.baseRep="."
+        if len(self.exec_arg)==1:
+            self.baseRep=self.exec_arg[0]
+
+    def getEstimTab(self):
+        return self.estimatorTab
+
+    def getBaseRep(self):
+        return Path(self.baseRep)
 
 if __name__=="__main__":
-    baseRep=Path(".")
-    if len(sys.argv)==2:
-        baseRep=Path(sys.argv[1])
 
+    config=traceAnalysisConfig(sys.argv,os.environ)
+    baseRep=config.getBaseRep()
     trace_kind=detect_trace_kind(baseRep)
-    estimatorTab=["dc","wdc","wdc-stol","fdr-stol", "data"]
+    estimatorTab=config.getEstimTab()
     clean=False
 
     generateTraceAnalysis(baseRep, trace_kind, estimatorTab, clean)

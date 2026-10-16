@@ -119,10 +119,11 @@ def csvHeader(dataParsedTab, estimatorTab, trace_kind):
 
     estTab=[x for x in estimatorTab if x!="data"]
     res=levelPrefix+"" +"\t" + "\t".join(estTab)+"\n"
-    res+=levelPrefix+"conf_name" +"\t" + "\t".join([""]*len(estTab))+ "\t"+"\t".join([str(x["conf_name"]) for x in dataParsedTab]) +"\n" 
-    res+=levelPrefix+"indexRun" +"\t" + "\t".join([""]*len(estTab))+ "\t"+ "\t".join([str(x["runIndex"]) for x in dataParsedTab])  +"\n"
-    res+=levelPrefix+"rounding" +"\t" + "\t".join([""]*len(estTab))+ "\t"+"\t".join([str(x["rounding"]) for x in dataParsedTab])  +"\n"
-    res+=levelPrefix+"return_value" +"\t" +"\t".join([""]*len(estTab))+ "\t"+ "\t".join([str(x["return_value"]) for x in dataParsedTab])  +"\n"
+    if "data" in estimatorTab:
+        res+=levelPrefix+"conf_name" +"\t" + "\t".join([""]*len(estTab))+ "\t"+"\t".join([str(x["conf_name"]) for x in dataParsedTab]) +"\n"
+        res+=levelPrefix+"indexRun" +"\t" + "\t".join([""]*len(estTab))+ "\t"+ "\t".join([str(x["runIndex"]) for x in dataParsedTab])  +"\n"
+        res+=levelPrefix+"rounding" +"\t" + "\t".join([""]*len(estTab))+ "\t"+"\t".join([str(x["rounding"]) for x in dataParsedTab])  +"\n"
+        res+=levelPrefix+"return_value" +"\t" +"\t".join([""]*len(estTab))+ "\t"+ "\t".join([str(x["return_value"]) for x in dataParsedTab])  +"\n"
 
     return res
 
