@@ -76,10 +76,11 @@ class statusReader:
 
 class genericMergeCover:
 
-    def __init__(self, pidRef, pathRef,statusRef, trace_kind):
+    def __init__(self, pidRef, pathRef,statusRef, trace_kind, hideBelowPython=False):
         self.trace_kind=trace_kind
+        self.hideBelowPython=hideBelowPython
         if trace_kind=="back_cover":
-            self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
+            self.root=backCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True, hideBelowPython=self.hideBelowPython)
         elif trace_kind=="bb_cover":
             self.root=bbCovReader(pidRef, pathRef,statusRef, trace_kind, mergeRoot=True)
         else:
@@ -87,7 +88,7 @@ class genericMergeCover:
 
     def current(self,  pid, path, status):
         if self.trace_kind=="back_cover":
-            return backCovReader( pid, path, status, self.trace_kind, mergeRoot=False)
+            return backCovReader( pid, path, status, self.trace_kind, mergeRoot=False, hideBelowPython=self.hideBelowPython)
         elif self.trace_kind=="bb_cover":
             return bbCovReader(pid, path,status, self.trace_kind, mergeRoot=False)
 

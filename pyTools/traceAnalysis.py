@@ -160,7 +160,7 @@ def getPidAndPathRepTabs(dataParsed, seqIndex):
             pathRepTab+=[None]
     return pidTab, pathRepTab
 
-def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
+def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, hideBelowPython,clean):
     pathTab=list(findCoverRep(baseRep))
     if len(pathTab)==0:
         print("invalid baseRep:" , baseRep)
@@ -190,7 +190,7 @@ def generateTraceAnalysis(baseRep,trace_kind, estimatorTab, clean):
         pidRef=pidTab[0]
         repRef=pathRepTab[0]
 
-        mergeTool=genericMergeCover(pidRef, Path(repRef),statusRef, trace_kind)
+        mergeTool=genericMergeCover(pidRef, Path(repRef),statusRef, trace_kind, hideBelowPython)
 
         printIndex=[int(float(p) * mergeSize /100.)  for p in (list(range(0,100,10))+[1,5])]
         printIndex +=[1,  mergeSize-1]

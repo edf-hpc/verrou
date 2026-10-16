@@ -237,6 +237,16 @@ class addrBackReader:
     def isBelowMain(self, addr):
         return ("below main" in self.data[addr][0])
 
+    def isBelowPython(self, addr):
+        for pythonName in ["_PyCFunction_FastCallDict",
+                           "_PyEval_EvalFrameDefault",
+                           "_PyFunction_FastCallDict",
+                           "PyObject_CallFunctionObjArgs"
+                           ]:
+            if pythonName in self.data[addr][0]:
+                return True
+        return False
+
 class mergeAddrBackReader:
     def __init__(self, backReader, verbose=False):
         self.backReader=backReader
@@ -263,6 +273,9 @@ class mergeAddrBackReader:
 
     def isBelowMain(self, addr):
         return self.backReader.isBelowMain(addr)
+
+    def isBelowPython(self, addr):
+        return self.backReader.isBelowPython(addr)
 
 
 class bbCovReader:
@@ -407,11 +420,13 @@ class bbCovReader:
 
 
 class backCovReader:
-    def __init__(self,pid, rep, status,trace_kind, mergeRoot=False):
+    def __init__(self,pid, rep, status,trace_kind, mergeRoot=False, hideBelowPython=False):
         self.pid=pid
         self.rep=rep
         assert(trace_kind in ["back_cover"])
         self.tName=traceName(trace_kind)
+        self.hideBelowMain=True
+        self.hideBelowPython=hideBelowPython
 
         self.bbInfo=bbInfoReader(self.rep / self.tName.bbName(pid), trace_kind)
         self.addrBackInfo=addrBackReader(self.rep / self.tName.backAddrName(pid), trace_kind)
@@ -501,19 +516,23 @@ class backCovReader:
                 num=splineRemain[1]
                 index=splineRemain[2]
                 backTabStr=splineRemain[0].split(':')[1]
-                backTabStr=self.removeBelowMain(backTabStr)
+                backTabStr=self.removeBelow(backTabStr)
                 if self.mergeIndex!=0:
                     dictRes[(addr, backTabStr)]=(int(num), int(index))
                 else:
                     dictRes[(addr, backTabStr)]=[(int(num), int(index))]
         return res
 
-    def removeBelowMain(self, backTabStr):
+    def removeBelow(self, backTabStr):
         addrTab=backTabStr.split(',')
         for i in range(len(addrTab)):
             addr=addrTab[i]
-            if self.addrBackInfo.isBelowMain(addr):
-                return ",".join(addrTab[0:i])
+            if self.hideBelowMain:
+                if self.addrBackInfo.isBelowMain(addr):
+                    return ",".join(addrTab[0:i])
+            if self.hideBelowPython:
+                if self.addrBackInfo.isBelowPython(addr):
+                    return ",".join(addrTab[0:i])
         return backTabStr
 
     def structureData(self):

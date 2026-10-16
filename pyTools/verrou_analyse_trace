@@ -15,6 +15,8 @@ class traceAnalysisConfig(gen_config.gen_config):
 
     def registerOptions(self):
         self.addRegistry("estimatorTab", "string", "ESTIMATOR", ["--estimator="], [], checkParam=self.availEstim, additive=True)
+        self.addRegistry("hideBelowPython", "bool", "HIDE_BELOW_PYTHON", ["--hideBelowPython"], True)
+
 
     def usageCmd(self):
         print("Usage: "+ Path(sys.argv[0]).name + " [options] [rep]")
@@ -43,6 +45,9 @@ class traceAnalysisConfig(gen_config.gen_config):
     def getEstimTab(self):
         return self.estimatorTab
 
+    def getHideBelowPython(self):
+        return self.hideBelowPython
+
     def getBaseRep(self):
         return Path(self.baseRep)
 
@@ -52,6 +57,7 @@ if __name__=="__main__":
     baseRep=config.getBaseRep()
     trace_kind=detect_trace_kind(baseRep)
     estimatorTab=config.getEstimTab()
+    hideBelowPython=config.getHideBelowPython()
     clean=False
 
-    generateTraceAnalysis(baseRep, trace_kind, estimatorTab, clean)
+    generateTraceAnalysis(baseRep, trace_kind, estimatorTab, hideBelowPython,clean)
