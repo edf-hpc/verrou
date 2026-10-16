@@ -456,23 +456,28 @@ static void vr_loadExcludeBack(Vr_Exclude_Back* listTab[HASH_TABLE_SIZE], const 
      if( *line== '#'){ //Workaround : VG_(get_line) can return a comment line for the last line without \n */
         continue;
      }
+     // line is 0-terminated by VG_(get_line), which grows the buffer as needed
      HChar * c;
-     for (c = line; c<line+LINE_SIZEMAX && *c != ':' && *c!=0; ++c) {}
+     for (c = line; *c != ':' && *c!=0; ++c) {}
      if(*c==':'){
         *c=0;
      }else{
-        VG_(umsg)("error while reading %s : invalid format\n", fname);
+        VG_(umsg)("error while reading %s line %d : invalid format\n", fname, lineno);
         VG_(tool_panic)("error loadExcludeBack");
      }
      Int nb = VG_(strtoll10)(line,NULL);
-     if(nb > BACKTRACE_SIZE){
-        VG_(umsg)("error while reading %s nb=%d > BACKTRACE_SIZE=%d ", fname, nb, BACKTRACE_SIZE );
+     if(nb < 1 || nb > BACKTRACE_SIZE){
+        VG_(umsg)("error while reading %s line %d : nb=%d not in [1,BACKTRACE_SIZE=%d]\n", fname, lineno, nb, BACKTRACE_SIZE );
         VG_(tool_panic)("error loadExcludeBack");
      }
      HChar* addrLine=c+1;
      Addr addrTab[BACKTRACE_SIZE];
      for(Int addrIndex=0; addrIndex <nb; addrIndex++){
-        for (c = addrLine; c<line+LINE_SIZEMAX && *c != ',' && *c != 0 ; ++c) {}
+        for (c = addrLine; *c != ',' && *c != 0 ; ++c) {}
+        if(c==addrLine || (*c==0) != (addrIndex==nb-1)){
+           VG_(umsg)("error while reading %s line %d : expected %d addresses\n", fname, lineno, nb);
+           VG_(tool_panic)("error loadExcludeBack");
+        }
         *c=0;
         Addr addr = VG_(strtoull10)(addrLine,NULL);
         addrTab[addrIndex]=addr;
