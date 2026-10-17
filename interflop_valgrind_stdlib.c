@@ -47,17 +47,17 @@ VgFile *_interflop_valgrind_fopen(const String pathname, const String mode,
   //   └─────────────┴───────────────────────────────┘
 
   Int flags = 0;
-  if (VG_(strcmp)(mode, "r")) {
+  if (VG_(strcmp)(mode, "r") == 0) {
     flags = VKI_O_RDONLY;
-  } else if (VG_(strcmp)(mode, "r+")) {
+  } else if (VG_(strcmp)(mode, "r+") == 0) {
     flags = VKI_O_RDWR;
-  } else if (VG_(strcmp)(mode, "w")) {
+  } else if (VG_(strcmp)(mode, "w") == 0) {
     flags = VKI_O_WRONLY | VKI_O_CREAT | VKI_O_TRUNC;
-  } else if (VG_(strcmp)(mode, "w+")) {
+  } else if (VG_(strcmp)(mode, "w+") == 0) {
     flags = VKI_O_RDWR | VKI_O_CREAT | VKI_O_TRUNC;
-  } else if (VG_(strcmp)(mode, "a")) {
+  } else if (VG_(strcmp)(mode, "a") == 0) {
     flags = VKI_O_WRONLY | VKI_O_CREAT | VKI_O_APPEND;
-  } else if (VG_(strcmp(mode, "a+"))) {
+  } else if (VG_(strcmp)(mode, "a+") == 0) {
     flags = VKI_O_RDWR | VKI_O_CREAT | VKI_O_APPEND;
   }
 
