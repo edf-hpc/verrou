@@ -1093,7 +1093,8 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
    if(totalSize >=  LINE_SIZEMAX){
       VG_(tool_panic)("vr_IOmatchCLR: line sizemax excedeed\n");
    }
-   VG_(strncat)(vr_writeLineBuffCurrent , writeLine, size);
+   //memcpy and not strncat : writeLine may contain 0 bytes (binary output)
+   VG_(memcpy)(vr_writeLineBuffCurrent , writeLine, size);
    vr_writeLineBuff[totalSize]=0;
 
    if(IOMatch_verbose>4){
