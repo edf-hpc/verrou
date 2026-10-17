@@ -38,6 +38,7 @@ import matplotlib.pyplot as plt
 
 import DD_stoch
 import rounding_tool
+from sysTools import getoutput
 import gen_config
 
 maxNbPROC=None
@@ -128,7 +129,8 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 
     def getValueData(repName):
         try:
-            resProcess=subprocess.getoutput(str(extract_run) +" "+ str(repName)+ " 2> "+str(repName / "extract.err") )
+            with open(str(repName / "extract.err"), "w") as extractErr:
+                resProcess=getoutput([extract_run, repName], stderr=extractErr)
             return float(resProcess)
         except ValueError as err:
             print("Value Error while extracting value from :"+ str(extract_run) +" "+ str(repName))
@@ -154,7 +156,7 @@ def verrou_extract_stat(extract_run, rep, listOfConfigStat, ref, continueOnExtra
 def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=None, continueOnExtractError=False):
     def getValueData(repName):
         try:
-            return float(subprocess.getoutput(extract_run +" "+ repName))
+            return float(getoutput([extract_run, repName]))
         except ValueError as err:
             print("Value Error while extracting value from :"+ extract_run +" "+ repName)
             if continueOnExtractError:
@@ -199,11 +201,11 @@ def verrou_extract_specific_pattern(extract_run, rep, listOfPattern, listOfName=
 
 def verrou_extract_paraview_time(extract_time, rep, listOfStat):
     def getTimeData(repName):
-        return [float(x) for x in (subprocess.getoutput(str(extract_time) +" "+ str(repName))).split("\n")]
+        return [float(x) for x in (getoutput([extract_time, repName])).split("\n")]
     return extractLoopOverComputation(rep,listOfStat, getTimeData)
 
 def getExtractTimeData(extract_time,repName):
-    res=[x for x in (subprocess.getoutput(str(extract_time) +" "+ str(repName))).split("\n")]
+    res=[x for x in (getoutput([extract_time, repName])).split("\n")]
     name=None
     if res[0].startswith("#"):
         name=(res[0].replace("#","")).strip()
@@ -330,7 +332,7 @@ class verrou_extract_time_data:
 
 def verrou_extract_paraview_var(extract_var, rep, listOfStat):
     def getVarData(repName):
-        lines=(subprocess.getoutput(extract_var +" "+ repName)).split("\n")
+        lines=(getoutput([extract_var, repName])).split("\n")
         keys=lines[0].split()
         counter=0
         res={}
@@ -400,11 +402,11 @@ def runParaview(rep):
         #the script is at the same place as this script
         return __file__.replace(Path(sys.argv[0]).name,"paraview_script.py")
 
-    cmd="paraview --script=%s"%(getScriptPath())
-    print("paraview cmd: ", cmd)
+    cmd=["paraview", "--script=%s"%(getScriptPath())]
+    print("paraview cmd: ", " ".join(cmd))
     env = copy.deepcopy(os.environ)
-    env["VERROU_PARAVIEW_DATA_PATH"]=rep
-    process=subprocess.Popen(cmd, env=env, shell=True)
+    env["VERROU_PARAVIEW_DATA_PATH"]=str(rep)
+    process=subprocess.Popen(cmd, env=env)
 
     def paraviewHelp():
         print(""" To enable link selection:

@@ -23,6 +23,20 @@ def getResult(subProcess):
     subProcess.wait()
     return subProcess.returncode
 
+def getoutput(cmd, stderr=subprocess.STDOUT):
+    """Equivalent of subprocess.getoutput without shell: CMD is a list of
+    arguments, so paths with spaces or shell special characters are safe.
+    Return the standard output (with the error output unless STDERR is given)
+    without its trailing newline, whatever the exit code."""
+    try:
+        res=subprocess.run([str(x) for x in cmd], stdout=subprocess.PIPE, stderr=stderr,
+                           universal_newlines=True).stdout
+    except OSError as err: #like the shell: the error message becomes the output
+        return str(err)
+    if res.endswith("\n"):
+        res=res[:-1]
+    return res
+
 #code coming from verificarlo : https://github.com/verificarlo/verificarlo/blob/master/src/tools/ddebug/main.py
 def disable_ASLR():
     import ctypes
