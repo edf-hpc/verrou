@@ -16,7 +16,8 @@ import rounding_tool
 
 class VerrouControl:
     def __init__(self, vgdb_prefix: str = ""):
-        self.vgdb_prefix = vgdb_prefix
+        # one argument, so that a prefix containing spaces is kept intact
+        self.vgdb_prefix_option = ['--vgdb-prefix=' + vgdb_prefix] if vgdb_prefix else []
         self.vgdb = self._find_vgdb()
 
     def _find_vgdb(self):
@@ -30,7 +31,7 @@ class VerrouControl:
     def run(self, cmd:str):
         # vgdb concatenates its remaining arguments into one monitor command,
         # so splitting cmd on spaces is equivalent to the former shell call
-        full = [self.vgdb] + self.vgdb_prefix.split() + cmd.split()
+        full = [self.vgdb] + self.vgdb_prefix_option + cmd.split()
         p = subprocess.run(full,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            universal_newlines=True)
