@@ -141,17 +141,25 @@ typedef enum libM2parity: size_t {
 
 void load_postfix_sym(void**fctPtr, const char* name, const char* postFix){
   char localName[20];
+  const size_t localNameSizeMax=sizeof(localName)-1;
   size_t i=0 ;
-  while(name[i]!=0){
+  while(name[i]!=0 && i<localNameSizeMax){
     localName[i]=name[i];
     i++;
   }
   size_t j=0;
-  while(postFix[j]!=0){
+  while(postFix[j]!=0 && i<localNameSizeMax){
     localName[i]=postFix[j];
     i++, j++;
   }
   localName[i]=0;
+  if(name[i-j]!=0 || postFix[j]!=0){
+    //write : to avoid libc
+    (void)!write(2, "Function name too long : ", sizeof("Function name too long : ")-1);
+    (void)!write(2, localName, i);
+    (void)!write(2, "\n",1);
+    exit(1);
+  }
 
   (*fctPtr) =dlsym(RTLD_NEXT, localName);
   if(*fctPtr==NULL){
@@ -163,9 +171,10 @@ void load_postfix_sym(void**fctPtr, const char* name, const char* postFix){
 }
 
 // strncat redefined to avoid libc call during initialization
+// n is the size of nameOut : at most n-1 chars are copied, nameOut is always 0-terminated
 void strncat_redefined(char* nameOut, const char* nameIn, size_t n){
   size_t i=0;
-  while( nameIn[i]!=0 && i<n){
+  while( nameIn[i]!=0 && i+1<n){
     nameOut[i]=nameIn[i];
     i++;
   }
