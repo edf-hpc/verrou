@@ -434,7 +434,7 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 def sortSubRep(subRepTab):
     refTab=[x for x in subRepTab if x.name in ["ref","NoPerturbation"] ]
     ddminTab=[x for x in subRepTab if (x.name).startswith("ddmin")]
-    otherTab=[x for x in subRepTab if (not x.name in refTab) and (not x in ddminTab)]
+    otherTab=[x for x in subRepTab if (not x in refTab) and (not x in ddminTab)]
 
     ddminWithKeySort=[]
     for ddmin in ddminTab:
