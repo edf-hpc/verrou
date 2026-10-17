@@ -127,7 +127,7 @@ typedef struct vr_match_data {
    SizeT count_match;
    HChar apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
    SizeT nb_apply_match;
-   HChar post_apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+   HChar post_apply_match[POST_APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
    SizeT nb_post_apply_match;
 } vr_match_data_t;
 
@@ -213,6 +213,16 @@ Bool vr_valid_apply_cmd(const HChar* cmd){
    return res;
 }
 
+
+static void vr_IOMatch_strcpy(HChar* dst, const HChar* src, SizeT size, const HChar* what);
+static void vr_IOMatch_strcpy(HChar* dst, const HChar* src, SizeT size, const HChar* what){
+   /*strncpy does not 0-terminate a truncated string : refuse too long strings instead*/
+   if(VG_(strlen)(src) >= size){
+      VG_(umsg)("%s too long (max %lu chars) : %s\n", what, size-1, src);
+      VG_(tool_panic)("vr_IOmatch_clr : IOMatch script value too long");
+   }
+   VG_(strcpy)(dst, src);
+}
 
 /*to avoid side effect we duplicate the code of get_char and get_line*/
 
@@ -495,23 +505,28 @@ void vr_IOmatch_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
 static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost);
 static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost){
   /*Open output File*/
-  HChar strFilename[512];
+  HChar strFilename[VKI_PATH_MAX];
+  UInt sizeFilename;
   if( VG_(strncmp)(fileName, "",512)==0){
      if(vr.outputIOMatchRep==NULL){
-        VG_(sprintf)(strFilename, "%s%s",fileNameIOMatch,strPost);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s%s",fileNameIOMatch,strPost);
      }else{
-        VG_(sprintf)(strFilename, "%s/%s%s",vr.outputIOMatchRep,"IOMatch",strPost);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s/%s%s",vr.outputIOMatchRep,"IOMatch",strPost);
      }
   }else{
      if(vr.outputIOMatchRep==NULL){
-        VG_(sprintf)(strFilename, "%s",fileName);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s",fileName);
      }else{
         if(fileName[0]=='/'){
            VG_(umsg)("incompatible option --output-expect-rep with abspath : %s", fileName);
            VG_(tool_panic)("incompatible option --output-expect-rep with abspath");
         }
-        VG_(sprintf)(strFilename, "%s/%s", vr.outputIOMatchRep, fileName);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s/%s", vr.outputIOMatchRep, fileName);
      }
+  }
+  if(sizeFilename >= sizeof(strFilename)){ //VG_(snprintf) truncates and returns the size written
+     VG_(umsg)("IOMatch output filename too long (max %lu chars) : %s...\n", sizeof(strFilename)-1, strFilename);
+     VG_(tool_panic)("vr_IOmatch_clr : output filename too long");
   }
 
   const HChar * strFilenameExpanded=   VG_(expand_file_name)(strPost,  strFilename);
@@ -560,7 +575,7 @@ static Bool vrIO_Parse_filterLineExec(void){
          VG_(tool_panic)("vr_IOmatch_clr : only one filter_line_exec cmd is accepted");
       }
       vr_filter=True;
-      VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
+      vr_IOMatch_strcpy(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX, "filter_line_exec command");
       Bool beginWord=True;
       Int indexWord=0;
       Int indexShift=0;
@@ -679,7 +694,7 @@ static Bool vrIO_Parse_default(void){
          if(vr_nbDefault>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many default actions");
          }
-         VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX, "default action");
          vr_nbDefault++;
       }else{
          VG_(umsg)("default action %s is not valid", defaultAction);
@@ -733,7 +748,7 @@ static Bool vrIO_Parse_init(void){
          if(vr_nbInit>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many init actions");
          }
-         VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX, "init action");
          vr_nbInit++;
        }else{
           VG_(umsg)("init action %s is not valid", initAction);
@@ -759,7 +774,7 @@ static Bool vrIO_Parse_postinit(void){
          if(vr_nbpostInit>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many post-init actions");
          }
-         VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX, "post-init action");
          vr_nbpostInit++;
        }else{
           VG_(umsg)("post init action %s is not valid", postinitAction);
@@ -827,12 +842,16 @@ static Bool vrIO_Parse_apply(void){
       if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before apply ");
       }
+      if(!vr_valid_apply_cmd(applyCmd)){
+         VG_(umsg)("apply action %s is not valid\n", applyCmd);
+         VG_(tool_panic)("vr_IOmatch_clr : invalid action");
+      }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
-      (last_match_data->nb_apply_match)++;
       if( (last_match_data->nb_apply_match) >= APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many apply per match ");
       }
-      VG_(strncpy)( last_match_data->apply_match[last_match_data->nb_apply_match -1], applyCmd, MATCH_SIZE_MAX);
+      vr_IOMatch_strcpy( last_match_data->apply_match[last_match_data->nb_apply_match], applyCmd, MATCH_SIZE_MAX, "apply action");
+      (last_match_data->nb_apply_match)++;
       return True;
     }
    return False;
@@ -848,16 +867,20 @@ static Bool vrIO_Parse_postapply(void){
       if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before post-apply ");
       }
+      if(!vr_valid_apply_cmd(applyCmd)){
+         VG_(umsg)("post-apply action %s is not valid\n", applyCmd);
+         VG_(tool_panic)("vr_IOmatch_clr : invalid action");
+      }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
       if(!(last_match_data->is_break_match_pattern)){
          VG_(tool_panic)("cmatch and post_apply are incompatible ");
       }
 
-      (last_match_data->nb_post_apply_match)++;
       if((last_match_data->nb_post_apply_match)>=POST_APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many post-apply per match ");
       }
-      VG_(strncpy)( last_match_data->post_apply_match[last_match_data->nb_post_apply_match -1], applyCmd, MATCH_SIZE_MAX);
+      vr_IOMatch_strcpy( last_match_data->post_apply_match[last_match_data->nb_post_apply_match], applyCmd, MATCH_SIZE_MAX, "post-apply action");
+      (last_match_data->nb_post_apply_match)++;
       return True;
    }
    return False;
@@ -996,9 +1019,11 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
 
 static int readlineCharByChar(int fd, char* msgRead,int sizeMax);
+// return the size read including the end of line (always 0-terminated),
+// -1 on read error or end of file, -2 if the line does not fit in sizeMax
 static int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   int totalSize=0;
-  while(totalSize<sizeMax){
+  while(totalSize<sizeMax-1){
     char buffer[1];
     int size=VG_(read)(fd,buffer, 1);
     if(size==1){
@@ -1011,10 +1036,12 @@ static int readlineCharByChar(int fd, char* msgRead,int sizeMax){
       }
       continue;
     }else{
+       msgRead[totalSize]=0;
        return -1;
     }
   }
-  return -1;
+  msgRead[totalSize]=0;
+  return -2;
 };
 
 static inline Bool isApplyMatchBreakable(Bool* isMatchPtr,//inout,
@@ -1066,7 +1093,8 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
    if(totalSize >=  LINE_SIZEMAX){
       VG_(tool_panic)("vr_IOmatchCLR: line sizemax excedeed\n");
    }
-   VG_(strncat)(vr_writeLineBuffCurrent , writeLine, size);
+   //memcpy and not strncat : writeLine may contain 0 bytes (binary output)
+   VG_(memcpy)(vr_writeLineBuffCurrent , writeLine, size);
    vr_writeLineBuff[totalSize]=0;
 
    if(IOMatch_verbose>4){
@@ -1092,11 +1120,13 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
              Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 
-             if(sizeRead <0){
-                VG_(umsg)("vr_IOmatchCLR: filter read error\n");
+             if(sizeRead==-1){
+                VG_(umsg)("vr_IOmatchCLR: filter read error (filter output closed before end of line ?)\n");
+                VG_(tool_panic)("vr_IOmatch_clr : filter read error");
              }
-             if(sizeRead >=LINE_SIZEMAX){
-                VG_(umsg)("vr_IOmatchCLR: read error sizemax\n");
+             if(sizeRead==-2){
+                VG_(umsg)("vr_IOmatchCLR: filter output line longer than %d chars\n", LINE_SIZEMAX-1);
+                VG_(tool_panic)("vr_IOmatch_clr : filter output line too long");
              }
              filteredBuf=vr_filtered_buff;
              if(vr_dumpFilteredStdout){

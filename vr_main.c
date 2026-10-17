@@ -1192,8 +1192,6 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 };
 
 
-#define BACKTRACE_SIZE 40
-
 static Int firstAddrBellowMain=0;
 
 Int reduced_nb_below_main(Addr*ips, Int nb){
@@ -1937,7 +1935,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	      HChar openMsg[512];
 	      UInt size=VG_(snprintf)(openMsg,512, "IOMatch open filename: %s\n", filenameParam);
 	      VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-	      vr_IOmatch_clr_checkmatch(openMsg, size+1);
+	      vr_IOmatch_clr_checkmatch(openMsg, size);
 	      VG_(ok_to_discard_translations)=False;
 	    }else{
 	      VG_(umsg)("%s match several opened files : %s\n", vr.outputIOMatchFilePattern, filenameParam);
@@ -1952,7 +1950,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	  if(fd==vr.IOMatchFileDescriptor ){
 	    vr.IOMatchFileDescriptor=-1;//retour à la sortie standard.
 	    HChar openMsg[]="IOMatch close\n";
-	    vr_IOmatch_clr_checkmatch(openMsg, sizeof(openMsg));
+	    vr_IOmatch_clr_checkmatch(openMsg, sizeof(openMsg)-1);
 	  }
 	}
       }

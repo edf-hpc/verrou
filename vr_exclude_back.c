@@ -103,9 +103,12 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
   return NULL;
 }
 
+/* random_tab holds the coefficients of hash_back : one per backtrace address
+   (two with MULTIPLY_SHIFT_HASH_BACK, one per 32-bit half of the address).
+   There is no extra value for an initial constant : see hash_back.*/
 #ifdef MULTIPLY_SHIFT_HASH_BACK
-static uint64_t random_tab[BACKTRACE_SIZE*2 + 1]={ //81
-   2985842423061390143u,
+#define RANDOM_TAB_SIZE (BACKTRACE_SIZE*2)
+static uint64_t random_tab[]={ //80
    6155994775641341576u,
    11133449992811317908u,
    2809993047858131118u,
@@ -147,7 +150,8 @@ static uint64_t random_tab[BACKTRACE_SIZE*2 + 1]={ //81
    7153875437183966428u,
    16885889230938066065u,
 #else
-static uint64_t random_tab[BACKTRACE_SIZE + 1]={ //41
+#define RANDOM_TAB_SIZE (BACKTRACE_SIZE)
+static uint64_t random_tab[]={ //40
 #endif
    16745672200074323915u,
    8154495383720775682u,
@@ -190,6 +194,8 @@ static uint64_t random_tab[BACKTRACE_SIZE + 1]={ //41
    5250821968302244420u,
    15436811984011331066u
 };
+//Fail at compilation (instead of hashing with zeros) if BACKTRACE_SIZE and random_tab disagree
+STATIC_ASSERT(sizeof(random_tab)/sizeof(random_tab[0]) == RANDOM_TAB_SIZE);
 /*This tab is generated with :
 #include <random>
 #include <iostream>
@@ -205,17 +211,21 @@ int main(int argc, char** argv){
 
 
 static inline uint64_t hash_back(Int nbBack, Addr* ip){
-   uint64_t res=random_tab[0];
+   /* No random initial value : adding the same constant c to every hash is a
+      bijection modulo 2^64 (and modulo HASH_TABLE_SIZE for the bucket index
+      hash & HASH_TABLE_MASK), so it changes neither the collisions nor the
+      bucket distribution.*/
+   uint64_t res=0;
    for(int i=0; i< nbBack; i++){
       uint64_t val64=ip[i];
 #ifdef MULTIPLY_SHIFT_HASH_BACK
       uint32_t val32_1=val64;
       uint32_t val32_2=(val64>>32);
-      res+= (random_tab[2*i+1]+val32_1) * (random_tab[2*i+2]*val32_2);
+      res+= (random_tab[2*i]+val32_1) * (random_tab[2*i+1]+val32_2);
 #else
       // a priori less accurate but faster
       // accuracy no needed: vr_findExcludeBack perform full verification
-      res+= (random_tab[i+1]*val64);
+      res+= (random_tab[i]*val64);
 #endif
    }
    return res;
@@ -229,7 +239,7 @@ static inline uint64_t hash_back_bb(Addr bbAddr, Int nbBack, Addr* ip){
    uint64_t random2=13663754934037571754u;
 
    uint32_t val32_1=bbAddr;
-   uint32_t val32_2=(bbAdrr>>32);
+   uint32_t val32_2=(bbAddr>>32);
    res+= (random1+val32_1) * (random2+val32_2);
 #else
    uint64_t random=3824729890850305536u;
