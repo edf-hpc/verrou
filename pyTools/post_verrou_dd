@@ -441,7 +441,7 @@ def sortSubRep(subRepTab):
         try:
             xi=int((ddmin.name).replace("ddmin",""))
             ddminWithKeySort+=[(ddmin, xi)]
-        except:
+        except ValueError:
             otherTab+=ddmin
 
     ddminTab=[ddmin[0] for ddmin in sorted(ddminWithKeySort, key=lambda x:x[1])]

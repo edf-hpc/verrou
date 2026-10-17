@@ -626,7 +626,7 @@ def estimMca(tab):
     bit=None
     try:
         bit=-math.log2(ratio)
-    except:
+    except ValueError: #ratio==0
         print("tab:", tab, file=sys.stderr)
         print("mean:", float(mean), file=sys.stderr)
         bit=float("Inf")
@@ -860,13 +860,13 @@ class config_stat(gen_config.gen_config):
                     self._time_ref_script=time_ref_script
                     self._lambdaTimeRef=None
                 else:
-                    lambdaTimeRef=eval("lambda x: "+self._timeRef)
                     try:
+                        lambdaTimeRef=eval("lambda x: "+self._timeRef)
                         test_to_get_early_error=float(lambdaTimeRef(1)) #unused
                         self._lambdaTimeRef=lambdaTimeRef
                         self._time_ref_script=None
-                    except:
-                        print(self._timeRef+ "should be a valid executable or x lambda expression")
+                    except Exception: #any error of the user expression, but not KeyboardInterrupt/SystemExit
+                        print(self._timeRef+ " should be a valid executable or x lambda expression")
                         self.failure()
 
     def check(self):

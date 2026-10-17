@@ -60,7 +60,7 @@ class statusReader:
                     self.isSuccess=True
                 else:
                     self.isSuccess=False
-            except:
+            except (OSError, ValueError):
                 print("Error while  reading "+pathName )
                 self.isSuccess=None
         else:
