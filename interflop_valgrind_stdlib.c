@@ -145,7 +145,7 @@ const String _interflop_valgrind_strerror(Int error) {
 Int _interflop_valgrind_sprintf(String str, const String format, ...) {
   va_list ap;
   va_start(ap, format);
-  UInt res = VG_(sprintf)(str, format, ap);
+  UInt res = VG_(vsprintf)(str, format, ap);
   va_end(ap);
   return res;
 }
