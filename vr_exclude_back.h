@@ -1,5 +1,7 @@
 #pragma once
 
+// Max depth of the backtraces (shared by vr_main.c, vr_exclude_back.c and vr_trace_back.c).
+// The random_tab of vr_exclude_back.c has to be regenerated if this value changes.
 #define BACKTRACE_SIZE 40
 #include <stdint.h>
 
