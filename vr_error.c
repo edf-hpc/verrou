@@ -325,9 +325,10 @@ Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
 
 SizeT vr_print_extra_suppression_info (const Error* err,
                                       /*OUT*/HChar* buf, Int nBuf) {
-  HChar* res=VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
-  SizeT len=VG_(strlen)(res);
-  return len ;
+  if(nBuf<=0) return 0;
+  VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
+  buf[nBuf-1]=0; //strncpy does not 0-terminate a truncated string
+  return VG_(strlen)(buf);
 }
 
 SizeT vr_print_extra_suppression_use (const Supp* su,

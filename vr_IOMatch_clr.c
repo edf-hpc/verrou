@@ -214,6 +214,16 @@ Bool vr_valid_apply_cmd(const HChar* cmd){
 }
 
 
+static void vr_IOMatch_strcpy(HChar* dst, const HChar* src, SizeT size, const HChar* what);
+static void vr_IOMatch_strcpy(HChar* dst, const HChar* src, SizeT size, const HChar* what){
+   /*strncpy does not 0-terminate a truncated string : refuse too long strings instead*/
+   if(VG_(strlen)(src) >= size){
+      VG_(umsg)("%s too long (max %lu chars) : %s\n", what, size-1, src);
+      VG_(tool_panic)("vr_IOmatch_clr : IOMatch script value too long");
+   }
+   VG_(strcpy)(dst, src);
+}
+
 /*to avoid side effect we duplicate the code of get_char and get_line*/
 
 #define my_assert(expr)                                                 \
@@ -565,7 +575,7 @@ static Bool vrIO_Parse_filterLineExec(void){
          VG_(tool_panic)("vr_IOmatch_clr : only one filter_line_exec cmd is accepted");
       }
       vr_filter=True;
-      VG_(strncpy)(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX);
+      vr_IOMatch_strcpy(vr_filter_cmd,filterExecCmd,FILTER_SIZEMAX, "filter_line_exec command");
       Bool beginWord=True;
       Int indexWord=0;
       Int indexShift=0;
@@ -684,7 +694,7 @@ static Bool vrIO_Parse_default(void){
          if(vr_nbDefault>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many default actions");
          }
-         VG_(strncpy)(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applyDefault[vr_nbDefault],defaultAction, DEFAULT_SIZE_MAX, "default action");
          vr_nbDefault++;
       }else{
          VG_(umsg)("default action %s is not valid", defaultAction);
@@ -738,7 +748,7 @@ static Bool vrIO_Parse_init(void){
          if(vr_nbInit>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many init actions");
          }
-         VG_(strncpy)(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applyInit[vr_nbInit],initAction, DEFAULT_SIZE_MAX, "init action");
          vr_nbInit++;
        }else{
           VG_(umsg)("init action %s is not valid", initAction);
@@ -764,7 +774,7 @@ static Bool vrIO_Parse_postinit(void){
          if(vr_nbpostInit>=DEFAULT_MAX){
             VG_(tool_panic)("vr_IOmatch_clr : too many post-init actions");
          }
-         VG_(strncpy)(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX);
+         vr_IOMatch_strcpy(vr_applypostInit[vr_nbpostInit], postinitAction, DEFAULT_SIZE_MAX, "post-init action");
          vr_nbpostInit++;
        }else{
           VG_(umsg)("post init action %s is not valid", postinitAction);
@@ -832,12 +842,16 @@ static Bool vrIO_Parse_apply(void){
       if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before apply ");
       }
+      if(!vr_valid_apply_cmd(applyCmd)){
+         VG_(umsg)("apply action %s is not valid\n", applyCmd);
+         VG_(tool_panic)("vr_IOmatch_clr : invalid action");
+      }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
       (last_match_data->nb_apply_match)++;
       if( (last_match_data->nb_apply_match) >= APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many apply per match ");
       }
-      VG_(strncpy)( last_match_data->apply_match[last_match_data->nb_apply_match -1], applyCmd, MATCH_SIZE_MAX);
+      vr_IOMatch_strcpy( last_match_data->apply_match[last_match_data->nb_apply_match -1], applyCmd, MATCH_SIZE_MAX, "apply action");
       return True;
     }
    return False;
@@ -853,6 +867,10 @@ static Bool vrIO_Parse_postapply(void){
       if(vr_nbMatch<=0){
          VG_(tool_panic)("vr_IOmatch_clr : match expected before post-apply ");
       }
+      if(!vr_valid_apply_cmd(applyCmd)){
+         VG_(umsg)("post-apply action %s is not valid\n", applyCmd);
+         VG_(tool_panic)("vr_IOmatch_clr : invalid action");
+      }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
       if(!(last_match_data->is_break_match_pattern)){
          VG_(tool_panic)("cmatch and post_apply are incompatible ");
@@ -862,7 +880,7 @@ static Bool vrIO_Parse_postapply(void){
       if((last_match_data->nb_post_apply_match)>=POST_APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many post-apply per match ");
       }
-      VG_(strncpy)( last_match_data->post_apply_match[last_match_data->nb_post_apply_match -1], applyCmd, MATCH_SIZE_MAX);
+      vr_IOMatch_strcpy( last_match_data->post_apply_match[last_match_data->nb_post_apply_match -1], applyCmd, MATCH_SIZE_MAX, "post-apply action");
       return True;
    }
    return False;
