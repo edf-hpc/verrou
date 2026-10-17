@@ -127,7 +127,7 @@ typedef struct vr_match_data {
    SizeT count_match;
    HChar apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
    SizeT nb_apply_match;
-   HChar post_apply_match[APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
+   HChar post_apply_match[POST_APPLY_PER_MATCH_MAX][MATCH_SIZE_MAX];
    SizeT nb_post_apply_match;
 } vr_match_data_t;
 
@@ -847,11 +847,11 @@ static Bool vrIO_Parse_apply(void){
          VG_(tool_panic)("vr_IOmatch_clr : invalid action");
       }
       vr_match_data_t* last_match_data=&(vr_match_tab[vr_nbMatch-1]);
-      (last_match_data->nb_apply_match)++;
       if( (last_match_data->nb_apply_match) >= APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many apply per match ");
       }
-      vr_IOMatch_strcpy( last_match_data->apply_match[last_match_data->nb_apply_match -1], applyCmd, MATCH_SIZE_MAX, "apply action");
+      vr_IOMatch_strcpy( last_match_data->apply_match[last_match_data->nb_apply_match], applyCmd, MATCH_SIZE_MAX, "apply action");
+      (last_match_data->nb_apply_match)++;
       return True;
     }
    return False;
@@ -876,11 +876,11 @@ static Bool vrIO_Parse_postapply(void){
          VG_(tool_panic)("cmatch and post_apply are incompatible ");
       }
 
-      (last_match_data->nb_post_apply_match)++;
       if((last_match_data->nb_post_apply_match)>=POST_APPLY_PER_MATCH_MAX ){
          VG_(tool_panic)("vr_IOmatch_clr : too many post-apply per match ");
       }
-      vr_IOMatch_strcpy( last_match_data->post_apply_match[last_match_data->nb_post_apply_match -1], applyCmd, MATCH_SIZE_MAX, "post-apply action");
+      vr_IOMatch_strcpy( last_match_data->post_apply_match[last_match_data->nb_post_apply_match], applyCmd, MATCH_SIZE_MAX, "post-apply action");
+      (last_match_data->nb_post_apply_match)++;
       return True;
    }
    return False;
