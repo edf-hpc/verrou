@@ -1001,9 +1001,11 @@ void vr_IOmatch_clr_init (const HChar * fileName) {
 
 
 static int readlineCharByChar(int fd, char* msgRead,int sizeMax);
+// return the size read including the end of line (always 0-terminated),
+// -1 on read error or end of file, -2 if the line does not fit in sizeMax
 static int readlineCharByChar(int fd, char* msgRead,int sizeMax){
   int totalSize=0;
-  while(totalSize<sizeMax){
+  while(totalSize<sizeMax-1){
     char buffer[1];
     int size=VG_(read)(fd,buffer, 1);
     if(size==1){
@@ -1016,10 +1018,12 @@ static int readlineCharByChar(int fd, char* msgRead,int sizeMax){
       }
       continue;
     }else{
+       msgRead[totalSize]=0;
        return -1;
     }
   }
-  return -1;
+  msgRead[totalSize]=0;
+  return -2;
 };
 
 static inline Bool isApplyMatchBreakable(Bool* isMatchPtr,//inout,
@@ -1097,11 +1101,13 @@ void vr_IOmatch_clr_checkmatch(const HChar* writeLine,SizeT size){
 
              Int sizeRead=readlineCharByChar(filter_fdout[0], vr_filtered_buff, LINE_SIZEMAX);
 
-             if(sizeRead <0){
-                VG_(umsg)("vr_IOmatchCLR: filter read error\n");
+             if(sizeRead==-1){
+                VG_(umsg)("vr_IOmatchCLR: filter read error (filter output closed before end of line ?)\n");
+                VG_(tool_panic)("vr_IOmatch_clr : filter read error");
              }
-             if(sizeRead >=LINE_SIZEMAX){
-                VG_(umsg)("vr_IOmatchCLR: read error sizemax\n");
+             if(sizeRead==-2){
+                VG_(umsg)("vr_IOmatchCLR: filter output line longer than %d chars\n", LINE_SIZEMAX-1);
+                VG_(tool_panic)("vr_IOmatch_clr : filter output line too long");
              }
              filteredBuf=vr_filtered_buff;
              if(vr_dumpFilteredStdout){
