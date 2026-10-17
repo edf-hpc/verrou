@@ -107,7 +107,8 @@ vr_findAddr (Vr_Addr_List* list, Addr ip) {
    (two with MULTIPLY_SHIFT_HASH_BACK, one per 32-bit half of the address).
    There is no extra value for an initial constant : see hash_back.*/
 #ifdef MULTIPLY_SHIFT_HASH_BACK
-static uint64_t random_tab[BACKTRACE_SIZE*2]={ //80
+#define RANDOM_TAB_SIZE (BACKTRACE_SIZE*2)
+static uint64_t random_tab[]={ //80
    6155994775641341576u,
    11133449992811317908u,
    2809993047858131118u,
@@ -149,7 +150,8 @@ static uint64_t random_tab[BACKTRACE_SIZE*2]={ //80
    7153875437183966428u,
    16885889230938066065u,
 #else
-static uint64_t random_tab[BACKTRACE_SIZE]={ //40
+#define RANDOM_TAB_SIZE (BACKTRACE_SIZE)
+static uint64_t random_tab[]={ //40
 #endif
    16745672200074323915u,
    8154495383720775682u,
@@ -192,6 +194,8 @@ static uint64_t random_tab[BACKTRACE_SIZE]={ //40
    5250821968302244420u,
    15436811984011331066u
 };
+//Fail at compilation (instead of hashing with zeros) if BACKTRACE_SIZE and random_tab disagree
+STATIC_ASSERT(sizeof(random_tab)/sizeof(random_tab[0]) == RANDOM_TAB_SIZE);
 /*This tab is generated with :
 #include <random>
 #include <iostream>

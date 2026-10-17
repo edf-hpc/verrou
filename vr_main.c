@@ -1192,8 +1192,6 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 };
 
 
-#define BACKTRACE_SIZE 40
-
 static Int firstAddrBellowMain=0;
 
 Int reduced_nb_below_main(Addr*ips, Int nb){
