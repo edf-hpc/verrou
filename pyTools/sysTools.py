@@ -1,4 +1,5 @@
 import gzip
+import copy
 import os
 
 import subprocess
