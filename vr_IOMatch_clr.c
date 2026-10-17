@@ -495,23 +495,28 @@ void vr_IOmatch_apply_clr(const HChar* cmd, Bool noIntrusiveOnly){
 static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost);
 static VgFile* openOutputIOMatchFile(const HChar * fileName, const HChar * fileNameIOMatch, const HChar * strPost){
   /*Open output File*/
-  HChar strFilename[512];
+  HChar strFilename[VKI_PATH_MAX];
+  UInt sizeFilename;
   if( VG_(strncmp)(fileName, "",512)==0){
      if(vr.outputIOMatchRep==NULL){
-        VG_(sprintf)(strFilename, "%s%s",fileNameIOMatch,strPost);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s%s",fileNameIOMatch,strPost);
      }else{
-        VG_(sprintf)(strFilename, "%s/%s%s",vr.outputIOMatchRep,"IOMatch",strPost);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s/%s%s",vr.outputIOMatchRep,"IOMatch",strPost);
      }
   }else{
      if(vr.outputIOMatchRep==NULL){
-        VG_(sprintf)(strFilename, "%s",fileName);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s",fileName);
      }else{
         if(fileName[0]=='/'){
            VG_(umsg)("incompatible option --output-expect-rep with abspath : %s", fileName);
            VG_(tool_panic)("incompatible option --output-expect-rep with abspath");
         }
-        VG_(sprintf)(strFilename, "%s/%s", vr.outputIOMatchRep, fileName);
+        sizeFilename=VG_(snprintf)(strFilename, sizeof(strFilename), "%s/%s", vr.outputIOMatchRep, fileName);
      }
+  }
+  if(sizeFilename >= sizeof(strFilename)){ //VG_(snprintf) truncates and returns the size written
+     VG_(umsg)("IOMatch output filename too long (max %lu chars) : %s...\n", sizeof(strFilename)-1, strFilename);
+     VG_(tool_panic)("vr_IOmatch_clr : output filename too long");
   }
 
   const HChar * strFilenameExpanded=   VG_(expand_file_name)(strPost,  strFilename);
