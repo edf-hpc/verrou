@@ -855,7 +855,7 @@ class config_stat(gen_config.gen_config):
             self._runScript=self.exec_arg[0]
             self._extractTimeScript=self.exec_arg[1]
             if self._timeRef!=None:
-                time_ref_script=self.checkScriptPath(self._timeRef,False)
+                time_ref_script=self.checkScriptPath(Path(self._timeRef),False)
                 if time_ref_script!=None:
                     self._time_ref_script=time_ref_script
                     self._lambdaTimeRef=None
