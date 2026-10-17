@@ -31,7 +31,7 @@
 
 
 #define LIBM_DEBUG
-#define WRITE_DEBUG(STR) (void)!write(0, STR, sizeof(STR));
+#define WRITE_DEBUG(STR) (void)!write(2, STR, sizeof(STR)-1);
 
 
 #include <iostream>
