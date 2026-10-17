@@ -31,13 +31,14 @@
 
 
 #define LIBM_DEBUG
-#define WRITE_DEBUG(STR) (void)!write(0, STR, sizeof(STR));
+#define WRITE_DEBUG(STR) (void)!write(2, STR, sizeof(STR)-1);
 
 
 #include <iostream>
 #include <unistd.h>
 #include <sys/time.h>
 #include <dlfcn.h>
+#include <new>
 
 //#include <complex.h>
 
@@ -141,17 +142,25 @@ typedef enum libM2parity: size_t {
 
 void load_postfix_sym(void**fctPtr, const char* name, const char* postFix){
   char localName[20];
+  const size_t localNameSizeMax=sizeof(localName)-1;
   size_t i=0 ;
-  while(name[i]!=0){
+  while(name[i]!=0 && i<localNameSizeMax){
     localName[i]=name[i];
     i++;
   }
   size_t j=0;
-  while(postFix[j]!=0){
+  while(postFix[j]!=0 && i<localNameSizeMax){
     localName[i]=postFix[j];
     i++, j++;
   }
   localName[i]=0;
+  if(name[i-j]!=0 || postFix[j]!=0){
+    //write : to avoid libc
+    (void)!write(2, "Function name too long : ", sizeof("Function name too long : ")-1);
+    (void)!write(2, localName, i);
+    (void)!write(2, "\n",1);
+    exit(1);
+  }
 
   (*fctPtr) =dlsym(RTLD_NEXT, localName);
   if(*fctPtr==NULL){
@@ -163,9 +172,10 @@ void load_postfix_sym(void**fctPtr, const char* name, const char* postFix){
 }
 
 // strncat redefined to avoid libc call during initialization
+// n is the size of nameOut : at most n-1 chars are copied, nameOut is always 0-terminated
 void strncat_redefined(char* nameOut, const char* nameIn, size_t n){
   size_t i=0;
-  while( nameIn[i]!=0 && i<n){
+  while( nameIn[i]!=0 && i+1<n){
     nameOut[i]=nameIn[i];
     i++;
   }
@@ -182,9 +192,6 @@ public:
 								    line_(line)
 
   {
-    load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_float),       name, "f");
-    load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_double),      name, "" );
-    load_postfix_sym((void**)&(static_cast<DERIVED*>(this)->real_name_long_double), name, "l");
     strncat_redefined(name_,name, NAME_FUNCTION_SIZE);
   }
 
@@ -200,6 +207,17 @@ public:
   }
 
   inline const char* name()const{return name_;}
+
+protected:
+  // To be called from the DERIVED constructor body : the DERIVED object
+  // does not exist yet in the myLibMathGen constructor
+  void loadSymbols(){
+    DERIVED* derived=static_cast<DERIVED*>(this);
+    load_postfix_sym((void**)&(derived->real_name_float),       name_, "f");
+    load_postfix_sym((void**)&(derived->real_name_double),      name_, "" );
+    load_postfix_sym((void**)&(derived->real_name_long_double), name_, "l");
+  }
+public:
   inline uint64_t getHash()const{return hash_;}
   inline uint64_t getLine()const{return line_;}
 
@@ -214,6 +232,7 @@ class myLibMathFunction1:public myLibMathGen<myLibMathFunction1>{
 public:
   myLibMathFunction1(const char* name, uint64_t enumName, uint64_t line):
     myLibMathGen<myLibMathFunction1>(name,enumName,line) {
+    loadSymbols();
   }
 
   myLibMathFunction1(const myLibMathFunction1& rhs):
@@ -249,6 +268,7 @@ public:
   myLibMathFunction1Complex(const char* name, size_t enumName, size_t line):
     myLibMathGen<myLibMathFunction1Complex>(name, enumName,line)
   {
+    loadSymbols();
   }
 
   myLibMathFunction1Complex(const myLibMathFunction1Complex& rhs):myLibMathGen<myLibMathFunction1Complex>(rhs),
@@ -280,6 +300,7 @@ class myLibMathFunction2: public myLibMathGen<myLibMathFunction2> {
 public:
 
   myLibMathFunction2(const char* name, size_t enumName, uint64_t line):myLibMathGen<myLibMathFunction2>(name,enumName,line){
+    loadSymbols();
   }
 
   myLibMathFunction2(const myLibMathFunction2& rhs):myLibMathGen<myLibMathFunction2>(rhs),
@@ -331,6 +352,7 @@ private:
 class myLibMathFunction2IntFP: public myLibMathGen<myLibMathFunction2IntFP>{
 public:
   myLibMathFunction2IntFP(const char* name, size_t enumName, size_t line): myLibMathGen(name,enumName,line){
+    loadSymbols();
   }
 
   myLibMathFunction2IntFP(const myLibMathFunction2IntFP& rhs):myLibMathGen(rhs),
@@ -358,7 +380,9 @@ public:
 
 class myLibMathFunction3: public myLibMathGen<myLibMathFunction3>{
 public:
-  myLibMathFunction3(const char* name, size_t enumName, size_t line): myLibMathGen<myLibMathFunction3>(name,enumName,line){}
+  myLibMathFunction3(const char* name, size_t enumName, size_t line): myLibMathGen<myLibMathFunction3>(name,enumName,line){
+    loadSymbols();
+  }
 
   myLibMathFunction3(const myLibMathFunction3& rhs):myLibMathGen(rhs),
 						    real_name_float(rhs.real_name_float),
@@ -1654,46 +1678,48 @@ void __attribute__((constructor)) init_interlibmath(){
     function2IntFPNameTab=(myLibMathFunction2IntFP*)malloc(enum_libm_function2IntFP_name_size* sizeof(  myLibMathFunction2IntFP)) ;
     if( function2IntFPNameTab==NULL){
       WRITE_DEBUG("malloc ERROR\n");
+      exit(1);
     }
 
-    function2IntFPNameTab[enumjn]=myLibMathFunction2IntFP("jn",enumjn, __LINE__);
-    function2IntFPNameTab[enumyn]=myLibMathFunction2IntFP("yn",enumyn, __LINE__);
+    new (&function2IntFPNameTab[enumjn]) myLibMathFunction2IntFP("jn",enumjn, __LINE__);
+    new (&function2IntFPNameTab[enumyn]) myLibMathFunction2IntFP("yn",enumyn, __LINE__);
   }
   if(function1NameTab==NULL){
     function1NameTab=(myLibMathFunction1*)malloc(enum_libm_function1_name_size* sizeof(  myLibMathFunction1)) ;
     if( function1NameTab==NULL){
       WRITE_DEBUG("malloc ERROR\n");
+      exit(1);
     }
-    //    for i in $LIST1 ; do  echo "function1NameTab[enum$i]=myLibMathFunction1(\"$i\", enum$i,__LINE__),"; done;
-    function1NameTab[enumacos]=myLibMathFunction1("acos", enumacos,__LINE__);
-    function1NameTab[enumacosh]=myLibMathFunction1("acosh", enumacosh,__LINE__);
-    function1NameTab[enumasin]=myLibMathFunction1("asin", enumasin,__LINE__);
-    function1NameTab[enumasinh]=myLibMathFunction1("asinh", enumasinh,__LINE__);
-    function1NameTab[enumatan]=myLibMathFunction1("atan", enumatan,__LINE__);
-    function1NameTab[enumatanh]=myLibMathFunction1("atanh", enumatanh,__LINE__);
-    function1NameTab[enumcbrt]=myLibMathFunction1("cbrt", enumcbrt,__LINE__);
-    function1NameTab[enumerf]=myLibMathFunction1("erf", enumerf,__LINE__);
-    function1NameTab[enumexp]=myLibMathFunction1("exp", enumexp,__LINE__);
-    function1NameTab[enumexp2]=myLibMathFunction1("exp2", enumexp2,__LINE__);
-    function1NameTab[enumexp10]=myLibMathFunction1("exp10", enumexp10,__LINE__);
-    function1NameTab[enumexpm1]=myLibMathFunction1("expm1", enumexpm1,__LINE__);
-    function1NameTab[enumlog]=myLibMathFunction1("log", enumlog,__LINE__);
-    function1NameTab[enumlog10]=myLibMathFunction1("log10", enumlog10,__LINE__);
-    function1NameTab[enumlog1p]=myLibMathFunction1("log1p", enumlog1p,__LINE__);
-    function1NameTab[enumlog2]=myLibMathFunction1("log2", enumlog2,__LINE__);
-    function1NameTab[enumtgamma]=myLibMathFunction1("tgamma", enumtgamma,__LINE__);
-    function1NameTab[enumlgamma]=myLibMathFunction1("lgamma", enumlgamma,__LINE__);
-    function1NameTab[enumsin]=myLibMathFunction1("sin", enumsin,__LINE__);
-    function1NameTab[enumsinh]=myLibMathFunction1("sinh", enumsinh,__LINE__);
-    function1NameTab[enumcos]=myLibMathFunction1("cos", enumcos,__LINE__);
-    function1NameTab[enumcosh]=myLibMathFunction1("cosh", enumcosh,__LINE__);
-    function1NameTab[enumsqrt]=myLibMathFunction1("sqrt", enumsqrt,__LINE__);
-    function1NameTab[enumtan]=myLibMathFunction1("tan", enumtan,__LINE__);
-    function1NameTab[enumtanh]=myLibMathFunction1("tanh", enumtanh,__LINE__);
-    function1NameTab[enumj0]=myLibMathFunction1("j0", enumj0,__LINE__);
-    function1NameTab[enumj1]=myLibMathFunction1("j1", enumj1,__LINE__);
-    function1NameTab[enumy0]=myLibMathFunction1("y0", enumy0,__LINE__);
-    function1NameTab[enumy1]=myLibMathFunction1("y1", enumy1,__LINE__);
+    //    for i in $LIST1 ; do  echo "new (&function1NameTab[enum$i]) myLibMathFunction1(\"$i\", enum$i,__LINE__);"; done;
+    new (&function1NameTab[enumacos]) myLibMathFunction1("acos", enumacos,__LINE__);
+    new (&function1NameTab[enumacosh]) myLibMathFunction1("acosh", enumacosh,__LINE__);
+    new (&function1NameTab[enumasin]) myLibMathFunction1("asin", enumasin,__LINE__);
+    new (&function1NameTab[enumasinh]) myLibMathFunction1("asinh", enumasinh,__LINE__);
+    new (&function1NameTab[enumatan]) myLibMathFunction1("atan", enumatan,__LINE__);
+    new (&function1NameTab[enumatanh]) myLibMathFunction1("atanh", enumatanh,__LINE__);
+    new (&function1NameTab[enumcbrt]) myLibMathFunction1("cbrt", enumcbrt,__LINE__);
+    new (&function1NameTab[enumerf]) myLibMathFunction1("erf", enumerf,__LINE__);
+    new (&function1NameTab[enumexp]) myLibMathFunction1("exp", enumexp,__LINE__);
+    new (&function1NameTab[enumexp2]) myLibMathFunction1("exp2", enumexp2,__LINE__);
+    new (&function1NameTab[enumexp10]) myLibMathFunction1("exp10", enumexp10,__LINE__);
+    new (&function1NameTab[enumexpm1]) myLibMathFunction1("expm1", enumexpm1,__LINE__);
+    new (&function1NameTab[enumlog]) myLibMathFunction1("log", enumlog,__LINE__);
+    new (&function1NameTab[enumlog10]) myLibMathFunction1("log10", enumlog10,__LINE__);
+    new (&function1NameTab[enumlog1p]) myLibMathFunction1("log1p", enumlog1p,__LINE__);
+    new (&function1NameTab[enumlog2]) myLibMathFunction1("log2", enumlog2,__LINE__);
+    new (&function1NameTab[enumtgamma]) myLibMathFunction1("tgamma", enumtgamma,__LINE__);
+    new (&function1NameTab[enumlgamma]) myLibMathFunction1("lgamma", enumlgamma,__LINE__);
+    new (&function1NameTab[enumsin]) myLibMathFunction1("sin", enumsin,__LINE__);
+    new (&function1NameTab[enumsinh]) myLibMathFunction1("sinh", enumsinh,__LINE__);
+    new (&function1NameTab[enumcos]) myLibMathFunction1("cos", enumcos,__LINE__);
+    new (&function1NameTab[enumcosh]) myLibMathFunction1("cosh", enumcosh,__LINE__);
+    new (&function1NameTab[enumsqrt]) myLibMathFunction1("sqrt", enumsqrt,__LINE__);
+    new (&function1NameTab[enumtan]) myLibMathFunction1("tan", enumtan,__LINE__);
+    new (&function1NameTab[enumtanh]) myLibMathFunction1("tanh", enumtanh,__LINE__);
+    new (&function1NameTab[enumj0]) myLibMathFunction1("j0", enumj0,__LINE__);
+    new (&function1NameTab[enumj1]) myLibMathFunction1("j1", enumj1,__LINE__);
+    new (&function1NameTab[enumy0]) myLibMathFunction1("y0", enumy0,__LINE__);
+    new (&function1NameTab[enumy1]) myLibMathFunction1("y1", enumy1,__LINE__);
 
     for(int i=0; i< (int)enum_libm_function1_name_size;i++){
       function1NameTab[i].setParity(enumNoParity);
@@ -1721,35 +1747,37 @@ void __attribute__((constructor)) init_interlibmath(){
     function1NameComplexTab=(myLibMathFunction1Complex*)malloc(enum_libm_function1_name_complex_size* sizeof(  myLibMathFunction1Complex));
     if( function1NameComplexTab==NULL){
       WRITE_DEBUG("malloc ERROR\n");
+      exit(1);
     }
-    //    for i in $LIST1COMPLEX ; do  echo "function1NameComplexTab[enum$i] = myLibMathFunction1Complex(\"$i\", enum$i,__LINE__);"; done;
-    function1NameComplexTab[enumcexp] = myLibMathFunction1Complex("cexp", enumcexp,__LINE__);
-    function1NameComplexTab[enumclog] = myLibMathFunction1Complex("clog", enumclog,__LINE__);
-    function1NameComplexTab[enumcpow] = myLibMathFunction1Complex("cpow", enumcpow,__LINE__);
-    function1NameComplexTab[enumcsqrt] = myLibMathFunction1Complex("csqrt", enumcsqrt,__LINE__);
-    function1NameComplexTab[enumcsin] = myLibMathFunction1Complex("csin", enumcsin,__LINE__);
-    function1NameComplexTab[enumccos] = myLibMathFunction1Complex("ccos", enumccos,__LINE__);
-    function1NameComplexTab[enumctan] = myLibMathFunction1Complex("ctan", enumctan,__LINE__);
-    function1NameComplexTab[enumcasin] = myLibMathFunction1Complex("casin", enumcasin,__LINE__);
-    function1NameComplexTab[enumcacos] = myLibMathFunction1Complex("cacos", enumcacos,__LINE__);
-    function1NameComplexTab[enumcatan] = myLibMathFunction1Complex("catan", enumcatan,__LINE__);
-    function1NameComplexTab[enumcsinh] = myLibMathFunction1Complex("csinh", enumcsinh,__LINE__);
-    function1NameComplexTab[enumccosh] = myLibMathFunction1Complex("ccosh", enumccosh,__LINE__);
-    function1NameComplexTab[enumctanh] = myLibMathFunction1Complex("ctanh", enumctanh,__LINE__);
-    function1NameComplexTab[enumcasinh] = myLibMathFunction1Complex("casinh", enumcasinh,__LINE__);
-    function1NameComplexTab[enumcacosh] = myLibMathFunction1Complex("cacosh", enumcacosh,__LINE__);
-    function1NameComplexTab[enumcatanh] = myLibMathFunction1Complex("catanh", enumcatanh,__LINE__);
+    //    for i in $LIST1COMPLEX ; do  echo "new (&function1NameComplexTab[enum$i]) myLibMathFunction1Complex(\"$i\", enum$i,__LINE__);"; done;
+    new (&function1NameComplexTab[enumcexp]) myLibMathFunction1Complex("cexp", enumcexp,__LINE__);
+    new (&function1NameComplexTab[enumclog]) myLibMathFunction1Complex("clog", enumclog,__LINE__);
+    new (&function1NameComplexTab[enumcpow]) myLibMathFunction1Complex("cpow", enumcpow,__LINE__);
+    new (&function1NameComplexTab[enumcsqrt]) myLibMathFunction1Complex("csqrt", enumcsqrt,__LINE__);
+    new (&function1NameComplexTab[enumcsin]) myLibMathFunction1Complex("csin", enumcsin,__LINE__);
+    new (&function1NameComplexTab[enumccos]) myLibMathFunction1Complex("ccos", enumccos,__LINE__);
+    new (&function1NameComplexTab[enumctan]) myLibMathFunction1Complex("ctan", enumctan,__LINE__);
+    new (&function1NameComplexTab[enumcasin]) myLibMathFunction1Complex("casin", enumcasin,__LINE__);
+    new (&function1NameComplexTab[enumcacos]) myLibMathFunction1Complex("cacos", enumcacos,__LINE__);
+    new (&function1NameComplexTab[enumcatan]) myLibMathFunction1Complex("catan", enumcatan,__LINE__);
+    new (&function1NameComplexTab[enumcsinh]) myLibMathFunction1Complex("csinh", enumcsinh,__LINE__);
+    new (&function1NameComplexTab[enumccosh]) myLibMathFunction1Complex("ccosh", enumccosh,__LINE__);
+    new (&function1NameComplexTab[enumctanh]) myLibMathFunction1Complex("ctanh", enumctanh,__LINE__);
+    new (&function1NameComplexTab[enumcasinh]) myLibMathFunction1Complex("casinh", enumcasinh,__LINE__);
+    new (&function1NameComplexTab[enumcacosh]) myLibMathFunction1Complex("cacosh", enumcacosh,__LINE__);
+    new (&function1NameComplexTab[enumcatanh]) myLibMathFunction1Complex("catanh", enumcatanh,__LINE__);
   }
 
   if(function2NameTab==NULL){
     function2NameTab=(myLibMathFunction2*)malloc(enum_libm_function2_name_size* sizeof(  myLibMathFunction2)) ;
     if( function2NameTab==NULL){
       WRITE_DEBUG("malloc ERROR\n");
+      exit(1);
     }
-    function2NameTab[enumatan2] = myLibMathFunction2("atan2",enumatan2, __LINE__);
-    function2NameTab[enumhypot] = myLibMathFunction2("hypot", enumhypot, __LINE__);
-    function2NameTab[enumpow]   = myLibMathFunction2("pow", enumpow, __LINE__);
-    function2NameTab[enumfdim]  = myLibMathFunction2("fdim",enumfdim, __LINE__);
+    new (&function2NameTab[enumatan2]) myLibMathFunction2("atan2",enumatan2, __LINE__);
+    new (&function2NameTab[enumhypot]) myLibMathFunction2("hypot", enumhypot, __LINE__);
+    new (&function2NameTab[enumpow]) myLibMathFunction2("pow", enumpow, __LINE__);
+    new (&function2NameTab[enumfdim]) myLibMathFunction2("fdim",enumfdim, __LINE__);
 
     for(int i=0; i< (int)enum_libm_function2_name_size;i++){
       function2NameTab[i].setCommutativity(false);
@@ -1763,8 +1791,9 @@ void __attribute__((constructor)) init_interlibmath(){
     function3NameTab=(myLibMathFunction3*)malloc(enum_libm_function3_name_size* sizeof(  myLibMathFunction3)) ;
     if( function3NameTab==NULL){
       WRITE_DEBUG("malloc ERROR\n");
+      exit(1);
     }
-    function3NameTab[enumfma]=myLibMathFunction3("fma",enumfma, __LINE__);
+    new (&function3NameTab[enumfma]) myLibMathFunction3("fma",enumfma, __LINE__);
   };
 
 #ifdef INTERLIBM_STAND_ALONE
