@@ -849,10 +849,10 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
 	  <para>
     <programlisting>$ verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin1
-$ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+$ VERROU_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
 
       <note><para>
-	If your script <command>ddRun.sh</command> already use <command>VERROU_DD_EXCLUDE</command>, you will need to modify manually <command>ddRun.sh</command>
+	If your script <command>ddRun.sh</command> already use <command>VERROU_EXCLUDE</command>, you will need to modify manually <command>ddRun.sh</command>
 	to use <option>--exclude</option> option which can be used multiple times.
       </para></note>
 
@@ -865,11 +865,11 @@ $ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --nu
 	<para>
 	  <programlisting>$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
 
 
       <note><para>
-	Your script <command>ddRun.sh</command> should not use <command>VERROU_DD_SOURCE</command>, as it is incompatible with <command>verrou_dd_line</command>.
+	Your script <command>ddRun.sh</command> should not use <command>VERROU_SOURCE</command>, as it is incompatible with <command>verrou_dd_line</command>.
       </para></note>
 	</para>
       </listitem>
@@ -880,7 +880,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
 	<para>
 	  <programlisting>$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
 
 
 	</para>
@@ -892,12 +892,12 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --
 	<para>
 	  <programlisting>$verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin1
-$ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ VERROU_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</programlisting>
 
       <note><para>
-	For the last line <command>VERROU_DD_EXCLUDE</command> is not specified again, as the information is implicitly included in <command>VERROU_DD_SOURCE</command>.
+	For the last line <command>VERROU_EXCLUDE</command> is not specified again, as the information is implicitly included in <command>VERROU_SOURCE</command>.
       </para></note>
 	</para>
       </listitem>
