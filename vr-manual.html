@@ -1626,14 +1626,14 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
     </p>
 <pre class="programlisting">$ verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin1
-$ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
+$ VERROU_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
 <p>
 
       </p>
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>
-	If your script <span class="command"><strong>ddRun.sh</strong></span> already use <span class="command"><strong>VERROU_DD_EXCLUDE</strong></span>, you will need to modify manually <span class="command"><strong>ddRun.sh</strong></span>
+	If your script <span class="command"><strong>ddRun.sh</strong></span> already use <span class="command"><strong>VERROU_EXCLUDE</strong></span>, you will need to modify manually <span class="command"><strong>ddRun.sh</strong></span>
 	to use <code class="option">--exclude</code> option which can be used multiple times.
       </p>
 </div>
@@ -1647,7 +1647,7 @@ $ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --nu
 	  </p>
 <pre class="programlisting">$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
 <p>
 
 
@@ -1655,7 +1655,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>
-	Your script <span class="command"><strong>ddRun.sh</strong></span> should not use <span class="command"><strong>VERROU_DD_SOURCE</strong></span>, as it is incompatible with <span class="command"><strong>verrou_dd_line</strong></span>.
+	Your script <span class="command"><strong>ddRun.sh</strong></span> should not use <span class="command"><strong>VERROU_SOURCE</strong></span>, as it is incompatible with <span class="command"><strong>verrou_dd_line</strong></span>.
       </p>
 </div>
 <p>
@@ -1667,7 +1667,7 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --nu
 	  </p>
 <pre class="programlisting">$ verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
 <p>
 
 
@@ -1679,16 +1679,16 @@ $ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_stdout --nruns=6 --
 	  </p>
 <pre class="programlisting">$verrou_dd_sym --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin1
-$ VERROU_DD_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
+$ VERROU_EXCLUDE=./dd.sym/ddmin1/dd.sym.exclude verrou_dd_line --nruns=6 --num-threads=6 ddRun.sh ddCmp.py
 $ #Need more details about ddmin0
-$ VERROU_DD_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
+$ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-threads=6 ddRun.sh ddCmp.py</pre>
 <p>
 
       </p>
 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Note</h3>
 <p>
-	For the last line <span class="command"><strong>VERROU_DD_EXCLUDE</strong></span> is not specified again, as the information is implicitly included in <span class="command"><strong>VERROU_DD_SOURCE</strong></span>.
+	For the last line <span class="command"><strong>VERROU_EXCLUDE</strong></span> is not specified again, as the information is implicitly included in <span class="command"><strong>VERROU_SOURCE</strong></span>.
       </p>
 </div>
 <p>
