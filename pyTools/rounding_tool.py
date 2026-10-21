@@ -163,7 +163,7 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
             else:
                 print("vprec bad param:", param)
 
-            if floatRange <1 or doubleRange <1 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 51:
+            if floatRange <2 or doubleRange <2 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 52:
                 print("vprec bad param", param)
                 raise("vprec bad config")
 
