@@ -13,7 +13,7 @@ class gen_config:
         self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
-        if sys.argv[1]=="bash_completion":
+        if len(sys.argv)>1 and sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
             sys.exit(0)
         self.argv=argv
@@ -153,7 +153,7 @@ class gen_config:
         self._md5Param=hashlib.md5((strRes).encode('utf-8')).hexdigest()
 
     def usageCmd(self):
-        if sys.argv[1]=="bash_completion":
+        if len(sys.argv)>1 and sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
             sys.exit(0)
         print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
