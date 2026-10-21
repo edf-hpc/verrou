@@ -1215,21 +1215,25 @@ det2
           <listitem><para>Print the counter of checkdenorm backend.</para></listitem>
 	</varlistentry>
 	  <varlistentry id="vr-manual.feat.resetDenormCounter"
-                      xreflabel="VERROU_PRINT_DENORM_COUNTER">
+                      xreflabel="VERROU_RESET_DENORM_COUNTER">
           <term><computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput></term>
           <listitem><para>Reset counters of checkDenorm backend.</para></listitem>
 	</varlistentry>
 
 	  <varlistentry id="vr-manual.feat.set_seed"
-                      xreflabel="VERROU_SET_SEED">
-          <term><computeroutput>VERROU_SET_SEED</computeroutput></term>
-          <listitem><para>Set the seed.</para></listitem>
+                      xreflabel="VERROU_SET_SEED(SEED)">
+          <term><computeroutput>VERROU_SET_SEED(SEED)</computeroutput></term>
+          <listitem><para>Set the seed of the pseudo-random number generator to the integer <computeroutput>SEED</computeroutput>
+	      (same effect as <option>--vr-seed=SEED</option>, applied at the client request location).</para></listitem>
 	</varlistentry>
 
 	  <varlistentry id="vr-manual.feat.set_rounding_mode"
-                      xreflabel="VERROU_SET_ROUNDING_MODE">
-          <term><computeroutput>VERROU_SET_ROUNDING_MODE</computeroutput></term>
-          <listitem><para>Set the rounding mode (imply flush of instrumentation cache).</para></listitem>
+                      xreflabel="VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)">
+          <term><computeroutput>VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)</computeroutput></term>
+          <listitem><para>Set the rounding mode to <computeroutput>ROUNDINGMODE</computeroutput>, a string with one of the values accepted by
+	      <option>--rounding-mode</option> (for example <computeroutput>"upward"</computeroutput>).
+	      An invalid value prints a message and keeps the current rounding mode.
+	      Changing the rounding mode implies a flush of the instrumentation cache.</para></listitem>
 	</varlistentry>
 
       </variablelist>
