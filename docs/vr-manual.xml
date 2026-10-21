@@ -378,7 +378,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -405,7 +405,7 @@ det2
                 </para></listitem>
                 <listitem><para>
                   <command>IEEE-754 rounding modes:</command>
-                  <computeroutput>nearest</computeroutput>,
+                  <computeroutput>nearest</computeroutput>[default],
                   <computeroutput>upward</computeroutput>,
                   <computeroutput>downward</computeroutput>,
                   <computeroutput>toward_zero</computeroutput>.
@@ -419,7 +419,7 @@ det2
 		</listitem>
                 <listitem><para>
                     <command>Other:</command>
-		    <computeroutput>native</computeroutput>[default] (similar to nearest (maybe different with <option>--libm=instrumented</option>),
+		    <computeroutput>native</computeroutput> (similar to nearest, except with <option>--libm=instrumented</option>: native keeps the result of the native libm whereas nearest computes libm functions with quad precision and rounds the result to the nearest),
 		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
@@ -1055,7 +1055,7 @@ det2
 
 
 	  <varlistentry id="vr.opt.cc-threshold-float" xreflabel="--cc-threshold-float">
-            <term><option><![CDATA[--cc-threshold-float=<integer> [default=24]]]></option></term>
+            <term><option><![CDATA[--cc-threshold-float=<integer> [default=18]]]></option></term>
             <listitem><para>
 		Configure the cancellation detection threshold for float operations.
 		Default value is still experimental and could have to change.
