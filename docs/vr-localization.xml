@@ -1239,7 +1239,7 @@ verrou_gen_trace --trace-type=back_cover --output-type=individual</programlistin
 
 	<varlistentry>
           <term>
-            <computeroutput>--trace-local-gen</computeroutput>
+            <computeroutput>--trace-gen-local</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1250,7 +1250,7 @@ verrou_gen_trace --trace-type=back_cover --output-type=individual</programlistin
 
 	<varlistentry>
           <term>
-            <computeroutput>--count_denorm</computeroutput>
+            <computeroutput>--count-denorm</computeroutput>
           </term>
           <listitem>
             <para>
