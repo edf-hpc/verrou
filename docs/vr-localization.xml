@@ -1355,7 +1355,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
       <variablelist id="vr-manual.plotStat.envvars">
 	<varlistentry>
           <term>
-            <computeroutput>--help=</computeroutput> or <computeroutput>-h</computeroutput>
+            <computeroutput>--help</computeroutput> or <computeroutput>-h</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1366,7 +1366,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--rep=DIR</computeroutput> or <computeroutput>-r DIR</computeroutput>
+            <computeroutput>--rep=DIR</computeroutput>
           </term>
           <listitem>
             <para>
@@ -1522,7 +1522,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--relative=VALUE</computeroutput> or <computeroutput>-r VALUE</computeroutput>
+            <computeroutput>--relative=VALUE</computeroutput>
           </term>
           <listitem>
             <para> With this option the abscissa is relative. The reference (defined by VALUE) is either a numerical value
@@ -1543,7 +1543,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--continue-on-extract-value-error</computeroutput>
+            <computeroutput>--continue-on-extract-error</computeroutput>
           </term>
           <listitem>
             <para> This option is used to be able to plot and compute estimator even if few samples produce an execution error. If errors occur the plot and the stat indicate the failure rate. This option is not activated by default, as usually errors come from error in the extract script.
@@ -1553,11 +1553,12 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 
 	<varlistentry>
           <term>
-            <computeroutput>--mca=MODE-DBL-FLT</computeroutput>
+            <computeroutput>--mca-estimator</computeroutput>
           </term>
           <listitem>
-            <para> Add the MODE-DBL-FLT mca mode to the study. MODE has to be in ["rr","pb","mca"]. DBL is mca noise for double and FLT for float.
-	      Typical configuration is  <computeroutput>--mca=rr-53-24</computeroutput>
+            <para> In addition to the estimators described above, print for each stochastic rounding mode the MCA estimator
+	      <inlineequation><mathphrase>&#963;/&#956;</mathphrase></inlineequation> (standard deviation over mean of the samples), relative and in bits.
+	      The mca modes of the backend mcaquad are selected with <computeroutput>--rounding=mca-MODE-DBL-FLT</computeroutput> (for example <computeroutput>--rounding=mca-rr-53-24</computeroutput>).
 	    </para>
           </listitem>
 	</varlistentry>
@@ -1575,6 +1576,67 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	    </para>
 	    <para>
 	      <computeroutput>--rep="verrou.stat" --specific-pattern=random/dd.run* </computeroutput>
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--time</computeroutput> or <computeroutput>-t</computeroutput>
+          </term>
+          <listitem>
+            <para> Time mode: instead of a histogram of a scalar value, plot the error estimator of a variable
+	      along an abscissa (usually the simulation time). The command takes two scripts: <command>run_script</command> and
+	      <command>extract_time_script</command>. The script <command>extract_time_script</command> has the computation repository as
+	      only parameter and prints either one value per line (the line index is the abscissa) or two values <computeroutput>X Y</computeroutput>
+	      per line. An optional first line beginning with <computeroutput>#</computeroutput> gives the label(s) (tab separated with two values).
+	    </para>
+	    <para> For each rounding mode, the samples are interpolated on the abscissas of the reference and the plotted estimator is
+	      <inlineequation><mathphrase>max<subscript>i</subscript>(|Y<subscript>i</subscript>-Y<subscript>ref</subscript>|)/|Y<subscript>ref</subscript>|</mathphrase></inlineequation>.
+	      The reference (<computeroutput>--ref=</computeroutput>) has to be a deterministic rounding mode.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--time-val</computeroutput>
+          </term>
+          <listitem>
+            <para> With <computeroutput>--time</computeroutput>, also plot the values of all samples (on a secondary axis).
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--time-ref=REF</computeroutput>
+          </term>
+          <listitem>
+            <para> With <computeroutput>--time</computeroutput>, also plot the relative error of the reference run compared to a mathematical reference.
+	      <computeroutput>REF</computeroutput> is either an executable with the same interface as <command>extract_time_script</command>
+	      (applied to the reference run), or a python expression of <computeroutput>x</computeroutput> (for example <computeroutput>--time-ref="math.exp(-x)"</computeroutput>).
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--log-scalx</computeroutput>
+          </term>
+          <listitem>
+            <para> With <computeroutput>--time</computeroutput>, use a logarithmic scale for the abscissa.
+	    </para>
+          </listitem>
+	</varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--paraview_time</computeroutput>
+          </term>
+          <listitem>
+            <para> Experimental: the command takes three scripts (<command>run_script</command>, <command>extract_time_script</command> and
+	      <command>extract_var_script</command>) and visualizes the samples with paraview.
 	    </para>
           </listitem>
 	</varlistentry>
