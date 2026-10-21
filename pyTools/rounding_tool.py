@@ -39,7 +39,7 @@ def vprecSuggestion():
     aliasTab=["fp16", "bf16" ,"fp24","pxr24","fp32", "tf32"]
     res=["vprec" + mode +"-"+fp + db for mode in ["", "-ob","-ib","-full"]
          for fp in ["E8M23"]+aliasTab
-         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab)]
+         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab+["fp64"])]
          ]
     return res
 
