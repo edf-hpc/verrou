@@ -1142,7 +1142,7 @@ verrou_gen_trace --trace-type=back_cover --output-type=individual</programlistin
 	     <computeroutput>toward_zero</computeroutput>,
 	     <computeroutput>away_zero</computeroutput>,
 	     <computeroutput>mca-{rr|pb|mca}-53-24</computeroutput>,
-	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"</computeroutput>
+	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxr24|fp32|tf32}[-{E11M52|fp16|bf16|fp24|pxr24|fp32|tf32}]</computeroutput>
 	     )
           </term>
           <listitem>
@@ -1448,7 +1448,7 @@ all:	4.337773e+03	4.0964e-02	4.61bit
 	     <computeroutput>toward_zero</computeroutput>,
 	     <computeroutput>away_zero</computeroutput>,
 	     <computeroutput>mca-{rr|pb|mca}-53-24</computeroutput>,
-	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxe24|fp32}[-{E11M52|fp16|bf16|fp24|pxe24|fp32}]"</computeroutput>
+	     <computeroutput>vprec[-{ib|ob|full}]-{E8M23|fp16|bf16|fp24|pxr24|fp32|tf32}[-{E11M52|fp16|bf16|fp24|pxr24|fp32|tf32}]</computeroutput>
 	    </para>
 
             <para> <computeroutput>nodet</computeroutput> is an alias to <computeroutput>nearness,random</computeroutput>.
