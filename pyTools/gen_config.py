@@ -356,7 +356,7 @@ _%s()
         for registry in self.registryTab:
 #            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
 
-            optionTab=registry["tabOptionBrut"]
+            optionTab=[option[:-1] if option.endswith(":") else option for option in registry["tabOptionVisible"]]
             if len(optionTab)==1:
                 optionStr=str(optionTab[0])
             else:
