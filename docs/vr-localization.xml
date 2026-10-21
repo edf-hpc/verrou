@@ -396,7 +396,7 @@ if __name__=="__main__":
 	      This option is a compromised between disk usage and the opportunity to used the <computeroutput>--rddmin-heuristics-cache=</computeroutput> option.
 	    </para>
 	    <para>
-	      <computeroutput>keep-run</computeroutput>: the previous cache is kept but the <computeroutput>cmp_script</computeroutput> is run again. Useful when
+	      <computeroutput>keep_run</computeroutput>: the previous cache is kept but the <computeroutput>cmp_script</computeroutput> is run again. Useful when
 	      only the <computeroutput>cmp_script</computeroutput> is modified.
 	    </para>
 	    <para>
@@ -530,6 +530,7 @@ if __name__=="__main__":
 	    <listitem>
 	    <para>
 	    This option hides the python backtrace which can be long and difficult to read.
+	    It is activated by default (it can only be deactivated with the deprecated environment variable <computeroutput>VERROU_DD_HIDE_BELOW_PYTHON=false</computeroutput>).
 	    </para>
 	    </listitem>
 	    </varlistentry>
@@ -540,6 +541,17 @@ if __name__=="__main__":
 	    <listitem>
 	    <para>
 	     This option hides the part of the backtrace that is common to all the backtraces in the search space.
+	    It is not activated by default.
+	    </para>
+	    </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	    <term>
+	      <computeroutput>--debug</computeroutput>.
+            </term>
+	    <listitem>
+	    <para>
+	     For each sample run, also generate the backtrace files (<option>--gen-backtrace</option>) in the run directory.
 	    </para>
 	    </listitem>
 	    </varlistentry>
