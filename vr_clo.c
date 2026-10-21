@@ -139,7 +139,7 @@ void vr_clo_defaults (void) {
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr_trace_init0(&(vr.traceBack));
-  vr.traceType=VR_BACK_COVER;
+  vr.traceType=VR_BB_COVER;
 
   vr.outputTraceRep = NULL;
   vr.outputIOMatchRep = NULL;
