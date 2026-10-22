@@ -31,6 +31,7 @@ verrou-test: valgrind-check
 
 none-test: valgrind-check
 	rm ../../none/tests/linux/getdents_filter.vgtest #comment this testcase. Already fail with none tool test (bug with hyperv suspected)
+	rm ../../none/tests/replaces_malloc_client_req.vgtest  #comment this testcase. This test depends on the tool name
 	cd ../.. ; perl ./tests/vg_regtest none/tests --force-tool=verrou --stderr-ignore
 	cd ../.. ; git checkout -- none/tests/linux/getdents_filter.vgtest # recover file to pass post-regtest-checks
 
