@@ -1,5 +1,5 @@
 diff --git a/VEX/priv/guest_arm64_toIR.c b/VEX/priv/guest_arm64_toIR.c
-index e6b92c7a0..9f058db81 100644
+index 6e77b34c7..66b890899 100644
 --- a/VEX/priv/guest_arm64_toIR.c
 +++ b/VEX/priv/guest_arm64_toIR.c
 @@ -39,11 +39,6 @@
@@ -256,7 +256,7 @@ index e6b92c7a0..9f058db81 100644
           case 2: /* FNMADD */
              assign(res, qop(opFMADD, rm, unop(opNEG, eN), eM,
 diff --git a/VEX/priv/host_arm64_isel.c b/VEX/priv/host_arm64_isel.c
-index 34c526559..db5ccc8bf 100644
+index 0c072d583..a9573986c 100644
 --- a/VEX/priv/host_arm64_isel.c
 +++ b/VEX/priv/host_arm64_isel.c
 @@ -3452,6 +3452,12 @@ static HReg iselDblExpr_wrk ( ISelEnv* env, IRExpr* e )
