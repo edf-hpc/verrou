@@ -9,7 +9,7 @@
           This option can be activated with the environment variable\n\
           VERROU_COUNT_OP\n\
 \n\
-      --backend=<verrou|mcaquad|checkdenorm> [default=verrou]\n\
+      --backend=<verrou|mcaquad|checkdenorm|vprec> [default=verrou]\n\
           Select the verrou, mcaquad, checkdenorm or vprec backend.  verrou\n\
           enables to perform several rounding mode (See --rounding-mode\n\
           option).  mcaquad enables to perform MCA (Monte Carlo Arithmetic)\n\
@@ -25,7 +25,7 @@
 \n\
     Perturbation of floating-point operations\n\
       --rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
-      [default=native]\n\
+      [default=nearest]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
           rounds to the nearest floating-point. Supported rounding modes are:\n\
@@ -35,14 +35,16 @@
               nearness_comdet, prandom_comdet, random_scomdet,\n\
               nearness_scomdet, sr_monotonic, sr_smonotonic.\n\
 \n\
-          •   IEEE-754 rounding modes: nearest, upward, downward,\n\
+          •   IEEE-754 rounding modes: nearest[default], upward, downward,\n\
               toward_zero.\n\
 \n\
           •   Denormalized rounding modes (imply checkdenorm backend): daz,\n\
               ftz, dazftz.\n\
 \n\
-          •   Other: native[default] (similar to nearest (maybe different\n\
-              with --libm=instrumented), away_zero, farthest, float,\n\
+          •   Other: native (similar to nearest, except with\n\
+              --libm=instrumented: native keeps the result of the native libm\n\
+              whereas nearest computes libm functions with quad precision and\n\
+              rounds the result to the nearest), away_zero, farthest, float,\n\
 \n\
           This option can be activated with the environment variable\n\
           VERROU_ROUNDING_MODE.\n\
@@ -59,7 +61,7 @@
           •   Options --rounding-mode=nearest --float=yes instrument float\n\
               operations by nearest wrapper function. So if your code\n\
               contains float operations, it can be useful to use\n\
-              --vr-instr-float=no to speed up the instrumentation. The only\n\
+              --vr-instr-flt=no to speed up the instrumentation. The only\n\
               drawback of this approach, is the deactivation of checks (such\n\
               as NaN and Inf checks) over float operations.\n\
 \n\
@@ -168,7 +170,7 @@
           This option can be activated with the environment variable\n\
           VERROU_SEED.\n\
 \n\
-      --prandom-update=func [default=none]\n\
+      --prandom-update=<func|none> [default=none]\n\
           With this option the p-value of the prandom[|det|comdet] rounding\n\
           modes is updated (with an uniform random selection between 0 and 1)\n\
           at the beginning of each function call. Be careful the option is\n\
@@ -363,7 +365,7 @@
           This option can be activated with the environment variable\n\
           VERROU_TRACE.\n\
 \n\
-      --trace-type=bb_cover|back_cover\n\
+      --trace-type=<bb_cover|back_cover> [default=bb_cover]\n\
           Select the trace type bb_cover for Basic Blocks Coverage or\n\
           back_cover Backtrace Coverage\n\
 \n\
@@ -398,7 +400,7 @@
           of detected cancellations can be configured with --cc-threshold-\n\
           float and --cc-threshold-double.\n\
 \n\
-      --cc-threshold-float=<integer> [default=24]\n\
+      --cc-threshold-float=<integer> [default=18]\n\
           Configure the cancellation detection threshold for float\n\
           operations. Default value is still experimental and could have to\n\
           change.\n\
@@ -412,6 +414,16 @@
           Activate denormal number detection. Denormal number produced by\n\
           floating point operation produces a valgrind error. This\n\
           functionality is available for the checkdenorm backend.\n\
+\n\
+      --count-denorm=yes|no [default=no]\n\
+          Count, for each operation type, the floating-point operations which\n\
+          read (input) or produce (output) denormal numbers. The counters are\n\
+          printed at the end of the execution (and can be handled with the\n\
+          VERROU_PRINT_DENORM_COUNTER and VERROU_RESET_DENORM_COUNTER client\n\
+          requests). This functionality is available for checkdenorm backend.\n\
+\n\
+          This option can be activated with the environment variable\n\
+          VERROU_COUNT_DENORM.\n\
 \n\
       --cdi-gen-file=<FILE>\n\
           Generate in FILE with the source format for each code source line\n\
@@ -480,34 +492,34 @@
           vprec backend (flt/binary32 and dbl/binary64).\n\
 \n\
           Table 1.1. Alias definition\n\
-              ┌─────────────────┬──────────────────┬──────────┬──────────┐\n\
-              │Alias compatible │ Alias compatible │ Exponent │ Mantissa │\n\
-              │with             │ with verificarlo │          │          │\n\
-              │verrou_plot_stat │                  │          │          │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │      fp16       │     binary16     │    5     │    10    │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │      fp32       │     binary32     │    8     │    23    │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │      bf16       │     bfloat16     │    8     │    7     │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │      tf32       │   tensorfloat    │    8     │    10    │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │      fp24       │       fp24       │    7     │    16    │\n\
-              ├─────────────────┼──────────────────┼──────────┼──────────┤\n\
-              │     pxr24       │      PXR24       │    8     │    15    │\n\
-              └─────────────────┴──────────────────┴──────────┴──────────┘\n\
+            ┌──────────────────┬──────────────────┬──────────┬──────────┐\n\
+            │ Alias compatible │ Alias compatible │ Exponent │ Mantissa │\n\
+            │ with             │ with verificarlo │          │          │\n\
+            │ verrou_plot_stat │                  │          │          │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │       fp16       │     binary16     │    5     │    10    │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │       fp32       │     binary32     │    8     │    23    │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │       bf16       │     bfloat16     │    8     │    7     │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │       tf32       │   tensorfloat    │    8     │    10    │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │       fp24       │       fp24       │    7     │    16    │\n\
+            ├──────────────────┼──────────────────┼──────────┼──────────┤\n\
+            │      pxr24       │      PXR24       │    8     │    15    │\n\
+            └──────────────────┴──────────────────┴──────────┴──────────┘\n\
 \n\
           This option can be activated with the environment variable\n\
           VERROU_VPREC_PRESET.\n\
 \n\
-      --vprec-daz\n\
+      --vprec-daz=yes|no [default=no]\n\
           Sets denormals inputs to zero.\n\
 \n\
           This option can be activated with the environment variable\n\
           VERROU_VPREC_DAZ.\n\
 \n\
-      --vprec-ftz\n\
+      --vprec-ftz=yes|no [default=no]\n\
           Sets denormals outputs to zero.\n\
 \n\
           This option can be activated with the environment variable\n\

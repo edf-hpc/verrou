@@ -39,7 +39,7 @@ def vprecSuggestion():
     aliasTab=["fp16", "bf16" ,"fp24","pxr24","fp32", "tf32"]
     res=["vprec" + mode +"-"+fp + db for mode in ["", "-ob","-ib","-full"]
          for fp in ["E8M23"]+aliasTab
-         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab)]
+         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab+["fp64"])]
          ]
     return res
 
@@ -164,7 +164,7 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
                 print("vprec bad param:", param)
                 raise ValueError("vprec bad config")
 
-            if floatRange <1 or doubleRange <1 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 51:
+            if floatRange <2 or doubleRange <2 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 52:
                 print("vprec bad param", param)
                 raise ValueError("vprec bad config")
 

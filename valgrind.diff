@@ -1,5 +1,5 @@
 diff --git a/tests/check_headers_and_includes b/tests/check_headers_and_includes
-index 70e134896..3dd1ecc64 100755
+index 515d11b47..80e601c16 100755
 --- a/tests/check_headers_and_includes
 +++ b/tests/check_headers_and_includes
 @@ -51,6 +51,7 @@ my %tool_dirs = (
@@ -10,9 +10,8 @@ index 70e134896..3dd1ecc64 100755
      "exp-bbv" => 1,
      "shared" => 1,
      );
-
 diff --git a/Makefile.am b/Makefile.am
-index 08db83401..cfcd7679f 100644
+index 674ad6446..2ae02be2b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -16,6 +16,8 @@ TOOLS = \
@@ -25,7 +24,7 @@ index 08db83401..cfcd7679f 100644
  		exp-bbv
  
 diff --git a/README b/README
-index 511027ae9..0f32e73ea 100644
+index 62fc01deb..381d4badf 100644
 --- a/README
 +++ b/README
 @@ -1,3 +1,25 @@
@@ -55,19 +54,19 @@ index 511027ae9..0f32e73ea 100644
  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  If you are building a binary package of Valgrind for distribution,
 diff --git a/configure.ac b/configure.ac
-index b86e80220..f67bafdf1 100755
+index 54f9d319a..2a3cf3139 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -18,7 +18,7 @@ AC_PREREQ(2.69)
  m4_define([v_major_ver], [3])
- m4_define([v_minor_ver], [26])
- m4_define([v_micro_ver], [0])
+ m4_define([v_minor_ver], [27])
+ m4_define([v_micro_ver], [1])
 -m4_define([v_suffix_ver], [])
 +m4_define([v_suffix_ver], [verrou-dev])
- m4_define([v_rel_date], ["24 Oct 2025"])
+ m4_define([v_rel_date], ["20 May 2026"])
  m4_define([v_version],
  	  m4_if(v_suffix_ver, [],
-@@ -5746,6 +5746,10 @@ AC_MSG_RESULT([no])
+@@ -5981,6 +5981,10 @@ AC_MSG_RESULT([no])
  AM_CONDITIONAL(HAVE_SHA3, test x$ac_have_sha3 = xyes)
  CFLAGS=$safe_CFLAGS
  
@@ -78,7 +77,7 @@ index b86e80220..f67bafdf1 100755
  #----------------------------------------------------------------------------
  # Ok.  We're done checking.
  #----------------------------------------------------------------------------
-@@ -5770,6 +5774,8 @@ AC_CONFIG_FILES([
+@@ -6005,6 +6009,8 @@ AC_CONFIG_FILES([
     auxprogs/Makefile
     mpi/Makefile
     coregrind/Makefile
@@ -132,7 +131,7 @@ index 49367fed2..6dc3e5f7e 100644
 +    color: #8a6d3b;
 +}
 diff --git a/docs/xml/manpages-index.xml b/docs/xml/manpages-index.xml
-index 17a81c99f..2086f49eb 100644
+index 17a81c99f..a7f493e00 100644
 --- a/docs/xml/manpages-index.xml
 +++ b/docs/xml/manpages-index.xml
 @@ -78,6 +78,40 @@

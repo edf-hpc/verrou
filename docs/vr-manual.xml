@@ -351,7 +351,7 @@ det2
           </varlistentry>
 
 	  <varlistentry id="vr-opt.backend" xreflabel="--backend">
-            <term><option><![CDATA[--backend=<verrou|mcaquad|checkdenorm> [default=verrou]]]></option></term>
+            <term><option><![CDATA[--backend=<verrou|mcaquad|checkdenorm|vprec> [default=verrou]]]></option></term>
             <listitem><para>
 		Select the <computeroutput>verrou</computeroutput>, <computeroutput>mcaquad</computeroutput>,
 		<computeroutput>checkdenorm</computeroutput> or <computeroutput>vprec</computeroutput>
@@ -378,7 +378,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=native]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -405,7 +405,7 @@ det2
                 </para></listitem>
                 <listitem><para>
                   <command>IEEE-754 rounding modes:</command>
-                  <computeroutput>nearest</computeroutput>,
+                  <computeroutput>nearest</computeroutput>[default],
                   <computeroutput>upward</computeroutput>,
                   <computeroutput>downward</computeroutput>,
                   <computeroutput>toward_zero</computeroutput>.
@@ -419,7 +419,7 @@ det2
 		</listitem>
                 <listitem><para>
                     <command>Other:</command>
-		    <computeroutput>native</computeroutput>[default] (similar to nearest (maybe different with <option>--libm=instrumented</option>),
+		    <computeroutput>native</computeroutput> (similar to nearest, except with <option>--libm=instrumented</option>: native keeps the result of the native libm whereas nearest computes libm functions with quad precision and rounds the result to the nearest),
 		    <computeroutput>away_zero</computeroutput>,
 		    <computeroutput>farthest</computeroutput>,
 		    <computeroutput>float</computeroutput>,
@@ -444,7 +444,7 @@ det2
 
 		  <listitem><para>
 		      Options <option>--rounding-mode=nearest --float=yes</option> instrument float operations by nearest wrapper function. So if your code contains float operations, it can be
-		      useful to use <link linkend="vr-opt.instr-TYPE">--vr-instr-float=no</link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as NaN and Inf checks) over float operations.
+		      useful to use <link linkend="vr-opt.instr-TYPE">--vr-instr-flt=no</link> to speed up the instrumentation. The only drawback of this approach, is the deactivation of checks (such as NaN and Inf checks) over float operations.
 		  </para></listitem>
 
 		</itemizedlist>
@@ -588,7 +588,7 @@ det2
 
 
 	  <varlistentry id="vr-manual.feat.updatepfunc" xreflabel="--prandom-update">
-            <term><option><![CDATA[--prandom-update=func [default=none]]]></option></term>
+            <term><option><![CDATA[--prandom-update=<func|none> [default=none]]]></option></term>
             <listitem>
               <para>With this option the p-value of the prandom[|det|comdet] rounding modes is
 		updated (with an uniform random selection between 0 and 1) at the beginning of each function call.
@@ -786,7 +786,7 @@ det2
           </varlistentry>
 
 	    <varlistentry id="vr-opt.vprec-daz" xreflabel="--vprec-daz">
-            <term><option><![CDATA[--vprec-daz]]></option></term>
+            <term><option><![CDATA[--vprec-daz=<yes|no> [default=no]]]></option></term>
             <listitem>
               <para>
 		Sets denormals inputs to zero.
@@ -796,7 +796,7 @@ det2
           </varlistentry>
 
 	    <varlistentry id="vr-opt.vprec-ftz" xreflabel="--vprec-ftz">
-            <term><option><![CDATA[--vprec-ftz]]></option></term>
+            <term><option><![CDATA[--vprec-ftz=<yes|no> [default=no]]]></option></term>
             <listitem>
               <para>
 		Sets denormals outputs to zero.
@@ -1055,7 +1055,7 @@ det2
 
 
 	  <varlistentry id="vr.opt.cc-threshold-float" xreflabel="--cc-threshold-float">
-            <term><option><![CDATA[--cc-threshold-float=<integer> [default=24]]]></option></term>
+            <term><option><![CDATA[--cc-threshold-float=<integer> [default=18]]]></option></term>
             <listitem><para>
 		Configure the cancellation detection threshold for float operations.
 		Default value is still experimental and could have to change.
@@ -1078,6 +1078,18 @@ det2
 		Activate denormal number detection. Denormal number produced by floating point operation produces a valgrind error.
 		This functionality is available for the checkdenorm backend.
             </para></listitem>
+          </varlistentry>
+
+	  <varlistentry id="vr.opt.count-denorm" xreflabel="--count-denorm">
+            <term><option><![CDATA[--count-denorm=<yes|no> [default=no]]]></option></term>
+            <listitem><para>
+		Count, for each operation type, the floating-point operations which read (input) or produce (output) denormal numbers.
+		The counters are printed at the end of the execution (and can be handled with the
+		<computeroutput>VERROU_PRINT_DENORM_COUNTER</computeroutput> and <computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput> client requests).
+		This functionality is available for checkdenorm backend.
+	      </para>
+	      <para>This option can be activated with the environment variable <command>VERROU_COUNT_DENORM</command>.</para>
+	    </listitem>
           </varlistentry>
 
 	  <varlistentry id="vr.opt.cdi-gen-file" xreflabel="--cdi-gen-file">
@@ -1203,21 +1215,25 @@ det2
           <listitem><para>Print the counter of checkdenorm backend.</para></listitem>
 	</varlistentry>
 	  <varlistentry id="vr-manual.feat.resetDenormCounter"
-                      xreflabel="VERROU_PRINT_DENORM_COUNTER">
+                      xreflabel="VERROU_RESET_DENORM_COUNTER">
           <term><computeroutput>VERROU_RESET_DENORM_COUNTER</computeroutput></term>
           <listitem><para>Reset counters of checkDenorm backend.</para></listitem>
 	</varlistentry>
 
 	  <varlistentry id="vr-manual.feat.set_seed"
-                      xreflabel="VERROU_SET_SEED">
-          <term><computeroutput>VERROU_SET_SEED</computeroutput></term>
-          <listitem><para>Set the seed.</para></listitem>
+                      xreflabel="VERROU_SET_SEED(SEED)">
+          <term><computeroutput>VERROU_SET_SEED(SEED)</computeroutput></term>
+          <listitem><para>Set the seed of the pseudo-random number generator to the integer <computeroutput>SEED</computeroutput>
+	      (same effect as <option>--vr-seed=SEED</option>, applied at the client request location).</para></listitem>
 	</varlistentry>
 
 	  <varlistentry id="vr-manual.feat.set_rounding_mode"
-                      xreflabel="VERROU_SET_ROUNDING_MODE">
-          <term><computeroutput>VERROU_SET_ROUNDING_MODE</computeroutput></term>
-          <listitem><para>Set the rounding mode (imply flush of instrumentation cache).</para></listitem>
+                      xreflabel="VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)">
+          <term><computeroutput>VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)</computeroutput></term>
+          <listitem><para>Set the rounding mode to <computeroutput>ROUNDINGMODE</computeroutput>, a string with one of the values accepted by
+	      <option>--rounding-mode</option> (for example <computeroutput>"upward"</computeroutput>).
+	      An invalid value prints a message and keeps the current rounding mode.
+	      Changing the rounding mode implies a flush of the instrumentation cache.</para></listitem>
 	</varlistentry>
 
       </variablelist>
@@ -1235,6 +1251,13 @@ det2
 	<varlistentry>
 	  <term><computeroutput>verbose: LEVEL</computeroutput></term>
 	  <listitem><para> Configure the verbosity level (default 1)
+	  </para></listitem>
+	</varlistentry>
+
+	<varlistentry>
+	  <term><computeroutput>log-level: LEVEL</computeroutput></term>
+	  <listitem><para> Configure the level of the log file <computeroutput>IOMATCH_FILE.log-PID</computeroutput> (default 1).
+	      With a value greater than 0, the parsed keys and the applied actions are written in the log file. With 0 they are not.
 	  </para></listitem>
 	</varlistentry>
 

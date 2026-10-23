@@ -61,7 +61,7 @@ class config_option(gen_config.gen_config):
 
     def registerOptions(self):
         self.addRegistry("rep", "string", None, ["--rep="], ".", "rep_exists")
-        self.addRegistry("trace_kind",  "string", None, ["--trace-type="], "back_cover", ["bb_cover","back_cover"])
+        self.addRegistry("trace_kind",  "string", None, ["--trace-type="], "bb_cover", ["bb_cover","back_cover"])
         self.addRegistry("output_kind", "string", None, ["--output-type="], "individual", ["individual","merge"])
         self.addRegistry("pidRename",    "bool", None,        ["--pidRename"],        False)
         self.addRegistry("select_default","int", None, ["--select_default="], -1 )
@@ -69,7 +69,7 @@ class config_option(gen_config.gen_config):
         self.addRegistry("run_eval","string", None, ["--run-eval="], None, "file_exists")
 
     def usageCmd(self):
-        print ("Usage: %s [--help] [--rep=] [--trace-type=[back_cover|bb_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
+        print ("Usage: %s [--help] [--rep=] [--trace-type=[bb_cover|back_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
         sys.exit(42)
 
     def normalize(self):
