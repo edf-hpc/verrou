@@ -218,6 +218,23 @@ if __name__=="__main__":
 
 	<varlistentry>
           <term>
+             <computeroutput>--trace-file=TRACE_FILE</computeroutput>
+          </term>
+          <listitem>
+            <para> Write in <computeroutput>TRACE_FILE</computeroutput> an execution trace (JSON lines) of the delta-debug algorithm:
+	    algorithm phases, runtime sections (sets of configurations tested together, characterized by the order of the
+	    sub-processes and the earlyExit status), run and cmp sub-processes (with the slot used among the
+	    <computeroutput>NUM_THREADS</computeroutput>), cache hits and early exits.
+	    The command <command>verrou_dd_trace_convert TRACE_FILE</command> prints statistics about
+	    the parallel efficiency and converts the trace into a Paje trace readable by ViTE
+	    (<computeroutput>--format=paje</computeroutput>, default) or into an OTF2 archive
+	    (<computeroutput>--format=otf2</computeroutput>, requires the OTF2 python binding).
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
             <computeroutput>--reference-rounding</computeroutput> [default native].
 	  </term>
 	  <listitem>

@@ -60,6 +60,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("resWithAllSamples"    , "bool",       "RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
         self.addRegistry("ddSeed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
         self.addRegistry("debug", "bool", "DEBUG",["--debug"], False, None)
+        self.addRegistry("traceFile",             "string",     "TRACE_FILE",              ["--trace-file="],              None,      None)
 
     def normalizeOptions(self):
         if self.rddminVariant=="stoch":
@@ -71,6 +72,9 @@ class ddConfig(gen_config.gen_config):
 
     def get_ddSeed(self):
         return self.ddSeed
+
+    def get_traceFile(self):
+        return self.traceFile
 
     def get_cacheRep(self):
         return Path(self.cacheRep)

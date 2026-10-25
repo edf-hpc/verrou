@@ -33,51 +33,13 @@ import hashlib
 import copy
 import datetime
 import math
-import threading
-import time
 from pathlib import Path
 
 import convNumLineTool
 import DD
+import ddTrace
 
 
-
-class timeTask:
-    def __init__(self,cmd,fname,envvars):
-        self.cmd=cmd
-        self.fname=fname
-        self.envvars=envvars
-        self.threadid()
-    def time(self):
-        return time.time()
-    def start(self):
-        self.startTime=self.time()
-    def stop(self):
-        self.stopTime=self.time()
-    def threadid(self):
-        self.tid=threading.get_native_id()
-
-class noLogTask:
-    def __init__(self):
-        pass
-    def initTask(self,cmd,fname,envvars):
-        return None
-    def closeTask(self, myTask,res):
-        pass
-
-class cmdLogTask:
-    def __init__(self,fileName):
-        self.handler=open(str(fileName),"w")
-    def initTask(self,cmd,fname,envvars):
-        task=timeTask(cmd,fname,envvars)
-        task.start()
-        return task
-    def closeTask(self,myTask, res):
-        myTask.stop()
-        self.handler.write("%s\t%s\t%s\t%s%s\n"%(myTask.cmd, str(myTask.startTime), str(myTask.stopTime), str(res), str(myTask.tid)) )
-
-#logTool=cmdLogTask("logFile-%i.txt"%(os.getpid()))
-logTool=noLogTask()
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -92,13 +54,10 @@ def runCmdAsync(cmd, fname, envvars=None):
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = str(envvars[var])
-            taskLog=logTool.initTask(cmd,fname,envvars)
-            return (subprocess.Popen([str(x) for x in cmd], env=env, stdout=fout, stderr=ferr), taskLog)
+            return subprocess.Popen([str(x) for x in cmd], env=env, stdout=fout, stderr=ferr)
 
-def getResult(subProcessTuple):
-    subProcess, taskLog=subProcessTuple
+def getResult(subProcess):
     subProcess.wait()
-    logTool.closeTask(taskLog,subProcess.returncode)
     return subProcess.returncode
 
 
@@ -181,10 +140,11 @@ class stochTask:
             env[self.seedEnvVar_]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
-        subProcessRun=runCmdAsync([self.runCmd, rundir],
-                                  rundir / fileRun,
-                                  env)
-        getResult(subProcessRun)
+        with ddTrace.tracer.task("run", self.dirname.name, i) as traceRes:
+            subProcessRun=runCmdAsync([self.runCmd, rundir],
+                                      rundir / fileRun,
+                                      env)
+            traceRes["status"]=getResult(subProcessRun)
         if self.postRunLambda!=None:
             self.postRunLambda(rundir)
         return self.cmpOneSample(i)
@@ -194,8 +154,10 @@ class stochTask:
             return self.PASS
 
         rundir= self._nameDir(i)
-        retval = runCmd([self.cmpCmd, self.refDir, rundir],
-                        rundir / "dd.compare")
+        with ddTrace.tracer.task("cmp", self.dirname.name, i) as traceRes:
+            retval = runCmd([self.cmpCmd, self.refDir, rundir],
+                            rundir / "dd.compare")
+            traceRes["status"]=retval
 
         with open(str(rundir / ddReturnFileName),"w") as f:
             f.write(str(retval))
@@ -238,10 +200,11 @@ class stochTask:
 
 
     def submitSeq(self, cmpOrRun, sampleIndex):
-        if cmpOrRun=="cmp":
-            return self.cmpOneSample(sampleIndex)
-        if cmpOrRun=="run":
-            return self.runOneSample(sampleIndex)
+        with ddTrace.tracer.worker(): #run and cmp of the same sample are traced on the same slot
+            if cmpOrRun=="cmp":
+                return self.cmpOneSample(sampleIndex)
+            if cmpOrRun=="run":
+                return self.runOneSample(sampleIndex)
 
 
 def getEstimatedFailProbability(dirname):
@@ -346,6 +309,7 @@ class DDStoch(DD.DD):
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = self.prefix_ / "ref"
         self.prepareCache()
+        ddTrace.init(self.config_.get_traceFile(), self.config_.get_maxNbPROC())
         prepareOutput(self.ref_)
 
         self.config_.saveParam(self.prefix_ / "cmd.last")
@@ -519,20 +483,25 @@ class DDStoch(DD.DD):
                 for fileToDelete in filesToDelete:
                     fileToDelete.unlink()
 
+    @ddTrace.tracePhase("reference")
     def reference(self):
         """Run the reference and check the result"""
         print(self.ref_.relative_to(Path.cwd()),end="")
         print(" -- (run) -> ",end="",flush=True)
-        retval = runCmd([self.run_, self.ref_],
-                        self.ref_ /"dd",
-                        self.referenceRunEnv())
+        with ddTrace.tracer.task("run", self.ref_.name) as traceRes:
+            retval = runCmd([self.run_, self.ref_],
+                            self.ref_ /"dd",
+                            self.referenceRunEnv())
+            traceRes["status"]=retval
         if retval!=0:
             print("")
             self.referenceRunFailure()
         else:
             """Check the comparison between the reference and refrence is valid"""
-            retval = runCmd([self.compare_,self.ref_, self.ref_],
-                            self.ref_ / "checkRef")
+            with ddTrace.tracer.task("cmp", self.ref_.name) as traceRes:
+                retval = runCmd([self.compare_,self.ref_, self.ref_],
+                                self.ref_ / "checkRef")
+                traceRes["status"]=retval
             if retval != 0:
                 print("FAIL")
                 self.referenceFailsFailure()
@@ -581,8 +550,21 @@ class DDStoch(DD.DD):
         if verbose:
             print("%s (%s):"%(kind_str,self.coerce(delta_config)))
         earlyExit= not self.config_.resWithAllSamples
-        self.testWithLink(delta_config, kind_str, earlyExit)
+        with ddTrace.tracer.phase("configuration_found", kind=kind_str, nbDelta=len(delta_config)):
+            self.testWithLink(delta_config, kind_str, earlyExit)
+        if ddTrace.tracer.enabled and kind_str.startswith("ddmin") and kind_str[5:].isdigit():
+            subConfs=[md5Name([delta for delta in delta_config if delta!=delta1]) for delta1 in delta_config]
+            ddTrace.tracer.event("oneMinimal", kind=kind_str, conf=md5Name(delta_config), subConfs=subConfs)
 
+    @ddTrace.tracePhase("dd_min")
+    def dd_min(self, c , nbRun):
+        return super().dd_min(c, nbRun)
+
+    @ddTrace.tracePhase("dd_max")
+    def dd_max(self, c , nbRun):
+        return super().dd_max(c, nbRun)
+
+    @ddTrace.tracePhase("DD")
     def run(self, deltas=None):
         # get the search space
         if deltas==None:
@@ -593,7 +575,8 @@ class DDStoch(DD.DD):
 
         #basic verification
         try:
-            testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
+            with ddTrace.tracer.phase("verification", nbDelta=len(deltas)):
+                testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
         except KeyboardInterrupt:
             print("Basic Delta Verification Interuption")
             sys.exit(42)
@@ -686,6 +669,7 @@ class DDStoch(DD.DD):
         "return the set deltas -conf"
         return [delta for delta in deltas if delta not in conf] #reduce search space
 
+    @ddTrace.tracePhase("heuristics")
     def applyRddminWithHeuristics(self,deltas, algo):
         """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
 
@@ -721,6 +705,7 @@ class DDStoch(DD.DD):
             return nablaRddmin+algo(deltasCurrent)
 
 
+    @ddTrace.tracePhase("DDMax")
     def DDMax(self, deltas, nbRun):
         ddmax=self.dd_max(deltas, nbRun)
         ddmaxCmp=self.reduceSearchSpace(deltas, ddmax)
@@ -728,6 +713,7 @@ class DDStoch(DD.DD):
         self.configuration_found("ddmax-cmp", ddmax)
         return ddmaxCmp
 
+    @ddTrace.tracePhase("RDDMin")
     def RDDMin(self, deltas, nbRun):
         nablaRddmin=[]
         testResult=self._test(deltas)
@@ -747,6 +733,7 @@ class DDStoch(DD.DD):
 
         return nablaRddmin
 
+    @ddTrace.tracePhase("check1Min")
     def check1Min(self, deltasHeuristic, nbRun, algoRddmin):
         """check if deltas in 1 minimal : return [deltasHeuristic] if deltasHeuristic is 1-min else
         the result of algoRddmin applied on a failing subspace"""
@@ -774,6 +761,7 @@ class DDStoch(DD.DD):
         return [deltasHeuristic]
 
 
+    @ddTrace.tracePhase("splitDeltas")
     def splitDeltas(self, deltas, nbRun, granularity):
         """ Return a list of failing non overlapping subspace"""
         if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
@@ -829,6 +817,7 @@ class DDStoch(DD.DD):
 
 
 
+    @ddTrace.tracePhase("SsplitDeltas")
     def SsplitDeltas(self, deltas, runTab, granularity):#runTab=splitTab ,granularity=2):
         #apply splitDeltas recussivly with increasing sample number (runTab)
         #remark: the remain treatment do not respect the binary split structure
@@ -859,6 +848,7 @@ class DDStoch(DD.DD):
 
         return currentSplit
 
+    @ddTrace.tracePhase("DRDDMin")
     def DRDDMin(self, deltas, SrunTab, dicRunTab, granularity):#SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
         algo_name="DRDDMin"
 
@@ -897,6 +887,7 @@ class DDStoch(DD.DD):
             return nablaRddmin+self.SRDDMin(deltasCurrent, SrunTab)
 
 
+    @ddTrace.tracePhase("SRDDMin")
     def SRDDMin(self, deltas,runTab):#runTab=rddMinTab):
         #name for progression
         algo_name="SRDDMin"
@@ -1080,9 +1071,11 @@ class DDStoch(DD.DD):
         assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample"])
 
         numThread=self.config_.get_maxNbPROC()
-        if numThread in [None,1]:
-            return self._testTabSeq(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
-        return self._testTabPar(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
+        with ddTrace.tracer.runtime("testTab", nbConf=nbDelta, nbRun=(None if nbRunTab==None else max(nbRunTab)),
+                                    earlyExit=earlyExit, earlyConfExit=earlyConfExit, sortOrder=sortOrder):
+            if numThread in [None,1]:
+                return self._testTabSeq(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
+            return self._testTabPar(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
 
     def _testTabSeq(self, deltasTab,nbRunTab, earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf"):
         if nbRunTab==None:
@@ -1098,7 +1091,7 @@ class DDStoch(DD.DD):
             failIndexesTab=[[] for i in range(nbDelta)]
             passIndexesTab=[[] for i in range(nbDelta)]
 
-            for subTaskData in subTaskDataTab:
+            for subTaskIndex,subTaskData in enumerate(subTaskDataTab):
                 cmpOrRun,deltaIndex, sampleIndex=subTaskData
                 sampleRes=stochTaskTab[deltaIndex].submitSeq(cmpOrRun,sampleIndex)
 
@@ -1109,6 +1102,8 @@ class DDStoch(DD.DD):
 
                     if earlyExit and earlyConfExit in ["firstPass", "anyPass"]:
                         if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                            ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
+                            ddTrace.tracer.event("skip", nbSkipped=len(subTaskDataTab)-subTaskIndex-1, nbSubTask=len(subTaskDataTab))
                             self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                             return resTab
                 if sampleRes==self.FAIL:
@@ -1118,6 +1113,8 @@ class DDStoch(DD.DD):
                     failIndexesTab[deltaIndex]+=[sampleIndex]
 
                     if earlyExit and earlyConfExit in ["firstFail","anyFail"]:
+                        ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
+                        ddTrace.tracer.event("skip", nbSkipped=len(subTaskDataTab)-subTaskIndex-1, nbSubTask=len(subTaskDataTab))
                         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                         return resTab
 
@@ -1146,6 +1143,11 @@ class DDStoch(DD.DD):
                                                self.sampleRunEnv(dirname),
                                                seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             sToC=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
+            if sToC==None:
+                ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), status="FAIL")
+            elif len(sToC["indexesInCache"])!=0:
+                ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]),
+                                     status=("FAIL" if sToC["failedIndexes"]!=[] else "PASS"))
 
             if sToC==None:
                 resTab[deltaIndex]=self.FAIL
@@ -1254,6 +1256,7 @@ class DDStoch(DD.DD):
                             passIndexesTab[deltaIndex]+=[sampleIndex]
                             if earlyExit and earlyConfExit in ["anyPass","firstPass"]:
                                 if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]): #check the right sample number
+                                    ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
                                     for cWork in range(currentWork,len(subTaskDataTab)):
                                         if earlyConfExit=="anyPass" or subTaskDataTab[cWork][1]>=deltaIndex:
                                             activeDataTab[cWork]=False
@@ -1263,6 +1266,7 @@ class DDStoch(DD.DD):
                             resTab[deltaIndex]=self.FAIL
                             failIndexesTab[deltaIndex]+=[sampleIndex]
                             if earlyExit and  earlyConfExit in ["anyFail","firstFail","no"]:
+                                ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
                                 for cWork in range(currentWork,len(subTaskDataTab)):
                                     if earlyConfExit=="anyFail" or (earlyConfExit=="firstFail" and subTaskDataTab[cWork][1]>deltaIndex) or (earlyConfExit=="no" and subTaskDataTab[cWork][1]==deltaIndex):
                                         activeDataTab[cWork]=False
@@ -1297,6 +1301,9 @@ class DDStoch(DD.DD):
                     shutil.rmtree(stTask._nameDir(sampleIndex))
                 raise KeyboardInterrupt
 
+        nbSkipped=activeDataTab.count(False)
+        if nbSkipped!=0:
+            ddTrace.tracer.event("skip", nbSkipped=nbSkipped, nbSubTask=len(subTaskDataTab))
         #affichage
         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab
