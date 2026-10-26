@@ -2,7 +2,7 @@ SUBREPLIST=ddCover checkRounding checkStatRounding checkUCB-vecto check-libM ddT
 
 SUBREPLISTPYTHON=ddCover checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython
 
-.PHONY: valgrind-test none-test callgrind-test verrou-test
+.PHONY: valgrind-test none-test callgrind-test verrou-test python-coverage
 
 all:
 	for i in $(SUBREPLIST) ; do \
@@ -14,6 +14,27 @@ python:
 		make -C "./$$i" || exit 42; \
 	done
 
+# Coverage of the installed python tools by the 'python' tests
+# (requires python3-coverage). The report is written in pyCoverageResult.
+# The test directories are cleaned first: up-to-date results would not run the tools.
+PYCOV_OUT=$(CURDIR)/pyCoverageResult
+
+python-coverage:
+	for i in $(SUBREPLISTPYTHON) ; do \
+		make -C "./$$i" clean ; \
+	done
+	rm -rf "$(PYCOV_OUT)" && mkdir -p "$(PYCOV_OUT)"
+	export VERROU_PYCOV_PREFIX="$$(cd ddCover && bash ../installpath)" && \
+	export VERROU_PYCOV_PKGDIR="$$(bash -c 'source ../env.sh; python3 -c "import DD,os; print(os.path.dirname(os.path.abspath(DD.__file__)))"')" && \
+	export VERROU_PYCOV_OUT="$(PYCOV_OUT)" VERROU_PYCOV_SRC="$(CURDIR)/.." && \
+	export COVERAGE_PROCESS_START="$(CURDIR)/pyCoverage/coveragerc" && \
+	export PYTHONPATH="$(CURDIR)/pyCoverage$${PYTHONPATH:+:$$PYTHONPATH}" && \
+	{ $(MAKE) python ; status=$$? ; \
+	  unset PYTHONPATH ; \
+	  python3 -m coverage combine -q --rcfile="$$COVERAGE_PROCESS_START" && \
+	  python3 -m coverage html -q --rcfile="$$COVERAGE_PROCESS_START" && \
+	  python3 -m coverage report --rcfile="$$COVERAGE_PROCESS_START" | tee "$(PYCOV_OUT)/report.txt" ; \
+	  exit $$status ; }
 
 #to be able to do valgrind test from this directory
 valgrind-test: verrou-test none-test callgrind-test #helgrind-test

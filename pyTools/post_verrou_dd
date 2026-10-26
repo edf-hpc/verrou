@@ -11,6 +11,7 @@ from pathlib import Path
 from coverTools import traceName
 from traceAnalysis import  generateTraceAnalysis
 from sysTools import disable_ASLR
+import subprocess
 
 def failure():
     sys.exit(42)
@@ -59,10 +60,10 @@ def mapClean(rep, listOfFile, verbose):
 def mapCompress(rep, listOfFile, verbose):
     for fileName in listOfFile:
         pathName= rep / fileName
-        cmd="gzip %s"%(str(pathName))
+        cmd=["gzip", str(pathName)]
         if verbose:
-            print("compress cmd : ", cmd)
-        os.system(cmd)
+            print("compress cmd : ", " ".join(cmd))
+        subprocess.call(cmd)
 
 
 def mapRename(rep, pid, count, listOfFile, compress,verbose):
@@ -77,10 +78,10 @@ def mapRename(rep, pid, count, listOfFile, compress,verbose):
             print(oldPath , " => " , newPath)
         oldPath.rename(newPath)
         if compress:
-            cmd="gzip %s"%(str(newPath))
+            cmd=["gzip", str(newPath)]
             if verbose:
-                print("compress cmd : ", cmd)
-            os.system(cmd)
+                print("compress cmd : ", " ".join(cmd))
+            subprocess.call(cmd)
 
 
 def rename_pid_for_one_rep(config, rep, ignoreEmpty=True,verbose=False):
@@ -170,11 +171,11 @@ class trace_handler:
             sys.exit(42)
 
         if self.config.get_trace_gen_local():
-            option="--rep=%s --pidRename --select_default=-1 --trace-type=%s --output-type=individual"%(str(runDir/"cover"),config.get_trace_type())
-
-            cmd="verrou_gen_trace "+option
+            cmd=["verrou_gen_trace", "--rep=%s"%(str(runDir/"cover")), "--pidRename", "--select_default=-1",
+                 "--trace-type=%s"%(config.get_trace_type()), "--output-type=individual"]
             #print("cmd: ", cmd)
-            os.system(cmd+ "  >> %s"%( runDir/ "gen_trace_log"))
+            with open(str(runDir/ "gen_trace_log"), "a") as genTraceLog:
+                subprocess.call(cmd, stdout=genTraceLog)
 
         rename_pid_for_one_rep(self.config, runDir / "cover", ignoreEmpty=True)
 
@@ -434,15 +435,15 @@ def runSubRepForOneInstr( config, rep, refDir,ddMinList):
 def sortSubRep(subRepTab):
     refTab=[x for x in subRepTab if x.name in ["ref","NoPerturbation"] ]
     ddminTab=[x for x in subRepTab if (x.name).startswith("ddmin")]
-    otherTab=[x for x in subRepTab if (not x.name in refTab) and (not x in ddminTab)]
+    otherTab=[x for x in subRepTab if (not x in refTab) and (not x in ddminTab)]
 
     ddminWithKeySort=[]
     for ddmin in ddminTab:
         try:
             xi=int((ddmin.name).replace("ddmin",""))
             ddminWithKeySort+=[(ddmin, xi)]
-        except:
-            otherTab+=ddmin
+        except ValueError:
+            otherTab+=[ddmin]
 
     ddminTab=[ddmin[0] for ddmin in sorted(ddminWithKeySort, key=lambda x:x[1])]
     res=sorted(refTab) + ddminTab + sorted(otherTab)

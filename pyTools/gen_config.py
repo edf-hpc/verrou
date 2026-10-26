@@ -231,7 +231,7 @@ class gen_config:
                     value=int(value)
                     exec(cmd)
                     return
-                except:
+                except ValueError:
                     if parse=="environ":
                         print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue) +" or be a int value")
                     else:

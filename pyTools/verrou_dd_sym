@@ -64,7 +64,7 @@ class DDsym(DD_stoch.DDStoch):
     def demangle(self, mangledName):
         try:
             line=subprocess.check_output(["c++filt",mangledName]).decode("utf8").strip()
-        except:
+        except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
             line=mangledName
         return line
 

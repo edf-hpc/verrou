@@ -60,8 +60,8 @@ class statusReader:
                     self.isSuccess=True
                 else:
                     self.isSuccess=False
-            except:
-                print("Error while  reading "+pathName )
+            except (OSError, ValueError):
+                print("Error while  reading "+str(pathName) )
                 self.isSuccess=None
         else:
             if self.rep.name=="ref":
