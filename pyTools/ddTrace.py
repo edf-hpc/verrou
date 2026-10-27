@@ -35,6 +35,10 @@ The trace is a JSON-lines file (one event per line) :
 
 The event oneMinimal (info : kind, conf, subConfs) gives for each ddmin configuration the
 configurations (one delta removed) which prove its 1-minimality.
+The events of splitDeltasAsync :
+  split    (info : conf, sample, failRank, subConfs) : the failing configuration conf (failing sample sample) is split
+             into subConfs.
+  schedule (info : conf, sample, priority, nbWaitingConf) : submission of a sample with its heuristic priority.
 
 t is in seconds from the tracer creation. slot is an index in [0, nbProc[ : each
 task uses the smallest free slot, so slots are stable between successive thread pools.

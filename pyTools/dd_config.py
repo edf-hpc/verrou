@@ -51,6 +51,8 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("param_rddmin_tab",      "string",     "RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
         self.addRegistry("param_dicho_tab",       "int/string", "DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
         self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
+        self.addRegistry("splitAlgo",             "string",     "DICHO_SPLIT",             ["--dicho-split="],             "sync",    ["sync", "async"])
+        self.addRegistry("splitHeuristic",        "string",     "DICHO_SPLIT_HEURISTIC",   ["--dicho-split-heuristic="],   "cost",    ["cost", "fifo"])
         self.addRegistry("ddQuiet",               "bool",       "QUIET",                   ["--quiet"],                    False,     None)
         self.addRegistry("cache",                 "string",     "CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
         self.addRegistry("rddminHeuristicsCache", "string",     "RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
@@ -82,6 +84,12 @@ class ddConfig(gen_config.gen_config):
     ## Accessors
     def get_splitGranularity(self):
         return self.splitGranularity
+
+    def get_splitAlgo(self):
+        return self.splitAlgo
+
+    def get_splitHeuristic(self):
+        return self.splitHeuristic
 
     def get_ddAlgo(self):
         if self.ddAlgo.endswith("rddmin"):

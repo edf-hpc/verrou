@@ -82,6 +82,7 @@ class traceAnalysis:
         self.computeBusy()
         self.pairOneMinimal()
         self.pairSameConfig()
+        self.pairSplit()
 
     def pairTasks(self):
         """tasks : list of dict (kind, conf, sample, slot, begin, end, status, sampleStatus)"""
@@ -147,10 +148,34 @@ class traceAnalysis:
             for sample,nextSample in zip(samples[:-1], samples[1:]):
                 self.sameConfigLinks+=[(conf, tasksBySample[sample], tasksBySample[nextSample])]
 
+    def pairSplit(self):
+        """splitLinks : list of (conf, failTask, subTask) from the failing cmp task of a configuration split by
+        splitDeltasAsync to the first task of each sub-configuration (event split)"""
+        tasksByConf={}
+        for task in self.tasks:
+            tasksByConf.setdefault(task["conf"],[]).append(task)
+        self.splitLinks=[]
+        self.nbSplitWithoutTask=0
+        for ev in self.events:
+            if ev["ev"]!="event" or ev["name"]!="split":
+                continue
+            info=ev["info"]
+            failTasks=[task for task in tasksByConf.get(info["conf"],[]) if task["kind"]=="cmp" and task["sample"]==info["sample"]
+                       and task["status"] not in [0,None] and task["end"]<=ev["t"]]
+            if len(failTasks)==0:
+                self.nbSplitWithoutTask+=1 #FAIL from cache
+                continue
+            failTask=failTasks[-1]
+            for subConf in info["subConfs"]:
+                subTasks=[task for task in tasksByConf.get(subConf,[]) if task["begin"]>=ev["t"]]
+                if len(subTasks)!=0: #else the status of the sub-configuration comes from the cache
+                    self.splitLinks+=[(info["conf"], failTask, subTasks[0])]
+
     def links(self):
         """list of (name, info, startTask, endTask)"""
         return [("1-ddmin", kind, failTask, subTask) for kind,failTask,subTask in self.oneMinimalLinks]+\
-               [("same_config", conf, task, nextTask) for conf,task,nextTask in self.sameConfigLinks]
+               [("same_config", conf, task, nextTask) for conf,task,nextTask in self.sameConfigLinks]+\
+               [("split", conf, failTask, subTask) for conf,failTask,subTask in self.splitLinks]
 
     def pairSections(self, category):
         """category in [phase, runtime] : list of dict (name, info, begin, end, depth, outermost)"""
@@ -232,6 +257,8 @@ class traceAnalysis:
         print("1-ddmin links      : %i (%i ddmin, %i sub-configurations without traced cmp)"%(len(self.oneMinimalLinks),
               len(evCount("oneMinimal")), self.nbSubConfWithoutTask), file=out)
         print("same_config links  : %i"%(len(self.sameConfigLinks)), file=out)
+        print("split links        : %i (%i split, %i split from cache)"%(len(self.splitLinks),
+              len(evCount("split")), self.nbSplitWithoutTask), file=out)
         for slot in range(self.nbSlot):
             slotBusy=sum([t["end"]-t["begin"] for t in self.tasks if t["slot"]==slot])
             print("  slot %3i occupancy : %.1f%%"%(slot, 100.*slotBusy/self.tEnd if self.tEnd>0 else 0.), file=out)
@@ -242,7 +269,8 @@ class traceAnalysis:
     def records(self):
         """Generic timeline : list of (location, time, order, kind, data) sorted by (time, order).
         location in [algorithm, runtime, slot i] ; kind in [enter, leave, event, metric, linkStart, linkEnd].
-        The links start and end at the middle of the tasks (cmp tasks for 1-ddmin, run tasks for same_config).
+        The links start and end at the middle of the tasks (cmp tasks for 1-ddmin, run tasks for same_config,
+        failing cmp task to the first task of the sub-configuration for split).
         At the same date, leaves are before enters and the deepest sections leave first."""
         records=[]
         for location,sections,valueFunc in [("algorithm", self.phases, lambda p: p["name"]), ("runtime", self.runtimes, runtimeValue)]:
@@ -283,7 +311,7 @@ taskColors={"run_PASS":"0.40 0.80 0.40", "run_FAIL":"0.90 0.30 0.30", "run_unkno
             "cmp_PASS":"0.20 0.50 0.20", "cmp_FAIL":"0.55 0.10 0.10", "cmp_unknown":"0.40 0.40 0.40",
             "ref_run":"0.30 0.50 0.90", "ref_cmp":"0.15 0.25 0.60"}
 
-linkColors={"1-ddmin":"1.0 0.5 0.0", "same_config":"0.3 0.3 0.3"}
+linkColors={"1-ddmin":"1.0 0.5 0.0", "same_config":"0.3 0.3 0.3", "split":"0.0 0.6 0.9"}
 
 eventColors={"cache":"0.95 0.85 0.10", "earlyExit":"1.0 0.0 1.0", "skip":"0.0 0.0 0.0"}
 

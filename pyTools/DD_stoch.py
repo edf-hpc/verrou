@@ -288,6 +288,32 @@ def failure():
     sys.exit(42)
 
 
+class splitNode:
+    """Configuration (ci) of the split tree built by splitDeltasAsync : father is the failing configuration
+    which generated it by split (None for the root)"""
+    def __init__(self, deltas, father, index):
+        self.deltas=deltas
+        self.father=father
+        self.index=index #creation order
+        self.stochTask=None
+        self.status=None #None while not concluded, then PASS or FAIL
+        self.samplesToDo=[] #(cmpOrRun, sampleIndex) not yet submitted
+        self.nbActive=0 #submitted samples not yet finished
+        self.nbPass=0 #finished PASS samples
+        self.failIndex=None #index of the sample which concluded FAIL (or smallest failing index in cache)
+        self.failRank=None #number of PASS samples obtained before the FAIL
+        self.nbChildrenToConclude=0
+        self.childFailed=False
+
+    def conf(self):
+        return self.stochTask.dirname.name
+
+    def fatherFailRank(self):
+        if self.father==None:
+            return 0
+        return self.father.failRank
+
+
 
 
 
@@ -816,6 +842,192 @@ class DDStoch(DD.DD):
         return nablaRes
 
 
+    splitAsyncActiveWeight=2. #penalty of the samples in progress of a configuration (cost heuristic)
+
+    def splitAsyncPriority(self, node, granularity, heuristic):
+        """Priority of the next sample of node (smallest first).
+        cost : estimated number of sequential samples to reach a failing configuration of size 1
+               (number of split levels times the expected number of samples per level, given by the fail rank of the father).
+               The penalty for the samples already passed or in progress avoids to have several active samples
+               for the same configuration (they are useless if it fails).
+        fifo : number of submitted samples then creation order (as the outerSampleInnerConf order of splitDeltas
+               without the synchronization)"""
+        if heuristic=="fifo":
+            return (node.nbPass+node.nbActive, node.index)
+        rankFactor=node.fatherFailRank()+1.
+        nbLevel=math.log(len(node.deltas))/math.log(max(granularity,2))
+        cost=rankFactor*(1.+nbLevel)
+        cost*=1.+(node.nbPass + self.splitAsyncActiveWeight*node.nbActive)/rankFactor
+        return (cost, len(node.deltas), node.index)
+
+    def _splitNodePrepare(self, node, nbRun):
+        """Create the stochTask of node and use the cache : return True if the status of node is known"""
+        deltas=node.deltas
+        dirname=self.prefix_ / md5Name(deltas)
+        if not dirname.is_dir():
+            dirname.mkdir()
+            self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
+        node.stochTask=stochTask(dirname, self.ref_, self.run_, self.compare_ ,
+                                 self.sampleRunEnv(dirname),
+                                 seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+        pathToPrint=node.stochTask.pathToPrint+strLenDeltas(deltas)
+
+        sToC=node.stochTask.sampleToCompute(nbRun, False)
+        if sToC["failedIndexes"]!=[]:
+            ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]), status="FAIL")
+            node.status=self.FAIL
+            node.failIndex=min(sToC["failedIndexes"])
+            node.failRank=len([i for i in sToC["indexesInCache"] if i<node.failIndex])
+            print(pathToPrint+"--(/cache/) -> FAIL")
+            return True
+        if len(sToC["indexesInCache"])!=0:
+            ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]), status="PASS")
+
+        #with a fixed seed, the sample which failed for the father is the most likely to fail
+        preferredSample=None
+        if self.seedTab!=None and node.father!=None:
+            preferredSample=node.father.failIndex
+        indexesToRun=sorted(sToC["indexesToRun"], key=lambda i: (i!=preferredSample, i))
+        node.samplesToDo=[("cmp",i) for i in sorted(sToC["indexesToCmp"])]+[("run",i) for i in indexesToRun]
+
+        if len(node.samplesToDo)==0:
+            node.status=self.PASS
+            print(pathToPrint+"--(/cache/) -> PASS("+ str(nbRun)+")")
+            return True
+        return False
+
+    @ddTrace.tracePhase("splitDeltasAsync")
+    def splitDeltasAsync(self, deltas, nbRun, granularity):
+        """ Return a list of failing non overlapping subspace (same set as splitDeltas).
+        Contrary to splitDeltas, there is no synchronization : as soon as a configuration fails, it is split
+        and the samples of all the waiting configurations are submitted in the order given by splitAsyncPriority"""
+        if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
+            return [] #short exit
+
+        heuristic=self.config_.get_splitHeuristic()
+        numThread=self.config_.get_maxNbPROC()
+        if numThread==None:
+            numThread=1
+
+        nablaRes=[]
+        waitingNodes=[] #nodes with samples to submit
+        toConclude=[] #nodes with a known status not yet processed
+        nodeCounter=0
+        #with resWithAllSamples, configuration_found computes samples : it is delayed to respect the thread number
+        delayedFound=[]
+
+        def newNode(nodeDeltas, father):
+            nonlocal nodeCounter
+            node=splitNode(nodeDeltas, father, nodeCounter)
+            nodeCounter+=1
+            if self._splitNodePrepare(node, nbRun):
+                toConclude.append(node)
+            else:
+                waitingNodes.append(node)
+            return node
+
+        def addResult(resDeltas):
+            if len(resDeltas)==1:
+                if self.config_.get_resWithAllsamples():
+                    delayedFound.append(resDeltas)
+                else:
+                    self.configuration_found("ddmin%d"%(self.rddminIndex), resDeltas)
+                    self.rddminIndex+=1
+            nablaRes.append(resDeltas)
+
+        def processConclusions():
+            while len(toConclude)!=0:
+                node=toConclude.pop(0)
+                if node.status==self.FAIL:
+                    if len(node.deltas)==1:
+                        addResult(node.deltas)
+                    else:
+                        children=self.split(node.deltas, min(granularity, len(node.deltas)))
+                        node.nbChildrenToConclude=len(children)
+                        ddTrace.tracer.event("split", conf=node.conf(), sample=node.failIndex, failRank=node.failRank,
+                                             subConfs=[md5Name(child) for child in children])
+                        for child in children:
+                            newNode(child, node)
+                father=node.father
+                if father==None:
+                    continue
+                if node.status==self.FAIL:
+                    father.childFailed=True
+                father.nbChildrenToConclude-=1
+                if father.nbChildrenToConclude==0 and not father.childFailed:
+                    addResult(father.deltas)
+
+        def processResult(node, sampleIndex, res):
+            pathToPrint=node.stochTask.pathToPrint+strLenDeltas(node.deltas)
+            if node.status!=None:
+                return #FAIL already concluded by another sample
+            if res==self.PASS:
+                node.nbPass+=1
+                if len(node.samplesToDo)==0 and node.nbActive==0:
+                    node.status=self.PASS
+                    print(pathToPrint+"--(/run/) -> PASS(+%i->%i)"%(node.nbPass, nbRun))
+                    toConclude.append(node)
+            else:
+                node.status=self.FAIL
+                node.failIndex=sampleIndex
+                node.failRank=node.nbPass
+                print(pathToPrint+"--(/run/) -> FAIL(%i)"%(sampleIndex))
+                ddTrace.tracer.event("earlyExit", conf=node.conf(), reason="fail")
+                if len(node.samplesToDo)!=0:
+                    ddTrace.tracer.event("skip", nbSkipped=len(node.samplesToDo), nbSubTask=len(node.samplesToDo)+node.nbPass+node.nbActive+1)
+                node.samplesToDo=[]
+                toConclude.append(node)
+
+        newNode(deltas, None)
+        processConclusions()
+
+        import concurrent.futures
+        running={} #future -> (node, sampleIndex)
+        with ddTrace.tracer.runtime("splitAsync", nbRun=nbRun, earlyExit=True, earlyConfExit="no", sortOrder=heuristic):
+            with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+                try:
+                    while True:
+                        while len(running)<numThread:
+                            waitingNodes[:]=[node for node in waitingNodes if node.status==None and len(node.samplesToDo)!=0]
+                            if len(waitingNodes)==0:
+                                break
+                            priorityTab=[self.splitAsyncPriority(node, granularity, heuristic) for node in waitingNodes]
+                            bestIndex=priorityTab.index(min(priorityTab))
+                            node=waitingNodes[bestIndex]
+                            cmpOrRun,sampleIndex=node.samplesToDo.pop(0)
+                            ddTrace.tracer.event("schedule", conf=node.conf(), sample=sampleIndex, priority=priorityTab[bestIndex][0],
+                                                 nbWaitingConf=len(waitingNodes))
+                            future=executor.submit(node.stochTask.submitSeq, cmpOrRun, sampleIndex)
+                            running[future]=(node, sampleIndex)
+                            node.nbActive+=1
+
+                        if len(running)==0:
+                            break
+                        (doneTab,toDo)=concurrent.futures.wait(running, return_when=concurrent.futures.FIRST_COMPLETED)
+                        for future in doneTab:
+                            node,sampleIndex=running.pop(future)
+                            node.nbActive-=1
+                            processResult(node, sampleIndex, future.result())
+                        processConclusions()
+                except KeyboardInterrupt:
+                    print("")
+                    print("Keyboard Interruption")
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    for node,sampleIndex in running.values():
+                        print("clean", node.stochTask._nameDir(sampleIndex))
+                        shutil.rmtree(node.stochTask._nameDir(sampleIndex), ignore_errors=True)
+                    raise KeyboardInterrupt
+        for resDeltas in delayedFound:
+            self.configuration_found("ddmin%d"%(self.rddminIndex), resDeltas)
+            self.rddminIndex+=1
+        return nablaRes
+
+    def splitDeltasSelected(self, deltas, nbRun, granularity):
+        if self.config_.get_splitAlgo()=="async":
+            return self.splitDeltasAsync(deltas, nbRun, granularity)
+        return self.splitDeltas(deltas, nbRun, granularity)
+
+
 
     @ddTrace.tracePhase("SsplitDeltas")
     def SsplitDeltas(self, deltas, runTab, granularity):#runTab=splitTab ,granularity=2):
@@ -833,7 +1045,7 @@ class DDStoch(DD.DD):
                     nextCurrent.append(candidat)
                     continue
                 self.report_progress(candidat,algo_name)
-                res=self.splitDeltas(candidat,run, granularity)
+                res=self.splitDeltasSelected(candidat,run, granularity)
                 nextCurrent.extend(res)
 
             #the remainDeltas in recomputed from the wall list (indeed the set can increase with the apply )
@@ -842,7 +1054,7 @@ class DDStoch(DD.DD):
 
             #apply split to remainDeltas
             self.report_progress(remainDeltas,algo_name)
-            nextCurrent.extend(self.splitDeltas(remainDeltas, run, granularity))
+            nextCurrent.extend(self.splitDeltasSelected(remainDeltas, run, granularity))
 
             currentSplit=nextCurrent
 

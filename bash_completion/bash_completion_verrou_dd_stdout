@@ -45,6 +45,16 @@ _verrou_dd_stdout()
             cur=${cur#*=}
             return
             ;;
+        --dicho-split=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'sync async' -- "$cur"))
+            return
+            ;;
+        --dicho-split-heuristic=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'cost fifo' -- "$cur"))
+            return
+            ;;
         --cache=*)
             cur=${cur#*=}
             COMPREPLY=($(compgen -W 'clean rename rename_keep_result keep_run continue' -- "$cur"))
@@ -66,6 +76,10 @@ _verrou_dd_stdout()
             return
             ;;
         --seed=*)
+            cur=${cur#*=}
+            return
+            ;;
+        --trace-file=*)
             cur=${cur#*=}
             return
             ;;
@@ -117,7 +131,7 @@ _verrou_dd_stdout()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --unknown-task= --ignore-empty-line= --filter-cmd= --IOmatch-header= --IOmatch-verbose= --custom-search-space= --file-pattern= --reference-rounding= --stop_start=' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --unknown-task= --ignore-empty-line= --filter-cmd= --IOmatch-header= --IOmatch-verbose= --custom-search-space= --file-pattern= --reference-rounding= --stop_start=' -- "$cur"))
 
     _filedir
 

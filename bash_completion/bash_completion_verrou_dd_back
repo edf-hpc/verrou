@@ -45,6 +45,16 @@ _verrou_dd_back()
             cur=${cur#*=}
             return
             ;;
+        --dicho-split=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'sync async' -- "$cur"))
+            return
+            ;;
+        --dicho-split-heuristic=*)
+            cur=${cur#*=}
+            COMPREPLY=($(compgen -W 'cost fifo' -- "$cur"))
+            return
+            ;;
         --cache=*)
             cur=${cur#*=}
             COMPREPLY=($(compgen -W 'clean rename rename_keep_result keep_run continue' -- "$cur"))
@@ -69,6 +79,10 @@ _verrou_dd_back()
             cur=${cur#*=}
             return
             ;;
+        --trace-file=*)
+            cur=${cur#*=}
+            return
+            ;;
         --reference-rounding=*)
             cur=${cur#*=}
             COMPREPLY=($(compgen -W 'native nearest' -- "$cur"))
@@ -81,7 +95,7 @@ _verrou_dd_back()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --reference-rounding= --hide-below-python --hide-common' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --reference-rounding= --hide-below-python --hide-common' -- "$cur"))
 
     _filedir
 
