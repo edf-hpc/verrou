@@ -470,7 +470,7 @@ class ddConfig:
 
 
         #check rddmincmp
-        rddmincmpExpected=[x for x in fullListExpected if not x in ddminList1Expected and not x in sum(ddminList2,[])] 
+        rddmincmpExpected=[x for x in fullList if not x in ddminList1Expected and not x in sum(ddminList2,[])] 
 
         rddmincmp=[(int(line.split("\t")[2].replace("sym-","")),
                    int(line.split("\t")[1]))

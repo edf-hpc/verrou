@@ -7,9 +7,9 @@ import pickle
 from pathlib import Path
 
 def loadResult(rep):
-    if "dd.line" in rep:
+    if "dd.line" in str(rep):
         pref="dd.line"
-    if "dd.sym" in rep:
+    if "dd.sym" in str(rep):
         pref="dd.sym"
 
     rddmincmp=None
@@ -67,12 +67,12 @@ if __name__=="__main__":
         sys.exit(42)
 
     res=False
-    if "dd.sym" in resRep:
+    if "dd.sym" in str(resRep):
         if ddmaxAlgo:
             res=ddCase.checkDDmaxSymResult(loadedRes)
         else:
             res=ddCase.checkRddminSymResult(loadedRes)
-    if "dd.line" in resRep:
+    if "dd.line" in str(resRep):
         if rddminAlgo:
             res=ddCase.checkRddminLineResult(loadedRes)
         else:
