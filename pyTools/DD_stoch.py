@@ -641,6 +641,12 @@ class DDStoch(DD.DD):
                 localConf = self.RDDMin(localDeltas, self.config_.get_nbRUN())
             if algo=="arddmin":
                 localConf = self.ARDDMin(localDeltas, self.config_.get_nbRUN())
+            if algo=="darddmin":
+                localConf = self.DRDDMin(localDeltas,
+                                         self.config_.get_rddMinTab(),
+                                         self.config_.get_splitTab(),
+                                         self.config_.get_splitGranularity(),
+                                         innerRddmin=lambda x: self.ARDDMin(x, self.config_.get_nbRUN()))
             if algo.startswith("srddmin"):
                 localConf= self.SRDDMin(localDeltas, self.config_.get_rddMinTab())
             if algo.startswith("drddmin"):
@@ -1169,8 +1175,12 @@ class DDStoch(DD.DD):
         return currentSplit
 
     @ddTrace.tracePhase("DRDDMin")
-    def DRDDMin(self, deltas, SrunTab, dicRunTab, granularity):#SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
+    def DRDDMin(self, deltas, SrunTab, dicRunTab, granularity, innerRddmin=None):#SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
+        """rddmin pre-filtered by a dichotomy : innerRddmin (SRDDMin by default) is applied to each failing candidate
+        of the dichotomy, then to the remaining deltas"""
         algo_name="DRDDMin"
+        if innerRddmin==None:
+            innerRddmin=lambda localDeltas: self.SRDDMin(localDeltas, SrunTab)
 
         #assert with the right nbRun number
         nbRun=SrunTab[-1]
@@ -1192,7 +1202,7 @@ class DDStoch(DD.DD):
             else:
                 self.report_progress(candidat, algo_name)
                 #we do not known id candidat is a valid ddmin (in case of sparse pattern)
-                nablaSddmin=self.SRDDMin(candidat,SrunTab)
+                nablaSddmin=innerRddmin(candidat)
                 for ddMin in nablaSddmin:
                     nablaRddmin.append(ddMin) #add to nablaRddmin
                     deltasCurrent=self.reduceSearchSpace(deltasCurrent,ddMin)
@@ -1204,7 +1214,7 @@ class DDStoch(DD.DD):
         if testResult!=self.FAIL:
             return nablaRddmin
         else:
-            return nablaRddmin+self.SRDDMin(deltasCurrent, SrunTab)
+            return nablaRddmin+innerRddmin(deltasCurrent)
 
 
     @ddTrace.tracePhase("SRDDMin")

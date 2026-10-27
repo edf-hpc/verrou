@@ -47,7 +47,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("nbRUN",                 "int",        "NRUNS",                   ["--nruns="],                  5,          None)
         self.addRegistry("maxNbPROC",             "int",        "NUM_THREADS",             ["--num-threads="],            None,       None)
         self.addRegistry("ddAlgo",                "string",     "ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
-        self.addRegistry("rddminVariant",         "string",     "RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "a", "adaptive", "", "strict"])
+        self.addRegistry("rddminVariant",         "string",     "RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "a", "adaptive", "da", "dicho-adaptive", "", "strict"])
         self.addRegistry("param_rddmin_tab",      "string",     "RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
         self.addRegistry("param_dicho_tab",       "int/string", "DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
         self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
@@ -76,6 +76,8 @@ class ddConfig(gen_config.gen_config):
             self.rddminVariant=""
         if self.rddminVariant=="adaptive":
             self.rddminVariant="a"
+        if self.rddminVariant=="dicho-adaptive":
+            self.rddminVariant="da"
         if not (0. < self.rddminAdaptiveAlpha < 1.):
             print("Error : --rddmin-adaptive-alpha= should be in ]0,1[")
             self.failure()
@@ -112,7 +114,7 @@ class ddConfig(gen_config.gen_config):
 
     def get_maxSampleNumber(self):
         """Maximal number of samples of one configuration (size of the seed table)"""
-        if self.get_ddAlgo()=="arddmin":
+        if self.get_ddAlgo() in ["arddmin", "darddmin"]:
             return max(self.nbRUN, self.get_rddminAdaptiveMaxNbRun())
         return self.nbRUN
 

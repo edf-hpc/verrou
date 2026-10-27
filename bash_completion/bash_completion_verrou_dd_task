@@ -28,7 +28,7 @@ _verrou_dd_task()
             ;;
         --rddmin=*)
             cur=${cur#*=}
-            COMPREPLY=($(compgen -W 's stoch d dicho a adaptive  strict' -- "$cur"))
+            COMPREPLY=($(compgen -W 's stoch d dicho a adaptive da dicho-adaptive  strict' -- "$cur"))
             return
             ;;
         --rddmin-tab=*)

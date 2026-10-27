@@ -303,6 +303,10 @@ if __name__=="__main__":
 	      <computeroutput>--rddmin-adaptive-alpha=</computeroutput>
 	      and <computeroutput>--rddmin-adaptive-max-nruns=</computeroutput>.
 	    </para>
+	    <para>
+	      <computeroutput>da</computeroutput>, <computeroutput>dicho-adaptive</computeroutput>: arddmin algorithm
+	      pre-filtered by the dichotomy method of drddmin (called darddmin)
+	    </para>
 
 	    <para>
 	    The default value is set to <computeroutput>dicho</computeroutput>.
