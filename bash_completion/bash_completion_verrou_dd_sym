@@ -95,7 +95,7 @@ _verrou_dd_sym()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --reference-rounding=' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --ddmin-complements-only --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --reference-rounding=' -- "$cur"))
 
     _filedir
 

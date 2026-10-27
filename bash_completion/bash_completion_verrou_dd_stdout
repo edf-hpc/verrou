@@ -131,7 +131,7 @@ _verrou_dd_stdout()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --unknown-task= --ignore-empty-line= --filter-cmd= --IOmatch-header= --IOmatch-verbose= --custom-search-space= --file-pattern= --reference-rounding= --stop_start=' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --rep= --nruns= --num-threads= --algo= --rddmin= --rddmin-tab= --dicho-tab= --dicho-granularity= --dicho-split= --dicho-split-heuristic= --ddmin-complements-only --quiet --cache= --rddmin-heuristics-cache= --rddmin-heuristics-rep= --rddmin-heuristics-file= --rddmin-heuristics-line-conv --res-with-all-samples --seed= --debug --trace-file= --unknown-task= --ignore-empty-line= --filter-cmd= --IOmatch-header= --IOmatch-verbose= --custom-search-space= --file-pattern= --reference-rounding= --stop_start=' -- "$cur"))
 
     _filedir
 

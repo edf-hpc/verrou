@@ -53,6 +53,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
         self.addRegistry("splitAlgo",             "string",     "DICHO_SPLIT",             ["--dicho-split="],             "sync",    ["sync", "async"])
         self.addRegistry("splitHeuristic",        "string",     "DICHO_SPLIT_HEURISTIC",   ["--dicho-split-heuristic="],   "cost",    ["cost", "fifo"])
+        self.addRegistry("ddminComplementsOnly",  "bool",       "DDMIN_COMPLEMENTS_ONLY",  ["--ddmin-complements-only"],   False,     None)
         self.addRegistry("ddQuiet",               "bool",       "QUIET",                   ["--quiet"],                    False,     None)
         self.addRegistry("cache",                 "string",     "CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
         self.addRegistry("rddminHeuristicsCache", "string",     "RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
@@ -90,6 +91,9 @@ class ddConfig(gen_config.gen_config):
 
     def get_splitHeuristic(self):
         return self.splitHeuristic
+
+    def get_ddminComplementsOnly(self):
+        return self.ddminComplementsOnly
 
     def get_ddAlgo(self):
         if self.ddAlgo.endswith("rddmin"):
