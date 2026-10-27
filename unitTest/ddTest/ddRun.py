@@ -26,11 +26,12 @@ except:
 
 
 
-def simulateRandom(config):
-    random.seed(random_seed+config)
-    if fail!=0:
-        if( random.random()<proba):
-            return fail
+def simulateRandom(config, sample, cause):
+    """Return 1 (failure) with probability proba : the draw is reproducible and independent for each
+    (configuration, sample, cause)"""
+    random.seed(random_seed+config+"/"+sample+"/"+str(cause))
+    if( random.random()<proba):
+        return 1
     return 0
 
 
@@ -175,7 +176,7 @@ class ddConfig:
         return includedLines
 
 
-    def statusOfSymConfig(self, config):
+    def statusOfSymConfig(self, config, sample=""):
         """Return the status of the config"""
         print(config)
         listOfConfigSym=self.getExcludeIntSymFromExclusionFile(config)
@@ -183,7 +184,7 @@ class ddConfig:
         #test single sym
         for sym in self.listOfIntSym():
             if sym not in listOfConfigSym and self.listOf1Failure[sym][1]!=0:
-                res=simulateRandom(config)
+                res=simulateRandom(config, sample, sym)
                 if res==1:
                     return 1
         #test couple sym
@@ -191,12 +192,12 @@ class ddConfig:
             if failure==0:
                 continue
             if not sym1 in listOfConfigSym and not sym2 in listOfConfigSym:
-                res=simulateRandom(config)
+                res=simulateRandom(config, sample, (sym1,sym2))
                 if res==1:
                     return 1
         return 0
 
-    def statusOfSourceConfig(self, configLine):
+    def statusOfSourceConfig(self, configLine, sample=""):
         print("configLine:", configLine)
 
         configLineLines=self.getIncludedLines(configLine)
@@ -211,7 +212,7 @@ class ddConfig:
                 for (lineFailure, failure) in self.listOf1Failure[sym][2]:
                     if lineFailure in selectedConfigLines and failure :
                         print("line return : ", lineFailure)
-                        res=simulateRandom(configLine)
+                        res=simulateRandom(configLine, sample, (sym,lineFailure))
                         if res==1:
                             return 1
 
@@ -227,7 +228,7 @@ class ddConfig:
             for (s1, l1, s2,l2) in tab:
                 if s1==sym1 and s2==sym2:
                     if l1 in selectedConfigLines1 and l2 in selectedConfigLines2:
-                        res=simulateRandom(configLine)
+                        res=simulateRandom(configLine, sample, (s1,l1,s2,l2))
                         if res==1:
                             return 1
         return 0

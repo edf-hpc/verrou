@@ -7,9 +7,9 @@ from pathlib import Path
 def cmpNorm(ref, toCmp, ddCase):
     print("norm")
     if "dd.sym" in str(ref) and "dd.line" not in str(ref):
-        return ddCase.statusOfSymConfig(open(toCmp / "path_exclude").readline())
+        return ddCase.statusOfSymConfig(open(toCmp / "path_exclude").readline(), toCmp.name)
     if "dd.line" in str(ref):
-        return ddCase.statusOfSourceConfig(open(toCmp / "path_source").readline())
+        return ddCase.statusOfSourceConfig(open(toCmp / "path_source").readline(), toCmp.name)
 if __name__=="__main__":
     if sys.argv[1]== sys.argv[2]:
         sys.exit(0)
