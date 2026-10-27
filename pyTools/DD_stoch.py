@@ -207,17 +207,22 @@ class stochTask:
                 return self.runOneSample(sampleIndex)
 
 
-def getEstimatedFailProbability(dirname):
-    """Return an estimated probablity of fail for the configuration"""
+def getFailCounts(dirname):
+    """Return the number of failing samples and the number of samples in cache for the configuration"""
     returnValuePathTab=dirname.glob(subDirRun+ "*/"+ddReturnFileName)
-    cacheCounter=0.
-    cacheFail=0.
+    cacheCounter=0
+    cacheFail=0
     for returnValuePath in returnValuePathTab:
-        cacheCounter+=1.
+        cacheCounter+=1
         statusCmp=int((open(str(returnValuePath)).readline()))
         if statusCmp!=0:
-            cacheFail+=1.
-    return cacheFail / cacheCounter
+            cacheFail+=1
+    return (cacheFail, cacheCounter)
+
+def getEstimatedFailProbability(dirname):
+    """Return an estimated probablity of fail for the configuration"""
+    cacheFail, cacheCounter=getFailCounts(dirname)
+    return float(cacheFail) / cacheCounter
 
 
 def runMultipleStochTask(stochTaskTab, maxNbPROC):
@@ -356,6 +361,10 @@ class DDStoch(DD.DD):
             import random
             random.seed(self.config_.ddSeed)
             self.seedTab=random.sample(range(0,2**32-1), self.config_.get_nbRUN())
+            nbExtraSeed=self.config_.get_maxSampleNumber()-self.config_.get_nbRUN()
+            if nbExtraSeed>0:
+                #drawn after the nbRun first seeds which are thus the same for all the algorithms (and post_verrou_dd)
+                self.seedTab+=random.sample(range(0,2**32-1), nbExtraSeed)
         else:
             self.seedTab=None
 
@@ -630,6 +639,8 @@ class DDStoch(DD.DD):
         def rddminAlgo(localDeltas):
             if algo=="rddmin":
                 localConf = self.RDDMin(localDeltas, self.config_.get_nbRUN())
+            if algo=="arddmin":
+                localConf = self.ARDDMin(localDeltas, self.config_.get_nbRUN())
             if algo.startswith("srddmin"):
                 localConf= self.SRDDMin(localDeltas, self.config_.get_rddMinTab())
             if algo.startswith("drddmin"):
@@ -758,6 +769,103 @@ class DDStoch(DD.DD):
             testResult=self._test(deltasCurrent,nbRun)
 
         return nablaRddmin
+
+    @ddTrace.tracePhase("ARDDMin")
+    def ARDDMin(self, deltas, nbRun):
+        """rddmin with an adaptive number of samples (called arddmin) :
+        each ddmin is searched by dd_min_adaptive with a number of samples adapted to the estimated failure
+        probability of the current configuration, then refined (if its size is greater than 1) by
+        dd_min_adaptive with the constant number of samples nbRun, so the result is 1-minimal with nbRun samples"""
+        nablaRddmin=[]
+        testResult=self._test(deltas,nbRun)
+        if testResult!=self.FAIL:
+            self.internalError("ARDDMIN", md5Name(deltas)+" should fail")
+
+        deltasCurrent=deltas
+        while testResult==self.FAIL:
+            conf=self.dd_min_adaptive(deltasCurrent, nbRun, adaptive=True)
+            if len(conf)!=1:
+                conf=self.dd_min_adaptive(conf, nbRun, adaptive=False)
+
+            nablaRddmin.append(conf)
+            self.configuration_found("ddmin%d"%(self.rddminIndex), conf)
+            self.rddminIndex+=1
+
+            deltasCurrent=self.reduceSearchSpace(deltasCurrent, conf)
+            testResult=self._test(deltasCurrent,nbRun)
+
+        return nablaRddmin
+
+    def _adaptiveSampleNumber(self, deltas):
+        """Number of samples used to test the configurations generated from the failing configuration deltas:
+        smallest number of samples to observe a failure with probability alpha for a configuration with the failure
+        probability of deltas, clamped in [1, --rddmin-adaptive-max-nruns=].
+        The failure probability is estimated with the samples in cache (posterior mean with a uniform prior)"""
+        nbFail, nbSample=getFailCounts(self.prefix_ / md5Name(deltas))
+        p=(nbFail+1.)/(nbSample+2.)
+        alpha=self.config_.get_rddminAdaptiveAlpha()
+        nb=math.ceil(math.log(1.-alpha) / math.log(1.-p))
+        return max(1, min(nb, self.config_.get_rddminAdaptiveMaxNbRun()))
+
+    @ddTrace.tracePhase("dd_min_adaptive")
+    def dd_min_adaptive(self, c, nbRun, adaptive=True):
+        """ddmin variant used by arddmin. Return a configuration included in c, 1-minimal with respect to the
+        number of samples used.
+        - hierarchical split : the parts are kept between iterations. Increasing the granularity halves each part,
+          a failing complement removes its part : each part is included in a part of the previous granularity.
+        - the subsets are tested only with 2 parts : with more parts, a subset is included in a configuration which passed.
+        - adaptive==True : the configurations generated from c are tested with _adaptiveSampleNumber(c) samples,
+          otherwise with nbRun samples."""
+        algo_name="ddmin-adaptive" if adaptive else "ddmin-refine"
+        def halves(part):
+            return [part] if len(part)<2 else self.split(part,2)
+
+        testResult=self._test(c,nbRun)
+        if testResult!=self.FAIL:
+            self.internalError(algo_name, md5Name(c)+" should fail")
+
+        parts=halves(c)
+        cbar_offset=0
+        run=1
+        while len(parts)>=2:
+            n=len(parts)
+            nbSample=self._adaptiveSampleNumber(c) if adaptive else nbRun
+            self.report_progress(c, algo_name)
+            print()
+            print(algo_name+" (run #%d, %d samples): trying "%(run, nbSample) + "+".join([repr(len(part)) for part in parts]))
+
+            next_c=None
+            if n==2:
+                tTab=self._testTab(parts, [nbSample]*n, earlyExit=True, earlyConfExit="anyFail", sortOrder="outerSampleInnerConf")
+                failIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
+                if len(failIndexes)!=0:
+                    next_c=parts[failIndexes[0]]
+                    parts=halves(next_c)
+                    cbar_offset=0
+            else:
+                order=[(j+cbar_offset)%n for j in range(n)]
+                cbars=[self.reduceSearchSpace(c, parts[i]) for i in order]
+                tTab=self._testTab(cbars, [nbSample]*n, earlyExit=True, earlyConfExit="anyFail", sortOrder="outerSampleInnerConf")
+                failIndexes=[index for index, testValue in enumerate(tTab) if testValue == self.FAIL]
+                if len(failIndexes)!=0:
+                    i=order[failIndexes[0]]
+                    next_c=cbars[failIndexes[0]]
+                    parts=parts[:i]+parts[i+1:]
+                    cbar_offset=i % len(parts)
+
+            if next_c==None:
+                newParts=[half for part in parts for half in halves(part)]
+                if len(newParts)==len(parts):
+                    break
+                print(algo_name+": increase granularity to", len(newParts))
+                cbar_offset=(cbar_offset*len(newParts))//len(parts)
+                parts=newParts
+            else:
+                c=next_c
+            run+=1
+
+        print(algo_name+": done")
+        return c
 
     @ddTrace.tracePhase("check1Min")
     def check1Min(self, deltasHeuristic, nbRun, algoRddmin):

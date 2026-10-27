@@ -185,6 +185,8 @@ class gen_config:
 
         if conv_type=="int":
             value = int(strOption)
+        elif conv_type=="float":
+            value = float(strOption)
         else:
             value = strOption
 
@@ -379,6 +381,8 @@ _%s()
             typeStr=""
             if attributType== "int":
                 typeStr="int"
+            if attributType== "float":
+                typeStr="float"
             if attributType== "int/string":
                 typeStr="or int"
             if attributType=="bool":

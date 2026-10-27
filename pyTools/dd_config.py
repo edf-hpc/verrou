@@ -47,12 +47,14 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("nbRUN",                 "int",        "NRUNS",                   ["--nruns="],                  5,          None)
         self.addRegistry("maxNbPROC",             "int",        "NUM_THREADS",             ["--num-threads="],            None,       None)
         self.addRegistry("ddAlgo",                "string",     "ALGO",                    ["--algo="],                   "rddmin",   ["ddmax", "rddmin"])
-        self.addRegistry("rddminVariant",         "string",     "RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "", "strict"])
+        self.addRegistry("rddminVariant",         "string",     "RDDMIN",                  ["--rddmin="],                 "d",        ["s", "stoch", "d", "dicho", "a", "adaptive", "", "strict"])
         self.addRegistry("param_rddmin_tab",      "string",     "RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
         self.addRegistry("param_dicho_tab",       "int/string", "DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
         self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
         self.addRegistry("splitAlgo",             "string",     "DICHO_SPLIT",             ["--dicho-split="],             "sync",    ["sync", "async"])
         self.addRegistry("splitHeuristic",        "string",     "DICHO_SPLIT_HEURISTIC",   ["--dicho-split-heuristic="],   "cost",    ["cost", "fifo"])
+        self.addRegistry("rddminAdaptiveAlpha",   "float",      "RDDMIN_ADAPTIVE_ALPHA",   ["--rddmin-adaptive-alpha="],   0.95,      None)
+        self.addRegistry("rddminAdaptiveMaxNbRun","int",        "RDDMIN_ADAPTIVE_MAX_NRUNS",["--rddmin-adaptive-max-nruns="], None,     None)
         self.addRegistry("ddminComplementsOnly",  "bool",       "DDMIN_COMPLEMENTS_ONLY",  ["--ddmin-complements-only"],   False,     None)
         self.addRegistry("ddQuiet",               "bool",       "QUIET",                   ["--quiet"],                    False,     None)
         self.addRegistry("cache",                 "string",     "CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
@@ -72,6 +74,14 @@ class ddConfig(gen_config.gen_config):
             self.rddminVariant="d"
         if self.rddminVariant=="strict":
             self.rddminVariant=""
+        if self.rddminVariant=="adaptive":
+            self.rddminVariant="a"
+        if not (0. < self.rddminAdaptiveAlpha < 1.):
+            print("Error : --rddmin-adaptive-alpha= should be in ]0,1[")
+            self.failure()
+        if self.rddminAdaptiveMaxNbRun!=None and self.rddminAdaptiveMaxNbRun < 1:
+            print("Error : --rddmin-adaptive-max-nruns= should be >= 1")
+            self.failure()
 
     def get_ddSeed(self):
         return self.ddSeed
@@ -91,6 +101,20 @@ class ddConfig(gen_config.gen_config):
 
     def get_splitHeuristic(self):
         return self.splitHeuristic
+
+    def get_rddminAdaptiveAlpha(self):
+        return self.rddminAdaptiveAlpha
+
+    def get_rddminAdaptiveMaxNbRun(self):
+        if self.rddminAdaptiveMaxNbRun==None:
+            return 2*self.nbRUN
+        return self.rddminAdaptiveMaxNbRun
+
+    def get_maxSampleNumber(self):
+        """Maximal number of samples of one configuration (size of the seed table)"""
+        if self.get_ddAlgo()=="arddmin":
+            return max(self.nbRUN, self.get_rddminAdaptiveMaxNbRun())
+        return self.nbRUN
 
     def get_ddminComplementsOnly(self):
         return self.ddminComplementsOnly

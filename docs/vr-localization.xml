@@ -296,6 +296,13 @@ if __name__=="__main__":
 	    <para>
 	      <computeroutput>d</computeroutput>, <computeroutput>dicho</computeroutput>: srddmin algorithm pre-filtered by a dichotomy method (called drddmin)
 	    </para>
+	    <para>
+	      <computeroutput>a</computeroutput>, <computeroutput>adaptive</computeroutput>: rddmin algorithm with a number
+	      of samples adapted to the estimated failure probability of the current configuration, followed by a refinement
+	      with <computeroutput>NRUNS</computeroutput> samples (called arddmin). See
+	      <computeroutput>--rddmin-adaptive-alpha=</computeroutput>
+	      and <computeroutput>--rddmin-adaptive-max-nruns=</computeroutput>.
+	    </para>
 
 	    <para>
 	    The default value is set to <computeroutput>dicho</computeroutput>.
@@ -303,6 +310,33 @@ if __name__=="__main__":
           </listitem>
         </varlistentry>
 
+
+	<varlistentry>
+          <term>
+            <computeroutput>--rddmin-adaptive-alpha=</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Confidence level used by arddmin (<computeroutput>--rddmin=adaptive</computeroutput>). The configurations
+	      generated from a failing configuration are tested with the smallest number of samples which observes a
+	      failure with this probability, if their failure probability is the one estimated for the failing configuration
+	      (estimation with the samples in cache). The value should be in ]0,1[ (default 0.95).
+	    </para>
+          </listitem>
+        </varlistentry>
+
+	<varlistentry>
+          <term>
+            <computeroutput>--rddmin-adaptive-max-nruns=</computeroutput>
+          </term>
+          <listitem>
+            <para>
+	      Maximal number of samples of one configuration for arddmin (<computeroutput>--rddmin=adaptive</computeroutput>).
+	      The default value is 2*<computeroutput>NRUNS</computeroutput>. The search of each ddmin is followed by a
+	      refinement with <computeroutput>NRUNS</computeroutput> samples.
+	    </para>
+          </listitem>
+        </varlistentry>
 
 	<varlistentry>
           <term>
