@@ -20,6 +20,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_UPWARD
@@ -42,6 +61,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -65,6 +103,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -88,6 +145,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -111,6 +187,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -134,6 +229,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -157,6 +271,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -180,6 +313,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -203,6 +355,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -226,6 +397,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -249,9 +439,27 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
-
 #ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS
 
@@ -273,9 +481,27 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
-
 #ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_DET
 
@@ -297,9 +523,27 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
-
 #ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_COMDET
 
@@ -321,9 +565,27 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
-
 #ifdef USE_VERROU_OPTIM
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_NEARNESS_SCOMDET
 
@@ -345,6 +607,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -368,6 +649,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -391,6 +691,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -414,6 +733,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -437,6 +775,25 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #ifdef USE_VERROU_OPTIM
@@ -460,6 +817,44 @@
 
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);
 #endif //USE_VERROU_OPTIM
 #undef IFV_FCTNAME
 #define IFV_FCTNAME(FCT) interflop_verrou_##FCT
+
+  void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(add_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(sub_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(mul_float_naninf)  (float a,  float b,  float*  res, void* context);
+  void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res, void* context);
+  void IFV_FCTNAME(div_float_naninf)  (float a,  float b,  float*  res, void* context);
+
+#ifdef USE_VERROU_SQRT
+  void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res, void* context);
+  void IFV_FCTNAME(sqrt_float_naninf)  (float a,  float*  res, void* context);
+#endif
+
+  void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* b, void* context);
+
+  void IFV_FCTNAME(madd_double_naninf)(double a, double b, double c, double* res, void* context);
+  void IFV_FCTNAME(madd_float_naninf) (float a,  float b,  float c,  float*  res, void* context);

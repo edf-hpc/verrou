@@ -37,6 +37,8 @@ void vr_maybe_record_ErrorRt (Vr_ErrorKind kind);
 
 void vr_handle_NaN (void);
 void vr_handle_Inf (void);
+void vr_handle_NaNInf_F64 (ULong bits);
+void vr_handle_NaNInf_F32 (UInt bits);
 void vr_handle_CC (int);
 void vr_handle_CD_input (check_subnormal_op_t, check_subnormal_type_t, UInt);
 void vr_handle_CD_output (check_subnormal_op_t, check_subnormal_type_t);

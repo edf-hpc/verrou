@@ -450,6 +450,28 @@ void vr_clean_cache_seed(void){
 // ** Overloaded operators
 
 
+// NaN/Inf detection : the *_naninf variants of the generated operators (selected during the
+// instrumentation if --check-nan=yes or --check-inf=yes) check the result with these functions
+#ifndef VERROU_IGNORE_NANINF_CHECK
+#define VR_NANINF_SELECTED (vr.checknan || vr.checkinf)
+#else
+#define VR_NANINF_SELECTED False
+#endif
+
+static inline void vr_nanInfCheck_double (double x) {
+  union { double d; ULong bits; } u = { .d = x };
+  if (UNLIKELY ((u.bits & 0x7ff0000000000000ULL) == 0x7ff0000000000000ULL)) {
+    vr_handle_NaNInf_F64 (u.bits);
+  }
+}
+
+static inline void vr_nanInfCheck_float (float x) {
+  union { float f; UInt bits; } u = { .f = x };
+  if (UNLIKELY ((u.bits & 0x7f800000) == 0x7f800000)) {
+    vr_handle_NaNInf_F32 (u.bits);
+  }
+}
+
 #include "vr_interp_operator_impl.h"
 #include "vr_generated_from_templates.h"
 

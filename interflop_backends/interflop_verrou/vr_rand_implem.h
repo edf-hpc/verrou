@@ -143,7 +143,9 @@ void vr_rand_copy_state(const Vr_Rand * r,Vr_Rand * rsav){
 
 
 
-inline bool vr_rand_bool (Vr_Rand * r) {
+// always_inline : hot path of the random rounding modes (the inlining heuristics of gcc depend on the size of
+// interflop_verrou.cxx, which contains each operation twice : with and without the NaN/Inf check)
+inline __attribute__((always_inline)) bool vr_rand_bool (Vr_Rand * r) {
   if (r->count_ == vr_loop()){
     r->current_ = vr_rand_next (r);
     r->count_ = 0;

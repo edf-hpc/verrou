@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	sum3.vgtest       sum3.stderr.exp       sum3.stdout.exp  \
 	seed.vgtest       seed.stderr.exp       seed.stdout.exp  \
 	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp naninf-rnd.stdout.exp.aarch64 \
+	naninf-vec.vgtest naninf-vec.stderr.exp naninf-vec.stdout.exp \
 	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
 	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp \
 	accuClreq3.vgtest accuClreq3.stderr.exp accuClreq3.stdout.exp  \
@@ -56,6 +57,9 @@ check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq hardSoftClreqDouble 
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
+
+check_PROGRAMS += naninf-vec
+naninf_vec_SOURCES = naninf-vec.c
 
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx

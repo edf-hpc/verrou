@@ -232,26 +232,27 @@ double verrou_prandom_pvalue (void) {
 
 struct interflop_backend_interface_t IFV_FCTNAME(init)(void ** context){
   struct interflop_backend_interface_t config=interflop_backend_empty_interface;
+  // generic interface : the *_naninf variants call vr_nanHandler/vr_infHandler (cf. verrou_set_nan_handler)
 
-  config.interflop_add_float = & IFV_FCTNAME(add_float);
-  config.interflop_sub_float = & IFV_FCTNAME(sub_float);
-  config.interflop_mul_float = & IFV_FCTNAME(mul_float);
-  config.interflop_div_float = & IFV_FCTNAME(div_float);
+  config.interflop_add_float = & IFV_FCTNAME(add_float_naninf);
+  config.interflop_sub_float = & IFV_FCTNAME(sub_float_naninf);
+  config.interflop_mul_float = & IFV_FCTNAME(mul_float_naninf);
+  config.interflop_div_float = & IFV_FCTNAME(div_float_naninf);
 
-  config.interflop_add_double = & IFV_FCTNAME(add_double);
-  config.interflop_sub_double = & IFV_FCTNAME(sub_double);
-  config.interflop_mul_double = & IFV_FCTNAME(mul_double);
-  config.interflop_div_double = & IFV_FCTNAME(div_double);
+  config.interflop_add_double = & IFV_FCTNAME(add_double_naninf);
+  config.interflop_sub_double = & IFV_FCTNAME(sub_double_naninf);
+  config.interflop_mul_double = & IFV_FCTNAME(mul_double_naninf);
+  config.interflop_div_double = & IFV_FCTNAME(div_double_naninf);
 
 #ifdef USE_VERROU_SQRT
-  config.interflop_sqrt_float = & IFV_FCTNAME(sqrt_float);
-  config.interflop_sqrt_double = & IFV_FCTNAME(sqrt_double);
+  config.interflop_sqrt_float = & IFV_FCTNAME(sqrt_float_naninf);
+  config.interflop_sqrt_double = & IFV_FCTNAME(sqrt_double_naninf);
 #endif
 
-  config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float);
+  config.interflop_cast_double_to_float=& IFV_FCTNAME(cast_double_to_float_naninf);
 
-  config.interflop_madd_float  = & IFV_FCTNAME(madd_float);
-  config.interflop_madd_double = & IFV_FCTNAME(madd_double);
+  config.interflop_madd_float  = & IFV_FCTNAME(madd_float_naninf);
+  config.interflop_madd_double = & IFV_FCTNAME(madd_double_naninf);
 
   config.interflop_finalize = & IFV_FCTNAME(finalize);
 

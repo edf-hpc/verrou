@@ -1,0 +1,89 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Backend verrou simulating NEAREST rounding mode
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:51)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:53)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:54)
+
+NaN: 
+   at 0xFFFFFF: main (naninf-vec.c:55)
+
+NaN: 
+   at 0xFFFFFF: main (naninf-vec.c:57)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:60)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:62)
+
++/-Inf: 
+   at 0xFFFFFF: main (naninf-vec.c:63)
+
+NaN: 
+   at 0xFFFFFF: main (naninf-vec.c:64)
+
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                       12                       12          (100%)
+  `- flt                        8                        8      (100%)
+      `- vec4                       8                        8  (100%)
+  `- dbl                        4                        4      (100%)
+      `- vec2                       4                        4  (100%)
+ ---------------------------------------------------------------------
+ sub                        6                        6          (100%)
+  `- flt                        4                        4      (100%)
+      `- vec4                       4                        4  (100%)
+  `- dbl                        2                        2      (100%)
+      `- vec2                       2                        2  (100%)
+ ---------------------------------------------------------------------
+ mul                        6                        6          (100%)
+  `- flt                        4                        4      (100%)
+      `- vec4                       4                        4  (100%)
+  `- dbl                        2                        2      (100%)
+      `- vec2                       2                        2  (100%)
+ ---------------------------------------------------------------------
+ div                        8                        8          (100%)
+  `- flt                        4                        4      (100%)
+      `- vec4                       4                        4  (100%)
+  `- dbl                        4                        4      (100%)
+      `- vec2                       4                        4  (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 9 errors from 9 contexts (suppressed: 0 from 0)

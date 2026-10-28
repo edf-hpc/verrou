@@ -82,7 +82,336 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float) (double a, float* res, void* c
 
 #ifdef USE_VERROU_SQRT
 
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf) (double a, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<SqrtOp <double> > Op;
+  Op::apply(Op::PackArgs(a),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf) (float a, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<SqrtOp <float> > Op;
+  Op::apply(Op::PackArgs(a),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_naninf) (double a, double b, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<AddOp <double> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_naninf) (float a, float b, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<AddOp <float> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf) (double a, double b, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<SubOp <double> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf) (float a, float b, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<SubOp <float> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf) (double a, double b, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<MulOp <double> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf) (float a, float b, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<MulOp <float> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_naninf) (double a, double b, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<DivOp <double> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_naninf) (float a, float b, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<DivOp <float> > Op;
+  Op::apply(Op::PackArgs(a,b),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf) (double a, double b, double c, double* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<MAddOp <double> > Op;
+  Op::apply(Op::PackArgs(a,b,c),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf) (float a, float b, float c, float* res,void* context) {
+  typedef OpWithDynSelectedRoundingMode<MAddOp <float> > Op;
+  Op::apply(Op::PackArgs(a,b,c),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf) (double a, float* res, void* context){
+  typedef OpWithDynSelectedRoundingMode<CastOp<double,float> > Op;
+  Op::apply(Op::PackArgs(a),res,context);
+  
+#ifndef VERROU_IGNORE_NANINF_CHECK
+    if (isNanInf(*res)) {
+      if(isNan(*res)){
+	vr_nanHandler();
+      }
+      if(isinf(*res)){
+	vr_infHandler();
+      }
+    }
+#endif
+;
+}
+
+#ifdef USE_VERROU_SQRT
+
 IFV_INLINE void IFV_FCTNAME(sqrt_double_NEAREST) (double a, double* res,void* context) {
+  typedef RoundingNearest<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_NEAREST) (float a, float* res,void* context) {
+  typedef RoundingNearest<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_NEAREST) (double a, double b, double* res,void* context) {
+  typedef RoundingNearest<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_NEAREST) (float a, float b, float* res,void* context) {
+  typedef RoundingNearest<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_NEAREST) (double a, double b, double* res,void* context) {
+  typedef RoundingNearest<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_NEAREST) (float a, float b, float* res,void* context) {
+  typedef RoundingNearest<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_NEAREST) (double a, double b, double* res,void* context) {
+  typedef RoundingNearest<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_NEAREST) (float a, float b, float* res,void* context) {
+  typedef RoundingNearest<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_NEAREST) (double a, double b, double* res,void* context) {
+  typedef RoundingNearest<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_NEAREST) (float a, float b, float* res,void* context) {
+  typedef RoundingNearest<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_NEAREST) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingNearest<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_NEAREST) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingNearest<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEAREST) (double a, float* res, void* context){
+  typedef RoundingNearest<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_NEAREST) (double a, double* res,void* context) {
   typedef RoundingNearest<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -101,7 +430,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_NEAREST) (double a, double* res,void* co
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_NEAREST) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_NEAREST) (float a, float* res,void* context) {
   typedef RoundingNearest<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -119,7 +448,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_NEAREST) (float a, float* res,void* conte
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_NEAREST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_NEAREST) (double a, double b, double* res,void* context) {
   typedef RoundingNearest<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -137,7 +466,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEAREST) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_NEAREST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_NEAREST) (float a, float b, float* res,void* context) {
   typedef RoundingNearest<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -155,7 +484,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEAREST) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_NEAREST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_NEAREST) (double a, double b, double* res,void* context) {
   typedef RoundingNearest<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -173,7 +502,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEAREST) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_NEAREST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_NEAREST) (float a, float b, float* res,void* context) {
   typedef RoundingNearest<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -191,7 +520,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEAREST) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_NEAREST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_NEAREST) (double a, double b, double* res,void* context) {
   typedef RoundingNearest<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -209,7 +538,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEAREST) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_NEAREST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_NEAREST) (float a, float b, float* res,void* context) {
   typedef RoundingNearest<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -227,7 +556,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEAREST) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_NEAREST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_NEAREST) (double a, double b, double* res,void* context) {
   typedef RoundingNearest<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -245,7 +574,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEAREST) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_NEAREST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_NEAREST) (float a, float b, float* res,void* context) {
   typedef RoundingNearest<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -263,7 +592,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEAREST) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_NEAREST) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_NEAREST) (double a, double b, double c, double* res,void* context) {
   typedef RoundingNearest<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -281,7 +610,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEAREST) (double a, double b, double c, 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_NEAREST) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_NEAREST) (float a, float b, float c, float* res,void* context) {
   typedef RoundingNearest<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -299,7 +628,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEAREST) (float a, float b, float c, floa
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEAREST) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_NEAREST) (double a, float* res, void* context){
   typedef RoundingNearest<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -322,6 +651,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEAREST) (double a, float* res,
 IFV_INLINE void IFV_FCTNAME(sqrt_double_UPWARD) (double a, double* res,void* context) {
   typedef RoundingUpward<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_UPWARD) (float a, float* res,void* context) {
+  typedef RoundingUpward<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_UPWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingUpward<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_UPWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingUpward<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_UPWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingUpward<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_UPWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingUpward<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_UPWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingUpward<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_UPWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingUpward<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_UPWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingUpward<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_UPWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingUpward<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_UPWARD) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingUpward<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_UPWARD) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingUpward<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_UPWARD) (double a, float* res, void* context){
+  typedef RoundingUpward<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_UPWARD) (double a, double* res,void* context) {
+  typedef RoundingUpward<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -338,7 +760,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_UPWARD) (double a, double* res,void* con
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_UPWARD) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_UPWARD) (float a, float* res,void* context) {
   typedef RoundingUpward<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -356,7 +778,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_UPWARD) (float a, float* res,void* contex
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_UPWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_UPWARD) (double a, double b, double* res,void* context) {
   typedef RoundingUpward<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -374,7 +796,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_UPWARD) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_UPWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_UPWARD) (float a, float b, float* res,void* context) {
   typedef RoundingUpward<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -392,7 +814,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_UPWARD) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_UPWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_UPWARD) (double a, double b, double* res,void* context) {
   typedef RoundingUpward<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -410,7 +832,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_UPWARD) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_UPWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_UPWARD) (float a, float b, float* res,void* context) {
   typedef RoundingUpward<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -428,7 +850,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_UPWARD) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_UPWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_UPWARD) (double a, double b, double* res,void* context) {
   typedef RoundingUpward<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -446,7 +868,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_UPWARD) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_UPWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_UPWARD) (float a, float b, float* res,void* context) {
   typedef RoundingUpward<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -464,7 +886,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_UPWARD) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_UPWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_UPWARD) (double a, double b, double* res,void* context) {
   typedef RoundingUpward<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -482,7 +904,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_UPWARD) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_UPWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_UPWARD) (float a, float b, float* res,void* context) {
   typedef RoundingUpward<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -500,7 +922,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_UPWARD) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_UPWARD) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_UPWARD) (double a, double b, double c, double* res,void* context) {
   typedef RoundingUpward<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -518,7 +940,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_UPWARD) (double a, double b, double c, d
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_UPWARD) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_UPWARD) (float a, float b, float c, float* res,void* context) {
   typedef RoundingUpward<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -536,7 +958,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_UPWARD) (float a, float b, float c, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_UPWARD) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_UPWARD) (double a, float* res, void* context){
   typedef RoundingUpward<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -558,6 +980,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_UPWARD) (double a, float* res, 
 IFV_INLINE void IFV_FCTNAME(sqrt_double_DOWNWARD) (double a, double* res,void* context) {
   typedef RoundingDownward<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_DOWNWARD) (float a, float* res,void* context) {
+  typedef RoundingDownward<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_DOWNWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingDownward<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_DOWNWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingDownward<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_DOWNWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingDownward<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_DOWNWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingDownward<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_DOWNWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingDownward<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_DOWNWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingDownward<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_DOWNWARD) (double a, double b, double* res,void* context) {
+  typedef RoundingDownward<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_DOWNWARD) (float a, float b, float* res,void* context) {
+  typedef RoundingDownward<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_DOWNWARD) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingDownward<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_DOWNWARD) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingDownward<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_DOWNWARD) (double a, float* res, void* context){
+  typedef RoundingDownward<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_DOWNWARD) (double a, double* res,void* context) {
+  typedef RoundingDownward<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -574,7 +1089,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_DOWNWARD) (double a, double* res,void* c
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_DOWNWARD) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_DOWNWARD) (float a, float* res,void* context) {
   typedef RoundingDownward<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -592,7 +1107,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_DOWNWARD) (float a, float* res,void* cont
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_DOWNWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_DOWNWARD) (double a, double b, double* res,void* context) {
   typedef RoundingDownward<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -610,7 +1125,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_DOWNWARD) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_DOWNWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_DOWNWARD) (float a, float b, float* res,void* context) {
   typedef RoundingDownward<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -628,7 +1143,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_DOWNWARD) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_DOWNWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_DOWNWARD) (double a, double b, double* res,void* context) {
   typedef RoundingDownward<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -646,7 +1161,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_DOWNWARD) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_DOWNWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_DOWNWARD) (float a, float b, float* res,void* context) {
   typedef RoundingDownward<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -664,7 +1179,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_DOWNWARD) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_DOWNWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_DOWNWARD) (double a, double b, double* res,void* context) {
   typedef RoundingDownward<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -682,7 +1197,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_DOWNWARD) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_DOWNWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_DOWNWARD) (float a, float b, float* res,void* context) {
   typedef RoundingDownward<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -700,7 +1215,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_DOWNWARD) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_DOWNWARD) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_DOWNWARD) (double a, double b, double* res,void* context) {
   typedef RoundingDownward<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -718,7 +1233,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_DOWNWARD) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_DOWNWARD) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_DOWNWARD) (float a, float b, float* res,void* context) {
   typedef RoundingDownward<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -736,7 +1251,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_DOWNWARD) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_DOWNWARD) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_DOWNWARD) (double a, double b, double c, double* res,void* context) {
   typedef RoundingDownward<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -754,7 +1269,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_DOWNWARD) (double a, double b, double c,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_DOWNWARD) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_DOWNWARD) (float a, float b, float c, float* res,void* context) {
   typedef RoundingDownward<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -772,7 +1287,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_DOWNWARD) (float a, float b, float c, flo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_DOWNWARD) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_DOWNWARD) (double a, float* res, void* context){
   typedef RoundingDownward<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -794,6 +1309,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_DOWNWARD) (double a, float* res
 IFV_INLINE void IFV_FCTNAME(sqrt_double_FARTHEST) (double a, double* res,void* context) {
   typedef RoundingFarthest<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_FARTHEST) (float a, float* res,void* context) {
+  typedef RoundingFarthest<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_FARTHEST) (double a, double b, double* res,void* context) {
+  typedef RoundingFarthest<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_FARTHEST) (float a, float b, float* res,void* context) {
+  typedef RoundingFarthest<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_FARTHEST) (double a, double b, double* res,void* context) {
+  typedef RoundingFarthest<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_FARTHEST) (float a, float b, float* res,void* context) {
+  typedef RoundingFarthest<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_FARTHEST) (double a, double b, double* res,void* context) {
+  typedef RoundingFarthest<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_FARTHEST) (float a, float b, float* res,void* context) {
+  typedef RoundingFarthest<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_FARTHEST) (double a, double b, double* res,void* context) {
+  typedef RoundingFarthest<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_FARTHEST) (float a, float b, float* res,void* context) {
+  typedef RoundingFarthest<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_FARTHEST) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingFarthest<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_FARTHEST) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingFarthest<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FARTHEST) (double a, float* res, void* context){
+  typedef RoundingFarthest<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_FARTHEST) (double a, double* res,void* context) {
+  typedef RoundingFarthest<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -810,7 +1418,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_FARTHEST) (double a, double* res,void* c
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_FARTHEST) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_FARTHEST) (float a, float* res,void* context) {
   typedef RoundingFarthest<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -828,7 +1436,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_FARTHEST) (float a, float* res,void* cont
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_FARTHEST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_FARTHEST) (double a, double b, double* res,void* context) {
   typedef RoundingFarthest<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -846,7 +1454,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_FARTHEST) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_FARTHEST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_FARTHEST) (float a, float b, float* res,void* context) {
   typedef RoundingFarthest<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -864,7 +1472,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_FARTHEST) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_FARTHEST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_FARTHEST) (double a, double b, double* res,void* context) {
   typedef RoundingFarthest<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -882,7 +1490,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_FARTHEST) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_FARTHEST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_FARTHEST) (float a, float b, float* res,void* context) {
   typedef RoundingFarthest<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -900,7 +1508,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_FARTHEST) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_FARTHEST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_FARTHEST) (double a, double b, double* res,void* context) {
   typedef RoundingFarthest<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -918,7 +1526,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_FARTHEST) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_FARTHEST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_FARTHEST) (float a, float b, float* res,void* context) {
   typedef RoundingFarthest<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -936,7 +1544,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_FARTHEST) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_FARTHEST) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_FARTHEST) (double a, double b, double* res,void* context) {
   typedef RoundingFarthest<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -954,7 +1562,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_FARTHEST) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_FARTHEST) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_FARTHEST) (float a, float b, float* res,void* context) {
   typedef RoundingFarthest<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -972,7 +1580,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_FARTHEST) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_FARTHEST) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_FARTHEST) (double a, double b, double c, double* res,void* context) {
   typedef RoundingFarthest<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -990,7 +1598,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_FARTHEST) (double a, double b, double c,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_FARTHEST) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_FARTHEST) (float a, float b, float c, float* res,void* context) {
   typedef RoundingFarthest<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1008,7 +1616,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_FARTHEST) (float a, float b, float c, flo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FARTHEST) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_FARTHEST) (double a, float* res, void* context){
   typedef RoundingFarthest<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -1030,6 +1638,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FARTHEST) (double a, float* res
 IFV_INLINE void IFV_FCTNAME(sqrt_double_ZERO) (double a, double* res,void* context) {
   typedef RoundingZero<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_ZERO) (float a, float* res,void* context) {
+  typedef RoundingZero<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingZero<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingZero<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingZero<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingZero<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingZero<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingZero<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingZero<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingZero<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_ZERO) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingZero<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_ZERO) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingZero<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_ZERO) (double a, float* res, void* context){
+  typedef RoundingZero<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_ZERO) (double a, double* res,void* context) {
+  typedef RoundingZero<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -1046,7 +1747,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_ZERO) (double a, double* res,void* conte
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_ZERO) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_ZERO) (float a, float* res,void* context) {
   typedef RoundingZero<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -1064,7 +1765,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_ZERO) (float a, float* res,void* context)
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingZero<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1082,7 +1783,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_ZERO) (double a, double b, double* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingZero<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1100,7 +1801,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_ZERO) (float a, float b, float* res,void* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingZero<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1118,7 +1819,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_ZERO) (double a, double b, double* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingZero<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1136,7 +1837,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_ZERO) (float a, float b, float* res,void* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingZero<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1154,7 +1855,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_ZERO) (double a, double b, double* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingZero<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1172,7 +1873,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_ZERO) (float a, float b, float* res,void* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingZero<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1190,7 +1891,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_ZERO) (double a, double b, double* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingZero<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1208,7 +1909,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_ZERO) (float a, float b, float* res,void* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_ZERO) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_ZERO) (double a, double b, double c, double* res,void* context) {
   typedef RoundingZero<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1226,7 +1927,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_ZERO) (double a, double b, double c, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_ZERO) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_ZERO) (float a, float b, float c, float* res,void* context) {
   typedef RoundingZero<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1244,7 +1945,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_ZERO) (float a, float b, float c, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_ZERO) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_ZERO) (double a, float* res, void* context){
   typedef RoundingZero<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -1266,6 +1967,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_ZERO) (double a, float* res, vo
 IFV_INLINE void IFV_FCTNAME(sqrt_double_AWAY_ZERO) (double a, double* res,void* context) {
   typedef RoundingAwayZero<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_AWAY_ZERO) (float a, float* res,void* context) {
+  typedef RoundingAwayZero<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+  typedef RoundingAwayZero<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+  typedef RoundingAwayZero<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_AWAY_ZERO) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingAwayZero<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_AWAY_ZERO) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingAwayZero<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AWAY_ZERO) (double a, float* res, void* context){
+  typedef RoundingAwayZero<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_AWAY_ZERO) (double a, double* res,void* context) {
+  typedef RoundingAwayZero<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -1282,7 +2076,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_AWAY_ZERO) (double a, double* res,void* 
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_AWAY_ZERO) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_AWAY_ZERO) (float a, float* res,void* context) {
   typedef RoundingAwayZero<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -1300,7 +2094,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_AWAY_ZERO) (float a, float* res,void* con
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_AWAY_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingAwayZero<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1318,7 +2112,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_AWAY_ZERO) (double a, double b, double* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_AWAY_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingAwayZero<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1336,7 +2130,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_AWAY_ZERO) (float a, float b, float* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_AWAY_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingAwayZero<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1354,7 +2148,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_AWAY_ZERO) (double a, double b, double* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_AWAY_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingAwayZero<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1372,7 +2166,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_AWAY_ZERO) (float a, float b, float* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_AWAY_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingAwayZero<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1390,7 +2184,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_AWAY_ZERO) (double a, double b, double* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_AWAY_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingAwayZero<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1408,7 +2202,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_AWAY_ZERO) (float a, float b, float* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_AWAY_ZERO) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_AWAY_ZERO) (double a, double b, double* res,void* context) {
   typedef RoundingAwayZero<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1426,7 +2220,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_AWAY_ZERO) (double a, double b, double* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_AWAY_ZERO) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_AWAY_ZERO) (float a, float b, float* res,void* context) {
   typedef RoundingAwayZero<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1444,7 +2238,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_AWAY_ZERO) (float a, float b, float* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_AWAY_ZERO) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_AWAY_ZERO) (double a, double b, double c, double* res,void* context) {
   typedef RoundingAwayZero<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1462,7 +2256,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_AWAY_ZERO) (double a, double b, double c
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_AWAY_ZERO) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_AWAY_ZERO) (float a, float b, float c, float* res,void* context) {
   typedef RoundingAwayZero<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1480,7 +2274,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_AWAY_ZERO) (float a, float b, float c, fl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AWAY_ZERO) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_AWAY_ZERO) (double a, float* res, void* context){
   typedef RoundingAwayZero<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -1502,6 +2296,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_AWAY_ZERO) (double a, float* re
 IFV_INLINE void IFV_FCTNAME(sqrt_double_FLOAT) (double a, double* res,void* context) {
   typedef RoundingFloat<SqrtOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_FLOAT) (float a, float* res,void* context) {
+  typedef RoundingFloat<SqrtOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_FLOAT) (double a, double b, double* res,void* context) {
+  typedef RoundingFloat<AddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_FLOAT) (float a, float b, float* res,void* context) {
+  typedef RoundingFloat<AddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_FLOAT) (double a, double b, double* res,void* context) {
+  typedef RoundingFloat<SubOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_FLOAT) (float a, float b, float* res,void* context) {
+  typedef RoundingFloat<SubOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_FLOAT) (double a, double b, double* res,void* context) {
+  typedef RoundingFloat<MulOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_FLOAT) (float a, float b, float* res,void* context) {
+  typedef RoundingFloat<MulOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_FLOAT) (double a, double b, double* res,void* context) {
+  typedef RoundingFloat<DivOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_FLOAT) (float a, float b, float* res,void* context) {
+  typedef RoundingFloat<DivOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_FLOAT) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingFloat<MAddOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_FLOAT) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingFloat<MAddOp <float> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FLOAT) (double a, float* res, void* context){
+  typedef RoundingFloat<CastOp<double,float> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_FLOAT) (double a, double* res,void* context) {
+  typedef RoundingFloat<SqrtOp <double> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -1518,7 +2405,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_FLOAT) (double a, double* res,void* cont
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_FLOAT) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_FLOAT) (float a, float* res,void* context) {
   typedef RoundingFloat<SqrtOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -1536,7 +2423,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_FLOAT) (float a, float* res,void* context
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_FLOAT) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_FLOAT) (double a, double b, double* res,void* context) {
   typedef RoundingFloat<AddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1554,7 +2441,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_FLOAT) (double a, double b, double* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_FLOAT) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_FLOAT) (float a, float b, float* res,void* context) {
   typedef RoundingFloat<AddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1572,7 +2459,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_FLOAT) (float a, float b, float* res,void*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_FLOAT) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_FLOAT) (double a, double b, double* res,void* context) {
   typedef RoundingFloat<SubOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1590,7 +2477,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_FLOAT) (double a, double b, double* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_FLOAT) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_FLOAT) (float a, float b, float* res,void* context) {
   typedef RoundingFloat<SubOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1608,7 +2495,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_FLOAT) (float a, float b, float* res,void*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_FLOAT) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_FLOAT) (double a, double b, double* res,void* context) {
   typedef RoundingFloat<MulOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1626,7 +2513,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_FLOAT) (double a, double b, double* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_FLOAT) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_FLOAT) (float a, float b, float* res,void* context) {
   typedef RoundingFloat<MulOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1644,7 +2531,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_FLOAT) (float a, float b, float* res,void*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_FLOAT) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_FLOAT) (double a, double b, double* res,void* context) {
   typedef RoundingFloat<DivOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1662,7 +2549,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_FLOAT) (double a, double b, double* res,v
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_FLOAT) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_FLOAT) (float a, float b, float* res,void* context) {
   typedef RoundingFloat<DivOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1680,7 +2567,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_FLOAT) (float a, float b, float* res,void*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_FLOAT) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_FLOAT) (double a, double b, double c, double* res,void* context) {
   typedef RoundingFloat<MAddOp <double> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1698,7 +2585,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_FLOAT) (double a, double b, double c, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_FLOAT) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_FLOAT) (float a, float b, float c, float* res,void* context) {
   typedef RoundingFloat<MAddOp <float> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1716,7 +2603,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_FLOAT) (float a, float b, float c, float*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FLOAT) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_FLOAT) (double a, float* res, void* context){
   typedef RoundingFloat<CastOp<double,float> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -1738,6 +2625,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_FLOAT) (double a, float* res, v
 IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM) (double a, double* res,void* context) {
   typedef RoundingRandom<SqrtOp <double> ,vr_rand_prng<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM) (float a, float* res,void* context) {
+  typedef RoundingRandom<SqrtOp <float> ,vr_rand_prng<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_RANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_RANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_RANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_RANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingRandom<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingRandom<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM) (double a, float* res, void* context){
+  typedef RoundingRandom<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_RANDOM) (double a, double* res,void* context) {
+  typedef RoundingRandom<SqrtOp <double> ,vr_rand_prng<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -1754,7 +2734,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM) (double a, double* res,void* con
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_RANDOM) (float a, float* res,void* context) {
   typedef RoundingRandom<SqrtOp <float> ,vr_rand_prng<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -1772,7 +2752,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM) (float a, float* res,void* contex
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_RANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_RANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1790,7 +2770,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_RANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_RANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1808,7 +2788,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_RANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1826,7 +2806,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_RANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1844,7 +2824,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_RANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1862,7 +2842,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_RANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1880,7 +2860,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_RANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_RANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1898,7 +2878,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM) (double a, double b, double* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_RANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_RANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -1916,7 +2896,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM) (float a, float b, float* res,void
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_RANDOM) (double a, double b, double c, double* res,void* context) {
   typedef RoundingRandom<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1934,7 +2914,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM) (double a, double b, double c, d
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_RANDOM) (float a, float b, float c, float* res,void* context) {
   typedef RoundingRandom<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -1952,7 +2932,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM) (float a, float b, float c, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_RANDOM) (double a, float* res, void* context){
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -1974,6 +2954,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM) (double a, float* res, 
 IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_DET) (double a, double* res,void* context) {
   typedef RoundingRandom<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_DET) (float a, float* res,void* context) {
+  typedef RoundingRandom<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_DET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingRandom<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_DET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingRandom<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_DET) (double a, float* res, void* context){
+  typedef RoundingRandom<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_RANDOM_DET) (double a, double* res,void* context) {
+  typedef RoundingRandom<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -1990,7 +3063,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_DET) (double a, double* res,void*
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_DET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_RANDOM_DET) (float a, float* res,void* context) {
   typedef RoundingRandom<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -2008,7 +3081,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_DET) (float a, float* res,void* co
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_RANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2026,7 +3099,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_DET) (double a, double b, double* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_RANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2044,7 +3117,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_DET) (float a, float b, float* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_RANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2062,7 +3135,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_DET) (double a, double b, double* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_RANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2080,7 +3153,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_DET) (float a, float b, float* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_RANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2098,7 +3171,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_DET) (double a, double b, double* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_RANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2116,7 +3189,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_DET) (float a, float b, float* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_RANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2134,7 +3207,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_DET) (double a, double b, double* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_RANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2152,7 +3225,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_DET) (float a, float b, float* res,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_DET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_RANDOM_DET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingRandom<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2170,7 +3243,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_DET) (double a, double b, double 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_DET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_RANDOM_DET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingRandom<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2188,7 +3261,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_DET) (float a, float b, float c, f
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_DET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_RANDOM_DET) (double a, float* res, void* context){
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -2210,6 +3283,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_DET) (double a, float* r
 IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_COMDET) (double a, double* res,void* context) {
   typedef RoundingRandom<SqrtOp <double> ,vr_rand_comdet<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_COMDET) (float a, float* res,void* context) {
+  typedef RoundingRandom<SqrtOp <float> ,vr_rand_comdet<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingRandom<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingRandom<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingRandom<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingRandom<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_COMDET) (double a, float* res, void* context){
+  typedef RoundingRandom<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_RANDOM_COMDET) (double a, double* res,void* context) {
+  typedef RoundingRandom<SqrtOp <double> ,vr_rand_comdet<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -2226,7 +3392,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_COMDET) (double a, double* res,vo
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_COMDET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_RANDOM_COMDET) (float a, float* res,void* context) {
   typedef RoundingRandom<SqrtOp <float> ,vr_rand_comdet<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -2244,7 +3410,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_COMDET) (float a, float* res,void*
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_RANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2262,7 +3428,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_COMDET) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_RANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2280,7 +3446,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_COMDET) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_RANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2298,7 +3464,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_COMDET) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_RANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2316,7 +3482,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_COMDET) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_RANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2334,7 +3500,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_COMDET) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_RANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2352,7 +3518,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_COMDET) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_RANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingRandom<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2370,7 +3536,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_COMDET) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_RANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingRandom<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2388,7 +3554,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_COMDET) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_RANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingRandom<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2406,7 +3572,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_COMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_RANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingRandom<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2424,7 +3590,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_COMDET) (float a, float b, float c
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_COMDET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_RANDOM_COMDET) (double a, float* res, void* context){
   typedef RoundingRandom<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -2446,6 +3612,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_COMDET) (double a, float
 IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_SCOMDET) (double a, double* res,void* context) {
   typedef RoundingPRandom<SqrtOp <double> ,vr_rand_scomdet<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_SCOMDET) (float a, float* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <float> ,vr_rand_scomdet<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_SCOMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingPRandom<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_SCOMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingPRandom<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_SCOMDET) (double a, float* res, void* context){
+  typedef RoundingPRandom<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_RANDOM_SCOMDET) (double a, double* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <double> ,vr_rand_scomdet<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -2462,7 +3721,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_RANDOM_SCOMDET) (double a, double* res,v
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_SCOMDET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_RANDOM_SCOMDET) (float a, float* res,void* context) {
   typedef RoundingPRandom<SqrtOp <float> ,vr_rand_scomdet<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -2480,7 +3739,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_RANDOM_SCOMDET) (float a, float* res,void
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2498,7 +3757,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_RANDOM_SCOMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2516,7 +3775,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_RANDOM_SCOMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2534,7 +3793,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_RANDOM_SCOMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2552,7 +3811,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_RANDOM_SCOMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2570,7 +3829,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_RANDOM_SCOMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2588,7 +3847,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_RANDOM_SCOMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_RANDOM_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2606,7 +3865,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_RANDOM_SCOMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_RANDOM_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2624,7 +3883,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_RANDOM_SCOMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_SCOMDET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_RANDOM_SCOMDET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2642,7 +3901,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_RANDOM_SCOMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_SCOMDET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_RANDOM_SCOMDET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2660,7 +3919,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_RANDOM_SCOMDET) (float a, float b, float 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_SCOMDET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_RANDOM_SCOMDET) (double a, float* res, void* context){
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -2682,6 +3941,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_RANDOM_SCOMDET) (double a, floa
 IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS) (double a, double* res,void* context) {
   typedef RoundingNearness<SqrtOp <double> ,vr_rand_prng<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS) (float a, float* res,void* context) {
+  typedef RoundingNearness<SqrtOp <float> ,vr_rand_prng<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingNearness<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingNearness<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS) (double a, float* res, void* context){
+  typedef RoundingNearness<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_NEARNESS) (double a, double* res,void* context) {
+  typedef RoundingNearness<SqrtOp <double> ,vr_rand_prng<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -2698,7 +4050,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS) (double a, double* res,void* c
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_NEARNESS) (float a, float* res,void* context) {
   typedef RoundingNearness<SqrtOp <float> ,vr_rand_prng<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -2716,7 +4068,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS) (float a, float* res,void* cont
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_NEARNESS) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<AddOp <double> ,vr_rand_prng<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2734,7 +4086,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_NEARNESS) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<AddOp <float> ,vr_rand_prng<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2752,7 +4104,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_NEARNESS) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<SubOp <double> ,vr_rand_prng<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2770,7 +4122,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_NEARNESS) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<SubOp <float> ,vr_rand_prng<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2788,7 +4140,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_NEARNESS) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<MulOp <double> ,vr_rand_prng<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2806,7 +4158,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_NEARNESS) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<MulOp <float> ,vr_rand_prng<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2824,7 +4176,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_NEARNESS) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<DivOp <double> ,vr_rand_prng<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2842,7 +4194,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS) (double a, double b, double* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_NEARNESS) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<DivOp <float> ,vr_rand_prng<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2860,7 +4212,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS) (float a, float b, float* res,vo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_NEARNESS) (double a, double b, double c, double* res,void* context) {
   typedef RoundingNearness<MAddOp <double> ,vr_rand_prng<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2878,7 +4230,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS) (double a, double b, double c,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_NEARNESS) (float a, float b, float c, float* res,void* context) {
   typedef RoundingNearness<MAddOp <float> ,vr_rand_prng<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -2896,7 +4248,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS) (float a, float b, float c, flo
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_NEARNESS) (double a, float* res, void* context){
   typedef RoundingNearness<CastOp<double,float> ,vr_rand_prng<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -2918,6 +4270,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS) (double a, float* res
 IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_DET) (double a, double* res,void* context) {
   typedef RoundingNearness<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_DET) (float a, float* res,void* context) {
+  typedef RoundingNearness<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_DET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingNearness<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_DET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingNearness<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_DET) (double a, float* res, void* context){
+  typedef RoundingNearness<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_NEARNESS_DET) (double a, double* res,void* context) {
+  typedef RoundingNearness<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -2934,7 +4379,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_DET) (double a, double* res,voi
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_DET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_NEARNESS_DET) (float a, float* res,void* context) {
   typedef RoundingNearness<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -2952,7 +4397,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_DET) (float a, float* res,void* 
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_NEARNESS_DET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2970,7 +4415,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_DET) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_NEARNESS_DET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -2988,7 +4433,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_DET) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_NEARNESS_DET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3006,7 +4451,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_DET) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_NEARNESS_DET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3024,7 +4469,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_DET) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_NEARNESS_DET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3042,7 +4487,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_DET) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_NEARNESS_DET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3060,7 +4505,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_DET) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_NEARNESS_DET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3078,7 +4523,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_DET) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_NEARNESS_DET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3096,7 +4541,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_DET) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_DET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_NEARNESS_DET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingNearness<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3114,7 +4559,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_DET) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_DET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_NEARNESS_DET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingNearness<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3132,7 +4577,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_DET) (float a, float b, float c,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_DET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_NEARNESS_DET) (double a, float* res, void* context){
   typedef RoundingNearness<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -3154,6 +4599,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_DET) (double a, float*
 IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_COMDET) (double a, double* res,void* context) {
   typedef RoundingNearness<SqrtOp <double> ,vr_rand_comdet<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_COMDET) (float a, float* res,void* context) {
+  typedef RoundingNearness<SqrtOp <float> ,vr_rand_comdet<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingNearness<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingNearness<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_COMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingNearness<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_COMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingNearness<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_COMDET) (double a, float* res, void* context){
+  typedef RoundingNearness<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_NEARNESS_COMDET) (double a, double* res,void* context) {
+  typedef RoundingNearness<SqrtOp <double> ,vr_rand_comdet<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -3170,7 +4708,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_COMDET) (double a, double* res,
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_COMDET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_NEARNESS_COMDET) (float a, float* res,void* context) {
   typedef RoundingNearness<SqrtOp <float> ,vr_rand_comdet<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -3188,7 +4726,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_COMDET) (float a, float* res,voi
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<AddOp <double> ,vr_rand_comdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3206,7 +4744,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_COMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<AddOp <float> ,vr_rand_comdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3224,7 +4762,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_COMDET) (float a, float b, float*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<SubOp <double> ,vr_rand_comdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3242,7 +4780,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_COMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<SubOp <float> ,vr_rand_comdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3260,7 +4798,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_COMDET) (float a, float b, float*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<MulOp <double> ,vr_rand_comdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3278,7 +4816,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_COMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<MulOp <float> ,vr_rand_comdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3296,7 +4834,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_COMDET) (float a, float b, float*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_NEARNESS_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingNearness<DivOp <double> ,vr_rand_comdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3314,7 +4852,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_COMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_NEARNESS_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingNearness<DivOp <float> ,vr_rand_comdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3332,7 +4870,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_COMDET) (float a, float b, float*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_COMDET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_NEARNESS_COMDET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingNearness<MAddOp <double> ,vr_rand_comdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3350,7 +4888,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_COMDET) (double a, double b, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_COMDET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_NEARNESS_COMDET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingNearness<MAddOp <float> ,vr_rand_comdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3368,7 +4906,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_COMDET) (float a, float b, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_COMDET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_NEARNESS_COMDET) (double a, float* res, void* context){
   typedef RoundingNearness<CastOp<double,float> ,vr_rand_comdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -3390,6 +4928,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_COMDET) (double a, flo
 IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_SCOMDET) (double a, double* res,void* context) {
   typedef RoundingSNearness<SqrtOp <double> ,vr_rand_scomdet<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_SCOMDET) (float a, float* res,void* context) {
+  typedef RoundingSNearness<SqrtOp <float> ,vr_rand_scomdet<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSNearness<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSNearness<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSNearness<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSNearness<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSNearness<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSNearness<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingSNearness<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingSNearness<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_SCOMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingSNearness<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_SCOMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingSNearness<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_SCOMDET) (double a, float* res, void* context){
+  typedef RoundingSNearness<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_NEARNESS_SCOMDET) (double a, double* res,void* context) {
+  typedef RoundingSNearness<SqrtOp <double> ,vr_rand_scomdet<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -3406,7 +5037,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_NEARNESS_SCOMDET) (double a, double* res
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_SCOMDET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_NEARNESS_SCOMDET) (float a, float* res,void* context) {
   typedef RoundingSNearness<SqrtOp <float> ,vr_rand_scomdet<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -3424,7 +5055,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_NEARNESS_SCOMDET) (float a, float* res,vo
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingSNearness<AddOp <double> ,vr_rand_scomdet<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3442,7 +5073,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_NEARNESS_SCOMDET) (double a, double b, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingSNearness<AddOp <float> ,vr_rand_scomdet<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3460,7 +5091,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_NEARNESS_SCOMDET) (float a, float b, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingSNearness<SubOp <double> ,vr_rand_scomdet<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3478,7 +5109,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_NEARNESS_SCOMDET) (double a, double b, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingSNearness<SubOp <float> ,vr_rand_scomdet<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3496,7 +5127,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_NEARNESS_SCOMDET) (float a, float b, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingSNearness<MulOp <double> ,vr_rand_scomdet<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3514,7 +5145,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_NEARNESS_SCOMDET) (double a, double b, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingSNearness<MulOp <float> ,vr_rand_scomdet<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3532,7 +5163,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_NEARNESS_SCOMDET) (float a, float b, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_NEARNESS_SCOMDET) (double a, double b, double* res,void* context) {
   typedef RoundingSNearness<DivOp <double> ,vr_rand_scomdet<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3550,7 +5181,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_NEARNESS_SCOMDET) (double a, double b, do
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_NEARNESS_SCOMDET) (float a, float b, float* res,void* context) {
   typedef RoundingSNearness<DivOp <float> ,vr_rand_scomdet<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3568,7 +5199,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_NEARNESS_SCOMDET) (float a, float b, float
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_SCOMDET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_NEARNESS_SCOMDET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingSNearness<MAddOp <double> ,vr_rand_scomdet<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3586,7 +5217,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_NEARNESS_SCOMDET) (double a, double b, d
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_SCOMDET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_NEARNESS_SCOMDET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingSNearness<MAddOp <float> ,vr_rand_scomdet<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3604,7 +5235,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_NEARNESS_SCOMDET) (float a, float b, floa
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_SCOMDET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_NEARNESS_SCOMDET) (double a, float* res, void* context){
   typedef RoundingSNearness<CastOp<double,float> ,vr_rand_scomdet<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -3626,6 +5257,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_NEARNESS_SCOMDET) (double a, fl
 IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM) (double a, double* res,void* context) {
   typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM) (float a, float* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM) (double a, float* res, void* context){
+  typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_PRANDOM) (double a, double* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_prng> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -3642,7 +5366,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM) (double a, double* res,void* co
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_PRANDOM) (float a, float* res,void* context) {
   typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -3660,7 +5384,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM) (float a, float* res,void* conte
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_PRANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3678,7 +5402,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_PRANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3696,7 +5420,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_PRANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3714,7 +5438,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_PRANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3732,7 +5456,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_PRANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3750,7 +5474,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_PRANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3768,7 +5492,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_PRANDOM) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3786,7 +5510,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM) (double a, double b, double* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_PRANDOM) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3804,7 +5528,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM) (float a, float b, float* res,voi
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_PRANDOM) (double a, double b, double c, double* res,void* context) {
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3822,7 +5546,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM) (double a, double b, double c, 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_PRANDOM) (float a, float b, float c, float* res,void* context) {
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -3840,7 +5564,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM) (float a, float b, float c, floa
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_PRANDOM) (double a, float* res, void* context){
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_prng> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -3862,6 +5586,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM) (double a, float* res,
 IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM_DET) (double a, double* res,void* context) {
   typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_DET) (float a, float* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_DET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_DET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_DET) (double a, float* res, void* context){
+  typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_PRANDOM_DET) (double a, double* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_det> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -3878,7 +5695,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM_DET) (double a, double* res,void
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_DET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_PRANDOM_DET) (float a, float* res,void* context) {
   typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -3896,7 +5713,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_DET) (float a, float* res,void* c
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_PRANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3914,7 +5731,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_DET) (double a, double b, double*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_PRANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3932,7 +5749,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_DET) (float a, float b, float* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_PRANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3950,7 +5767,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_DET) (double a, double b, double*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_PRANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3968,7 +5785,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_DET) (float a, float b, float* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_PRANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -3986,7 +5803,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_DET) (double a, double b, double*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_PRANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4004,7 +5821,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_DET) (float a, float b, float* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_DET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_PRANDOM_DET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4022,7 +5839,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_DET) (double a, double b, double*
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_DET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_PRANDOM_DET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4040,7 +5857,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_DET) (float a, float b, float* res
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_DET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_PRANDOM_DET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4058,7 +5875,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_DET) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_DET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_PRANDOM_DET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4076,7 +5893,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_DET) (float a, float b, float c, 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_DET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_PRANDOM_DET) (double a, float* res, void* context){
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_det> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -4098,6 +5915,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_DET) (double a, float* 
 IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM_COMDET) (double a, double* res,void* context) {
   typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_COMDET) (float a, float* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+  typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+  typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_COMDET) (double a, float* res, void* context){
+  typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_PRANDOM_COMDET) (double a, double* res,void* context) {
+  typedef RoundingPRandom<SqrtOp <double> ,vr_rand_p<SqrtOp <double>,vr_rand_comdet> > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -4114,7 +6024,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_PRANDOM_COMDET) (double a, double* res,v
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_COMDET) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_PRANDOM_COMDET) (float a, float* res,void* context) {
   typedef RoundingPRandom<SqrtOp <float> ,vr_rand_p<SqrtOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -4132,7 +6042,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_PRANDOM_COMDET) (float a, float* res,void
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<AddOp <double> ,vr_rand_p<AddOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4150,7 +6060,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_PRANDOM_COMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<AddOp <float> ,vr_rand_p<AddOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4168,7 +6078,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_PRANDOM_COMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<SubOp <double> ,vr_rand_p<SubOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4186,7 +6096,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_PRANDOM_COMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<SubOp <float> ,vr_rand_p<SubOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4204,7 +6114,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_PRANDOM_COMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<MulOp <double> ,vr_rand_p<MulOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4222,7 +6132,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_PRANDOM_COMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<MulOp <float> ,vr_rand_p<MulOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4240,7 +6150,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_PRANDOM_COMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_PRANDOM_COMDET) (double a, double b, double* res,void* context) {
   typedef RoundingPRandom<DivOp <double> ,vr_rand_p<DivOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4258,7 +6168,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_PRANDOM_COMDET) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_PRANDOM_COMDET) (float a, float b, float* res,void* context) {
   typedef RoundingPRandom<DivOp <float> ,vr_rand_p<DivOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4276,7 +6186,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_PRANDOM_COMDET) (float a, float b, float* 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_PRANDOM_COMDET) (double a, double b, double c, double* res,void* context) {
   typedef RoundingPRandom<MAddOp <double> ,vr_rand_p<MAddOp <double>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4294,7 +6204,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_PRANDOM_COMDET) (double a, double b, dou
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_PRANDOM_COMDET) (float a, float b, float c, float* res,void* context) {
   typedef RoundingPRandom<MAddOp <float> ,vr_rand_p<MAddOp <float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4312,7 +6222,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_PRANDOM_COMDET) (float a, float b, float 
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_COMDET) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_PRANDOM_COMDET) (double a, float* res, void* context){
   typedef RoundingPRandom<CastOp<double,float> ,vr_rand_p<CastOp <double,float>,vr_rand_comdet> > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -4334,6 +6244,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_PRANDOM_COMDET) (double a, floa
 IFV_INLINE void IFV_FCTNAME(sqrt_double_SR_MONOTONIC) (double a, double* res,void* context) {
   typedef RoundingSRMonotonic<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_MONOTONIC) (float a, float* res,void* context) {
+  typedef RoundingSRMonotonic<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRMonotonic<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRMonotonic<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_SR_MONOTONIC) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingSRMonotonic<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_SR_MONOTONIC) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingSRMonotonic<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_MONOTONIC) (double a, float* res, void* context){
+  typedef RoundingSRMonotonic<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_SR_MONOTONIC) (double a, double* res,void* context) {
+  typedef RoundingSRMonotonic<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -4350,7 +6353,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_SR_MONOTONIC) (double a, double* res,voi
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_MONOTONIC) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_SR_MONOTONIC) (float a, float* res,void* context) {
   typedef RoundingSRMonotonic<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -4368,7 +6371,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_MONOTONIC) (float a, float* res,void* 
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_SR_MONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRMonotonic<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4386,7 +6389,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_SR_MONOTONIC) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_SR_MONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRMonotonic<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4404,7 +6407,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_SR_MONOTONIC) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_SR_MONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRMonotonic<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4422,7 +6425,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_SR_MONOTONIC) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_SR_MONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRMonotonic<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4440,7 +6443,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_SR_MONOTONIC) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_SR_MONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRMonotonic<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4458,7 +6461,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_SR_MONOTONIC) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_SR_MONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRMonotonic<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4476,7 +6479,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_SR_MONOTONIC) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_SR_MONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_SR_MONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRMonotonic<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4494,7 +6497,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_SR_MONOTONIC) (double a, double b, double
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_SR_MONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_SR_MONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRMonotonic<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4512,7 +6515,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_SR_MONOTONIC) (float a, float b, float* re
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_SR_MONOTONIC) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_SR_MONOTONIC) (double a, double b, double c, double* res,void* context) {
   typedef RoundingSRMonotonic<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4530,7 +6533,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_SR_MONOTONIC) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_SR_MONOTONIC) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_SR_MONOTONIC) (float a, float b, float c, float* res,void* context) {
   typedef RoundingSRMonotonic<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4548,7 +6551,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_SR_MONOTONIC) (float a, float b, float c,
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_MONOTONIC) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_SR_MONOTONIC) (double a, float* res, void* context){
   typedef RoundingSRMonotonic<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
@@ -4570,6 +6573,99 @@ IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_MONOTONIC) (double a, float*
 IFV_INLINE void IFV_FCTNAME(sqrt_double_SR_SMONOTONIC) (double a, double* res,void* context) {
   typedef RoundingSRSMonotonic<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_SMONOTONIC) (float a, float* res,void* context) {
+  typedef RoundingSRSMonotonic<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+  ;
+}
+#endif
+
+IFV_INLINE void IFV_FCTNAME(add_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRSMonotonic<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(add_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRSMonotonic<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRSMonotonic<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(sub_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRSMonotonic<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRSMonotonic<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(mul_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRSMonotonic<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+  typedef RoundingSRSMonotonic<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(div_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+  typedef RoundingSRSMonotonic<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_double_SR_SMONOTONIC) (double a, double b, double c, double* res,void* context) {
+  typedef RoundingSRSMonotonic<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(madd_float_SR_SMONOTONIC) (float a, float b, float c, float* res,void* context) {
+  typedef RoundingSRSMonotonic<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
+  *res=Op::apply(Op::PackArgs(a,b,c));
+  ;
+}
+
+
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_SMONOTONIC) (double a, float* res, void* context){
+  typedef RoundingSRSMonotonic<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
+ ;
+}
+
+#ifdef USE_VERROU_SQRT
+
+IFV_INLINE void IFV_FCTNAME(sqrt_double_naninf_SR_SMONOTONIC) (double a, double* res,void* context) {
+  typedef RoundingSRSMonotonic<SqrtOp <double> ,vr_rand_det<SqrtOp <double> > > Op;
+  *res=Op::apply(Op::PackArgs(a));
   
 #ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
@@ -4586,7 +6682,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_double_SR_SMONOTONIC) (double a, double* res,vo
 #endif
 #ifdef USE_VERROU_SQRT
 
-IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_SMONOTONIC) (float a, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sqrt_float_naninf_SR_SMONOTONIC) (float a, float* res,void* context) {
   typedef RoundingSRSMonotonic<SqrtOp <float> ,vr_rand_det<SqrtOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
   
@@ -4604,7 +6700,7 @@ IFV_INLINE void IFV_FCTNAME(sqrt_float_SR_SMONOTONIC) (float a, float* res,void*
 }
 #endif
 
-IFV_INLINE void IFV_FCTNAME(add_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_double_naninf_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRSMonotonic<AddOp <double> ,vr_rand_det<AddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4622,7 +6718,7 @@ IFV_INLINE void IFV_FCTNAME(add_double_SR_SMONOTONIC) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(add_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(add_float_naninf_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRSMonotonic<AddOp <float> ,vr_rand_det<AddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4640,7 +6736,7 @@ IFV_INLINE void IFV_FCTNAME(add_float_SR_SMONOTONIC) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_double_naninf_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRSMonotonic<SubOp <double> ,vr_rand_det<SubOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4658,7 +6754,7 @@ IFV_INLINE void IFV_FCTNAME(sub_double_SR_SMONOTONIC) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(sub_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(sub_float_naninf_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRSMonotonic<SubOp <float> ,vr_rand_det<SubOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4676,7 +6772,7 @@ IFV_INLINE void IFV_FCTNAME(sub_float_SR_SMONOTONIC) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_double_naninf_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRSMonotonic<MulOp <double> ,vr_rand_det<MulOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4694,7 +6790,7 @@ IFV_INLINE void IFV_FCTNAME(mul_double_SR_SMONOTONIC) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(mul_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(mul_float_naninf_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRSMonotonic<MulOp <float> ,vr_rand_det<MulOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4712,7 +6808,7 @@ IFV_INLINE void IFV_FCTNAME(mul_float_SR_SMONOTONIC) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_double_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_double_naninf_SR_SMONOTONIC) (double a, double b, double* res,void* context) {
   typedef RoundingSRSMonotonic<DivOp <double> ,vr_rand_det<DivOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4730,7 +6826,7 @@ IFV_INLINE void IFV_FCTNAME(div_double_SR_SMONOTONIC) (double a, double b, doubl
 }
 
 
-IFV_INLINE void IFV_FCTNAME(div_float_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(div_float_naninf_SR_SMONOTONIC) (float a, float b, float* res,void* context) {
   typedef RoundingSRSMonotonic<DivOp <float> ,vr_rand_det<DivOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b));
   
@@ -4748,7 +6844,7 @@ IFV_INLINE void IFV_FCTNAME(div_float_SR_SMONOTONIC) (float a, float b, float* r
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_double_SR_SMONOTONIC) (double a, double b, double c, double* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_double_naninf_SR_SMONOTONIC) (double a, double b, double c, double* res,void* context) {
   typedef RoundingSRSMonotonic<MAddOp <double> ,vr_rand_det<MAddOp <double> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4766,7 +6862,7 @@ IFV_INLINE void IFV_FCTNAME(madd_double_SR_SMONOTONIC) (double a, double b, doub
 }
 
 
-IFV_INLINE void IFV_FCTNAME(madd_float_SR_SMONOTONIC) (float a, float b, float c, float* res,void* context) {
+IFV_INLINE void IFV_FCTNAME(madd_float_naninf_SR_SMONOTONIC) (float a, float b, float c, float* res,void* context) {
   typedef RoundingSRSMonotonic<MAddOp <float> ,vr_rand_det<MAddOp <float> > > Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
   
@@ -4784,7 +6880,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float_SR_SMONOTONIC) (float a, float b, float c
 }
 
 
-IFV_INLINE void IFV_FCTNAME(cast_double_to_float_SR_SMONOTONIC) (double a, float* res, void* context){
+IFV_INLINE void IFV_FCTNAME(cast_double_to_float_naninf_SR_SMONOTONIC) (double a, float* res, void* context){
   typedef RoundingSRSMonotonic<CastOp<double,float> ,vr_rand_det<CastOp <double,float> > > Op;
   *res=Op::apply(Op::PackArgs(a));
  
