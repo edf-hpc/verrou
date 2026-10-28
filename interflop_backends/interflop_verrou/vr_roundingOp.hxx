@@ -54,6 +54,12 @@ extern unsigned int vr_NumExactOp;
 #include "vr_nextUlp.hxx"
 #include "vr_isNan.hxx"
 
+// In the valgrind tool, the NaN/Inf detection is done by the *_naninf variants of the operators (cf.
+// gen_interflop_verrou_flop_impl.py), selected during the instrumentation : here only for Interlibmath.
+#if defined(LIBMATHINTERP) && !defined(VERROU_IGNORE_NANINF_CHECK)
+#define VERROU_NANINF_HANDLER
+#endif
+
 #include "vr_op.hxx"
 
 template<class OP>
@@ -869,7 +875,7 @@ public:
 #ifdef DEBUG_PRINT_OP
     OpWithDynSelectedRoundingMode<OP>::printDebug(p,res);
 #endif
-#ifndef VERROU_IGNORE_NANINF_CHECK
+#ifdef VERROU_NANINF_HANDLER
     if (isNanInf(*res)) {
       if(isNan(*res)){
 	vr_nanHandler();
@@ -963,7 +969,7 @@ public:
 #ifdef DEBUG_PRINT_OP
     OpWithDynSelectedRoundingMode<OP>::printDebug(p,res);
 #endif
-#ifndef VERROU_IGNORE_NANINF_CHECK
+#ifdef VERROU_NANINF_HANDLER
     if (isNanInf(*res)) {
       if(isNan(*res)){
 	vr_nanHandler();

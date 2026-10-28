@@ -136,6 +136,25 @@ void vr_handle_Inf (void) {
    }
 }
 
+// Called by vr_nanInfCheck_double/float (vr_main.c) when the exponent bits are all set
+void vr_handle_NaNInf_F64 (ULong bits) {
+   const ULong absBits = bits & 0x7fffffffffffffffULL;
+   if(absBits > 0x7ff0000000000000ULL){
+      vr_handle_NaN();
+   }else if(absBits == 0x7ff0000000000000ULL){
+      vr_handle_Inf();
+   }
+}
+
+void vr_handle_NaNInf_F32 (UInt bits) {
+   const UInt absBits = bits & 0x7fffffff;
+   if(absBits > 0x7f800000){
+      vr_handle_NaN();
+   }else if(absBits == 0x7f800000){
+      vr_handle_Inf();
+   }
+}
+
 void vr_handle_FLT_MAX (void) {
    if(vr.checkFloatMax){
       vr_maybe_record_ErrorRt(VR_ERROR_FLT_MAX);

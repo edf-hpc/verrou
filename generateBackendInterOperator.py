@@ -183,13 +183,14 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
             for rounding in roundingTab:
                 if not rounding in ["NEAREST",None]:
                     fileOut.write("#ifdef USE_VERROU_OPTIM\n")
-                if nargs in [1,2]:
-                    applyTemplate(fileOut, templateStr, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv)
-                if nargs==3:
-                    sign=""
-                    if "msub" in op:
-                        sign="-"
-                    applyTemplate(fileOut, templateStr, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv)
+                for naninf in [False, True]:
+                    if nargs in [1,2]:
+                        applyTemplate(fileOut, templateStr, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv, naninf=naninf)
+                    if nargs==3:
+                        sign=""
+                        if "msub" in op:
+                            sign="-"
+                        applyTemplate(fileOut, templateStr, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv, naninf=naninf)
                 if not rounding in ["NEAREST",None]:
                     fileOut.write("#endif //USE_VERROU_OPTIM\n")
         if backend=="mcaquad":
@@ -198,8 +199,17 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
             fileOut.write("#endif //USE_VERROU_VPREC\n")
 
 
-def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False):
-    fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
+def nanInfCheckLine(backendLine, typeVal):
+    # the output pointer is the argument before the context : FUNC(arg1,..., out, CONTEXT);
+    indent=backendLine[0:len(backendLine)-len(backendLine.lstrip())]
+    args=backendLine[backendLine.index("(")+1 : backendLine.rindex(")")].split(",")
+    out=args[-2].strip()
+    resType="float" if typeVal.endswith("float") else "double"
+    return indent+"vr_nanInfCheck_"+resType+"(*("+out+"));"
+
+def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False, naninf=False):
+    fileOut.write("// generation of operation %s backend %s%s\n"%(op,backend, " with NaN/Inf check" if naninf else ""))
+    nanInfSuffix="_naninf" if naninf else ""
     backendFunc=backend
     if rounding!=None:
         backendFunc=backend+"_"+rounding
@@ -211,9 +221,9 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         if conv:
             vrPrefix+="conv_"
         if soft:
-            return vrPrefix+backendFunc+post+"_soft"+op+typeVal+opt
+            return vrPrefix+backendFunc+post+"_soft"+op+typeVal+opt+nanInfSuffix
         else:
-            return vrPrefix+backendFunc+post+op+typeVal+opt
+            return vrPrefix+backendFunc+post+op+typeVal+opt+nanInfSuffix
 
     def localOp(first):
         localOp=op
@@ -229,18 +239,24 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
                     localOp="sub"
         return localOp
 
+    # the verrou backend provides *_naninf variants with the NaN/Inf check : for the other backends the check
+    # is done after the backend call
+    backendNanInfSuffix="_naninf" if (naninf and backend=="verrou") else ""
+    checkAfterBackend= naninf and backend!="verrou"
+
     def bckName(typeVal, first=None):
         if rounding!=None:
-            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+"_"+rounding
-        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal
+            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+backendNanInfSuffix+"_"+rounding
+        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+backendNanInfSuffix
 
     def bckNearestName(typeVal):
+        nearestNanInfSuffix="_naninf" if naninf else ""
         if rounding!=None:
-            return (bckName(typeVal)).replace(rounding,"NEAREST")
+            return "interflop_verrou_"+localOp(None)+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
         if sign!="-":
-            return "interflop_verrou_"+op+"_"+typeVal+"_NEAREST"
+            return "interflop_verrou_"+op+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
         else:
-            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+"_NEAREST"
+            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
 
     def bckNamePost(typeVal,first=None):
         bop=localOp(first)
@@ -329,9 +345,11 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
             if post!="":
                 bnPost=bckNamePost(result.group(2),first)
                 if bnPost!=None:
-                    res=result.group(1) + bnPost+ group3
-                    res=res.replace(contextName, contextNamePost)
-                    outputRes(res,comment)
+                    resPost=result.group(1) + bnPost+ group3
+                    resPost=resPost.replace(contextName, contextNamePost)
+                    outputRes(resPost,comment)
+            if checkAfterBackend and first!=True: #the output of the first function of an unfused fma is an intermediate result
+                outputRes(nanInfCheckLine(res, result.group(2)), comment)
             continue
 
         result=BckNameNearestRegExp.match(line)

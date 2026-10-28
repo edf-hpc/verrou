@@ -3,10 +3,10 @@
 This version is based on Valgrind-3.27.1.
 
 ### Added
-
+	- NaN/Inf detection (--check-nan/--check-inf) is now available with all backends (vprec, mcaquad, checkdenorm).
 
 ### Changed
-
+	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
 
 ---
 
