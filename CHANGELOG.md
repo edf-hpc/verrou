@@ -7,6 +7,7 @@ This version is based on Valgrind-3.27.1.
 
 ### Changed
 	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
+	- The operators are selected with generated tables: reduced memory usage and compilation time of vr_main.c.
 
 ---
 

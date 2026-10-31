@@ -324,9 +324,10 @@ def transformInst(iopDic):
 
     res=transformInstPattern(iopDic)
     if iopDic["op"]=="VR_OP_SQRT":
-        res="#ifndef IGNORESQRT\n"+res
+        count=transformCount(iopDic)
+        res="#ifndef IGNORESQRT\n"+" "*6+"if(!VR_BACKEND_IGNORE_SQRT){\n"+res+" "*6+"}else{\n"+count+" "*6+"}\n"
         res+="#else //IGNORESQRT\n"
-        res+=transformCount(iopDic)
+        res+=count
         res+="#endif //IGNORESQRT\n"
 
     return res

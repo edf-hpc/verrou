@@ -36,7 +36,6 @@ IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float) (double a, float* res, void* c
 
 # NaN/Inf detection : only in the *_naninf variants (selected by verrou during the instrumentation)
 post_treatmement_code="""
-#ifndef VERROU_IGNORE_NANINF_CHECK
     if (isNanInf(*res)) {
       if(isNan(*res)){
 	vr_nanHandler();
@@ -45,7 +44,6 @@ post_treatmement_code="""
 	vr_infHandler();
       }
     }
-#endif
 """
 
 protoTypeUnaryStatic="""
@@ -98,7 +96,7 @@ header_interflop="""
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 """
 
-header_interflop_naninf=re.sub(r"IFV_FCTNAME\((\w+)\)", r"IFV_FCTNAME(\1_naninf)", header_interflop)
+header_interflop_naninf="#ifndef VERROU_IGNORE_NANINF_CHECK"+re.sub(r"IFV_FCTNAME\((\w+)\)", r"IFV_FCTNAME(\1_naninf)", header_interflop)+"#endif //VERROU_IGNORE_NANINF_CHECK\n"
 
 
 def getOpClass(op):
@@ -221,8 +219,10 @@ def specializePatternStaticNanInf(template, op, typeFp, roundingName,roundingCla
     return specializePatternStatic(nanInfVariant(template), op, typeFp, roundingName,roundingClass, randClass)
 
 def genFlopImpl(handler, roundingmode="dyn"):
-    for naninf in [False, True]:
-        genFlopImplOneVariant(handler, roundingmode, naninf)
+    genFlopImplOneVariant(handler, roundingmode, False)
+    handler.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
+    genFlopImplOneVariant(handler, roundingmode, True)
+    handler.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
 
 def genFlopImplOneVariant(handler, roundingmode, naninf):
     specializeDyn=specializePatternDynNanInf if naninf else specializePatternDyn
