@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import sys
-import re
 
 listOfUnaryOp=["sqrt"]
 listOfBinaryOp=["add","sub","mul","div"]
@@ -34,44 +33,28 @@ IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float) (double a, float* res, void* c
 }
 """
 
-# NaN/Inf detection : only in the *_naninf variants (selected by verrou during the instrumentation)
-post_treatmement_code="""
-    if (isNanInf(*res)) {
-      if(isNan(*res)){
-	vr_nanHandler();
-      }
-      if(isinf(*res)){
-	vr_infHandler();
-      }
-    }
-"""
-
 protoTypeUnaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeBinaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/ b, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a,b));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeTernaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/ b, /TYPE/ c, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeCastStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float_/ROUNDING_NAME/) (double a, float* res, void* context){
   typedef /ROUNDING_CLASS/</OPCLASS/</TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a));
- /POST_TREATMEMENT_CODE/;
 }
 """
 
@@ -95,8 +78,6 @@ header_interflop="""
   void IFV_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
   void IFV_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
 """
-
-header_interflop_naninf="#ifndef VERROU_IGNORE_NANINF_CHECK"+re.sub(r"IFV_FCTNAME\((\w+)\)", r"IFV_FCTNAME(\1_naninf)", header_interflop)+"#endif //VERROU_IGNORE_NANINF_CHECK\n"
 
 
 def getOpClass(op):
@@ -190,70 +171,39 @@ def specializePatternStatic(template, op, typeFp, roundingName,roundingClass, ra
         res=res.replace("/OPCLASS/", getOpClass(op))
 
     res=res.replace("/ROUNDING_NAME/", roundingName)
-    res=res.replace("/POST_TREATMEMENT_CODE/",post_treatmement_code)
     if op=="sqrt":
         res="#ifdef USE_VERROU_SQRT\n" + res + "#endif"
 
     return res
 
 
-def nanInfVariant(code):
-    # interflop_verrou_add_double[_ROUNDING] -> interflop_verrou_add_double_naninf[_ROUNDING]
-    res=code.replace("IFV_FCTNAME(/OP/_/TYPE/)", "IFV_FCTNAME(/OP/_/TYPE/_naninf)")
-    res=res.replace("IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/)", "IFV_FCTNAME(/OP/_/TYPE/_naninf_/ROUNDING_NAME/)")
-    res=res.replace("IFV_FCTNAME(/OP/_double_to_float)", "IFV_FCTNAME(/OP/_double_to_float_naninf)")
-    res=res.replace("IFV_FCTNAME(/OP/_double_to_float_/ROUNDING_NAME/)", "IFV_FCTNAME(/OP/_double_to_float_naninf_/ROUNDING_NAME/)")
-    if "/POST_TREATMEMENT_CODE/" not in res:
-        #dyn rounding
-        res=res[0:res.rindex("}")] + "  /POST_TREATMEMENT_CODE/;\n}\n"
-    return res
-
-def specializePatternDynNanInf(template, op, typeFp):
-    res=specializePatternDyn(nanInfVariant(template), op, typeFp)
-    return res.replace("/POST_TREATMEMENT_CODE/",post_treatmement_code)
-
-def specializePatternStaticWithoutNanInf(template, op, typeFp, roundingName,roundingClass, randClass):
-    return specializePatternStatic(template.replace("/POST_TREATMEMENT_CODE/",""), op, typeFp, roundingName,roundingClass, randClass)
-
-def specializePatternStaticNanInf(template, op, typeFp, roundingName,roundingClass, randClass):
-    return specializePatternStatic(nanInfVariant(template), op, typeFp, roundingName,roundingClass, randClass)
-
 def genFlopImpl(handler, roundingmode="dyn"):
-    genFlopImplOneVariant(handler, roundingmode, False)
-    handler.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
-    genFlopImplOneVariant(handler, roundingmode, True)
-    handler.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
-
-def genFlopImplOneVariant(handler, roundingmode, naninf):
-    specializeDyn=specializePatternDynNanInf if naninf else specializePatternDyn
-    specializeStatic=specializePatternStaticNanInf if naninf else specializePatternStaticWithoutNanInf
-
     for op in listOfUnaryOp:
         for fpType in listOfType:
             if roundingmode=="dyn":
-                handler.write(specializeDyn(protoTypeUnary, op, fpType)+"\n")
+                handler.write(specializePatternDyn(protoTypeUnary, op, fpType)+"\n")
             else:
-                handler.write(specializeStatic(protoTypeUnaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
+                handler.write(specializePatternStatic(protoTypeUnaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
 
 
     for op in listOfBinaryOp:
         for fpType in listOfType:
             if roundingmode=="dyn":
-                handler.write(specializeDyn(protoTypeBinary, op, fpType)+"\n")
+                handler.write(specializePatternDyn(protoTypeBinary, op, fpType)+"\n")
             else:
-                handler.write(specializeStatic(protoTypeBinaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
+                handler.write(specializePatternStatic(protoTypeBinaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
 
     for op in listOfTernaryOp:
         for fpType in listOfType:
             if roundingmode=="dyn":
-                handler.write(specializeDyn(protoTypeTernary, op, fpType)+"\n")
+                handler.write(specializePatternDyn(protoTypeTernary, op, fpType)+"\n")
             else:
-                handler.write(specializeStatic(protoTypeTernaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode),getRandClass(roundingmode))+"\n")
+                handler.write(specializePatternStatic(protoTypeTernaryStatic, op, fpType, roundingmode, getRoundingClass(roundingmode),getRandClass(roundingmode))+"\n")
 
     if roundingmode=="dyn":
-        handler.write(specializeDyn(protoTypeCast, "cast", "double,float") +"\n")
+        handler.write(specializePatternDyn(protoTypeCast, "cast", "double,float") +"\n")
     else:
-        handler.write(specializeStatic(protoTypeCastStatic, "cast", "double,float", roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
+        handler.write(specializePatternStatic(protoTypeCastStatic, "cast", "double,float", roundingmode, getRoundingClass(roundingmode), getRandClass(roundingmode))+"\n")
 
 
 if __name__=="__main__":
@@ -283,12 +233,10 @@ if __name__=="__main__":
             handler.write("#ifdef USE_VERROU_OPTIM\n")
         handler.write("#define IFV_FCTNAME(FCT) interflop_verrou_##FCT##_"+rounding+"\n")
         handler.write(header_interflop)
-        handler.write(header_interflop_naninf)
         if rounding!="NEAREST":
             handler.write("#endif //USE_VERROU_OPTIM\n")
 
         handler.write("#undef IFV_FCTNAME\n")
 
     handler.write("#define IFV_FCTNAME(FCT) interflop_verrou_##FCT\n")
-    handler.write(header_interflop_naninf)
 

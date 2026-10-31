@@ -19,3 +19,4 @@ test_unfusedfma
 cdi.out
 cdo.out
 naninf-vec
+naninf-unfused

@@ -1699,9 +1699,6 @@ static void vr_post_clo_init(void)
    backend_verrou_null=interflop_verrou_init(&backend_verrou_null_context);
    verrou_set_panic_handler(&VG_(tool_panic));
 
-   verrou_set_nan_handler(&vr_handle_NaN);
-   verrou_set_inf_handler(&vr_handle_Inf);
-
 #ifdef PROFILING_EXACT
    verrou_init_profiling_exact();
 #endif

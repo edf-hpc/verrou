@@ -296,24 +296,18 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
                     localOp="sub"
         return localOp
 
-    # the verrou backend provides *_naninf variants with the NaN/Inf check : for the other backends the check
-    # is done after the backend call
-    backendNanInfSuffix="_naninf" if (naninf and backend=="verrou") else ""
-    checkAfterBackend= naninf and backend!="verrou"
-
     def bckName(typeVal, first=None):
         if rounding!=None:
-            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+backendNanInfSuffix+"_"+rounding
-        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+backendNanInfSuffix
+            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+"_"+rounding
+        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal
 
     def bckNearestName(typeVal):
-        nearestNanInfSuffix="_naninf" if naninf else ""
         if rounding!=None:
-            return "interflop_verrou_"+localOp(None)+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
+            return "interflop_verrou_"+localOp(None)+"_"+typeVal+"_NEAREST"
         if sign!="-":
-            return "interflop_verrou_"+op+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
+            return "interflop_verrou_"+op+"_"+typeVal+"_NEAREST"
         else:
-            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+nearestNanInfSuffix+"_NEAREST"
+            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+"_NEAREST"
 
     def bckNamePost(typeVal,first=None):
         bop=localOp(first)
@@ -405,7 +399,7 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
                     resPost=result.group(1) + bnPost+ group3
                     resPost=resPost.replace(contextName, contextNamePost)
                     outputRes(resPost,comment)
-            if checkAfterBackend and first!=True: #the output of the first function of an unfused fma is an intermediate result
+            if naninf and first!=True: #the output of the first function of an unfused fma is an intermediate result
                 outputRes(nanInfCheckLine(res, result.group(2)), comment)
             continue
 
@@ -413,6 +407,8 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         if result!=None:
             res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
             outputRes(res,comment)
+            if naninf:
+                outputRes(nanInfCheckLine(res, result.group(2)), comment)
             continue
         if line.endswith("\n"):
             line=line[0:-1]
