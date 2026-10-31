@@ -296,18 +296,18 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
                     localOp="sub"
         return localOp
 
+    def bckNearestName(bop, typeVal):
+        # the NEAREST operators are inlined in the wrappers (vr_nearest_inline.h), except sqrt
+        if bop=="sqrt":
+            return "interflop_verrou_sqrt_"+typeVal+"_NEAREST"
+        return "vr_nearest_"+bop+"_"+typeVal
+
     def bckName(typeVal, first=None):
+        if rounding=="NEAREST":
+            return bckNearestName(localOp(first), typeVal)
         if rounding!=None:
             return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+"_"+rounding
         return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal
-
-    def bckNearestName(typeVal):
-        if rounding!=None:
-            return "interflop_verrou_"+localOp(None)+"_"+typeVal+"_NEAREST"
-        if sign!="-":
-            return "interflop_verrou_"+op+"_"+typeVal+"_NEAREST"
-        else:
-            return "interflop_verrou_"+op.replace("sub","add")+"_"+typeVal+"_NEAREST"
 
     def bckNamePost(typeVal,first=None):
         bop=localOp(first)
@@ -405,7 +405,7 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
 
         result=BckNameNearestRegExp.match(line)
         if result!=None:
-            res=result.group(1) + bckNearestName(result.group(2)) + result.group(3)
+            res=result.group(1) + bckNearestName(localOp(None), result.group(2)) + result.group(3)
             outputRes(res,comment)
             if naninf:
                 outputRes(nanInfCheckLine(res, result.group(2)), comment)

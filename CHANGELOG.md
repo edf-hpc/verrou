@@ -8,6 +8,7 @@ This version is based on Valgrind-3.27.1.
 ### Changed
 	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
 	- NaN/Inf detection is done after the backend call with all the backends: with --unfused=yes only the final result of a FMA is checked.
+	- The nearest operators are inlined in the instrumentation wrappers (about 10% faster).
 	- The operators are selected with generated tables: reduced memory usage and compilation time of vr_main.c.
 
 ---

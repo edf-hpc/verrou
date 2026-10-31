@@ -129,7 +129,7 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native
+VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native -ffp-contract=off
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t

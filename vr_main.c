@@ -475,6 +475,7 @@ static inline void vr_nanInfCheck_float (float x) {
 }
 
 #include "vr_interp_operator_impl.h"
+#include "vr_nearest_inline.h"
 #include "vr_generated_from_templates.h"
 
 
