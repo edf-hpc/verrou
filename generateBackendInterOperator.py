@@ -26,6 +26,7 @@
 
 import sys
 import re
+import itertools
 
 FctNameRegExp=re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
 FctConvNameRegExp=re.compile(r"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
@@ -165,13 +166,13 @@ def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft)
 
 
 
-# operatorTables[(prefix,naninf)][opName]=(name of the wrapper, preprocessor guards of the wrapper)
+# operatorTables[(prefix,naninf)][opName]=name of the wrapper
 operatorTables={}
+# tableGuards[prefix]=preprocessor guards of a table (the sqrt operators have their own guard)
+tableGuards={}
 
-def operatorGuards(backend, op, rounding):
+def operatorGuards(backend, rounding):
     guards=[]
-    if op=="sqrt":
-        guards+=["USE_VERROU_SQRT"]
     if backend=="mcaquad":
         guards+=["USE_VERROU_QUADMATH"]
     if backend=="vprec":
@@ -191,14 +192,18 @@ def writeOperatorTables(fileName):
         for (prefix,tableNanInf) in sorted(operatorTables):
             if tableNanInf!=naninf:
                 continue
+            fileOut.write("".join("#ifdef %s\n"%guard for guard in tableGuards[prefix]))
             fileOut.write("static const Vr_opEntry vr_table_%s%s[VR_OPID_NB]={\n"%(prefix, "_naninf" if naninf else ""))
             table=operatorTables[(prefix,naninf)]
-            for opName in sorted(table):
-                (name,guards)=table[opName]
-                fileOut.write("".join("#ifdef %s\n"%guard for guard in guards))
-                fileOut.write('  [VR_OPID_%s]={"%s", (void*)%s},\n'%(opName,name,name))
-                fileOut.write("#endif\n"*len(guards))
+            for (sqrtGuard,opNames) in itertools.groupby(sorted(table), lambda opName:opName.startswith("sqrt")):
+                if sqrtGuard:
+                    fileOut.write("#ifdef USE_VERROU_SQRT\n")
+                for opName in opNames:
+                    fileOut.write('  [VR_OPID_%s]={"%s", (void*)%s},\n'%(opName,table[opName],table[opName]))
+                if sqrtGuard:
+                    fileOut.write("#endif //USE_VERROU_SQRT\n")
             fileOut.write("};\n")
+            fileOut.write("#endif\n"*len(tableGuards[prefix]))
         if naninf:
             fileOut.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
     fileOut.close()
@@ -222,7 +227,7 @@ def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, pos
             for rounding in roundingTab:
                 if not rounding in ["NEAREST",None]:
                     fileOut.write("#ifdef USE_VERROU_OPTIM\n")
-                guards=operatorGuards(backend, op, rounding)
+                guards=operatorGuards(backend, rounding)
                 for naninf in [False, True]:
                     if naninf:
                         fileOut.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
@@ -273,7 +278,8 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         prefix=fctPrefix(unfused,conv)
         name=prefix+op+typeVal+opt+nanInfSuffix
         if not comment:
-            operatorTables.setdefault((prefix,naninf),{})[op+typeVal+opt]=(name,guards)
+            operatorTables.setdefault((prefix,naninf),{})[op+typeVal+opt]=name
+            tableGuards[prefix]=guards
         return name
 
     def localOp(first):
