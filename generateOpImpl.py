@@ -134,7 +134,7 @@ shouldBeInstrumented=[
 
 def instrumentReplaceFunction(iopDic):
     def defaultInstrumentReplaceFunctionForBinary(iopDic):
-        if iopDic["vec"] in "VR_VEC_SCAL":
+        if iopDic["vec"]=="VR_VEC_SCAL":
             return "vr_replaceBinFpOpScal"
         if iopDic["vec"]=="VR_VEC_LLO":
             return "vr_replaceBinFpOpLLO"

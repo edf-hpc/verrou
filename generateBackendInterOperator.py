@@ -36,6 +36,9 @@ BckNameRegExp=re.compile(r"(.*)BACKENDFUNC\(([^)]*)\)(.*)")
 BckNameFirstRegExp=re.compile(r"(.*)BACKEND_FIRST_FUNC\(([^)]*)\)(.*)")
 BckNameSecondRegExp=re.compile(r"(.*)BACKEND_SECOND_FUNC\(([^)]*)\)(.*)")
 BckNameNearestRegExp=re.compile(r"(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
+# (regExp, unfused, conv)
+FunctionRegExps=[(FctConvNameRegExp, False, True), (FctConvNameUnfusedRegExp, True, True),
+                 (FctNameRegExp, False, False), (FctNameUnfusedRegExp, True, False)]
 
 
 def mergeFused(tab,tmpVar="res_temp"):
@@ -171,15 +174,17 @@ operatorTables={}
 # tableGuards[prefix]=preprocessor guards of a table (the sqrt operators have their own guard)
 tableGuards={}
 
-def operatorGuards(backend, rounding):
-    guards=[]
-    if backend=="mcaquad":
-        guards+=["USE_VERROU_QUADMATH"]
-    if backend=="vprec":
-        guards+=["USE_VERROU_VPREC"]
-    if not rounding in ["NEAREST",None]:
-        guards+=["USE_VERROU_OPTIM"]
-    return guards
+def backendGuards(backend):
+    return {"mcaquad":["USE_VERROU_QUADMATH"], "vprec":["USE_VERROU_VPREC"]}.get(backend,[])
+
+def roundingGuards(rounding):
+    return [] if rounding in ["NEAREST",None] else ["USE_VERROU_OPTIM"]
+
+def writeIfdef(fileOut, guards):
+    fileOut.write("".join("#ifdef %s\n"%guard for guard in guards))
+
+def writeEndif(fileOut, guards):
+    fileOut.write("".join("#endif //%s\n"%guard for guard in reversed(guards)))
 
 def writeOperatorTables(fileName):
     fileOut=open(fileName,"w")
@@ -187,58 +192,43 @@ def writeOperatorTables(fileName):
     allOpNames=sorted({opName for table in operatorTables.values() for opName in table})
     fileOut.write("enum { "+", ".join("VR_OPID_"+opName for opName in allOpNames)+", VR_OPID_NB };\n")
     for prefix in sorted(operatorTables):
-        fileOut.write("".join("#ifdef %s\n"%guard for guard in tableGuards[prefix]))
+        writeIfdef(fileOut, tableGuards[prefix])
         fileOut.write("static const Vr_opEntry vr_table_%s[VR_OPID_NB][VR_NANINF_NB]={\n"%(prefix))
         table=operatorTables[prefix]
         for (sqrtGuard,opNames) in itertools.groupby(sorted(table), lambda opName:opName.startswith("sqrt")):
-            if sqrtGuard:
-                fileOut.write("#ifdef USE_VERROU_SQRT\n")
+            guards=["USE_VERROU_SQRT"] if sqrtGuard else []
+            writeIfdef(fileOut, guards)
             for opName in opNames:
                 fileOut.write("  [VR_OPID_%s]=VR_OP_ENTRY(%s),\n"%(opName,table[opName]))
-            if sqrtGuard:
-                fileOut.write("#endif //USE_VERROU_SQRT\n")
+            writeEndif(fileOut, guards)
         fileOut.write("};\n")
-        fileOut.write("#endif\n"*len(tableGuards[prefix]))
+        writeEndif(fileOut, tableGuards[prefix])
     fileOut.close()
 
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None], soft=False, only64=False):
-    commentConv=False
+def generateOperators(fileOut, fileNameTemplate, listOfBackend, listOfOp, post="", roundingTab=[None], only64=False):
     templateStr=open(fileNameTemplate, "r").readlines()
+    skipConv=post in ["check_float_max"]
 
-    templateStr=transformTemplateForSoftStopStart(templateStr, soft, only64)
-    if post in ["check_float_max"]:
-        commentConv=True
-
-    for backend in listOfBackend:
-        if backend=="mcaquad":
-            fileOut.write("#ifdef USE_VERROU_QUADMATH\n")
-        if backend=="vprec":
-            fileOut.write("#ifdef USE_VERROU_VPREC\n")
-
-        for op in listOfOp:
-            for rounding in roundingTab:
-                if not rounding in ["NEAREST",None]:
-                    fileOut.write("#ifdef USE_VERROU_OPTIM\n")
-                guards=operatorGuards(backend, rounding)
-                for naninf in [False, True]:
-                    if naninf:
-                        fileOut.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
-                    if nargs in [1,2]:
-                        applyTemplate(fileOut, templateStr, backend,op, post, sign=None, rounding=rounding, soft=soft, commentConv=commentConv, naninf=naninf, guards=guards)
-                    if nargs==3:
-                        sign=""
-                        if "msub" in op:
-                            sign="-"
-                        applyTemplate(fileOut, templateStr, backend, op, post, sign, rounding=rounding, soft=soft, commentConv=commentConv, naninf=naninf, guards=guards)
-                    if naninf:
-                        fileOut.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
-                if not rounding in ["NEAREST",None]:
-                    fileOut.write("#endif //USE_VERROU_OPTIM\n")
-        if backend=="mcaquad":
-            fileOut.write("#endif //USE_VERROU_QUADMATH\n")
-        if backend=="vprec":
-            fileOut.write("#endif //USE_VERROU_VPREC\n")
+    for soft in [False, True]:
+        softTemplateStr=transformTemplateForSoftStopStart(templateStr, soft, only64)
+        for backend in listOfBackend:
+            writeIfdef(fileOut, backendGuards(backend))
+            for op in listOfOp:
+                sign=None
+                if op in ["madd","msub"]:
+                    sign="-" if op=="msub" else ""
+                for rounding in roundingTab:
+                    writeIfdef(fileOut, roundingGuards(rounding))
+                    guards=backendGuards(backend)+roundingGuards(rounding)
+                    for naninf in [False, True]:
+                        if naninf:
+                            fileOut.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
+                        applyTemplate(fileOut, softTemplateStr, backend, op, post, sign, rounding=rounding, soft=soft, skipConv=skipConv, naninf=naninf, guards=guards)
+                        if naninf:
+                            fileOut.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
+                    writeEndif(fileOut, roundingGuards(rounding))
+            writeEndif(fileOut, backendGuards(backend))
 
 
 def nanInfCheckLine(backendLine, typeVal):
@@ -249,7 +239,7 @@ def nanInfCheckLine(backendLine, typeVal):
     resType="float" if typeVal.endswith("float") else "double"
     return indent+"vr_nanInfCheck_"+resType+"(*("+out+"));"
 
-def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, commentConv=False, naninf=False, guards=[]):
+def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, skipConv=False, naninf=False, guards=[]):
     fileOut.write("// generation of operation %s backend %s%s\n"%(op,backend, " with NaN/Inf check" if naninf else ""))
     nanInfSuffix="_naninf" if naninf else ""
     backendFunc=backend
@@ -267,12 +257,11 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         else:
             return vrPrefix+backendFunc+post
 
-    def fctName(unfused,conv,typeVal,opt,comment):
+    def fctName(unfused,conv,typeVal,opt):
         prefix=fctPrefix(unfused,conv)
         name=prefix+op+typeVal+opt
-        if not comment:
-            operatorTables.setdefault(prefix,{})[op+typeVal+opt]=name
-            tableGuards[prefix]=guards
+        operatorTables.setdefault(prefix,{})[op+typeVal+opt]=name
+        tableGuards[prefix]=guards
         return name+nanInfSuffix
 
     def localOp(first):
@@ -313,21 +302,10 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
     contextNamePost="backend_"+post+"_context"
     contextNearestName="backend_verrou_null_context"
 
-    comment=None
+    skip=False #the lines of the current function are not generated
 
-    def outputRes(res,localComment):
-        line=None
-        if localComment:
-            if res in ["","//"]:
-                line=res+"\n"
-            else:
-                if "/*" in res:
-                    line="/*"+ res.replace("/*", "%%").replace("*/","%%")+"*/"
-                else:
-                    line="/*"+ res+"*/\n"
-        else:
-            line=res+"\n"
-        fileOut.write(line)
+    def outputRes(res):
+        fileOut.write(res+"\n")
 
     for line in templateStr:
         if "BACKEND_NEAREST_CONTEXT" in line:
@@ -341,36 +319,21 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
                 print("Generation failed")
                 sys.exit()
 
-
-        result=FctConvNameRegExp.match(line)
-        fused=False
-        if result==None:
-            result=FctConvNameUnfusedRegExp.match(line)
-            fused=True
+        result=None
+        for (regExp,unfused,conv) in FunctionRegExps:
+            result=regExp.match(line)
+            if result!=None:
+                break
         if result!=None:
-            if commentConv:
-                comment=True
+            if conv:
+                skip=skipConv
             else:
-                comment=False
-            typeVal=result.group(2)
-            opt=result.group(3)
-            res=result.group(1) + fctName(fused,True, typeVal, opt, comment) + result.group(4)
-            outputRes(res,comment)
+                skip=(rounding=="NEAREST" and soft and (not unfused))
+            if not skip:
+                outputRes(result.group(1) + fctName(unfused, conv, result.group(2), result.group(3)) + result.group(4))
             continue
 
-        result=FctNameRegExp.match(line)
-        unfused=False
-        if result==None:
-            result=FctNameUnfusedRegExp.match(line)
-            unfused=True
-        if result!=None:
-            comment=False
-            typeVal=result.group(2)
-            opt=result.group(3)
-            if rounding=="NEAREST" and soft and (not unfused):
-                comment=True
-            res=result.group(1) + fctName(unfused,False,typeVal, opt, comment) + result.group(4)
-            outputRes(res,comment)
+        if skip:
             continue
 
         result=None
@@ -385,27 +348,27 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
             if first==False:
                 group3=group3.replace(" - "," ")
             res=result.group(1) + bckName(result.group(2),first) + group3
-            outputRes(res,comment)
+            outputRes(res)
             if post!="":
                 bnPost=bckNamePost(result.group(2),first)
                 if bnPost!=None:
                     resPost=result.group(1) + bnPost+ group3
                     resPost=resPost.replace(contextName, contextNamePost)
-                    outputRes(resPost,comment)
+                    outputRes(resPost)
             if naninf and first!=True: #the output of the first function of an unfused fma is an intermediate result
-                outputRes(nanInfCheckLine(res, result.group(2)), comment)
+                outputRes(nanInfCheckLine(res, result.group(2)))
             continue
 
         result=BckNameNearestRegExp.match(line)
         if result!=None:
             res=result.group(1) + bckNearestName(localOp(None), result.group(2)) + result.group(3)
-            outputRes(res,comment)
+            outputRes(res)
             if naninf:
-                outputRes(nanInfCheckLine(res, result.group(2)), comment)
+                outputRes(nanInfCheckLine(res, result.group(2)))
             continue
         if line.endswith("\n"):
             line=line[0:-1]
-        outputRes(line,comment)
+        outputRes(line)
 
 
 
@@ -419,56 +382,35 @@ if __name__=="__main__":
     roundingTab+=[rnd + det for rnd in ["RANDOM", "NEARNESS"] for det in ["_SCOMDET" ]]
     roundingTab+=["SR_MONOTONIC","SR_SMONOTONIC"]
 
-    template1Args="vr_interp_operator_template_cast.h"
-    listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp1Args, 1)
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp1Args, 1,soft=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
+    allBackends=["verrou","mcaquad","vprec","checkdenorm"]
 
-    template1Args="vr_interp_operator_template_1args.h"
-    listOfOp1Args=["sqrt"]
-    fileOut.write("#ifdef USE_VERROU_SQRT\n")
-    generateNargs(fileOut,template1Args, ["verrou","checkdenorm","vprec"], listOfOp1Args, 1)
-    generateNargs(fileOut,template1Args, ["verrou","checkdenorm","vprec"], listOfOp1Args, 1,soft=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max",soft=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab, soft=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=["FLOAT"], only64=True)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=["FLOAT"], soft=True, only64=True)
-    fileOut.write("#endif\n")
+    def generateVerrouOnly(template, listOfOp, floatRounding=True):
+        generateOperators(fileOut, template, ["verrou"], listOfOp, post="check_float_max")
+        generateOperators(fileOut, template, ["verrou"], listOfOp, roundingTab=roundingTab)
+        if floatRounding:
+            generateOperators(fileOut, template, ["verrou"], listOfOp, roundingTab=["FLOAT"], only64=True)
 
-    template2Args="vr_interp_operator_template_2args.h"
-    listOfOp2Args=["add","sub","mul","div"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2)
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, soft=True)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max", soft=True)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab, soft=True)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=["FLOAT"], only64=True)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=["FLOAT"], soft=True, only64=True)
+    template="vr_interp_operator_template_cast.h"
+    generateOperators(fileOut, template, allBackends, ["cast"])
+    generateVerrouOnly(template, ["cast"], floatRounding=False)
 
+    template="vr_interp_operator_template_1args.h"
+    writeIfdef(fileOut, ["USE_VERROU_SQRT"])
+    generateOperators(fileOut, template, ["verrou","checkdenorm","vprec"], ["sqrt"])
+    generateVerrouOnly(template, ["sqrt"])
+    writeEndif(fileOut, ["USE_VERROU_SQRT"])
 
-    listOfOp2Args=["add","sub"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp2Args, 2, post="checkcancellation",soft=True)
+    template="vr_interp_operator_template_2args.h"
+    listOfOp=["add","sub","mul","div"]
+    generateOperators(fileOut, template, allBackends, listOfOp)
+    generateVerrouOnly(template, listOfOp)
+    generateOperators(fileOut, template, allBackends, ["add","sub"], post="checkcancellation")
 
-    template3Args="vr_interp_operator_template_3args.h"
-    listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3)
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, soft=True)
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","vprec","checkdenorm"], listOfOp3Args, 3, post="checkcancellation",soft=True)
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max",soft=True)
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab)
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab,soft=True)
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=["FLOAT"], only64=True)
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=["FLOAT"],soft=True, only64=True)
+    template="vr_interp_operator_template_3args.h"
+    listOfOp=["madd","msub"]
+    generateOperators(fileOut, template, allBackends, listOfOp)
+    generateOperators(fileOut, template, allBackends, listOfOp, post="checkcancellation")
+    generateVerrouOnly(template, listOfOp)
 
     fileOut.close()
 
