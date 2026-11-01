@@ -27,6 +27,7 @@
 import sys
 import re
 import itertools
+import collections
 from generateOperatorNames import operatorPrefix
 
 FctNameRegExp=re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
@@ -59,7 +60,7 @@ def toNearest(line):
 
 def transformTemplateForSoftStopStart(lineTab, soft=False, only64=False):
     func=[]
-    dicOfFunc={}
+    dicOfFunc=collections.OrderedDict() #the dict of python<3.7 would change the order of the generated functions
 
     splitActive=False
     tab=[]
