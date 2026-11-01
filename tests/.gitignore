@@ -23,6 +23,8 @@ naninf-unfused
 unfused-soft
 monitor-instrumentation
 monitor-rounding
+iomatch-file
+iomatch-file.res
 mcaquad-sqrt-back
 suppression
 gen-source-lines

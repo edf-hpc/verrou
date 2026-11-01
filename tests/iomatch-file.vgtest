@@ -1,0 +1,4 @@
+prog: iomatch-file
+vgopts: --IOmatch-clr=iomatch-file.script --IOmatch-file-pattern=*.res
+stderr_filter: ../../tests/filter_sink
+cleanup: rm -f iomatch-file.res IOMatch.log-*

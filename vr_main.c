@@ -2071,6 +2071,13 @@ void vr_pre_syscall(ThreadId tid, UInt syscallno,
 #else
 #error "Unknown arch : syscallno need to be defined"
 #endif
+
+static void vr_IOmatch_checkmatch_in_syscall(const HChar* buf, SizeT size){
+   VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
+   vr_IOmatch_clr_checkmatch(buf, size);
+   VG_(ok_to_discard_translations)=False;
+}
+
 static
 void vr_post_syscall(ThreadId tid, UInt syscallno,
                      UWord* args, UInt nArgs, SysRes res){
@@ -2101,13 +2108,11 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
             const HChar* buf=(HChar*)args[1];
 
             int size=(int)args[2];
-            VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-            vr_IOmatch_clr_checkmatch(buf,size);
-            VG_(ok_to_discard_translations)=False;
+            vr_IOmatch_checkmatch_in_syscall(buf,size);
          }
       }
       if(vr.outputIOMatchFilePattern!=NULL){
-         if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO)){//syscall openat open creat
+         if( !sr_isError(res) && ((syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO))){//syscall openat open creat
 	  SizeT fd= sr_Res(res);;
 	  char* filenameParam=NULL;
 	  if(syscallno == VR_OPEN_AT_SYSCALLNO){//openat
@@ -2122,9 +2127,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	      vr.IOMatchFileDescriptor=fd;
 	      HChar openMsg[512];
 	      UInt size=VG_(snprintf)(openMsg,512, "IOMatch open filename: %s\n", filenameParam);
-	      VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-	      vr_IOmatch_clr_checkmatch(openMsg, size);
-	      VG_(ok_to_discard_translations)=False;
+	      vr_IOmatch_checkmatch_in_syscall(openMsg, size);
 	    }else{
 	      VG_(umsg)("%s match several opened files : %s\n", vr.outputIOMatchFilePattern, filenameParam);
 	      VG_(tool_panic)("match several opened files");
@@ -2138,7 +2141,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	  if(fd==vr.IOMatchFileDescriptor ){
 	    vr.IOMatchFileDescriptor=-1;//retour à la sortie standard.
 	    HChar openMsg[]="IOMatch close\n";
-	    vr_IOmatch_clr_checkmatch(openMsg, sizeof(openMsg)-1);
+	    vr_IOmatch_checkmatch_in_syscall(openMsg, sizeof(openMsg)-1);
 	  }
 	}
       }
