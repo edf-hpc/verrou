@@ -33,37 +33,13 @@ FctNameRegExp=re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
 FctConvNameRegExp=re.compile(r"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
 FctNameUnfusedRegExp=re.compile(r"(.*)FCTNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
 FctConvNameUnfusedRegExp=re.compile(r"(.*)FCTCONVNAMEUNFUSED\(([^,]*),([^)]*)\)(.*)")
-BckNameRegExp=re.compile(r"(.*)BACKENDFUNC\(([^)]*)\)(.*)")
-BckNameFirstRegExp=re.compile(r"(.*)BACKEND_FIRST_FUNC\(([^)]*)\)(.*)")
-BckNameSecondRegExp=re.compile(r"(.*)BACKEND_SECOND_FUNC\(([^)]*)\)(.*)")
-BckNameNearestRegExp=re.compile(r"(.*)BACKEND_NEAREST_FUNC\(([^)]*)\)(.*)")
+# BACKEND(type, out, args) : the call of the operator of the backend
+# BACKEND_UNFUSED(type, out, args) : the FMA with one call for the mul and one for the add or sub
+# BACKEND_NEAREST(type, out, args) : the nearest operator, used when the instrumentation is stopped
+BackendRegExp=re.compile(r"(\s*)(BACKEND_NEAREST|BACKEND_UNFUSED|BACKEND)\((.*)\);")
 # (regExp, unfused, conv)
 FunctionRegExps=[(FctConvNameRegExp, False, True), (FctConvNameUnfusedRegExp, True, True),
                  (FctNameRegExp, False, False), (FctNameUnfusedRegExp, True, False)]
-
-
-def mergeFused(tab,tmpVar="res_temp"):
-    fusedTab=[]
-    for i in range(len(tab)):
-        line=tab[i]
-        if tmpVar+";" in line:
-            tab[i]= "//"+line
-
-        if "_FIRST_" in line:
-            prefix=tab[0:max(0,i-1)]
-            first=tab[i]
-            second=tab[i+1]
-            postfix=tab[i+2:]
-            break
-    if not "_SECOND_" in second:
-            print("Generation failure")
-    return [line for line in prefix] + [mergeTwoLines(first,second, tmpVar)] +[line for line in postfix]
-
-def mergeTwoLines(first,second, varInter):
-    first=first.replace("_FIRST_","")
-    second=second.replace("_SECOND_","")
-    res=(first.partition("&"+varInter))[0] + (second.partition(varInter+","))[2]
-    return res
 
 
 def treatBackend(tab, soft):
@@ -73,12 +49,15 @@ def treatBackend(tab, soft):
         res=["if(vr.instrument_soft&&vr.instrument_soft_back){\n"]
         res+=tab
         res+=["}else{\n"]
-        if any(["BACKEND_FIRST" in line for line in tab]):
-            res+=mergeFused(tab)
+        if any(["BACKEND_UNFUSED" in line for line in tab]):
+            res+=[line.replace("BACKEND_UNFUSED","BACKEND") for line in tab]
         else:
-            res+=[line.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for line in tab]
+            res+=[toNearest(line) for line in tab]
         res+=["}\n"]
         return res
+
+def toNearest(line):
+    return line.replace("BACKEND_UNFUSED(","BACKEND(").replace("BACKEND(","BACKEND_NEAREST(")
 
 
 def transformTemplateForSoftStopStart(lineTab, soft=False, only64=False):
@@ -161,9 +140,7 @@ def transformTemplateForSoftStopStartOneConvFunction(lineTabConv, lineTab, soft)
     res+=["}else{\n"]
 
     elseInstrumentBock=[x for x in  getFunctionBloc(lineTab) if not (("PREBACKEND" in x) or ("POSTBACKEND" in x )) ]
-    if any(["BACKEND_FIRST" in line for line in elseInstrumentBock]):
-        elseInstrumentBock=mergeFused(elseInstrumentBock)
-    res+=[x.replace("BACKENDFUNC", "BACKEND_NEAREST_FUNC").replace("CONTEXT","BACKEND_NEAREST_CONTEXT") for x in elseInstrumentBock]
+    res+=[toNearest(x) for x in elseInstrumentBock]
     res+=["}\n}\n\n"]
     return res
 
@@ -216,31 +193,20 @@ def generateOperators(fileOut, fileNameTemplate, listOfBackend, listOfOp, post="
         for backend in listOfBackend:
             writeIfdef(fileOut, backendGuards(backend))
             for op in listOfOp:
-                sign=None
-                if op in ["madd","msub"]:
-                    sign="-" if op=="msub" else ""
                 for rounding in roundingTab:
                     writeIfdef(fileOut, roundingGuards(rounding))
                     guards=backendGuards(backend)+roundingGuards(rounding)
                     for naninf in [False, True]:
                         if naninf:
                             fileOut.write("#ifndef VERROU_IGNORE_NANINF_CHECK\n")
-                        applyTemplate(fileOut, softTemplateStr, backend, op, post, sign, rounding=rounding, soft=soft, skipConv=skipConv, naninf=naninf, guards=guards)
+                        applyTemplate(fileOut, softTemplateStr, backend, op, post, rounding=rounding, soft=soft, skipConv=skipConv, naninf=naninf, guards=guards)
                         if naninf:
                             fileOut.write("#endif //VERROU_IGNORE_NANINF_CHECK\n")
                     writeEndif(fileOut, roundingGuards(rounding))
             writeEndif(fileOut, backendGuards(backend))
 
 
-def nanInfCheckLine(backendLine, typeVal):
-    # the output pointer is the argument before the context : FUNC(arg1,..., out, CONTEXT);
-    indent=backendLine[0:len(backendLine)-len(backendLine.lstrip())]
-    args=backendLine[backendLine.index("(")+1 : backendLine.rindex(")")].split(",")
-    out=args[-2].strip()
-    resType="float" if typeVal.endswith("float") else "double"
-    return indent+"vr_nanInfCheck_"+resType+"(*("+out+"));"
-
-def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, skipConv=False, naninf=False, guards=[]):
+def applyTemplate(fileOut, templateStr, backend, op, post, rounding=None, soft=False, skipConv=False, naninf=False, guards=[]):
     fileOut.write("// generation of operation %s backend %s%s\n"%(op,backend, " with NaN/Inf check" if naninf else ""))
     nanInfSuffix="_naninf" if naninf else ""
 
@@ -251,41 +217,45 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         tableGuards[prefix]=guards
         return name+nanInfSuffix
 
-    def localOp(first):
-        localOp=op
-        if sign=="-":
-            localOp=op.replace("sub","add")
-        if op in ["madd","msub"] and first!=None:
-            if first==True:
-                localOp="mul"
-            if first==False:
-                if op=="madd":
-                    localOp="add"
-                else:
-                    localOp="sub"
-        return localOp
-
-    def bckNearestName(bop, typeVal):
-        # the NEAREST operators are inlined in the wrappers (vr_nearest_inline.h)
-        return "vr_nearest_"+bop+"_"+typeVal
-
-    def bckName(typeVal, first=None):
-        if rounding=="NEAREST":
-            return bckNearestName(localOp(first), typeVal)
-        if rounding!=None:
-            return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal+"_"+rounding
-        return "interflop_"+backend+"_"+localOp(first)+"_"+typeVal
-
-    def bckNamePost(typeVal,first=None):
-        bop=localOp(first)
-        if bop in ["mul"] and post=="checkcancellation":
-            return None
-        return "interflop_"+post+"_"+bop+"_"+typeVal
-
-
     contextName="backend_"+backend+"_context"
     contextNamePost="backend_"+post+"_context"
     contextNearestName="backend_verrou_null_context"
+
+    def call(name, args, out, context):
+        return name+"("+", ".join(args+[out,context])+");"
+
+    def nearestCall(bop, typeVal, args, out, context):
+        # the NEAREST operators are inlined in the wrappers (vr_nearest_inline.h)
+        return call("vr_nearest_"+bop+"_"+typeVal, args, out, context)
+
+    def backendCalls(bop, typeVal, args, out):
+        if rounding=="NEAREST":
+            res=[nearestCall(bop, typeVal, args, out, contextName)]
+        elif rounding!=None:
+            res=[call("interflop_"+backend+"_"+bop+"_"+typeVal+"_"+rounding, args, out, contextName)]
+        else:
+            res=[call("interflop_"+backend+"_"+bop+"_"+typeVal, args, out, contextName)]
+        if post!="" and not (bop=="mul" and post=="checkcancellation"):
+            res+=[call("interflop_"+post+"_"+bop+"_"+typeVal, args, out, contextNamePost)]
+        return res
+
+    def backendLines(marker, typeVal, out, args):
+        if marker=="BACKEND_UNFUSED":
+            res=[typeVal+" res_temp;"]
+            res+=backendCalls("mul", typeVal, args[:2], "&res_temp")
+            res+=backendCalls("add" if op=="madd" else "sub", typeVal, ["res_temp",args[2]], out)
+        else:
+            bop=op
+            if op=="msub": # a msub is a madd with the opposite of the last argument
+                bop="madd"
+                args=args[:-1]+["-"+args[-1]]
+            if marker=="BACKEND_NEAREST":
+                res=[nearestCall(bop, typeVal, args, out, contextNearestName)]
+            else:
+                res=backendCalls(bop, typeVal, args, out)
+        if naninf:
+            res+=["vr_nanInfCheck_"+("float" if typeVal.endswith("float") else "double")+"(*("+out+"));"]
+        return res
 
     skip=False #the lines of the current function are not generated
 
@@ -293,17 +263,6 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         fileOut.write(res+"\n")
 
     for line in templateStr:
-        if "BACKEND_NEAREST_CONTEXT" in line:
-            line=line.replace("BACKEND_NEAREST_CONTEXT", contextNearestName)
-        if "CONTEXT" in line:
-            line=line.replace("CONTEXT", contextName)
-        if "SIGN" in line:
-            if sign!=None:
-                line=line.replace("SIGN", sign)
-            else:
-                print("Generation failed")
-                sys.exit()
-
         result=None
         for (regExp,unfused,conv) in FunctionRegExps:
             result=regExp.match(line)
@@ -321,36 +280,13 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         if skip:
             continue
 
-        result=None
-        first=None
-        for (rgExp,firstVar) in [(BckNameFirstRegExp, True), (BckNameSecondRegExp,False) , (BckNameRegExp,None)]:
-            result=rgExp.match(line)
-            if result!=None:
-                first=firstVar
-                break
+        result=BackendRegExp.match(line)
         if result!=None:
-            group3=result.group(3)
-            if first==False:
-                group3=group3.replace(" - "," ")
-            res=result.group(1) + bckName(result.group(2),first) + group3
-            outputRes(res)
-            if post!="":
-                bnPost=bckNamePost(result.group(2),first)
-                if bnPost!=None:
-                    resPost=result.group(1) + bnPost+ group3
-                    resPost=resPost.replace(contextName, contextNamePost)
-                    outputRes(resPost)
-            if naninf and first!=True: #the output of the first function of an unfused fma is an intermediate result
-                outputRes(nanInfCheckLine(res, result.group(2)))
+            (typeVal,out,*args)=[field.strip() for field in result.group(3).split(",")]
+            for res in backendLines(result.group(2), typeVal, out, args):
+                outputRes(result.group(1)+res)
             continue
 
-        result=BckNameNearestRegExp.match(line)
-        if result!=None:
-            res=result.group(1) + bckNearestName(localOp(None), result.group(2)) + result.group(3)
-            outputRes(res)
-            if naninf:
-                outputRes(nanInfCheckLine(res, result.group(2)))
-            continue
         if line.endswith("\n"):
             line=line[0:-1]
         outputRes(line)

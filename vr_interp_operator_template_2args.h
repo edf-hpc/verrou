@@ -4,7 +4,7 @@ static VG_REGPARM(2) Long FCTNAME(64F,) (Long a, Long b) {
   double *arg2 = (double*)(&b);
   double res;
   PREBACKEND;
-  BACKENDFUNC(double)(*arg1, *arg2, &res, CONTEXT);
+  BACKEND(double, &res, *arg1, *arg2);
   POSTBACKEND;
   Long *c = (Long*)(&res);
   return *c;
@@ -19,7 +19,7 @@ static VG_REGPARM(2) Long FCTCONVNAME(64F,) (Long a, Long b) {
   double res;
   float resf;
   PREBACKEND;
-  BACKENDFUNC(float)(arg1f, arg2f, &resf, CONTEXT);
+  BACKEND(float, &resf, arg1f, arg2f);
   POSTBACKEND;
   res=resf;
   Long *c = (Long*)(&res);
@@ -30,7 +30,7 @@ static VG_REGPARM(2) Long FCTCONVNAME(64F,) (Long a, Long b) {
 static VG_REGPARM(0) void  FCTNAME(64F,LLO) (void){
   double res;
   PREBACKEND;
-  BACKENDFUNC(double)(arg1CopyDouble[0], arg2CopyDouble[0], &res, CONTEXT);
+  BACKEND(double, &res, arg1CopyDouble[0], arg2CopyDouble[0]);
   POSTBACKEND;
   arg1CopyDouble[0]=res;
 }
@@ -40,7 +40,7 @@ static VG_REGPARM(0) void  FCTCONVNAME(64F,LLO) (void){
   float arg1f=arg1CopyDouble[0];
   float arg2f=arg2CopyDouble[0];
   PREBACKEND;
-  BACKENDFUNC(float)(arg1f, arg2f, &resf, CONTEXT);
+  BACKEND(float, &resf, arg1f, arg2f);
   POSTBACKEND;
   arg1CopyDouble[0]=resf;
 }
@@ -51,8 +51,8 @@ static VG_REGPARM(1) void FCTNAME(64Fx2,)(/*OUT*/V128* output){
   const double* arg2=arg2CopyDouble;
   double* res=(double*) output;
   PREBACKEND;
-  BACKENDFUNC(double)(arg1[0], arg2[0], res, CONTEXT);
-  BACKENDFUNC(double)(arg1[1], arg2[1], res+1, CONTEXT);
+  BACKEND(double, res, arg1[0], arg2[0]);
+  BACKEND(double, res+1, arg1[1], arg2[1]);
   POSTBACKEND;
 }
 
@@ -64,8 +64,8 @@ static VG_REGPARM(1) void FCTCONVNAME(64Fx2,)(/*OUT*/V128* output){
   double* res=(double*) output;
   float resf[2];
   PREBACKEND;
-  BACKENDFUNC(float)(arg1f[0], arg2f[0], resf, CONTEXT);
-  BACKENDFUNC(float)(arg1f[1], arg2f[1], resf+1, CONTEXT);
+  BACKEND(float, resf, arg1f[0], arg2f[0]);
+  BACKEND(float, resf+1, arg1f[1], arg2f[1]);
   POSTBACKEND;
   res[0]=resf[0];
   res[1]=resf[1];
@@ -76,7 +76,7 @@ static VG_REGPARM(1) void FCTNAME(64Fx4,) (/*OUT*/V256* output){
   double* res=(double*) output;
   PREBACKEND;
   for(int i=0; i<4; i++){
-     BACKENDFUNC(double)(arg1CopyDouble[i], arg2CopyDouble[i], res+i, CONTEXT);
+     BACKEND(double, res+i, arg1CopyDouble[i], arg2CopyDouble[i]);
   }
   POSTBACKEND;
 }
@@ -88,7 +88,7 @@ static VG_REGPARM(1) void FCTCONVNAME(64Fx4,) (/*OUT*/V256* output){
    float resf[4];
   PREBACKEND;
   for(int i=0; i<4; i++){
-     BACKENDFUNC(float)(arg1f[i], arg2f[i], resf+i, CONTEXT);
+     BACKEND(float, resf+i, arg1f[i], arg2f[i]);
   }
   POSTBACKEND;
   res[0]=resf[0];
@@ -103,7 +103,7 @@ static VG_REGPARM(2) Int FCTNAME(32F,) (Long a, Long b) {
   float *arg2 = (float*)(&b);
   float res;
   PREBACKEND;
-  BACKENDFUNC(float)(*arg1, *arg2, &res, CONTEXT);
+  BACKEND(float, &res, *arg1, *arg2);
   POSTBACKEND;
   Int *c = (Int*)(&res);
   return *c;
@@ -112,7 +112,7 @@ static VG_REGPARM(2) Int FCTNAME(32F,) (Long a, Long b) {
 static VG_REGPARM(0) void FCTNAME(32F,LLO) (void){
   float res;
   PREBACKEND;
-  BACKENDFUNC(float)(arg1CopyFloat[0], arg2CopyFloat[0], &res, CONTEXT);
+  BACKEND(float, &res, arg1CopyFloat[0], arg2CopyFloat[0]);
   POSTBACKEND;
   arg1CopyFloat[0]=res;
 }
@@ -123,7 +123,7 @@ static VG_REGPARM(1) void FCTNAME(32Fx8,) (/*OUT*/V256* output){
   float* arg2=arg2CopyFloat;
   PREBACKEND;
   for(int i=0; i<8; i++){
-     BACKENDFUNC(float)(arg1[i], arg2[i], res+i, CONTEXT);
+     BACKEND(float, res+i, arg1[i], arg2[i]);
   }
   POSTBACKEND;
 }
@@ -134,7 +134,7 @@ static VG_REGPARM(1) void FCTNAME(32Fx4,) (/*OUT*/V128* output){
   const float* arg2=arg2CopyFloat;
   PREBACKEND;
   for(int i=0; i<4;i++){
-     BACKENDFUNC(float)(arg1[i], arg2[i], res+i, CONTEXT);
+     BACKEND(float, res+i, arg1[i], arg2[i]);
   }
   POSTBACKEND;
 }
