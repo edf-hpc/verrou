@@ -23,6 +23,7 @@ naninf-unfused
 unfused-soft
 monitor-instrumentation
 monitor-rounding
+suppression
 gen-source-lines
 gen-source-lines.out
 nearest-client-rounding

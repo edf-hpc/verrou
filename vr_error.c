@@ -286,7 +286,7 @@ Bool vr_recognised_suppression (const HChar* name, Supp* su) {
   if (kind == VR_ERROR) {
     return False;
   } else {
-    VG_(set_supp_kind)(su, 0);
+    VG_(set_supp_kind)(su, kind);
     return True;
   }
 }
@@ -337,8 +337,9 @@ Bool vr_error_matches_suppression (const Error* err, const Supp* su) {
 
 Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
                                      Int* lineno, Supp* su) {
-  VG_(get_line)(fd, bufpp, nBufp, lineno);
-  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", *bufpp));
+  // Without extra line VG_(get_line) gives the first location line, which is kept for the core
+  Bool noExtraLine=VG_(get_line)(fd, bufpp, nBufp, lineno);
+  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", noExtraLine ? "" : *bufpp));
   return True;
 }
 

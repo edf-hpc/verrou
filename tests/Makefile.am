@@ -52,6 +52,8 @@ EXTRA_DIST = \
 	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
 	monitor-instrumentation.stderr.exp monitor-instrumentation.vgtest \
 	monitor-rounding.stderr.exp monitor-rounding.vgtest \
+	suppression-nan.stderr.exp suppression-nan.vgtest suppression-nan.supp \
+	suppression-denorm.stderr.exp suppression-denorm.vgtest suppression-denorm.supp \
 	gen-source-lines.stderr.exp gen-source-lines.stdout.exp gen-source-lines.post.exp gen-source-lines.vgtest \
 	nearest-client-rounding.stderr.exp nearest-client-rounding.stdout.exp nearest-client-rounding.vgtest \
 	nearest-client-rounding2.stderr.exp nearest-client-rounding2.stdout.exp nearest-client-rounding2.vgtest \
@@ -76,6 +78,8 @@ check_PROGRAMS += monitor-instrumentation
 monitor_instrumentation_SOURCES = monitor-instrumentation.c
 check_PROGRAMS += monitor-rounding
 monitor_rounding_SOURCES = monitor-rounding.c
+check_PROGRAMS += suppression
+suppression_SOURCES = suppression.c
 check_PROGRAMS += gen-source-lines
 gen_source_lines_SOURCES = gen-source-lines.c
 check_PROGRAMS += nearest-client-rounding
