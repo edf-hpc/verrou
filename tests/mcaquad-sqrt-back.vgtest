@@ -1,0 +1,5 @@
+prereq: test `uname -m` = x86_64
+prog: mcaquad-sqrt-back
+vgopts: --backend=mcaquad --gen-backtrace=mcaquad-sqrt-back.rep
+stderr_filter: ../../tests/filter_sink
+cleanup: rm -rf mcaquad-sqrt-back.rep

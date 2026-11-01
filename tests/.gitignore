@@ -23,6 +23,7 @@ naninf-unfused
 unfused-soft
 monitor-instrumentation
 monitor-rounding
+mcaquad-sqrt-back
 suppression
 gen-source-lines
 gen-source-lines.out

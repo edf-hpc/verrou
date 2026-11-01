@@ -239,6 +239,8 @@ prefixCode="""
 """
 prefixIsInstrumentedCode="""
 static Bool vr_IsInstrumentedOp (IROp op) {
+    const Vr_opSelection* selection=vr_selectOperators();
+    const Int naninf=0;
     Bool res;
     res=False;
 """
@@ -328,7 +330,8 @@ def transformInst(iopDic):
 def transformIsInstrumented(iopDic):
     res=transformIsInstrumentedPattern(iopDic)
     if iopDic["op"]=="VR_OP_SQRT":
-        res="#ifdef USE_VERROU_SQRT\n"+res+"#endif //USE_VERROU_SQRT\n"
+        # no entry in the table : the operator is only counted (see transformInst)
+        res=" "*6+"if("+operatorEntry(iopDic)+".function!=NULL){\n"+res+" "*6+"}\n"
     return res
 
 

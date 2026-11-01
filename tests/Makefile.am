@@ -52,6 +52,7 @@ EXTRA_DIST = \
 	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
 	monitor-instrumentation.stderr.exp monitor-instrumentation.vgtest \
 	monitor-rounding.stderr.exp monitor-rounding.vgtest \
+	mcaquad-sqrt-back.stderr.exp mcaquad-sqrt-back.stdout.exp mcaquad-sqrt-back.vgtest \
 	suppression-nan.stderr.exp suppression-nan.vgtest suppression-nan.supp \
 	suppression-denorm.stderr.exp suppression-denorm.vgtest suppression-denorm.supp \
 	gen-source-lines.stderr.exp gen-source-lines.stdout.exp gen-source-lines.post.exp gen-source-lines.vgtest \
@@ -78,6 +79,8 @@ check_PROGRAMS += monitor-instrumentation
 monitor_instrumentation_SOURCES = monitor-instrumentation.c
 check_PROGRAMS += monitor-rounding
 monitor_rounding_SOURCES = monitor-rounding.c
+check_PROGRAMS += mcaquad-sqrt-back
+mcaquad_sqrt_back_SOURCES = mcaquad-sqrt-back.c
 check_PROGRAMS += suppression
 suppression_SOURCES = suppression.c
 check_PROGRAMS += gen-source-lines
