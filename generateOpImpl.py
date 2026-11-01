@@ -73,7 +73,7 @@ listOfOpCounted=[
     {"Iop":"Iop_Min64F0x2","op":"VR_OP_MIN", "prec":"VR_PREC_DBL", "vec":"VR_VEC_LLO"}, 
 
     {"Iop":"Iop_Add32Fx2", "op":"VR_OP_ADD", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
-    {"Iop":"Iop_Sub32Fx2", "op":"VR_OP_ADD", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
+    {"Iop":"Iop_Sub32Fx2", "op":"VR_OP_SUB", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
 
     {"Iop": "Iop_CmpF64" , "op":"VR_OP_CMP", "prec":"VR_PREC_DBL", "vec": "VR_VEC_SCAL"},
     {"Iop": "Iop_CmpF32" , "op":"VR_OP_CMP", "prec":"VR_PREC_FLT", "vec": "VR_VEC_SCAL"},
