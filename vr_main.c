@@ -1289,7 +1289,9 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
   if(selection!=NULL){
 #include "vr_gen_iop_switch.h"
   }
+  addStmtToIRSB (sb, stmt);
   Vr_instr_kind res;
+  res.containFloatOp=False;
   res.containFloatCmp=False;
   res.containFloatModOp=False;
   return res;
@@ -1312,6 +1314,7 @@ static Vr_instr_kind vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr, Bo
   } else {
     addStmtToIRSB (sb, stmt);
     Vr_instr_kind res;
+    res.containFloatOp=False;
     res.containFloatModOp=False;
     res.containFloatCmp=False;
     return res;
