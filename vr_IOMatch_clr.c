@@ -638,13 +638,13 @@ static Bool vrIO_Parse_filterLineExec(void){
        if(filter_pid == 0){
           VG_(close)(filter_fdin[1]);
           SysRes res = VG_(dup2)(filter_fdin[0], STDIN_FILENO);
-          if (sr_Res(res) < 0){
+          if (sr_isError(res)){
              VG_(umsg)("vr_IOmatchCLR: problem with DUP2 in pipe 0\n");
              VG_(exit)(1);
           }
           VG_(close)(filter_fdout[0]);
           SysRes res2 = VG_(dup2)(filter_fdout[1], STDOUT_FILENO );
-          if (sr_Res(res2) < 0){
+          if (sr_isError(res2)){
              VG_(umsg)("vr_IOmatchCLR: problem with DUP2 out pipe 1\n");
              VG_(exit)(1);
           }
