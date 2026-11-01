@@ -21,6 +21,7 @@ cdo.out
 naninf-vec
 naninf-unfused
 unfused-soft
+monitor-instrumentation
 gen-source-lines
 gen-source-lines.out
 nearest-client-rounding

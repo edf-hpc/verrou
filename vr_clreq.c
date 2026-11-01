@@ -287,7 +287,7 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
   if(instrStatus!= VR_INSTR){
      HChar * subarg = VG_(strtok_r)(0, " ", ssaveptr);
      Bool isHard=True;
-     if(arg!=NULL){
+     if(subarg!=NULL){
         switch (VG_(keyword_id) ("hard soft", subarg, kwd_report_duplicated_matches)) {
         case -2: /* multiple matches */
            return True;
