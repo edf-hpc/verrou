@@ -340,6 +340,10 @@ static Bool vr_handle_monitor_status (HChar ** ssaveptr) {
 
 static Bool vr_handle_monitor_rounding (HChar ** ssaveptr) {
    HChar* arg = VG_(strtok_r) (0, " ", ssaveptr);
+   if (arg == NULL) {
+      VG_(gdb_printf)("rounding needs a rounding mode\n");
+      return False;
+   }
    vr_set_rounding_mode((char const*const)arg);
    return True;
 }
