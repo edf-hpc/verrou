@@ -279,9 +279,7 @@ def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=N
         return localOp
 
     def bckNearestName(bop, typeVal):
-        # the NEAREST operators are inlined in the wrappers (vr_nearest_inline.h), except sqrt
-        if bop=="sqrt":
-            return "interflop_verrou_sqrt_"+typeVal+"_NEAREST"
+        # the NEAREST operators are inlined in the wrappers (vr_nearest_inline.h)
         return "vr_nearest_"+bop+"_"+typeVal
 
     def bckName(typeVal, first=None):

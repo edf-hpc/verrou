@@ -51,6 +51,17 @@ static inline void vr_nearest_cast_double_to_float (double a, float* res, void* 
    *res=(float)a;
 }
 
+#ifdef USE_VERROU_SQRT
+// __builtin_sqrt may call sqrt, which is not available in the tool
+static inline void vr_nearest_sqrt_double (double a, double* res, void* context) {
+   interflop_verrou_sqrt_double_NEAREST(a, res, context);
+}
+
+static inline void vr_nearest_sqrt_float (float a, float* res, void* context) {
+   interflop_verrou_sqrt_float_NEAREST(a, res, context);
+}
+#endif
+
 #ifdef USE_VERROU_FMA
 static inline void vr_nearest_madd_double (double a, double b, double c, double* res, void* context) {
    *res=__builtin_fma(a, b, c);
