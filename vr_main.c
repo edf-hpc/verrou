@@ -449,6 +449,8 @@ void vr_clean_cache_seed(void){
 
 // ** Overloaded operators
 
+typedef struct { const HChar* name; void* function; } Vr_opEntry;
+
 
 // NaN/Inf detection : the *_naninf variants of the generated operators (selected during the
 // instrumentation if --check-nan=yes or --check-inf=yes) check the result with these functions
@@ -541,7 +543,7 @@ static Bool vr_isInstrumented_hard(Vr_Op op,
 /* Replace a given binary operation by a call to a function
  */
 static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				   const HChar* functionName, void* function,
+				   const Vr_opEntry* entry,
 				   Vr_Op op,
 				   Vr_Prec prec,
 				   Vr_Vec vec,
@@ -586,7 +588,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_2 (arg1, arg2))));
 #if defined(VGA_amd64)
   //conversion after call
@@ -618,7 +620,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					 const HChar* functionName, void* function,
+					 const Vr_opEntry* entry,
 					 Vr_Op op,
 					 Vr_Prec prec,
 					 Vr_Vec vec,
@@ -658,7 +660,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_1 (arg1))));
 
   //conversion after call
@@ -690,7 +692,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					    const HChar* functionName, void* function,
+					    const Vr_opEntry* entry,
 					    Vr_Op op,
 					    Vr_Prec prec,
 					    Vr_Vec vec,
@@ -718,7 +720,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_0_N( 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_0())));
   //update after call
   if (prec==VR_PREC_FLT){
@@ -735,7 +737,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 
 
 static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-						  const HChar* functionName, void* function,
+						  const Vr_opEntry* entry,
 						  Vr_Op op,
 						  Vr_Prec prec,
 						  Vr_Vec vec,
@@ -760,7 +762,7 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_0_N ( 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_0 ())));
   //update after call
   if (prec==VR_PREC_FLT){
@@ -775,31 +777,31 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 }
 
 static Bool vr_replaceBinFpOpLLO_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-						  const HChar* functionName, void* function,
+						  const Vr_opEntry* entry,
 						  Vr_Op op,
 						  Vr_Prec prec,
 						  Vr_Vec vec,
 						  Bool countOnly){
   return vr_replaceBinFpOpLLO_unary_slow_safe (sb, stmt, expr,
-					       functionName, function,
+					       entry,
 					       op, prec, vec,
 					       countOnly);
 }
 
 static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				 const HChar* functionName, void* function,
+				 const Vr_opEntry* entry,
 				 Vr_Op op,
 				 Vr_Prec prec,
 				 Vr_Vec vec,
 				 Bool countOnly){
-   return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec,countOnly);
+   return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,entry,op,prec,vec,countOnly);
 }
 
 
 
 
 static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				  const HChar* functionName, void* function,
+				  const Vr_opEntry* entry,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
@@ -837,7 +839,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -845,7 +847,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					const HChar* functionName, void* function,
+					const Vr_opEntry* entry,
 					Vr_Op op,
 					Vr_Prec prec,
 					Vr_Vec vec,
@@ -880,7 +882,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -890,7 +892,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				  const HChar* functionName, void* function,
+				  const Vr_opEntry* entry,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
@@ -926,7 +928,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -935,7 +937,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					const HChar* functionName, void* function,
+					const Vr_opEntry* entry,
 					Vr_Op op,
 					Vr_Prec prec,
 					Vr_Vec vec,
@@ -968,7 +970,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_1 (IRExpr_VECRET()))));
 
   //conversion after call
@@ -979,7 +981,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			   const HChar* functionName, void* function,
+			   const Vr_opEntry* entry,
 			   Vr_Op   op,
 			   Vr_Prec prec,
                            Vr_Vec vec,
@@ -1011,7 +1013,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   }
 
   IRDirty* id= unsafeIRDirty_1_N (res, 3,
-				  functionName, VG_(fnptr_to_fnentry)(function),
+				  entry->name, VG_(fnptr_to_fnentry)(entry->function),
 				  mkIRExprVec_3 (arg2, arg3,arg4));
 
   addStmtToIRSB (sb,IRStmt_Dirty(id));
@@ -1038,7 +1040,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			    const HChar* functionName, void* function,
+			    const Vr_opEntry* entry,
 			    Vr_Op   op,
 			    Vr_Prec prec,
                             Vr_Vec vec,
@@ -1057,7 +1059,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   arg2=vr_F64toI64(sb,arg2);
 
   IRDirty* id= unsafeIRDirty_1_N (res, 1,
-				  functionName, VG_(fnptr_to_fnentry)(function),
+				  entry->name, VG_(fnptr_to_fnentry)(entry->function),
 				  mkIRExprVec_1 (arg2));
 
   addStmtToIRSB (sb,IRStmt_Dirty(id));
@@ -1116,24 +1118,25 @@ static Bool operation_with_float_args(IRExpr* expr){
 // The operators are selected once by vr_selectOperators (the tests on the options, generated by
 // generateInstrumentOp_impl.py) : the unique switch on the Iop (vr_instrumentOp_impl.h) reads the
 // tables generated by generateBackendInterOperator.py
-typedef struct { const HChar* name; void* function; } Vr_opEntry;
 #include "vr_instrumentOp_tables.h"
 
+// The tables used by the switch on the Iop : cc for the operators with cancellation check,
+// conv for the double operators with --float=yes, Unfused for the FMA with --unfused=yes
 typedef struct {
-   const Vr_opEntry* bcName;
-   const Vr_opEntry* bcNameWithCC;
-   const Vr_opEntry* bcNameWithCCUnfused;
-   const Vr_opEntry* bcNameConv;
-   const Vr_opEntry* bcNameConvWithCC;
-   const Vr_opEntry* bcNameConvWithCCUnfused;
+   const Vr_opEntry* plain;
+   const Vr_opEntry* cc;
+   const Vr_opEntry* ccUnfused;
+   const Vr_opEntry* conv;
+   const Vr_opEntry* convCC;
+   const Vr_opEntry* convCCUnfused;
 } Vr_opSelection;
 
-#define VR_SELECT_OPERATORS(NAME, WITHCC, WITHCCUNFUSED, CONV, CONVWITHCC, CONVWITHCCUNFUSED) { \
+#define VR_SELECT_OPERATORS(PLAIN, CC, CCUNFUSED, CONV, CONVCC, CONVCCUNFUSED) { \
       static const Vr_opSelection selection[2]={                        \
-         {vr_table_##NAME, vr_table_##WITHCC, vr_table_##WITHCCUNFUSED, \
-          vr_table_##CONV, vr_table_##CONVWITHCC, vr_table_##CONVWITHCCUNFUSED}, \
-         {VR_NANINF_TABLE(NAME), VR_NANINF_TABLE(WITHCC), VR_NANINF_TABLE(WITHCCUNFUSED), \
-          VR_NANINF_TABLE(CONV), VR_NANINF_TABLE(CONVWITHCC), VR_NANINF_TABLE(CONVWITHCCUNFUSED)}}; \
+         {vr_table_##PLAIN, vr_table_##CC, vr_table_##CCUNFUSED,        \
+          vr_table_##CONV, vr_table_##CONVCC, vr_table_##CONVCCUNFUSED}, \
+         {VR_NANINF_TABLE(PLAIN), VR_NANINF_TABLE(CC), VR_NANINF_TABLE(CCUNFUSED), \
+          VR_NANINF_TABLE(CONV), VR_NANINF_TABLE(CONVCC), VR_NANINF_TABLE(CONVCCUNFUSED)}}; \
       return &selection[naninf ? 1 : 0];                                \
    }
 
@@ -1146,19 +1149,7 @@ static const Vr_opSelection* vr_selectOperators (Bool naninf) {
    return NULL;
 }
 
-#define VR_BACKEND_IGNORE_SQRT (vr.backend==vr_mcaquad)
-#define VR_OPERATOR(KIND, OP) selection->KIND[VR_OPID_##OP].name, selection->KIND[VR_OPID_##OP].function
-#define bcName(OP) VR_OPERATOR(bcName, OP)
-#define bcNameWithCC(OP) VR_OPERATOR(bcNameWithCC, OP)
-#define bcNameWithCCUnfused(OP) VR_OPERATOR(bcNameWithCCUnfused, OP)
-#define bcNameConv(OP) VR_OPERATOR(bcNameConv, OP)
-#define bcNameConvWithCC(OP) VR_OPERATOR(bcNameConvWithCC, OP)
-#define bcNameConvWithCCUnfused(OP) VR_OPERATOR(bcNameConvWithCCUnfused, OP)
-
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
-#ifndef USE_VERROU_SQRT
-#define IGNORESQRT
-#endif
   const Vr_opSelection* selection=vr_selectOperators(VR_NANINF_SELECTED);
   if(selection!=NULL){
 #include "vr_instrumentOp_impl.h"
