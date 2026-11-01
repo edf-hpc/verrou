@@ -49,10 +49,7 @@ def treatBackend(tab, soft):
         res=["if(vr.instrument_soft&&vr.instrument_soft_back){\n"]
         res+=tab
         res+=["}else{\n"]
-        if any(["BACKEND_UNFUSED" in line for line in tab]):
-            res+=[line.replace("BACKEND_UNFUSED","BACKEND") for line in tab]
-        else:
-            res+=[toNearest(line) for line in tab]
+        res+=[toNearest(line) for line in tab]
         res+=["}\n"]
         return res
 
