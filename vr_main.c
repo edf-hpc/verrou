@@ -1385,7 +1385,7 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 };
 
 
-static Int firstAddrBellowMain=0;
+static Addr firstAddrBellowMain=0;
 
 Int reduced_nb_below_main(Addr*ips, Int nb){
    if(firstAddrBellowMain==0){
@@ -1405,7 +1405,6 @@ Int reduced_nb_below_main(Addr*ips, Int nb){
       }
       return nb;
    }
-   return 0; //Error
 }
 
 //static
