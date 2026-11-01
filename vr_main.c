@@ -1505,8 +1505,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     strdup
   */
 
-  HChar const * fnname;
-  HChar const * objname;
+  HChar const * fnname=""; //empty : not traced by vr_includeTraceIRSB
+  HChar const * objname="";
   HChar const ** fnnamePtr=&fnname;
   HChar const ** objnamePtr=&objname;
 
