@@ -94,17 +94,17 @@ clean_generated:
 	find -name "*.o" -exec rm \{\} \;
 	find -name "*.so" -exec rm \{\} \;
 
-vr_generated_from_templates.h: generateBackendInterOperator.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
+vr_generated_from_templates.h: generateBackendInterOperator.py generateOperatorNames.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
 	./generateBackendInterOperator.py
-vr_instrumentOp_tables.h: generateBackendInterOperator.py
+vr_instrumentOp_tables.h: generateBackendInterOperator.py generateOperatorNames.py
 	./generateBackendInterOperator.py
 vr_instrumentOp_checkInst.h: generateOpImpl.py
 	./generateOpImpl.py
 vr_instrumentOp_impl.h: generateOpImpl.py
 	./generateOpImpl.py
-vr_instrumentOp_impl_generated_verrou_specific.h: generateInstrumentOp_impl.py
+vr_instrumentOp_impl_generated_verrou_specific.h: generateInstrumentOp_impl.py generateOperatorNames.py
 	./generateInstrumentOp_impl.py
-vr_instrumentOp_impl_generated_all_backends.h: generateInstrumentOp_impl.py
+vr_instrumentOp_impl_generated_all_backends.h: generateInstrumentOp_impl.py generateOperatorNames.py
 	./generateInstrumentOp_impl.py
 
 VERROU_SOURCES_COMMON = \

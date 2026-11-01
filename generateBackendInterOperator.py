@@ -27,6 +27,7 @@
 import sys
 import re
 import itertools
+from generateOperatorNames import operatorPrefix
 
 FctNameRegExp=re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
 FctConvNameRegExp=re.compile(r"(.*)FCTCONVNAME\(([^,]*),([^)]*)\)(.*)")
@@ -242,23 +243,9 @@ def nanInfCheckLine(backendLine, typeVal):
 def applyTemplate(fileOut, templateStr, backend, op, post, sign=None, rounding=None, soft=False, skipConv=False, naninf=False, guards=[]):
     fileOut.write("// generation of operation %s backend %s%s\n"%(op,backend, " with NaN/Inf check" if naninf else ""))
     nanInfSuffix="_naninf" if naninf else ""
-    backendFunc=backend
-    if rounding!=None:
-        backendFunc=backend+"_"+rounding
-
-    def fctPrefix(unfused,conv):
-        vrPrefix="vr_"
-        if unfused:
-            vrPrefix+="unfused_"
-        if conv:
-            vrPrefix+="conv_"
-        if soft:
-            return vrPrefix+backendFunc+post+"_soft"
-        else:
-            return vrPrefix+backendFunc+post
 
     def fctName(unfused,conv,typeVal,opt):
-        prefix=fctPrefix(unfused,conv)
+        prefix=operatorPrefix(backend, rounding, post, soft, unfused, conv)
         name=prefix+op+typeVal+opt
         operatorTables.setdefault(prefix,{})[op+typeVal+opt]=name
         tableGuards[prefix]=guards
