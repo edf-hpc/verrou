@@ -124,7 +124,6 @@ void vr_trace_inc(Vr_Trace* vrTrace, Addr bbAddr, Int nbBack, Addr* ip){
 void vr_trace_init0(Vr_Trace* vrTrace){
    vrTrace->trace=NULL;
    vrTrace->back_addr_list=NULL;
-   vrTrace->bb_addr_list=NULL;
    vrTrace->currentIndexFirst=0;
 
    vrTrace->cover_file=NULL;
@@ -234,7 +233,6 @@ void vr_trace_finalize(Vr_Trace* vrTrace){
    VG_(free)(vrTrace->trace);
    vrTrace->trace=NULL;
    vr_freeAddrList(vrTrace->back_addr_list);
-   vr_freeAddrList(vrTrace->bb_addr_list);
 
    VG_(fclose)(vrTrace->handlerCover);
    VG_(fclose)(vrTrace->handlerBackAddrList);
@@ -282,19 +280,6 @@ void vr_trace_dump_and_clear(Vr_Trace* vrTrace, UInt indexCov ){
 /*       VG_(umsg)(",%lu",ip[i]); */
 /*    } */
 /* } */
-
-Bool vr_trace_is_bbAddr_already_defined(Vr_Trace* vrTrace, Addr bbAddr){
-   Vr_Addr_List* res=vr_findAddr (vrTrace->bb_addr_list, bbAddr);
-   if(res==NULL){
-      if(VG_(clo_verbosity) >1){
-         VG_(umsg)("bbAddr already seen %lu\n", bbAddr);
-      }
-      return False;
-   }else{
-      vrTrace->bb_addr_list= vr_addAddrList (vrTrace->bb_addr_list, bbAddr);
-      return True;
-   }
-}
 
 static inline HChar containFloatToC(Bool containFloat){
    if(containFloat){
