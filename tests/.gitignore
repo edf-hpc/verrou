@@ -21,4 +21,6 @@ cdo.out
 naninf-vec
 naninf-unfused
 unfused-soft
+gen-source-lines
+gen-source-lines.out
 nearest-client-rounding

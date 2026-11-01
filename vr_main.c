@@ -1591,6 +1591,7 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
                                   *fnnamePtr,*filenamePtr,*linenumPtr);
       }
       doLineContainFloat=False;
+      doLineContainFloatMod=False;
       doLineContainFloatCmp=False;
 
       filenamePtr=&filename;
