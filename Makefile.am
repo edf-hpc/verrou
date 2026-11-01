@@ -82,7 +82,7 @@ noinst_PROGRAMS += verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
 
-VR_GENERATED_FILE=vr_instrumentOp_checkInst.h vr_instrumentOp_impl.h vr_generated_from_templates.h vr_instrumentOp_impl_generated_verrou_specific.h vr_instrumentOp_impl_generated_all_backends.h vr_instrumentOp_tables.h
+VR_GENERATED_FILE=vr_gen_iop_is_instrumented.h vr_gen_iop_switch.h vr_gen_wrappers.h vr_gen_select_verrou.h vr_gen_select_backends.h vr_gen_operator_tables.h
 # code generation frontend
 vr_main.c: ${VR_GENERATED_FILE}
 
@@ -94,18 +94,18 @@ clean_generated:
 	find -name "*.o" -exec rm \{\} \;
 	find -name "*.so" -exec rm \{\} \;
 
-vr_generated_from_templates.h: generateBackendInterOperator.py generateOperatorNames.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
-	./generateBackendInterOperator.py
-vr_instrumentOp_tables.h: generateBackendInterOperator.py generateOperatorNames.py
-	./generateBackendInterOperator.py
-vr_instrumentOp_checkInst.h: generateOpImpl.py
-	./generateOpImpl.py
-vr_instrumentOp_impl.h: generateOpImpl.py
-	./generateOpImpl.py
-vr_instrumentOp_impl_generated_verrou_specific.h: generateInstrumentOp_impl.py generateOperatorNames.py
-	./generateInstrumentOp_impl.py
-vr_instrumentOp_impl_generated_all_backends.h: generateInstrumentOp_impl.py generateOperatorNames.py
-	./generateInstrumentOp_impl.py
+vr_gen_wrappers.h: generateWrappers.py generateOperatorNames.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
+	./generateWrappers.py
+vr_gen_operator_tables.h: generateWrappers.py generateOperatorNames.py
+	./generateWrappers.py
+vr_gen_iop_is_instrumented.h: generateIopSwitch.py
+	./generateIopSwitch.py
+vr_gen_iop_switch.h: generateIopSwitch.py
+	./generateIopSwitch.py
+vr_gen_select_verrou.h: generateSelection.py generateOperatorNames.py
+	./generateSelection.py
+vr_gen_select_backends.h: generateSelection.py generateOperatorNames.py
+	./generateSelection.py
 
 VERROU_SOURCES_COMMON = \
 	vr_main.c	\

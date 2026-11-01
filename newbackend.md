@@ -15,9 +15,9 @@ This document aims to explain shortly how to add a new backend in verrou.
 
 #At this step you can test compilation
 
-4- modify the file generateBackendInterOperator.py
-   - In the __main__ section add NEWNAME in the generateNArgs call.
-   - generate a new vr_generated_from_templates.h file : ./generateBackendInterOperator.py
+4- modify the file generateWrappers.py
+   - In the __main__ section add NEWNAME in the generateOperators call.
+   - generate a new vr_gen_wrappers.h file : ./generateWrappers.py
    - Remark : both file are followed in git
 
 #At this step you can't test compilation (you can after the first item of the next step)
@@ -25,7 +25,7 @@ This document aims to explain shortly how to add a new backend in verrou.
 5- modify vr_main.c :
    - add instanciation of backend_NEWNAME and  backend_NEWNAME_context as for verrou or mcaquad
    - modify vr_instrumentOp with a new switch. If there are missing call in the backend you can
-   change the inclusion with #define macro. You may need to customize the file vr_instrumentOp_impl.h.
+   change the inclusion with #define macro. You may need to customize the file vr_gen_iop_switch.h.
    - add   interflop_NEWNAME_finalize(backend_NEWNAME_context) in vr_fini
 
    - configure the backend in vr_post_clo_init
