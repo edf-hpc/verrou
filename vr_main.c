@@ -453,13 +453,16 @@ typedef struct { const HChar* name; void* function; } Vr_opEntry;
 
 
 // NaN/Inf detection : the *_naninf variants of the generated operators (selected during the
-// instrumentation if --check-nan=yes or --check-inf=yes) check the result with these functions
+// instrumentation if --check-nan=yes or --check-inf=yes) check the result with these functions.
+// Each entry of the operator tables gives the plain operator and its _naninf variant.
 #ifndef VERROU_IGNORE_NANINF_CHECK
 #define VR_NANINF_SELECTED (vr.checknan || vr.checkinf)
-#define VR_NANINF_TABLE(PREFIX) vr_table_##PREFIX##_naninf
+#define VR_NANINF_NB 2
+#define VR_OP_ENTRY(FUNC) {{#FUNC, (void*)FUNC}, {#FUNC "_naninf", (void*)FUNC##_naninf}}
 #else
 #define VR_NANINF_SELECTED False
-#define VR_NANINF_TABLE(PREFIX) vr_table_##PREFIX
+#define VR_NANINF_NB 1
+#define VR_OP_ENTRY(FUNC) {{#FUNC, (void*)FUNC}}
 #endif
 
 static inline void vr_nanInfCheck_double (double x) {
@@ -1123,24 +1126,22 @@ static Bool operation_with_float_args(IRExpr* expr){
 // The tables used by the switch on the Iop : cc for the operators with cancellation check,
 // conv for the double operators with --float=yes, Unfused for the FMA with --unfused=yes
 typedef struct {
-   const Vr_opEntry* plain;
-   const Vr_opEntry* cc;
-   const Vr_opEntry* ccUnfused;
-   const Vr_opEntry* conv;
-   const Vr_opEntry* convCC;
-   const Vr_opEntry* convCCUnfused;
+   const Vr_opEntry (*plain)[VR_NANINF_NB];
+   const Vr_opEntry (*cc)[VR_NANINF_NB];
+   const Vr_opEntry (*ccUnfused)[VR_NANINF_NB];
+   const Vr_opEntry (*conv)[VR_NANINF_NB];
+   const Vr_opEntry (*convCC)[VR_NANINF_NB];
+   const Vr_opEntry (*convCCUnfused)[VR_NANINF_NB];
 } Vr_opSelection;
 
 #define VR_SELECT_OPERATORS(PLAIN, CC, CCUNFUSED, CONV, CONVCC, CONVCCUNFUSED) { \
-      static const Vr_opSelection selection[2]={                        \
-         {vr_table_##PLAIN, vr_table_##CC, vr_table_##CCUNFUSED,        \
-          vr_table_##CONV, vr_table_##CONVCC, vr_table_##CONVCCUNFUSED}, \
-         {VR_NANINF_TABLE(PLAIN), VR_NANINF_TABLE(CC), VR_NANINF_TABLE(CCUNFUSED), \
-          VR_NANINF_TABLE(CONV), VR_NANINF_TABLE(CONVCC), VR_NANINF_TABLE(CONVCCUNFUSED)}}; \
-      return &selection[naninf ? 1 : 0];                                \
+      static const Vr_opSelection selection={                           \
+         vr_table_##PLAIN, vr_table_##CC, vr_table_##CCUNFUSED,         \
+         vr_table_##CONV, vr_table_##CONVCC, vr_table_##CONVCCUNFUSED}; \
+      return &selection;                                                \
    }
 
-static const Vr_opSelection* vr_selectOperators (Bool naninf) {
+static const Vr_opSelection* vr_selectOperators (void) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
 #include "vr_instrumentOp_impl_generated_verrou_specific.h"
@@ -1150,7 +1151,8 @@ static const Vr_opSelection* vr_selectOperators (Bool naninf) {
 }
 
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
-  const Vr_opSelection* selection=vr_selectOperators(VR_NANINF_SELECTED);
+  const Vr_opSelection* selection=vr_selectOperators();
+  const Int naninf=VR_NANINF_SELECTED ? 1 : 0;
   if(selection!=NULL){
 #include "vr_instrumentOp_impl.h"
   }

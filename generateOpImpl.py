@@ -194,7 +194,7 @@ def operatorEntry(iopDic, unfused=False):
     return tableEntry(kind if kind!="" else "plain", minOp+nbBit+vec)
 
 def tableEntry(kind, opName):
-    return "selection->"+kind+"[VR_OPID_"+opName+"]"
+    return "selection->"+kind+"[VR_OPID_"+opName+"][naninf]"
 
 
 def loopOverIop(handler, prefix,  postFix, default,
