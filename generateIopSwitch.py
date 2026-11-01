@@ -301,17 +301,25 @@ def transformIsInstrumentedPattern(iopDic):
     return res
 
 
+nearestIRPattern="""          res.containFloatModOp= vr_nearestOpIR (sb, stmt, expr, %%OP%%, %%PREC%%, %%VEC%%, countOnly);
+          res.containFloatOp=True;
+"""
+
+def withNearestIR(iopDic, wrapperCode):
+    nearestCode=nearestIRPattern.replace("%%OP%%", iopDic["op"]).replace("%%PREC%%", iopDic["prec"]).replace("%%VEC%%", iopDic["vec"])
+    return " "*6+"if(nearestIR){\n"+nearestCode+" "*6+"}else{\n"+wrapperCode+" "*6+"}\n"
+
 def transformInst(iopDic):
     entry=operatorEntry(iopDic)
     if iopDic["op"] in ["VR_OP_MADD","VR_OP_MSUB"]:
         res=" "*6+"if(vr.unfused){\n"
         res+=transformInstPattern(iopDic, operatorEntry(iopDic, unfused=True))
         res+=" "*6+"}else{\n"
-        res+=transformInstPattern(iopDic, entry)
+        res+=withNearestIR(iopDic, transformInstPattern(iopDic, entry))
         res+=" "*6+"}\n"
         return res
 
-    res=transformInstPattern(iopDic, entry)
+    res=withNearestIR(iopDic, transformInstPattern(iopDic, entry))
     if iopDic["op"]=="VR_OP_SQRT":
         # no entry in the table : sqrt is not available with the backend or at compilation
         res=" "*6+"if("+entry+".function!=NULL){\n"+res+" "*6+"}else{\n"+transformCount(iopDic)+" "*6+"}\n"

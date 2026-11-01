@@ -1118,6 +1118,138 @@ static Bool operation_with_float_args(IRExpr* expr){
 
 
 
+// The nearest and native rounding modes of the verrou backend keep the operation in the IR, without
+// any call to a wrapper. The NaN/Inf detection is also done in the IR.
+static Bool vr_nearestInIR (void) {
+#if defined(VGA_amd64) && !defined(DEBUG_PRINT_OP)
+   return vr.backend==vr_verrou && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE)
+      && !vr.float_conv && !vr.checkCancellation && !vr.dumpCancellation && !vr.checkFloatMax;
+#else
+   return False;
+#endif
+}
+
+#ifndef VERROU_IGNORE_NANINF_CHECK
+static IRExpr* vr_assignIR (IRSB* sb, IRType ty, IRExpr* expr) {
+   IRTemp tmp= newIRTemp (sb->tyenv, ty);
+   addStmtToIRSB (sb, IRStmt_WrTmp (tmp, expr));
+   return IRExpr_RdTmp (tmp);
+}
+
+static VG_REGPARM(1) void vr_nanInfHit_double (ULong bits) {
+   vr_handle_NaNInf_F64 (bits);
+}
+
+static VG_REGPARM(1) void vr_nanInfHit_float (ULong bits) {
+   vr_handle_NaNInf_F32 ((UInt)bits);
+}
+
+static void vr_nanInfCheckIR_double (IRSB* sb, IRExpr* bits) {
+   IRExpr* mask= IRExpr_Const (IRConst_U64 (0x7ff0000000000000ULL));
+   IRExpr* exponent= vr_assignIR (sb, Ity_I64, IRExpr_Binop (Iop_And64, bits, mask));
+   IRDirty* di= unsafeIRDirty_0_N (1, "vr_nanInfHit_double", VG_(fnptr_to_fnentry)(&vr_nanInfHit_double),
+                                   mkIRExprVec_1 (bits));
+   di->guard= vr_assignIR (sb, Ity_I1, IRExpr_Binop (Iop_CmpEQ64, exponent, mask));
+   addStmtToIRSB (sb, IRStmt_Dirty (di));
+}
+
+static void vr_nanInfCheckIR_float (IRSB* sb, IRExpr* bits) {
+   IRExpr* mask= IRExpr_Const (IRConst_U32 (0x7f800000));
+   IRExpr* exponent= vr_assignIR (sb, Ity_I32, IRExpr_Binop (Iop_And32, bits, mask));
+   IRDirty* di= unsafeIRDirty_0_N (1, "vr_nanInfHit_float", VG_(fnptr_to_fnentry)(&vr_nanInfHit_float),
+                                   mkIRExprVec_1 (vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_32Uto64, bits))));
+   di->guard= vr_assignIR (sb, Ity_I1, IRExpr_Binop (Iop_CmpEQ32, exponent, mask));
+   addStmtToIRSB (sb, IRStmt_Dirty (di));
+}
+
+// Check the nbLanes lowest lanes contained in a 64 bits word
+static void vr_nanInfCheckIR_word (IRSB* sb, IRExpr* word, Vr_Prec prec, Int nbLanes) {
+   if (prec==VR_PREC_DBL) {
+      vr_nanInfCheckIR_double (sb, word);
+   } else {
+      vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_64to32, word)));
+      if (nbLanes==2) {
+         vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_64HIto32, word)));
+      }
+   }
+}
+
+static void vr_nanInfCheckIR (IRSB* sb, IRTemp tmp, Vr_Prec prec, Vr_Vec vec) {
+   static const IROp v256Words[4]= {Iop_V256to64_0, Iop_V256to64_1, Iop_V256to64_2, Iop_V256to64_3};
+   IRExpr* res= IRExpr_RdTmp (tmp);
+   Int i;
+   switch (typeOfIRTemp (sb->tyenv, tmp)) {
+   case Ity_F64:
+      vr_nanInfCheckIR_double (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_ReinterpF64asI64, res)));
+      break;
+   case Ity_F32:
+      vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_ReinterpF32asI32, res)));
+      break;
+   case Ity_V128:
+      vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_V128to64, res)),
+                             prec, vec==VR_VEC_LLO ? 1 : 2);
+      if (vec!=VR_VEC_LLO) {
+         vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_V128HIto64, res)), prec, 2);
+      }
+      break;
+   case Ity_V256:
+      for (i=0; i<4; i++) {
+         vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (v256Words[i], res)), prec, 2);
+      }
+      break;
+   default:
+      VG_(tool_panic) ("vr_nanInfCheckIR: unexpected type");
+   }
+}
+#endif
+
+// The wrappers compute in nearest whatever the rounding mode of the client
+static IRExpr* vr_exprWithNearestRounding (IRSB* sb, IRExpr* expr) {
+   IRExpr* nearest= IRExpr_Const (IRConst_U32 (Irrm_NEAREST));
+   switch (expr->tag) {
+   case Iex_Qop:
+      return IRExpr_Qop (expr->Iex.Qop.details->op, nearest, expr->Iex.Qop.details->arg2,
+                         expr->Iex.Qop.details->arg3, expr->Iex.Qop.details->arg4);
+   case Iex_Triop:
+      return IRExpr_Triop (expr->Iex.Triop.details->op, nearest, expr->Iex.Triop.details->arg2,
+                           expr->Iex.Triop.details->arg3);
+   case Iex_Binop:
+      if (typeOfIRExpr (sb->tyenv, expr->Iex.Binop.arg1)==Ity_I32) {
+         return IRExpr_Binop (expr->Iex.Binop.op, nearest, expr->Iex.Binop.arg2);
+      }
+      return expr;
+   default:
+      return expr;
+   }
+}
+
+static Bool vr_nearestOpIR (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+                            Vr_Op op,
+                            Vr_Prec prec,
+                            Vr_Vec vec,
+                            Bool countOnly) {
+   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
+      vr_countOp (sb, op, prec, vec, False);
+      addStmtToIRSB (sb, stmt);
+      return False;
+   }
+   if(vr.verbose && vec==VR_VEC_SCAL){
+      IROp irop;
+      if (vr_getOp (expr, &irop))
+         vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
+   }
+   vr_countOp (sb, op, prec, vec, True);
+
+   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, vr_exprWithNearestRounding (sb, expr)));
+#ifndef VERROU_IGNORE_NANINF_CHECK
+   if (VR_NANINF_SELECTED) {
+      vr_nanInfCheckIR (sb, stmt->Ist.WrTmp.tmp, prec==VR_PREC_DBL_TO_FLT ? VR_PREC_FLT : prec, vec);
+   }
+#endif
+   return True;
+}
+
+
 // The operators are selected once by vr_selectOperators (the tests on the options, generated by
 // generateSelection.py) : the unique switch on the Iop (vr_gen_iop_switch.h) reads the
 // tables generated by generateWrappers.py
@@ -1153,6 +1285,7 @@ static const Vr_opSelection* vr_selectOperators (void) {
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
   const Vr_opSelection* selection=vr_selectOperators();
   const Int naninf=VR_NANINF_SELECTED ? 1 : 0;
+  const Bool nearestIR=vr_nearestInIR();
   if(selection!=NULL){
 #include "vr_gen_iop_switch.h"
   }

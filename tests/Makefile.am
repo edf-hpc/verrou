@@ -50,6 +50,8 @@ EXTRA_DIST = \
 	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64 \
 	naninf-unfused.stderr.exp naninf-unfused.stdout.exp naninf-unfused.vgtest \
 	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
+	nearest-client-rounding.stderr.exp nearest-client-rounding.stdout.exp nearest-client-rounding.vgtest \
+	nearest-client-rounding2.stderr.exp nearest-client-rounding2.stdout.exp nearest-client-rounding2.vgtest \
 	test_unfusedfma1.stderr.exp test_unfusedfma1.stdout.exp test_unfusedfma1.vgtest \
 	test_unfusedfma2.stderr.exp test_unfusedfma2.stdout.exp test_unfusedfma2.vgtest \
 	test_unfusedfma3.stderr.exp test_unfusedfma3.stdout.exp test_unfusedfma3.vgtest \
@@ -67,6 +69,8 @@ check_PROGRAMS += naninf-unfused
 naninf_unfused_SOURCES = naninf-unfused.cxx
 check_PROGRAMS += unfused-soft
 unfused_soft_SOURCES = unfused-soft.cxx
+check_PROGRAMS += nearest-client-rounding
+nearest_client_rounding_SOURCES = nearest-client-rounding.cxx
 
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx

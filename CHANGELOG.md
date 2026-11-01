@@ -9,6 +9,7 @@ This version is based on Valgrind-3.27.1.
 	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
 	- NaN/Inf detection is done after the backend call with all the backends: with --unfused=yes only the final result of a FMA is checked.
 	- The nearest operators are inlined in the instrumentation wrappers (about 10% faster).
+	- The nearest and native rounding modes of the verrou backend keep the operations in the IR, with the NaN/Inf detection also done in the IR (about 2x faster on x86_64, with --unfused=yes the FMA still use the wrappers). The NaN payloads are now the same as the native execution when both operands are NaN.
 	- The operators are selected with generated tables: reduced memory usage and compilation time of vr_main.c.
 	- With --unfused=yes, the FMA are no longer perturbed when the instrumentation is stopped with the soft instrumentation (without --float=yes).
 
