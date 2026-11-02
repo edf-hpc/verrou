@@ -1,0 +1,46 @@
+Verrou, Check floating-point rounding errors
+Copyright (C) XXXXX 
+
+First seed : XXX
+Backend verrou : test-version
+Backend checkcancellation : test-version
+Backend check_float_max : test-version
+Backend checkdenorm : test-version
+Instrumented operations :
+	add : yes
+	sub : yes
+	mul : yes
+	div : yes
+	mAdd : yes
+	mSub : yes
+	sqrt : yes
+	cmp : no
+	conv : yes
+	max : no
+	min : no
+Instrumented vectorized operations :
+	scal : no
+	llo  : yes
+	vec2  : yes
+	vec4  : yes
+	vec8  : yes
+	unk  : yes
+Instrumented type :
+	flt : yes
+	dbl : yes
+Frontend: unfused
+Backend verrou simulating NEAREST rounding mode
+NaN: 
+   at 0xFFFFFF: main (naninf-unfused.cxx:7)
+   by 0xFFFFFF: main (naninf-unfused.cxx:9)
+
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ mAdd                       1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

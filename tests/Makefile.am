@@ -48,7 +48,7 @@ EXTRA_DIST = \
 	hardSoftClreqDouble3.stderr.exp hardSoftClreqDouble3.stdout.exp hardSoftClreqDouble3.vgtest \
 	libmtest_float_conv1.stderr.exp libmtest_float_conv1.stdout.exp libmtest_float_conv1.vgtest libmtest_float_conv1.stderr.exp.aarch64 \
 	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64 \
-	naninf-unfused.stderr.exp naninf-unfused.stdout.exp naninf-unfused.vgtest \
+	naninf-unfused.stderr.exp naninf-unfused.stdout.exp naninf-unfused.vgtest naninf-unfused.stderr.exp.aarch64 \
 	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
 	monitor-instrumentation.stderr.exp monitor-instrumentation.vgtest \
 	monitor-rounding.stderr.exp monitor-rounding.vgtest \
