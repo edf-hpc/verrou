@@ -24,7 +24,7 @@
           VERROU_BACKEND\n\
 \n\
     Perturbation of floating-point operations\n\
-      --rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
+      --rounding-mode=<random[|_det|_comdet|_scomdet|_instr]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz>\n\
       [default=nearest]\n\
           Emulate the given rounding mode for operations instrumented with\n\
           the verrou backend. If this option is not provided, Verrou always\n\
@@ -33,7 +33,7 @@
           •   Stochastic rounding modes: random, nearness, prandom,\n\
               random_det, nearness_det, prandom_det, random_comdet,\n\
               nearness_comdet, prandom_comdet, random_scomdet,\n\
-              nearness_scomdet, sr_monotonic, sr_smonotonic.\n\
+              nearness_scomdet, random_instr, sr_monotonic, sr_smonotonic.\n\
 \n\
           •   IEEE-754 rounding modes: nearest[default], upward, downward,\n\
               toward_zero.\n\

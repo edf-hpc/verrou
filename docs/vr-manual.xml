@@ -121,7 +121,7 @@
 	  </varlistentry>
 
 	  <varlistentry>
-	    <term><option><![CDATA[--rounding=<nearest|upward|downward|toward_zero|away_zero|farthest|float|ftz|daz|dazftz|native|random|random_det|random_comdet|nearness|nearness_det|nearness_comdet|prandom|prandom_det|prandom_comdet|random_scomdet|nearness_scomdet|sr_monotonic|sr_smonotonic>]]></option></term>
+	    <term><option><![CDATA[--rounding=<nearest|upward|downward|toward_zero|away_zero|farthest|float|ftz|daz|dazftz|native|random|random_det|random_comdet|nearness|nearness_det|nearness_comdet|prandom|prandom_det|prandom_comdet|random_scomdet|nearness_scomdet|random_instr|sr_monotonic|sr_smonotonic>]]></option></term>
 	    <listitem>
 	      <para>Switch the rounding mode.</para>
 	    </listitem>
@@ -378,7 +378,7 @@ det2
         <variablelist id="vr.opts.instr.list">
 
           <varlistentry id="vr-opt.rounding-mode" xreflabel="--rounding-mode">
-            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=nearest]]]></option></term>
+            <term><option><![CDATA[--rounding-mode=<random[|_det|_comdet|_scomdet|_instr]|nearness[|_det|_comdet|_scomdet]|prandom[|_det|_comdet]|sr_[s]monotonic|nearest|native|upward|downward|toward_zero|away_zero|farthest|float|daz|ftz|dazftz> [default=nearest]]]></option></term>
             <listitem>
               <para>
                 Emulate the given <link linkend="vr-manual.feat.rounding-mode">rounding mode</link>
@@ -400,6 +400,7 @@ det2
 		    <computeroutput>prandom_comdet</computeroutput>,
 		    <computeroutput>random_scomdet</computeroutput>,
                     <computeroutput>nearness_scomdet</computeroutput>,
+		    <computeroutput>random_instr</computeroutput>,
 		    <computeroutput>sr_monotonic</computeroutput>,
 		    <computeroutput>sr_smonotonic</computeroutput>.
                 </para></listitem>

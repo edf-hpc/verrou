@@ -4,6 +4,7 @@ This version is based on Valgrind-3.27.1.
 
 ### Added
 	- NaN/Inf detection (--check-nan/--check-inf) is now available with all backends (vprec, mcaquad, checkdenorm).
+	- Added the rounding mode random_instr: the direction (upward or downward) of an instruction is drawn during the instrumentation and does not depend on the instrumentation status of the other instructions (with --libm=instrumented: one direction for each function and type).
 
 ### Changed
 	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
