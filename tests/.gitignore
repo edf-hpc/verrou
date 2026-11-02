@@ -29,3 +29,4 @@ suppression
 gen-source-lines
 gen-source-lines.out
 nearest-client-rounding
+random-instr

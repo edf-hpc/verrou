@@ -1,0 +1,5 @@
+prog: random-instr
+vgopts: --rounding-mode=random_instr --vr-seed=1
+stderr_filter: ../../tests/filter_sink
+post: ./random-instr-exclude.sh
+cleanup: rm -f random-instr.exclude

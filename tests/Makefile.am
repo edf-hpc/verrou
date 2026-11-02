@@ -50,6 +50,7 @@ EXTRA_DIST = \
 	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64 \
 	naninf-unfused.stderr.exp naninf-unfused.stdout.exp naninf-unfused.vgtest naninf-unfused.stderr.exp.aarch64 \
 	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
+	random-instr.stderr.exp random-instr.stdout.exp random-instr.post.exp random-instr.vgtest random-instr-exclude.sh \
 	monitor-instrumentation.stderr.exp monitor-instrumentation.vgtest \
 	monitor-rounding.stderr.exp monitor-rounding.vgtest \
 	iomatch-file.stderr.exp iomatch-file.stdout.exp iomatch-file.vgtest iomatch-file.script \
@@ -76,6 +77,8 @@ check_PROGRAMS += naninf-unfused
 naninf_unfused_SOURCES = naninf-unfused.cxx
 check_PROGRAMS += unfused-soft
 unfused_soft_SOURCES = unfused-soft.cxx
+check_PROGRAMS += random-instr
+random_instr_SOURCES = random-instr.c
 check_PROGRAMS += monitor-instrumentation
 monitor_instrumentation_SOURCES = monitor-instrumentation.c
 check_PROGRAMS += monitor-rounding
