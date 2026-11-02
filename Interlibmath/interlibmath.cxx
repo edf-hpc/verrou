@@ -675,9 +675,7 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     exit(1);
     return "FAILURE";
   case VR_RANDOM_INSTR:
-    std::cerr<< "Rounding RANDOM_INSTR is not implemented in interlibmath"<<std::endl;
-    exit(1);
-    return "FAILURE";
+    return "RANDOM_INSTR";
   case VR_ENUM_SIZE:
     std::cerr<< "Internal Error (VR_ENUM_SIZE)"<<std::endl;
     exit(1);
@@ -747,6 +745,9 @@ void generateExcludeSource(){
 #endif
 
 void printCounter(){
+#ifndef INTERLIBM_STAND_ALONE
+  ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING; // the direction of the last call for random_instr
+#endif
   std::cerr << "=="<<my_pid<<"== " << "Interlibm counter ( ROUNDINGMODE="<< verrou_rounding_mode_name_redefined (ROUNDINGMODE);
   if( VERROU_FLOAT_CONV){
       std::cerr << " double=>float";
@@ -1187,6 +1188,17 @@ bool isInstrumented3(const char* functionName, unsigned int functionEnum, unsign
 #endif
 
 
+#ifndef INTERLIBM_STAND_ALONE
+// There is no instrumentation of the libm : with random_instr the unit is the function and its type,
+// which is also the unit of the delta-debug. The seed is read at each call to follow VERROU_SET_SEED.
+vr_RoundingMode randomInstrDirection(size_t nbParam, size_t functionEnum, size_t functionType){
+  unsigned long long hash=verrou_random_instr_mix(VERROU_GET_SEED, nbParam);
+  hash=verrou_random_instr_mix(hash, functionEnum);
+  hash=verrou_random_instr_mix(hash, functionType);
+  return (hash >> 63) ? VR_UPWARD : VR_DOWNWARD;
+}
+#endif
+
 template<class REALTYPE, size_t NBPARAM, class LIBMQ, int ENUM_LIBM >
 class instrumentFunction{
 public:
@@ -1194,6 +1206,9 @@ public:
   static REALTYPE apply(const LIBMNAMETAB& functionNameTab,const char* fctStr, bool isInstrumented,  const PACKARGS& p){
 #ifndef INTERLIBM_STAND_ALONE
     ROUNDINGMODE = VERROU_GET_LIBM_ROUNDING;
+    if(ROUNDINGMODE==VR_RANDOM_INSTR){
+      ROUNDINGMODE = randomInstrDirection(NBPARAM, ENUM_LIBM, realTypeIndex<REALTYPE>::index);
+    }
 #endif
     if(isInstrumented){
       libMathCounter::incInstrOn(NBPARAM,ENUM_LIBM, realTypeIndex<REALTYPE>::index);

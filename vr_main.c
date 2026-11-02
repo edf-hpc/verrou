@@ -1298,13 +1298,6 @@ Bool vr_randomInstrAvailable (void) {
 #endif
 }
 
-static ULong vr_randomInstrMix (ULong hash, ULong value) {
-   ULong res= hash + value + 0x9E3779B97F4A7C15ULL;
-   res= (res ^ (res >> 30)) * 0xBF58476D1CE4E5B9ULL;
-   res= (res ^ (res >> 27)) * 0x94D049BB133111EBULL;
-   return res ^ (res >> 31);
-}
-
 // The object and the offset do not depend on the addresses where the objects are loaded
 static void vr_randomInstrNewInstruction (DiEpoch de, Addr addr) {
    ULong key=vr.firstSeed;
@@ -1315,10 +1308,10 @@ static void vr_randomInstrNewInstruction (DiEpoch de, Addr addr) {
       const HChar* objname=VG_(DebugInfo_get_filename)(di);
       const HChar* basename=VG_(strrchr)(objname, '/');
       for(const HChar* c= (basename!=NULL) ? basename+1 : objname ; *c!=0 ; c++){
-         key=vr_randomInstrMix (key, (UChar)*c);
+         key=verrou_random_instr_mix (key, (UChar)*c);
       }
    }
-   vr_randomInstrKey=vr_randomInstrMix (key, offset);
+   vr_randomInstrKey=verrou_random_instr_mix (key, offset);
    vr_randomInstrRank=0;
 }
 
@@ -1331,7 +1324,7 @@ static enum vr_RoundingMode vr_roundingModeOfOp (IROp op) {
    if(!vr_IsInstrumentedOp (op)){
       return VR_UPWARD; // the operator is only counted or copied
    }
-   const ULong hash=vr_randomInstrMix (vr_randomInstrKey, vr_randomInstrRank);
+   const ULong hash=verrou_random_instr_mix (vr_randomInstrKey, vr_randomInstrRank);
    vr_randomInstrRank++;
    return (hash >> 63) ? VR_UPWARD : VR_DOWNWARD;
 }
