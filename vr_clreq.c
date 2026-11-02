@@ -99,6 +99,8 @@ void vr_set_rounding_mode(const char* modeStr){
 
    if(mode==VR_ENUM_SIZE){
       VG_(umsg)("Invalid mode %s\n", modeStr);
+   }else if(mode==VR_RANDOM_INSTR && !vr_randomInstrAvailable()){
+      VG_(umsg)("Rounding mode %s not available in this configuration\n", modeStr);
    }else{
       if(mode!=vr.roundingMode){
          vr.roundingMode=mode;
@@ -473,6 +475,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     VG_(umsg)("New seed : %llu\n", vr.firstSeed);
     verrou_set_seed (vr.firstSeed);
     vr_clean_cache_seed();
+    if(vr.roundingMode==VR_RANDOM_INSTR){ // the seed is used during the instrumentation
+       VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+    }
 #ifdef USE_VERROU_QUADMATH
     mcaquad_set_seed(vr.firstSeed);
 #endif

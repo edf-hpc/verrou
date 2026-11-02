@@ -1273,7 +1273,7 @@ typedef struct {
       return &selection;                                                \
    }
 
-static const Vr_opSelection* vr_selectOperators (void) {
+static const Vr_opSelection* vr_selectOperators (enum vr_RoundingMode roundingMode) {
    Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
    if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
 #include "vr_gen_select_verrou.h"
@@ -1282,8 +1282,62 @@ static const Vr_opSelection* vr_selectOperators (void) {
    return NULL;
 }
 
+static Bool vr_IsInstrumentedOp (IROp op);
+
+// --rounding-mode=random_instr : the direction of a floating point operation is drawn during the
+// instrumentation, from the seed and the position of the operation in the client code. It depends
+// neither on the operands nor on the instrumentation status of the other instructions.
+static ULong vr_randomInstrKey=0;
+static UInt vr_randomInstrRank=0;
+
+Bool vr_randomInstrAvailable (void) {
+#if defined(USE_VERROU_OPTIM) && !defined(DEBUG_PRINT_OP)
+   return vr.backend==vr_verrou && !vr.checkCancellation && !vr.dumpCancellation && !vr.checkFloatMax;
+#else
+   return False; // the operators do not depend on the rounding mode
+#endif
+}
+
+static ULong vr_randomInstrMix (ULong hash, ULong value) {
+   ULong res= hash + value + 0x9E3779B97F4A7C15ULL;
+   res= (res ^ (res >> 30)) * 0xBF58476D1CE4E5B9ULL;
+   res= (res ^ (res >> 27)) * 0x94D049BB133111EBULL;
+   return res ^ (res >> 31);
+}
+
+// The object and the offset do not depend on the addresses where the objects are loaded
+static void vr_randomInstrNewInstruction (DiEpoch de, Addr addr) {
+   ULong key=vr.firstSeed;
+   Addr offset=addr;
+   DebugInfo* di=VG_(find_DebugInfo)(de, addr);
+   if(di!=NULL){
+      offset-=VG_(DebugInfo_get_text_avma)(di);
+      const HChar* objname=VG_(DebugInfo_get_filename)(di);
+      const HChar* basename=VG_(strrchr)(objname, '/');
+      for(const HChar* c= (basename!=NULL) ? basename+1 : objname ; *c!=0 ; c++){
+         key=vr_randomInstrMix (key, (UChar)*c);
+      }
+   }
+   vr_randomInstrKey=vr_randomInstrMix (key, offset);
+   vr_randomInstrRank=0;
+}
+
+// The rank separates the operations of a guest instruction. It only counts the floating point
+// operations : VEX may remove the others according to the previous instructions of the IRSB.
+static enum vr_RoundingMode vr_roundingModeOfOp (IROp op) {
+   if(vr.roundingMode!=VR_RANDOM_INSTR){
+      return vr.roundingMode;
+   }
+   if(!vr_IsInstrumentedOp (op)){
+      return VR_UPWARD; // the operator is only counted or copied
+   }
+   const ULong hash=vr_randomInstrMix (vr_randomInstrKey, vr_randomInstrRank);
+   vr_randomInstrRank++;
+   return (hash >> 63) ? VR_UPWARD : VR_DOWNWARD;
+}
+
 static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
-  const Vr_opSelection* selection=vr_selectOperators();
+  const Vr_opSelection* selection=vr_selectOperators(vr_roundingModeOfOp (op));
   const Int naninf=VR_NANINF_SELECTED ? 1 : 0;
   const Bool nearestIR=vr_nearestInIR();
   if(selection!=NULL){
@@ -1297,8 +1351,6 @@ static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IRO
   return res;
 }
 
-
-static Bool vr_IsInstrumentedOp (IROp op);
 
 #include "vr_gen_iop_is_instrumented.h"
 
@@ -1612,6 +1664,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       }
 
       vr_addPrandomUpdate(sbOut, st, &de);
+      if(vr.roundingMode==VR_RANDOM_INSTR){
+         vr_randomInstrNewInstruction (de, st->Ist.IMark.addr);
+      }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }
@@ -1822,6 +1877,10 @@ static void vr_post_clo_init(void)
      if( (vr.roundingMode==VR_PRANDOM_DET ||  vr.roundingMode==VR_PRANDOM_COMDET)){
        VG_(tool_panic)("prandom dynamic update and PRANDOM_[COM]DET are incompatible");
      }
+   }
+
+   if(vr.roundingMode==VR_RANDOM_INSTR && !vr_randomInstrAvailable()){
+     VG_(tool_panic)("random_instr requires the verrou backend without check of cancellation or max float, and USE_VERROU_OPTIM");
    }
 
    //Verrou Backend Initilisation

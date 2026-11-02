@@ -949,6 +949,9 @@ public:
     case VR_DAZFTZ:
       vr_panicHandler("FTZ and DAZ are not implemented in backend_verrou");
       break;
+    case VR_RANDOM_INSTR:
+      vr_panicHandler("RANDOM_INSTR is implemented by the frontend");
+      break;
     case VR_ENUM_SIZE:
       vr_panicHandler("VR_ENUM_SIZE (internal use only)");
       break;

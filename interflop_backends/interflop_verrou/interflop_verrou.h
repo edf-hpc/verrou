@@ -69,6 +69,7 @@ enum vr_RoundingMode {
     VR_FTZ,
     VR_DAZ,
     VR_DAZFTZ,
+    VR_RANDOM_INSTR, // Handled by the frontend, which selects upward or downward during the instrumentation
     VR_ENUM_SIZE
   };
 

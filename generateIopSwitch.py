@@ -239,7 +239,7 @@ prefixCode="""
 """
 prefixIsInstrumentedCode="""
 static Bool vr_IsInstrumentedOp (IROp op) {
-    const Vr_opSelection* selection=vr_selectOperators();
+    const Vr_opSelection* selection=vr_selectOperators(vr.roundingMode);
     const Int naninf=0;
     Bool res;
     res=False;

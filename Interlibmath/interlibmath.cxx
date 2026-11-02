@@ -674,6 +674,10 @@ const char*  verrou_rounding_mode_name_redefined (enum vr_RoundingMode mode) {
     std::cerr<< "Rounding FTZ/DAZ are not yet implemented in interlibmath"<<std::endl;
     exit(1);
     return "FAILURE";
+  case VR_RANDOM_INSTR:
+    std::cerr<< "Rounding RANDOM_INSTR is not implemented in interlibmath"<<std::endl;
+    exit(1);
+    return "FAILURE";
   case VR_ENUM_SIZE:
     std::cerr<< "Internal Error (VR_ENUM_SIZE)"<<std::endl;
     exit(1);

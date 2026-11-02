@@ -239,6 +239,7 @@ void vr_resetCount(void);
 
 void vr_register_cache(unsigned int*, unsigned int);
 void vr_clean_cache(void);
+Bool vr_randomInstrAvailable(void);
 void vr_register_cache_seed(unsigned int*);
 void vr_clean_cache_seed(void);
 

@@ -46,9 +46,9 @@ roundingList=[["NEAREST","NATIVE"],
 def generateVerrouRounding(handler,roundingList):
     for rounding in roundingList:
         roundingMode=rounding[0]
-        checkStr="if(vr.roundingMode==VR_"+roundingMode
+        checkStr="if(roundingMode==VR_"+roundingMode
         for checkRounding in rounding[1:]:
-            checkStr+= " ||  vr.roundingMode==VR_" +checkRounding
+            checkStr+= " ||  roundingMode==VR_" +checkRounding
         checkStr+="){\n"
 
         strWrite=checkStr + softTest(floatConvTest(soft=True, rounding=roundingMode), floatConvTest(soft=False, rounding=roundingMode)) + "}\n"
