@@ -18,6 +18,7 @@ This version is based on Valgrind-3.27.1.
 	- The monitor command rounding without argument no longer crashes valgrind.
 	- The monitor command instrumentation on|off works without the optional argument hard|soft (hard by default).
 	- --gen-source no longer lists the lines without floating-point operation which follow a floating-point line in the same IRSB (reduced search space for verrou_dd_line).
+	- The sign of the rounding error of the double multiplication and division is now correct near the underflow and for small divisors: the directed and random rounding modes no longer keep the nearest result in these cases (the hack on the multiplication of --with-verrou-denorm-hack=double is replaced).
 	- With --unfused=yes, the FMA are no longer perturbed when the instrumentation is stopped with the soft instrumentation (without --float=yes).
 
 ---

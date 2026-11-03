@@ -455,11 +455,16 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
-#ifdef VERROU_DENORM_HACKS_DOUBLE
+    // Above this limit the sign of the error is not affected by the underflow. Below it, the product
+    // is small so the shifted values can not overflow.
+    constexpr RealType limit(1e-270);
+    if(c >= limit || c <= -limit){
+      return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
+    }
     RealType arg1=p.arg1;
     RealType arg2=p.arg2;
     RealType cshift=c;
-    constexpr RealType shift(0x1.p500);
+    constexpr RealType shift(0x1.p600);
     constexpr RealType mone(-1.);
     if(arg1 < 1. && arg1 >mone){
       arg1 *= shift;
@@ -470,9 +475,6 @@ public:
       cshift*=shift;
     }
     return ErrorForMul<RealType>::apply(arg1,arg2,cshift);
-#else
-    return ErrorForMul<RealType>::apply(p.arg1,p.arg2,c);
-#endif
   };
 };
 
@@ -599,15 +601,21 @@ public:
   typedef vr_packArg<RealType,2> PackArgs;
 
   static inline RealType apply (const PackArgs& p,const RealType& c) {
+    // Below this limit the remainder may underflow : x and c are shifted
+    constexpr RealType limit(1e-270);
+    constexpr RealType shift(0x1.p500);
     const RealType & x(p.arg1);
-    const RealType & y(p.arg2);
+    const RealType r= (x >= limit || x <= -limit) ? remainder(x,p.arg2,c) : remainder(x*shift,p.arg2,c*shift);
+    return p.arg2>0 ? r : -r; // r*y could underflow
+  };
+
+  static inline RealType remainder (const RealType& x,const RealType& y,const RealType& c) {
 #ifdef    USE_VERROU_FMA
-    const RealType r=-vr_fma(c,y,-x);
-    return r*y;
+    return -vr_fma(c,y,-x);
 #else
     RealType u,uu;
     MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)*y ;
+    return x-u-uu;
 #endif
   };
 };
