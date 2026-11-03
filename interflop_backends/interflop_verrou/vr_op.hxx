@@ -415,6 +415,22 @@ constexpr float splitFactor<float>(){
   return 4097; //((2^12)+1); / 24/2 en float/
 }
 
+//Above splitLimit, the split or the partial products of ErrorForMul (without FMA) may overflow :
+//the arguments are scaled by splitDown (and 1/splitDown)
+template<class REALTYPE>
+constexpr REALTYPE splitLimit();
+template<>
+constexpr double splitLimit<double>(){ return 0x1.p995;}
+template<>
+constexpr float splitLimit<float>(){ return 0x1.p115f;}
+
+template<class REALTYPE>
+constexpr REALTYPE splitDown();
+template<>
+constexpr double splitDown<double>(){ return 1./0x1.p30;}
+template<>
+constexpr float splitDown<float>(){ return 1.f/0x1.p14f;}
+
 
 
 template<class REALTYPE>
@@ -426,14 +442,34 @@ public:
 #ifdef    USE_VERROU_FMA
     return vr_fma(a,b,-x);
 #else
+    constexpr RealType limit(splitLimit<RealType>());
+    constexpr RealType down(splitDown<RealType>());
+    if(x > limit || x < -limit){
+      // the largest argument and x are scaled down (exactly as they are large)
+      const bool aIsLargest= (a>0 ? a : -a) >= (b>0 ? b : -b);
+      return dekker(aIsLargest ? a*down : a, aIsLargest ? b : b*down, x*down)/down;
+    }
+    if(a > limit || a < -limit){
+      // |b| < 1 : b can be scaled up exactly
+      return dekker(a*down, b/down, x);
+    }
+    if(b > limit || b < -limit){
+      return dekker(a/down, b*down, x);
+    }
+    return dekker(a,b,x);
+#endif
+  }
+
+#ifndef USE_VERROU_FMA
+  static inline RealType dekker(const RealType& a, const RealType& b, const RealType& x){
     RealType a1,a2;
     RealType b1,b2;
     ErrorForMul<RealType>::split(a,a1,a2);
     ErrorForMul<RealType>::split(b,b1,b2);
 
     return (((a1*b1-x)+a1*b2+a2*b1)+a2*b2);
-#endif
   }
+#endif
 
   static inline void split(RealType a, RealType& x, RealType& y){
     //    const RealType factor=134217729; //((2^27)+1); /*27 en double*/
@@ -613,11 +649,26 @@ public:
 #ifdef    USE_VERROU_FMA
     return -vr_fma(c,y,-x);
 #else
+    constexpr RealType limit(splitLimit<RealType>());
+    if(x > limit || x < -limit){
+      // c*y may overflow : x and the largest factor are scaled down (exactly as they are large)
+      constexpr RealType down(splitDown<RealType>());
+      if((c>0 ? c : -c) >= (y>0 ? y : -y)){
+	return remainderDekker(x*down,y,c*down);
+      }
+      return remainderDekker(x*down,y*down,c);
+    }
+    return remainderDekker(x,y,c);
+#endif
+  };
+
+#ifndef USE_VERROU_FMA
+  static inline RealType remainderDekker (const RealType& x,const RealType& y,const RealType& c) {
     RealType u,uu;
     MulOp<RealType>::twoProd(c,y,u,uu);
     return x-u-uu;
-#endif
   };
+#endif
 };
 
 
@@ -641,17 +692,15 @@ public:
     const double y((double) p.arg2);
 #ifdef    USE_VERROU_FMA
     const double r=-vr_fma((double)c,y,-x);
+#else
+    const double r=x-(double)c*y; // c*y is exact in double
+#endif
 
     if(r>0){return p.arg2;}
     if(r<0){return -p.arg2;}
     //if(r==0){
     return 0.;
     //}
-#else
-    RealType u,uu;
-    MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)*y ;
-#endif
   };
 
   static inline RealType apply_float (const PackArgs& p,const RealType& c) {
@@ -659,17 +708,16 @@ public:
     const RealType y(p.arg2);
 #ifdef    USE_VERROU_FMA
     const RealType r=-vr_fma(c,y,-x);
-
+#else
+    RealType u,uu;
+    MulOp<RealType>::twoProd(c,y,u,uu);
+    const RealType r=x-u-uu;
+#endif
     if(r>0){return p.arg2;}
     if(r<0){return -p.arg2;}
     //if(r==0){
     return 0.;
     //}
-#else
-    RealType u,uu;
-    MulOp<RealType>::twoProd(c,y,u,uu);
-    return ( x-u-uu)*y ;
-#endif
   };
 };
 
