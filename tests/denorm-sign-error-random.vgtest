@@ -1,0 +1,4 @@
+prog: denorm-sign-error
+args: random
+vgopts: --rounding-mode=random --vr-seed=1
+stderr_filter: ../../tests/filter_sink
