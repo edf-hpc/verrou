@@ -31,7 +31,9 @@
 #include "float.h"
 #include "pub_tool_seqmatch.h"
 
+#ifdef USE_VERROU_VPREC
 #include "interflop_valgrind_stdlib.h"
+#endif
 
 //#include "coregrind/pub_core_transtab.h"
 #include "pub_tool_transtab.h"
@@ -46,6 +48,7 @@ extern Bool VG_(get_fnname_raw) ( DiEpoch ep, Addr a, const HChar** buf );
 extern Bool VG_(resolve_filename) ( Int fd, const HChar** buf );
 
 #include "vr_exclude_back.h"
+#include "vr_trace_back.h"
 
 Int reduced_nb_below_main(Addr*ips, Int nb);
 
@@ -446,9 +449,39 @@ void vr_clean_cache_seed(void){
 
 // ** Overloaded operators
 
+typedef struct { const HChar* name; void* function; } Vr_opEntry;
+
+
+// NaN/Inf detection : the *_naninf variants of the generated operators (selected during the
+// instrumentation if --check-nan=yes or --check-inf=yes) check the result with these functions.
+// Each entry of the operator tables gives the plain operator and its _naninf variant.
+#ifndef VERROU_IGNORE_NANINF_CHECK
+#define VR_NANINF_SELECTED (vr.checknan || vr.checkinf)
+#define VR_NANINF_NB 2
+#define VR_OP_ENTRY(FUNC) {{#FUNC, (void*)FUNC}, {#FUNC "_naninf", (void*)FUNC##_naninf}}
+#else
+#define VR_NANINF_SELECTED False
+#define VR_NANINF_NB 1
+#define VR_OP_ENTRY(FUNC) {{#FUNC, (void*)FUNC}}
+#endif
+
+static inline void vr_nanInfCheck_double (double x) {
+  union { double d; ULong bits; } u = { .d = x };
+  if (UNLIKELY ((u.bits & 0x7ff0000000000000ULL) == 0x7ff0000000000000ULL)) {
+    vr_handle_NaNInf_F64 (u.bits);
+  }
+}
+
+static inline void vr_nanInfCheck_float (float x) {
+  union { float f; UInt bits; } u = { .f = x };
+  if (UNLIKELY ((u.bits & 0x7f800000) == 0x7f800000)) {
+    vr_handle_NaNInf_F32 (u.bits);
+  }
+}
 
 #include "vr_interp_operator_impl.h"
-#include "vr_generated_from_templates.h"
+#include "vr_nearest_inline.h"
+#include "vr_gen_wrappers.h"
 
 
 // *** Helpers
@@ -513,7 +546,7 @@ static Bool vr_isInstrumented_hard(Vr_Op op,
 /* Replace a given binary operation by a call to a function
  */
 static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				   const HChar* functionName, void* function,
+				   const Vr_opEntry* entry,
 				   Vr_Op op,
 				   Vr_Prec prec,
 				   Vr_Vec vec,
@@ -558,7 +591,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 2,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_2 (arg1, arg2))));
 #if defined(VGA_amd64)
   //conversion after call
@@ -590,7 +623,7 @@ static Bool vr_replaceBinFpOpScal (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					 const HChar* functionName, void* function,
+					 const Vr_opEntry* entry,
 					 Vr_Op op,
 					 Vr_Prec prec,
 					 Vr_Vec vec,
@@ -630,7 +663,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   IRTemp res= newIRTemp (sb->tyenv, ity);
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_1 (arg1))));
 
   //conversion after call
@@ -662,7 +695,7 @@ static Bool vr_replaceBinFpOpScal_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					    const HChar* functionName, void* function,
+					    const Vr_opEntry* entry,
 					    Vr_Op op,
 					    Vr_Prec prec,
 					    Vr_Vec vec,
@@ -690,7 +723,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_0_N( 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_0())));
   //update after call
   if (prec==VR_PREC_FLT){
@@ -707,7 +740,7 @@ static Bool vr_replaceBinFpOpLLO_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr
 
 
 static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-						  const HChar* functionName, void* function,
+						  const Vr_opEntry* entry,
 						  Vr_Op op,
 						  Vr_Prec prec,
 						  Vr_Vec vec,
@@ -732,7 +765,7 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_0_N ( 0,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_0 ())));
   //update after call
   if (prec==VR_PREC_FLT){
@@ -747,31 +780,31 @@ static Bool vr_replaceBinFpOpLLO_unary_slow_safe (IRSB* sb, IRStmt* stmt, IRExpr
 }
 
 static Bool vr_replaceBinFpOpLLO_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-						  const HChar* functionName, void* function,
+						  const Vr_opEntry* entry,
 						  Vr_Op op,
 						  Vr_Prec prec,
 						  Vr_Vec vec,
 						  Bool countOnly){
   return vr_replaceBinFpOpLLO_unary_slow_safe (sb, stmt, expr,
-					       functionName, function,
+					       entry,
 					       op, prec, vec,
 					       countOnly);
 }
 
 static Bool vr_replaceBinFpOpLLO(IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				 const HChar* functionName, void* function,
+				 const Vr_opEntry* entry,
 				 Vr_Op op,
 				 Vr_Prec prec,
 				 Vr_Vec vec,
 				 Bool countOnly){
-   return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,functionName,function,op,prec,vec,countOnly);
+   return vr_replaceBinFpOpLLO_slow_safe(sb,stmt,expr,entry,op,prec,vec,countOnly);
 }
 
 
 
 
 static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				  const HChar* functionName, void* function,
+				  const Vr_opEntry* entry,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
@@ -809,7 +842,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -817,7 +850,7 @@ static Bool vr_replaceBinFullSSE (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 }
 
 static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					const HChar* functionName, void* function,
+					const Vr_opEntry* entry,
 					Vr_Op op,
 					Vr_Prec prec,
 					Vr_Vec vec,
@@ -852,7 +885,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -862,7 +895,7 @@ static Bool vr_replaceBinFullSSE_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-				  const HChar* functionName, void* function,
+				  const Vr_opEntry* entry,
 				  Vr_Op op,
 				  Vr_Prec prec,
 				  Vr_Vec vec,
@@ -898,7 +931,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   //call
   addStmtToIRSB (sb,
                  IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-                                                 functionName, VG_(fnptr_to_fnentry)(function),
+                                                 entry->name, VG_(fnptr_to_fnentry)(entry->function),
                                                  mkIRExprVec_1 (IRExpr_VECRET()))));
   //conversion after call
   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, IRExpr_RdTmp(res)));
@@ -907,7 +940,7 @@ static Bool vr_replaceBinFullAVX (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-					const HChar* functionName, void* function,
+					const Vr_opEntry* entry,
 					Vr_Op op,
 					Vr_Prec prec,
 					Vr_Vec vec,
@@ -940,7 +973,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
   addStmtToIRSB (sb,
 		 IRStmt_Dirty(unsafeIRDirty_1_N (res, 1,
-						 functionName, VG_(fnptr_to_fnentry)(function),
+						 entry->name, VG_(fnptr_to_fnentry)(entry->function),
 						 mkIRExprVec_1 (IRExpr_VECRET()))));
 
   //conversion after call
@@ -951,7 +984,7 @@ static Bool vr_replaceBinFullAVX_unary (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			   const HChar* functionName, void* function,
+			   const Vr_opEntry* entry,
 			   Vr_Op   op,
 			   Vr_Prec prec,
                            Vr_Vec vec,
@@ -983,7 +1016,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   }
 
   IRDirty* id= unsafeIRDirty_1_N (res, 3,
-				  functionName, VG_(fnptr_to_fnentry)(function),
+				  entry->name, VG_(fnptr_to_fnentry)(entry->function),
 				  mkIRExprVec_3 (arg2, arg3,arg4));
 
   addStmtToIRSB (sb,IRStmt_Dirty(id));
@@ -1010,7 +1043,7 @@ static Bool vr_replaceFMA (IRSB* sb, IRStmt* stmt, IRExpr* expr,
 
 
 static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
-			    const HChar* functionName, void* function,
+			    const Vr_opEntry* entry,
 			    Vr_Op   op,
 			    Vr_Prec prec,
                             Vr_Vec vec,
@@ -1029,7 +1062,7 @@ static Bool vr_replaceCast (IRSB* sb, IRStmt* stmt, IRExpr* expr,
   arg2=vr_F64toI64(sb,arg2);
 
   IRDirty* id= unsafeIRDirty_1_N (res, 1,
-				  functionName, VG_(fnptr_to_fnentry)(function),
+				  entry->name, VG_(fnptr_to_fnentry)(entry->function),
 				  mkIRExprVec_1 (arg2));
 
   addStmtToIRSB (sb,IRStmt_Dirty(id));
@@ -1085,27 +1118,234 @@ static Bool operation_with_float_args(IRExpr* expr){
 
 
 
-static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
-   Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
-#ifndef USE_VERROU_SQRT
-#define IGNORESQRT
+// The nearest and native rounding modes of the verrou backend keep the operation in the IR, without
+// any call to a wrapper. The NaN/Inf detection is also done in the IR.
+static Bool vr_nearestInIR (void) {
+#if defined(VGA_amd64) && !defined(DEBUG_PRINT_OP)
+   return vr.backend==vr_verrou && (vr.roundingMode==VR_NEAREST || vr.roundingMode==VR_NATIVE)
+      && !vr.float_conv && !vr.checkCancellation && !vr.dumpCancellation && !vr.checkFloatMax;
+#else
+   return False;
+#endif
+}
+
+#ifndef VERROU_IGNORE_NANINF_CHECK
+static IRExpr* vr_assignIR (IRSB* sb, IRType ty, IRExpr* expr) {
+   IRTemp tmp= newIRTemp (sb->tyenv, ty);
+   addStmtToIRSB (sb, IRStmt_WrTmp (tmp, expr));
+   return IRExpr_RdTmp (tmp);
+}
+
+static VG_REGPARM(1) void vr_nanInfHit_double (ULong bits) {
+   vr_handle_NaNInf_F64 (bits);
+}
+
+static VG_REGPARM(1) void vr_nanInfHit_float (ULong bits) {
+   vr_handle_NaNInf_F32 ((UInt)bits);
+}
+
+static void vr_nanInfCheckIR_double (IRSB* sb, IRExpr* bits) {
+   IRExpr* mask= IRExpr_Const (IRConst_U64 (0x7ff0000000000000ULL));
+   IRExpr* exponent= vr_assignIR (sb, Ity_I64, IRExpr_Binop (Iop_And64, bits, mask));
+   IRDirty* di= unsafeIRDirty_0_N (1, "vr_nanInfHit_double", VG_(fnptr_to_fnentry)(&vr_nanInfHit_double),
+                                   mkIRExprVec_1 (bits));
+   di->guard= vr_assignIR (sb, Ity_I1, IRExpr_Binop (Iop_CmpEQ64, exponent, mask));
+   addStmtToIRSB (sb, IRStmt_Dirty (di));
+}
+
+static void vr_nanInfCheckIR_float (IRSB* sb, IRExpr* bits) {
+   IRExpr* mask= IRExpr_Const (IRConst_U32 (0x7f800000));
+   IRExpr* exponent= vr_assignIR (sb, Ity_I32, IRExpr_Binop (Iop_And32, bits, mask));
+   IRDirty* di= unsafeIRDirty_0_N (1, "vr_nanInfHit_float", VG_(fnptr_to_fnentry)(&vr_nanInfHit_float),
+                                   mkIRExprVec_1 (vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_32Uto64, bits))));
+   di->guard= vr_assignIR (sb, Ity_I1, IRExpr_Binop (Iop_CmpEQ32, exponent, mask));
+   addStmtToIRSB (sb, IRStmt_Dirty (di));
+}
+
+// Check the nbLanes lowest lanes contained in a 64 bits word
+static void vr_nanInfCheckIR_word (IRSB* sb, IRExpr* word, Vr_Prec prec, Int nbLanes) {
+   if (prec==VR_PREC_DBL) {
+      vr_nanInfCheckIR_double (sb, word);
+   } else {
+      vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_64to32, word)));
+      if (nbLanes==2) {
+         vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_64HIto32, word)));
+      }
+   }
+}
+
+static void vr_nanInfCheckIR (IRSB* sb, IRTemp tmp, Vr_Prec prec, Vr_Vec vec) {
+   static const IROp v256Words[4]= {Iop_V256to64_0, Iop_V256to64_1, Iop_V256to64_2, Iop_V256to64_3};
+   IRExpr* res= IRExpr_RdTmp (tmp);
+   Int i;
+   switch (typeOfIRTemp (sb->tyenv, tmp)) {
+   case Ity_F64:
+      vr_nanInfCheckIR_double (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_ReinterpF64asI64, res)));
+      break;
+   case Ity_F32:
+      vr_nanInfCheckIR_float (sb, vr_assignIR (sb, Ity_I32, IRExpr_Unop (Iop_ReinterpF32asI32, res)));
+      break;
+   case Ity_V128:
+      vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_V128to64, res)),
+                             prec, vec==VR_VEC_LLO ? 1 : 2);
+      if (vec!=VR_VEC_LLO) {
+         vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (Iop_V128HIto64, res)), prec, 2);
+      }
+      break;
+   case Ity_V256:
+      for (i=0; i<4; i++) {
+         vr_nanInfCheckIR_word (sb, vr_assignIR (sb, Ity_I64, IRExpr_Unop (v256Words[i], res)), prec, 2);
+      }
+      break;
+   default:
+      VG_(tool_panic) ("vr_nanInfCheckIR: unexpected type");
+   }
+}
 #endif
 
-   if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
-#include "vr_instrumentOp_impl_generated_verrou_specific.h"
+// The wrappers compute in nearest whatever the rounding mode of the client
+static IRExpr* vr_exprWithNearestRounding (IRSB* sb, IRExpr* expr) {
+   IRExpr* nearest= IRExpr_Const (IRConst_U32 (Irrm_NEAREST));
+   switch (expr->tag) {
+   case Iex_Qop:
+      return IRExpr_Qop (expr->Iex.Qop.details->op, nearest, expr->Iex.Qop.details->arg2,
+                         expr->Iex.Qop.details->arg3, expr->Iex.Qop.details->arg4);
+   case Iex_Triop:
+      return IRExpr_Triop (expr->Iex.Triop.details->op, nearest, expr->Iex.Triop.details->arg2,
+                           expr->Iex.Triop.details->arg3);
+   case Iex_Binop:
+      if (typeOfIRExpr (sb->tyenv, expr->Iex.Binop.arg1)==Ity_I32) {
+         return IRExpr_Binop (expr->Iex.Binop.op, nearest, expr->Iex.Binop.arg2);
+      }
+      return expr;
+   default:
+      return expr;
    }
-#include "vr_instrumentOp_impl_generated_all_backends.h"
+}
 
+static Bool vr_nearestOpIR (IRSB* sb, IRStmt* stmt, IRExpr* expr,
+                            Vr_Op op,
+                            Vr_Prec prec,
+                            Vr_Vec vec,
+                            Bool countOnly) {
+   if(!(vr_isInstrumented_hard(op,prec,vec))||countOnly) {
+      vr_countOp (sb, op, prec, vec, False);
+      addStmtToIRSB (sb, stmt);
+      return False;
+   }
+   if(vr.verbose && vec==VR_VEC_SCAL){
+      IROp irop;
+      if (vr_getOp (expr, &irop))
+         vr_maybe_record_ErrorOp (VR_ERROR_SCALAR, irop);
+   }
+   vr_countOp (sb, op, prec, vec, True);
+
+   addStmtToIRSB (sb, IRStmt_WrTmp (stmt->Ist.WrTmp.tmp, vr_exprWithNearestRounding (sb, expr)));
+#ifndef VERROU_IGNORE_NANINF_CHECK
+   if (VR_NANINF_SELECTED) {
+      vr_nanInfCheckIR (sb, stmt->Ist.WrTmp.tmp, prec==VR_PREC_DBL_TO_FLT ? VR_PREC_FLT : prec, vec);
+   }
+#endif
+   return True;
+}
+
+
+// The operators are selected once by vr_selectOperators (the tests on the options, generated by
+// generateSelection.py) : the unique switch on the Iop (vr_gen_iop_switch.h) reads the
+// tables generated by generateWrappers.py
+#include "vr_gen_operator_tables.h"
+
+// The tables used by the switch on the Iop : cc for the operators with cancellation check,
+// conv for the double operators with --float=yes, Unfused for the FMA with --unfused=yes
+typedef struct {
+   const Vr_opEntry (*plain)[VR_NANINF_NB];
+   const Vr_opEntry (*cc)[VR_NANINF_NB];
+   const Vr_opEntry (*ccUnfused)[VR_NANINF_NB];
+   const Vr_opEntry (*conv)[VR_NANINF_NB];
+   const Vr_opEntry (*convCC)[VR_NANINF_NB];
+   const Vr_opEntry (*convCCUnfused)[VR_NANINF_NB];
+} Vr_opSelection;
+
+#define VR_SELECT_OPERATORS(PLAIN, CC, CCUNFUSED, CONV, CONVCC, CONVCCUNFUSED) { \
+      static const Vr_opSelection selection={                           \
+         vr_table_##PLAIN, vr_table_##CC, vr_table_##CCUNFUSED,         \
+         vr_table_##CONV, vr_table_##CONVCC, vr_table_##CONVCCUNFUSED}; \
+      return &selection;                                                \
+   }
+
+static const Vr_opSelection* vr_selectOperators (enum vr_RoundingMode roundingMode) {
+   Bool checkCancellation= (vr.checkCancellation || vr.dumpCancellation);
+   if(vr.backend==vr_verrou && !checkCancellation && ! vr.checkFloatMax){
+#include "vr_gen_select_verrou.h"
+   }
+#include "vr_gen_select_backends.h"
+   return NULL;
+}
+
+static Bool vr_IsInstrumentedOp (IROp op);
+
+// --rounding-mode=random_instr : the direction of a floating point operation is drawn during the
+// instrumentation, from the seed and the position of the operation in the client code. It depends
+// neither on the operands nor on the instrumentation status of the other instructions.
+static ULong vr_randomInstrKey=0;
+static UInt vr_randomInstrRank=0;
+
+Bool vr_randomInstrAvailable (void) {
+#if defined(USE_VERROU_OPTIM) && !defined(DEBUG_PRINT_OP)
+   return vr.backend==vr_verrou && !vr.checkCancellation && !vr.dumpCancellation && !vr.checkFloatMax;
+#else
+   return False; // the operators do not depend on the rounding mode
+#endif
+}
+
+// The object and the offset do not depend on the addresses where the objects are loaded
+static void vr_randomInstrNewInstruction (DiEpoch de, Addr addr) {
+   ULong key=vr.firstSeed;
+   Addr offset=addr;
+   DebugInfo* di=VG_(find_DebugInfo)(de, addr);
+   if(di!=NULL){
+      offset-=VG_(DebugInfo_get_text_avma)(di);
+      const HChar* objname=VG_(DebugInfo_get_filename)(di);
+      const HChar* basename=VG_(strrchr)(objname, '/');
+      for(const HChar* c= (basename!=NULL) ? basename+1 : objname ; *c!=0 ; c++){
+         key=verrou_random_instr_mix (key, (UChar)*c);
+      }
+   }
+   vr_randomInstrKey=verrou_random_instr_mix (key, offset);
+   vr_randomInstrRank=0;
+}
+
+// The rank separates the operations of a guest instruction. It only counts the floating point
+// operations : VEX may remove the others according to the previous instructions of the IRSB.
+static enum vr_RoundingMode vr_roundingModeOfOp (IROp op) {
+   if(vr.roundingMode!=VR_RANDOM_INSTR){
+      return vr.roundingMode;
+   }
+   if(!vr_IsInstrumentedOp (op)){
+      return VR_UPWARD; // the operator is only counted or copied
+   }
+   const ULong hash=verrou_random_instr_mix (vr_randomInstrKey, vr_randomInstrRank);
+   vr_randomInstrRank++;
+   return (hash >> 63) ? VR_UPWARD : VR_DOWNWARD;
+}
+
+static Vr_instr_kind vr_instrumentOp (IRSB* sb, IRStmt* stmt, IRExpr * expr, IROp op, vr_backend_name_t bc, Bool countOnly) {
+  const Vr_opSelection* selection=vr_selectOperators(vr_roundingModeOfOp (op));
+  const Int naninf=VR_NANINF_SELECTED ? 1 : 0;
+  const Bool nearestIR=vr_nearestInIR();
+  if(selection!=NULL){
+#include "vr_gen_iop_switch.h"
+  }
+  addStmtToIRSB (sb, stmt);
   Vr_instr_kind res;
+  res.containFloatOp=False;
   res.containFloatCmp=False;
   res.containFloatModOp=False;
   return res;
 }
 
 
-static Bool vr_IsInstrumentedOp (IROp op);
-
-#include "vr_instrumentOp_checkInst.h"
+#include "vr_gen_iop_is_instrumented.h"
 
 
 
@@ -1119,6 +1359,7 @@ static Vr_instr_kind vr_instrumentExpr (IRSB* sb, IRStmt* stmt, IRExpr* expr, Bo
   } else {
     addStmtToIRSB (sb, stmt);
     Vr_instr_kind res;
+    res.containFloatOp=False;
     res.containFloatModOp=False;
     res.containFloatCmp=False;
     return res;
@@ -1137,8 +1378,10 @@ static HChar const * fnnoname=UNAMED_FUNCTION_VERROU;
 static HChar const * objnoname=UNAMED_OBJECT_VERROU;
 static HChar const * filenamenoname=UNAMED_FILENAME_VERROU;
 
-inline
-void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool includeSource,
+static inline
+void vr_treat_line_from_imark(traceBB_t* traceBB,
+                              Addr bbAddr,
+                              Bool excludeIrsb, Bool includeSource, Bool genIRSBTrace,
                               Bool doLineContainFloat, Bool doLineContainFloatMod, Bool doLineContainFloatCmp,
                               HChar const *  fnname,   const HChar * filename, const UInt linenum){
   if( !excludeIrsb && doLineContainFloatMod){
@@ -1152,10 +1395,16 @@ void vr_treat_line_from_imark(traceBB_t* traceBB, Bool excludeIrsb, Bool include
       vr.excludeSourceRead = vr_addIncludeSource (vr.excludeSourceRead,fnname,filename,linenum);//to print only once
     }
   }
-  if(traceBB!=NULL){
+  if(genIRSBTrace && vr.traceType==VR_BB_COVER){
      vr_traceBB_trace_imark(traceBB,
                             fnname, filename,linenum,
                             doLineContainFloat, doLineContainFloatCmp);
+  }
+
+  if(genIRSBTrace && vr.traceType==VR_BACK_COVER){
+     vr_trace_set_debugdata_for_bbAddr(&(vr.traceBack), bbAddr,
+                                       filename,linenum,
+                                       doLineContainFloat, doLineContainFloatCmp);
   }
 }
 
@@ -1181,9 +1430,7 @@ void vr_addPrandomUpdate(IRSB* sbOut, IRStmt* st, DiEpoch* dePtr){
 };
 
 
-#define BACKTRACE_SIZE 40
-
-static Int firstAddrBellowMain=0;
+static Addr firstAddrBellowMain=0;
 
 Int reduced_nb_below_main(Addr*ips, Int nb){
    if(firstAddrBellowMain==0){
@@ -1203,7 +1450,6 @@ Int reduced_nb_below_main(Addr*ips, Int nb){
       }
       return nb;
    }
-   return 0; //Error
 }
 
 //static
@@ -1303,8 +1549,8 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     strdup
   */
 
-  HChar const * fnname;
-  HChar const * objname;
+  HChar const * fnname=""; //empty : not traced by vr_includeTraceIRSB
+  HChar const * objname="";
   HChar const ** fnnamePtr=&fnname;
   HChar const ** objnamePtr=&objname;
 
@@ -1348,9 +1594,13 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
   traceBB_t* traceBB=NULL;
   Bool genIRSBTrace=vr.genTrace &&  vr_includeTraceIRSB(&fnname,&objname);
   if(genIRSBTrace){
-    traceBB=getNewTraceBB(sbIn);
-    vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
-    //vr_traceBB_trace_backtrace(traceBB);
+     if( vr.traceType==VR_BB_COVER){
+        traceBB=getNewTraceBB(addr);
+        vr_traceIRSB(sbOut,traceBB->index, &(traceBB->counter));//, instrCount);
+     }
+     if( vr.traceType==VR_BACK_COVER){
+        vr_traceBackIRSB(sbOut, addr);
+     }
   }
 
   /*Data for Imark localisation*/
@@ -1382,11 +1632,13 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
     switch (st->tag) {
     case Ist_IMark: {
       if(i!=0){
-         vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
+         vr_treat_line_from_imark(traceBB, addr,
+                                  excludeIrsb,includeSource,genIRSBTrace,
                                   doLineContainFloat, doLineContainFloatMod,doLineContainFloatCmp,
                                   *fnnamePtr,*filenamePtr,*linenumPtr);
       }
       doLineContainFloat=False;
+      doLineContainFloatMod=False;
       doLineContainFloatCmp=False;
 
       filenamePtr=&filename;
@@ -1405,6 +1657,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
       }
 
       vr_addPrandomUpdate(sbOut, st, &de);
+      if(vr.roundingMode==VR_RANDOM_INSTR){
+         vr_randomInstrNewInstruction (de, st->Ist.IMark.addr);
+      }
 
       addStmtToIRSB (sbOut, sbIn->stmts[i]); //required to be able to use breakpoint with gdb
     }
@@ -1440,10 +1695,9 @@ IRSB* vr_instrument ( VgCallbackClosure* closure,
      VG_(tool_panic)("doIRSBFContainFloatMod!= backTraceInstr");
   }
 
-  vr_treat_line_from_imark(traceBB, excludeIrsb,includeSource,
-                           doLineContainFloat,
-                           doLineContainFloatMod,
-                           doLineContainFloatCmp,
+  vr_treat_line_from_imark(traceBB, addr,
+                           excludeIrsb,includeSource,genIRSBTrace,
+                           doLineContainFloat, doLineContainFloatMod, doLineContainFloatCmp,
 			   *fnnamePtr,*filenamePtr,*linenumPtr);
 
   if(vr.genExcludeBool && !excludeIrsb &&doIRSBFContainFloatMod){
@@ -1480,7 +1734,9 @@ static void vr_fini(Int exitcode)
   interflop_mcaquad_finalize(backend_mcaquad_context);
 #endif
 
+#ifdef USE_VERROU_VPREC
   interflop_vprec_finalize(backend_vprec_context);
+#endif
 
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
   interflop_check_float_max_finalize(backend_check_float_max_context);
@@ -1495,8 +1751,13 @@ static void vr_fini(Int exitcode)
   }
 
   if(vr.genTrace){
-    vr_traceBB_dumpCov();
-    vr_traceBB_finalize();
+    vr_dumpCov();
+    if(vr.traceType==VR_BB_COVER){
+       vr_traceBB_finalize();
+    }
+    if(vr.traceType==VR_BACK_COVER){
+       vr_trace_finalize( &(vr.traceBack));
+    }
     if(vr.outputTraceRep!=NULL){
        VG_(free)(vr.outputTraceRep);
     }
@@ -1611,13 +1872,14 @@ static void vr_post_clo_init(void)
      }
    }
 
+   if(vr.roundingMode==VR_RANDOM_INSTR && !vr_randomInstrAvailable()){
+     VG_(tool_panic)("random_instr requires the verrou backend without check of cancellation or max float, and USE_VERROU_OPTIM");
+   }
+
    //Verrou Backend Initilisation
    backend_verrou=interflop_verrou_init(&backend_verrou_context);
    backend_verrou_null=interflop_verrou_init(&backend_verrou_null_context);
    verrou_set_panic_handler(&VG_(tool_panic));
-
-   verrou_set_nan_handler(&vr_handle_NaN);
-   verrou_set_inf_handler(&vr_handle_Inf);
 
 #ifdef PROFILING_EXACT
    verrou_init_profiling_exact();
@@ -1651,6 +1913,7 @@ static void vr_post_clo_init(void)
    mcaquad_set_seed(vr.firstSeed);
 #endif
 
+#ifdef USE_VERROU_VPREC
    //init interflop
    interflop_set_handler("malloc", _interflop_valgrind_malloc);
    interflop_set_handler("fopen", _interflop_valgrind_fopen);
@@ -1688,6 +1951,7 @@ static void vr_post_clo_init(void)
          interflop_vprec_print_header(backend_vprec_context);
       }
    }
+#endif //USE_VERROU_VPREC
 
    /*Init outfile cancellation*/
    checkcancellation_conf_t checkcancellation_conf;
@@ -1760,8 +2024,13 @@ static void vr_post_clo_init(void)
   }
 
   if(vr.genTrace){
-     vr_traceBB_initialize(vr.outputTraceRep);
-   }
+     if(vr.traceType==VR_BB_COVER){
+        vr_traceBB_initialize(vr.outputTraceRep);
+     }
+     if(vr.traceType==VR_BACK_COVER){
+        vr_trace_init_rep( &(vr.traceBack), vr.outputTraceRep);
+     }
+  }
 
   if(vr.genBackTraceBool || vr.useBackTraceBool){
      vr_back_init(&vr.backTraceTool, vr.genBackTraceBool, vr.genBackTraceRep);
@@ -1856,22 +2125,34 @@ void vr_pre_syscall(ThreadId tid, UInt syscallno,
 #else
 #error "Unknown arch : syscallno need to be defined"
 #endif
+
+static void vr_IOmatch_checkmatch_in_syscall(const HChar* buf, SizeT size){
+   VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
+   vr_IOmatch_clr_checkmatch(buf, size);
+   VG_(ok_to_discard_translations)=False;
+}
+
 static
 void vr_post_syscall(ThreadId tid, UInt syscallno,
                      UWord* args, UInt nArgs, SysRes res){
    if(vr.excludeDetect){
-     if(syscallno==VR_OPEN_AT_SYSCALLNO){//openat
+      //   if(syscallno==VR_OPEN_AT_SYSCALLNO){//openat
+      if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO)){//syscall openat open
         SizeT fd= sr_Res(res);
         if(fd>0){
-	 const HChar* buffer;
-	 Bool resolved=VG_(resolve_filename)(fd,&buffer);
-	 if(resolved){
-       	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
-	 }else{
-	   vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
-	 }
-       }
-     }
+           const HChar* buffer;
+           Bool resolved=VG_(resolve_filename)(fd,&buffer);
+           if(resolved){
+              vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, buffer);
+           }else{
+              if(syscallno==VR_OPEN_AT_SYSCALLNO){
+                 vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[1]);
+              }else{
+                 vr.exclude=vr_addObjectIfMatchPattern(vr.exclude, (char*)args[0]);
+              }
+           }
+        }
+      }
    }
 
    if(vr.useIOMatchCLR){
@@ -1881,13 +2162,11 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
             const HChar* buf=(HChar*)args[1];
 
             int size=(int)args[2];
-            VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-            vr_IOmatch_clr_checkmatch(buf,size);
-            VG_(ok_to_discard_translations)=False;
+            vr_IOmatch_checkmatch_in_syscall(buf,size);
          }
       }
       if(vr.outputIOMatchFilePattern!=NULL){
-         if( (syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO)){//syscall openat open creat
+         if( !sr_isError(res) && ((syscallno==VR_OPEN_AT_SYSCALLNO) || (syscallno==VR_OPEN_SYSCALLNO) || (syscallno==VR_CREAT_SYSCALLNO))){//syscall openat open creat
 	  SizeT fd= sr_Res(res);;
 	  char* filenameParam=NULL;
 	  if(syscallno == VR_OPEN_AT_SYSCALLNO){//openat
@@ -1902,9 +2181,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	      vr.IOMatchFileDescriptor=fd;
 	      HChar openMsg[512];
 	      UInt size=VG_(snprintf)(openMsg,512, "IOMatch open filename: %s\n", filenameParam);
-	      VG_(ok_to_discard_translations)=True; //I hope it's allowed to do that (required for stop and start call)
-	      vr_IOmatch_clr_checkmatch(openMsg, size+1);
-	      VG_(ok_to_discard_translations)=False;
+	      vr_IOmatch_checkmatch_in_syscall(openMsg, size);
 	    }else{
 	      VG_(umsg)("%s match several opened files : %s\n", vr.outputIOMatchFilePattern, filenameParam);
 	      VG_(tool_panic)("match several opened files");
@@ -1918,7 +2195,7 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
 	  if(fd==vr.IOMatchFileDescriptor ){
 	    vr.IOMatchFileDescriptor=-1;//retour à la sortie standard.
 	    HChar openMsg[]="IOMatch close\n";
-	    vr_IOmatch_clr_checkmatch(openMsg, sizeof(openMsg));
+	    vr_IOmatch_checkmatch_in_syscall(openMsg, sizeof(openMsg)-1);
 	  }
 	}
       }

@@ -224,6 +224,29 @@
 
 	<listitem><para><command>nearness_scomdet:</command> variant of <command>nearness_det</command> which respects the same constraints as <command>random_scomdet</command></para>
         </listitem>
+	<listitem><para><command>random_instr:</command> Randomly choose between upward and downward
+	    rounding mode once for each instruction, during the instrumentation. For a given seed and a given
+	    binary, an instruction is always rounded in the same way, whatever its operands and whatever the
+	    instrumentation status of the other instructions. The direction depends on the seed, on the name of the
+	    object, on the offset of the instruction in the object and on the rank of the operation in the instruction.
+	    This rounding mode is designed for the delta-debugging, as excluding an instruction does not modify
+	    the rounding of the others.
+	    <itemizedlist>
+	      <listitem><para>As an instruction always uses the same direction, an error which requires
+	      different directions for the successive executions of an instruction may not be revealed. The results are
+	      close to those of <command>upward</command> and <command>downward</command> and several
+	      seeds may be required to reveal an instability.</para></listitem>
+	      <listitem><para>All the elements of a vectorized operation use the same direction, as well as
+	      the multiplication and the addition of a FMA with <xref linkend="vr-opt.unfused"/>.</para></listitem>
+	      <listitem><para>A seed is only meaningful for a given binary: a new compilation modifies the offsets.</para></listitem>
+	      <listitem><para>With <xref linkend="vr-opt.libm"/><option>=instrumented</option> the direction depends on the seed, on the
+	      function and on its type: all the calls of a libm function use the same direction.</para></listitem>
+	      <listitem><para><xref linkend="vr-manual.feat.deterministic"/> have no effect on this rounding mode.</para></listitem>
+	      <listitem><para>This rounding mode requires the verrou backend and is not compatible with the options <option>--check-cancellation</option>, <option>--cc-gen-file</option> and <option>--check-max-float</option>.</para></listitem>
+	    </itemizedlist>
+	  </para>
+        </listitem>
+
 	<listitem><para><command>sr_monotonic:</command>  Choose between downward and upward
             rounding mode, with a fixed limit. This limit is randomly selected for each interval between 2 successive floating point numbers. 
 	  </para>
@@ -240,7 +263,7 @@
       modes <command>nearness</command> and <command>random</command>. The pRNG is normally seeded with a value that changes at each execution in order to
       produce different "random rounding" results at each run. In order to reproduce results from a
       given run, it is however possible to use the <xref linkend="vr-opt.seed"/>
-      command-line option. For the modes <command>nearness_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions.
+      command-line option. For the modes <command>nearness_[[s]com]det</command>, <command>random_[[s]com]det</command>  and <command>sr_[s]monotonic</command>, the pRNG seed is used as a parameter of hash functions. For the mode <command>random_instr</command>, the seed is used during the instrumentation.
 
 
     </para>

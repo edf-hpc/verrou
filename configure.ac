@@ -162,6 +162,17 @@ fi
 AM_CONDITIONAL([HAVE_VERROU_QUADMATH], test x$vg_cv_verrou_quadmath = xyes,[])
 AC_SUBST(vg_cv_verrou_quadmath)
 
+#--enable-verrou-vprec for exact operation
+AC_CACHE_CHECK([verrou vprec], vg_cv_verrou_vprec,
+  [AC_ARG_ENABLE(verrou-vprec,
+    [  --enable-verrou-vprec          enables verrou vprec],
+    [vg_cv_verrou_vprec=$enableval],
+    [vg_cv_verrou_vprec=yes])])
+
+AM_CONDITIONAL([USE_VERROU_VPREC], test x$vg_cv_verrou_vprec = xyes,[])
+AC_SUBST(vg_cv_verrou_vprec)
+
+
 
 #--enable-profiling for exact operation
 AC_CACHE_CHECK([verrou profiling exact], vg_cv_verrou_profiling_exact,

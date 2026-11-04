@@ -33,50 +33,13 @@ import hashlib
 import copy
 import datetime
 import math
-import threading
-import time
+from pathlib import Path
 
 import convNumLineTool
 import DD
+import ddTrace
 
-from pathlib import Path
 
-class myTask:
-    def __init__(self,cmd,fname,envvars):
-        self.cmd=cmd
-        self.fname=fname
-        self.envvars=envvars
-        self.threadid()
-    def time(self):
-        return time.time()
-    def start(self):
-        self.startTime=self.time()
-    def stop(self):
-        self.stopTime=self.time()
-    def threadid(self):
-        self.tid=threading.get_native_id()
-
-class noLogTask:
-    def __init__(self):
-        pass
-    def initTask(self,cmd,fname,envvars):
-        return None
-    def closeTask(self, myTask,res):
-        pass
-
-class cmdLogTask:
-    def __init__(self,fileName):
-        self.handler=open(fileName,"w")
-    def initTask(self,cmd,fname,envvars):
-        task=myTask(cmd,fname,envvars)
-        task.start()
-        return task
-    def closeTask(self,myTask, res):
-        myTask.stop()
-        self.handler.write("%s\t%s\t%s\t%s%s\n"%(myTask.cmd, str(myTask.startTime), str(myTask.stopTime), str(res), str(myTask.tid)) )
-
-#logTool=cmdLogTask("logFile-%i.txt"%(os.getpid()))
-logTool=noLogTask()
 
 def runCmdAsync(cmd, fname, envvars=None):
     """Run CMD, adding ENVVARS to the current environment, and redirecting standard
@@ -86,18 +49,15 @@ def runCmdAsync(cmd, fname, envvars=None):
     if envvars is None:
         envvars = {}
 
-    with open(Path(fname).with_suffix(fname.suffix+".out"), "w") as fout:
-        with open(Path(fname).with_suffix(fname.suffix+".err"), "w") as ferr:
+    with open(str(Path(fname).with_suffix(fname.suffix+".out")), "w") as fout:
+        with open(str(Path(fname).with_suffix(fname.suffix+".err")), "w") as ferr:
             env = copy.deepcopy(os.environ)
             for var in envvars:
                 env[var] = str(envvars[var])
-            taskLog=logTool.initTask(cmd,fname,envvars)
-            return (subprocess.Popen(cmd, env=env, stdout=fout, stderr=ferr), taskLog)
+            return subprocess.Popen([str(x) for x in cmd], env=env, stdout=fout, stderr=ferr)
 
-def getResult(subProcessTuple):
-    subProcess, taskLog=subProcessTuple
+def getResult(subProcess):
     subProcess.wait()
-    logTool.closeTask(taskLog,subProcess.returncode)
     return subProcess.returncode
 
 
@@ -180,10 +140,11 @@ class stochTask:
             env[self.seedEnvVar_]=str(self.seedTab[i])
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
-        subProcessRun=runCmdAsync([self.runCmd, rundir],
-                                  rundir / fileRun,
-                                  env)
-        getResult(subProcessRun)
+        with ddTrace.tracer.task("run", self.dirname.name, i) as traceRes:
+            subProcessRun=runCmdAsync([self.runCmd, rundir],
+                                      rundir / fileRun,
+                                      env)
+            traceRes["status"]=getResult(subProcessRun)
         if self.postRunLambda!=None:
             self.postRunLambda(rundir)
         return self.cmpOneSample(i)
@@ -193,10 +154,12 @@ class stochTask:
             return self.PASS
 
         rundir= self._nameDir(i)
-        retval = runCmd([self.cmpCmd, self.refDir, rundir],
-                        rundir / "dd.compare")
+        with ddTrace.tracer.task("cmp", self.dirname.name, i) as traceRes:
+            retval = runCmd([self.cmpCmd, self.refDir, rundir],
+                            rundir / "dd.compare")
+            traceRes["status"]=retval
 
-        with open(rundir / ddReturnFileName,"w") as f:
+        with open(str(rundir / ddReturnFileName),"w") as f:
             f.write(str(retval))
         if retval != 0:
             return self.FAIL
@@ -219,7 +182,7 @@ class stochTask:
             returnValuePath=self.dirname / runDir / ddReturnFileName
             ddRunIndex=int(runDir.replace(subDirRun,""))
             if returnValuePath.is_file():
-                statusCmp=int((open(returnValuePath).readline()))
+                statusCmp=int((open(str(returnValuePath)).readline()))
                 if statusCmp!=0:
                     if earlyExit:
                         return None
@@ -237,10 +200,11 @@ class stochTask:
 
 
     def submitSeq(self, cmpOrRun, sampleIndex):
-        if cmpOrRun=="cmp":
-            return self.cmpOneSample(sampleIndex)
-        if cmpOrRun=="run":
-            return self.runOneSample(sampleIndex)
+        with ddTrace.tracer.worker(): #run and cmp of the same sample are traced on the same slot
+            if cmpOrRun=="cmp":
+                return self.cmpOneSample(sampleIndex)
+            if cmpOrRun=="run":
+                return self.runOneSample(sampleIndex)
 
 
 def getEstimatedFailProbability(dirname):
@@ -250,7 +214,7 @@ def getEstimatedFailProbability(dirname):
     cacheFail=0.
     for returnValuePath in returnValuePathTab:
         cacheCounter+=1.
-        statusCmp=int((open(returnValuePath).readline()))
+        statusCmp=int((open(str(returnValuePath)).readline()))
         if statusCmp!=0:
             cacheFail+=1.
     return cacheFail / cacheCounter
@@ -303,7 +267,7 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
                     pathToClean=stochTaskTab._nameDir(runToDo)
                     print("clean :", pathToClean)
                     if pathToClean.is_dir():
-                        shutil.rmdir(pathToClean)
+                        shutil.rmdir(str(pathToClean))
 
         raise KeyboardInterrupt
 
@@ -316,12 +280,38 @@ def md5Name(deltas):
 
 
 def prepareOutput(dirname):
-     shutil.rmtree(dirname, ignore_errors=True)
-     dirname.mkdir()
+    shutil.rmtree(dirname, ignore_errors=True)
+    dirname.mkdir()
 
 
 def failure():
     sys.exit(42)
+
+
+class splitNode:
+    """Configuration (ci) of the split tree built by splitDeltasAsync : father is the failing configuration
+    which generated it by split (None for the root)"""
+    def __init__(self, deltas, father, index):
+        self.deltas=deltas
+        self.father=father
+        self.index=index #creation order
+        self.stochTask=None
+        self.status=None #None while not concluded, then PASS or FAIL
+        self.samplesToDo=[] #(cmpOrRun, sampleIndex) not yet submitted
+        self.nbActive=0 #submitted samples not yet finished
+        self.nbPass=0 #finished PASS samples
+        self.failIndex=None #index of the sample which concluded FAIL (or smallest failing index in cache)
+        self.failRank=None #number of PASS samples obtained before the FAIL
+        self.nbChildrenToConclude=0
+        self.childFailed=False
+
+    def conf(self):
+        return self.stochTask.dirname.name
+
+    def fatherFailRank(self):
+        if self.father==None:
+            return 0
+        return self.father.failRank
 
 
 
@@ -345,6 +335,7 @@ class DDStoch(DD.DD):
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = self.prefix_ / "ref"
         self.prepareCache()
+        ddTrace.init(self.config_.get_traceFile(), self.config_.get_maxNbPROC())
         prepareOutput(self.ref_)
 
         self.config_.saveParam(self.prefix_ / "cmd.last")
@@ -375,12 +366,12 @@ class DDStoch(DD.DD):
         relSrc=src.relative_to(self.prefix_)
         relDist=dst.relative_to(self.prefix_)
         relPrefix=self.prefix_.relative_to(Path.cwd())
-        os.symlink(relSrc, relPrefix/ relDist)
+        os.symlink(str(relSrc), str(relPrefix/ relDist))
 
 
     def cleanSymLink(self):
         """Delete all symlink in the cache"""
-        self.saveCleabSymLink=[]
+        self.saveCleanSymLink=[]
         symLinkTab=self.searchSymLink()
         for symLink in symLinkTab:
             symLink.unlink()
@@ -463,7 +454,7 @@ class DDStoch(DD.DD):
 
     def loadDeltaFile(self,fileName):
         if fileName.is_file():
-            deltasTab=[ x.rstrip() for x in (open(fileName)).readlines()]
+            deltasTab=[ x.rstrip() for x in (open(str(fileName))).readlines()]
             return deltasTab
         else:
             print(fileName + " do not exist")
@@ -477,19 +468,19 @@ class DDStoch(DD.DD):
             self.cleanSymLink()
             return
         if cache=="clean":
-            shutil.rmtree(self.prefix_, ignore_errors=True)
+            shutil.rmtree(str(self.prefix_), ignore_errors=True)
             self.prefix_.mkdir()
             return
 
         if cache=="rename_keep_result":
             #delete unusefull rep : rename treated later
             symLinkTab=self.searchSymLink()
-            repToKeep=[os.readlink(x) for x in symLinkTab]
+            repToKeep=[os.readlink(str(x)) for x in symLinkTab]
             print(repToKeep)
             #loop over rep with md5 format
             for md5rep in [x for x in self.prefix.glob("[a-f0-9]"*32) if x.is_dir()]:
                 if not md5rep.name in repToKeep:
-                    shutil.rmtree(md5rep)
+                    shutil.rmtree(str(md5rep))
 
         if cache.startswith("rename"):
             if self.prefix_.is_dir():
@@ -518,20 +509,25 @@ class DDStoch(DD.DD):
                 for fileToDelete in filesToDelete:
                     fileToDelete.unlink()
 
+    @ddTrace.tracePhase("reference")
     def reference(self):
         """Run the reference and check the result"""
         print(self.ref_.relative_to(Path.cwd()),end="")
         print(" -- (run) -> ",end="",flush=True)
-        retval = runCmd([self.run_, self.ref_],
-                        self.ref_ /"dd",
-                        self.referenceRunEnv())
+        with ddTrace.tracer.task("run", self.ref_.name) as traceRes:
+            retval = runCmd([self.run_, self.ref_],
+                            self.ref_ /"dd",
+                            self.referenceRunEnv())
+            traceRes["status"]=retval
         if retval!=0:
             print("")
             self.referenceRunFailure()
         else:
             """Check the comparison between the reference and refrence is valid"""
-            retval = runCmd([self.compare_,self.ref_, self.ref_],
-                            self.ref_ / "checkRef")
+            with ddTrace.tracer.task("cmp", self.ref_.name) as traceRes:
+                retval = runCmd([self.compare_,self.ref_, self.ref_],
+                                self.ref_ / "checkRef")
+                traceRes["status"]=retval
             if retval != 0:
                 print("FAIL")
                 self.referenceFailsFailure()
@@ -552,7 +548,7 @@ class DDStoch(DD.DD):
         for excludeFile in listOfExcludeFile:
             lines=None
             if parseRef==None:
-                with open(dirname / excludeFile, "r") as f:
+                with open(str(dirname / excludeFile), "r") as f:
                     lines=[x.rstrip() for x in f.readlines()]
             else:
                 lines=parseRef(dirname / excludeFile)
@@ -561,7 +557,7 @@ class DDStoch(DD.DD):
                 if line not in excludeMerged:
                     excludeMerged+=[line]
 
-        with open(dirname / name, "w" )as f:
+        with open(str(dirname / name), "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
 
@@ -580,19 +576,33 @@ class DDStoch(DD.DD):
         if verbose:
             print("%s (%s):"%(kind_str,self.coerce(delta_config)))
         earlyExit= not self.config_.resWithAllSamples
-        self.testWithLink(delta_config, kind_str, earlyExit)
+        with ddTrace.tracer.phase("configuration_found", kind=kind_str, nbDelta=len(delta_config)):
+            self.testWithLink(delta_config, kind_str, earlyExit)
+        if ddTrace.tracer.enabled and kind_str.startswith("ddmin") and kind_str[5:].isdigit():
+            subConfs=[md5Name([delta for delta in delta_config if delta!=delta1]) for delta1 in delta_config]
+            ddTrace.tracer.event("oneMinimal", kind=kind_str, conf=md5Name(delta_config), subConfs=subConfs)
 
+    @ddTrace.tracePhase("dd_min")
+    def dd_min(self, c , nbRun):
+        return super().dd_min(c, nbRun)
+
+    @ddTrace.tracePhase("dd_max")
+    def dd_max(self, c , nbRun):
+        return super().dd_max(c, nbRun)
+
+    @ddTrace.tracePhase("DD")
     def run(self, deltas=None):
         # get the search space
         if deltas==None:
             deltas=self.getDelta0()
 
-        if(len(deltas)==0):
+        if len(deltas)==0:
             self.emptySearchSpaceFailure()
 
         #basic verification
         try:
-            testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
+            with ddTrace.tracer.phase("verification", nbDelta=len(deltas)):
+                testResultTab=self._testTab([deltas,[]],2*[self.config_.get_nbRUN()], earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf")
         except KeyboardInterrupt:
             print("Basic Delta Verification Interuption")
             sys.exit(42)
@@ -606,7 +616,7 @@ class DDStoch(DD.DD):
         if testResult!=self.PASS:
             self.noPerturbationFailsFailure()
 
-        if(len(deltas)==1):
+        if len(deltas)==1:
             self.configuration_found("ddmin0",deltas)
             self.configuration_found("rddmin-cmp",[])
             return deltas
@@ -651,11 +661,11 @@ class DDStoch(DD.DD):
 
     def rddminSummary(self):
         print("RDDMIN summary:")
-        summaryHandler=open(self.config_.get_cacheRep() / "rddmin_summary","w")
+        summaryHandler=open(str(self.config_.get_cacheRep() / "rddmin_summary"),"w")
         for ddminIndex in range(self.rddminIndex):
 
             confDirName=self.config_.get_cacheRep() / ("ddmin%i"%(ddminIndex))
-            ddminDeltas=open(confDirName /( self.getDeltaFileName()+".include"),"r").readlines()
+            ddminDeltas=open(str(confDirName /( self.getDeltaFileName()+".include")),"r").readlines()
 
             listOfDirString=[runDirPath.name for runDirPath in confDirName.glob(subDirRun+"[0-9]*")]
             failureIndex=[]
@@ -665,7 +675,7 @@ class DDStoch(DD.DD):
                 returnValuePath= confDirName / runDir / ddReturnFileName
                 ddRunIndex=int(runDir.replace(subDirRun,""))
                 if returnValuePath.is_file():
-                    statusCmp=int((open(returnValuePath).readline()))
+                    statusCmp=int((open(str(returnValuePath)).readline()))
                     if statusCmp!=0:
                         failureIndex+=[ddRunIndex]
                 else:
@@ -685,6 +695,7 @@ class DDStoch(DD.DD):
         "return the set deltas -conf"
         return [delta for delta in deltas if delta not in conf] #reduce search space
 
+    @ddTrace.tracePhase("heuristics")
     def applyRddminWithHeuristics(self,deltas, algo):
         """Test the previous ddmin configuration (previous run of DD_stoch) as a filter to rddmin algo"""
 
@@ -720,6 +731,7 @@ class DDStoch(DD.DD):
             return nablaRddmin+algo(deltasCurrent)
 
 
+    @ddTrace.tracePhase("DDMax")
     def DDMax(self, deltas, nbRun):
         ddmax=self.dd_max(deltas, nbRun)
         ddmaxCmp=self.reduceSearchSpace(deltas, ddmax)
@@ -727,6 +739,7 @@ class DDStoch(DD.DD):
         self.configuration_found("ddmax-cmp", ddmax)
         return ddmaxCmp
 
+    @ddTrace.tracePhase("RDDMin")
     def RDDMin(self, deltas, nbRun):
         nablaRddmin=[]
         testResult=self._test(deltas)
@@ -746,6 +759,7 @@ class DDStoch(DD.DD):
 
         return nablaRddmin
 
+    @ddTrace.tracePhase("check1Min")
     def check1Min(self, deltasHeuristic, nbRun, algoRddmin):
         """check if deltas in 1 minimal : return [deltasHeuristic] if deltasHeuristic is 1-min else
         the result of algoRddmin applied on a failing subspace"""
@@ -766,13 +780,14 @@ class DDStoch(DD.DD):
             if result==self.FAIL:
                 if not self.config_.get_quiet():
                     print("Heuristics not 1-Minimal")
-                return algoRddmin(deltaMin1Tab[indexRes], nbRun)
+                return algoRddmin(deltaMin1Tab[indexRes])
 
         self.configuration_found("ddmin%d"%(self.rddminIndex), deltasHeuristic)
         self.rddminIndex+=1
         return [deltasHeuristic]
 
 
+    @ddTrace.tracePhase("splitDeltas")
     def splitDeltas(self, deltas, nbRun, granularity):
         """ Return a list of failing non overlapping subspace"""
         if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
@@ -827,7 +842,194 @@ class DDStoch(DD.DD):
         return nablaRes
 
 
+    splitAsyncActiveWeight=2. #penalty of the samples in progress of a configuration (cost heuristic)
 
+    def splitAsyncPriority(self, node, granularity, heuristic):
+        """Priority of the next sample of node (smallest first).
+        cost : estimated number of sequential samples to reach a failing configuration of size 1
+               (number of split levels times the expected number of samples per level, given by the fail rank of the father).
+               The penalty for the samples already passed or in progress avoids to have several active samples
+               for the same configuration (they are useless if it fails).
+        fifo : number of submitted samples then creation order (as the outerSampleInnerConf order of splitDeltas
+               without the synchronization)"""
+        if heuristic=="fifo":
+            return (node.nbPass+node.nbActive, node.index)
+        rankFactor=node.fatherFailRank()+1.
+        nbLevel=math.log(len(node.deltas))/math.log(max(granularity,2))
+        cost=rankFactor*(1.+nbLevel)
+        cost*=1.+(node.nbPass + self.splitAsyncActiveWeight*node.nbActive)/rankFactor
+        return (cost, len(node.deltas), node.index)
+
+    def _splitNodePrepare(self, node, nbRun):
+        """Create the stochTask of node and use the cache : return True if the status of node is known"""
+        deltas=node.deltas
+        dirname=self.prefix_ / md5Name(deltas)
+        if not dirname.is_dir():
+            dirname.mkdir()
+            self.genExcludeIncludeFile(dirname, deltas, include=True, exclude=True)
+        node.stochTask=stochTask(dirname, self.ref_, self.run_, self.compare_ ,
+                                 self.sampleRunEnv(dirname),
+                                 seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
+        pathToPrint=node.stochTask.pathToPrint+strLenDeltas(deltas)
+
+        sToC=node.stochTask.sampleToCompute(nbRun, False)
+        if sToC["failedIndexes"]!=[]:
+            ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]), status="FAIL")
+            node.status=self.FAIL
+            node.failIndex=min(sToC["failedIndexes"])
+            node.failRank=len([i for i in sToC["indexesInCache"] if i<node.failIndex])
+            print(pathToPrint+"--(/cache/) -> FAIL")
+            return True
+        if len(sToC["indexesInCache"])!=0:
+            ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]), status="PASS")
+
+        #with a fixed seed, the sample which failed for the father is the most likely to fail
+        preferredSample=None
+        if self.seedTab!=None and node.father!=None:
+            preferredSample=node.father.failIndex
+        indexesToRun=sorted(sToC["indexesToRun"], key=lambda i: (i!=preferredSample, i))
+        node.samplesToDo=[("cmp",i) for i in sorted(sToC["indexesToCmp"])]+[("run",i) for i in indexesToRun]
+
+        if len(node.samplesToDo)==0:
+            node.status=self.PASS
+            print(pathToPrint+"--(/cache/) -> PASS("+ str(nbRun)+")")
+            return True
+        return False
+
+    @ddTrace.tracePhase("splitDeltasAsync")
+    def splitDeltasAsync(self, deltas, nbRun, granularity):
+        """ Return a list of failing non overlapping subspace (same set as splitDeltas).
+        Contrary to splitDeltas, there is no synchronization : as soon as a configuration fails, it is split
+        and the samples of all the waiting configurations are submitted in the order given by splitAsyncPriority"""
+        if self._test(deltas, self.config_.get_nbRUN())==self.PASS:
+            return [] #short exit
+
+        heuristic=self.config_.get_splitHeuristic()
+        numThread=self.config_.get_maxNbPROC()
+        if numThread==None:
+            numThread=1
+
+        nablaRes=[]
+        waitingNodes=[] #nodes with samples to submit
+        toConclude=[] #nodes with a known status not yet processed
+        nodeCounter=0
+        #with resWithAllSamples, configuration_found computes samples : it is delayed to respect the thread number
+        delayedFound=[]
+
+        def newNode(nodeDeltas, father):
+            nonlocal nodeCounter
+            node=splitNode(nodeDeltas, father, nodeCounter)
+            nodeCounter+=1
+            if self._splitNodePrepare(node, nbRun):
+                toConclude.append(node)
+            else:
+                waitingNodes.append(node)
+            return node
+
+        def addResult(resDeltas):
+            if len(resDeltas)==1:
+                if self.config_.get_resWithAllsamples():
+                    delayedFound.append(resDeltas)
+                else:
+                    self.configuration_found("ddmin%d"%(self.rddminIndex), resDeltas)
+                    self.rddminIndex+=1
+            nablaRes.append(resDeltas)
+
+        def processConclusions():
+            while len(toConclude)!=0:
+                node=toConclude.pop(0)
+                if node.status==self.FAIL:
+                    if len(node.deltas)==1:
+                        addResult(node.deltas)
+                    else:
+                        children=self.split(node.deltas, min(granularity, len(node.deltas)))
+                        node.nbChildrenToConclude=len(children)
+                        ddTrace.tracer.event("split", conf=node.conf(), sample=node.failIndex, failRank=node.failRank,
+                                             subConfs=[md5Name(child) for child in children])
+                        for child in children:
+                            newNode(child, node)
+                father=node.father
+                if father==None:
+                    continue
+                if node.status==self.FAIL:
+                    father.childFailed=True
+                father.nbChildrenToConclude-=1
+                if father.nbChildrenToConclude==0 and not father.childFailed:
+                    addResult(father.deltas)
+
+        def processResult(node, sampleIndex, res):
+            pathToPrint=node.stochTask.pathToPrint+strLenDeltas(node.deltas)
+            if node.status!=None:
+                return #FAIL already concluded by another sample
+            if res==self.PASS:
+                node.nbPass+=1
+                if len(node.samplesToDo)==0 and node.nbActive==0:
+                    node.status=self.PASS
+                    print(pathToPrint+"--(/run/) -> PASS(+%i->%i)"%(node.nbPass, nbRun))
+                    toConclude.append(node)
+            else:
+                node.status=self.FAIL
+                node.failIndex=sampleIndex
+                node.failRank=node.nbPass
+                print(pathToPrint+"--(/run/) -> FAIL(%i)"%(sampleIndex))
+                ddTrace.tracer.event("earlyExit", conf=node.conf(), reason="fail")
+                if len(node.samplesToDo)!=0:
+                    ddTrace.tracer.event("skip", nbSkipped=len(node.samplesToDo), nbSubTask=len(node.samplesToDo)+node.nbPass+node.nbActive+1)
+                node.samplesToDo=[]
+                toConclude.append(node)
+
+        newNode(deltas, None)
+        processConclusions()
+
+        import concurrent.futures
+        running={} #future -> (node, sampleIndex)
+        with ddTrace.tracer.runtime("splitAsync", nbRun=nbRun, earlyExit=True, earlyConfExit="no", sortOrder=heuristic):
+            with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
+                try:
+                    while True:
+                        while len(running)<numThread:
+                            waitingNodes[:]=[node for node in waitingNodes if node.status==None and len(node.samplesToDo)!=0]
+                            if len(waitingNodes)==0:
+                                break
+                            priorityTab=[self.splitAsyncPriority(node, granularity, heuristic) for node in waitingNodes]
+                            bestIndex=priorityTab.index(min(priorityTab))
+                            node=waitingNodes[bestIndex]
+                            cmpOrRun,sampleIndex=node.samplesToDo.pop(0)
+                            ddTrace.tracer.event("schedule", conf=node.conf(), sample=sampleIndex, priority=priorityTab[bestIndex][0],
+                                                 nbWaitingConf=len(waitingNodes))
+                            future=executor.submit(node.stochTask.submitSeq, cmpOrRun, sampleIndex)
+                            running[future]=(node, sampleIndex)
+                            node.nbActive+=1
+
+                        if len(running)==0:
+                            break
+                        (doneTab,toDo)=concurrent.futures.wait(running, return_when=concurrent.futures.FIRST_COMPLETED)
+                        for future in doneTab:
+                            node,sampleIndex=running.pop(future)
+                            node.nbActive-=1
+                            processResult(node, sampleIndex, future.result())
+                        processConclusions()
+                except KeyboardInterrupt:
+                    print("")
+                    print("Keyboard Interruption")
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    for node,sampleIndex in running.values():
+                        print("clean", node.stochTask._nameDir(sampleIndex))
+                        shutil.rmtree(node.stochTask._nameDir(sampleIndex), ignore_errors=True)
+                    raise KeyboardInterrupt
+        for resDeltas in delayedFound:
+            self.configuration_found("ddmin%d"%(self.rddminIndex), resDeltas)
+            self.rddminIndex+=1
+        return nablaRes
+
+    def splitDeltasSelected(self, deltas, nbRun, granularity):
+        if self.config_.get_splitAlgo()=="async":
+            return self.splitDeltasAsync(deltas, nbRun, granularity)
+        return self.splitDeltas(deltas, nbRun, granularity)
+
+
+
+    @ddTrace.tracePhase("SsplitDeltas")
     def SsplitDeltas(self, deltas, runTab, granularity):#runTab=splitTab ,granularity=2):
         #apply splitDeltas recussivly with increasing sample number (runTab)
         #remark: the remain treatment do not respect the binary split structure
@@ -843,7 +1045,7 @@ class DDStoch(DD.DD):
                     nextCurrent.append(candidat)
                     continue
                 self.report_progress(candidat,algo_name)
-                res=self.splitDeltas(candidat,run, granularity)
+                res=self.splitDeltasSelected(candidat,run, granularity)
                 nextCurrent.extend(res)
 
             #the remainDeltas in recomputed from the wall list (indeed the set can increase with the apply )
@@ -852,12 +1054,13 @@ class DDStoch(DD.DD):
 
             #apply split to remainDeltas
             self.report_progress(remainDeltas,algo_name)
-            nextCurrent.extend(self.splitDeltas(remainDeltas, run, granularity))
+            nextCurrent.extend(self.splitDeltasSelected(remainDeltas, run, granularity))
 
             currentSplit=nextCurrent
 
         return currentSplit
 
+    @ddTrace.tracePhase("DRDDMin")
     def DRDDMin(self, deltas, SrunTab, dicRunTab, granularity):#SrunTab=rddMinTab, dicRunTab=splitTab, granularity=2):
         algo_name="DRDDMin"
 
@@ -896,6 +1099,7 @@ class DDStoch(DD.DD):
             return nablaRddmin+self.SRDDMin(deltasCurrent, SrunTab)
 
 
+    @ddTrace.tracePhase("SRDDMin")
     def SRDDMin(self, deltas,runTab):#runTab=rddMinTab):
         #name for progression
         algo_name="SRDDMin"
@@ -1041,12 +1245,12 @@ class DDStoch(DD.DD):
         dd=self.getDeltaFileName()
 
         if include:
-            with open(dirname / (dd+".include"), "w") as f:
+            with open(str(dirname / (dd+".include")), "w") as f:
                 for d in deltas:
                     f.write(d+"\n")
 
         if exclude:
-            with open(dirname / (dd+".exclude"), "w") as f:
+            with open(str(dirname / (dd+".exclude")), "w") as f:
                 for d in deltas:
                     excludes.remove(d)
 
@@ -1079,9 +1283,11 @@ class DDStoch(DD.DD):
         assert(sortOrder in ["outerSampleInnerConf", "outerConfInnerSample"])
 
         numThread=self.config_.get_maxNbPROC()
-        if numThread in [None,1]:
-            return self._testTabSeq(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
-        return self._testTabPar(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
+        with ddTrace.tracer.runtime("testTab", nbConf=nbDelta, nbRun=(None if nbRunTab==None else max(nbRunTab)),
+                                    earlyExit=earlyExit, earlyConfExit=earlyConfExit, sortOrder=sortOrder):
+            if numThread in [None,1]:
+                return self._testTabSeq(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
+            return self._testTabPar(deltasTab,nbRunTab,earlyExit,earlyConfExit,sortOrder)
 
     def _testTabSeq(self, deltasTab,nbRunTab, earlyExit=True, earlyConfExit="no", sortOrder="outerSampleInnerConf"):
         if nbRunTab==None:
@@ -1097,7 +1303,7 @@ class DDStoch(DD.DD):
             failIndexesTab=[[] for i in range(nbDelta)]
             passIndexesTab=[[] for i in range(nbDelta)]
 
-            for subTaskData in subTaskDataTab:
+            for subTaskIndex,subTaskData in enumerate(subTaskDataTab):
                 cmpOrRun,deltaIndex, sampleIndex=subTaskData
                 sampleRes=stochTaskTab[deltaIndex].submitSeq(cmpOrRun,sampleIndex)
 
@@ -1108,6 +1314,8 @@ class DDStoch(DD.DD):
 
                     if earlyExit and earlyConfExit in ["firstPass", "anyPass"]:
                         if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]):
+                            ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
+                            ddTrace.tracer.event("skip", nbSkipped=len(subTaskDataTab)-subTaskIndex-1, nbSubTask=len(subTaskDataTab))
                             self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                             return resTab
                 if sampleRes==self.FAIL:
@@ -1117,6 +1325,8 @@ class DDStoch(DD.DD):
                     failIndexesTab[deltaIndex]+=[sampleIndex]
 
                     if earlyExit and earlyConfExit in ["firstFail","anyFail"]:
+                        ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
+                        ddTrace.tracer.event("skip", nbSkipped=len(subTaskDataTab)-subTaskIndex-1, nbSubTask=len(subTaskDataTab))
                         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
                         return resTab
 
@@ -1145,6 +1355,11 @@ class DDStoch(DD.DD):
                                                self.sampleRunEnv(dirname),
                                                seedTab=self.seedTab, seedEnvVar=self.config_.get_envVarSeed())
             sToC=stochTaskTab[deltaIndex].sampleToCompute(nbRunTab[deltaIndex], earlyExit)
+            if sToC==None:
+                ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), status="FAIL")
+            elif len(sToC["indexesInCache"])!=0:
+                ddTrace.tracer.event("cache", conf=dirname.name, nbDelta=len(deltas), nbSample=len(sToC["indexesInCache"]),
+                                     status=("FAIL" if sToC["failedIndexes"]!=[] else "PASS"))
 
             if sToC==None:
                 resTab[deltaIndex]=self.FAIL
@@ -1166,25 +1381,25 @@ class DDStoch(DD.DD):
             subTaskDataUnorderTab+=[("run",deltaIndex, runConf ) for runConf in sToC["indexesToRun"] ]
 
         if earlyConfExit=="anyFail":
-             if self.FAIL in resTab:
-                 return (resTab,None,None, cacheTab)
+            if self.FAIL in resTab:
+                return (resTab,None,None, cacheTab)
         if earlyConfExit=="anyPass":
-             if self.PASS in resTab:
-                 return (resTab,None,None, cacheTab)
+            if self.PASS in resTab:
+                return (resTab,None,None, cacheTab)
         if earlyConfExit=="firstFail":
-             if self.FAIL in resTab:
-                 index=resTab.index(self.FAIL)
-                 if not (None in resTab[0:index] ):
-                      return (resTab,None,None, cacheTab)
+            if self.FAIL in resTab:
+                index=resTab.index(self.FAIL)
+                if not (None in resTab[0:index] ):
+                    return (resTab,None,None, cacheTab)
         if earlyConfExit=="firstPass":
-             if self.PASS in resTab:
-                 index=resTab.index(self.PASS)
-                 if not (None in resTab[0:index] ):
+            if self.PASS in resTab:
+                index=resTab.index(self.PASS)
+                if not (None in resTab[0:index] ):
                     return (resTab,None,None, cacheTab)
 
         subTaskDataTab=[]
         if sortOrder=="outerSampleInnerConf":
-            sampleTab= [uniq_sample for uniq_sample in set([x[2] for x in subTaskDataUnorderTab])]
+            sampleTab= list(set([x[2] for x in subTaskDataUnorderTab]))
             sampleTab.sort()
             for sample in sampleTab:
                 subTaskDataTab+=[subTaskData for subTaskData in subTaskDataUnorderTab if (subTaskData[0]=="cmp" and subTaskData[2]==sample)]
@@ -1232,7 +1447,7 @@ class DDStoch(DD.DD):
         with concurrent.futures.ThreadPoolExecutor(max_workers=numThread) as executor:
             try:
                 futurePool= [executor.submit(stochTaskTab[subTaskData[1]].submitSeq , subTaskData[0], subTaskData[2]) for subTaskData in subTaskDataTab[0:numThread]]
-                dataIndexPool=[i for i in range(numThread)]
+                dataIndexPool=list(range(numThread))
                 poolLoop=futurePool
                 currentWork=numThread
 
@@ -1253,6 +1468,7 @@ class DDStoch(DD.DD):
                             passIndexesTab[deltaIndex]+=[sampleIndex]
                             if earlyExit and earlyConfExit in ["anyPass","firstPass"]:
                                 if set(passIndexesTab[deltaIndex])==set([task[2] for task in subTaskDataTab if task[1]==deltaIndex]): #check the right sample number
+                                    ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
                                     for cWork in range(currentWork,len(subTaskDataTab)):
                                         if earlyConfExit=="anyPass" or subTaskDataTab[cWork][1]>=deltaIndex:
                                             activeDataTab[cWork]=False
@@ -1262,6 +1478,7 @@ class DDStoch(DD.DD):
                             resTab[deltaIndex]=self.FAIL
                             failIndexesTab[deltaIndex]+=[sampleIndex]
                             if earlyExit and  earlyConfExit in ["anyFail","firstFail","no"]:
+                                ddTrace.tracer.event("earlyExit", conf=stochTaskTab[deltaIndex].dirname.name, reason=earlyConfExit)
                                 for cWork in range(currentWork,len(subTaskDataTab)):
                                     if earlyConfExit=="anyFail" or (earlyConfExit=="firstFail" and subTaskDataTab[cWork][1]>deltaIndex) or (earlyConfExit=="no" and subTaskDataTab[cWork][1]==deltaIndex):
                                         activeDataTab[cWork]=False
@@ -1296,6 +1513,9 @@ class DDStoch(DD.DD):
                     shutil.rmtree(stTask._nameDir(sampleIndex))
                 raise KeyboardInterrupt
 
+        nbSkipped=activeDataTab.count(False)
+        if nbSkipped!=0:
+            ddTrace.tracer.event("skip", nbSkipped=nbSkipped, nbSubTask=len(subTaskDataTab))
         #affichage
         self.printParProgress(resTab, stochTaskTab, deltasTab, passIndexesTab, failIndexesTab, cacheTab, earlyExit)
         return resTab

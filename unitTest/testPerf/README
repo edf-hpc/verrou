@@ -4,6 +4,3 @@ make
 
 #run the 4 executables with PREFIX
 PREFIX="valgrind --tool=verrou  --rounding-mode=random " ./run.sh 2>/dev/null
-
-#to get improved perf (warning unsafe)
-PREFIX="valgrind --tool=verrou  --rounding-mode=random --vr-unsafe-llo-optim=yes " ./run.sh 2>/dev/null

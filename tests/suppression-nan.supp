@@ -1,0 +1,5 @@
+{
+   only the NaN : the Inf is still reported
+   Verrou:NaN
+   fun:main
+}

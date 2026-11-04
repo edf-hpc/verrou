@@ -33,45 +33,28 @@ IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float) (double a, float* res, void* c
 }
 """
 
-post_treatmement_code="""
-#ifndef VERROU_IGNORE_NANINF_CHECK
-    if (isNanInf(*res)) {
-      if(isNan(*res)){
-	vr_nanHandler();
-      }
-      if(isinf(*res)){
-	vr_infHandler();
-      }
-    }
-#endif
-"""
-
 protoTypeUnaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeBinaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/ b, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a,b));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeTernaryStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_/TYPE/_/ROUNDING_NAME/) (/TYPE/ a, /TYPE/ b, /TYPE/ c, /TYPE/* res,void* context) {
   typedef /ROUNDING_CLASS/</OPCLASS/ </TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a,b,c));
-  /POST_TREATMEMENT_CODE/;
 }
 """
 protoTypeCastStatic="""
 IFV_INLINE void IFV_FCTNAME(/OP/_double_to_float_/ROUNDING_NAME/) (double a, float* res, void* context){
   typedef /ROUNDING_CLASS/</OPCLASS/</TYPE/> /RANDCLASS/> Op;
   *res=Op::apply(Op::PackArgs(a));
- /POST_TREATMEMENT_CODE/;
 }
 """
 
@@ -188,7 +171,6 @@ def specializePatternStatic(template, op, typeFp, roundingName,roundingClass, ra
         res=res.replace("/OPCLASS/", getOpClass(op))
 
     res=res.replace("/ROUNDING_NAME/", roundingName)
-    res=res.replace("/POST_TREATMEMENT_CODE/",post_treatmement_code)
     if op=="sqrt":
         res="#ifdef USE_VERROU_SQRT\n" + res + "#endif"
 

@@ -149,6 +149,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
     return "DAZ";
   case VR_DAZFTZ:
     return "DAZ/FTZ";
+  case VR_RANDOM_INSTR:
+    return "RANDOM_INSTR";
   case VR_ENUM_SIZE:
     break;
   }

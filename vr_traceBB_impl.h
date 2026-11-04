@@ -27,9 +27,9 @@
 
 
 struct traceBB_T {
-  IRSB* irsb;
   UInt index;
   UInt counter;
+  Addr addr;
   struct traceBB_T*  next;
 };
 
@@ -90,8 +90,8 @@ static void vr_traceIRSB (IRSB* out, UInt  index, UInt* counterPtr){//, typeInst
   addStmtToIRSB (out, IRStmt_Dirty (di));
 }
 
-traceBB_t* getNewTraceBB(IRSB* irsb_in);
-traceBB_t* getNewTraceBB(IRSB* irsb_in){
+traceBB_t* getNewTraceBB(Addr addr);
+traceBB_t* getNewTraceBB(Addr addr){
   traceBB_t * res = VG_(malloc)("vr.getNewTraceBB", sizeof(traceBB_t));
   res->next=traceList;
   res->counter=0;
@@ -100,7 +100,8 @@ traceBB_t* getNewTraceBB(IRSB* irsb_in){
   }else{
     res->index=0;
   }
-  res->irsb=irsb_in;
+  res->addr=addr;
+  //res->irsb=irsb_in;
 
   traceList=res;
   return res;
@@ -191,7 +192,7 @@ void vr_traceBB_finalize(void){
 
 }
 
-
+void vr_traceBB_resetCov(void);
 void vr_traceBB_resetCov(void){
   traceBB_t* current=traceList;
   while (current != NULL) {
@@ -201,27 +202,37 @@ void vr_traceBB_resetCov(void){
 }
 
 
-
-UInt vr_traceBB_dumpCov(void){
-  static UInt numPartialCov=0;
-  if(vr_out_bb_cov==NULL){
-     numPartialCov+=1;
-     return numPartialCov-1;
-  }
-  
+void vr_traceBB_dumpCov(UInt numPartialCov);
+void vr_traceBB_dumpCov(UInt numPartialCov){
   VG_(fprintf)(vr_out_bb_cov, "cover-%u\n", numPartialCov);
   traceBB_t* current=traceList;
   while (current != NULL) {
     if(current->counter!=0){
-      VG_(fprintf)(vr_out_bb_cov,"%u:%u\n",(current->index),(current->counter));
+       VG_(fprintf)(vr_out_bb_cov,"%lu|%u:%u\n",(current->addr),(current->index),(current->counter));
     }
     current = current->next;
   }
-  numPartialCov+=1;
-  vr_traceBB_resetCov();
-  return numPartialCov-1;
 }
 
+
+
+UInt vr_dumpCov(void){
+  static UInt numPartialCov=0;
+
+  if(vr.traceType==VR_BB_COVER){
+     if(vr_out_bb_cov==NULL){
+        numPartialCov+=1;
+        return numPartialCov-1;
+     }
+     vr_traceBB_dumpCov(numPartialCov);
+     vr_traceBB_resetCov();
+  }
+  if(vr.traceType==VR_BACK_COVER){
+     vr_trace_dump_and_clear(&(vr.traceBack), numPartialCov);
+  }
+  numPartialCov+=1;
+  return numPartialCov-1;
+}
 
 
 
@@ -229,8 +240,8 @@ void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * fil
 			    Bool doLineContainFloat, Bool doLineContainFloatCmp);
 void vr_traceBB_trace_imark(traceBB_t* tr,const HChar * fnname,const HChar * filename,UInt lineNum,
 			    Bool doLineContainFloat, Bool doLineContainFloatCmp){
-  VG_(fprintf)(vr_out_bb_info, "%u : %s : %s : %u : %s : %s\n",
-	       (tr->index), fnname, filename, lineNum,
+  VG_(fprintf)(vr_out_bb_info, "%lu|%u : %s : %s : %u : %s : %s\n",
+	       (tr->addr),(tr->index), fnname, filename, lineNum,
 	       doLineContainFloat?"1":"0",
 	       doLineContainFloatCmp?"1":"0");
 }

@@ -9,8 +9,11 @@ export SHELL=bash
 
 FLAGS=-Wall -g -O0
 
+BACKCOV_OP=cmpRepToRef
+#BACKCOV_OP=generateRef
 
-all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.back.line.integer.post.assert dd.back.line.post.assert dd.line.integer.vprec.assert
+all: dd.line.post.assert dd.line.integer.post.assert dd.line.postmatch.assert dd.back.assert dd.back.line.assert diff.assert dd.line.integer.vprec.assert dd.line.postbb.assert dd.line.integer.post2.assert
+#dd.back.line.integer.post.assert dd.back.line.post.assert
 
 unitTest: unitTest.cxx integrate.hxx
 	g++ $(FLAGS) -DFLOATLOOP -o $@ $<
@@ -44,19 +47,19 @@ dd.back.line.integer: unitTest ddRunInteger.sh ddCmp.py dd.line.integer
 	VERROU_SOURCE=./dd.line.integer/rddmin-cmp/dd.line.exclude verrou_dd_back --cache=clean --rep=dd.back.line.integer --nruns=8 --num-threads=4 --res-with-all-samples --seed=42 ./ddRunInteger.sh ./ddCmp.py
 
 
-dd.back.line.post: dd.back.line
-	cp -r dd.back.line dd.back.line.post
-	post_verrou_dd --rep=dd.back.line.post --trace-bin --seed=42 --nrun=3 ./ddRun.sh ./ddCmp.py
+# dd.back.line.post: dd.back.line
+# 	cp -r dd.back.line dd.back.line.post
+# 	post_verrou_dd --rep=dd.back.line.post --trace-bin --trace-gen-local --seed=42 --nrun=3 ./ddRun.sh ./ddCmp.py
 
-dd.back.line.post.assert: dd.back.line.post
-	./assertCover.py dd.back.line.post 1 8 3 0 default
+# dd.back.line.post.assert: dd.back.line.post
+# 	./assertCover.py dd.back.line.post 1 8 3 0 default
 
-dd.back.line.integer.post: dd.back.line.integer
-	cp -r dd.back.line.integer dd.back.line.integer.post
-	post_verrou_dd --rep=dd.back.line.integer.post --trace-bin --seed=42 --nrun=3 --rounding=sr_monotonic,nearest ./ddRunInteger.sh ./ddCmp.py
+# dd.back.line.integer.post: dd.back.line.integer
+# 	cp -r dd.back.line.integer dd.back.line.integer.post
+# 	post_verrou_dd --rep=dd.back.line.integer.post --trace-bin --trace-gen-local --seed=42 --nrun=3 --rounding=sr_monotonic,nearest ./ddRunInteger.sh ./ddCmp.py
 
-dd.back.line.integer.post.assert: dd.back.line.integer.post
-	./assertCover.py dd.back.line.integer.post 1 8 3 0 sr_monotonic
+# dd.back.line.integer.post.assert: dd.back.line.integer.post
+# 	./assertCover.py dd.back.line.integer.post 1 8 3 0 sr_monotonic Back
 
 dd.back.assert:dd.back
 	./assertBack.py dd.back
@@ -66,29 +69,63 @@ dd.back.line.assert: dd.back.line
 
 dd.line.post: dd.line
 	cp -r dd.line dd.line.post
-	post_verrou_dd --rep=dd.line.post --trace-bin --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+
+dd.line.postbb: dd.line
+	cp -r dd.line dd.line.postbb
+	post_verrou_dd --rep=dd.line.postbb --trace-bin --trace-gen-local --trace-type=bb_cover --trace-clean=gz --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRun.sh ./ddCmp.py
+
+dd.line.postbb.assert: dd.line.postbb
+	./assertCover.py dd.line.postbb 2 8 3 0 nearness_scomdet BB
+	find dd.line.postbb -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+#	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+#we should add reference with an equivalent to filterBackCover.py. We prefer to get more REX to do that
+
+
 
 dd.line.integer.post: dd.line.integer
 	cp -r dd.line.integer dd.line.integer.post
-	post_verrou_dd --rep=dd.line.integer.post --trace-bin --seed=42 --nrun=3 --rounding=nearness,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=1 --trace-clean-policy=gz --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+	post_verrou_dd --rep=dd.line.integer.post --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 --nrun=3 --rounding=nearness_scomdet,nearest --count-denorm ./ddRunInteger.sh ./ddCmp.py
+
+dd.line.integer.post2: dd.line.integer.post
+	cp -r dd.line.integer.post dd.line.integer.post2
+	rm -rf dd.line.integer.post2/trace_analysis
+	verrou_analyse_trace dd.line.integer.post2
 
 dd.line.integer.post.assert: dd.line.integer.post
-	./assertCover.py dd.line.integer.post 1 8 3 0 nearness
+	./assertCover.py dd.line.integer.post 1 8 3 0 nearness_scomdet Back
+	find dd.line.integer.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post/trace_analysis trace_analysis_ref/dd.line.integer.post
+#	find trace_analysis_ref/dd.line.integer.post-aarch64 -name "*.prop" -print -exec cat \{\} \;
+
+dd.line.integer.post2.assert: dd.line.integer.post2
+	./assertCover.py dd.line.integer.post2 1 8 3 0 nearness_scomdet Back
+	find dd.line.integer.post2 -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+	./filterBackCover.py $(BACKCOV_OP) dd.line.integer.post2/trace_analysis trace_analysis_ref/dd.line.integer.post
 
 
 dd.line.post.assert: dd.line.post
-	./assertCover.py dd.line.post 2 8 3 0 nearness
+	./assertCover.py dd.line.post 2 8 3 0 nearness_scomdet Back
+	find dd.line.post -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+	./filterBackCover.py $(BACKCOV_OP) dd.line.post/trace_analysis trace_analysis_ref/dd.line.post
+#	find trace_analysis_ref/dd.line.post-aarch64 -name "*.prop" -print -exec cat \{\} \;
 
 dd.line.postmatch: dd.line
 	cp -r dd.line dd.line.postmatch
-	post_verrou_dd --nruns=4 --num-thread=4 --rep=dd.line.postmatch --trace-bin --seed=42 ./ddRunMatch.sh ./ddCmp.py
+	post_verrou_dd --nruns=4 --num-thread=4 --rep=dd.line.postmatch --trace-bin --trace-gen-local --trace-type=back_cover --seed=42 ./ddRunMatch.sh ./ddCmp.py
+
 
 dd.line.postmatch.assert: dd.line.postmatch
-	./assertCover.py dd.line.postmatch 2 8 4 2 default
+	./assertCover.py dd.line.postmatch 2 8 4 2 default Back
+	find dd.line.postmatch -wholename  *-trace/*/dd.run.err -print -exec cat \{\} \;
+	./filterBackCover.py $(BACKCOV_OP) dd.line.postmatch/trace_analysis trace_analysis_ref/dd.line.postmatch
+#	find trace_analysis_ref/dd.line.postmatch-aarch64 -name "*.prop" -print -exec cat \{\} \;
 
 diff.assert: dd.line.integer.post dd.line.post
-	./assertDiffCover.sh
+	./assertDiffCover.py
 
 clean:
 	rm -rf unitTest unitTestInteger dd.line dd.line.integer dd.line.integer.vprec dd.line.post dd.line.integer.post dd.line.postmatch matchLast.script.log-* *~
 	rm -rf dd.back.line.integer.post dd.back.line.post dd.back.line.integer dd.back.line dd.back
+	rm -rf dd.line.postbb dd.line.integer.post2

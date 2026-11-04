@@ -60,8 +60,10 @@
 #include "vr_exclude.h"
 #include "vr_error.h"
 #include "vr_include_trace.h"
-
 #include "vr_exclude_back.h"
+
+#include "vr_trace_back.h"
+
 #define VR_FNNAME_BUFSIZE 4096
 
 typedef enum vr_backend_name{vr_verrou,vr_mcaquad,vr_vprec,vr_checkdenorm} vr_backend_name_t;
@@ -123,6 +125,10 @@ typedef enum {
 } Vr_Prandom_update;
 
 
+typedef enum {
+   VR_BACK_COVER,
+   VR_BB_COVER,
+} Vr_Trace_Type;
 
 
 typedef struct {
@@ -205,6 +211,8 @@ typedef struct {
 
   Bool genTrace;
   Vr_Include_Trace* includeTrace;
+  Vr_Trace_Type traceType;
+  Vr_Trace traceBack;
 
   Bool useIOMatchCLR;
   HChar* IOMatchScript;
@@ -231,14 +239,15 @@ void vr_resetCount(void);
 
 void vr_register_cache(unsigned int*, unsigned int);
 void vr_clean_cache(void);
+Bool vr_randomInstrAvailable(void);
 void vr_register_cache_seed(unsigned int*);
 void vr_clean_cache_seed(void);
 
 VG_REGPARM(0) void vr_backtrace_dyn_BB (void);
 
 /* Implem in vr_traceBB_impl.h*/
-void vr_traceBB_resetCov(void);
-UInt vr_traceBB_dumpCov(void);
+//void vr_traceBB_resetCov(void);
+UInt vr_dumpCov(void);
 
 
 

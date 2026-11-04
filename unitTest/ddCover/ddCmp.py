@@ -4,7 +4,7 @@ from pathlib import Path
 import re
 
 def extract(rep):
-    lines=(open(Path(rep) / "res.dat")).readlines()
+    lines=(open(str(Path(rep) / "res.dat"))).readlines()
     return re.split(" ",lines[-1].strip())[1]
     
 if __name__=="__main__":

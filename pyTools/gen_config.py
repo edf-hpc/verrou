@@ -13,7 +13,7 @@ class gen_config:
         self.registryTab =[]
         self.registerOptions()
         self.readDefaultValueFromRegister()
-        if sys.argv[1]=="bash_completion":
+        if len(sys.argv)>1 and sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
             sys.exit(0)
         self.argv=argv
@@ -72,11 +72,14 @@ class gen_config:
                         self.readOneOption(arg,registry["attribut"], registry["type"], registry["ENV"],registryName,registry["checkParam"], registry["additive"], parse="parse")
                         break
 
-        if len(args) in lengthValidTab:
-            self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+        if lengthValidTab == None:
+            self.unknown_args=[x for x in args]
         else:
-            self.usageCmd()
-            self.failure()
+            if len(args) in lengthValidTab:
+                self.exec_arg=[self.checkScriptPath(Path(arg)) for arg in args]
+            else:
+                self.usageCmd()
+                self.failure()
 
     def read_environ(self,environ, PREFIX):
         self.environ=environ #configuration to prepare the call to readOneOption
@@ -84,9 +87,11 @@ class gen_config:
 
         for registry in self.registryTab:
             try:
-                strValue=self.environ[self.PREFIX+"_"+registry["ENV"]]
+                prefixedRegistry=self.PREFIX+"_"+registry["ENV"]
+                strValue=self.environ[prefixedRegistry]
                 param=[registry["attribut"], registry["type"], registry["ENV"], registry["tabOptionAll"][0],registry["checkParam"], registry["additive"]]
                 self.readOneOption(strValue,*param, parse="environ")
+                print("Warning use of %s is deprecated"%(prefixedRegistry))
             except KeyError:
                 pass
 
@@ -98,9 +103,9 @@ class gen_config:
                 if env.startswith(prefix):
                     find=False
                     for registry in self.registryTab:
-                        if env==self.prefix+"_"+registry["ENV"]:
+                        if env==prefix+"_"+registry["ENV"]:
                             strValue=self.environ[env]
-                            resEnv+="\t"+self.prefix+"_"+registry["ENV"] + "="+strValue+"\n"
+                            resEnv+="\t"+prefix+"_"+registry["ENV"] + "="+strValue+"\n"
                             find=True
                             break
                     if not find:
@@ -135,7 +140,7 @@ class gen_config:
         strRes=self.confToStr()+"\n"
 
         for arg in self.exec_arg:
-            content=open(arg).read()
+            content=open(str(arg)).read()
             md5Script=hashlib.md5((content).encode('utf-8')).hexdigest()
             strRes+=("arg: "+ str(arg) + " (md5="+md5Script+")\n")
             if content.count("\n") < 100:
@@ -143,16 +148,16 @@ class gen_config:
                 strRes+=content
                 strRes+="--end content--\n"
 
-        with open(fileName,"w") as f:
+        with open(str(fileName),"w") as f:
             f.write(strRes)
         self._md5Param=hashlib.md5((strRes).encode('utf-8')).hexdigest()
 
     def usageCmd(self):
-        if sys.argv[1]=="bash_completion":
+        if len(sys.argv)>1 and sys.argv[1]=="bash_completion":
             self.write_bashCompletion_script()
             sys.exit(0)
         print("Usage: "+ Path(sys.argv[0]).name + " [options] runScript cmpScript")
-        print(self.get_EnvDoc(self.config_keys[-1]))
+        print(self.get_EnvDoc())
 
     def failure(self):
         sys.exit(42)
@@ -161,12 +166,12 @@ class gen_config:
         return self._md5Param
 
     def checkScriptPath(self,fpath,hardFailure=True):
-        if fpath.is_file() and os.access(fpath, os.X_OK):
+        if fpath.is_file() and os.access(str(fpath), os.X_OK):
             return fpath.absolute()
         else:
             if hardFailure:
                 print("Invalid Cmd:"+str(sys.argv))
-                if fpath.is_file() and not os.access(fpath, os.X_OK):
+                if fpath.is_file() and not os.access(str(fpath), os.X_OK):
                     print(fpath , " should be executable")
                 if not fpath.is_file():
                     print(fpath , " is not a file")
@@ -226,7 +231,7 @@ class gen_config:
                     value=int(value)
                     exec(cmd)
                     return
-                except:
+                except ValueError:
                     if parse=="environ":
                         print("Error : "+ self.PREFIX+"_"+key_name+ " should be in "+str(acceptedValue) +" or be a int value")
                     else:
@@ -346,17 +351,17 @@ _%s()
         handler.write(end)
 
 
-    def get_EnvDoc(self,PREFIX="INTERFLOP"):
+    def get_EnvDoc(self):
         doc="""List of env variables and options :\n"""
         for registry in self.registryTab:
 #            (attribut, attributType, envVar, option, default, expectedValue, add)=registry
 
-            optionTab=registry["tabOptionBrut"]
+            optionTab=[option[:-1] if option.endswith(":") else option for option in registry["tabOptionVisible"]]
             if len(optionTab)==1:
                 optionStr=str(optionTab[0])
             else:
                 optionStr=" or ".join(optionTab)
-            optionNameStr="%s or %s"%(PREFIX+"_"+registry["ENV"], optionStr)
+            optionNameStr=optionStr
 
             expectedValue=registry["checkParam"]
             expectedValueStr=""

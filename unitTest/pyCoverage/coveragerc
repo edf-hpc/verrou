@@ -1,0 +1,25 @@
+# Configuration of 'make python-coverage': the variables are set by the makefile
+[run]
+parallel = True
+data_file = ${VERROU_PYCOV_OUT}/.coverage
+source =
+    ${VERROU_PYCOV_PREFIX}/bin
+    ${VERROU_PYCOV_PKGDIR}
+# not in pyTools
+omit =
+    */verrouPyBinding.py
+    */trace_verrou_task.py
+# the scripts of the tests also start coverage, without measuring anything
+disable_warnings = no-data-collected, module-not-measured, module-not-imported
+
+[paths]
+pyTools =
+    ${VERROU_PYCOV_SRC}/pyTools/
+    ${VERROU_PYCOV_PREFIX}/bin/
+    ${VERROU_PYCOV_PKGDIR}/
+
+[report]
+skip_empty = True
+
+[html]
+directory = ${VERROU_PYCOV_OUT}/html

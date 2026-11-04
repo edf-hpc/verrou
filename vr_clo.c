@@ -72,6 +72,8 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_INSTR","--vr-instr");
 
    vr_env_clo_one_option("VERROU_TRACE","--trace");
+   vr_env_clo_one_option("VERROU_TRACE_TYPE","--trace-type");
+
    vr_env_clo_one_option("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
    vr_env_clo_one_option("VERROU_SEED","--vr-seed");
 
@@ -136,6 +138,9 @@ void vr_clo_defaults (void) {
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
+  vr_trace_init0(&(vr.traceBack));
+  vr.traceType=VR_BB_COVER;
+
   vr.outputTraceRep = NULL;
   vr.outputIOMatchRep = NULL;
   vr.outputIOMatchFilePattern= NULL;
@@ -186,6 +191,7 @@ void vr_clo_defaults (void) {
   vr.cancellationSource=NULL;
   vr.checkFloatMax=False;
 
+#ifdef USE_VERROU_VPREC
   vr.vprec_conf.preset = (UInt)(-1);
   vr.vprec_conf.precision_binary32 = VPREC_PRECISION_BINARY32_DEFAULT;
   vr.vprec_conf.range_binary32 = VPREC_RANGE_BINARY32_DEFAULT;
@@ -196,7 +202,7 @@ void vr_clo_defaults (void) {
   vr.vprec_conf.max_abs_err_exponent = -DOUBLE_EXP_MIN;
   vr.vprec_conf.daz = False;
   vr.vprec_conf.ftz = False;
-
+#endif
 }
 
 
@@ -211,7 +217,11 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=mcaquad",
                          vr.backend, vr_mcaquad)) {}
     else if (VG_XACT_CLOM (cloPD, arg, "--backend=vprec",
-                         vr.backend, vr_vprec)) {}
+                         vr.backend, vr_vprec)) {
+#ifndef USE_VERROU_VPREC
+       VG_(tool_panic) ( "\tverrou is not compiled with vprec backend enabled\n");
+#endif
+    }
   else if (VG_XACT_CLOM (cloPD, arg, "--backend=checkdenorm",
                          vr.backend, vr_checkdenorm)) {}
 
@@ -224,6 +234,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_scomdet",
                          vr.roundingMode, VR_RANDOM_SCOMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_instr",
+                         vr.roundingMode, VR_RANDOM_INSTR)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_monotonic",
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",
@@ -444,6 +456,10 @@ Bool vr_process_clo (const HChar *arg) {
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
     vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--trace-type=back_cover", vr.traceType, VR_BACK_COVER)) {
+  }
+  else if (VG_XACT_CLOM (cloPD, arg, "--trace-type=bb_cover", vr.traceType, VR_BB_COVER)) {
   }
 
   else if (VG_STR_CLOM  (cloPD, arg, "--gen-backtrace", str)) {

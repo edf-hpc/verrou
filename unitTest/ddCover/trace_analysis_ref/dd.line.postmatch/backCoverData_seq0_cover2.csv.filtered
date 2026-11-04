@@ -1,0 +1,19 @@
+		dc	wdc	wdc-stol	fdr-stol
+	conf_name					NoPerturbation	FullPerturbation	FullPerturbation	FullPerturbation	FullPerturbation	rddmin-cmp	rddmin-cmp	rddmin-cmp	rddmin-cmp	ddmin0	ddmin0	ddmin0	ddmin0	ddmin1	ddmin1	ddmin1	ddmin1
+	indexRun					0	0	1	2	3	0	1	2	3	0	1	2	3	0	1	2	3
+	rounding					default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default	default
+	return_value					OK	KO	KO	KO	KO	OK	OK	OK	OK	KO	KO	KO	KO	KO	KO	KO	OK
+|0	main+ADDR	unitTest.cxx:63
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(26)STDBB(X) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+2	unitTest.cxx(25-26) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:26
+|1	testConvergence(float const&)+ADDR	unitTest.cxx:36
+C-2	unitTest.cxx(36) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1
+|0	main+ADDR	unitTest.cxx:64
+C-1	unitTest.cxx(64-65) 	0.35294117647058826	0.5	0.5	0.0	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1	1

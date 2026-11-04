@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+# Copyright (C) 2014-2021 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+import os
+import sys
+import getopt
+from pathlib import Path
+from mergeTools import cmpToolsCov
+from coverTools import traceName
+import gen_config
+
+
+def extractPidRep(fileName, trace_kind):
+    """extract the pid d'un fichier de la form trace_bb_cov.log-PID[.gz]"""
+    rep=fileName.parent
+    if rep=="":
+        rep="."
+    baseFile=fileName.name
+    begin=traceName(trace_kind).covPrefixName()
+
+    mtime=(fileName.stat()).st_mtime
+    if baseFile.startswith(begin):
+        pid=int((baseFile.replace(begin,'')).replace(".gz",""))
+        return (pid,rep,mtime)
+    return None
+
+def selectPidFromFile(fileNameTab, trace_kind):
+    """Return a list of pid from a list of file by using extractPidRep"""
+    return [extractPidRep(fileName,trace_kind)[0:2] for fileName in fileNameTab]
+
+def selectSortedPidFromFile(fileNameTab,trace_kind):
+    """Return a list of pid from a list of file by using extractPidRep"""
+    pidList=[extractPidRep(fileName,trace_kind) for fileName in fileNameTab]
+    sortedPidList=sorted(pidList, key=lambda x: x[2])
+    return [x[0:2] for x in sortedPidList ]
+
+
+class config_option(gen_config.gen_config):
+    def __init__(self,argv, environ):
+        super().__init__(argv,environ, config_keys=[], lengthValidTab=None)
+        self.normalize()
+
+    def registerOptions(self):
+        self.addRegistry("rep", "string", None, ["--rep="], ".", "rep_exists")
+        self.addRegistry("trace_kind",  "string", None, ["--trace-type="], "bb_cover", ["bb_cover","back_cover"])
+        self.addRegistry("output_kind", "string", None, ["--output-type="], "individual", ["individual","merge"])
+        self.addRegistry("pidRename",    "bool", None,        ["--pidRename"],        False)
+        self.addRegistry("select_default","int", None, ["--select_default="], -1 )
+        self.addRegistry("run_cmp","string",  None, ["--run-cmp="], None, "file_exists")
+        self.addRegistry("run_eval","string", None, ["--run-eval="], None, "file_exists")
+
+    def usageCmd(self):
+        print ("Usage: %s [--help] [--rep=] [--trace-type=[bb_cover|back_cover] --output-type=[individual|merge] [--select-default[=INT]] [--run-cmp=] [--pidRename] file list of type trace_bb_cov.log* or backCoverInfo-* "%(self.argv[0]) )
+        sys.exit(42)
+
+    def normalize(self):
+        self.rep=Path(self.rep)
+        if self.run_eval!=None and self.run_cmp!=None:
+            print("--run-cmp= and --run-eval= are incompatible option")
+            self.usage()
+
+        self.listOfFiles=[]
+        if self.select_default!=0:
+            self.listOfFiles+=self.search_default_param()
+
+        listArgToAdd=[]
+        for arg in self.unknown_args:
+            if arg not in self.listOfFiles:
+                listArgToAdd+=[arg]
+        self.listOfFiles=listArgToAdd +self.listOfFiles
+
+        if len(self.listOfFiles)<1 and self.output_kind=="individual":
+            print("--output-type=individual required at least 1 argument")
+            self.usage()
+        if len(self.listOfFiles)<2 and self.output_kind=="merge":
+            print("--output-type=merge required at least 2 arguments")
+            self.usage()
+
+        self.listOfFiles=[Path(x) for x in self.listOfFiles]
+
+    def search_default_param(self):
+        addFile=[str(x) for x in self.rep.rglob(traceName(self.trace_kind).covPrefixName() +"*")]
+        if self.select_default==-1:
+            return addFile
+        else:
+            return addFile[0:self.select_default]
+
+
+if __name__=="__main__":
+
+    options=config_option(sys.argv, os.environ)
+    #print(options.optionToStr())
+
+    pidList=None
+    pidMap=None
+
+    if not options.pidRename:
+        pidList=selectPidFromFile(options.listOfFiles, options.trace_kind)
+    else:
+        pidList=selectSortedPidFromFile(options.listOfFiles, options.trace_kind)
+        rank=0
+        pidMap={}
+        for pidRepTuple in pidList:
+            pid=pidRepTuple[0]
+            rep=pidRepTuple[1]
+            pidMap[pid]="seqCount"+str(rank)
+            rank+=1
+
+    cmp=cmpToolsCov(pidList, options.run_cmp, options.run_eval, options.trace_kind)
+    if options.output_kind=="individual":
+        cmp.writePartialCover(["data"], pidMap=pidMap)
+
+    if options.output_kind=="merge":
+        if options.trace_kind=="bb_cover":
+            cmp.findRefForMerge()
+        if options.trace_kind=="back_cover":
+            cmp.findRefForMergePost()
+        cmp.writeMerged(options.rep, ["wdc"], pidMap)

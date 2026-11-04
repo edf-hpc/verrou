@@ -1,0 +1,11 @@
+add double: 0x1p+0
+add float: 0x1p+0
+div double: 0x1.5555555555555p-2
+madd double: 0x1.75c28f5c28f5cp-1
+madd float: 0x1.75c29p-1
+cast: 0x1.99999ap-4
+x87 sub: 0x1p+0
+packed double: 0x1p+0
+packed float: 0x1p+0
+sqrt scalar: 0x1.bb67ae8584caap+0
+sqrt packed: 0x1.bb67ae8584caap+0

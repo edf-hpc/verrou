@@ -13,7 +13,7 @@ repOrgImpl=Path("org")
 def extractFun(fileName, name):
     res=[]
     numberOfAcc=None
-    for line in open(fileName,"r").readlines():
+    for line in open(str(fileName),"r").readlines():
         if name in line: #should implement regexp
             numberOfAcc=0
         if numberOfAcc!=None:

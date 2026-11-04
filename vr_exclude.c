@@ -169,7 +169,6 @@ Vr_Exclude * vr_addObjectIfMatchPattern(Vr_Exclude * list, const HChar* objName)
   static const HChar libquadmathPattern[]="*libquadmath*.so*";
   static const HChar libgccPattern[]="*libgcc_s*.so*";
 
-
 #define LIB_NB_PATTERN 7
   const HChar* libPattern[LIB_NB_PATTERN]={libmPattern1, libmPattern2,
 					   libumathPattern,
@@ -193,9 +192,16 @@ Vr_Exclude * vr_addPythonSymbols(Vr_Exclude * list){
    const HChar star[]="*";
    //With True False : the symbol are silently excluded
    res=vr_addExclude (res, "_Py_dg_dtoa", star, True, False);
+   res=vr_addExclude (res, "_Py_dg_dtoa.cold", star, True, False);
    res=vr_addExclude (res, "_Py_dg_strtod", star, True, False);
    res=vr_addExclude (res, "_Py_HashDouble", star, True, False);
-   res=vr_addExclude (res, "_PyTime_AsSecondsDouble", star, True, False);
+   res=vr_addExclude (res, "PyLong_FromDouble", star, True, False);
+   res=vr_addExclude (res, "PyLong_FromString", star, True, False);
+   res=vr_addExclude (res, "PyByteArray_Resize", star, True, False);
+   res=vr_addExclude (res, "_PyTime_AsSecondsDouble",star,True,False);
+   res=vr_addExclude (res, "PyTime_AsSecondsDouble", star, True,False);
+   res=vr_addExclude (res, "_Py_hashtable_set",star,True,False);
+   res=vr_addExclude (res, "hashtable_rehash.lto_priv.0",star,True,False);
    return res;
 }
 
@@ -359,9 +365,7 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
       VG_(tool_panic)("invalid load source list file");
       continue;
     }
-    if (*c==0) {
-      c = line + LINE_SIZEMAX;
-    } else {
+    if (*c!=0) {
       *c = 0;
       ++c;
     }
@@ -372,6 +376,11 @@ vr_loadIncludeSourceList (Vr_IncludeSource * list, const HChar * fname) {
 	 c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
 	 ++c) {}
     HChar* fnname = c;
+    if (*fnname == 0) {
+      VG_(umsg)("ERROR (parse3: missing fnname) : %s\t%u (line %d of %s)\n",filename,linenum,lineno,fname);
+      VG_(tool_panic)("invalid load source list file");
+      continue;
+    }
 
     list = vr_addIncludeSource (list,fnname,filename,linenum);
   }

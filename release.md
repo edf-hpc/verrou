@@ -1,7 +1,7 @@
 # Notes about the release process
 
 ```
-VERSION=2.6.0
+VERSION=2.7.0
 ```
 
 ## Update the valgrind patch
@@ -108,7 +108,7 @@ git add vr_clo.txt
 - Build a tgz archive for the full valgrind+verrou release
     
     ```
-    VALGRIND=valgrind-3.23.0
+    VALGRIND=valgrind-3.27.1
     cd /tmp
     wget https://github.com/edf-hpc/verrou/releases/download/valgrind/${VALGRIND}.tar.bz2
     tar xvpf ${VALGRIND}.tar.bz2
@@ -117,6 +117,7 @@ git add vr_clo.txt
     git clone --branch=v${VERSION} --single-branch https://github.com/edf-hpc/verrou
     rm -rf verrou/.git
     cat verrou/valgrind.*diff | patch -p1
+    ./autogen.sh
     cd ..
     tar cvzf ${VALGRIND}_verrou-${VERSION}.tar.gz ${VALGRIND}+verrou-${VERSION}
     ```

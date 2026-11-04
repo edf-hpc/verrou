@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import difflib
-
+import sys
 
 class convNumLineTool:
     """convNumLineTool provides a way to update a delta line when the search space 
