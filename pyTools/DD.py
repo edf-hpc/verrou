@@ -273,6 +273,7 @@ class DD:
         sortOrder="outerSampleInnerConf"
         if self.config_.get_use_dd_min_par():
             algo_name="ddmin//"
+        complementsOnly=self.config_.get_ddminComplementsOnly()
 
 
         testNoDelta=self._test([],nbRun)
@@ -310,30 +311,32 @@ class DD:
             next_n = n
 
             # // resolution
-            tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
-
-            for i in range(n):
-                if self.debug_dd:
-                    print (algo_name+": trying", self.pretty(cs[i]))
-
-                t = tTab[i]
-
-                if t == self.FAIL:
-                    # Found
+            # with complementsOnly, subsets are tested only for n==2 (the subsets are then the complements)
+            testSubsets= (n==2) or (not complementsOnly)
+            if testSubsets:
+                tTab=self._testTab(cs, [nbRun]*len(cs), earlyExit=True, earlyConfExit="anyFail", sortOrder=sortOrder)
+                for i in range(n):
                     if self.debug_dd:
-                        print (algo_name+": found", len(cs[i]), "deltas:",)
-                        print (self.pretty(cs[i]))
+                        print (algo_name+": trying", self.pretty(cs[i]))
 
-                    c_failed = True
-                    next_c = cs[i]
-                    next_n = 2
-                    cbar_offset = 0
-                    for j in range(i+1,n):
-                        t = tTab[j]
-                        if t == self.FAIL:
-                            failMemory+=[cs[j]]
-                    self.report_progress(next_c, algo_name)
-                    break
+                    t = tTab[i]
+
+                    if t == self.FAIL:
+                        # Found
+                        if self.debug_dd:
+                            print (algo_name+": found", len(cs[i]), "deltas:",)
+                            print (self.pretty(cs[i]))
+
+                        c_failed = True
+                        next_c = cs[i]
+                        next_n = 2
+                        cbar_offset = 0
+                        for j in range(i+1,n):
+                            t = tTab[j]
+                            if t == self.FAIL:
+                                failMemory+=[cs[j]]
+                        self.report_progress(next_c, algo_name)
+                        break
 
             if not c_failed and n!=2:
                 # Check complements
