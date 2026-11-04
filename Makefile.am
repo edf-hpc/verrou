@@ -15,10 +15,10 @@ pkginclude_HEADERS = verrou.h libVerrouTask/libverrouTask.h
 
 PYTHON_REP=pyTools
 
-bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/verrou_gen_trace ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout  ${PYTHON_REP}/verrou_dd_back  ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py ${PYTHON_REP}/find_dd_fail ${PYTHON_REP}/verrou_control ${PYTHON_REP}/verrou_analyse_trace
+bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/verrou_gen_trace ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_task ${PYTHON_REP}/post_verrou_dd ${PYTHON_REP}/verrou_dd_stdout  ${PYTHON_REP}/verrou_dd_back  ${PYTHON_REP}/verrou_dd_clean libVerrouTask/trace_verrou_task.py ${PYTHON_REP}/find_dd_fail ${PYTHON_REP}/verrou_control ${PYTHON_REP}/verrou_analyse_trace ${PYTHON_REP}/verrou_dd_trace_convert
 
 
-pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py ${PYTHON_REP}/sysTools.py ${PYTHON_REP}/mergeTools.py ${PYTHON_REP}/estimatorTools.py ${PYTHON_REP}/coverTools.py ${PYTHON_REP}/traceAnalysis.py pyWrapper/verrouPyBinding.py
+pkgpython_PYTHON = ${PYTHON_REP}/DD.py ${PYTHON_REP}/dd_config.py ${PYTHON_REP}/DD_stoch.py ${PYTHON_REP}/ddTrace.py ${PYTHON_REP}/DD_exec_stat.py ${PYTHON_REP}/convNumLineTool.py ${PYTHON_REP}/post_config.py ${PYTHON_REP}/gen_config.py ${PYTHON_REP}/rounding_tool.py ${PYTHON_REP}/sysTools.py ${PYTHON_REP}/mergeTools.py ${PYTHON_REP}/estimatorTools.py ${PYTHON_REP}/coverTools.py ${PYTHON_REP}/traceAnalysis.py pyWrapper/verrouPyBinding.py
 
 #----------------------------------------------------------------------------
 # bash completion script
@@ -29,7 +29,7 @@ completion_scripts=${completion_dir}/bash_completion_post_verrou_dd    ${complet
 		   ${completion_dir}/bash_completion_valgrind          ${completion_dir}/bash_completion_verrou_dd_line\
 		   ${completion_dir}/bash_completion_verrou_dd_sym     ${completion_dir}/bash_completion_verrou_plot_stat\
 		   ${completion_dir}/bash_completion_verrou_dd_back    ${completion_dir}/bash_completion_verrou_control \
-		   ${completion_dir}/bash_completion_verrou_gen_trace
+		   ${completion_dir}/bash_completion_verrou_gen_trace  ${completion_dir}/bash_completion_verrou_dd_trace_convert
 completion_install_dir=${prefix}/share/completions
 
 # bash completion code generation
@@ -50,6 +50,8 @@ ${completion_dir}/bash_completion_post_verrou_dd:
 	cd ${completion_dir} ; ../${PYTHON_REP}/post_verrou_dd bash_completion
 ${completion_dir}/bash_completion_verrou_plot_stat:
 	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_plot_stat bash_completion
+${completion_dir}/bash_completion_verrou_dd_trace_convert:
+	cd ${completion_dir} ; ../${PYTHON_REP}/verrou_dd_trace_convert bash_completion
 
 
 #----------------------------------------------------------------------------
@@ -82,7 +84,7 @@ noinst_PROGRAMS += verrou-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
 
-VR_GENERATED_FILE=vr_instrumentOp_checkInst.h vr_instrumentOp_impl.h vr_generated_from_templates.h vr_instrumentOp_impl_generated_verrou_specific.h vr_instrumentOp_impl_generated_all_backends.h
+VR_GENERATED_FILE=vr_gen_iop_is_instrumented.h vr_gen_iop_switch.h vr_gen_wrappers.h vr_gen_select_verrou.h vr_gen_select_backends.h vr_gen_operator_tables.h
 # code generation frontend
 vr_main.c: ${VR_GENERATED_FILE}
 
@@ -94,16 +96,18 @@ clean_generated:
 	find -name "*.o" -exec rm \{\} \;
 	find -name "*.so" -exec rm \{\} \;
 
-vr_generated_from_templates.h: generateBackendInterOperator.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
-	./generateBackendInterOperator.py
-vr_instrumentOp_checkInst.h: generateOpImpl.py
-	./generateOpImpl.py
-vr_instrumentOp_impl.h: generateOpImpl.py
-	./generateOpImpl.py
-vr_instrumentOp_impl_generated_verrou_specific.h: generateInstrumentOp_impl.py
-	./generateInstrumentOp_impl.py
-vr_instrumentOp_impl_generated_all_backends.h: generateInstrumentOp_impl.py
-	./generateInstrumentOp_impl.py
+vr_gen_wrappers.h: generateWrappers.py generateOperatorNames.py vr_interp_operator_template_cast.h vr_interp_operator_template_1args.h vr_interp_operator_template_2args.h vr_interp_operator_template_3args.h
+	./generateWrappers.py
+vr_gen_operator_tables.h: generateWrappers.py generateOperatorNames.py
+	./generateWrappers.py
+vr_gen_iop_is_instrumented.h: generateIopSwitch.py
+	./generateIopSwitch.py
+vr_gen_iop_switch.h: generateIopSwitch.py
+	./generateIopSwitch.py
+vr_gen_select_verrou.h: generateSelection.py generateOperatorNames.py
+	./generateSelection.py
+vr_gen_select_backends.h: generateSelection.py generateOperatorNames.py
+	./generateSelection.py
 
 VERROU_SOURCES_COMMON = \
 	vr_main.c	\
@@ -127,7 +131,7 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native
+VERROU_FLAG_C = @vg_test_no_avx512f_flag@ -march=native -ffp-contract=off
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t

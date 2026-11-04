@@ -136,6 +136,25 @@ void vr_handle_Inf (void) {
    }
 }
 
+// Called by vr_nanInfCheck_double/float (vr_main.c) when the exponent bits are all set
+void vr_handle_NaNInf_F64 (ULong bits) {
+   const ULong absBits = bits & 0x7fffffffffffffffULL;
+   if(absBits > 0x7ff0000000000000ULL){
+      vr_handle_NaN();
+   }else if(absBits == 0x7ff0000000000000ULL){
+      vr_handle_Inf();
+   }
+}
+
+void vr_handle_NaNInf_F32 (UInt bits) {
+   const UInt absBits = bits & 0x7fffffff;
+   if(absBits > 0x7f800000){
+      vr_handle_NaN();
+   }else if(absBits == 0x7f800000){
+      vr_handle_Inf();
+   }
+}
+
 void vr_handle_FLT_MAX (void) {
    if(vr.checkFloatMax){
       vr_maybe_record_ErrorRt(VR_ERROR_FLT_MAX);
@@ -267,7 +286,7 @@ Bool vr_recognised_suppression (const HChar* name, Supp* su) {
   if (kind == VR_ERROR) {
     return False;
   } else {
-    VG_(set_supp_kind)(su, 0);
+    VG_(set_supp_kind)(su, kind);
     return True;
   }
 }
@@ -318,16 +337,18 @@ Bool vr_error_matches_suppression (const Error* err, const Supp* su) {
 
 Bool vr_read_extra_suppression_info (Int fd, HChar** bufpp, SizeT* nBufp,
                                      Int* lineno, Supp* su) {
-  VG_(get_line)(fd, bufpp, nBufp, lineno);
-  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", *bufpp));
+  // Without extra line VG_(get_line) gives the first location line, which is kept for the core
+  Bool noExtraLine=VG_(get_line)(fd, bufpp, nBufp, lineno);
+  VG_(set_supp_string)(su, VG_(strdup)("vr.resi.1", noExtraLine ? "" : *bufpp));
   return True;
 }
 
 SizeT vr_print_extra_suppression_info (const Error* err,
                                       /*OUT*/HChar* buf, Int nBuf) {
-  HChar* res=VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
-  SizeT len=VG_(strlen)(res);
-  return len ;
+  if(nBuf<=0) return 0;
+  VG_(strncpy)(buf, VG_(get_error_string)(err), nBuf);
+  buf[nBuf-1]=0; //strncpy does not 0-terminate a truncated string
+  return VG_(strlen)(buf);
 }
 
 SizeT vr_print_extra_suppression_use (const Supp* su,

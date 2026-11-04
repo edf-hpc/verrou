@@ -1,0 +1,5 @@
+prog: random-instr-libm
+vgopts: --rounding-mode=random_instr --libm=instrumented --vr-seed=1
+stderr_filter: ../../tests/filter_sink
+post: ./random-instr-libm-check.sh
+cleanup: rm -f random-instr-libm.exclude

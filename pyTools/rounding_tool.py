@@ -3,7 +3,7 @@
 import sys
 
 roundingDetTabWithoutFloatPrefix=["nearest", "upward", "downward", "toward_zero", "away_zero", "farthest", "float", "ftz", "daz","dazftz","native"]
-roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "nearness", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "nearness"] for y in ["_scomdet"]]+["sr_monotonic", "sr_smonotonic"]
+roundingNonDetTabWithoutFloatPrefix=[x+y for x in ["random", "nearness", "prandom"] for y in ["","_det","_comdet"]] +[x+y for x in ["random", "nearness"] for y in ["_scomdet"]]+["random_instr", "sr_monotonic", "sr_smonotonic"]
 
 
 roundingDetTabWithFloatPrefix=roundingDetTabWithoutFloatPrefix+["float_"+x for x in roundingDetTabWithoutFloatPrefix]
@@ -26,7 +26,7 @@ def isRoundingCompatibleWithDenorm(rounding):
 def isStrFloat(strFloat):
     try:
         value=float(strFloat)
-    except:
+    except (ValueError, TypeError):
         return False
     return True
 
@@ -39,7 +39,7 @@ def vprecSuggestion():
     aliasTab=["fp16", "bf16" ,"fp24","pxr24","fp32", "tf32"]
     res=["vprec" + mode +"-"+fp + db for mode in ["", "-ob","-ib","-full"]
          for fp in ["E8M23"]+aliasTab
-         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab)]
+         for db in [""]+["-"+x for x in  (["E11M52"]+aliasTab+["fp64"])]
          ]
     return res
 
@@ -82,7 +82,7 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
                     value=float(rest)
                     res.update({"VERROU_ROUNDING_MODE":prand, "VERROU_PRANDOM_PVALUE":rest})
                     return res
-                except:
+                except ValueError:
                     if failure:
                         print("No valid prandom rounding specification : ", rounding )
                         sys.exit(42)
@@ -117,7 +117,7 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
                     return None
                 try:
                     testInt=[int(localStr) for localStr in FPTab]
-                except:
+                except ValueError:
                     print("vprec badFP configuration:", FP)
                     return None
                 return (testInt[0], testInt[1])
@@ -162,12 +162,13 @@ def roundingToEnvVar(roundingCmd, res={}, failure=True):
                 doubleRange, doublePrec= vprecParseFp(vprecConfig[1])
             else:
                 print("vprec bad param:", param)
+                raise ValueError("vprec bad config")
 
-            if floatRange <1 or doubleRange <1 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 51:
+            if floatRange <2 or doubleRange <2 or floatPrec<1 or doublePrec<1 or floatRange>8 or doubleRange > 11 or floatPrec > 23 or doublePrec > 52:
                 print("vprec bad param", param)
-                raise("vprec bad config")
+                raise ValueError("vprec bad config")
 
-        except:
+        except (ValueError, TypeError): #TypeError: vprecParseFp returned None
             if failure:
                 print("No valid vprec",rounding)
                 sys.exit(42)

@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-       version: [VALGRIND_3_26_0]
+       version: [VALGRIND_3_27_1]
        os: [ubuntu-24.04 , ubuntu-22.04, ubuntu-22.04-arm, ubuntu-24.04-arm]
 
 
@@ -30,7 +30,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
 
       # Runs a single command using the runners shell
       - name: apt

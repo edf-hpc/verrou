@@ -99,6 +99,8 @@ void vr_set_rounding_mode(const char* modeStr){
 
    if(mode==VR_ENUM_SIZE){
       VG_(umsg)("Invalid mode %s\n", modeStr);
+   }else if(mode==VR_RANDOM_INSTR && !vr_randomInstrAvailable()){
+      VG_(umsg)("Rounding mode %s not available in this configuration\n", modeStr);
    }else{
       if(mode!=vr.roundingMode){
          vr.roundingMode=mode;
@@ -287,7 +289,7 @@ static Bool vr_handle_monitor_instrumentation (HChar ** ssaveptr) {
   if(instrStatus!= VR_INSTR){
      HChar * subarg = VG_(strtok_r)(0, " ", ssaveptr);
      Bool isHard=True;
-     if(arg!=NULL){
+     if(subarg!=NULL){
         switch (VG_(keyword_id) ("hard soft", subarg, kwd_report_duplicated_matches)) {
         case -2: /* multiple matches */
            return True;
@@ -340,6 +342,10 @@ static Bool vr_handle_monitor_status (HChar ** ssaveptr) {
 
 static Bool vr_handle_monitor_rounding (HChar ** ssaveptr) {
    HChar* arg = VG_(strtok_r) (0, " ", ssaveptr);
+   if (arg == NULL) {
+      VG_(gdb_printf)("rounding needs a rounding mode\n");
+      return False;
+   }
    vr_set_rounding_mode((char const*const)arg);
    return True;
 }
@@ -469,6 +475,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
     VG_(umsg)("New seed : %llu\n", vr.firstSeed);
     verrou_set_seed (vr.firstSeed);
     vr_clean_cache_seed();
+    if(vr.roundingMode==VR_RANDOM_INSTR){ // the seed is used during the instrumentation
+       VG_(discard_translations_safely)( (Addr)0x1000, ~(SizeT)0xfff, "verrou");
+    }
 #ifdef USE_VERROU_QUADMATH
     mcaquad_set_seed(vr.firstSeed);
 #endif

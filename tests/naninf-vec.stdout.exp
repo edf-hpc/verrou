@@ -1,0 +1,11 @@
+double: one / lane1Zero   : fin +inf
+double: big + big         : +inf fin
+double: big * big         : +inf fin
+double: zero / lane1Zero  : fin nan
+double: inf - inf         : fin nan
+double: one + one         : fin fin
+float: one / lane3Zero    : fin fin fin +inf
+float: big + big          : fin fin +inf fin
+float: big * big          : fin fin +inf fin
+float: inf - inf          : fin fin fin nan
+float: one + one          : fin fin fin fin

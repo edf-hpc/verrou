@@ -18,3 +18,17 @@ libmtest_float_conv
 test_unfusedfma
 cdi.out
 cdo.out
+naninf-vec
+naninf-unfused
+unfused-soft
+monitor-instrumentation
+monitor-rounding
+iomatch-file*
+mcaquad-sqrt-back
+suppression
+gen-source-lines
+gen-source-lines.out
+nearest-client-rounding
+random-instr
+random-instr-libm
+denorm-sign-error

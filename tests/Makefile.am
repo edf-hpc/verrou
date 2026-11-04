@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	sum3.vgtest       sum3.stderr.exp       sum3.stdout.exp  \
 	seed.vgtest       seed.stderr.exp       seed.stdout.exp  \
 	naninf-rnd.vgtest naninf-rnd.stderr.exp naninf-rnd.stdout.exp naninf-rnd.stdout.exp.aarch64 \
+	naninf-vec.vgtest naninf-vec.stderr.exp naninf-vec.stdout.exp naninf-vec.stderr.exp.aarch64 \
 	accuClreq1.vgtest accuClreq1.stderr.exp accuClreq1.stdout.exp  \
 	accuClreq2.vgtest accuClreq2.stderr.exp accuClreq2.stdout.exp \
 	accuClreq3.vgtest accuClreq3.stderr.exp accuClreq3.stdout.exp  \
@@ -47,6 +48,22 @@ EXTRA_DIST = \
 	hardSoftClreqDouble3.stderr.exp hardSoftClreqDouble3.stdout.exp hardSoftClreqDouble3.vgtest \
 	libmtest_float_conv1.stderr.exp libmtest_float_conv1.stdout.exp libmtest_float_conv1.vgtest libmtest_float_conv1.stderr.exp.aarch64 \
 	libmtest_float_conv2.stderr.exp libmtest_float_conv2.stdout.exp libmtest_float_conv2.vgtest libmtest_float_conv2.stderr.exp.aarch64 \
+	naninf-unfused.stderr.exp naninf-unfused.stdout.exp naninf-unfused.vgtest naninf-unfused.stderr.exp.aarch64 \
+	unfused-soft.stderr.exp unfused-soft.stdout.exp unfused-soft.vgtest \
+	denorm-sign-error-upward.stderr.exp denorm-sign-error-upward.stdout.exp denorm-sign-error-upward.vgtest \
+	denorm-sign-error-downward.stderr.exp denorm-sign-error-downward.stdout.exp denorm-sign-error-downward.vgtest \
+	denorm-sign-error-random.stderr.exp denorm-sign-error-random.stdout.exp denorm-sign-error-random.vgtest \
+	random-instr-libm.stderr.exp random-instr-libm.stdout.exp random-instr-libm.post.exp random-instr-libm.vgtest random-instr-libm-check.sh \
+	random-instr.stderr.exp random-instr.stdout.exp random-instr.post.exp random-instr.vgtest random-instr-exclude.sh \
+	monitor-instrumentation.stderr.exp monitor-instrumentation.vgtest \
+	monitor-rounding.stderr.exp monitor-rounding.vgtest \
+	iomatch-file.stderr.exp iomatch-file.stdout.exp iomatch-file.vgtest iomatch-file.script \
+	mcaquad-sqrt-back.stderr.exp mcaquad-sqrt-back.stdout.exp mcaquad-sqrt-back.vgtest \
+	suppression-nan.stderr.exp suppression-nan.vgtest suppression-nan.supp \
+	suppression-denorm.stderr.exp suppression-denorm.vgtest suppression-denorm.supp \
+	gen-source-lines.stderr.exp gen-source-lines.stdout.exp gen-source-lines.post.exp gen-source-lines.vgtest \
+	nearest-client-rounding.stderr.exp nearest-client-rounding.stdout.exp nearest-client-rounding.vgtest \
+	nearest-client-rounding2.stderr.exp nearest-client-rounding2.stdout.exp nearest-client-rounding2.vgtest \
 	test_unfusedfma1.stderr.exp test_unfusedfma1.stdout.exp test_unfusedfma1.vgtest \
 	test_unfusedfma2.stderr.exp test_unfusedfma2.stdout.exp test_unfusedfma2.vgtest \
 	test_unfusedfma3.stderr.exp test_unfusedfma3.stdout.exp test_unfusedfma3.vgtest \
@@ -56,6 +73,34 @@ check_PROGRAMS = clreq accuClreq sum libmtest hardSoftClreq hardSoftClreqDouble 
 
 check_PROGRAMS += naninf
 naninf_SOURCES = naninf.cxx
+
+check_PROGRAMS += naninf-vec
+naninf_vec_SOURCES = naninf-vec.c
+
+check_PROGRAMS += naninf-unfused
+naninf_unfused_SOURCES = naninf-unfused.cxx
+check_PROGRAMS += unfused-soft
+unfused_soft_SOURCES = unfused-soft.cxx
+check_PROGRAMS += denorm-sign-error
+denorm_sign_error_SOURCES = denorm-sign-error.c
+check_PROGRAMS += random-instr
+random_instr_SOURCES = random-instr.c
+check_PROGRAMS += random-instr-libm
+random_instr_libm_SOURCES = random-instr-libm.c
+check_PROGRAMS += monitor-instrumentation
+monitor_instrumentation_SOURCES = monitor-instrumentation.c
+check_PROGRAMS += monitor-rounding
+monitor_rounding_SOURCES = monitor-rounding.c
+check_PROGRAMS += iomatch-file
+iomatch_file_SOURCES = iomatch-file.c
+check_PROGRAMS += mcaquad-sqrt-back
+mcaquad_sqrt_back_SOURCES = mcaquad-sqrt-back.c
+check_PROGRAMS += suppression
+suppression_SOURCES = suppression.c
+check_PROGRAMS += gen-source-lines
+gen_source_lines_SOURCES = gen-source-lines.c
+check_PROGRAMS += nearest-client-rounding
+nearest_client_rounding_SOURCES = nearest-client-rounding.cxx
 
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx

@@ -1,0 +1,3 @@
+prog: naninf-unfused
+vgopts: --unfused=yes
+stderr_filter_args: -seed -cnt-cmp-conv -backend-version -addr-error -copyright -exclude -scal-llo

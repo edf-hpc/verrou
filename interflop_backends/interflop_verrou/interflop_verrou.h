@@ -69,10 +69,19 @@ enum vr_RoundingMode {
     VR_FTZ,
     VR_DAZ,
     VR_DAZFTZ,
+    VR_RANDOM_INSTR, // Handled by the frontend, which selects upward or downward during the instrumentation
     VR_ENUM_SIZE
   };
 
 
+
+  // Hash used to draw the direction of the rounding mode random_instr
+  static inline unsigned long long verrou_random_instr_mix (unsigned long long hash, unsigned long long value) {
+    unsigned long long res= hash + value + 0x9E3779B97F4A7C15ULL;
+    res= (res ^ (res >> 30)) * 0xBF58476D1CE4E5B9ULL;
+    res= (res ^ (res >> 27)) * 0x94D049BB133111EBULL;
+    return res ^ (res >> 31);
+  }
 
   void IFV_FCTNAME(configure)(enum vr_RoundingMode mode,void* context);
   void IFV_FCTNAME(finalize)(void* context);

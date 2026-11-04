@@ -23,9 +23,8 @@ struct Vr_Trace_Back_ {
 
 typedef struct Vr_Trace_ Vr_Trace;
 struct Vr_Trace_ {
-   Vr_Trace_Back* trace[HASH_TABLE_TRACE_SIZE];
+   Vr_Trace_Back** trace; // HASH_TABLE_TRACE_SIZE buckets, allocated only by vr_trace_init_rep
    Vr_Addr_List*    back_addr_list;
-   Vr_Addr_List*    bb_addr_list;
    uint64_t currentIndexFirst;
    HChar* cover_file;
    VgFile * handlerCover;
@@ -46,7 +45,6 @@ void vr_trace_dump_and_clear(Vr_Trace* vrTrace, UInt index);
 void vr_trace_inc(Vr_Trace* vrTrace, Addr bbAddr, Int nbBack, Addr* ip);
 
 
-Bool vr_trace_is_bbAddr_already_defined(Vr_Trace* vrTrace, Addr bbAddr);
 void vr_trace_set_debugdata_for_bbAddr(Vr_Trace* vrTrace, Addr bbAddr,
                                        const char* filename, int linenum,
                                        Bool containFloat, Bool containCmp);

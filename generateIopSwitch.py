@@ -73,7 +73,7 @@ listOfOpCounted=[
     {"Iop":"Iop_Min64F0x2","op":"VR_OP_MIN", "prec":"VR_PREC_DBL", "vec":"VR_VEC_LLO"}, 
 
     {"Iop":"Iop_Add32Fx2", "op":"VR_OP_ADD", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
-    {"Iop":"Iop_Sub32Fx2", "op":"VR_OP_ADD", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
+    {"Iop":"Iop_Sub32Fx2", "op":"VR_OP_SUB", "prec":"VR_PREC_FLT", "vec":"VR_VEC_FULL2"},
 
     {"Iop": "Iop_CmpF64" , "op":"VR_OP_CMP", "prec":"VR_PREC_DBL", "vec": "VR_VEC_SCAL"},
     {"Iop": "Iop_CmpF32" , "op":"VR_OP_CMP", "prec":"VR_PREC_FLT", "vec": "VR_VEC_SCAL"},
@@ -133,9 +133,8 @@ shouldBeInstrumented=[
 ]
 
 def instrumentReplaceFunction(iopDic):
-    print("instrumentReplaceFunction ",iopDic)
     def defaultInstrumentReplaceFunctionForBinary(iopDic):
-        if iopDic["vec"] in "VR_VEC_SCAL":
+        if iopDic["vec"]=="VR_VEC_SCAL":
             return "vr_replaceBinFpOpScal"
         if iopDic["vec"]=="VR_VEC_LLO":
             return "vr_replaceBinFpOpLLO"
@@ -170,10 +169,9 @@ def isConv(iopDic): #hypothesis iopDic come from instrumentation list
         return True
     return False
 
-def wrapperFunction(iopDic):
-    print(iopDic)
+def operatorEntry(iopDic, unfused=False):
     if iopDic["op"] == "VR_OP_CONV" and iopDic["prec"]=="VR_PREC_DBL_TO_FLT":
-        return "bcName(cast64FTo32F)"
+        return tableEntry("plain","cast64FTo32F")
 
     minOp=(iopDic["op"].replace("VR_OP_","")).lower()
     nbBit=None
@@ -185,16 +183,18 @@ def wrapperFunction(iopDic):
     if iopDic["vec"]=="VR_VEC_FULL2": vec="Fx2"
     if iopDic["vec"]=="VR_VEC_FULL4": vec="Fx4"
     if iopDic["vec"]=="VR_VEC_FULL8": vec="Fx8"
-    if iopDic["vec"]=="VR_VEC_FULL8": vec="Fx8"
 
-    argWrap=minOp+nbBit+vec
-
-    funWrap="bcName"
+    kind=""
     if isConv(iopDic):
-        funWrap +="Conv"
+        kind+="conv"
     if isCC(iopDic):
-        funWrap += "WithCC"
-    return funWrap+"("+ argWrap + ")"
+        kind+="CC" if isConv(iopDic) else "cc"
+    if unfused:
+        kind+="Unfused"
+    return tableEntry(kind if kind!="" else "plain", minOp+nbBit+vec)
+
+def tableEntry(kind, opName):
+    return "selection->"+kind+"[VR_OPID_"+opName+"][naninf]"
 
 
 def loopOverIop(handler, prefix,  postFix, default,
@@ -239,6 +239,8 @@ prefixCode="""
 """
 prefixIsInstrumentedCode="""
 static Bool vr_IsInstrumentedOp (IROp op) {
+    const Vr_opSelection* selection=vr_selectOperators(vr.roundingMode);
+    const Int naninf=0;
     Bool res;
     res=False;
 """
@@ -277,24 +279,20 @@ def transformCount(iopDic):
     return res
 
 
-instPattern="""          res.containFloatModOp= %%REPLACE_INST%% (sb, stmt, expr, %%WRAPFUNCNAME%%, %%OP%%, %%PREC%%, %%VEC%%, countOnly);
+instPattern="""          res.containFloatModOp= %%REPLACE_INST%% (sb, stmt, expr, &%%ENTRY%%, %%OP%%, %%PREC%%, %%VEC%%, countOnly);
           res.containFloatOp=True;
 """
 
 isInstrumentedPattern="""          res= vr_isInstrumented_hard(%%OP%%, %%PREC%%, %%VEC%%);
 """
 
-def transformInstPattern(iopDic, wrapFunction=None):
+def transformInstPattern(iopDic, entry):
     res=instPattern
     res=res.replace("%%OP%%", iopDic["op"])
     res=res.replace("%%PREC%%", iopDic["prec"])
     res=res.replace("%%VEC%%", iopDic["vec"])
     res=res.replace("%%REPLACE_INST%%", instrumentReplaceFunction(iopDic))
-    if wrapFunction==None:
-        res=res.replace("%%WRAPFUNCNAME%%", wrapperFunction(iopDic))
-    else:
-        res=res.replace("%%WRAPFUNCNAME%%", wrapFunction)
-
+    res=res.replace("%%ENTRY%%", entry)
     return res
 
 def transformIsInstrumentedPattern(iopDic):
@@ -305,43 +303,40 @@ def transformIsInstrumentedPattern(iopDic):
     return res
 
 
+nearestIRPattern="""          res.containFloatModOp= vr_nearestOpIR (sb, stmt, expr, %%OP%%, %%PREC%%, %%VEC%%, countOnly);
+          res.containFloatOp=True;
+"""
+
+def withNearestIR(iopDic, wrapperCode):
+    nearestCode=nearestIRPattern.replace("%%OP%%", iopDic["op"]).replace("%%PREC%%", iopDic["prec"]).replace("%%VEC%%", iopDic["vec"])
+    return " "*6+"if(nearestIR){\n"+nearestCode+" "*6+"}else{\n"+wrapperCode+" "*6+"}\n"
+
 def transformInst(iopDic):
+    entry=operatorEntry(iopDic)
     if iopDic["op"] in ["VR_OP_MADD","VR_OP_MSUB"]:
-        wrapperName=wrapperFunction(iopDic)
-        wrapperNameUnfused=wrapperName.replace("(","Unfused(")
-        resFused=transformInstPattern(iopDic,wrapperName)
-        resUnfused=transformInstPattern(iopDic,wrapperNameUnfused)
-        res="#ifndef IGNOREFMA\n"
-        res+=" "*6+"if(vr.unfused){\n"
-        res+=resUnfused
+        res=" "*6+"if(vr.unfused){\n"
+        res+=transformInstPattern(iopDic, operatorEntry(iopDic, unfused=True))
         res+=" "*6+"}else{\n"
-        res+=resFused
+        res+=withNearestIR(iopDic, transformInstPattern(iopDic, entry))
         res+=" "*6+"}\n"
-        res+="#else //IGNOREFMA\n"
-        res+=transformCount(iopDic)
-        res+="#endif //IGNOREFMA\n"
         return res
 
-    res=transformInstPattern(iopDic)
+    res=withNearestIR(iopDic, transformInstPattern(iopDic, entry))
     if iopDic["op"]=="VR_OP_SQRT":
-        res="#ifndef IGNORESQRT\n"+res
-        res+="#else //IGNORESQRT\n"
-        res+=transformCount(iopDic)
-        res+="#endif //IGNORESQRT\n"
-
+        # no entry in the table : sqrt is not available with the backend or at compilation
+        res=" "*6+"if("+entry+".function!=NULL){\n"+res+" "*6+"}else{\n"+transformCount(iopDic)+" "*6+"}\n"
     return res
 
 def transformIsInstrumented(iopDic):
     res=transformIsInstrumentedPattern(iopDic)
-    if iopDic["op"] in ["VR_OP_MADD","VR_OP_MSUB"]:
-        res="#ifndef IGNOREFMA\n" + res + "#endif //IGNOREFMA\n"
     if iopDic["op"]=="VR_OP_SQRT":
-        res="#ifndef IGNORESQRT\n"+res+"#endif //IGNORESQRT\n"
+        # no entry in the table : the operator is only counted (see transformInst)
+        res=" "*6+"if("+operatorEntry(iopDic)+".function!=NULL){\n"+res+" "*6+"}\n"
     return res
 
 
 if __name__=="__main__":
-    handler=open("vr_instrumentOp_impl.h","w")
+    handler=open("vr_gen_iop_switch.h","w")
     handler.write("//file generated by "+ " ".join(sys.argv))
     loopOverIop(handler, prefixCode, postFixCode, defaultCode,
                 transformInst,
@@ -351,7 +346,7 @@ if __name__=="__main__":
                 )
     handler.close()
 
-    handler=open("vr_instrumentOp_checkInst.h","w")
+    handler=open("vr_gen_iop_is_instrumented.h","w")
     handler.write("//file generated by "+ " ".join(sys.argv))
     loopOverIop(handler, prefixIsInstrumentedCode, postFixCode+"}\n", "",
                 transformIsInstrumented,

@@ -139,7 +139,7 @@ void vr_clo_defaults (void) {
   vr.genTrace=False;
   vr.includeTrace = NULL;
   vr_trace_init0(&(vr.traceBack));
-  vr.traceType=VR_BACK_COVER;
+  vr.traceType=VR_BB_COVER;
 
   vr.outputTraceRep = NULL;
   vr.outputIOMatchRep = NULL;
@@ -234,6 +234,8 @@ Bool vr_process_clo (const HChar *arg) {
                          vr.roundingMode, VR_RANDOM_COMDET)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_scomdet",
                          vr.roundingMode, VR_RANDOM_SCOMDET)) {}
+  else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=random_instr",
+                         vr.roundingMode, VR_RANDOM_INSTR)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_monotonic",
                          vr.roundingMode, VR_SR_MONOTONIC)) {}
   else if (VG_XACT_CLOM (cloPD, arg, "--rounding-mode=sr_smonotonic",

@@ -51,6 +51,9 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("param_rddmin_tab",      "string",     "RDDMIN_TAB",              ["--rddmin-tab="],             "exp",      ["exp", "all", "single"])
         self.addRegistry("param_dicho_tab",       "int/string", "DICHO_TAB" ,              ["--dicho-tab="],              "half",     ["exp", "all", "half", "single"])
         self.addRegistry("splitGranularity",      "int",        "DICHO_GRANULARITY",       ["--dicho-granularity="],       2,         None)
+        self.addRegistry("splitAlgo",             "string",     "DICHO_SPLIT",             ["--dicho-split="],             "sync",    ["sync", "async"])
+        self.addRegistry("splitHeuristic",        "string",     "DICHO_SPLIT_HEURISTIC",   ["--dicho-split-heuristic="],   "cost",    ["cost", "fifo"])
+        self.addRegistry("ddminComplementsOnly",  "bool",       "DDMIN_COMPLEMENTS_ONLY",  ["--ddmin-complements-only"],   False,     None)
         self.addRegistry("ddQuiet",               "bool",       "QUIET",                   ["--quiet"],                    False,     None)
         self.addRegistry("cache",                 "string",     "CACHE" ,                  ["--cache="] ,                  "continue",["clean", "rename", "rename_keep_result","keep_run", "continue"])
         self.addRegistry("rddminHeuristicsCache", "string",     "RDDMIN_HEURISTICS_CACHE", ["--rddmin-heuristics-cache="], "none",    ["none", "cache", "all_cache"])
@@ -60,6 +63,7 @@ class ddConfig(gen_config.gen_config):
         self.addRegistry("resWithAllSamples"    , "bool",       "RES_WITH_ALL_SAMPLES",    ["--res-with-all-samples"],     False,     None)
         self.addRegistry("ddSeed"               ,  int,         "SEED",                 ["--seed="],                 None,      None)
         self.addRegistry("debug", "bool", "DEBUG",["--debug"], False, None)
+        self.addRegistry("traceFile",             "string",     "TRACE_FILE",              ["--trace-file="],              None,      None)
 
     def normalizeOptions(self):
         if self.rddminVariant=="stoch":
@@ -72,12 +76,24 @@ class ddConfig(gen_config.gen_config):
     def get_ddSeed(self):
         return self.ddSeed
 
+    def get_traceFile(self):
+        return self.traceFile
+
     def get_cacheRep(self):
         return Path(self.cacheRep)
 
     ## Accessors
     def get_splitGranularity(self):
         return self.splitGranularity
+
+    def get_splitAlgo(self):
+        return self.splitAlgo
+
+    def get_splitHeuristic(self):
+        return self.splitHeuristic
+
+    def get_ddminComplementsOnly(self):
+        return self.ddminComplementsOnly
 
     def get_ddAlgo(self):
         if self.ddAlgo.endswith("rddmin"):
