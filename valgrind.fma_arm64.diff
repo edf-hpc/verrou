@@ -1,5 +1,5 @@
 diff --git a/VEX/priv/guest_arm64_toIR.c b/VEX/priv/guest_arm64_toIR.c
-index 6e77b34c7..66b890899 100644
+index a4770b86e..51da9cc29 100644
 --- a/VEX/priv/guest_arm64_toIR.c
 +++ b/VEX/priv/guest_arm64_toIR.c
 @@ -39,11 +39,6 @@
@@ -156,7 +156,7 @@ index 6e77b34c7..66b890899 100644
  
  /*------------------------------------------------------------*/
  /*--- FP comparison helpers                                ---*/
-@@ -11763,19 +11872,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -11764,19 +11873,17 @@ Bool dis_AdvSIMD_scalar_x_indexed_element(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -184,7 +184,7 @@ index 6e77b34c7..66b890899 100644
        const HChar c = isD ? 'd' : 's';
        DIP("%s %c%u, %c%u, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            c, dd, c, nn, nameQReg128(mm), c, index);
-@@ -13220,18 +13327,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -13221,18 +13328,15 @@ Bool dis_AdvSIMD_three_same(/*MB_OUT*/DisResult* dres, UInt insn)
        Bool isD   = (size & 1) == 1;
        Bool isSUB = (size & 2) == 2;
        if (bitQ == 0 && isD) return False; // implied 1d case
@@ -211,7 +211,7 @@ index 6e77b34c7..66b890899 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%s\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm), arr);
-@@ -14444,17 +14548,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -14445,17 +14549,15 @@ Bool dis_AdvSIMD_vector_x_indexed_elem(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt   mm    = (bitM << 4) | mmLO4;
        assign(elem, getQRegLane(mm, index, ity));
        IRTemp dupd  = math_DUP_TO_V128(elem, ity);
@@ -237,7 +237,7 @@ index 6e77b34c7..66b890899 100644
        const HChar* arr = bitQ == 0 ? "2s" : (isD ? "2d" : "4s");
        DIP("%s %s.%s, %s.%s, %s.%c[%u]\n", isSUB ? "fmls" : "fmla",
            nameQReg128(dd), arr, nameQReg128(nn), arr, nameQReg128(mm),
-@@ -15688,7 +15790,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -15689,7 +15791,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
        UInt    ix    = (bitO1 << 1) | bitO0;
        IRType  ity   = isD ? Ity_F64 : Ity_F32;
        IROp    opFMADD = mkFMADDF(ity);
@@ -246,7 +246,7 @@ index 6e77b34c7..66b890899 100644
        IROp    opNEG = mkNEGF(ity);
        IRTemp  res   = newTemp(ity);
        IRExpr* eA    = getQRegLO(aa, ity);
-@@ -15700,7 +15802,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
+@@ -15701,7 +15803,7 @@ Bool dis_AdvSIMD_fp_data_proc_3_source(/*MB_OUT*/DisResult* dres, UInt insn)
              assign(res, qop(opFMADD, rm, eN, eM, eA));
              break;
           case 1: /* FMSUB */
@@ -286,7 +286,7 @@ index 0c072d583..a9573986c 100644
              break;
        }
 diff --git a/none/tests/arm64/fp_and_simd.stdout.exp b/none/tests/arm64/fp_and_simd.stdout.exp
-index aba3ed295..2b2337b04 100644
+index 291fa487b..0d616011c 100644
 --- a/none/tests/arm64/fp_and_simd.stdout.exp
 +++ b/none/tests/arm64/fp_and_simd.stdout.exp
 @@ -26537,7 +26537,7 @@ fminp v2.2s, v23.2s, v11.2s   5d370116702dec2f0853b0775b14704a  c5c7be2ff6281ec1
