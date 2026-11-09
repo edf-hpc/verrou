@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2026 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+"""Simulation of a delta-debug on a metamodel (json file written by verrou_dd_metamodel).
+The algorithms of DD_stoch (pyTools of this source tree) are used unchanged : only the samples are
+simulated (failure drawn with the failure probability of the metamodel, duration given by its time model)
+and the thread pool is replaced by a virtual time executor, so the simulated wall time takes into account
+--num-threads= and the early exits. The cache is written as usual (dd.fake by default) and the
+trace of --trace-file= uses the simulated time (readable by verrou_dd_trace_convert)."""
+
+import sys
+import os
+import json
+import math
+import random
+import concurrent.futures
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pyTools"))
+import gen_config
+import dd_config
+import DD_stoch
+import ddTrace
+import ddMetamodel
+
+
+## Virtual time execution
+
+class virtualClock:
+    def __init__(self):
+        self.now=0.
+        self.cpu=0.
+        self.nbSample=0
+        self.inExecutor=False
+        self.start=None #start time and slot of the sample submitted to a virtualExecutor
+        self.slot=None
+        self.duration=None
+
+    def sample(self, duration):
+        """Account for one sample : return its start time and its slot"""
+        self.cpu+=duration
+        self.nbSample+=1
+        if self.inExecutor:
+            self.duration=duration
+            return self.start, self.slot
+        start=self.now
+        self.now+=duration
+        return start, 0
+
+clock=virtualClock()
+
+
+class virtualFuture:
+    def __init__(self, res, end):
+        self.res=res
+        self.end=end
+
+    def result(self, timeout=None):
+        clock.now=max(clock.now, self.end)
+        return self.res
+
+    def done(self):
+        return self.end<=clock.now
+
+    def cancelled(self):
+        return False
+
+
+class virtualExecutor:
+    """Replace concurrent.futures.ThreadPoolExecutor : the submitted function is executed immediately
+    (the simulated samples do not depend on the time) but its result is available at the end of its
+    virtual execution on the first free worker"""
+    def __init__(self, max_workers=None, **kwargs):
+        self.workerFree=[clock.now]*(1 if max_workers==None else max_workers)
+        self.futures=[]
+
+    def submit(self, fn, *args, **kwargs):
+        slot=min(range(len(self.workerFree)), key=lambda w: self.workerFree[w])
+        clock.start=max(clock.now, self.workerFree[slot])
+        clock.slot=slot
+        clock.duration=0.
+        clock.inExecutor=True
+        try:
+            res=fn(*args, **kwargs)
+        finally:
+            clock.inExecutor=False
+        end=clock.start+clock.duration
+        self.workerFree[slot]=end
+        future=virtualFuture(res, end)
+        self.futures+=[future]
+        return future
+
+    def shutdown(self, wait=True, cancel_futures=False):
+        if wait:
+            clock.now=max([clock.now]+[future.end for future in self.futures])
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.shutdown()
+        return False
+
+def virtualWait(fs, timeout=None, return_when=concurrent.futures.FIRST_COMPLETED):
+    fs=list(fs)
+    if len(fs)==0:
+        return (set(), set())
+    if return_when==concurrent.futures.ALL_COMPLETED:
+        clock.now=max([clock.now]+[future.end for future in fs])
+    else:
+        clock.now=max(clock.now, min(future.end for future in fs))
+    done=set(future for future in fs if future.end<=clock.now)
+    return (done, set(fs)-done)
+
+concurrent.futures.ThreadPoolExecutor=virtualExecutor
+concurrent.futures.wait=virtualWait
+
+
+## Simulated samples
+
+def deltaName(i):
+    return "delta-%i"%(i)
+
+def deltaIndex(name):
+    return int(name[len("delta-"):])
+
+class fakeStochTask(DD_stoch.stochTask):
+    model=None
+    fakeSeed=0
+
+    def conf(self):
+        if not hasattr(self, "conf_"):
+            includeFile=self.dirname / "dd.fake.include"
+            self.conf_=frozenset(deltaIndex(x) for x in ddMetamodel.loadDeltaLines(includeFile))
+        return self.conf_
+
+    def submitSeq(self, cmpOrRun, sampleIndex):
+        return self.runOneSample(sampleIndex)
+
+    def runOneSample(self, i):
+        rundir=self._nameDir(i)
+        rundir.mkdir(exist_ok=True)
+        seed=self.seedTab[i] if self.seedTab!=None else i
+        rng=random.Random("%s/%s/%s"%(self.fakeSeed, self.dirname.name, seed))
+        fail,duration=self.model.sample(self.conf(), rng)
+        if duration==None:
+            duration=1. #no time model : the time unit is one sample
+        start,slot=clock.sample(duration)
+        status=1 if fail else 0
+        with open(str(rundir / DD_stoch.ddTimeFileName),"w") as f:
+            f.write(str(duration))
+        with open(str(rundir / DD_stoch.ddReturnFileName),"w") as f:
+            f.write(str(status))
+        if ddTrace.tracer.enabled:
+            ddTrace.tracer._write({"ev":"task_begin", "t":start, "slot":slot, "kind":"run", "conf":self.dirname.name, "sample":i})
+            ddTrace.tracer._write({"ev":"task_end", "t":start+duration, "slot":slot, "kind":"run", "conf":self.dirname.name,
+                                   "sample":i, "status":status})
+        return self.FAIL if fail else self.PASS
+
+DD_stoch.stochTask=fakeStochTask
+ddTrace.jsonTracer._time=lambda self: clock.now
+
+
+class DDfake(DD_stoch.DDStoch):
+    def __init__(self, config):
+        DD_stoch.DDStoch.__init__(self, config)
+
+    def reference(self):
+        with open(str(self.ref_ / "dd.fake.0"),"w") as f:
+            f.write("".join(deltaName(i)+"\n" for i in range(fakeStochTask.model.nbDelta)))
+
+    def isFileValidToMerge(self, name):
+        return name.startswith("dd.fake.")
+
+    def getDeltaFileName(self):
+        return "dd.fake"
+
+    def referenceRunEnv(self):
+        return {}
+
+    def sampleRunEnv(self, dirName):
+        return {}
+
+    def coerce(self, delta_config):
+        return " "+str(ddMetamodel.toRanges([deltaIndex(x.strip()) for x in delta_config]))
+
+
+class ddFakeConfig(dd_config.ddConfig):
+    """Only the options of the algorithm of DD_stoch are kept"""
+    keptOptions=["cacheRep", "nbRUN", "maxNbPROC", "ddAlgo", "rddminVariant", "param_rddmin_tab", "param_dicho_tab",
+                 "splitGranularity", "splitAlgo", "splitHeuristic", "ddminComplementsOnly", "ddQuiet", "cache",
+                 "resWithAllSamples", "ddSeed", "traceFile"]
+
+    def __init__(self, argv, environ):
+        self.prefix_="dd.fake"
+        gen_config.gen_config.__init__(self, argv, environ, ["VERROU_DD_FAKE"], [1], False)
+        self.normalizeOptions()
+        self.metamodelFile=self.exec_arg[0]
+        self.runScript=self.metamodelFile
+        self.cmpScript=self.metamodelFile
+
+    def registerOptions(self):
+        super().registerOptions()
+        for registry in self.registryTab:
+            if registry["attribut"] not in self.keptOptions:
+                setattr(self, registry["attribut"], registry["default"])
+        self.registryTab=[registry for registry in self.registryTab if registry["attribut"] in self.keptOptions]
+        self.addRegistry("fakeSeed", "int",    "FAKE_SEED", ["--fake-seed="], 0,
+                         docStr="seed of the simulated samples")
+        self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,
+                         docStr="json file with the summary of the simulation (for the campaigns)")
+
+    def usageCmd(self):
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] METAMODEL.json")
+        print("\t"+__doc__.replace("\n","\n\t"))
+        print(self.get_EnvDoc())
+
+
+## Summary
+
+def summary(config, model, resConf, cacheRep):
+    """Compare the ddmin found with the clauses of the metamodel"""
+    found=[]
+    if resConf!=None and config.get_ddAlgo()!="ddmax": #ddmax returns a flat list of deltas
+        found=[frozenset(deltaIndex(x) for x in conf) for conf in resConf]
+    ddminTab=[]
+    for ddmin in found:
+        clauses=model.clausesIn(ddmin)
+        exact=[k for k in clauses if model.clauses[k]==ddmin]
+        ddminTab+=[{"indexes":ddMetamodel.toRanges(ddmin), "size":len(ddmin), "pFail":model.pFail(ddmin),
+                    "clauses":clauses, "status":("clause" if len(exact)!=0 else ("contains a clause" if len(clauses)!=0 else "background"))}]
+    foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"]=="clause")
+    nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
+    return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
+            "nbDelta":model.nbDelta, "nbClause":len(model.clauses),
+            "wallTime":clock.now, "cpuTime":clock.cpu, "nbSample":clock.nbSample,
+            "nbConfiguration":len([x for x in cacheRep.iterdir() if ddMetamodel.isMd5Name(x.name)]),
+            "efficiency":clock.cpu/(clock.now*nbProc) if clock.now>0 else None,
+            "ddmin":ddminTab,
+            "clausesFound":sorted(foundExact),
+            "clausesMissed":[k for k in range(len(model.clauses)) if k not in foundExact]}
+
+def printSummary(res):
+    print("\nsimulation summary :")
+    print("\twall time %.4g  cpu time %.4g  efficiency %s"%(res["wallTime"], res["cpuTime"],
+                                                           "%.3f"%res["efficiency"] if res["efficiency"]!=None else "-"))
+    print("\t%i samples, %i configurations"%(res["nbSample"], res["nbConfiguration"]))
+    for i,d in enumerate(res["ddmin"]):
+        print("\tddmin%i : size %3i  pFail %.3f  %-17s %s"%(i, d["size"], d["pFail"], d["status"], d["indexes"]))
+    print("\tclauses found %i/%i, missed : %s"%(len(res["clausesFound"]), res["nbClause"], res["clausesMissed"]))
+
+
+if __name__=="__main__":
+    config=ddFakeConfig(sys.argv, os.environ)
+    model=ddMetamodel.loadMetamodel(config.metamodelFile)[0]
+    fakeStochTask.model=model
+    fakeStochTask.fakeSeed=config.fakeSeed
+
+    dd=DDfake(config)
+    resConf=dd.run()
+    ddTrace.tracer.close()
+
+    res=summary(config, model, resConf, dd.prefix_)
+    printSummary(res)
+    if config.summary!=None:
+        with open(config.summary,"w") as f:
+            json.dump(res, f, indent=1)
