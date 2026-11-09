@@ -72,6 +72,8 @@ void vr_env_clo(void){
    vr_env_clo_one_option("VERROU_INSTR","--vr-instr");
 
    vr_env_clo_one_option("VERROU_TRACE","--trace");
+   vr_env_clo_one_option("VERROU_TRACE_EXCLUDE","--trace-exclude");
+
    vr_env_clo_one_option("VERROU_TRACE_TYPE","--trace-type");
 
    vr_env_clo_one_option("VERROU_OUTPUT_TRACE_REP","--output-trace-rep");
@@ -138,6 +140,7 @@ void vr_clo_defaults (void) {
 
   vr.genTrace=False;
   vr.includeTrace = NULL;
+  vr.excludeTrace = NULL;
   vr_trace_init0(&(vr.traceBack));
   vr.traceType=VR_BB_COVER;
 
@@ -454,8 +457,11 @@ Bool vr_process_clo (const HChar *arg) {
   }
 
   else if (VG_STR_CLOM  (cloPD, arg, "--trace", str)) {
-    vr.includeTrace = vr_loadIncludeTraceList(vr.includeTrace, str);
+    vr.includeTrace = vr_loadIncludeExcludeTraceList(vr.includeTrace, str);
     vr.genTrace = True;
+  }
+  else if (VG_STR_CLOM  (cloPD, arg, "--trace-exclude", str)) {
+    vr.excludeTrace = vr_loadIncludeExcludeTraceList(vr.excludeTrace, str);
   }
   else if (VG_XACT_CLOM (cloPD, arg, "--trace-type=back_cover", vr.traceType, VR_BACK_COVER)) {
   }

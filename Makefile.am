@@ -115,7 +115,7 @@ VERROU_SOURCES_COMMON = \
 	vr_error.c	\
 	vr_clreq.c	\
 	vr_clo.c	\
-	vr_include_trace.c \
+	vr_includeExclude_trace.c \
 	vr_exclude_back.c \
 	vr_IOMatch_clr.c\
 	interflop_backends/backend_mcaquad/common/tinymt64.c\

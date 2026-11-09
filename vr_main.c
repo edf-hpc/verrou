@@ -1788,7 +1788,8 @@ static void vr_fini(Int exitcode)
 
   vr_freeIncludeSourceList (vr.includeSource);
   vr_freeIncludeSourceList( vr.excludeSourceRead);
-  vr_freeIncludeTraceList  (vr.includeTrace );
+  vr_freeIncludeExcludeTraceList  (vr.includeTrace );
+  vr_freeIncludeExcludeTraceList  (vr.excludeTrace );
   VG_(free)(vr.excludeFile);
 }
 

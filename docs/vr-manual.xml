@@ -993,6 +993,16 @@ det2
 	    </listitem>
           </varlistentry>
 
+	  <varlistentry id="vr.opt.trace_exclude" xreflabel="--trace-exclude">
+            <term><option><![CDATA[--trace-exclude=FILE]]></option></term>
+            <listitem><para>
+		Deactivate the trace for the symbols specified in <computeroutput> FILE</computeroutput>. It is useful if the option <option>--trace</option> includes too large pattern.
+              </para>
+	      <para>This option can be activated with the environment variable <command>VERROU_TRACE_EXCLUDE</command>.</para>
+	    </listitem>
+          </varlistentry>
+
+
 	  <varlistentry id="vr.opt.trace_type" xreflabel="--trace-type">
             <term><option><![CDATA[--trace-type=<bb_cover|back_cover> [default=bb_cover]]]></option></term>
             <listitem><para>

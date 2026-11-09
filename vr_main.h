@@ -59,7 +59,7 @@
 
 #include "vr_exclude.h"
 #include "vr_error.h"
-#include "vr_include_trace.h"
+#include "vr_includeExclude_trace.h"
 #include "vr_exclude_back.h"
 
 #include "vr_trace_back.h"
@@ -210,7 +210,8 @@ typedef struct {
   Bool checkFloatMax;
 
   Bool genTrace;
-  Vr_Include_Trace* includeTrace;
+  Vr_IncludeExclude_Trace* includeTrace;
+  Vr_IncludeExclude_Trace* excludeTrace;
   Vr_Trace_Type traceType;
   Vr_Trace traceBack;
 

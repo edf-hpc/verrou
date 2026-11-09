@@ -33,20 +33,20 @@
 */
 
 #include "vr_main.h"
-#include "vr_include_trace.h"
+#include "vr_includeExclude_trace.h"
 
 #define LINE_SIZEMAX VR_FNNAME_BUFSIZE
 
-static Vr_Include_Trace* vr_addIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname) {
-  Vr_Include_Trace * cell = VG_(malloc)("vr.addIncludeTrace.1", sizeof(Vr_Include_Trace));
-  cell->fnname  = VG_(strdup)("vr.addIncludeTrace.2", fnname);
-  cell->objname = VG_(strdup)("vr.addIncludeTrace.3", objname);
+static Vr_IncludeExclude_Trace* vr_addIncludeExcludeTrace (Vr_IncludeExclude_Trace* list, const HChar * fnname, const HChar * objname) {
+  Vr_IncludeExclude_Trace * cell = VG_(malloc)("vr.addIncludeExcludeTrace.1", sizeof(Vr_IncludeExclude_Trace));
+  cell->fnname  = VG_(strdup)("vr.addIncludeExcludeTrace.2", fnname);
+  cell->objname = VG_(strdup)("vr.addIncludeExcludeTrace.3", objname);
   cell->next    = list;
   return cell;
 }
 
-static Vr_Include_Trace * vr_findIncludeTrace (Vr_Include_Trace* list, const HChar * fnname, const HChar * objname) {
-  Vr_Include_Trace * include;
+static Vr_IncludeExclude_Trace * vr_findIncludeExcludeTrace (Vr_IncludeExclude_Trace* list, const HChar * fnname, const HChar * objname) {
+  Vr_IncludeExclude_Trace * include;
   for (include = list ; include != NULL ; include = include->next) {
     if (include->fnname[0] != '*'
         && VG_(strcmp)(include->fnname, fnname) != 0)
@@ -62,9 +62,9 @@ static Vr_Include_Trace * vr_findIncludeTrace (Vr_Include_Trace* list, const HCh
   return NULL;
 }
 
-void vr_freeIncludeTraceList (Vr_Include_Trace* list) {
+void vr_freeIncludeExcludeTraceList (Vr_IncludeExclude_Trace* list) {
   while (list != NULL) {
-    Vr_Include_Trace *next = list->next;
+    Vr_IncludeExclude_Trace *next = list->next;
     VG_(free)(list->fnname);
     VG_(free)(list->objname);
     VG_(free)(list);
@@ -73,8 +73,8 @@ void vr_freeIncludeTraceList (Vr_Include_Trace* list) {
 }
 
 
-Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar * fname) {
-  VG_(umsg)("Loading inclusion trace list from `%s'... ", fname);
+Vr_IncludeExclude_Trace* vr_loadIncludeExcludeTraceList (Vr_IncludeExclude_Trace * list, const HChar * fname) {
+  VG_(umsg)("Loading inclusion/exclusion trace list from `%s'... ", fname);
   Int fd = VG_(fd_open)(fname,VKI_O_RDONLY, 0);
   if (fd == -1) {
     VG_(umsg)("ERROR (open)\n");
@@ -82,7 +82,7 @@ Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar
   }
 
   SizeT nLine = LINE_SIZEMAX;
-  HChar *line = VG_(malloc)("vr.loadIncludeTrace.1", nLine*sizeof(HChar));
+  HChar *line = VG_(malloc)("vr.loadIncludeExcludeTrace.1", nLine*sizeof(HChar));
   Int lineno = 0;
 
   while (! VG_(get_line)(fd, &line, &nLine, &lineno)) {
@@ -102,7 +102,7 @@ Vr_Include_Trace * vr_loadIncludeTraceList (Vr_Include_Trace * list, const HChar
     for (++c;
          c<line+LINE_SIZEMAX && *c != 0 && (*c == '\t' || *c == ' ');
          ++c) {}
-    list = vr_addIncludeTrace (list,
+    list = vr_addIncludeExcludeTrace (list,
 			       /*fnname=*/ line,
 			       /*objname*/ c);;
   }
@@ -122,9 +122,14 @@ Bool vr_includeTraceIRSB (const HChar** fnname, const HChar **objname) {
     return False;
   }
   // Never exclude functions / objects unless they are explicitly listed
-  Vr_Include_Trace *include = vr_findIncludeTrace (vr.includeTrace, *fnname, *objname);
+  Vr_IncludeExclude_Trace *include = vr_findIncludeExcludeTrace (vr.includeTrace, *fnname, *objname);
   if (include != NULL) {
-    return True;
+     Vr_IncludeExclude_Trace *exclude = vr_findIncludeExcludeTrace (vr.excludeTrace, *fnname, *objname);
+     if(exclude !=NULL){
+        return False;
+     }else{
+        return True;
+     }
   }
   return False;
 }
