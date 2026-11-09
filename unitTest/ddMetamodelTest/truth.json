@@ -1,0 +1,12 @@
+{
+ "format": "verrou_dd_metamodel",
+ "version": 1,
+ "nbDelta": 60,
+ "failure": {
+  "clauses": [[[10, 10]], [[30, 31]], [[45, 45]]],
+  "lambda": [2.3, 0.7, 0.36],
+  "interactions": [[0, 1, -1.5]],
+  "background": {"eps": 0.22, "beta": 2.0}
+ },
+ "time": null
+}

@@ -1,0 +1,257 @@
+#!/usr/bin/env python3
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2026 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+"""Post-processing of a delta-debug cache (any verrou_dd_* variant) : build an anonymized metamodel
+(failure probability and computation time of each configuration) saved in a json file.
+With --ratio=R>0, new samples (at most R times the number of samples of the delta-debug) are computed
+with the command recorded in CACHE_REP/cmd.last to measure the interactions between the ddmin."""
+
+import sys
+import os
+import json
+import math
+import random
+import shutil
+import importlib.util
+import importlib.machinery
+from pathlib import Path
+
+import gen_config
+import dd_config
+import DD_stoch
+import ddMetamodel
+
+
+class config_metamodel(gen_config.gen_config):
+
+    def __init__(self, argv, environ, config_keys=["DD_METAMODEL"]):
+        if len(argv)<2:
+            self.registryTab=[]
+            self.registerOptions()
+            self.usageCmd()
+            self.failure()
+        super().__init__(argv, environ, config_keys, None)
+        self.normalize()
+
+    def registerOptions(self):
+        self.addRegistry("output",     "string", "OUTPUT",      ["--output=","-o:"], None,
+                         docStr="output json file (default: CACHE_REP/metamodel.json)")
+        self.addRegistry("ratio",      "string", "RATIO",       ["--ratio="],        "0",
+                         docStr="maximal number of new samples, relatively to the number of samples of the delta-debug (default 0 : no new computation)")
+        self.addRegistry("nbRun",      "int",    "NRUNS",       ["--nruns="],        None,
+                         docStr="number of samples of each new configuration (default: --nruns= of the delta-debug)")
+        self.addRegistry("numThreads", "int",    "NUM_THREADS", ["--num-threads="],  None,
+                         docStr="number of parallel samples (default: --num-threads= of the delta-debug)")
+        self.addRegistry("seed",       "int",    "SEED",        ["--seed="],         0,
+                         docStr="seed of the random configurations of the enrichment")
+        self.addRegistry("penalty",    "string", "PENALTY",     ["--penalty="],      "0.1",
+                         docStr="L2 penalty of the interaction terms of the fit (default 0.1)")
+        self.addRegistry("traceFile",  "string", "TRACE_FILE",  ["--trace-file="],   [], "file_exists", True,
+                         docStr="ddTrace file (verrou_dd_* --trace-file=) used to get the sample durations of old caches (several allowed)")
+        self.addRegistry("noObservations", "bool", "NO_OBSERVATIONS", ["--no-observations"], False,
+                         docStr="do not save the samples in the json file (only the fitted model)")
+        self.addRegistry("dryRun",     "bool",   "DRY_RUN",     ["--dry-run"],       False,
+                         docStr="print the enrichment plan without computing it")
+
+    def usageCmd(self):
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] CACHE_REP")
+        print("\t"+__doc__.replace("\n","\n\t"))
+        print("\tCACHE_REP : cache directory of verrou_dd_* (--rep=)")
+        print(self.get_EnvDoc())
+
+    def normalize(self):
+        if len(self.unknown_args)!=1:
+            self.usageCmd()
+            self.failure()
+        self.cacheRep=Path(self.unknown_args[0]).absolute()
+        if not (self.cacheRep / "ref").is_dir():
+            print("Error : %s is not a delta-debug cache"%(self.cacheRep), file=sys.stderr)
+            self.failure()
+        try:
+            self.ratio=float(self.ratio)
+            self.penalty=float(self.penalty)
+        except ValueError:
+            print("Error : --ratio= and --penalty= should be float values", file=sys.stderr)
+            self.failure()
+        if self.output==None:
+            self.output=str(self.cacheRep / "metamodel.json")
+
+
+def loadToolModule(toolPath):
+    """Load the verrou_dd_* script (without .py suffix) as a module"""
+    loader=importlib.machinery.SourceFileLoader("verrou_dd_tool", str(toolPath))
+    spec=importlib.util.spec_from_loader(loader.name, loader)
+    module=importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+def findSubClass(module, baseClass):
+    for value in vars(module).values():
+        if isinstance(value, type) and issubclass(value, baseClass) and value is not baseClass:
+            return value
+    return None
+
+def buildDD(cache, nbSample, numThreads):
+    """Rebuild the DDStoch object of the verrou_dd_* variant which generated the cache, without running
+    the reference : it is only used to compute new samples in the cache"""
+    cmd=cache.cmd
+    if cmd==None or cmd["argv"]==None or cmd["pwd"]==None:
+        print("Error : %s/cmd.last is required to compute new samples"%(cache.rep), file=sys.stderr)
+        sys.exit(42)
+    toolPath=Path(cmd["tool"])
+    if not toolPath.is_file():
+        found=shutil.which(toolPath.name)
+        if found==None:
+            print("Error : %s not found"%(toolPath), file=sys.stderr)
+            sys.exit(42)
+        toolPath=Path(found)
+    module=loadToolModule(toolPath)
+    ddClass=findSubClass(module, DD_stoch.DDStoch)
+    configClass=findSubClass(module, dd_config.ddConfig)
+    if ddClass==None or configClass==None:
+        print("Error : no delta-debug class in %s"%(toolPath), file=sys.stderr)
+        sys.exit(42)
+
+    os.chdir(cmd["pwd"])
+    os.environ.update(cmd["env"]) #the samples are computed with the environment of the delta-debug
+    config=configClass(cmd["argv"], os.environ)
+    config.cacheRep=os.path.relpath(str(cache.rep), cmd["pwd"])
+    config.cache="continue"
+    config.traceFile=None
+    config.ddQuiet=True
+    if numThreads!=None:
+        config.maxNbPROC=numThreads
+    config.reuseCacheOnly=True
+    dd=ddClass(config)
+
+    if dd.seedTab!=None and len(dd.seedTab)<nbSample:
+        #same draw as DDStoch.initSeed : the extra seeds are drawn after the nbRun first ones
+        random.seed(config.ddSeed)
+        seedTab=random.sample(range(0,2**32-1), config.get_nbRUN())
+        seedTab+=random.sample(range(0,2**32-1), nbSample-config.get_nbRUN())
+        dd.seedTab=seedTab
+    return dd
+
+
+def enrich(conf, cache):
+    observations=list(cache.observations.values())
+    nbDDSample=sum(obs.nbSample() for obs in observations if obs.origin=="dd")
+    nbDoneSample=sum(obs.nbSample() for obs in observations if obs.origin!="dd")
+    budget=int(math.floor(conf.ratio*nbDDSample))-nbDoneSample
+    nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
+    clauses=cache.ddminClauses()
+    print("enrichment : %i samples of the delta-debug, %i already computed, budget %i samples (%i samples by configuration)"%(nbDDSample, nbDoneSample, max(budget,0), nbSample))
+    if budget<=0:
+        return False
+    plan=ddMetamodel.enrichmentPlan(cache.nbDelta(), clauses, observations, budget, nbSample, random.Random(conf.seed))
+    kinds={}
+    for c,kind,cost in plan:
+        nb,costSum=kinds.get(kind,(0,0))
+        kinds[kind]=(nb+1, costSum+cost)
+    for kind,(nb,costSum) in kinds.items():
+        print("\t%-18s : %3i configurations, %5i samples"%(kind, nb, costSum))
+    if conf.dryRun or len(plan)==0:
+        return False
+
+    dd=buildDD(cache, nbSample, conf.numThreads)
+    deltasTab=[[cache.deltas[i] for i in c] for c,kind,cost in plan]
+
+    #the origin is saved before the computation : an interrupted enrichment is still identified
+    planOrigin=dict(cache.planOrigin)
+    for deltas,(c,kind,cost) in zip(deltasTab, plan):
+        md5=DD_stoch.md5Name(deltas)
+        if cache.observations.get(md5)==None or cache.observations[md5].origin!="dd":
+            planOrigin[md5]=kind
+    with open(str(cache.rep / ddMetamodel.ddCache.planFileName),"w") as f:
+        json.dump(planOrigin, f, indent=1)
+
+    dd._testTab(deltasTab, [nbSample]*len(deltasTab), earlyExit=False, earlyConfExit="no")
+    return True
+
+
+def report(model, table, removed, timeModel, diag, cache):
+    print("\nsearch space : %i deltas (%s), %i configurations, %i samples"%(
+        cache.nbDelta(), cache.deltaFileName, len(cache.observations),
+        sum(obs.nbSample() for obs in cache.observations.values())))
+    print("ddmin of the delta-debug :")
+    for k,ddmin in enumerate(cache.ddminClauses()):
+        status="absorbed in the background" if k in removed else "clause C%i"%(model.clauses.index(frozenset(ddmin)))
+        print("\tddmin%i : size %3i  %-26s indexes %s"%(k, len(ddmin), status, ddMetamodel.toRanges(ddmin)))
+    print("clauses :")
+    for k,clause in enumerate(model.clauses):
+        print("\tC%i : size %3i  pFail %.3f"%(k, len(clause), -math.expm1(-model.lambdas[k])))
+    print("background : %i deltas outside the ddmin, pFail(all) %.3f, beta %.2f"%(
+        cache.nbDelta()-len(model.union), -math.expm1(-model.eps), model.beta))
+    if len(model.interactions)!=0:
+        print("interactions (pass probability factor exp(-mu) : <1 synergy, >1 masking) :")
+        for (k,l),mu in sorted(model.interactions.items()):
+            print("\tC%i,C%i : mu %+.3f  factor %.3f"%(k, l, mu, math.exp(-mu)))
+    print("model comparison :")
+    for line in table:
+        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"]))
+    if timeModel!=None:
+        print("time model : t = %.3g + %.3g |S|/N + %.3g fail  (sigma log %.3f, %i samples)"%(
+            timeModel["a"], timeModel["b"], timeModel["c"], timeModel["sigma"], timeModel["nbSample"]))
+    else:
+        print("time model : no sample duration available (use --trace-file= for old caches)")
+    bad=[d for d in diag if d["pValue"]<0.01]
+    print("observations inconsistent with the model (p-value<0.01) : %i/%i"%(len(bad), len(diag)))
+    for d in bad[:10]:
+        print("\tsize %4i  clauses %-12s %-18s fail %3i/%-3i  pFail model %.3f  p-value %.2e"%(
+            d["size"], str(d["clauses"]), d["origin"], d["nbFail"], d["nbSample"], d["pFail"], d["pValue"]))
+
+
+if __name__=="__main__":
+    conf=config_metamodel(sys.argv, os.environ)
+    cache=ddMetamodel.ddCache(conf.cacheRep, [Path(x).absolute() for x in conf.traceFile])
+
+    if conf.ratio>0:
+        if enrich(conf, cache):
+            cache=ddMetamodel.ddCache(conf.cacheRep, [Path(x).absolute() for x in conf.traceFile])
+
+    observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
+    clauses=cache.ddminClauses()
+    model, table, removed=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty)
+    model.timeModel=ddMetamodel.fitTime(cache.nbDelta(), observations)
+    diag=ddMetamodel.diagnostics(model, observations)
+
+    obsIndex={obs.md5:index for index,obs in enumerate(observations)}
+    data={"format":ddMetamodel.formatName, "version":ddMetamodel.formatVersion,
+          "nbDelta":cache.nbDelta(),
+          "source":cache.sourceInfo(),
+          "ddmin":[ddMetamodel.toRanges(c) for c in clauses],
+          "failure":model.failureJson(),
+          "time":model.timeModel,
+          "fit":{"models":table, "penalty":conf.penalty, "removedDdmin":removed,
+                 "nbObservation":len(observations), "nbSample":sum(obs.nbSample() for obs in observations),
+                 "worst":diag[:20]},
+          "links":{name:obsIndex[md5] for name,md5 in sorted(cache.links.items())}}
+    if not conf.noObservations:
+        data["observations"]=[obs.toJson() for obs in observations]
+    with open(conf.output,"w") as f:
+        json.dump(data, f, indent=1)
+
+    report(model, table, removed, model.timeModel, diag, cache)
+    print("\nmetamodel written in %s"%(conf.output))

@@ -32,6 +32,7 @@ import shutil
 import hashlib
 import copy
 import datetime
+import time
 import math
 from pathlib import Path
 
@@ -75,6 +76,7 @@ fileRun="dd.run"
 fileCmp="dd.compare"
 subDirRunPattern=subDirRun+"%i"
 ddReturnFileName="dd.return.value"
+ddTimeFileName="dd.run.time"
 
 def strLenDeltas(deltas):
     if deltas==None:
@@ -141,10 +143,13 @@ class stochTask:
         if self.preRunLambda!=None:
             self.preRunLambda(rundir, env)
         with ddTrace.tracer.task("run", self.dirname.name, i) as traceRes:
+            startTime=time.perf_counter()
             subProcessRun=runCmdAsync([self.runCmd, rundir],
                                       rundir / fileRun,
                                       env)
             traceRes["status"]=getResult(subProcessRun)
+            with open(str(rundir / ddTimeFileName),"w") as f: #run duration used by verrou_dd_metamodel
+                f.write(str(time.perf_counter()-startTime))
         if self.postRunLambda!=None:
             self.postRunLambda(rundir)
         return self.cmpOneSample(i)
@@ -334,6 +339,12 @@ class DDStoch(DD.DD):
         self.prefix_ = Path.cwd() / self.config_.get_cacheRep()
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = self.prefix_ / "ref"
+        if getattr(self.config_, "reuseCacheOnly", False):
+            #post-processing of an existing cache (verrou_dd_metamodel) : the cache, the reference
+            #and cmd.last are kept unchanged, only new samples are computed
+            self.useRddminHeuristic=False
+            self.initSeed()
+            return
         self.prepareCache()
         ddTrace.init(self.config_.get_traceFile(), self.config_.get_maxNbPROC())
         prepareOutput(self.ref_)

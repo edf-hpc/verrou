@@ -1032,6 +1032,86 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 
   </section>
 
+  <section  id="vr-manual.verrou_dd_metamodel">
+    <title> verrou_dd_metamodel</title>
+
+    <simplesect>
+      <title>Description</title>
+      <para id="vr-manual.verrou_dd_metamodel.description">
+	The tool <command>verrou_dd_metamodel</command> builds from the cache of any <command>verrou_dd_*</command> command an anonymized
+	metamodel of the analysed code, saved in a json file (<computeroutput>CACHE_REP/metamodel.json</computeroutput> by default).
+	The deltas are only identified by their index in the search space (the order of the search space is kept, the names are not saved).
+	The failure probability of one sample of a configuration S is <computeroutput>1-exp(-h(S))</computeroutput> with
+	<computeroutput>h(S)=sum_k lambda_k [C_k in S] + sum_{k&lt;l} mu_kl [C_k u C_l in S] + eps (|S\U| / |N\U|)^beta</computeroutput>:
+	the clauses <computeroutput>C_k</computeroutput> are the ddmin found by the delta-debug, <computeroutput>mu_kl</computeroutput> are the interactions
+	between two ddmin (negative for a masking, positive for a synergy) and the last term is a diffuse background error outside the ddmin.
+	The ddmin are independent when all <computeroutput>mu_kl</computeroutput> and <computeroutput>eps</computeroutput> are null.
+	The ddmin better explained by the background (large ddmin with a small failure probability) are removed from the clauses (AIC criterion).
+	The computation time of a sample is modeled by <computeroutput>a + b |S|/N + c fail</computeroutput> : the duration of each sample is saved
+	by <command>verrou_dd_*</command> in <computeroutput>dd.run.time</computeroutput> (for older caches the durations are read from the
+	trace files of <computeroutput>--trace-file=</computeroutput>).
+	All the samples of the cache are saved in the json file, so other models can be fitted later.
+      </para>
+      <para>
+	With <computeroutput>--ratio=R</computeroutput>, new samples are computed (with the command, the environment and the scripts recorded in
+	<computeroutput>CACHE_REP/cmd.last</computeroutput>) to measure what the delta-debug path does not : each ddmin alone, the background alone,
+	each ddmin with the background, the pairs of ddmin and random configurations. The total number of new samples is at most R times the number of
+	samples of the delta-debug. The new samples are stored in the cache with the usual format (they are reused by the next
+	<computeroutput>--cache=continue</computeroutput> delta-debug), and identified in <computeroutput>CACHE_REP/metamodel_plan.json</computeroutput>.
+	Warning: a failing sample in the cache makes its configuration fail even if its index is greater than <computeroutput>--nruns=</computeroutput>,
+	so a delta-debug relaunched with <computeroutput>--cache=continue</computeroutput> on an enriched cache can follow another path.
+      </para>
+    </simplesect>
+    <simplesect>
+      <title>Synopsis</title>
+      <screen><cmdsynopsis id="vr-manual.verrou_dd_metamodel.synopsis">
+          <command>verrou_dd_metamodel [options]</command>
+          <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
+    </simplesect>
+
+    <simplesect>
+      <title>Options</title>
+      <variablelist id="vr-manual.verrou_dd_metamodel.envvars">
+	<varlistentry>
+          <term><computeroutput>--output=FILE</computeroutput></term>
+          <listitem><para>Output json file (default <computeroutput>CACHE_REP/metamodel.json</computeroutput>).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--ratio=R</computeroutput> [default 0]</term>
+          <listitem><para>Maximal number of new samples relatively to the number of samples of the delta-debug.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--nruns=NRUNS</computeroutput></term>
+          <listitem><para>Number of samples of each new configuration (default: the <computeroutput>--nruns=</computeroutput> of the delta-debug).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--num-threads=NUM_THREADS</computeroutput></term>
+          <listitem><para>Number of parallel samples (default: the <computeroutput>--num-threads=</computeroutput> of the delta-debug).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--seed=SEED</computeroutput> [default 0]</term>
+          <listitem><para>Seed of the random configurations of the enrichment.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--penalty=PENALTY</computeroutput> [default 0.1]</term>
+          <listitem><para>L2 penalty of the interaction terms <computeroutput>mu_kl</computeroutput>.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--trace-file=TRACE_FILE</computeroutput></term>
+          <listitem><para>Trace file of <computeroutput>verrou_dd_* --trace-file=</computeroutput> used to get the sample durations (can be repeated).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--no-observations</computeroutput></term>
+          <listitem><para>Do not save the samples in the json file (only the fitted model).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--dry-run</computeroutput></term>
+          <listitem><para>Print the enrichment plan without computing it.</para></listitem>
+	</varlistentry>
+      </variablelist>
+    </simplesect>
+  </section>
+
     <section id="vr-manual.localization.coverage" xreflabel="Coverage">
     <title>Code coverage comparison</title>
     <para>
