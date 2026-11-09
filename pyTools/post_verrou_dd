@@ -468,6 +468,6 @@ if __name__=="__main__":
 
         #insert Analyse
         estimatorTab=["dc","wdc","wdc-stol","fdr-stol", "data"]
-
+        hideBelowPython=True
         clean=config.get_trace_clean_intermediate()
-        generateTraceAnalysis(rep, config.get_trace_type() , estimatorTab, clean)
+        generateTraceAnalysis(rep, config.get_trace_type(), estimatorTab, hideBelowPython, clean)
