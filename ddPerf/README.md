@@ -35,6 +35,6 @@ They are not installed : they use the `pyTools` directory of this source tree.
 ## Limits
 
 - The samples of a configuration are independent (the correlation between configurations computed with
-  the same `--seed=` by verrou is not modeled).
+  the same `--seed=` by verrou is not modeled) : `--seed=` is not an option of `verrou_dd_fake`.
 - The clauses of a metamodel are the ddmin found by the original delta-debug (minus the ones absorbed in
   the background) : a clause missed by the original delta-debug is not in the metamodel.

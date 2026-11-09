@@ -162,8 +162,7 @@ class fakeStochTask(DD_stoch.stochTask):
     def runOneSample(self, i):
         rundir=self._nameDir(i)
         rundir.mkdir(exist_ok=True)
-        seed=self.seedTab[i] if self.seedTab!=None else i
-        rng=random.Random("%s/%s/%s"%(self.fakeSeed, self.dirname.name, seed))
+        rng=random.Random("%s/%s/%s"%(self.fakeSeed, self.dirname.name, i))
         fail,duration=self.model.sample(self.conf(), rng)
         if duration==None:
             duration=1. #no time model : the time unit is one sample
@@ -208,10 +207,11 @@ class DDfake(DD_stoch.DDStoch):
 
 
 class ddFakeConfig(dd_config.ddConfig):
-    """Only the options of the algorithm of DD_stoch are kept"""
+    """Only the options of the algorithm of DD_stoch are kept (not --seed= : the seed of verrou is not
+    modeled by the metamodel, the simulated samples depend on --fake-seed=)"""
     keptOptions=["cacheRep", "nbRUN", "maxNbPROC", "ddAlgo", "rddminVariant", "param_rddmin_tab", "param_dicho_tab",
                  "splitGranularity", "splitAlgo", "splitHeuristic", "ddminComplementsOnly", "ddQuiet", "cache",
-                 "resWithAllSamples", "ddSeed", "traceFile"]
+                 "resWithAllSamples", "traceFile"]
 
     def __init__(self, argv, environ):
         self.prefix_="dd.fake"
