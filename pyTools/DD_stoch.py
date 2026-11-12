@@ -31,6 +31,7 @@ import subprocess
 import shutil
 import hashlib
 import copy
+import collections
 import datetime
 import time
 import math
@@ -556,6 +557,7 @@ class DDStoch(DD.DD):
             self.searchSpaceGenerationFailure()
 
         excludeMerged=[]
+        excludeMergedSet=set()
         for excludeFile in listOfExcludeFile:
             lines=None
             if parseRef==None:
@@ -565,12 +567,14 @@ class DDStoch(DD.DD):
                 lines=parseRef(dirname / excludeFile)
 
             for line in lines:
-                if line not in excludeMerged:
+                if line not in excludeMergedSet:
+                    excludeMergedSet.add(line)
                     excludeMerged+=[line]
 
         with open(str(dirname / name), "w" )as f:
             for line in excludeMerged:
                 f.write(line+"\n")
+        self.delta0_=None #the search space is read again by getDelta0
 
 
     def testWithLink(self, deltas, linkname, earlyExit):
@@ -704,7 +708,8 @@ class DDStoch(DD.DD):
 
     def reduceSearchSpace(self, deltas, conf):
         "return the set deltas -conf"
-        return [delta for delta in deltas if delta not in conf] #reduce search space
+        confSet=set(conf)
+        return [delta for delta in deltas if delta not in confSet] #reduce search space
 
     @ddTrace.tracePhase("heuristics")
     def applyRddminWithHeuristics(self,deltas, algo):
@@ -1154,10 +1159,11 @@ class DDStoch(DD.DD):
                 failList.sort(key=lambda x: len(x))
                 #update search space
                 deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
+                deltasCurrentSet=set(deltasCurrent)
                 while len(failList)!=0:
                     failConf=failList[0]
                     failList=failList[1:]
-                    if all(x in deltasCurrent for x in  failConf): #check inclusion
+                    if all(x in deltasCurrentSet for x in  failConf): #check inclusion
 
                         testResult=self._test(failConf,nbRun)
                         if testResult!=self.FAIL:
@@ -1182,6 +1188,7 @@ class DDStoch(DD.DD):
                         self.rddminIndex+=1
                         nablaRddmin.append(conf)
                         deltasCurrent=self.reduceSearchSpace(deltasCurrent,conf)
+                        deltasCurrentSet=set(deltasCurrent)
 
                 #end test loop of rddmin
                 testResult=self._test(deltasCurrent,nbRun)
@@ -1247,26 +1254,39 @@ class DDStoch(DD.DD):
 
 
     def getDelta0(self):
-        return self.loadDeltaFileFromRep(self.ref_, True)
+        """Return the search space (a copy : the caller may modify it)"""
+        if getattr(self, "delta0_", None)==None:
+            self.delta0_=self.loadDeltaFileFromRep(self.ref_, True)
+        if self.delta0_==None:
+            return None
+        return list(self.delta0_)
 
 
     def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
         """Generate the *.exclude and *.include file in dirname rep from deltas"""
-        excludes=self.getDelta0()
         dd=self.getDeltaFileName()
 
         if include:
             with open(str(dirname / (dd+".include")), "w") as f:
-                for d in deltas:
-                    f.write(d+"\n")
+                f.write("".join(d+"\n" for d in deltas))
 
         if exclude:
-            with open(str(dirname / (dd+".exclude")), "w") as f:
-                for d in deltas:
-                    excludes.remove(d)
-
+            excludes=self.getDelta0()
+            #excludes minus deltas, order kept (one occurrence removed by delta, as list.remove without the quadratic cost)
+            if len(set(excludes))==len(excludes):
+                deltaSet=set(deltas)
+                excludes=[line for line in excludes if line not in deltaSet]
+            else:
+                toRemove=collections.Counter(deltas)
+                kept=[]
                 for line in excludes:
-                    f.write(line+"\n")
+                    if toRemove.get(line,0)>0:
+                        toRemove[line]-=1
+                    else:
+                        kept.append(line)
+                excludes=kept
+            with open(str(dirname / (dd+".exclude")), "w") as f:
+                f.write("".join(line+"\n" for line in excludes))
 
     def _getSampleNumberToExpectFail(self, deltas):
         nbRun=self.config_.get_nbRUN()
