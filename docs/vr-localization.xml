@@ -1056,9 +1056,15 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
       </para>
       <para>
 	With <computeroutput>--ratio=R</computeroutput>, new samples are computed (with the command, the environment and the scripts recorded in
-	<computeroutput>CACHE_REP/cmd.last</computeroutput>) to measure what the delta-debug path does not : each ddmin alone, the background alone,
-	each ddmin with the background, the pairs of ddmin and random configurations. The total number of new samples is at most R times the number of
-	samples of the delta-debug. The new samples are stored in the cache with the usual format (they are reused by the next
+	<computeroutput>CACHE_REP/cmd.last</computeroutput>) to measure what the delta-debug path does not : each ddmin alone, the residual
+	(complement of the ddmin), each ddmin with the background, the pairs of ddmin (at most <computeroutput>--pairs-ratio=</computeroutput> of the budget,
+	the most informative first) and random configurations. The total number of new samples is at most R times the number of
+	samples of the delta-debug.
+	The residual and its two contiguous halves get <computeroutput>--residual-factor=</computeroutput> times more samples : the failure probability
+	of the residual gives the probability that the final check of rddmin passes (the delta-debug stops only if it passes). If the halves fail with
+	different probabilities, the residual is localized : a dichotomy (with early exit, as the delta-debug) looks for the cause missed by the
+	delta-debug, which becomes a clause of the metamodel (<computeroutput>residual0</computeroutput>, ...), then the new residual is checked.
+	Otherwise the residual is diffuse and modeled by the background term. The new samples are stored in the cache with the usual format (they are reused by the next
 	<computeroutput>--cache=continue</computeroutput> delta-debug), and identified in <computeroutput>CACHE_REP/metamodel_plan.json</computeroutput>.
 	Warning: a failing sample in the cache makes its configuration fail even if its index is greater than <computeroutput>--nruns=</computeroutput>,
 	so a delta-debug relaunched with <computeroutput>--cache=continue</computeroutput> on an enriched cache can follow another path.
@@ -1085,6 +1091,15 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	<varlistentry>
           <term><computeroutput>--nruns=NRUNS</computeroutput></term>
           <listitem><para>Number of samples of each new configuration (default: the <computeroutput>--nruns=</computeroutput> of the delta-debug).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--residual-factor=FACTOR</computeroutput> [default 4]</term>
+          <listitem><para>Number of samples of the configurations of the residual (complement of the clauses and dichotomy), relatively to
+	  <computeroutput>--nruns=</computeroutput>.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--pairs-ratio=RATIO</computeroutput> [default 0.5]</term>
+          <listitem><para>Maximal fraction of the budget used by the pairs of clauses.</para></listitem>
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--num-threads=NUM_THREADS</computeroutput></term>

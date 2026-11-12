@@ -158,6 +158,7 @@ class ddCache:
     """Generic reading of a DD_stoch cache (the same format for all the verrou_dd_* variants)"""
 
     planFileName="metamodel_plan.json"
+    residualKey="residualClauses"
 
     def __init__(self, rep, traceFiles=[], verbose=True):
         self.rep=Path(rep)
@@ -178,10 +179,13 @@ class ddCache:
             traceFiles+=[traceFromCmd]
         self.traceTimes=loadTraceRunTimes(traceFiles)
 
-        self.planOrigin={}
+        self.planOrigin={} #md5 -> kind (or dict kind, ddSamples) of the configurations of the enrichment
+        self.residualMd5=[] #localized causes of the residual found by the enrichment (residualSearch)
         if (self.rep / self.planFileName).is_file():
             with open(str(self.rep / self.planFileName)) as f:
-                self.planOrigin=json.load(f)
+                plan=json.load(f)
+            self.residualMd5=plan.pop(self.residualKey, [])
+            self.planOrigin=plan
 
         self.observations={} #md5 -> observation
         self.nbIgnoredConf=0
@@ -271,6 +275,35 @@ class ddCache:
         ddminLinks=[name for name in self.links if name.startswith("ddmin") and name[5:].isdigit()]
         ddminLinks.sort(key=lambda name: int(name[5:]))
         return [self.observations[self.links[name]].conf for name in ddminLinks]
+
+    def residualClauses(self):
+        """Localized causes of the residual found by the enrichment (not found by the delta-debug)"""
+        ddmin=set(self.ddminClauses())
+        return [self.observations[md5].conf for md5 in self.residualMd5
+                if md5 in self.observations and self.observations[md5].conf not in ddmin]
+
+    def clauses(self):
+        """Clauses of the metamodel : ddmin of the delta-debug then residual clauses"""
+        return self.ddminClauses()+self.residualClauses()
+
+    def clauseNames(self):
+        return ["ddmin%i"%(k) for k in range(len(self.ddminClauses()))]+["residual%i"%(k) for k in range(len(self.residualClauses()))]
+
+    def savePlan(self):
+        plan=dict(self.planOrigin)
+        if len(self.residualMd5)!=0:
+            plan[self.residualKey]=self.residualMd5
+        with open(str(self.rep / self.planFileName),"w") as f:
+            json.dump(plan, f, indent=1)
+
+    def reloadObservations(self, md5Tab):
+        """Read again the samples of some configurations (after a computation)"""
+        for md5 in md5Tab:
+            confDir=self.rep / md5
+            if confDir.is_dir():
+                obs=self._loadObservation(confDir)
+                if obs!=None:
+                    self.observations[md5]=obs
 
     def nbRun(self):
         if self.cmd==None or self.cmd["argv"]==None:
@@ -534,53 +567,169 @@ def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1.):
 
 ## Enrichment
 
-def enrichmentPlan(nbDelta, clauses, observations, budget, nbSample, rng):
-    """Configurations to sample (each one up to nbSample samples) within budget new samples.
-    Return a list of (conf, kind, cost) by decreasing priority :
-      clause      : each ddmin alone (failure probability without the rest of the code)
-      full, background : all the deltas, all the deltas except the ddmin
-      clause+background : one ddmin and the background (independence between a ddmin and the background)
-      pair        : union of two ddmin (interaction)
-      random      : random subsets (shape of the background and validation)"""
-    cached={obs.conf:set(obs.samples) for obs in observations}
-    def cost(conf):
-        done=cached.get(tuple(sorted(conf)), set())
-        return len([i for i in range(nbSample) if i not in done])
+def enrichmentPlan(nbDelta, clauses, observations, budget, nbSample, rng, residualFactor=4, pairsRatio=0.5, withRandom=True):
+    """Configurations to sample within budget new samples.
+    Return a list of (conf, kind, cost, nbSampleConf) by decreasing priority :
+      clause      : each clause alone (failure probability without the rest of the code)
+      full        : all the deltas
+      residual    : complement of the clauses (residualFactor*nbSample samples : the failure probability of the
+                    residual decides if the final check of rddmin passes) and its two contiguous halves
+                    (localized or diffuse residual, see residualSearch)
+      clause+background : one clause and the background (independence between a clause and the background)
+      pair        : union of two clauses (interaction), at most pairsRatio*budget samples, the most
+                    informative pairs first (failure probability under independence close to 1/2)
+      random      : random subsets (shape of the background and validation), only with withRandom"""
+    cached={obs.conf:obs for obs in observations}
+    def cost(conf, nb):
+        obs=cached.get(conf)
+        done=set() if obs==None else set(obs.samples)
+        return len([i for i in range(nb) if i not in done])
 
     union=set().union(*[set(c) for c in clauses])
     full=tuple(range(nbDelta))
     background=tuple(i for i in full if i not in union)
 
-    candidates=[(tuple(c), "clause") for c in clauses]
-    candidates+=[(full, "full")]
-    if len(background)!=0:
-        candidates+=[(background, "background")]
-        candidates+=[(tuple(sorted(set(background)|set(c))), "clause+background") for c in clauses]
-    candidates+=[(tuple(sorted(set(clauses[k])|set(clauses[l]))), "pair")
-                 for k in range(len(clauses)) for l in range(k+1, len(clauses))]
-
     plan=[]
     planned=set()
-    def add(conf, kind):
+    def add(conf, kind, nb=nbSample, maxCost=None):
         nonlocal budget
         conf=tuple(sorted(conf))
         if len(conf)==0 or conf in planned:
-            return
-        c=cost(conf)
-        if c==0 or c>budget:
-            return
+            return 0
+        c=cost(conf, nb)
+        if c==0 or c>budget or (maxCost!=None and c>maxCost):
+            return 0
         planned.add(conf)
-        plan.append((conf, kind, c))
+        plan.append((conf, kind, c, nb))
         budget-=c
+        return c
 
-    for conf,kind in candidates:
-        add(conf, kind)
+    for c in clauses:
+        add(c, "clause")
+    add(full, "full")
+    if len(background)!=0:
+        add(background, "residual", residualFactor*nbSample)
+        for half in splitHalves(background):
+            add(half, "residual", residualFactor*nbSample)
+        for c in clauses:
+            add(set(background)|set(c), "clause+background")
+
+    def pFailEstimate(conf):
+        obs=cached.get(tuple(sorted(conf)))
+        return 0.5 if obs==None else (obs.nbFail()+0.5)/(obs.nbSample()+1.)
+    q=[pFailEstimate(c) for c in clauses]
+    pairs=[(k,l) for k in range(len(clauses)) for l in range(k+1, len(clauses))]
+    def information(pair):
+        p=1.-(1.-q[pair[0]])*(1.-q[pair[1]])
+        return p*(1.-p)
+    pairs.sort(key=information, reverse=True)
+    pairBudget=int(pairsRatio*budget)
+    for k,l in pairs:
+        pairBudget-=add(set(clauses[k])|set(clauses[l]), "pair", maxCost=pairBudget)
 
     #random subsets with a log-uniform size, alternatively in the full space and in the background
-    for trial in range(10000):
+    for trial in range(10000 if withRandom else 0):
         if budget<1:
             break
         space=full if (trial%2==0 or len(background)==0) else background
         size=max(1, int(round(math.exp(rng.uniform(0., math.log(len(space)))))))
         add(rng.sample(space, size), "random")
     return plan
+
+
+## Residual : failures outside the clauses
+
+def splitHalves(conf):
+    """Two contiguous halves in the order of the search space (as DD.split)"""
+    conf=tuple(sorted(conf))
+    return conf[:len(conf)//2], conf[len(conf)//2:]
+
+def proportionTest(nbFail1, nbSample1, nbFail2, nbSample2):
+    """Likelihood ratio statistic of two different failure probabilities (chi2 with 1 degree of freedom)"""
+    def ll(f, n, p):
+        res=0.
+        if f>0:
+            res+=f*math.log(p)
+        if n-f>0:
+            res+=(n-f)*math.log(1.-p)
+        return res
+    if nbSample1==0 or nbSample2==0:
+        return 0.
+    p=(nbFail1+nbFail2)/(nbSample1+nbSample2)
+    return 2.*(ll(nbFail1, nbSample1, nbFail1/nbSample1)+ll(nbFail2, nbSample2, nbFail2/nbSample2)
+               -ll(nbFail1, nbSample1, p)-ll(nbFail2, nbSample2, p))
+
+def clopperPearson(nbFail, nbSample, alpha=0.05):
+    from scipy.stats import beta
+    low=0. if nbFail==0 else float(beta.ppf(alpha/2, nbFail, nbSample-nbFail+1))
+    high=1. if nbFail==nbSample else float(beta.ppf(1-alpha/2, nbFail+1, nbSample-nbFail))
+    return low, high
+
+def residualSearch(nbDelta, clauses, observations, nbSample, residualFactor=4, threshold=3.84):
+    """Dichotomy on the residual R (complement of the clauses) with the samples in cache.
+    Level 0 : R and its two contiguous halves are sampled (nbR=residualFactor*nbSample samples each) :
+      R passes -> "pass" ; the halves fail with different probabilities (likelihood ratio > threshold)
+      -> "localized" and the dichotomy continues in the failing half, otherwise -> "diffuse".
+    Next levels (the node is known to fail) : the halves are sampled with earlyExit (as the delta-debug) :
+      only one half fails -> continue in this half ; both or none (cause across the split) or a node of
+      size 1 -> the node is a localized cause (clause).
+    Return a dict : verdict ("pass", "diffuse", "localized", "incomplete" when samples are missing),
+    complement (R and its counters), levels, clause (localized cause or None) and toCompute (list of
+    (conf, nbSample, earlyExit) required to continue)"""
+    cached={obs.conf:obs for obs in observations}
+    nbR=residualFactor*nbSample
+    def counters(conf):
+        obs=cached.get(tuple(conf))
+        return (0,0) if obs==None else (obs.nbFail(), obs.nbSample())
+    def complete(conf, earlyExit):
+        f,n=counters(conf)
+        return n>=nbR or (earlyExit and f>0)
+
+    union=set().union(*[set(c) for c in clauses])
+    residual=tuple(i for i in range(nbDelta) if i not in union)
+    res={"verdict":"incomplete", "complement":None, "levels":[], "clause":None, "toCompute":[]}
+    if len(residual)==0:
+        res["verdict"]="pass"
+        return res
+    f,n=counters(residual)
+    res["complement"]={"size":len(residual), "nbFail":f, "nbSample":n}
+    halves=splitHalves(residual)
+    missing=[(c, nbR, False) for c in (residual,)+halves if not complete(c, False)]
+    if len(missing)!=0:
+        res["toCompute"]=missing
+        return res
+    if f==0:
+        res["verdict"]="pass"
+        return res
+
+    node=residual
+    while True:
+        if len(node)==1:
+            res["verdict"]="localized"
+            res["clause"]=node
+            return res
+        earlyExit=node is not residual
+        halves=splitHalves(node)
+        missing=[(c, nbR, earlyExit) for c in halves if not complete(c, earlyExit)]
+        if len(missing)!=0:
+            res["toCompute"]=missing
+            return res
+        (fA,nA),(fB,nB)=counters(halves[0]), counters(halves[1])
+        level={"size":len(node), "halves":[{"size":len(halves[0]), "nbFail":fA, "nbSample":nA},
+                                           {"size":len(halves[1]), "nbFail":fB, "nbSample":nB}]}
+        res["levels"].append(level)
+        if not earlyExit:
+            level["statistic"]=proportionTest(fA, nA, fB, nB)
+            if level["statistic"]<=threshold or fA==fB:
+                level["decision"]="same failure probability"
+                res["verdict"]="diffuse"
+                return res
+            node=halves[0] if fA/nA>fB/nB else halves[1]
+        elif (fA>0)!=(fB>0):
+            node=halves[0] if fA>0 else halves[1]
+        else:
+            level["decision"]="both halves fail" if fA>0 else "both halves pass"
+            res["verdict"]="localized"
+            res["clause"]=node
+            return res
+        level["decision"]="first half" if node==halves[0] else "second half"
