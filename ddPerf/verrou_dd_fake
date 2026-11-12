@@ -149,12 +149,15 @@ def deltaIndex(name):
 class fakeStochTask(DD_stoch.stochTask):
     model=None
     fakeSeed=0
+    confCache={} #md5 -> (failure probability, size) of the configuration (shared by the tasks of the same configuration)
 
-    def conf(self):
-        if not hasattr(self, "conf_"):
+    def confInfo(self):
+        md5=self.dirname.name
+        if md5 not in self.confCache:
             includeFile=self.dirname / "dd.fake.include"
-            self.conf_=frozenset(deltaIndex(x) for x in ddMetamodel.loadDeltaLines(includeFile))
-        return self.conf_
+            conf=frozenset(deltaIndex(x) for x in ddMetamodel.loadDeltaLines(includeFile))
+            self.confCache[md5]=(self.model.pFail(conf), len(conf))
+        return self.confCache[md5]
 
     def submitSeq(self, cmpOrRun, sampleIndex):
         return self.runOneSample(sampleIndex)
@@ -163,7 +166,8 @@ class fakeStochTask(DD_stoch.stochTask):
         rundir=self._nameDir(i)
         rundir.mkdir(exist_ok=True)
         rng=random.Random("%s/%s/%s"%(self.fakeSeed, self.dirname.name, i))
-        fail,duration=self.model.sample(self.conf(), rng)
+        pFail,size=self.confInfo()
+        fail,duration=self.model.sample(None, rng, pFail, size)
         if duration==None:
             duration=1. #no time model : the time unit is one sample
         start,slot=clock.sample(duration)
@@ -192,6 +196,10 @@ class DDfake(DD_stoch.DDStoch):
 
     def isFileValidToMerge(self, name):
         return name.startswith("dd.fake.")
+
+    def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
+        """The exclude file is useless for the simulation (and costly for large search spaces)"""
+        DD_stoch.DDStoch.genExcludeIncludeFile(self, dirname, deltas, include=include, exclude=False)
 
     def getDeltaFileName(self):
         return "dd.fake"
@@ -227,8 +235,8 @@ class ddFakeConfig(dd_config.ddConfig):
             if registry["attribut"] not in self.keptOptions:
                 setattr(self, registry["attribut"], registry["default"])
         self.registryTab=[registry for registry in self.registryTab if registry["attribut"] in self.keptOptions]
-        self.addRegistry("fakeSeed", "int",    "FAKE_SEED", ["--fake-seed="], 0,
-                         docStr="seed of the simulated samples")
+        self.addRegistry("fakeSeed", "int",    "FAKE_SEED", ["--fake-seed="], None,
+                         docStr="seed of the simulated samples (default: random seed, printed and written in the summary)")
         self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,
                          docStr="json file with the summary of the simulation (for the campaigns)")
 
@@ -276,6 +284,9 @@ if __name__=="__main__":
     config=ddFakeConfig(sys.argv, os.environ)
     model=ddMetamodel.loadMetamodel(config.metamodelFile)[0]
     fakeStochTask.model=model
+    if config.fakeSeed==None:
+        config.fakeSeed=random.SystemRandom().randrange(2**32)
+    print("fake seed : %i (--fake-seed=%i to reproduce the simulation)"%(config.fakeSeed, config.fakeSeed))
     fakeStochTask.fakeSeed=config.fakeSeed
 
     dd=DDfake(config)

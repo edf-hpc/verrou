@@ -21,7 +21,7 @@ They are not installed : they use the `pyTools` directory of this source tree.
    time model) and the thread pool is replaced by a virtual time executor. The simulated wall time thus
    takes into account `--num-threads=`, the early exits and the scheduling of the samples.
    `--trace-file=` writes a trace with the simulated time (`verrou_dd_trace_convert` works on it).
-   `--fake-seed=` changes the simulated samples, `--summary=FILE` writes the results in json :
+   `--fake-seed=` fixes the simulated samples (by default a random seed is drawn and printed), `--summary=FILE` writes the results in json :
    wall and cpu time, number of samples, ddmin found with their status (`clause` : a clause of the
    metamodel, `contains a clause`, `background` : no clause, the ddmin is due to the diffuse error).
 
