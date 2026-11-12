@@ -24,13 +24,16 @@ They are not installed : they use the `pyTools` directory of this source tree.
    `--fake-seed=` fixes the simulated samples (by default a random seed is drawn and printed), `--summary=FILE` writes the results in json :
    wall and cpu time, number of samples, ddmin found with their status (`clause` : a clause of the
    metamodel, `contains a clause`, `background` : no clause, the ddmin is due to the diffuse error).
+   The summary also gives the rddmin-cmp configuration (complement of the ddmin found) : its samples, its failure
+   probability in the metamodel and the clauses it still contains (a final check passed by chance).
 
 3. Compare option sets on several metamodels and seeds :
 
        ddPerf/campaign.py --seeds=20 meta1.json meta2.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
 
    The table gives the means of the wall time, cpu time, number of samples, number of ddmin, fraction of
-   the clauses found (recall) and number of background ddmin (noise).
+   the clauses found (recall), number of background ddmin (noise) and failure probability (in the metamodel) of the
+   rddmin-cmp configuration accepted by the final check of rddmin (cmpPFail).
 
 ## Limits
 

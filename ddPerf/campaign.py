@@ -52,7 +52,7 @@ def runOne(metamodel, options, seed, workDir):
 
 if __name__=="__main__":
     nbSeed, outDir, metamodels, optionsTab=parseArgs(sys.argv)
-    print("%-24s %-44s %10s %10s %8s %6s %7s %6s"%("metamodel", "options", "wall", "cpu", "samples", "ddmin", "recall", "noise"))
+    print("%-24s %-44s %10s %10s %8s %6s %7s %6s %8s"%("metamodel", "options", "wall", "cpu", "samples", "ddmin", "recall", "noise", "cmpPFail"))
     for metamodel in metamodels:
         for iOpt,options in enumerate(optionsTab):
             resTab=[runOne(metamodel, options, seed, outDir / metamodel.stem / ("opt%i"%iOpt) / ("seed%i"%seed)) for seed in range(nbSeed)]
@@ -60,9 +60,10 @@ if __name__=="__main__":
             if len(resTab)==0:
                 continue
             mean=lambda f: statistics.mean(f(res) for res in resTab)
-            print("%-24s %-44s %10.4g %10.4g %8.1f %6.2f %7.3f %6.2f"%(
+            print("%-24s %-44s %10.4g %10.4g %8.1f %6.2f %7.3f %6.2f %8.3f"%(
                 metamodel.stem[:24], options[:44],
                 mean(lambda r: r["wallTime"]), mean(lambda r: r["cpuTime"]), mean(lambda r: r["nbSample"]),
                 mean(lambda r: len(r["ddmin"])),
                 mean(lambda r: len(r["clausesFound"])/r["nbClause"] if r["nbClause"]!=0 else 1.),
-                mean(lambda r: len([d for d in r["ddmin"] if d["status"]=="background"]))))
+                mean(lambda r: len([d for d in r["ddmin"] if d["status"]=="background"])),
+                mean(lambda r: 0. if r.get("rddminCmp")==None else r["rddminCmp"]["pFail"])))

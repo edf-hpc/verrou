@@ -248,6 +248,21 @@ class ddFakeConfig(dd_config.ddConfig):
 
 ## Summary
 
+def rddminCmpSummary(model, cacheRep):
+    """Final check of rddmin : complement of the ddmin found (link rddmin-cmp)"""
+    link=cacheRep / "rddmin-cmp"
+    if not link.is_dir():
+        return None
+    includeFile=link / "dd.fake.include"
+    conf=frozenset(deltaIndex(x) for x in ddMetamodel.loadDeltaLines(includeFile)) if includeFile.is_file() else frozenset()
+    status=[]
+    for returnFile in link.glob(DD_stoch.subDirRun+"[0-9]*/"+DD_stoch.ddReturnFileName):
+        with open(str(returnFile)) as f:
+            status+=[int(f.readline())!=0]
+    return {"size":len(conf), "nbSample":len(status), "nbFail":status.count(True),
+            "status":"FAIL" if True in status else "PASS",
+            "pFail":model.pFail(conf), "clauses":model.clausesIn(conf)}
+
 def summary(config, model, resConf, cacheRep):
     """Compare the ddmin found with the clauses of the metamodel"""
     found=[]
@@ -267,6 +282,7 @@ def summary(config, model, resConf, cacheRep):
             "nbConfiguration":len([x for x in cacheRep.iterdir() if ddMetamodel.isMd5Name(x.name)]),
             "efficiency":clock.cpu/(clock.now*nbProc) if clock.now>0 else None,
             "ddmin":ddminTab,
+            "rddminCmp":rddminCmpSummary(model, cacheRep),
             "clausesFound":sorted(foundExact),
             "clausesMissed":[k for k in range(len(model.clauses)) if k not in foundExact]}
 
@@ -278,6 +294,10 @@ def printSummary(res):
     for i,d in enumerate(res["ddmin"]):
         print("\tddmin%i : size %3i  pFail %.3f  %-17s %s"%(i, d["size"], d["pFail"], d["status"], d["indexes"]))
     print("\tclauses found %i/%i, missed : %s"%(len(res["clausesFound"]), res["nbClause"], res["clausesMissed"]))
+    cmp=res["rddminCmp"]
+    if cmp!=None:
+        print("\trddmin-cmp : size %i  %s %i/%i  pFail %.3f  clauses inside %s"%(
+            cmp["size"], cmp["status"], cmp["nbFail"], cmp["nbSample"], cmp["pFail"], cmp["clauses"]))
 
 
 if __name__=="__main__":
