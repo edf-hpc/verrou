@@ -380,9 +380,11 @@ def logLikelihood(model, observations):
         res+=nbFail*math.log(-math.expm1(-h)) - (nbSample-nbFail)*h
     return res
 
-def fitFailure(nbDelta, clauses, observations, interactions=True, background=True, penalty=0.1):
+def fitFailure(nbDelta, clauses, observations, interactions=True, background=True, penalty=0.1, init=None):
     """Maximum likelihood fit of the failure model. Return (metamodel, logLikelihood, nbParam).
-    penalty : L2 penalty on the interaction terms mu (they are often defined by few samples)"""
+    penalty : L2 penalty on the interaction terms mu (they are often defined by few samples)
+    init : metamodel used as warm start (parameters of the same clauses and pairs, the others at 0) :
+    when init is a nested model, the fit can not be worse than init. The default start is also tried."""
     import numpy as np
     from scipy.optimize import minimize
 
@@ -404,6 +406,7 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
             if k in inside and l in inside:
                 P[i,j]=1.
         m[i]=template.backgroundFraction(S)
+    logM=np.log(np.where(m>0, m, 1.))
 
     def unpack(x):
         lam=x[:nbClause]
@@ -412,11 +415,17 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
         return lam,mu,eps,beta
 
     def negLogLik(x):
+        """Penalized negative log likelihood and its gradient"""
         lam,mu,eps,beta=unpack(x)
-        h=A@lam + P@mu + eps*np.power(m, beta)
-        h=np.maximum(h, 1e-9)
+        mBeta=np.where(m>0, np.power(m, beta), 0.)
+        hRaw=A@lam + P@mu + eps*mBeta
+        h=np.maximum(hRaw, 1e-9)
         ll=np.sum(nbFail*np.log(-np.expm1(-h))) - np.sum(nbPass*h)
-        return -ll + penalty*np.sum(mu**2)
+        dh=np.where(hRaw>1e-9, nbFail*np.exp(-h)/(-np.expm1(-h)) - nbPass, 0.) #d ll / d h
+        grad=np.concatenate([-(dh@A), -(dh@P)+2.*penalty*mu])
+        if background:
+            grad=np.concatenate([grad, [-(dh@mBeta), -eps*(dh@(mBeta*logM))]])
+        return -ll + penalty*np.sum(mu**2), grad
 
     x0=[1.]*nbClause+[0.]*nbPair
     bounds=[(0.,30.)]*nbClause+[(-30.,30.)]*nbPair
@@ -426,7 +435,16 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
     if len(x0)==0:
         model=metamodel(nbDelta, clauses, [])
         return model, logLikelihood(model, observations), 0
-    res=minimize(negLogLik, np.array(x0), method="L-BFGS-B", bounds=bounds)
+    starts=[np.array(x0)]
+    if init!=None:
+        initLambda={c:lam for c,lam in zip(init.clauses, init.lambdas)}
+        initMu={(init.clauses[k],init.clauses[l]):mu for (k,l),mu in init.interactions.items()}
+        xInit=[initLambda.get(c, 0.) for c in template.clauses]
+        xInit+=[initMu.get((template.clauses[k],template.clauses[l]), initMu.get((template.clauses[l],template.clauses[k]), 0.)) for k,l in pairs]
+        if background:
+            xInit+=[init.eps, init.beta]
+        starts+=[np.clip(np.array(xInit), [lo for lo,hi in bounds], [hi for lo,hi in bounds])]
+    res=min([minimize(negLogLik, start, method="L-BFGS-B", jac=True, bounds=bounds) for start in starts], key=lambda r: r.fun)
     lam,mu,eps,beta=unpack(res.x)
     model=metamodel(nbDelta, clauses, [float(v) for v in lam],
                     {pair:float(v) for pair,v in zip(pairs,mu)}, float(eps), float(beta))
@@ -469,33 +487,48 @@ def diagnostics(model, observations):
     res.sort(key=lambda d: d["pValue"])
     return res
 
-def fitAll(nbDelta, clauses, observations, penalty=0.1):
-    """Fit the nested models (independent ddmin, + background, + interactions), then remove greedily the
-    ddmin better explained by the diffuse background (AIC decrease) : with a diffuse error, the delta-debug
-    finds large ddmin with a small failure probability.
+def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1.):
+    """Fit the nested models (independent ddmin, + background, + interactions), each one started from the
+    previous one, and select the smallest AIC. Then remove greedily the ddmin better explained by the
+    diffuse background (AIC decrease relatively to the best model) : with a diffuse error, the delta-debug
+    finds large ddmin with a small failure probability. A removal is only accepted if the background stays
+    convex (beta>=minBetaRemoval) : with beta<1 the small subsets fail more than proportionally, so the
+    background would absorb a localized cause and spread it on all the deltas.
     Return the selected model, the comparison table and the indexes of the removed ddmin"""
     variants=[("independent", False, False), ("background", False, True), ("background+interactions", True, True)]
     table=[]
+    best=None #(aic, model, interactions)
     model=None
     for name, interactions, background in variants:
-        model, ll, nbParam=fitFailure(nbDelta, clauses, observations, interactions, background, penalty)
-        table+=[{"model":name, "logLikelihood":ll, "nbParam":nbParam, "aic":2*nbParam-2*ll}]
+        model, ll, nbParam=fitFailure(nbDelta, clauses, observations, interactions, background, penalty, init=model)
+        aic=2*nbParam-2*ll
+        table+=[{"model":name, "logLikelihood":ll, "nbParam":nbParam, "aic":aic}]
+        if best==None or aic<best[0]:
+            best=(aic, model, interactions)
 
+    bestAic, model, interactions=best
+    name="background+interactions" if interactions else "background"
     kept=list(range(len(clauses)))
     removed=[]
     while len(kept)!=0:
         candidates=[]
         for k in kept:
-            subModel, ll, nbParam=fitFailure(nbDelta, [clauses[j] for j in kept if j!=k], observations, True, True, penalty)
-            candidates+=[(2*nbParam-2*ll, k, subModel, ll, nbParam)]
+            subModel, ll, nbParam=fitFailure(nbDelta, [clauses[j] for j in kept if j!=k], observations, interactions, True, penalty, init=model)
+            if subModel.beta>=minBetaRemoval:
+                candidates+=[(2*nbParam-2*ll, k, subModel, ll, nbParam)]
+        if len(candidates)==0:
+            break
         aic, k, subModel, ll, nbParam=min(candidates, key=lambda c: c[0])
-        if aic>=table[-1]["aic"]:
+        if aic>=bestAic:
             break
         kept.remove(k)
         removed+=[k]
         model=subModel
-        table+=[{"model":"background+interactions without C"+",C".join(str(j) for j in removed),
+        bestAic=aic
+        table+=[{"model":name+" without C"+",C".join(str(j) for j in removed),
                  "logLikelihood":ll, "nbParam":nbParam, "aic":aic}]
+    for line in table:
+        line["selected"]=(line["aic"]==bestAic)
     return model, table, removed
 
 

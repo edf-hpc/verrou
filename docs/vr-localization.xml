@@ -1046,7 +1046,9 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	the clauses <computeroutput>C_k</computeroutput> are the ddmin found by the delta-debug, <computeroutput>mu_kl</computeroutput> are the interactions
 	between two ddmin (negative for a masking, positive for a synergy) and the last term is a diffuse background error outside the ddmin.
 	The ddmin are independent when all <computeroutput>mu_kl</computeroutput> and <computeroutput>eps</computeroutput> are null.
-	The ddmin better explained by the background (large ddmin with a small failure probability) are removed from the clauses (AIC criterion).
+	The nested models (independent ddmin, with background, with interactions) are compared with the AIC criterion.
+	The ddmin better explained by the background (large ddmin with a small failure probability) are removed from the clauses (AIC criterion),
+	only if the background stays convex (<computeroutput>beta&gt;=1</computeroutput>) : otherwise the background would spread a localized cause on all the deltas.
 	The computation time of a sample is modeled by <computeroutput>a + b |S|/N + c fail</computeroutput> : the duration of each sample is saved
 	by <command>verrou_dd_*</command> in <computeroutput>dd.run.time</computeroutput> (for older caches the durations are read from the
 	trace files of <computeroutput>--trace-file=</computeroutput>).

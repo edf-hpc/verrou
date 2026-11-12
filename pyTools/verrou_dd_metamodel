@@ -223,7 +223,8 @@ def report(model, table, removed, timeModel, diag, cache):
             print("\tC%i,C%i : mu %+.3f  factor %.3f"%(k, l, mu, math.exp(-mu)))
     print("model comparison :")
     for line in table:
-        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"]))
+        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f%s"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"],
+                                                                 "  <- selected" if line.get("selected") else ""))
     if timeModel!=None:
         print("time model : t = %.3g + %.3g |S|/N + %.3g fail  (sigma log %.3f, %i samples)"%(
             timeModel["a"], timeModel["b"], timeModel["c"], timeModel["sigma"], timeModel["nbSample"]))
