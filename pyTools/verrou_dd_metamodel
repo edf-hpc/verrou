@@ -157,8 +157,8 @@ def buildDD(cache, nbSample, numThreads):
 
 def enrich(conf, cache):
     observations=list(cache.observations.values())
-    nbDDSample=sum(obs.nbSample() for obs in observations if obs.origin=="dd")
-    nbDoneSample=sum(obs.nbSample() for obs in observations if obs.origin!="dd")
+    nbDDSample=sum(len(obs.ddSamples) for obs in observations)
+    nbDoneSample=sum(obs.nbSample() for obs in observations)-nbDDSample
     budget=int(math.floor(conf.ratio*nbDDSample))-nbDoneSample
     nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
     clauses=cache.ddminClauses()
@@ -178,12 +178,19 @@ def enrich(conf, cache):
     dd=buildDD(cache, nbSample, conf.numThreads)
     deltasTab=[[cache.deltas[i] for i in c] for c,kind,cost in plan]
 
-    #the origin is saved before the computation : an interrupted enrichment is still identified
+    #the origin is saved before the computation : an interrupted enrichment is still identified.
+    #For a configuration of the delta-debug (ddmin, FullPerturbation, rddmin-cmp...) the indexes of the
+    #samples of the delta-debug are kept : the new samples are not counted as delta-debug samples
     planOrigin=dict(cache.planOrigin)
     for deltas,(c,kind,cost) in zip(deltasTab, plan):
         md5=DD_stoch.md5Name(deltas)
-        if cache.observations.get(md5)==None or cache.observations[md5].origin!="dd":
+        if md5 in planOrigin:
+            continue
+        obs=cache.observations.get(md5)
+        if obs==None:
             planOrigin[md5]=kind
+        else:
+            planOrigin[md5]={"kind":kind, "ddSamples":sorted(obs.ddSamples)}
     with open(str(cache.rep / ddMetamodel.ddCache.planFileName),"w") as f:
         json.dump(planOrigin, f, indent=1)
 
@@ -195,6 +202,12 @@ def report(model, table, removed, timeModel, diag, cache):
     print("\nsearch space : %i deltas (%s), %i configurations, %i samples"%(
         cache.nbDelta(), cache.deltaFileName, len(cache.observations),
         sum(obs.nbSample() for obs in cache.observations.values())))
+    origins={}
+    for obs in cache.observations.values():
+        nbConf,nbDD,nbNew=origins.get(obs.origin,(0,0,0))
+        origins[obs.origin]=(nbConf+1, nbDD+len(obs.ddSamples), nbNew+obs.nbSample()-len(obs.ddSamples))
+    for origin,(nbConf,nbDD,nbNew) in sorted(origins.items()):
+        print("\t%-22s : %5i configurations, %6i samples of the delta-debug, %6i new samples"%(origin, nbConf, nbDD, nbNew))
     print("ddmin of the delta-debug :")
     for k,ddmin in enumerate(cache.ddminClauses()):
         status="absorbed in the background" if k in removed else "clause C%i"%(model.clauses.index(frozenset(ddmin)))

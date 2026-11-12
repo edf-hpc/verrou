@@ -125,12 +125,17 @@ def loadTraceRunTimes(traceFiles):
 
 
 class observation:
-    """Samples in cache of one configuration : samples is a dict sampleIndex -> (fail, time or None)"""
-    def __init__(self, conf, md5=None, samples=None, origin="dd"):
+    """Samples in cache of one configuration : samples is a dict sampleIndex -> (fail, time or None).
+    origin : "dd" (delta-debug), kind of the enrichment plan, or "dd+"kind for a configuration of the
+    delta-debug with new samples ; ddSamples : indexes of the samples computed by the delta-debug"""
+    def __init__(self, conf, md5=None, samples=None, origin="dd", ddSamples=None):
         self.conf=tuple(sorted(conf))
         self.md5=md5
         self.samples={} if samples==None else samples
         self.origin=origin
+        if ddSamples==None:
+            ddSamples=set(self.samples) if origin=="dd" else set()
+        self.ddSamples=ddSamples
 
     def nbSample(self):
         return len(self.samples)
@@ -242,7 +247,21 @@ class ddCache:
             else:
                 timeValue=self.traceTimes.get((confDir.name, sampleIndex))
             samples[sampleIndex]=(fail, timeValue)
-        return observation(conf, confDir.name, samples, self.planOrigin.get(confDir.name, "dd"))
+        origin,ddSamples=self._origin(confDir.name, samples)
+        return observation(conf, confDir.name, samples, origin, ddSamples)
+
+    def _origin(self, md5, samples):
+        """Origin of a configuration and indexes of its samples computed by the delta-debug"""
+        plan=self.planOrigin.get(md5)
+        if plan==None:
+            #the delta-debug computes at most --nruns= samples : the others come from an enrichment
+            #recorded before the ddSamples field of the plan
+            nbRun=self.nbRun()
+            ddSamples=set(i for i in samples if i<nbRun)
+            return ("dd" if len(ddSamples)==len(samples) else "dd+enrichment"), ddSamples
+        if isinstance(plan, str):
+            return plan, set()
+        return "dd+"+plan["kind"], set(plan["ddSamples"]) & set(samples)
 
     def nbDelta(self):
         return len(self.deltas)
@@ -307,10 +326,10 @@ class metamodel:
         tm=self.timeModel
         return max(0., tm["a"] + tm["b"]*len(S)/self.nbDelta + tm["c"]*float(fail))
 
-    def sample(self, S, rng=random):
-        """Simulate one sample : return (fail, time)"""
-        fail=rng.random()<self.pFail(S)
-        timeValue=self.meanTime(S, fail)
+    def sample(self, S, rng=random, pFail=None, size=None):
+        """Simulate one sample : return (fail, time). pFail and size (|S|) avoid the computation from S"""
+        fail=rng.random()<(self.pFail(S) if pFail==None else pFail)
+        timeValue=self.meanTime(S if size==None else range(size), fail)
         if timeValue!=None and self.timeModel["sigma"]>0:
             timeValue*=math.exp(rng.gauss(0., self.timeModel["sigma"]))
         return fail, timeValue
