@@ -64,6 +64,10 @@ class config_metamodel(gen_config.gen_config):
                          docStr="number of samples of each new configuration (default: --nruns= of the delta-debug)")
         self.addRegistry("numThreads", "int",    "NUM_THREADS", ["--num-threads="],  None,
                          docStr="number of parallel samples (default: --num-threads= of the delta-debug)")
+        self.addRegistry("residualFactor", "int", "RESIDUAL_FACTOR", ["--residual-factor="], 4,
+                         docStr="number of samples of the configurations of the residual (complement of the clauses and dichotomy), relatively to --nruns= (default 4)")
+        self.addRegistry("pairsRatio", "string", "PAIRS_RATIO", ["--pairs-ratio="],  "0.5",
+                         docStr="maximal fraction of the budget used by the pairs of clauses (default 0.5)")
         self.addRegistry("seed",       "int",    "SEED",        ["--seed="],         0,
                          docStr="seed of the random configurations of the enrichment")
         self.addRegistry("penalty",    "string", "PENALTY",     ["--penalty="],      "0.1",
@@ -92,8 +96,9 @@ class config_metamodel(gen_config.gen_config):
         try:
             self.ratio=float(self.ratio)
             self.penalty=float(self.penalty)
+            self.pairsRatio=float(self.pairsRatio)
         except ValueError:
-            print("Error : --ratio= and --penalty= should be float values", file=sys.stderr)
+            print("Error : --ratio=, --penalty= and --pairs-ratio= should be float values", file=sys.stderr)
             self.failure()
         if self.output==None:
             self.output=str(self.cacheRep / "metamodel.json")
@@ -155,50 +160,159 @@ def buildDD(cache, nbSample, numThreads):
     return dd
 
 
+def runConfigurations(dd, cache, confTab, kindTab, nbSampleTab, earlyExit):
+    """Compute the samples of configurations (sets of indexes) and read them again in cache"""
+    deltasTab=[[cache.deltas[i] for i in c] for c in confTab]
+    md5Tab=[DD_stoch.md5Name(deltas) for deltas in deltasTab]
+    #the origin is saved before the computation : an interrupted enrichment is still identified.
+    #For a configuration of the delta-debug (ddmin, FullPerturbation, rddmin-cmp...) the indexes of the
+    #samples of the delta-debug are kept : the new samples are not counted as delta-debug samples
+    for md5,kind in zip(md5Tab, kindTab):
+        if md5 in cache.planOrigin:
+            continue
+        obs=cache.observations.get(md5)
+        if obs==None:
+            cache.planOrigin[md5]=kind
+        else:
+            cache.planOrigin[md5]={"kind":kind, "ddSamples":sorted(obs.ddSamples)}
+    cache.savePlan()
+    dd._testTab(deltasTab, nbSampleTab, earlyExit=earlyExit, earlyConfExit="no")
+    cache.reloadObservations(md5Tab)
+
+def printPlan(plan):
+    kinds={}
+    for c,kind,cost,nb in plan:
+        nbConf,costSum=kinds.get(kind,(0,0))
+        kinds[kind]=(nbConf+1, costSum+cost)
+    for kind,(nbConf,costSum) in kinds.items():
+        print("\t%-18s : %3i configurations, %5i samples"%(kind, nbConf, costSum))
+
+def missingSamples(cache, conf, nbSample):
+    obs=cache.observations.get(DD_stoch.md5Name([cache.deltas[i] for i in conf]))
+    done=set() if obs==None else set(obs.samples)
+    return len([i for i in range(nbSample) if i not in done])
+
 def enrich(conf, cache):
     observations=list(cache.observations.values())
-    nbDDSample=sum(obs.nbSample() for obs in observations if obs.origin=="dd")
-    nbDoneSample=sum(obs.nbSample() for obs in observations if obs.origin!="dd")
+    nbDDSample=sum(len(obs.ddSamples) for obs in observations)
+    nbDoneSample=sum(obs.nbSample() for obs in observations)-nbDDSample
     budget=int(math.floor(conf.ratio*nbDDSample))-nbDoneSample
     nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
-    clauses=cache.ddminClauses()
+    clauses=cache.clauses()
     print("enrichment : %i samples of the delta-debug, %i already computed, budget %i samples (%i samples by configuration)"%(nbDDSample, nbDoneSample, max(budget,0), nbSample))
     if budget<=0:
         return False
-    plan=ddMetamodel.enrichmentPlan(cache.nbDelta(), clauses, observations, budget, nbSample, random.Random(conf.seed))
-    kinds={}
-    for c,kind,cost in plan:
-        nb,costSum=kinds.get(kind,(0,0))
-        kinds[kind]=(nb+1, costSum+cost)
-    for kind,(nb,costSum) in kinds.items():
-        print("\t%-18s : %3i configurations, %5i samples"%(kind, nb, costSum))
-    if conf.dryRun or len(plan)==0:
+    #the random configurations use the budget left by the dichotomy on the residual
+    plan=ddMetamodel.enrichmentPlan(cache.nbDelta(), clauses, observations, budget, nbSample, random.Random(conf.seed),
+                                    conf.residualFactor, conf.pairsRatio, withRandom=False)
+    printPlan(plan)
+    if conf.dryRun:
+        print("\tthe dichotomy on the residual and the random configurations use the remaining budget")
         return False
 
-    dd=buildDD(cache, nbSample, conf.numThreads)
-    deltasTab=[[cache.deltas[i] for i in c] for c,kind,cost in plan]
+    dd=None
+    def getDD():
+        nonlocal dd
+        if dd==None:
+            dd=buildDD(cache, max(nbSample, conf.residualFactor*nbSample), conf.numThreads)
+        return dd
 
-    #the origin is saved before the computation : an interrupted enrichment is still identified
-    planOrigin=dict(cache.planOrigin)
-    for deltas,(c,kind,cost) in zip(deltasTab, plan):
-        md5=DD_stoch.md5Name(deltas)
-        if cache.observations.get(md5)==None or cache.observations[md5].origin!="dd":
-            planOrigin[md5]=kind
-    with open(str(cache.rep / ddMetamodel.ddCache.planFileName),"w") as f:
-        json.dump(planOrigin, f, indent=1)
+    computed=False
+    if len(plan)!=0:
+        runConfigurations(getDD(), cache, [c for c,kind,cost,nb in plan], [kind for c,kind,cost,nb in plan],
+                          [nb for c,kind,cost,nb in plan], earlyExit=False)
+        budget-=sum(cost for c,kind,cost,nb in plan)
+        computed=True
 
-    dd._testTab(deltasTab, [nbSample]*len(deltasTab), earlyExit=False, earlyConfExit="no")
-    return True
+    #adaptive dichotomy on the residual : the next configurations depend on the results. A localized cause
+    #becomes a clause and the dichotomy starts again on the new residual
+    previous=None
+    while True:
+        search=ddMetamodel.residualSearch(cache.nbDelta(), clauses, list(cache.observations.values()), nbSample, conf.residualFactor)
+        if search["verdict"]=="localized":
+            md5=DD_stoch.md5Name([cache.deltas[i] for i in search["clause"]])
+            if md5 in cache.residualMd5:
+                break
+            cache.residualMd5.append(md5)
+            cache.savePlan()
+            print("residual : localized cause found, size %i, indexes %s"%(len(search["clause"]), ddMetamodel.toRanges(search["clause"])))
+            clauses=cache.clauses()
+            continue
+        toCompute=search["toCompute"]
+        if len(toCompute)==0 or toCompute==previous:
+            break
+        cost=sum(missingSamples(cache, c, nb) for c,nb,earlyExit in toCompute)
+        if cost>budget:
+            print("residual : budget exhausted before the end of the dichotomy (%i samples required)"%(cost))
+            break
+        runConfigurations(getDD(), cache, [c for c,nb,earlyExit in toCompute], ["residual"]*len(toCompute),
+                          [nb for c,nb,earlyExit in toCompute], earlyExit=toCompute[0][2])
+        budget-=cost
+        computed=True
+        previous=toCompute
+
+    plan=ddMetamodel.enrichmentPlan(cache.nbDelta(), clauses, list(cache.observations.values()), budget, nbSample, random.Random(conf.seed),
+                                    conf.residualFactor, conf.pairsRatio)
+    if len(plan)!=0:
+        printPlan(plan)
+        runConfigurations(getDD(), cache, [c for c,kind,cost,nb in plan], [kind for c,kind,cost,nb in plan],
+                          [nb for c,kind,cost,nb in plan], earlyExit=False)
+        computed=True
+    return computed
 
 
-def report(model, table, removed, timeModel, diag, cache):
+def residualReport(search, nbRunDD):
+    """Json summary of the residual (failures outside the clauses)"""
+    res={"verdict":search["verdict"], "levels":search["levels"], "complement":search["complement"]}
+    if search["clause"]!=None:
+        res["clause"]=ddMetamodel.toRanges(search["clause"])
+    complement=search["complement"]
+    if complement!=None and complement["nbSample"]!=0:
+        f,n=complement["nbFail"], complement["nbSample"]
+        low,high=ddMetamodel.clopperPearson(f, n)
+        res["pFail"]=f/n
+        res["pFailCI95"]=[low, high]
+        res["nbRunDD"]=nbRunDD
+        res["pPassDD"]=(1.-f/n)**nbRunDD
+        res["pPassDDCI95"]=[(1.-high)**nbRunDD, (1.-low)**nbRunDD]
+    return res
+
+def printResidual(res):
+    complement=res["complement"]
+    if complement==None:
+        print("residual : no delta outside the clauses")
+        return
+    print("residual (complement of the clauses, %i deltas) : fail %i/%i"%(complement["size"], complement["nbFail"], complement["nbSample"]), end="")
+    if "pFail" in res:
+        print("  pFail %.3f [%.3f, %.3f]"%(res["pFail"], *res["pFailCI95"]))
+        print("\tprobability that the final check of rddmin passes with --nruns=%i : %.2f [%.2f, %.2f]"%(
+            res["nbRunDD"], res["pPassDD"], res["pPassDDCI95"][0], res["pPassDDCI95"][1]))
+    else:
+        print("")
+    for level in res["levels"]:
+        print("\tsize %6i : halves %s  %s"%(level["size"],
+              "  ".join("%i/%i (size %i)"%(h["nbFail"], h["nbSample"], h["size"]) for h in level["halves"]),
+              level.get("decision","")))
+    verdicts={"pass":"the residual passes", "diffuse":"diffuse residual (the halves fail with the same probability)",
+              "localized":"localized cause %s"%(res.get("clause")),
+              "incomplete":"not enough samples (--ratio=)"}
+    print("\tverdict : "+verdicts[res["verdict"]])
+
+
+def report(model, table, removed, timeModel, diag, cache, residual):
     print("\nsearch space : %i deltas (%s), %i configurations, %i samples"%(
         cache.nbDelta(), cache.deltaFileName, len(cache.observations),
         sum(obs.nbSample() for obs in cache.observations.values())))
-    print("ddmin of the delta-debug :")
-    for k,ddmin in enumerate(cache.ddminClauses()):
-        status="absorbed in the background" if k in removed else "clause C%i"%(model.clauses.index(frozenset(ddmin)))
-        print("\tddmin%i : size %3i  %-26s indexes %s"%(k, len(ddmin), status, ddMetamodel.toRanges(ddmin)))
+    origins={}
+    for obs in cache.observations.values():
+        nbConf,nbDD,nbNew=origins.get(obs.origin,(0,0,0))
+        origins[obs.origin]=(nbConf+1, nbDD+len(obs.ddSamples), nbNew+obs.nbSample()-len(obs.ddSamples))
+    for origin,(nbConf,nbDD,nbNew) in sorted(origins.items()):
+        print("\t%-22s : %5i configurations, %6i samples of the delta-debug, %6i new samples"%(origin, nbConf, nbDD, nbNew))
+    print("ddmin of the delta-debug and localized causes of the residual :")
+    for k,(name,clause) in enumerate(zip(cache.clauseNames(), cache.clauses())):
+        status="absorbed in the background" if k in removed else "clause C%i"%(model.clauses.index(frozenset(clause)))
+        print("\t%-10s : size %3i  %-26s indexes %s"%(name, len(clause), status, ddMetamodel.toRanges(clause)))
     print("clauses :")
     for k,clause in enumerate(model.clauses):
         print("\tC%i : size %3i  pFail %.3f"%(k, len(clause), -math.expm1(-model.lambdas[k])))
@@ -210,12 +324,14 @@ def report(model, table, removed, timeModel, diag, cache):
             print("\tC%i,C%i : mu %+.3f  factor %.3f"%(k, l, mu, math.exp(-mu)))
     print("model comparison :")
     for line in table:
-        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"]))
+        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f%s"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"],
+                                                                 "  <- selected" if line.get("selected") else ""))
     if timeModel!=None:
         print("time model : t = %.3g + %.3g |S|/N + %.3g fail  (sigma log %.3f, %i samples)"%(
             timeModel["a"], timeModel["b"], timeModel["c"], timeModel["sigma"], timeModel["nbSample"]))
     else:
         print("time model : no sample duration available (use --trace-file= for old caches)")
+    printResidual(residual)
     bad=[d for d in diag if d["pValue"]<0.01]
     print("observations inconsistent with the model (p-value<0.01) : %i/%i"%(len(bad), len(diag)))
     for d in bad[:10]:
@@ -232,16 +348,21 @@ if __name__=="__main__":
             cache=ddMetamodel.ddCache(conf.cacheRep, [Path(x).absolute() for x in conf.traceFile])
 
     observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
-    clauses=cache.ddminClauses()
+    clauses=cache.clauses()
     model, table, removed=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty)
     model.timeModel=ddMetamodel.fitTime(cache.nbDelta(), observations)
     diag=ddMetamodel.diagnostics(model, observations)
+    nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
+    residual=residualReport(ddMetamodel.residualSearch(cache.nbDelta(), clauses, observations, nbSample, conf.residualFactor),
+                            cache.nbRun())
 
     obsIndex={obs.md5:index for index,obs in enumerate(observations)}
     data={"format":ddMetamodel.formatName, "version":ddMetamodel.formatVersion,
           "nbDelta":cache.nbDelta(),
           "source":cache.sourceInfo(),
-          "ddmin":[ddMetamodel.toRanges(c) for c in clauses],
+          "ddmin":[ddMetamodel.toRanges(c) for c in cache.ddminClauses()],
+          "residualClauses":[ddMetamodel.toRanges(c) for c in cache.residualClauses()],
+          "residual":residual,
           "failure":model.failureJson(),
           "time":model.timeModel,
           "fit":{"models":table, "penalty":conf.penalty, "removedDdmin":removed,
@@ -253,5 +374,5 @@ if __name__=="__main__":
     with open(conf.output,"w") as f:
         json.dump(data, f, indent=1)
 
-    report(model, table, removed, model.timeModel, diag, cache)
+    report(model, table, removed, model.timeModel, diag, cache, residual)
     print("\nmetamodel written in %s"%(conf.output))
