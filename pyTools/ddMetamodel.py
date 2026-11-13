@@ -43,6 +43,7 @@ import json
 import math
 import random
 import sys
+import os
 from pathlib import Path
 
 import DD_stoch
@@ -192,7 +193,7 @@ class ddCache:
         self.links={}
         for link in self.rep.iterdir():
             if link.is_symlink():
-                target=Path(link.readlink()).name
+                target=Path(os.readlink(str(link))).name
                 if target in self.observations:
                     self.links[link.name]=target
 
