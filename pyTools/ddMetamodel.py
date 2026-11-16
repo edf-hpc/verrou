@@ -572,6 +572,12 @@ def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1.):
 
 ## Enrichment
 
+def missingSamples(obs, nbSample):
+    """Number of samples to compute to get the nbSample first samples of an observation (None : not in cache)"""
+    if obs==None:
+        return nbSample
+    return len([i for i in range(nbSample) if i not in obs.samples])
+
 def enrichmentPlan(nbDelta, clauses, observations, budget, nbSample, rng, residualFactor=4, pairsRatio=0.5, withRandom=True):
     """Configurations to sample within budget new samples.
     Return a list of (conf, kind, cost, nbSampleConf) by decreasing priority :
@@ -586,9 +592,7 @@ def enrichmentPlan(nbDelta, clauses, observations, budget, nbSample, rng, residu
       random      : random subsets (shape of the background and validation), only with withRandom"""
     cached={obs.conf:obs for obs in observations}
     def cost(conf, nb):
-        obs=cached.get(conf)
-        done=set() if obs==None else set(obs.samples)
-        return len([i for i in range(nb) if i not in done])
+        return missingSamples(cached.get(conf), nb)
 
     union=set().union(*[set(c) for c in clauses])
     full=tuple(range(nbDelta))

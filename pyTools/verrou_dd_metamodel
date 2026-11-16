@@ -192,11 +192,6 @@ def printPlan(plan):
     for kind,(nbConf,costSum) in kinds.items():
         print("\t%-18s : %3i configurations, %5i samples"%(kind, nbConf, costSum))
 
-def missingSamples(cache, conf, nbSample):
-    obs=cache.observations.get(DD_stoch.md5Name([cache.deltas[i] for i in conf]))
-    done=set() if obs==None else set(obs.samples)
-    return len([i for i in range(nbSample) if i not in done])
-
 def enrich(conf, cache):
     observations=list(cache.observations.values())
     nbDDSample=sum(len(obs.ddSamples) for obs in observations)
@@ -246,7 +241,8 @@ def enrich(conf, cache):
         toCompute=search["toCompute"]
         if len(toCompute)==0 or toCompute==previous:
             break
-        cost=sum(missingSamples(cache, c, nb) for c,nb,earlyExit in toCompute)
+        cost=sum(ddMetamodel.missingSamples(cache.observations.get(DD_stoch.md5Name([cache.deltas[i] for i in c])), nb)
+                 for c,nb,earlyExit in toCompute)
         if cost>budget:
             print("residual : budget exhausted before the end of the dichotomy (%i samples required)"%(cost))
             break
