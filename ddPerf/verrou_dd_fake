@@ -272,9 +272,18 @@ def summary(config, model, resConf, cacheRep):
     for ddmin in found:
         clauses=model.clausesIn(ddmin)
         exact=[k for k in clauses if model.clauses[k]==ddmin]
+        #the delta-debug splits a graded clause (accumulation of small errors) in several ddmin
+        gradedParts=[k for k,clause in enumerate(model.clauses) if model.gammas[k]!=None and len(clause&ddmin)!=0]
+        status="background"
+        if len(exact)!=0:
+            status="clause"
+        elif len(clauses)!=0:
+            status="contains a clause"
+        elif len(gradedParts)!=0:
+            status="graded clause part"
         ddminTab+=[{"indexes":ddMetamodel.toRanges(ddmin), "size":len(ddmin), "pFail":model.pFail(ddmin),
-                    "clauses":clauses, "status":("clause" if len(exact)!=0 else ("contains a clause" if len(clauses)!=0 else "background"))}]
-    foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"]=="clause")
+                    "clauses":clauses if status!="graded clause part" else gradedParts, "status":status}]
+    foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"] in ["clause", "graded clause part"])
     nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
     return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
             "nbDelta":model.nbDelta, "nbClause":len(model.clauses),
@@ -292,7 +301,7 @@ def printSummary(res):
                                                            "%.3f"%res["efficiency"] if res["efficiency"]!=None else "-"))
     print("\t%i samples, %i configurations"%(res["nbSample"], res["nbConfiguration"]))
     for i,d in enumerate(res["ddmin"]):
-        print("\tddmin%i : size %3i  pFail %.3f  %-17s %s"%(i, d["size"], d["pFail"], d["status"], d["indexes"]))
+        print("\tddmin%i : size %3i  pFail %.3f  %-18s %s"%(i, d["size"], d["pFail"], d["status"], d["indexes"]))
     print("\tclauses found %i/%i, missed : %s"%(len(res["clausesFound"]), res["nbClause"], res["clausesMissed"]))
     cmp=res["rddminCmp"]
     if cmp!=None:

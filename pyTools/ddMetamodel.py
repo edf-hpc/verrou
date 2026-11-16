@@ -28,10 +28,17 @@ identified by their index in the ordered list ref/<deltaFile>. The order is kept
 ddmin and of the dichotomy cuts the list into contiguous parts.
 
 Failure model of one sample of the configuration S (set of indexes) : pFail(S)=1-exp(-max(h(S),0)) with
-  h(S) = sum_k     lambda_k [C_k in S]               clauses C_k : the ddmin found by the delta-debug
-       + sum_{k<l} mu_kl    [C_k u C_l in S]         interactions between two ddmin (mu<0 masking, mu>0 synergy)
+  h(S) = sum_k     lambda_k w_k(S)                   clauses C_k : the ddmin found by the delta-debug
+       + sum_{k<l} mu_kl    w_k(S) w_l(S)            interactions between two ddmin (mu<0 masking, mu>0 synergy)
        + eps * (|S\\U| / |{0..N-1}\\U|)^beta          diffuse background (U : union of the clauses)
+  w_k(S) = [C_k in S]                                strict clause : all the deltas of C_k are required
+        or (|S n C_k| / |C_k|)^gamma_k               graded clause : each delta of C_k contributes (accumulation
+                                                     of small errors), gamma_k=1 additive, gamma_k large strict
 The ddmin are independent when mu=0 and eps=0 : pFail(S)=1-prod_{C_k in S}(1-q_k) with q_k=1-exp(-lambda_k).
+
+The clauses can overlap : with the cause a and (b or c) the delta-debug finds {a,b} or {a,c}, and {a,c} can
+not be found once a is removed by rddmin. The alternative clauses are found by the enrichment
+(substitutionSearch) or come from other delta-debug caches of the same search space (ddCache.merge).
 
 Time model of one sample : t(S)=(a + b |S|/N + c fail) * exp(sigma z) with z a standard normal variable.
 
@@ -50,7 +57,7 @@ from pathlib import Path
 import DD_stoch
 
 formatName="verrou_dd_metamodel"
-formatVersion=1
+formatVersion=2 #2 : graded clauses (failure.gamma)
 linkNames=["FullPerturbation", "NoPerturbation", "rddmin-cmp", "ddmax", "ddmax-cmp"]
 
 
@@ -327,10 +334,11 @@ class ddCache:
 
 
 class metamodel:
-    def __init__(self, nbDelta, clauses, lambdas, interactions=None, eps=0., beta=1., timeModel=None):
+    def __init__(self, nbDelta, clauses, lambdas, interactions=None, eps=0., beta=1., timeModel=None, gammas=None):
         self.nbDelta=nbDelta
         self.clauses=[frozenset(c) for c in clauses]
         self.lambdas=list(lambdas)
+        self.gammas=[None]*len(self.clauses) if gammas==None else list(gammas) #None : strict clause
         self.interactions=dict(interactions) if interactions!=None else {} #(k,l) -> mu with k<l
         self.eps=eps
         self.beta=beta
@@ -344,12 +352,21 @@ class metamodel:
     def backgroundFraction(self, S):
         return len(S-self.union)/self.nbBackground
 
+    def weight(self, k, S):
+        """Weight of the clause k in the hazard of S : 1 when the clause is included in S"""
+        clause=self.clauses[k]
+        if clause<=S:
+            return 1.
+        if self.gammas[k]==None:
+            return 0.
+        nb=len(clause&S)
+        return (nb/len(clause))**self.gammas[k] if nb!=0 else 0.
+
     def hazard(self, S):
         S=frozenset(S)
-        inside=self.clausesIn(S)
-        h=sum(self.lambdas[k] for k in inside)
-        insideSet=set(inside)
-        h+=sum(mu for (k,l),mu in self.interactions.items() if k in insideSet and l in insideSet)
+        w=[self.weight(k,S) for k in range(len(self.clauses))]
+        h=sum(lam*wk for lam,wk in zip(self.lambdas, w))
+        h+=sum(mu*w[k]*w[l] for (k,l),mu in self.interactions.items())
         m=self.backgroundFraction(S)
         if m>0:
             h+=self.eps*m**self.beta
@@ -375,6 +392,7 @@ class metamodel:
     def failureJson(self):
         return {"clauses":[toRanges(c) for c in self.clauses],
                 "lambda":self.lambdas,
+                "gamma":self.gammas,
                 "pFail":[-math.expm1(-lam) for lam in self.lambdas],
                 "interactions":[[k,l,mu] for (k,l),mu in sorted(self.interactions.items())],
                 "background":{"eps":self.eps, "beta":self.beta, "pFailFull":-math.expm1(-self.eps)}}
@@ -384,7 +402,8 @@ class metamodel:
         failure=data["failure"]
         return metamodel(data["nbDelta"], [fromRanges(c) for c in failure["clauses"]], failure["lambda"],
                          {(k,l):mu for k,l,mu in failure["interactions"]},
-                         failure["background"]["eps"], failure["background"]["beta"], data.get("time"))
+                         failure["background"]["eps"], failure["background"]["beta"], data.get("time"),
+                         failure.get("gamma"))
 
 
 def loadMetamodel(fileName):
@@ -418,9 +437,10 @@ def logLikelihood(model, observations):
         res+=nbFail*math.log(-math.expm1(-h)) - (nbSample-nbFail)*h
     return res
 
-def fitFailure(nbDelta, clauses, observations, interactions=True, background=True, penalty=0.1, init=None):
+def fitFailure(nbDelta, clauses, observations, interactions=True, background=True, penalty=0.1, init=None, graded=()):
     """Maximum likelihood fit of the failure model. Return (metamodel, logLikelihood, nbParam).
     penalty : L2 penalty on the interaction terms mu (they are often defined by few samples)
+    graded : clauses (of size>=2) fitted as graded clauses (exponent gamma), the others are strict
     init : metamodel used as warm start (parameters of the same clauses and pairs, the others at 0) :
     when init is a nested model, the fit can not be worse than init. The default start is also tried."""
     import numpy as np
@@ -431,62 +451,87 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
     pairs=informativePairs(observations, clauses) if interactions else []
     nbClause=len(clauses)
     nbPair=len(pairs)
+    gradedSet=set(frozenset(c) for c in graded)
+    gradedIndex=[k for k,c in enumerate(template.clauses) if c in gradedSet and len(c)>=2]
+    nbGraded=len(gradedIndex)
 
-    A=np.zeros((len(data), nbClause))
-    P=np.zeros((len(data), nbPair))
+    F=np.zeros((len(data), nbClause)) #fraction of each clause in each configuration
     m=np.zeros(len(data))
     nbFail=np.array([d[1] for d in data], dtype=float)
     nbPass=np.array([d[2]-d[1] for d in data], dtype=float)
     for i,(S,_,_) in enumerate(data):
-        inside=template.clausesIn(S)
-        A[i,inside]=1.
-        for j,(k,l) in enumerate(pairs):
-            if k in inside and l in inside:
-                P[i,j]=1.
+        for k,clause in enumerate(template.clauses):
+            F[i,k]=len(clause&S)/len(clause)
         m[i]=template.backgroundFraction(S)
+    A=(F==1.).astype(float) #weights of the strict clauses
+    logF=np.log(np.where((F>0)&(F<1), F, 1.))
     logM=np.log(np.where(m>0, m, 1.))
+    pairK=[k for k,l in pairs]
+    pairL=[l for k,l in pairs]
 
     def unpack(x):
         lam=x[:nbClause]
         mu=x[nbClause:nbClause+nbPair]
+        gam=x[nbClause+nbPair:nbClause+nbPair+nbGraded]
         eps,beta=(x[-2],x[-1]) if background else (0.,1.)
-        return lam,mu,eps,beta
+        return lam,mu,gam,eps,beta
 
     def negLogLik(x):
         """Penalized negative log likelihood and its gradient"""
-        lam,mu,eps,beta=unpack(x)
+        lam,mu,gam,eps,beta=unpack(x)
+        W=A
+        if nbGraded!=0:
+            W=A.copy()
+            for j,k in enumerate(gradedIndex):
+                W[:,k]=np.where(F[:,k]>0, np.power(F[:,k], gam[j]), 0.)
+        P=W[:,pairK]*W[:,pairL]
         mBeta=np.where(m>0, np.power(m, beta), 0.)
-        hRaw=A@lam + P@mu + eps*mBeta
+        hRaw=W@lam + P@mu + eps*mBeta
         h=np.maximum(hRaw, 1e-9)
         ll=np.sum(nbFail*np.log(-np.expm1(-h))) - np.sum(nbPass*h)
         dh=np.where(hRaw>1e-9, nbFail*np.exp(-h)/(-np.expm1(-h)) - nbPass, 0.) #d ll / d h
-        grad=np.concatenate([-(dh@A), -(dh@P)+2.*penalty*mu])
+        gradGamma=[]
+        for j,k in enumerate(gradedIndex):
+            dhdW=lam[k]+sum(mu[p]*W[:,l if k==kp else kp] for p,(kp,l) in enumerate(pairs) if k in (kp,l))
+            gradGamma+=[-(dh@(W[:,k]*logF[:,k]*dhdW))]
+        grad=np.concatenate([-(dh@W), -(dh@P)+2.*penalty*mu, gradGamma])
         if background:
             grad=np.concatenate([grad, [-(dh@mBeta), -eps*(dh@(mBeta*logM))]])
         return -ll + penalty*np.sum(mu**2), grad
 
-    x0=[1.]*nbClause+[0.]*nbPair
-    bounds=[(0.,30.)]*nbClause+[(-30.,30.)]*nbPair
+    gammaBounds=(0.25, 50.)
+    bounds=[(0.,30.)]*nbClause+[(-30.,30.)]*nbPair+[gammaBounds]*nbGraded
+    tail=[0.1, 1.] if background else []
     if background:
-        x0+=[0.1, 1.]
         bounds+=[(0.,30.), (0.25, 8.)]
-    if len(x0)==0:
+    if len(bounds)==0:
         model=metamodel(nbDelta, clauses, [])
         return model, logLikelihood(model, observations), 0
-    starts=[np.array(x0)]
+    starts=[[1.]*nbClause+[0.]*nbPair+[2.]*nbGraded+tail]
     if init!=None:
         initLambda={c:lam for c,lam in zip(init.clauses, init.lambdas)}
+        initGamma={c:gamma for c,gamma in zip(init.clauses, init.gammas) if gamma!=None}
         initMu={(init.clauses[k],init.clauses[l]):mu for (k,l),mu in init.interactions.items()}
         xInit=[initLambda.get(c, 0.) for c in template.clauses]
         xInit+=[initMu.get((template.clauses[k],template.clauses[l]), initMu.get((template.clauses[l],template.clauses[k]), 0.)) for k,l in pairs]
         if background:
-            xInit+=[init.eps, init.beta]
-        starts+=[np.clip(np.array(xInit), [lo for lo,hi in bounds], [hi for lo,hi in bounds])]
-    res=min([minimize(negLogLik, start, method="L-BFGS-B", jac=True, bounds=bounds) for start in starts], key=lambda r: r.fun)
-    lam,mu,eps,beta=unpack(res.x)
+            tail=[init.eps, init.beta]
+        #a large gamma is a strict clause with a null gradient : two starts for the new graded clauses
+        for gammaStart in [1., 6.]:
+            start=xInit+[initGamma.get(template.clauses[k], gammaStart) for k in gradedIndex]+tail
+            if start not in starts:
+                starts+=[start]
+    lower=np.array([lo for lo,hi in bounds])
+    upper=np.array([hi for lo,hi in bounds])
+    res=min([minimize(negLogLik, np.clip(np.array(start), lower, upper), method="L-BFGS-B", jac=True, bounds=bounds)
+             for start in starts], key=lambda r: r.fun)
+    lam,mu,gam,eps,beta=unpack(res.x)
+    gammas=[None]*nbClause
+    for j,k in enumerate(gradedIndex):
+        gammas[k]=float(gam[j])
     model=metamodel(nbDelta, clauses, [float(v) for v in lam],
-                    {pair:float(v) for pair,v in zip(pairs,mu)}, float(eps), float(beta))
-    nbParam=nbClause+nbPair+(2 if background else 0)
+                    {pair:float(v) for pair,v in zip(pairs,mu)}, float(eps), float(beta), gammas=gammas)
+    nbParam=nbClause+nbPair+nbGraded+(2 if background else 0)
     return model, logLikelihood(model, observations), nbParam
 
 def fitTime(nbDelta, observations):
@@ -525,49 +570,108 @@ def diagnostics(model, observations):
     res.sort(key=lambda d: d["pValue"])
     return res
 
-def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1.):
+def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1., maxMergeCandidate=60):
     """Fit the nested models (independent ddmin, + background, + interactions), each one started from the
-    previous one, and select the smallest AIC. Then remove greedily the ddmin better explained by the
-    diffuse background (AIC decrease relatively to the best model) : with a diffuse error, the delta-debug
-    finds large ddmin with a small failure probability. A removal is only accepted if the background stays
-    convex (beta>=minBetaRemoval) : with beta<1 the small subsets fail more than proportionally, so the
-    background would absorb a localized cause and spread it on all the deltas.
-    Return the selected model, the comparison table and the indexes of the removed ddmin"""
+    previous one, and select the smallest AIC. Then, greedily while the AIC decreases :
+      merge   : two clauses are replaced by their union as a graded clause. With an accumulation of small
+                errors the delta-debug splits the cause in several ddmin (not the same ones with another
+                seed) : each one fails rarely alone, and their unions fail more than independent ddmin.
+                With many clauses only the maxMergeCandidate pairs of closest clauses are tried.
+      graded  : a clause of size>=2 becomes a graded clause : the samples of the parts of the clause
+                (1-minimality tests of the delta-debug, enrichment) show that the failure does not require
+                all its deltas.
+      removal : a clause better explained by the diffuse background is removed : with a diffuse error, the
+                delta-debug finds large ddmin with a small failure probability. A removal is only accepted
+                if the background stays convex (beta>=minBetaRemoval) : with beta<1 the small subsets fail
+                more than proportionally, so the background would absorb a localized cause and spread it
+                on all the deltas.
+    Return the selected model, the comparison table, the indexes of the removed clauses and the merged
+    clauses (lists of indexes). The indexes C<k> of the table are the ones of the parameter clauses"""
+    clauses=[tuple(sorted(c)) for c in clauses]
     variants=[("independent", False, False), ("background", False, True), ("background+interactions", True, True)]
     table=[]
-    best=None #(aic, model, interactions)
+    best=None #(aic, model, interactions, background)
     model=None
     for name, interactions, background in variants:
         model, ll, nbParam=fitFailure(nbDelta, clauses, observations, interactions, background, penalty, init=model)
         aic=2*nbParam-2*ll
         table+=[{"model":name, "logLikelihood":ll, "nbParam":nbParam, "aic":aic}]
         if best==None or aic<best[0]:
-            best=(aic, model, interactions)
+            best=(aic, model, interactions, background)
+    bestAic, model, interactions, background=best
 
-    bestAic, model, interactions=best
-    name="background+interactions" if interactions else "background"
-    kept=list(range(len(clauses)))
-    removed=[]
-    while len(kept)!=0:
+    current=list(clauses)
+    groups=[[k] for k in range(len(clauses))] #indexes of the parameter clauses of each current clause
+    graded=[] #graded clauses of current
+    def groupName(group):
+        return "+".join("C%i"%(k) for k in group)
+    def select(candidates, action):
+        """Apply the candidate (aic, model, logLikelihood, nbParam, current, groups, graded, name) with the
+        smallest AIC if it is better than the selected model"""
+        nonlocal bestAic, model, current, groups, graded
+        if len(candidates)==0:
+            return False
+        aic, subModel, ll, nbParam, newCurrent, newGroups, newGraded, name=min(candidates, key=lambda c: c[0])
+        if aic>=bestAic:
+            return False
+        bestAic, model, current, groups, graded=aic, subModel, newCurrent, newGroups, newGraded
+        table.append({"model":action+" "+name, "logLikelihood":ll, "nbParam":nbParam, "aic":aic})
+        return True
+    def candidate(newCurrent, newGroups, newGraded, name, withInteractions=None, withBackground=None, init=None):
+        subModel, ll, nbParam=fitFailure(nbDelta, newCurrent, observations,
+                                         interactions if withInteractions==None else withInteractions,
+                                         background if withBackground==None else withBackground,
+                                         penalty, init=model if init==None else init, graded=newGraded)
+        return (2*nbParam-2*ll, subModel, ll, nbParam, newCurrent, newGroups, newGraded, name)
+
+    while True:
+        pairs=[(a,b) for a in range(len(current)) for b in range(a+1, len(current))]
+        if len(pairs)>maxMergeCandidate:
+            def gap(pair):
+                return min(abs(i-j) for i in current[pair[0]] for j in current[pair[1]])
+            pairs=sorted(pairs, key=gap)[:maxMergeCandidate]
         candidates=[]
-        for k in kept:
-            subModel, ll, nbParam=fitFailure(nbDelta, [clauses[j] for j in kept if j!=k], observations, interactions, True, penalty, init=model)
-            if subModel.beta>=minBetaRemoval:
-                candidates+=[(2*nbParam-2*ll, k, subModel, ll, nbParam)]
+        for a,b in pairs:
+            union=tuple(sorted(set(current[a])|set(current[b])))
+            #warm start : the union with the sum of the two clauses
+            init=metamodel(nbDelta, model.clauses+[union], model.lambdas+[model.lambdas[a]+model.lambdas[b]],
+                           model.interactions, model.eps, model.beta, gammas=model.gammas+[None])
+            candidates+=[candidate([union if i==a else c for i,c in enumerate(current) if i!=b],
+                                   [groups[a]+groups[b] if i==a else g for i,g in enumerate(groups) if i!=b],
+                                   [g for g in graded if g not in (current[a], current[b])]+[union],
+                                   groupName(groups[a]+groups[b]), init=init)]
+        if not select(candidates, "merge"):
+            break
+
+    while True:
+        candidates=[candidate(current, groups, graded+[c], groupName(groups[k]))
+                    for k,c in enumerate(current) if len(c)>=2 and c not in graded]
+        if not select(candidates, "graded"):
+            break
+
+    if len(graded)!=0 and not interactions:
+        #the interactions were compared with strict clauses
+        if select([candidate(current, groups, graded, "", True, True)], "interactions"):
+            interactions=True
+
+    removed=[]
+    while True:
+        candidates=[]
+        for k in range(len(current)):
+            c=candidate([c for i,c in enumerate(current) if i!=k], [g for i,g in enumerate(groups) if i!=k],
+                        [g for g in graded if g!=current[k]], groupName(groups[k]), withBackground=True)
+            if c[1].beta>=minBetaRemoval:
+                candidates+=[c+(groups[k],)]
         if len(candidates)==0:
             break
-        aic, k, subModel, ll, nbParam=min(candidates, key=lambda c: c[0])
-        if aic>=bestAic:
+        removedGroup=min(candidates, key=lambda c: c[0])[-1]
+        if not select([c[:-1] for c in candidates], "removal"):
             break
-        kept.remove(k)
-        removed+=[k]
-        model=subModel
-        bestAic=aic
-        table+=[{"model":name+" without C"+",C".join(str(j) for j in removed),
-                 "logLikelihood":ll, "nbParam":nbParam, "aic":aic}]
+        removed+=removedGroup
+        background=True
     for line in table:
         line["selected"]=(line["aic"]==bestAic)
-    return model, table, removed
+    return model, table, removed, [group for group in groups if len(group)>1]
 
 
 ## Enrichment

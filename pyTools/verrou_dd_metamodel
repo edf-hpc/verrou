@@ -300,7 +300,7 @@ def printResidual(res):
     print("\tverdict : "+verdicts[res["verdict"]])
 
 
-def report(model, table, removed, timeModel, diag, cache, residual):
+def report(model, table, removed, merged, timeModel, diag, cache, residual):
     print("\nsearch space : %i deltas (%s), %i configurations, %i samples"%(
         cache.nbDelta(), cache.deltaFileName, len(cache.observations),
         sum(obs.nbSample() for obs in cache.observations.values())))
@@ -310,22 +310,29 @@ def report(model, table, removed, timeModel, diag, cache, residual):
         origins[obs.origin]=(nbConf+1, nbDD+len(obs.ddSamples), nbNew+obs.nbSample()-len(obs.ddSamples))
     for origin,(nbConf,nbDD,nbNew) in sorted(origins.items()):
         print("\t%-22s : %5i configurations, %6i samples of the delta-debug, %6i new samples"%(origin, nbConf, nbDD, nbNew))
-    print("ddmin of the delta-debug and localized causes of the residual :")
-    for k,(name,clause) in enumerate(zip(cache.clauseNames(), cache.clauses())):
-        status="absorbed in the background" if k in removed else "clause C%i"%(model.clauses.index(frozenset(clause)))
-        print("\t%-10s : size %3i  %-26s indexes %s"%(name, len(clause), status, ddMetamodel.toRanges(clause)))
-    print("clauses :")
+    print("ddmin of the delta-debug, localized causes of the residual and alternative clauses :")
+    cacheClauses=cache.clauses()
+    for k,(name,clause) in enumerate(zip(cache.clauseNames(), cacheClauses)):
+        status="absorbed in the background" if not frozenset(clause)<=model.union else "covered by other clauses"
+        if k not in removed:
+            status="clause M%i"%(model.clauses.index(frozenset().union(*[cacheClauses[j] for j in ([[k]]+[g for g in merged if k in g])[-1]])))
+            if any(k in group for group in merged):
+                status="merged in the "+status
+        print("\tC%-2i %-14s : size %3i  %-26s indexes %s"%(k, name, len(clause), status, ddMetamodel.toRanges(clause)))
+    print("clauses of the model :")
     for k,clause in enumerate(model.clauses):
-        print("\tC%i : size %3i  pFail %.3f"%(k, len(clause), -math.expm1(-model.lambdas[k])))
+        graded="" if model.gammas[k]==None else "  graded, gamma %.2f (pFail of one half %.3f)"%(
+            model.gammas[k], -math.expm1(-model.lambdas[k]*0.5**model.gammas[k]))
+        print("\tM%i : size %3i  pFail %.3f%s  indexes %s"%(k, len(clause), -math.expm1(-model.lambdas[k]), graded, ddMetamodel.toRanges(clause)))
     print("background : %i deltas outside the ddmin, pFail(all) %.3f, beta %.2f"%(
         cache.nbDelta()-len(model.union), -math.expm1(-model.eps), model.beta))
     if len(model.interactions)!=0:
         print("interactions (pass probability factor exp(-mu) : <1 synergy, >1 masking) :")
         for (k,l),mu in sorted(model.interactions.items()):
-            print("\tC%i,C%i : mu %+.3f  factor %.3f"%(k, l, mu, math.exp(-mu)))
+            print("\tM%i,M%i : mu %+.3f  factor %.3f"%(k, l, mu, math.exp(-mu)))
     print("model comparison :")
     for line in table:
-        print("\t%-24s logLik %10.3f  nbParam %3i  AIC %10.3f%s"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"],
+        print("\t%-32s logLik %10.3f  nbParam %3i  AIC %10.3f%s"%(line["model"], line["logLikelihood"], line["nbParam"], line["aic"],
                                                                  "  <- selected" if line.get("selected") else ""))
     if timeModel!=None:
         print("time model : t = %.3g + %.3g |S|/N + %.3g fail  (sigma log %.3f, %i samples)"%(
@@ -350,7 +357,7 @@ if __name__=="__main__":
 
     observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
     clauses=cache.clauses()
-    model, table, removed=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty)
+    model, table, removed, merged=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty)
     model.timeModel=ddMetamodel.fitTime(cache.nbDelta(), observations)
     diag=ddMetamodel.diagnostics(model, observations)
     nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
@@ -366,7 +373,7 @@ if __name__=="__main__":
           "residual":residual,
           "failure":model.failureJson(),
           "time":model.timeModel,
-          "fit":{"models":table, "penalty":conf.penalty, "removedDdmin":removed,
+          "fit":{"models":table, "penalty":conf.penalty, "removedDdmin":removed, "mergedDdmin":merged,
                  "nbObservation":len(observations), "nbSample":sum(obs.nbSample() for obs in observations),
                  "worst":diag[:20]},
           "links":{name:obsIndex[md5] for name,md5 in sorted(cache.links.items())}}
@@ -375,5 +382,5 @@ if __name__=="__main__":
     with open(conf.output,"w") as f:
         json.dump(data, f, indent=1)
 
-    report(model, table, removed, model.timeModel, diag, cache, residual)
+    report(model, table, removed, merged, model.timeModel, diag, cache, residual)
     print("\nmetamodel written in %s"%(conf.output))
