@@ -129,6 +129,8 @@ def buildDD(cache, nbSample, numThreads):
         print("Error : %s/cmd.last is required to compute new samples"%(cache.rep), file=sys.stderr)
         sys.exit(42)
     toolPath=Path(cmd["tool"])
+    if not toolPath.is_absolute():
+        toolPath=Path(cmd["pwd"]) / toolPath #relative to the working directory of the delta-debug
     if not toolPath.is_file():
         found=shutil.which(toolPath.name)
         if found==None:
