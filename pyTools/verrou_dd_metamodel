@@ -26,7 +26,8 @@
 """Post-processing of a delta-debug cache (any verrou_dd_* variant) : build an anonymized metamodel
 (failure probability and computation time of each configuration) saved in a json file.
 With --ratio=R>0, new samples (at most R times the number of samples of the delta-debug) are computed
-with the command recorded in CACHE_REP/cmd.last to measure the interactions between the ddmin."""
+with the command recorded in CACHE_REP/cmd.last to measure the interactions between the ddmin, the
+contribution of the parts of a ddmin (graded clause) and the alternative assemblies of a ddmin."""
 
 import sys
 import os
@@ -68,6 +69,10 @@ class config_metamodel(gen_config.gen_config):
                          docStr="number of samples of the configurations of the residual (complement of the clauses and dichotomy), relatively to --nruns= (default 4)")
         self.addRegistry("pairsRatio", "string", "PAIRS_RATIO", ["--pairs-ratio="],  "0.5",
                          docStr="maximal fraction of the budget used by the pairs of clauses (default 0.5)")
+        self.addRegistry("substitutionRatio", "string", "SUBSTITUTION_RATIO", ["--substitution-ratio="],  "0.3",
+                         docStr="maximal fraction of the budget used by the search of alternative clauses (default 0.3, 0 : no search)")
+        self.addRegistry("mergeRatio", "string", "MERGE_RATIO", ["--merge-ratio="],  "0.3",
+                         docStr="maximal fraction of the budget used by the unions of the clauses of the fitted model (merge of the ddmin of an accumulation of small errors, default 0.3)")
         self.addRegistry("seed",       "int",    "SEED",        ["--seed="],         0,
                          docStr="seed of the random configurations of the enrichment")
         self.addRegistry("penalty",    "string", "PENALTY",     ["--penalty="],      "0.1",
@@ -97,8 +102,10 @@ class config_metamodel(gen_config.gen_config):
             self.ratio=float(self.ratio)
             self.penalty=float(self.penalty)
             self.pairsRatio=float(self.pairsRatio)
+            self.substitutionRatio=float(self.substitutionRatio)
+            self.mergeRatio=float(self.mergeRatio)
         except ValueError:
-            print("Error : --ratio=, --penalty= and --pairs-ratio= should be float values", file=sys.stderr)
+            print("Error : --ratio=, --penalty=, --pairs-ratio=, --substitution-ratio= and --merge-ratio= should be float values", file=sys.stderr)
             self.failure()
         if self.output==None:
             self.output=str(self.cacheRep / "metamodel.json")
@@ -168,7 +175,7 @@ def buildDD(cache, nbSample, numThreads):
 def runConfigurations(dd, cache, confTab, kindTab, nbSampleTab, earlyExit):
     """Compute the samples of configurations (sets of indexes) and read them again in cache"""
     deltasTab=[[cache.deltas[i] for i in c] for c in confTab]
-    md5Tab=[DD_stoch.md5Name(deltas) for deltas in deltasTab]
+    md5Tab=[cache.md5(c) for c in confTab]
     #the origin is saved before the computation : an interrupted enrichment is still identified.
     #For a configuration of the delta-debug (ddmin, FullPerturbation, rddmin-cmp...) the indexes of the
     #samples of the delta-debug are kept : the new samples are not counted as delta-debug samples
@@ -207,7 +214,7 @@ def enrich(conf, cache):
                                     conf.residualFactor, conf.pairsRatio, withRandom=False)
     printPlan(plan)
     if conf.dryRun:
-        print("\tthe dichotomy on the residual and the random configurations use the remaining budget")
+        print("\tthe dichotomy on the residual, the search of alternative clauses and the random configurations use the remaining budget")
         return False
 
     dd=None
@@ -224,31 +231,86 @@ def enrich(conf, cache):
         budget-=sum(cost for c,kind,cost,nb in plan)
         computed=True
 
-    #adaptive dichotomy on the residual : the next configurations depend on the results. A localized cause
-    #becomes a clause and the dichotomy starts again on the new residual
-    previous=None
+    def completeSearch(search, kind, maxCost):
+        """Adaptive search : the next configurations depend on the results. search() returns a dict with
+        the list toCompute. Return the last result and the number of computed samples"""
+        nonlocal computed
+        previous=None
+        costSum=0
+        while True:
+            res=search()
+            toCompute=res["toCompute"]
+            if len(toCompute)==0 or toCompute==previous:
+                return res, costSum
+            cost=sum(ddMetamodel.missingSamples(cache.observations.get(cache.md5(c)), nb) for c,nb,earlyExit in toCompute)
+            if cost>maxCost-costSum:
+                print("%s : budget exhausted before the end of the search (%i samples required)"%(kind, cost))
+                return res, costSum
+            runConfigurations(getDD(), cache, [c for c,nb,earlyExit in toCompute], [kind]*len(toCompute),
+                              [nb for c,nb,earlyExit in toCompute], earlyExit=toCompute[0][2])
+            costSum+=cost
+            computed=True
+            previous=toCompute
+
+    #dichotomy on the residual : a localized cause becomes a clause and the dichotomy starts again on the
+    #new residual
     while True:
-        search=ddMetamodel.residualSearch(cache.nbDelta(), clauses, list(cache.observations.values()), nbSample, conf.residualFactor)
-        if search["verdict"]=="localized":
-            md5=DD_stoch.md5Name([cache.deltas[i] for i in search["clause"]])
-            if md5 in cache.residualMd5:
-                break
-            cache.residualMd5.append(md5)
+        search, cost=completeSearch(lambda : ddMetamodel.residualSearch(cache.nbDelta(), clauses, list(cache.observations.values()), nbSample, conf.residualFactor),
+                                    "residual", budget)
+        budget-=cost
+        if search["verdict"]!="localized":
+            break
+        md5=cache.md5(search["clause"])
+        if md5 in cache.residualMd5:
+            break
+        cache.residualMd5.append(md5)
+        cache.savePlan()
+        print("residual : localized cause found, size %i, indexes %s"%(len(search["clause"]), ddMetamodel.toRanges(search["clause"])))
+        clauses=cache.clauses()
+
+    #substitutes of the parts of the clauses in the residual : alternative clauses
+    union=set().union(*[set(c) for c in clauses])
+    residual=tuple(i for i in range(cache.nbDelta()) if i not in union)
+    substitutionBudget=int(conf.substitutionRatio*budget)
+    def nbFailAlone(clause): #the clauses which fail often alone first : their substitutes are easier to detect
+        obs=cache.observations.get(cache.md5(clause))
+        return 0. if obs==None or obs.nbSample()==0 else obs.nbFail()/obs.nbSample()
+    for clause,removed in [(clause,removed) for clause in sorted(clauses, key=nbFailAlone, reverse=True)
+                           for removed in ddMetamodel.substitutionCandidates(clause)]:
+        if substitutionBudget<=0:
+            break
+        search, cost=completeSearch(lambda : ddMetamodel.substitutionSearch(clause, removed, residual, list(cache.observations.values()), nbSample, conf.residualFactor),
+                                    "substitution", substitutionBudget)
+        budget-=cost
+        substitutionBudget-=cost
+        if search["verdict"]=="incomplete":
+            break
+        if search["verdict"]=="alternative" and search["clause"] not in cache.clauses():
+            cache.alternativeMd5.append(cache.md5(search["clause"]))
             cache.savePlan()
-            print("residual : localized cause found, size %i, indexes %s"%(len(search["clause"]), ddMetamodel.toRanges(search["clause"])))
-            clauses=cache.clauses()
-            continue
-        toCompute=search["toCompute"]
+            print("substitution : alternative clause found, indexes %s (substitute of %s in the clause %s)"%(
+                ddMetamodel.toRanges(search["clause"]), ddMetamodel.toRanges(removed), ddMetamodel.toRanges(clause)))
+    clauses=cache.clauses()
+
+    #unions of the clauses of the fitted model : the ddmin of an accumulation of small errors are only
+    #merged in one graded clause with the samples of their unions
+    mergeBudget=int(conf.mergeRatio*budget)
+    previous=None
+    while mergeBudget>0:
+        model=ddMetamodel.fitAll(cache.nbDelta(), clauses, list(cache.observations.values()), conf.penalty)[0]
+        toCompute=[]
+        cost=0
+        for c,nb in ddMetamodel.mergePlan(model, list(cache.observations.values()), nbSample):
+            costConf=ddMetamodel.missingSamples(cache.observations.get(cache.md5(c)), nb)
+            if cost+costConf<=mergeBudget:
+                toCompute+=[(c,nb)]
+                cost+=costConf
         if len(toCompute)==0 or toCompute==previous:
             break
-        cost=sum(ddMetamodel.missingSamples(cache.observations.get(DD_stoch.md5Name([cache.deltas[i] for i in c])), nb)
-                 for c,nb,earlyExit in toCompute)
-        if cost>budget:
-            print("residual : budget exhausted before the end of the dichotomy (%i samples required)"%(cost))
-            break
-        runConfigurations(getDD(), cache, [c for c,nb,earlyExit in toCompute], ["residual"]*len(toCompute),
-                          [nb for c,nb,earlyExit in toCompute], earlyExit=toCompute[0][2])
+        print("\t%-18s : %3i configurations, %5i samples"%("merge", len(toCompute), cost))
+        runConfigurations(getDD(), cache, [c for c,nb in toCompute], ["merge"]*len(toCompute), [nb for c,nb in toCompute], earlyExit=False)
         budget-=cost
+        mergeBudget-=cost
         computed=True
         previous=toCompute
 
@@ -370,6 +432,7 @@ if __name__=="__main__":
           "source":cache.sourceInfo(),
           "ddmin":[ddMetamodel.toRanges(c) for c in cache.ddminClauses()],
           "residualClauses":[ddMetamodel.toRanges(c) for c in cache.residualClauses()],
+          "alternativeClauses":[ddMetamodel.toRanges(c) for c in cache.alternativeClauses()],
           "residual":residual,
           "failure":model.failureJson(),
           "time":model.timeModel,
