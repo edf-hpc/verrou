@@ -27,7 +27,9 @@
 (failure probability and computation time of each configuration) saved in a json file.
 With --ratio=R>0, new samples (at most R times the number of samples of the delta-debug) are computed
 with the command recorded in CACHE_REP/cmd.last to measure the interactions between the ddmin, the
-contribution of the parts of a ddmin (graded clause) and the alternative assemblies of a ddmin."""
+contribution of the parts of a ddmin (graded clause) and the alternative assemblies of a ddmin.
+With several CACHE_REP (delta-debug of the same search space, with other seeds or options) the samples and
+the ddmin are merged : the new samples are computed in the first one."""
 
 import sys
 import os
@@ -85,19 +87,21 @@ class config_metamodel(gen_config.gen_config):
                          docStr="print the enrichment plan without computing it")
 
     def usageCmd(self):
-        print("Usage: "+ Path(sys.argv[0]).name + " [options] CACHE_REP")
+        print("Usage: "+ Path(sys.argv[0]).name + " [options] CACHE_REP [CACHE_REP2 ...]")
         print("\t"+__doc__.replace("\n","\n\t"))
         print("\tCACHE_REP : cache directory of verrou_dd_* (--rep=)")
         print(self.get_EnvDoc())
 
     def normalize(self):
-        if len(self.unknown_args)!=1:
+        if len(self.unknown_args)<1:
             self.usageCmd()
             self.failure()
-        self.cacheRep=Path(self.unknown_args[0]).absolute()
-        if not (self.cacheRep / "ref").is_dir():
-            print("Error : %s is not a delta-debug cache"%(self.cacheRep), file=sys.stderr)
-            self.failure()
+        self.cacheRepTab=[Path(rep).absolute() for rep in self.unknown_args]
+        self.cacheRep=self.cacheRepTab[0]
+        for rep in self.cacheRepTab:
+            if not (rep / "ref").is_dir():
+                print("Error : %s is not a delta-debug cache"%(rep), file=sys.stderr)
+                self.failure()
         try:
             self.ratio=float(self.ratio)
             self.penalty=float(self.penalty)
@@ -409,13 +413,26 @@ def report(model, table, removed, merged, timeModel, diag, cache, residual):
             d["size"], str(d["clauses"]), d["origin"], d["nbFail"], d["nbSample"], d["pFail"], d["pValue"]))
 
 
+def loadCache(conf):
+    """Cache of the first CACHE_REP merged with the other ones"""
+    traceFiles=[Path(x).absolute() for x in conf.traceFile]
+    cache=ddMetamodel.ddCache(conf.cacheRep, traceFiles)
+    for rep in conf.cacheRepTab[1:]:
+        try:
+            #the trace files given in option are the ones of the first cache
+            cache.merge(ddMetamodel.ddCache(rep, verbose=False))
+        except ValueError as err:
+            print("Error : %s"%(err), file=sys.stderr)
+            sys.exit(42)
+    return cache
+
 if __name__=="__main__":
     conf=config_metamodel(sys.argv, os.environ)
-    cache=ddMetamodel.ddCache(conf.cacheRep, [Path(x).absolute() for x in conf.traceFile])
+    cache=loadCache(conf)
 
     if conf.ratio>0:
         if enrich(conf, cache):
-            cache=ddMetamodel.ddCache(conf.cacheRep, [Path(x).absolute() for x in conf.traceFile])
+            cache=loadCache(conf)
 
     observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
     clauses=cache.clauses()

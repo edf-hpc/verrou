@@ -38,7 +38,7 @@ The ddmin are independent when mu=0 and eps=0 : pFail(S)=1-prod_{C_k in S}(1-q_k
 
 The clauses can overlap : with the cause a and (b or c) the delta-debug finds {a,b} or {a,c}, and {a,c} can
 not be found once a is removed by rddmin. The alternative clauses are found by the enrichment
-(substitutionSearch).
+(substitutionSearch) or come from other delta-debug caches of the same search space (ddCache.merge).
 
 Time model of one sample : t(S)=(a + b |S|/N + c fail) * exp(sigma z) with z a standard normal variable.
 
@@ -172,6 +172,7 @@ class ddCache:
     planFileName="metamodel_plan.json"
     residualKey="residualClauses"
     alternativeKey="alternativeClauses"
+    mergeSampleShift=1000000 #shift of the sample indexes of the merged caches
 
     def __init__(self, rep, traceFiles=[], verbose=True):
         self.rep=Path(rep)
@@ -195,6 +196,8 @@ class ddCache:
         self.planOrigin={} #md5 -> kind (or dict kind, ddSamples) of the configurations of the enrichment
         self.residualMd5=[] #localized causes of the residual found by the enrichment (residualSearch)
         self.alternativeMd5=[] #alternative clauses found by the enrichment (substitutionSearch)
+        self.merged=[] #other caches of the same search space (merge)
+        self.mergedDdmin=[] #ddmin of the merged caches
         if (self.rep / self.planFileName).is_file():
             with open(str(self.rep / self.planFileName)) as f:
                 plan=json.load(f)
@@ -289,11 +292,46 @@ class ddCache:
         """Name of the directory of a configuration (set of indexes)"""
         return DD_stoch.md5Name([self.deltas[i] for i in conf])
 
+    def merge(self, other):
+        """Add the samples and the ddmin of another delta-debug cache of the same search space (same code,
+        another seed or other options) : the ddmin found by the two delta-debug can be different assemblies
+        of the same cause. The sample indexes of the other cache are shifted : the samples of two caches
+        are supposed to be different draws"""
+        if sorted(other.deltas)!=sorted(self.deltas):
+            raise ValueError("%s and %s do not have the same search space"%(self.rep, other.rep))
+        self.merged+=[other]
+        self._mergeObservations(len(self.merged), other)
+        known=set(self.ddminClauses())
+        for conf in other.ddminClauses():
+            conf=self._confFrom(other, conf)
+            if conf not in known:
+                known.add(conf)
+                self.mergedDdmin+=[(len(self.merged), conf)]
+
+    def _confFrom(self, other, conf):
+        return tuple(sorted(self.index[other.deltas[i]] for i in conf))
+
+    def _mergeObservations(self, rank, other, md5Tab=None):
+        shift=rank*self.mergeSampleShift
+        for obsOther in other.observations.values():
+            conf=self._confFrom(other, obsOther.conf)
+            md5=self.md5(conf)
+            if md5Tab!=None and md5 not in md5Tab:
+                continue
+            obs=self.observations.get(md5)
+            if obs==None:
+                obs=observation(conf, md5, {}, obsOther.origin, set())
+                self.observations[md5]=obs
+            for index,sample in obsOther.samples.items():
+                obs.samples[shift+index]=sample
+            obs.ddSamples|=set(shift+index for index in obsOther.ddSamples)
+
     def ddminClauses(self):
-        """The ddmin found by the delta-debug, sorted by index of the link ddmin<k>"""
+        """The ddmin found by the delta-debug, sorted by index of the link ddmin<k>, then the ddmin of the
+        merged caches"""
         ddminLinks=[name for name in self.links if name.startswith("ddmin") and name[5:].isdigit()]
         ddminLinks.sort(key=lambda name: int(name[5:]))
-        return [self.observations[self.links[name]].conf for name in ddminLinks]
+        return [self.observations[self.links[name]].conf for name in ddminLinks]+[conf for rank,conf in self.mergedDdmin]
 
     def _planClauses(self, md5Tab, known):
         res=[]
@@ -315,7 +353,9 @@ class ddCache:
         return self.ddminClauses()+self.residualClauses()+self.alternativeClauses()
 
     def clauseNames(self):
-        return (["ddmin%i"%(k) for k in range(len(self.ddminClauses()))]
+        nbOwn=len(self.ddminClauses())-len(self.mergedDdmin)
+        return (["ddmin%i"%(k) for k in range(nbOwn)]
+                +["ddmin(cache%i)"%(rank) for rank,conf in self.mergedDdmin]
                 +["residual%i"%(k) for k in range(len(self.residualClauses()))]
                 +["alternative%i"%(k) for k in range(len(self.alternativeClauses()))])
 
@@ -336,6 +376,8 @@ class ddCache:
                 obs=self._loadObservation(confDir)
                 if obs!=None:
                     self.observations[md5]=obs
+        for rank,other in enumerate(self.merged):
+            self._mergeObservations(rank+1, other, set(md5Tab))
 
     def nbRun(self):
         if self.cmd==None or self.cmd["argv"]==None:
@@ -345,6 +387,8 @@ class ddCache:
     def sourceInfo(self):
         """Non-identifying description of the delta-debug which generated the cache"""
         info={"deltaKind": self.deltaFileName}
+        if len(self.merged)!=0:
+            info["nbCache"]=1+len(self.merged)
         if self.cmd!=None and self.cmd["argv"]!=None:
             info["tool"]=Path(self.cmd["argv"][0]).name
             info["options"]=[arg for arg in self.cmd["argv"][1:]
