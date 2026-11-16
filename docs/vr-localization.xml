@@ -1042,11 +1042,18 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	metamodel of the analysed code, saved in a json file (<computeroutput>CACHE_REP/metamodel.json</computeroutput> by default).
 	The deltas are only identified by their index in the search space (the order of the search space is kept, the names are not saved).
 	The failure probability of one sample of a configuration S is <computeroutput>1-exp(-h(S))</computeroutput> with
-	<computeroutput>h(S)=sum_k lambda_k [C_k in S] + sum_{k&lt;l} mu_kl [C_k u C_l in S] + eps (|S\U| / |N\U|)^beta</computeroutput>:
+	<computeroutput>h(S)=sum_k lambda_k w_k(S) + sum_{k&lt;l} mu_kl w_k(S) w_l(S) + eps (|S\U| / |N\U|)^beta</computeroutput>:
 	the clauses <computeroutput>C_k</computeroutput> are the ddmin found by the delta-debug, <computeroutput>mu_kl</computeroutput> are the interactions
 	between two ddmin (negative for a masking, positive for a synergy) and the last term is a diffuse background error outside the ddmin.
+	The weight <computeroutput>w_k(S)</computeroutput> of a strict clause is <computeroutput>[C_k in S]</computeroutput> (all its deltas are required).
+	The weight of a graded clause is <computeroutput>(|S n C_k| / |C_k|)^gamma_k</computeroutput> : each delta contributes to the failure
+	(accumulation of small errors, additive with <computeroutput>gamma_k=1</computeroutput>, strict clause when <computeroutput>gamma_k</computeroutput> is large).
 	The ddmin are independent when all <computeroutput>mu_kl</computeroutput> and <computeroutput>eps</computeroutput> are null.
 	The nested models (independent ddmin, with background, with interactions) are compared with the AIC criterion.
+	Then, while the AIC decreases, two clauses are merged in one graded clause (the delta-debug splits an accumulation of small errors
+	in several ddmin, which are not the same ones with another seed) and a clause of size greater than one becomes graded.
+	The clauses can overlap : with the cause <computeroutput>a and (b or c)</computeroutput> the delta-debug only finds <computeroutput>{a,b}</computeroutput>
+	or <computeroutput>{a,c}</computeroutput>.
 	The ddmin better explained by the background (large ddmin with a small failure probability) are removed from the clauses (AIC criterion),
 	only if the background stays convex (<computeroutput>beta&gt;=1</computeroutput>) : otherwise the background would spread a localized cause on all the deltas.
 	The computation time of a sample is modeled by <computeroutput>a + b |S|/N + c fail</computeroutput> : the duration of each sample is saved
@@ -1064,7 +1071,18 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	of the residual gives the probability that the final check of rddmin passes (the delta-debug stops only if it passes). If the halves fail with
 	different probabilities, the residual is localized : a dichotomy (with early exit, as the delta-debug) looks for the cause missed by the
 	delta-debug, which becomes a clause of the metamodel (<computeroutput>residual0</computeroutput>, ...), then the new residual is checked.
-	Otherwise the residual is diffuse and modeled by the background term. The new samples are stored in the cache with the usual format (they are reused by the next
+	Otherwise the residual is diffuse and modeled by the background term.
+	The other new configurations are: the parts of the ddmin of size greater than one (halves, ddmin without one delta), to choose
+	between a strict and a graded clause; the search of alternative clauses (at most <computeroutput>--substitution-ratio=</computeroutput> of the remaining budget):
+	a part of a clause (each delta of a small clause, each half of a large one) is removed and the residual is added. If this configuration
+	fails more than the residual alone, a dichotomy on the residual looks for the substitute of the removed part, and the alternative
+	clause (<computeroutput>alternative0</computeroutput>, ...) is kept if it fails more than its two parts alone;
+	the unions of the clauses of the fitted model (at most <computeroutput>--merge-ratio=</computeroutput> of the remaining budget), required to merge
+	the ddmin of an accumulation of small errors.
+	With several cache directories (delta-debug of the same search space with other seeds or options), the samples and the ddmin
+	of all the caches are merged, and the new samples are computed in the first one : the ddmin found by several delta-debug show
+	directly the alternative assemblies of a cause.
+	The new samples are stored in the cache with the usual format (they are reused by the next
 	<computeroutput>--cache=continue</computeroutput> delta-debug), and identified in <computeroutput>CACHE_REP/metamodel_plan.json</computeroutput>.
 	Warning: a failing sample in the cache makes its configuration fail even if its index is greater than <computeroutput>--nruns=</computeroutput>,
 	so a delta-debug relaunched with <computeroutput>--cache=continue</computeroutput> on an enriched cache can follow another path.
@@ -1074,7 +1092,8 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
       <title>Synopsis</title>
       <screen><cmdsynopsis id="vr-manual.verrou_dd_metamodel.synopsis">
           <command>verrou_dd_metamodel [options]</command>
-          <arg choice="req"><replaceable>/path/to/cache</replaceable></arg></cmdsynopsis></screen>
+          <arg choice="req"><replaceable>/path/to/cache</replaceable></arg>
+          <arg choice="opt" rep="repeat"><replaceable>/path/to/other/cache</replaceable></arg></cmdsynopsis></screen>
     </simplesect>
 
     <simplesect>
@@ -1100,6 +1119,14 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	<varlistentry>
           <term><computeroutput>--pairs-ratio=RATIO</computeroutput> [default 0.5]</term>
           <listitem><para>Maximal fraction of the budget used by the pairs of clauses.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--substitution-ratio=RATIO</computeroutput> [default 0.3]</term>
+          <listitem><para>Maximal fraction of the remaining budget used by the search of alternative clauses (0: no search).</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--merge-ratio=RATIO</computeroutput> [default 0.3]</term>
+          <listitem><para>Maximal fraction of the remaining budget used by the unions of the clauses of the fitted model.</para></listitem>
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--num-threads=NUM_THREADS</computeroutput></term>

@@ -8,6 +8,7 @@ They are not installed : they use the `pyTools` directory of this source tree.
 1. Build a metamodel from the cache of a real delta-debug (any `verrou_dd_*` variant) :
 
        verrou_dd_metamodel [--ratio=R --nruns=M] dd.sym        # -> dd.sym/metamodel.json
+       verrou_dd_metamodel [--ratio=R --nruns=M] dd.sym dd.sym.seed2 ...   # several delta-debug of the same code merged
 
    The metamodel is anonymized (the deltas are only indexes in the ordered search space) : it can be
    shared to build a collection of industrial cases.
@@ -23,7 +24,9 @@ They are not installed : they use the `pyTools` directory of this source tree.
    `--trace-file=` writes a trace with the simulated time (`verrou_dd_trace_convert` works on it).
    `--fake-seed=` fixes the simulated samples (by default a random seed is drawn and printed), `--summary=FILE` writes the results in json :
    wall and cpu time, number of samples, ddmin found with their status (`clause` : a clause of the
-   metamodel, `contains a clause`, `background` : no clause, the ddmin is due to the diffuse error).
+   metamodel, `contains a clause`, `graded clause part` : some deltas of a graded clause (an accumulation of
+   small errors is split in several ddmin, the graded clause is counted as found),
+   `background` : no clause, the ddmin is due to the diffuse error).
    The summary also gives the rddmin-cmp configuration (complement of the ddmin found) : its samples, its failure
    probability in the metamodel and the clauses it still contains (a final check passed by chance).
 
@@ -39,5 +42,8 @@ They are not installed : they use the `pyTools` directory of this source tree.
 
 - The samples of a configuration are independent (the correlation between configurations computed with
   the same `--seed=` by verrou is not modeled) : `--seed=` is not an option of `verrou_dd_fake`.
-- The clauses of a metamodel are the ddmin found by the original delta-debug (minus the ones absorbed in
-  the background) : a clause missed by the original delta-debug is not in the metamodel.
+- The clauses of a metamodel come from the ddmin found by the original delta-debug (minus the ones absorbed
+  in the background, merged in graded clauses when they are the parts of an accumulation of small errors) :
+  a cause missed by the original delta-debug is only in the metamodel if the enrichment finds it (localized
+  residual, alternative clause : substitute in the residual of a part of a ddmin) or if it is a ddmin of
+  another cache given to `verrou_dd_metamodel`.

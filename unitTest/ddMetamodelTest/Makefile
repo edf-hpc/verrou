@@ -4,7 +4,7 @@ export SHELL=bash
 
 # the code is simulated by the metamodel truth.json (ddMetamodelRun.py) : verrou_dd_metamodel should
 # find again the failure probabilities and the interaction of truth.json
-.PHONY: clean run_check install
+.PHONY: clean run_check run_check_graded install
 all: run_check
 
 run_check: install
@@ -14,9 +14,20 @@ run_check: install
 	verrou_dd_line --cache=clean --nruns=5 --num-threads=8 --seed=2 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.line
 	verrou_dd_metamodel --ratio=4 --nruns=20 --output=metamodel.line.json dd.line > out.line.metamodel
 	./checkFit.py truth.json metamodel.line.json
+	$(MAKE) run_check_graded
+
+# truthGraded.json : a graded clause (accumulation of small errors, split by the delta-debug in several ddmin,
+# not the same ones with another seed) and the cause a and (b or c) (alternative clause not found by the
+# delta-debug). The two caches are merged.
+run_check_graded: export DD_METAMODEL=$(CURDIR)/truthGraded.json
+run_check_graded:
+	verrou_dd_sym --cache=clean --rep=dd.graded1 --nruns=5 --num-threads=8 --seed=1 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.graded1
+	verrou_dd_sym --cache=clean --rep=dd.graded2 --nruns=5 --num-threads=8 --seed=2 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.graded2
+	verrou_dd_metamodel --ratio=4 --nruns=10 dd.graded1 dd.graded2 > out.graded.metamodel
+	./checkFit.py --probe truthGraded.json dd.graded1/metamodel.json
 
 install:
 	make -C ../.. install
 
 clean:
-	rm -rf dd.sym* dd.line* out.* metamodel.line.json
+	rm -rf dd.sym* dd.line* dd.graded* out.* metamodel.line.json
