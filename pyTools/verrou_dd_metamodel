@@ -102,6 +102,9 @@ class config_metamodel(gen_config.gen_config):
             self.failure()
         if self.output==None:
             self.output=str(self.cacheRep / "metamodel.json")
+        else:
+            #buildDD changes the working directory
+            self.output=str(Path(self.output).absolute())
 
 
 def loadToolModule(toolPath):

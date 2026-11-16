@@ -42,6 +42,7 @@ observed results) : the fit uses the binomial likelihood of the samples in cache
 import json
 import math
 import random
+import shlex
 import sys
 import os
 from pathlib import Path
@@ -91,7 +92,7 @@ def parseCmdLast(fileName):
                 else:
                     res["env"][key]=value
             elif line.startswith("Cmd: "):
-                res["argv"]=line[len("Cmd: "):].split(" ")
+                res["argv"]=shlex.split(line[len("Cmd: "):])
                 break
     return res
 

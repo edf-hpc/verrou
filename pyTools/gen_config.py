@@ -1,5 +1,6 @@
 import getopt
 import os
+import shlex
 import sys
 import copy
 import datetime
@@ -128,7 +129,7 @@ class gen_config:
             if instr:
                 resEnv+=resInstr
 
-        resCmd="Cmd: "+ " ".join(self.argv)+"\n"
+        resCmd="Cmd: "+ " ".join([shlex.quote(arg) for arg in self.argv])+"\n"
 
         now=datetime.datetime.now()
         resTime="TimeStamp: "+now.strftime("%m-%d-%Y_%Hh%Mm%Ss")+"\n"
