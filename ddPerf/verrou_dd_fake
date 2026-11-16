@@ -237,6 +237,8 @@ class ddFakeConfig(dd_config.ddConfig):
         self.registryTab=[registry for registry in self.registryTab if registry["attribut"] in self.keptOptions]
         self.addRegistry("fakeSeed", "int",    "FAKE_SEED", ["--fake-seed="], None,
                          docStr="seed of the simulated samples (default: random seed, printed and written in the summary)")
+        self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], False,
+                         docStr="ignore the diffuse background of the metamodel (eps=0) : only the clauses fail")
         self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,
                          docStr="json file with the summary of the simulation (for the campaigns)")
 
@@ -286,6 +288,7 @@ def summary(config, model, resConf, cacheRep):
     foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"] in ["clause", "graded clause part"])
     nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
     return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
+            "noBackground":config.noBackground,
             "nbDelta":model.nbDelta, "nbClause":len(model.clauses),
             "wallTime":clock.now, "cpuTime":clock.cpu, "nbSample":clock.nbSample,
             "nbConfiguration":len([x for x in cacheRep.iterdir() if ddMetamodel.isMd5Name(x.name)]),
@@ -312,6 +315,8 @@ def printSummary(res):
 if __name__=="__main__":
     config=ddFakeConfig(sys.argv, os.environ)
     model=ddMetamodel.loadMetamodel(config.metamodelFile)[0]
+    if config.noBackground:
+        model.eps=0.
     fakeStochTask.model=model
     if config.fakeSeed==None:
         config.fakeSeed=random.SystemRandom().randrange(2**32)

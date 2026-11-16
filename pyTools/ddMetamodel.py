@@ -634,7 +634,7 @@ def diagnostics(model, observations):
     res.sort(key=lambda d: d["pValue"])
     return res
 
-def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1., maxMergeCandidate=60):
+def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1., maxMergeCandidate=60, withBackground=True):
     """Fit the nested models (independent ddmin, + background, + interactions), each one started from the
     previous one, and select the smallest AIC. Then, greedily while the AIC decreases :
       merge   : two clauses are replaced by their union as a graded clause. With an accumulation of small
@@ -649,10 +649,14 @@ def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1., maxMe
                 if the background stays convex (beta>=minBetaRemoval) : with beta<1 the small subsets fail
                 more than proportionally, so the background would absorb a localized cause and spread it
                 on all the deltas.
+    Without withBackground the diffuse background is ignored (eps=0) : the nested models are the independent
+    ddmin with and without interactions, and no clause is removed.
     Return the selected model, the comparison table, the indexes of the removed clauses and the merged
     clauses (lists of indexes). The indexes C<k> of the table are the ones of the parameter clauses"""
     clauses=[tuple(sorted(c)) for c in clauses]
     variants=[("independent", False, False), ("background", False, True), ("background+interactions", True, True)]
+    if not withBackground:
+        variants=[("independent", False, False), ("interactions", True, False)]
     table=[]
     best=None #(aic, model, interactions, background)
     model=None
@@ -715,11 +719,11 @@ def fitAll(nbDelta, clauses, observations, penalty=0.1, minBetaRemoval=1., maxMe
 
     if len(graded)!=0 and not interactions:
         #the interactions were compared with strict clauses
-        if select([candidate(current, groups, graded, "", True, True)], "interactions"):
+        if select([candidate(current, groups, graded, "", True, withBackground)], "interactions"):
             interactions=True
 
     removed=[]
-    while True:
+    while withBackground:
         candidates=[]
         for k in range(len(current)):
             c=candidate([c for i,c in enumerate(current) if i!=k], [g for i,g in enumerate(groups) if i!=k],

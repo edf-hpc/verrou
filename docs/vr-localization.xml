@@ -1145,6 +1145,11 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
           <listitem><para>Trace file of <computeroutput>verrou_dd_* --trace-file=</computeroutput> used to get the sample durations (can be repeated).</para></listitem>
 	</varlistentry>
 	<varlistentry>
+          <term><computeroutput>--no-background</computeroutput></term>
+          <listitem><para>Ignore the diffuse background in the fitted model (<computeroutput>eps=0</computeroutput>): the nested models are the independent ddmin
+	  with and without interactions, and no ddmin is absorbed in the background.</para></listitem>
+	</varlistentry>
+	<varlistentry>
           <term><computeroutput>--no-observations</computeroutput></term>
           <listitem><para>Do not save the samples in the json file (only the fitted model).</para></listitem>
 	</varlistentry>

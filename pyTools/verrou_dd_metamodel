@@ -81,6 +81,8 @@ class config_metamodel(gen_config.gen_config):
                          docStr="L2 penalty of the interaction terms of the fit (default 0.1)")
         self.addRegistry("traceFile",  "string", "TRACE_FILE",  ["--trace-file="],   [], "file_exists", True,
                          docStr="ddTrace file (verrou_dd_* --trace-file=) used to get the sample durations of old caches (several allowed)")
+        self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], False,
+                         docStr="ignore the diffuse background in the fitted model (no ddmin is absorbed in the background)")
         self.addRegistry("noObservations", "bool", "NO_OBSERVATIONS", ["--no-observations"], False,
                          docStr="do not save the samples in the json file (only the fitted model)")
         self.addRegistry("dryRun",     "bool",   "DRY_RUN",     ["--dry-run"],       False,
@@ -301,7 +303,8 @@ def enrich(conf, cache):
     mergeBudget=int(conf.mergeRatio*budget)
     previous=None
     while mergeBudget>0:
-        model=ddMetamodel.fitAll(cache.nbDelta(), clauses, list(cache.observations.values()), conf.penalty)[0]
+        model=ddMetamodel.fitAll(cache.nbDelta(), clauses, list(cache.observations.values()), conf.penalty,
+                                 withBackground=not conf.noBackground)[0]
         toCompute=[]
         cost=0
         for c,nb in ddMetamodel.mergePlan(model, list(cache.observations.values()), nbSample):
@@ -366,7 +369,7 @@ def printResidual(res):
     print("\tverdict : "+verdicts[res["verdict"]])
 
 
-def report(model, table, removed, merged, timeModel, diag, cache, residual):
+def report(model, table, removed, merged, timeModel, diag, cache, residual, noBackground=False):
     print("\nsearch space : %i deltas (%s), %i configurations, %i samples"%(
         cache.nbDelta(), cache.deltaFileName, len(cache.observations),
         sum(obs.nbSample() for obs in cache.observations.values())))
@@ -390,8 +393,11 @@ def report(model, table, removed, merged, timeModel, diag, cache, residual):
         graded="" if model.gammas[k]==None else "  graded, gamma %.2f (pFail of one half %.3f)"%(
             model.gammas[k], -math.expm1(-model.lambdas[k]*0.5**model.gammas[k]))
         print("\tM%i : size %3i  pFail %.3f%s  indexes %s"%(k, len(clause), -math.expm1(-model.lambdas[k]), graded, ddMetamodel.toRanges(clause)))
-    print("background : %i deltas outside the ddmin, pFail(all) %.3f, beta %.2f"%(
-        cache.nbDelta()-len(model.union), -math.expm1(-model.eps), model.beta))
+    if noBackground:
+        print("background : ignored (--no-background)")
+    else:
+        print("background : %i deltas outside the ddmin, pFail(all) %.3f, beta %.2f"%(
+            cache.nbDelta()-len(model.union), -math.expm1(-model.eps), model.beta))
     if len(model.interactions)!=0:
         print("interactions (pass probability factor exp(-mu) : <1 synergy, >1 masking) :")
         for (k,l),mu in sorted(model.interactions.items()):
@@ -436,7 +442,8 @@ if __name__=="__main__":
 
     observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
     clauses=cache.clauses()
-    model, table, removed, merged=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty)
+    model, table, removed, merged=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty,
+                                                     withBackground=not conf.noBackground)
     model.timeModel=ddMetamodel.fitTime(cache.nbDelta(), observations)
     diag=ddMetamodel.diagnostics(model, observations)
     nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
@@ -453,7 +460,7 @@ if __name__=="__main__":
           "residual":residual,
           "failure":model.failureJson(),
           "time":model.timeModel,
-          "fit":{"models":table, "penalty":conf.penalty, "removedDdmin":removed, "mergedDdmin":merged,
+          "fit":{"models":table, "penalty":conf.penalty, "noBackground":conf.noBackground, "removedDdmin":removed, "mergedDdmin":merged,
                  "nbObservation":len(observations), "nbSample":sum(obs.nbSample() for obs in observations),
                  "worst":diag[:20]},
           "links":{name:obsIndex[md5] for name,md5 in sorted(cache.links.items())}}
@@ -462,5 +469,5 @@ if __name__=="__main__":
     with open(conf.output,"w") as f:
         json.dump(data, f, indent=1)
 
-    report(model, table, removed, merged, model.timeModel, diag, cache, residual)
+    report(model, table, removed, merged, model.timeModel, diag, cache, residual, conf.noBackground)
     print("\nmetamodel written in %s"%(conf.output))
