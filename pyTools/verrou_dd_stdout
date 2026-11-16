@@ -176,6 +176,7 @@ class DDstdout(DD_stoch.DDStoch):
     def genExcludeIncludeFile(self, dirname, deltas, include=False, exclude=False):
         """Generate the *.exclude and *.include file in dirname rep from deltas"""
         excludes=self.getDelta0()
+        deltaSet=set(deltas)
         dd=self.getDeltaFileName()
 
         unknownTask=self.config_.get_unknownTask()
@@ -220,7 +221,7 @@ class DDstdout(DD_stoch.DDStoch):
                     bmatchPermutableContinue=False
 
                 f.write("bmatch: "+ line+"\n")
-                if line in deltas:
+                if line in deltaSet:
                     f.write("apply: %s\n"%(self.startCmd))
                     if unknownTask in ["stop"]:
                         f.write("post-apply: %s\n"%(self.stopCmd))
@@ -238,10 +239,7 @@ class DDstdout(DD_stoch.DDStoch):
 
         if exclude:
             with open(dirname / (dd+".exclude"), "w") as f:
-                for d in deltas:
-                    excludes.remove(d)
-
-                for line in excludes:
+                for line in DD_stoch.removeDeltas(excludes, deltas):
                     f.write(line+"\n")
 
     def sampleRunEnv(self,dirName):

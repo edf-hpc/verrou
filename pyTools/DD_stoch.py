@@ -279,6 +279,20 @@ def runMultipleStochTask(stochTaskTab, maxNbPROC):
 
     return returnTab
 
+def removeDeltas(excludes, deltas):
+    """excludes minus deltas, order kept (one occurrence removed by delta, as list.remove without the quadratic cost)"""
+    if len(set(excludes))==len(excludes):
+        deltaSet=set(deltas)
+        return [line for line in excludes if line not in deltaSet]
+    toRemove=collections.Counter(deltas)
+    kept=[]
+    for line in excludes:
+        if toRemove.get(line,0)>0:
+            toRemove[line]-=1
+        else:
+            kept.append(line)
+    return kept
+
 def md5Name(deltas):
     copyDeltas=copy.copy(deltas)
     copyDeltas.sort()
@@ -1271,20 +1285,7 @@ class DDStoch(DD.DD):
                 f.write("".join(d+"\n" for d in deltas))
 
         if exclude:
-            excludes=self.getDelta0()
-            #excludes minus deltas, order kept (one occurrence removed by delta, as list.remove without the quadratic cost)
-            if len(set(excludes))==len(excludes):
-                deltaSet=set(deltas)
-                excludes=[line for line in excludes if line not in deltaSet]
-            else:
-                toRemove=collections.Counter(deltas)
-                kept=[]
-                for line in excludes:
-                    if toRemove.get(line,0)>0:
-                        toRemove[line]-=1
-                    else:
-                        kept.append(line)
-                excludes=kept
+            excludes=removeDeltas(self.getDelta0(), deltas)
             with open(str(dirname / (dd+".exclude")), "w") as f:
                 f.write("".join(line+"\n" for line in excludes))
 
