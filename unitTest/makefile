@@ -1,6 +1,6 @@
-SUBREPLIST=ddCover checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython checkVPREC verrou_control
+SUBREPLIST=ddCover checkRounding checkStatRounding checkUCB-vecto check-libM ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython checkVPREC verrou_control ddMetamodelTest
 
-SUBREPLISTPYTHON=ddCover checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython
+SUBREPLISTPYTHON=ddCover checkStatRounding ddTest check-verrou-dd-task ddStdOut ddLibm verrouDDPython ddMetamodelTest
 
 .PHONY: valgrind-test none-test callgrind-test verrou-test python-coverage
 
