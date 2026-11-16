@@ -87,10 +87,13 @@ def parseCmdLast(fileName):
                 res["tool"]=line[4:].rstrip(":")
             elif line.startswith("\t") and res["argv"]==None and "=" in line:
                 key,value=line.strip().split("=",1)
-                if key=="PWD":
-                    res["pwd"]=value
+                if key=="PWD": #cmd.last without Cwd: line (old format)
+                    if res["pwd"]==None:
+                        res["pwd"]=value
                 else:
                     res["env"][key]=value
+            elif line.startswith("Cwd: "):
+                res["pwd"]=line[len("Cwd: "):]
             elif line.startswith("Cmd: "):
                 res["argv"]=shlex.split(line[len("Cmd: "):])
                 break

@@ -137,6 +137,9 @@ def parseLastCmd(rep, instr_prefix="VERROU"):
         if line.startswith("\t"+instr_prefix+"_"):
             spline=line.strip().split("=",1)
             res["env"][spline[0]]=spline[1]
+        elif line.startswith("Cwd: "):
+            #working directory of the delta-debug (replace the PWD line of the old format)
+            res["env"]["PWD"]=line[len("Cwd: "):].rstrip("\n")
         else:
             print("Parsing error", fileName)
             print("line", line)

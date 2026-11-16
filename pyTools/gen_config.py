@@ -18,6 +18,7 @@ class gen_config:
             self.write_bashCompletion_script()
             sys.exit(0)
         self.argv=argv
+        self.cwd=os.getcwd() #not environ["PWD"] : it can be missing or obsolete (subprocess with cwd=)
         self.parseArgv(argv, lengthValidTab, isExecutableArg)
         for config_key in self.config_keys:
             self.read_environ(environ, config_key)
@@ -115,8 +116,6 @@ class gen_config:
                             break
                     if not find:
                         print("Warning : unknown env variable :", env)
-            if env in ["PWD"]:
-                resEnv+="\t"+env+"="+self.environ[env]+"\n"
 
         if self.instr_prefix!=None:
             resInstr="ENV "+self.instr_prefix+":\n"
@@ -129,12 +128,13 @@ class gen_config:
             if instr:
                 resEnv+=resInstr
 
+        resCwd="Cwd: "+self.cwd+"\n"
         resCmd="Cmd: "+ " ".join([shlex.quote(arg) for arg in self.argv])+"\n"
 
         now=datetime.datetime.now()
         resTime="TimeStamp: "+now.strftime("%m-%d-%Y_%Hh%Mm%Ss")+"\n"
 
-        return resEnv + resCmd + resTime
+        return resEnv + resCwd + resCmd + resTime
 
     def saveParam(self,fileName):
         if fileName.is_file():
