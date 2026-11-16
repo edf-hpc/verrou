@@ -27,7 +27,11 @@ if __name__=="__main__":
         ok=ok and status=="OK"
         print("%s clause %s : pFail %.3f (expected %.3f)"%(status, sorted(clause), qFit, qTruth))
     for (k,l),mu in truth.interactions.items():
-        pair=tuple(sorted((fittedIndex.get(truth.clauses[k]), fittedIndex.get(truth.clauses[l]))))
+        if truth.clauses[k] not in fittedIndex or truth.clauses[l] not in fittedIndex:
+            print("KO interaction %s %s : ddmin not found"%(sorted(truth.clauses[k]), sorted(truth.clauses[l])))
+            ok=False
+            continue
+        pair=tuple(sorted((fittedIndex[truth.clauses[k]], fittedIndex[truth.clauses[l]])))
         muFit=fitted.interactions.get(pair, 0.)
         status="OK" if muFit*mu>0 and abs(muFit-mu)<1. else "KO"
         ok=ok and status=="OK"
