@@ -39,6 +39,16 @@ They are not installed : they use the `pyTools` directory of this source tree.
    the clauses found (recall), number of background ddmin (noise) and failure probability (in the metamodel) of the
    rddmin-cmp configuration accepted by the final check of rddmin (cmpPFail).
 
+4. Histograms of the cost of one or several option sets (superposed, at most 3 by figure) :
+
+       ddPerf/histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
+
+   The number of samples and the simulated wall time are measured at the end of the delta-debug, when the
+   first ddmin is found and when half of the clauses of the metamodel (rounded up) are found (the seeds which
+   do not reach it are counted in the figure title). The figure is written in `histograms/meta.png`, the raw
+   values in `histograms/meta.values.json`, and the quantiles with a compact histogram are printed.
+   The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
+
 ## Limits
 
 - The samples of a configuration are independent (the correlation between configurations computed with

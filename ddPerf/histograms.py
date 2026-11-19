@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""Histograms of the cost of a delta-debug algorithm simulated by verrou_dd_fake on several seeds :
+  histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--out=DIR] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
+Example :
+  ./histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
+For each metamodel, the number of samples and the simulated wall time are measured at three steps :
+  complete     : end of the delta-debug
+  first ddmin  : the first ddmin found (whatever its status)
+  half clauses : half of the clauses of the metamodel (rounded up) are found (the reference is the metamodel,
+                 not the ddmin found by the simulated algorithm) : the seeds which do not reach it are counted
+The option sets are superposed (at most 3 by figure, the next ones go to the next figures with the same bins).
+Written in DIR (default histograms) : <metamodel>.png (or <metamodel>-<k>.png when there are more than 3 option
+sets), <metamodel>.values.json (raw values) and work/ (output and summary of each simulation).
+The quantiles and a compact histogram are printed for each step."""
+
+import sys
+import os
+import json
+import math
+import time
+import statistics
+import concurrent.futures
+from pathlib import Path
+
+import campaign
+
+colors=["#2a78d6", "#eb6834", "#1baf7a"] #categorical slots 1-3 (validated for overlapping marks)
+maxOptionsByFigure=len(colors)
+textPrimary="#0b0b0b"
+textSecondary="#52514e"
+gridColor="#e4e3df"
+surface="#fcfcfb"
+
+steps=[("complete", "complete"), ("firstDdmin", "first ddmin"), ("halfClauses", "half clauses")]
+metrics=[("nbSample", "samples"), ("wallTime", "wall time")]
+
+
+def parseArgs(argv):
+    res={"nbSeed":50, "firstSeed":0, "jobs":os.cpu_count() or 1, "bins":20, "outDir":Path("histograms"),
+         "metamodels":[], "optionsTab":[]}
+    args=argv[1:]
+    if "--" not in args:
+        print(__doc__)
+        sys.exit(1)
+    sep=args.index("--")
+    for arg in args[:sep]:
+        for key,option,conv in [("nbSeed","--seeds=",int), ("firstSeed","--first-seed=",int), ("jobs","--jobs=",int),
+                                ("bins","--bins=",int), ("outDir","--out=",Path)]:
+            if arg.startswith(option):
+                res[key]=conv(arg[len(option):])
+                break
+        else:
+            if arg.startswith("--"):
+                print("Error : unknown option %s"%(arg), file=sys.stderr)
+                sys.exit(1)
+            res["metamodels"]+=[Path(arg).absolute()]
+    res["optionsTab"]=args[sep+1:]
+    if len(res["metamodels"])==0 or len(res["optionsTab"])==0:
+        print(__doc__)
+        sys.exit(1)
+    return res
+
+def values(res):
+    """Values of one simulation : dict step -> dict metric -> value (None : step not reached)"""
+    out={"complete":{"nbSample":res["nbSample"], "wallTime":res["wallTime"]}}
+    for step,name in steps[1:]:
+        reached=res["progress"][step]
+        out[step]={metric:(None if reached==None else reached[metric]) for metric,label in metrics}
+    return out
+
+def simulate(metamodel, optionsTab, conf):
+    """Raw values : list (by option set) of lists (by seed) of values()"""
+    seeds=range(conf["firstSeed"], conf["firstSeed"]+conf["nbSeed"])
+    workRoot=conf["outDir"] / "work" / metamodel.stem
+    with concurrent.futures.ThreadPoolExecutor(max_workers=conf["jobs"]) as executor:
+        futures=[[executor.submit(campaign.runOne, metamodel, options, seed, workRoot / ("opt%i"%iOpt) / ("seed%i"%seed))
+                  for seed in seeds] for iOpt,options in enumerate(optionsTab)]
+        progress(metamodel, futures)
+        return [[values(f.result()) for f in futureTab if f.result()!=None] for futureTab in futures]
+
+def formatDuration(seconds):
+    seconds=int(round(seconds))
+    return "%dh%02dm%02ds"%(seconds//3600, (seconds%3600)//60, seconds%60) if seconds>=3600 else "%dm%02ds"%(seconds//60, seconds%60)
+
+def progress(metamodel, futures):
+    """Print the progress of the simulations on stderr until they are all done : on one line updated in
+    place on a terminal, otherwise one line every 10% of the simulations"""
+    allFutures=[f for futureTab in futures for f in futureTab]
+    total=len(allFutures)
+    start=time.time()
+    tty=sys.stderr.isatty()
+    lastDecile=-1
+    nbDone=0
+    for future in concurrent.futures.as_completed(allFutures):
+        nbDone+=1
+        nbFailed=len([f for f in allFutures if f.done() and f.result()==None])
+        done=["%i/%i"%(len([f for f in futureTab if f.done()]), len(futureTab)) for futureTab in futures]
+        elapsed=time.time()-start
+        line="%s : %i/%i simulations (%3i%%) by option set %s  elapsed %s  remaining %s%s"%(
+            metamodel.name, nbDone, total, 100*nbDone//total, " ".join(done), formatDuration(elapsed),
+            formatDuration(elapsed*(total-nbDone)/nbDone), "" if nbFailed==0 else "  %i failed"%(nbFailed))
+        if tty:
+            print("\r\033[K"+line, end="", file=sys.stderr, flush=True)
+        elif 10*nbDone//total>lastDecile:
+            lastDecile=10*nbDone//total
+            print(line, file=sys.stderr, flush=True)
+    if tty:
+        print("", file=sys.stderr)
+
+
+def quantile(sortedTab, q):
+    pos=q*(len(sortedTab)-1)
+    low=int(math.floor(pos))
+    high=min(low+1, len(sortedTab)-1)
+    return sortedTab[low]+(sortedTab[high]-sortedTab[low])*(pos-low)
+
+def binEdges(tabs, nbBin):
+    allValues=[v for tab in tabs for v in tab]
+    if len(allValues)==0:
+        return None
+    low,high=min(allValues), max(allValues)
+    if high==low:
+        low,high=low-0.5, high+0.5
+    return [low+(high-low)*i/nbBin for i in range(nbBin+1)]
+
+def counts(tab, edges):
+    res=[0]*(len(edges)-1)
+    for v in tab:
+        res[min(int((v-edges[0])/(edges[-1]-edges[0])*(len(edges)-1)), len(edges)-2)]+=1
+    return res
+
+def sparkline(tab, edges):
+    blocks=" ▁▂▃▄▅▆▇█"
+    c=counts(tab, edges)
+    top=max(c) if max(c)>0 else 1
+    return "".join(blocks[int(math.ceil(x/top*(len(blocks)-1)))] for x in c)
+
+def printText(metamodel, optionsTab, raw, nbBin):
+    print("\n%s : %s"%(metamodel.name, ", ".join("%i seeds"%(len(r)) for r in raw)))
+    for step,stepName in steps:
+        for metric,metricName in metrics:
+            tabs=[sorted(v[step][metric] for v in r if v[step][metric]!=None) for r in raw]
+            edges=binEdges(tabs, nbBin)
+            print("  %s, %s%s"%(stepName, metricName, "" if edges==None else "  (histogram from %.4g to %.4g)"%(edges[0], edges[-1])))
+            print("    %-3s %8s %10s %10s %10s %10s %10s %10s  %s"%("opt", "reached", "min", "q10", "median", "mean", "q90", "max", "histogram"))
+            for iOpt,tab in enumerate(tabs):
+                if len(tab)==0:
+                    print("    %-3i %4i/%-3i"%(iOpt, 0, len(raw[iOpt])))
+                    continue
+                print("    %-3i %4i/%-3i %10.4g %10.4g %10.4g %10.4g %10.4g %10.4g  |%s|"%(
+                    iOpt, len(tab), len(raw[iOpt]), tab[0], quantile(tab, 0.1), quantile(tab, 0.5),
+                    statistics.mean(tab), quantile(tab, 0.9), tab[-1], sparkline(tab, edges)))
+    for iOpt,options in enumerate(optionsTab):
+        print("  opt %i : %s"%(iOpt, options))
+
+
+def plot(metamodel, optionsTab, raw, nbBin, outDir, timeUnit):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker
+
+    groups=[list(range(i, min(i+maxOptionsByFigure, len(optionsTab)))) for i in range(0, len(optionsTab), maxOptionsByFigure)]
+    edgesTab={(step,metric):binEdges([[v[step][metric] for v in r if v[step][metric]!=None] for r in raw], nbBin)
+              for step,_ in steps for metric,_ in metrics}
+    files=[]
+    for iGroup,group in enumerate(groups):
+        fig,axes=plt.subplots(len(metrics), len(steps), figsize=(5.2*len(steps), 3.6*len(metrics)+0.3*len(group)+0.6),
+                              facecolor=surface, squeeze=False, layout="constrained")
+        for row,(metric,metricName) in enumerate(metrics):
+            for col,(step,stepName) in enumerate(steps):
+                ax=axes[row][col]
+                ax.set_facecolor(surface)
+                edges=edgesTab[(step,metric)]
+                for slot,iOpt in enumerate(group):
+                    tab=[v[step][metric] for v in raw[iOpt] if v[step][metric]!=None]
+                    if edges==None or len(tab)==0:
+                        continue
+                    ax.hist(tab, bins=edges, histtype="stepfilled", color=colors[slot], alpha=0.10, linewidth=0)
+                    ax.hist(tab, bins=edges, histtype="step", color=colors[slot], linewidth=2)
+                    ax.axvline(statistics.median(tab), color=colors[slot], linewidth=1.5, linestyle=(0,(4,3)))
+                title=stepName
+                if step=="halfClauses":
+                    missing=["opt %i: %i/%i not reached"%(iOpt, len([v for v in raw[iOpt] if v[step][metric]==None]), len(raw[iOpt]))
+                             for iOpt in group if any(v[step][metric]==None for v in raw[iOpt])]
+                    if len(missing)!=0:
+                        title+="\n"+", ".join(missing)
+                ax.set_title(title, color=textPrimary, fontsize=11, loc="left")
+                ax.set_xlabel(metricName if metric!="wallTime" else "%s (%s)"%(metricName, timeUnit), color=textSecondary, fontsize=9)
+                ax.set_ylabel("seeds", color=textSecondary, fontsize=9)
+                ax.tick_params(colors=textSecondary, labelsize=8, length=0)
+                ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+                ax.grid(axis="y", color=gridColor, linewidth=0.8)
+                ax.set_axisbelow(True)
+                for side in ["top", "right", "left"]:
+                    ax.spines[side].set_visible(False)
+                ax.spines["bottom"].set_color(textSecondary)
+        handles=[matplotlib.lines.Line2D([], [], color=colors[slot], linewidth=2, label="opt %i : %s"%(iOpt, optionsTab[iOpt]))
+                 for slot,iOpt in enumerate(group)]
+        handles+=[matplotlib.lines.Line2D([], [], color=textSecondary, linewidth=1.5, linestyle=(0,(4,3)), label="median")]
+        legend=fig.legend(handles=handles, loc="outside upper left", ncol=1, frameon=False, fontsize=9, labelcolor=textPrimary,
+                          title="%s : %s seeds"%(metamodel.name, "/".join(str(len(raw[iOpt])) for iOpt in group)),
+                          title_fontsize=12, alignment="left")
+        legend.get_title().set_color(textPrimary)
+        fileName=outDir / ("%s.png"%(metamodel.stem) if len(groups)==1 else "%s-%i.png"%(metamodel.stem, iGroup))
+        fig.savefig(str(fileName), dpi=110, facecolor=surface)
+        plt.close(fig)
+        files+=[fileName]
+    return files
+
+
+if __name__=="__main__":
+    conf=parseArgs(sys.argv)
+    conf["outDir"].mkdir(parents=True, exist_ok=True)
+    for metamodel in conf["metamodels"]:
+        with open(str(metamodel)) as f:
+            timeUnit="simulated seconds" if json.load(f).get("time")!=None else "simulated, 1 per sample"
+        raw=simulate(metamodel, conf["optionsTab"], conf)
+        with open(str(conf["outDir"] / ("%s.values.json"%(metamodel.stem))),"w") as f:
+            json.dump({"metamodel":str(metamodel), "options":conf["optionsTab"], "firstSeed":conf["firstSeed"],
+                       "values":raw}, f, indent=1)
+        printText(metamodel, conf["optionsTab"], raw, conf["bins"])
+        for fileName in plot(metamodel, conf["optionsTab"], raw, conf["bins"], conf["outDir"], timeUnit):
+            print("  figure written in %s"%(fileName))
