@@ -45,7 +45,9 @@ They are not installed : they use the `pyTools` directory of this source tree.
 
    The number of samples and the simulated wall time are measured at the end of the delta-debug, when the
    first ddmin is found and when half of the clauses of the metamodel (rounded up) are found (the seeds which
-   do not reach it are counted in the figure title). The figure is written in `histograms/meta.png`, the raw
+   do not reach it are counted in the figure title). The quality of the result is given by the percentage of the
+   clauses of the metamodel found and by the number of deltas of the ddmin outside the clauses (they should be in
+   the complement rddmin-cmp : with `--no-background` they are useless for the user). The figure is written in `histograms/meta.png`, the raw
    values in `histograms/meta.values.json`, and the quantiles with a compact histogram are printed.
    The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
    `--max-samples=M` stops each simulation after M samples, so that an algorithm out of control does not block

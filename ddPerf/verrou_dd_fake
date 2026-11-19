@@ -322,6 +322,8 @@ def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
                     "clauses":clauses if status!="graded clause part" else gradedParts, "status":status,
                     "foundTime":foundTime, "foundNbSample":foundNbSample}]
     foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"] in ["clause", "graded clause part"])
+    #deltas of the ddmin which should be in the complement (rddmin-cmp) : outside the clauses of the metamodel
+    outside=frozenset().union(*found)-model.union
     nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
     return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
             "noBackground":config.noBackground,
@@ -334,6 +336,7 @@ def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
             "rddminCmp":None if stopped else rddminCmpSummary(model, cacheRep),
             "clausesFound":sorted(foundExact),
             "clausesMissed":[k for k in range(len(model.clauses)) if k not in foundExact],
+            "nbDeltaOutsideClauses":len(outside),
             "progress":progress(model, ddminTab)}
 
 def printSummary(res):
@@ -347,6 +350,7 @@ def printSummary(res):
         print("\tddmin%i : size %3i  pFail %.3f  %-18s found at %-9s %s"%(i, d["size"], d["pFail"], d["status"],
               "-" if d["foundTime"]==None else "%.4g"%(d["foundTime"]), d["indexes"]))
     print("\tclauses found %i/%i, missed : %s"%(len(res["clausesFound"]), res["nbClause"], res["clausesMissed"]))
+    print("\tdeltas of the ddmin outside the clauses : %i"%(res["nbDeltaOutsideClauses"]))
     for key,name in [("firstDdmin", "first ddmin"), ("halfClauses", "%i/%i clauses"%(res["progress"]["nbClauseHalf"], res["nbClause"]))]:
         step=res["progress"][key]
         if step!=None:
