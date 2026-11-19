@@ -44,10 +44,13 @@ They are not installed : they use the `pyTools` directory of this source tree.
        ddPerf/histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
 
    The number of samples and the simulated wall time are measured at the end of the delta-debug, when the
-   first ddmin is found and when half of the clauses of the metamodel (rounded up) are found (the seeds which
-   do not reach it are counted in the figure title). The quality of the result is given by the percentage of the
-   clauses of the metamodel found and by the number of deltas of the ddmin outside the clauses (they should be in
-   the complement rddmin-cmp : with `--no-background` they are useless for the user). The figure is written in `histograms/meta.png`, the raw
+   first ddmin is found, when half of the clauses of the metamodel (rounded up) are found and when all the clauses
+   are found (the seeds which do not reach a step are counted in the figure title). The quality of the result is
+   given by the percentage of the clauses of the metamodel found (also weighted by the failure probability of each
+   clause), the failure probability of the complement of the ddmin found (probability that the final check passes
+   although the code still fails), the parallel efficiency, the number of deltas of the ddmin outside the clauses
+   (they should be in the complement rddmin-cmp : with `--no-background` they are useless for the user) and the
+   number of non minimal ddmin (a clause and other deltas). The figure is written in `histograms/meta.png`, the raw
    values in `histograms/meta.values.json`, and the quantiles with a compact histogram are printed.
    The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
    `--max-samples=M` stops each simulation after M samples, so that an algorithm out of control does not block

@@ -3,16 +3,23 @@
   histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--max-samples=M] [--out=DIR] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
 Example :
   ./histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
-For each metamodel, the number of samples and the simulated wall time are measured at three steps :
+For each metamodel, the number of samples and the simulated wall time are measured at four steps :
   complete     : end of the delta-debug
   first ddmin  : the first ddmin found (whatever its status)
   half clauses : half of the clauses of the metamodel (rounded up) are found (the reference is the metamodel,
                  not the ddmin found by the simulated algorithm) : the seeds which do not reach it are counted
+  all clauses  : all the clauses of the metamodel are found
 The quality of the result is measured by :
   clauses found  : percentage of the clauses of the metamodel found
+  weighted       : percentage of the clauses found weighted by their failure probability (missing a clause
+                   which fails often is worse)
+  residual pFail : failure probability of the complement of the ddmin found (rddmin-cmp for the rddmin
+                   algorithms) : probability that the final check passes although the code still fails
+  efficiency     : cpu time / (wall time * number of threads)
   deltas outside : number of deltas of the ddmin outside the clauses of the metamodel (they should be in the
                    complement rddmin-cmp) : with a metamodel without background (verrou_dd_fake --no-background
                    or verrou_dd_metamodel --no-background) these deltas are useless for the user
+  non minimal    : number of ddmin which contain a clause and other deltas
 --max-samples=M stops each simulation after M samples (verrou_dd_fake --max-samples=) : an algorithm out of
 control does not block the histograms. A stopped simulation is not counted in the complete step, only
 counted in the other steps if they are reached before the stop, and its quality is the one at the stop.
@@ -39,10 +46,15 @@ textSecondary="#52514e"
 gridColor="#e4e3df"
 surface="#fcfcfb"
 
-steps=[("complete", "complete"), ("firstDdmin", "first ddmin"), ("halfClauses", "half clauses")]
+steps=[("complete", "complete"), ("firstDdmin", "first ddmin"), ("halfClauses", "half clauses"), ("allClauses", "all clauses")]
 metrics=[("nbSample", "samples"), ("wallTime", "wall time")]
-qualities=[("clausesFound", "clauses found", "clauses of the metamodel found (%)"),
-           ("deltasOutside", "deltas outside the clauses", "deltas of the ddmin outside the clauses")]
+#rows of quality panels : key, title, x label, step of the discrete values (None : continuous), fixed range or None
+qualities=[[("clausesFound", "clauses found", "clauses of the metamodel found (%)", "clause", (0., 100.)),
+            ("weightedRecall", "clauses found, weighted", "clauses found weighted by their failure probability (%)", None, (0., 100.)),
+            ("residualPFail", "residual failure probability", "failure probability of the complement of the ddmin", None, None),
+            ("efficiency", "parallel efficiency", "cpu time / (wall time * threads)", None, None)],
+           [("deltasOutside", "deltas outside the clauses", "deltas of the ddmin outside the clauses", 1, None),
+            ("nbNonMinimal", "non minimal ddmin", "ddmin containing a clause and other deltas", 1, None)]]
 
 def panels(timeUnit, nbClause):
     """Rows of the figure (list of panels : key, title, x label, label of the missing values, step of the
@@ -50,8 +62,10 @@ def panels(timeUnit, nbClause):
     rows=[[((step,metric), stepName, metricName if metric!="wallTime" else "%s (%s)"%(metricName, timeUnit),
             "stopped" if step=="complete" else "not reached", 1 if metric=="nbSample" else None)
            for step,stepName in steps] for metric,metricName in metrics]
-    rows+=[[(("quality",quality), title, xlabel, None, (100./nbClause, 0., 100.) if quality=="clausesFound" and nbClause!=0 else 1)
-            for quality,title,xlabel in qualities]]
+    for row in qualities:
+        rows+=[[(("quality",quality), title, xlabel, None,
+                 ((100./nbClause if nbClause!=0 else None) if step=="clause" else step, fixedRange))
+                for quality,title,xlabel,step,fixedRange in row]]
     return rows
 
 def getValue(v, key):
@@ -92,7 +106,9 @@ def values(res):
         reached=res["progress"][step]
         out[step]={metric:(None if reached==None else reached[metric]) for metric,label in metrics}
     out["quality"]={"clausesFound":100.*len(res["clausesFound"])/res["nbClause"] if res["nbClause"]!=0 else None,
-                    "deltasOutside":res["nbDeltaOutsideClauses"]}
+                    "weightedRecall":None if res["weightedRecall"]==None else 100.*res["weightedRecall"],
+                    "residualPFail":res["residualPFail"], "efficiency":res["efficiency"],
+                    "deltasOutside":res["nbDeltaOutsideClauses"], "nbNonMinimal":res["nbNonMinimal"]}
     out["nbClause"]=res["nbClause"]
     return out
 
@@ -149,13 +165,16 @@ def quantile(sortedTab, q):
 
 def binEdges(tabs, nbBin, step=None):
     """Edges of nbBin bins, or of one bin centered on each value for discrete values (multiples of step) if
-    they are not too many. step=(step, low, high) : discrete values in the fixed range [low, high]"""
+    they are not too many. step=(step, (low, high)) : the range is fixed (if (low, high) is not None) and step
+    is None for continuous values"""
     allValues=[v for tab in tabs for v in tab]
     if len(allValues)==0:
         return None
     low,high=min(allValues), max(allValues)
     if isinstance(step, tuple):
-        step,low,high=step
+        step,fixedRange=step
+        if fixedRange!=None:
+            low,high=fixedRange
     if step!=None and (high-low)/step<=2*nbBin:
         nb=int(round((high-low)/step))+1
         return [low-step/2+step*i for i in range(nb+1)]
@@ -232,6 +251,8 @@ def plot(metamodel, optionsTab, raw, nbBin, outDir, rows):
                 ax.set_ylabel("seeds", color=textSecondary, fontsize=9)
                 ax.tick_params(colors=textSecondary, labelsize=8, length=0)
                 ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+                if step==1: #counts
+                    ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
                 ax.grid(axis="y", color=gridColor, linewidth=0.8)
                 ax.set_axisbelow(True)
                 for side in ["top", "right", "left"]:

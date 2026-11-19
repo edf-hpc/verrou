@@ -281,19 +281,19 @@ def rddminCmpSummary(model, cacheRep):
             "pFail":model.pFail(conf), "clauses":model.clausesIn(conf)}
 
 def progress(model, ddminTab):
-    """Wall time and number of samples when the first ddmin is found and when half of the clauses of the
-    metamodel (rounded up) are found (None if not reached)"""
+    """Wall time and number of samples when the first ddmin is found, when half of the clauses of the
+    metamodel (rounded up) are found and when all the clauses are found (None if not reached)"""
     timeline=sorted([d for d in ddminTab if d["foundTime"]!=None], key=lambda d: (d["foundTime"], d["foundNbSample"]))
-    res={"firstDdmin":None, "halfClauses":None, "nbClauseHalf":(len(model.clauses)+1)//2}
+    res={"firstDdmin":None, "halfClauses":None, "allClauses":None, "nbClauseHalf":(len(model.clauses)+1)//2}
     if len(timeline)!=0:
         res["firstDdmin"]={"wallTime":timeline[0]["foundTime"], "nbSample":timeline[0]["foundNbSample"]}
     found=set()
     for d in timeline:
         if d["status"] in ["clause", "graded clause part"]:
             found|=set(d["clauses"])
-        if len(model.clauses)!=0 and len(found)>=res["nbClauseHalf"]:
-            res["halfClauses"]={"wallTime":d["foundTime"], "nbSample":d["foundNbSample"]}
-            break
+        for key,nbClause in [("halfClauses", res["nbClauseHalf"]), ("allClauses", len(model.clauses))]:
+            if len(model.clauses)!=0 and res[key]==None and len(found)>=nbClause:
+                res[key]={"wallTime":d["foundTime"], "nbSample":d["foundNbSample"]}
     return res
 
 def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
@@ -324,6 +324,8 @@ def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
     foundExact=set(k for d in ddminTab for k in d["clauses"] if d["status"] in ["clause", "graded clause part"])
     #deltas of the ddmin which should be in the complement (rddmin-cmp) : outside the clauses of the metamodel
     outside=frozenset().union(*found)-model.union
+    #failure probability of each clause alone : the clauses which fail often are the most important ones
+    qClause=[model.pFail(clause) for clause in model.clauses]
     nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
     return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
             "noBackground":config.noBackground,
@@ -337,6 +339,11 @@ def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
             "clausesFound":sorted(foundExact),
             "clausesMissed":[k for k in range(len(model.clauses)) if k not in foundExact],
             "nbDeltaOutsideClauses":len(outside),
+            "weightedRecall":sum(qClause[k] for k in foundExact)/sum(qClause) if sum(qClause)>0 else None,
+            "nbNonMinimal":len([d for d in ddminTab if d["status"]=="contains a clause"]),
+            #failure probability of the complement of the ddmin found (rddmin-cmp for the rddmin algorithms) :
+            #probability that the final check passes although the code still fails
+            "residualPFail":model.pFail(frozenset(range(model.nbDelta))-frozenset().union(*found)),
             "progress":progress(model, ddminTab)}
 
 def printSummary(res):
@@ -350,8 +357,11 @@ def printSummary(res):
         print("\tddmin%i : size %3i  pFail %.3f  %-18s found at %-9s %s"%(i, d["size"], d["pFail"], d["status"],
               "-" if d["foundTime"]==None else "%.4g"%(d["foundTime"]), d["indexes"]))
     print("\tclauses found %i/%i, missed : %s"%(len(res["clausesFound"]), res["nbClause"], res["clausesMissed"]))
-    print("\tdeltas of the ddmin outside the clauses : %i"%(res["nbDeltaOutsideClauses"]))
-    for key,name in [("firstDdmin", "first ddmin"), ("halfClauses", "%i/%i clauses"%(res["progress"]["nbClauseHalf"], res["nbClause"]))]:
+    print("\tclauses found weighted by their failure probability : %s"%("-" if res["weightedRecall"]==None else "%.3f"%(res["weightedRecall"])))
+    print("\tdeltas of the ddmin outside the clauses : %i  non minimal ddmin : %i"%(res["nbDeltaOutsideClauses"], res["nbNonMinimal"]))
+    print("\tfailure probability of the complement of the ddmin found : %.3f"%(res["residualPFail"]))
+    for key,name in [("firstDdmin", "first ddmin"), ("halfClauses", "%i/%i clauses"%(res["progress"]["nbClauseHalf"], res["nbClause"])),
+                     ("allClauses", "all clauses")]:
         step=res["progress"][key]
         if step!=None:
             print("\t%-14s : wall time %.4g  %i samples"%(name, step["wallTime"], step["nbSample"]))
