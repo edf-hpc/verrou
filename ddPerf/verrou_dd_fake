@@ -48,11 +48,16 @@ import ddMetamodel
 
 ## Virtual time execution
 
+class sampleLimitReached(Exception):
+    """The number of simulated samples reaches --max-samples= (not a KeyboardInterrupt : DD_stoch does not
+    catch it)"""
+
 class virtualClock:
     def __init__(self):
         self.now=0.
         self.cpu=0.
         self.nbSample=0
+        self.maxSamples=None
         self.inExecutor=False
         self.start=None #start time and slot of the sample submitted to a virtualExecutor
         self.slot=None
@@ -163,6 +168,8 @@ class fakeStochTask(DD_stoch.stochTask):
         return self.runOneSample(sampleIndex)
 
     def runOneSample(self, i):
+        if clock.maxSamples!=None and clock.nbSample>=clock.maxSamples:
+            raise sampleLimitReached()
         rundir=self._nameDir(i)
         rundir.mkdir(exist_ok=True)
         rng=random.Random("%s/%s/%s"%(self.fakeSeed, self.dirname.name, i))
@@ -245,6 +252,8 @@ class ddFakeConfig(dd_config.ddConfig):
                          docStr="seed of the simulated samples (default: random seed, printed and written in the summary)")
         self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], False,
                          docStr="ignore the diffuse background of the metamodel (eps=0) : only the clauses fail")
+        self.addRegistry("maxSamples", "int", "MAX_SAMPLES", ["--max-samples="], None,
+                         docStr="stop the simulation after this number of samples (algorithm out of control) : the summary gives the ddmin found before the stop")
         self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,
                          docStr="json file with the summary of the simulation (for the campaigns)")
 
@@ -287,10 +296,13 @@ def progress(model, ddminTab):
             break
     return res
 
-def summary(config, model, resConf, cacheRep, foundAt):
-    """Compare the ddmin found with the clauses of the metamodel"""
+def summary(config, model, resConf, cacheRep, foundAt, stopped=False):
+    """Compare the ddmin found with the clauses of the metamodel (stopped : the ddmin found before
+    --max-samples=)"""
     found=[]
-    if resConf!=None and config.get_ddAlgo()!="ddmax": #ddmax returns a flat list of deltas
+    if stopped:
+        found=sorted(foundAt, key=lambda ddmin: foundAt[ddmin])
+    elif resConf!=None and config.get_ddAlgo()!="ddmax": #ddmax returns a flat list of deltas
         found=[frozenset(deltaIndex(x) for x in conf) for conf in resConf]
     ddminTab=[]
     for ddmin in found:
@@ -313,18 +325,21 @@ def summary(config, model, resConf, cacheRep, foundAt):
     nbProc=1 if config.get_maxNbPROC()==None else config.get_maxNbPROC()
     return {"metamodel":str(config.metamodelFile), "options":[x for x in config.argv[1:-1] if not x.startswith("--summary=")], "fakeSeed":config.fakeSeed,
             "noBackground":config.noBackground,
+            "stopped":stopped, "maxSamples":config.maxSamples,
             "nbDelta":model.nbDelta, "nbClause":len(model.clauses),
             "wallTime":clock.now, "cpuTime":clock.cpu, "nbSample":clock.nbSample,
             "nbConfiguration":len([x for x in cacheRep.iterdir() if ddMetamodel.isMd5Name(x.name)]),
             "efficiency":clock.cpu/(clock.now*nbProc) if clock.now>0 else None,
             "ddmin":ddminTab,
-            "rddminCmp":rddminCmpSummary(model, cacheRep),
+            "rddminCmp":None if stopped else rddminCmpSummary(model, cacheRep),
             "clausesFound":sorted(foundExact),
             "clausesMissed":[k for k in range(len(model.clauses)) if k not in foundExact],
             "progress":progress(model, ddminTab)}
 
 def printSummary(res):
     print("\nsimulation summary :")
+    if res["stopped"]:
+        print("\tstopped after %i samples (--max-samples=) : ddmin found before the stop"%(res["maxSamples"]))
     print("\twall time %.4g  cpu time %.4g  efficiency %s"%(res["wallTime"], res["cpuTime"],
                                                            "%.3f"%res["efficiency"] if res["efficiency"]!=None else "-"))
     print("\t%i samples, %i configurations"%(res["nbSample"], res["nbConfiguration"]))
@@ -355,11 +370,20 @@ if __name__=="__main__":
     print("fake seed : %i (--fake-seed=%i to reproduce the simulation)"%(config.fakeSeed, config.fakeSeed))
     fakeStochTask.fakeSeed=config.fakeSeed
 
-    dd=DDfake(config)
-    resConf=dd.run()
-    ddTrace.tracer.close()
+    clock.maxSamples=config.maxSamples
 
-    res=summary(config, model, resConf, dd.prefix_, dd.foundAt)
+    dd=DDfake(config)
+    resConf=None
+    stopped=False
+    try:
+        resConf=dd.run()
+    except sampleLimitReached:
+        stopped=True
+        print("\nsimulation stopped : %i samples (--max-samples=)"%(clock.nbSample))
+    finally:
+        ddTrace.tracer.close()
+
+    res=summary(config, model, resConf, dd.prefix_, dd.foundAt, stopped)
     printSummary(res)
     if config.summary!=None:
         with open(config.summary,"w") as f:

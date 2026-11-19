@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Histograms of the cost of a delta-debug algorithm simulated by verrou_dd_fake on several seeds :
-  histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--out=DIR] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
+  histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--max-samples=M] [--out=DIR] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
 Example :
   ./histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
 For each metamodel, the number of samples and the simulated wall time are measured at three steps :
@@ -8,6 +8,9 @@ For each metamodel, the number of samples and the simulated wall time are measur
   first ddmin  : the first ddmin found (whatever its status)
   half clauses : half of the clauses of the metamodel (rounded up) are found (the reference is the metamodel,
                  not the ddmin found by the simulated algorithm) : the seeds which do not reach it are counted
+--max-samples=M stops each simulation after M samples (verrou_dd_fake --max-samples=) : an algorithm out of
+control does not block the histograms. A stopped simulation is not counted in the complete step, and only
+counted in the other steps if they are reached before the stop.
 The option sets are superposed (at most 3 by figure, the next ones go to the next figures with the same bins).
 Written in DIR (default histograms) : <metamodel>.png (or <metamodel>-<k>.png when there are more than 3 option
 sets), <metamodel>.values.json (raw values) and work/ (output and summary of each simulation).
@@ -36,7 +39,7 @@ metrics=[("nbSample", "samples"), ("wallTime", "wall time")]
 
 
 def parseArgs(argv):
-    res={"nbSeed":50, "firstSeed":0, "jobs":os.cpu_count() or 1, "bins":20, "outDir":Path("histograms"),
+    res={"nbSeed":50, "firstSeed":0, "maxSamples":None, "jobs":os.cpu_count() or 1, "bins":20, "outDir":Path("histograms"),
          "metamodels":[], "optionsTab":[]}
     args=argv[1:]
     if "--" not in args:
@@ -45,7 +48,8 @@ def parseArgs(argv):
     sep=args.index("--")
     for arg in args[:sep]:
         for key,option,conv in [("nbSeed","--seeds=",int), ("firstSeed","--first-seed=",int), ("jobs","--jobs=",int),
-                                ("bins","--bins=",int), ("outDir","--out=",Path)]:
+                                ("bins","--bins=",int), ("outDir","--out=",Path),
+                                ("maxSamples","--max-samples=",int)]:
             if arg.startswith(option):
                 res[key]=conv(arg[len(option):])
                 break
@@ -62,7 +66,8 @@ def parseArgs(argv):
 
 def values(res):
     """Values of one simulation : dict step -> dict metric -> value (None : step not reached)"""
-    out={"complete":{"nbSample":res["nbSample"], "wallTime":res["wallTime"]}}
+    stopped=res.get("stopped", False)
+    out={"complete":{metric:(None if stopped else res[metric]) for metric,label in metrics}, "stopped":stopped}
     for step,name in steps[1:]:
         reached=res["progress"][step]
         out[step]={metric:(None if reached==None else reached[metric]) for metric,label in metrics}
@@ -72,6 +77,8 @@ def simulate(metamodel, optionsTab, conf):
     """Raw values : list (by option set) of lists (by seed) of values()"""
     seeds=range(conf["firstSeed"], conf["firstSeed"]+conf["nbSeed"])
     workRoot=conf["outDir"] / "work" / metamodel.stem
+    if conf["maxSamples"]!=None:
+        optionsTab=[options+" --max-samples=%i"%(conf["maxSamples"]) for options in optionsTab]
     with concurrent.futures.ThreadPoolExecutor(max_workers=conf["jobs"]) as executor:
         futures=[[executor.submit(campaign.runOne, metamodel, options, seed, workRoot / ("opt%i"%iOpt) / ("seed%i"%seed))
                   for seed in seeds] for iOpt,options in enumerate(optionsTab)]
@@ -94,11 +101,14 @@ def progress(metamodel, futures):
     for future in concurrent.futures.as_completed(allFutures):
         nbDone+=1
         nbFailed=len([f for f in allFutures if f.done() and f.result()==None])
+        nbStopped=len([f for f in allFutures if f.done() and f.result()!=None and f.result().get("stopped")])
         done=["%i/%i"%(len([f for f in futureTab if f.done()]), len(futureTab)) for futureTab in futures]
         elapsed=time.time()-start
         line="%s : %i/%i simulations (%3i%%) by option set %s  elapsed %s  remaining %s%s"%(
             metamodel.name, nbDone, total, 100*nbDone//total, " ".join(done), formatDuration(elapsed),
             formatDuration(elapsed*(total-nbDone)/nbDone), "" if nbFailed==0 else "  %i failed"%(nbFailed))
+        if nbStopped!=0:
+            line+="  %i stopped (--max-samples=)"%(nbStopped)
         if tty:
             print("\r\033[K"+line, end="", file=sys.stderr, flush=True)
         elif 10*nbDone//total>lastDecile:
@@ -180,11 +190,11 @@ def plot(metamodel, optionsTab, raw, nbBin, outDir, timeUnit):
                     ax.hist(tab, bins=edges, histtype="step", color=colors[slot], linewidth=2)
                     ax.axvline(statistics.median(tab), color=colors[slot], linewidth=1.5, linestyle=(0,(4,3)))
                 title=stepName
-                if step=="halfClauses":
-                    missing=["opt %i: %i/%i not reached"%(iOpt, len([v for v in raw[iOpt] if v[step][metric]==None]), len(raw[iOpt]))
-                             for iOpt in group if any(v[step][metric]==None for v in raw[iOpt])]
-                    if len(missing)!=0:
-                        title+="\n"+", ".join(missing)
+                missing=["opt %i: %i/%i %s"%(iOpt, len([v for v in raw[iOpt] if v[step][metric]==None]), len(raw[iOpt]),
+                                             "stopped" if step=="complete" else "not reached")
+                         for iOpt in group if any(v[step][metric]==None for v in raw[iOpt])]
+                if len(missing)!=0:
+                    title+="\n"+", ".join(missing)
                 ax.set_title(title, color=textPrimary, fontsize=11, loc="left")
                 ax.set_xlabel(metricName if metric!="wallTime" else "%s (%s)"%(metricName, timeUnit), color=textSecondary, fontsize=9)
                 ax.set_ylabel("seeds", color=textSecondary, fontsize=9)

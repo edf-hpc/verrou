@@ -48,6 +48,11 @@ They are not installed : they use the `pyTools` directory of this source tree.
    do not reach it are counted in the figure title). The figure is written in `histograms/meta.png`, the raw
    values in `histograms/meta.values.json`, and the quantiles with a compact histogram are printed.
    The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
+   `--max-samples=M` stops each simulation after M samples, so that an algorithm out of control does not block
+   the histograms : a stopped simulation is not counted in the complete step.
+
+`verrou_dd_fake --max-samples=M` stops the simulation after M samples : the summary (`stopped`) gives the ddmin
+found before the stop.
 
 ## Limits
 
