@@ -55,6 +55,9 @@ They are not installed : they use the `pyTools` directory of this source tree.
    The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
    `--max-samples=M` stops each simulation after M samples, so that an algorithm out of control does not block
    the histograms : a stopped simulation is not counted in the complete step.
+   The summary of each simulation is kept in a cache (`histograms/work/`, by metamodel content, option set and
+   seed) : adding an option set or increasing `--seeds=` only computes the missing simulations. After a change
+   of `DD_stoch` or `verrou_dd_fake`, `--recompute` computes again all the simulations.
 
 `verrou_dd_fake --max-samples=M` stops the simulation after M samples : the summary (`stopped`) gives the ddmin
 found before the stop.

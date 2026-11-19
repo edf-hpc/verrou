@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Histograms of the cost and of the quality of a delta-debug algorithm simulated by verrou_dd_fake on several seeds :
-  histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--max-samples=M] [--out=DIR] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
+  histograms.py [--seeds=N] [--first-seed=S] [--jobs=J] [--bins=B] [--max-samples=M] [--out=DIR] [--recompute] METAMODEL.json... -- "OPTIONS1" ["OPTIONS2" ...]
 Example :
   ./histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
 For each metamodel, the number of samples and the simulated wall time are measured at four steps :
@@ -26,12 +26,18 @@ counted in the other steps if they are reached before the stop, and its quality 
 The option sets are superposed (at most 3 by figure, the next ones go to the next figures with the same bins).
 Written in DIR (default histograms) : <metamodel>.png (or <metamodel>-<k>.png when there are more than 3 option
 sets), <metamodel>.values.json (raw values) and work/ (output and summary of each simulation).
+Cache : the summary of each simulation is kept in DIR/work/<metamodel name>-<md5 of the metamodel>/<md5 of the
+options>/seed<S> (the options are written in options.txt) : only the missing simulations are computed when an
+option set is added or when the number of seeds is increased. The cache does not know the version of
+verrou_dd_fake and DD_stoch : --recompute computes again all the simulations (after a change of the algorithms).
+A summary without a value used by the histograms (written by an older verrou_dd_fake) is computed again.
 The quantiles and a compact histogram are printed for each step."""
 
 import sys
 import os
 import json
 import math
+import hashlib
 import time
 import statistics
 import concurrent.futures
@@ -73,7 +79,7 @@ def getValue(v, key):
 
 
 def parseArgs(argv):
-    res={"nbSeed":50, "firstSeed":0, "maxSamples":None, "jobs":os.cpu_count() or 1, "bins":20, "outDir":Path("histograms"),
+    res={"nbSeed":50, "firstSeed":0, "maxSamples":None, "recompute":False, "jobs":os.cpu_count() or 1, "bins":20, "outDir":Path("histograms"),
          "metamodels":[], "optionsTab":[]}
     args=argv[1:]
     if "--" not in args:
@@ -88,6 +94,9 @@ def parseArgs(argv):
                 res[key]=conv(arg[len(option):])
                 break
         else:
+            if arg=="--recompute":
+                res["recompute"]=True
+                continue
             if arg.startswith("--"):
                 print("Error : unknown option %s"%(arg), file=sys.stderr)
                 sys.exit(1)
@@ -112,15 +121,50 @@ def values(res):
     out["nbClause"]=res["nbClause"]
     return out
 
+def md5Short(data):
+    return hashlib.md5(data).hexdigest()[:12]
+
+def cachedSummary(workDir):
+    """Summary of a simulation in cache, or None if it is missing or written by an older verrou_dd_fake"""
+    try:
+        with open(str(workDir / "summary.json")) as f:
+            res=json.load(f)
+        values(res)
+        return res
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
 def simulate(metamodel, optionsTab, conf):
-    """Raw values : list (by option set) of lists (by seed) of values()"""
+    """Raw values : list (by option set) of lists (by seed) of values(). The simulations in cache are reused"""
     seeds=range(conf["firstSeed"], conf["firstSeed"]+conf["nbSeed"])
-    workRoot=conf["outDir"] / "work" / metamodel.stem
+    with open(str(metamodel), "rb") as f:
+        workRoot=conf["outDir"] / "work" / ("%s-%s"%(metamodel.stem, md5Short(f.read())))
     if conf["maxSamples"]!=None:
         optionsTab=[options+" --max-samples=%i"%(conf["maxSamples"]) for options in optionsTab]
+    optionsTab=[" ".join(options.split()) for options in optionsTab]
+    tasks={} #workDir -> future : the same option set given twice is computed once
+    futures=[]
     with concurrent.futures.ThreadPoolExecutor(max_workers=conf["jobs"]) as executor:
-        futures=[[executor.submit(campaign.runOne, metamodel, options, seed, workRoot / ("opt%i"%iOpt) / ("seed%i"%seed))
-                  for seed in seeds] for iOpt,options in enumerate(optionsTab)]
+        for options in optionsTab:
+            optionsDir=workRoot / md5Short(options.encode("utf-8"))
+            optionsDir.mkdir(parents=True, exist_ok=True)
+            with open(str(optionsDir / "options.txt"), "w") as f:
+                f.write(options+"\n")
+            futureTab=[]
+            for seed in seeds:
+                workDir=optionsDir / ("seed%i"%seed)
+                if workDir not in tasks:
+                    res=None if conf["recompute"] else cachedSummary(workDir)
+                    if res!=None:
+                        future=concurrent.futures.Future()
+                        future.set_result(res)
+                        future.cached=True
+                    else:
+                        future=executor.submit(campaign.runOne, metamodel, options, seed, workDir)
+                        future.cached=False
+                    tasks[workDir]=future
+                futureTab+=[tasks[workDir]]
+            futures+=[futureTab]
         progress(metamodel, futures)
         return [[values(f.result()) for f in futureTab if f.result()!=None] for futureTab in futures]
 
@@ -130,9 +174,14 @@ def formatDuration(seconds):
 
 def progress(metamodel, futures):
     """Print the progress of the simulations on stderr until they are all done : on one line updated in
-    place on a terminal, otherwise one line every 10% of the simulations"""
-    allFutures=[f for futureTab in futures for f in futureTab]
+    place on a terminal, otherwise one line every 10% of the simulations. The simulations in cache are not
+    counted in the percentage and in the remaining time"""
+    allFutures=list(set(f for futureTab in futures for f in futureTab if not f.cached))
+    nbCached=len(set(f for futureTab in futures for f in futureTab if f.cached))
     total=len(allFutures)
+    if total==0:
+        print("%s : %i simulations in cache, nothing to compute"%(metamodel.name, nbCached), file=sys.stderr)
+        return
     start=time.time()
     tty=sys.stderr.isatty()
     lastDecile=-1
@@ -148,6 +197,8 @@ def progress(metamodel, futures):
             formatDuration(elapsed*(total-nbDone)/nbDone), "" if nbFailed==0 else "  %i failed"%(nbFailed))
         if nbStopped!=0:
             line+="  %i stopped (--max-samples=)"%(nbStopped)
+        if nbCached!=0:
+            line+="  (%i in cache)"%(nbCached)
         if tty:
             print("\r\033[K"+line, end="", file=sys.stderr, flush=True)
         elif 10*nbDone//total>lastDecile:
