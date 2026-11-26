@@ -153,15 +153,18 @@ def deltaIndex(name):
 
 class fakeStochTask(DD_stoch.stochTask):
     model=None
+    modelByName=None #model with the clauses as sets of delta names (see confInfo)
     fakeSeed=0
     confCache={} #md5 -> (failure probability, size) of the configuration (shared by the tasks of the same configuration)
 
     def confInfo(self):
         md5=self.dirname.name
         if md5 not in self.confCache:
-            includeFile=self.dirname / "dd.fake.include"
-            conf=frozenset(deltaIndex(x) for x in ddMetamodel.loadDeltaLines(includeFile))
-            self.confCache[md5]=(self.model.pFail(conf), len(conf))
+            #the names of the include file are used without conversion to indexes (costly for large
+            #configurations) : same parsing as loadDeltaLines, the delta names have no space
+            with open(str(self.dirname / "dd.fake.include")) as f:
+                conf=frozenset(f.read().split())
+            self.confCache[md5]=(self.modelByName.pFail(conf), len(conf))
         return self.confCache[md5]
 
     def submitSeq(self, cmpOrRun, sampleIndex):
@@ -379,6 +382,9 @@ if __name__=="__main__":
     if config.noBackground:
         model.eps=0.
     fakeStochTask.model=model
+    fakeStochTask.modelByName=ddMetamodel.metamodel(model.nbDelta, [[deltaName(i) for i in clause] for clause in model.clauses],
+                                                    model.lambdas, model.interactions, model.eps, model.beta,
+                                                    model.timeModel, model.gammas)
     if config.fakeSeed==None:
         config.fakeSeed=random.SystemRandom().randrange(2**32)
     print("fake seed : %i (--fake-seed=%i to reproduce the simulation)"%(config.fakeSeed, config.fakeSeed))
