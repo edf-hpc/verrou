@@ -294,9 +294,9 @@ def removeDeltas(excludes, deltas):
     return kept
 
 def md5Name(deltas):
-    copyDeltas=copy.copy(deltas)
-    copyDeltas.sort()
-    return hashlib.md5(("".join(["\n"+x for x in copyDeltas])).encode('utf-8')).hexdigest()
+    if len(deltas)==0:
+        return hashlib.md5(b"").hexdigest()
+    return hashlib.md5(("\n"+"\n".join(sorted(deltas))).encode('utf-8')).hexdigest()
 
 
 def prepareOutput(dirname):
@@ -1282,7 +1282,8 @@ class DDStoch(DD.DD):
 
         if include:
             with open(str(dirname / (dd+".include")), "w") as f:
-                f.write("".join(d+"\n" for d in deltas))
+                if len(deltas)!=0:
+                    f.write("\n".join(deltas)+"\n")
 
         if exclude:
             excludes=removeDeltas(self.getDelta0(), deltas)

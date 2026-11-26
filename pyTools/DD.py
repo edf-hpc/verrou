@@ -80,16 +80,8 @@ class DD:
     # Helpers
     def __listminus(self, c1, c2):
         """Return a list of all elements of C1 that are not in C2."""
-        s2 = {}
-        for delta in c2:
-            s2[delta] = 1
-
-        c = []
-        for delta in c1:
-            if not delta in s2:
-                c.append(delta)
-
-        return c
+        s2 = set(c2)
+        return [delta for delta in c1 if delta not in s2]
 
     def __listminuslist(self, c1, c2list):
         """Return a list of all elements of C1 that are not in one of C2 list."""
