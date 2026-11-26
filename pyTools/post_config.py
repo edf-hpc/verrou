@@ -28,6 +28,7 @@ class postConfig(gen_config.gen_config):
         self.addRegistry("trace_bin",     "bool",   "TRACE_BIN",         ["--trace-bin"], False)
         self.addRegistry("trace_pattern", "string", "TRACE_PATTERN",     ["--trace-pattern="], [], additive=True)
         self.addRegistry("trace_file",    "string", "TRACE_FILE",        ["--trace-file="],    None)
+        self.addRegistry("trace_file_exclude",    "string", "TRACE_FILE_EXCLUDE",        ["--trace-file-exclude="],    None)
         self.addRegistry("trace_type",    "string", "TRACE_TYPE",        ["--trace-type="], "bb_cover", ["bb_cover","back_cover"])
         self.addRegistry("trace_clean",   "string", "TRACE_CLEAN_POLICY",["--trace-clean-policy="], "gz", ["none", "gz","clean"])
         self.addRegistry("trace_gen_local", "bool",  "TRACE_GEN_LOCAL",   ["--trace-gen-local"], False)
@@ -54,6 +55,8 @@ class postConfig(gen_config.gen_config):
         self.rep=Path(self.rep).absolute()
         if self.trace_file!=None:
             self.trace_file=Path(self.trace_file).absolute()
+        if self.trace_file_exclude!=None:
+            self.trace_file_exclude=Path(self.trace_file_exclude).absolute()
         for r in self.rounding:
             if "," in r:
                 splitR=r.split(",")
@@ -221,6 +224,9 @@ class postConfig(gen_config.gen_config):
 
     def get_trace_file(self):
         return self.trace_file
+
+    def get_trace_file_exclude(self):
+        return self.trace_file_exclude
 
     def get_trace_type(self):
         return self.trace_type

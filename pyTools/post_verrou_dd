@@ -198,6 +198,8 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile
         envvars["VERROU_TRACE_TYPE"]=config.get_trace_type()
+    if config.get_trace_file_exclude()!=None:
+        envvars["VERROU_TRACE_EXCLUDE"]=config.get_trace_file_exclude()
 
     task=DD_stoch.stochTask(outputDir, refDir,runScript, cmpScript, envvars , seedTab=seedTab, seedEnvVar="VERROU_SEED")
     task.setNbRun(nbRun)
