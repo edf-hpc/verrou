@@ -26,6 +26,8 @@ counted in the other steps if they are reached before the stop, and its quality 
 The option sets are superposed (at most 3 by figure, the next ones go to the next figures with the same bins).
 Written in DIR (default histograms) : <metamodel>.png (or <metamodel>-<k>.png when there are more than 3 option
 sets), <metamodel>.values.json (raw values) and work/ (output and summary of each simulation).
+The simulations read DIR/work/<metamodel name>-<md5 of the metamodel>/<metamodel name>.slim.json, a copy of
+the metamodel without the observations (the field metamodel of the summaries is this copy).
 Cache : the summary of each simulation is kept in DIR/work/<metamodel name>-<md5 of the metamodel>/<md5 of the
 options>/seed<S> (the options are written in options.txt) : only the missing simulations are computed when an
 option set is added or when the number of seeds is increased. The cache does not know the version of
@@ -44,6 +46,8 @@ import concurrent.futures
 from pathlib import Path
 
 import campaign
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pyTools"))
+import ddMetamodel
 
 colors=["#2a78d6", "#eb6834", "#1baf7a"] #categorical slots 1-3 (validated for overlapping marks)
 maxOptionsByFigure=len(colors)
@@ -138,7 +142,15 @@ def simulate(metamodel, optionsTab, conf):
     """Raw values : list (by option set) of lists (by seed) of values(). The simulations in cache are reused"""
     seeds=range(conf["firstSeed"], conf["firstSeed"]+conf["nbSeed"])
     with open(str(metamodel), "rb") as f:
-        workRoot=conf["outDir"] / "work" / ("%s-%s"%(metamodel.stem, md5Short(f.read())))
+        content=f.read()
+    workRoot=conf["outDir"] / "work" / ("%s-%s"%(metamodel.stem, md5Short(content)))
+    #the simulations read a copy without the observations (useless for verrou_dd_fake, costly to load) :
+    #the cache key stays the md5 of the full metamodel
+    workRoot.mkdir(parents=True, exist_ok=True)
+    slimMetamodel=(workRoot / ("%s.slim.json"%(metamodel.stem))).absolute()
+    with open(str(slimMetamodel), "w") as f:
+        json.dump(ddMetamodel.slimMetamodelJson(json.loads(content)), f)
+    del content
     if conf["maxSamples"]!=None:
         optionsTab=[options+" --max-samples=%i"%(conf["maxSamples"]) for options in optionsTab]
     optionsTab=[" ".join(options.split()) for options in optionsTab]
@@ -160,7 +172,7 @@ def simulate(metamodel, optionsTab, conf):
                         future.set_result(res)
                         future.cached=True
                     else:
-                        future=executor.submit(campaign.runOne, metamodel, options, seed, workDir)
+                        future=executor.submit(campaign.runOne, slimMetamodel, options, seed, workDir)
                         future.cached=False
                     tasks[workDir]=future
                 futureTab+=[tasks[workDir]]

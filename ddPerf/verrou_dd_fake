@@ -375,7 +375,7 @@ def printSummary(res):
 
 if __name__=="__main__":
     config=ddFakeConfig(sys.argv, os.environ)
-    model=ddMetamodel.loadMetamodel(config.metamodelFile)[0]
+    model=ddMetamodel.loadMetamodel(config.metamodelFile, observations=False)[0]
     if config.noBackground:
         model.eps=0.
     fakeStochTask.model=model

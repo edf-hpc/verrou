@@ -470,13 +470,19 @@ class metamodel:
                          failure.get("gamma"))
 
 
-def loadMetamodel(fileName):
-    """Return (metamodel, observations, data) from a json file written by verrou_dd_metamodel"""
+def loadMetamodel(fileName, observations=True):
+    """Return (metamodel, observations, data) from a json file written by verrou_dd_metamodel
+    observations=False : the observations are not decoded (costly for large search spaces), [] is returned"""
     with open(str(fileName)) as f:
         data=json.load(f)
     if data.get("format")!=formatName:
         raise ValueError("%s is not a %s file"%(fileName, formatName))
-    return metamodel.fromJson(data), [observation.fromJson(obs) for obs in data.get("observations",[])], data
+    obsTab=[observation.fromJson(obs) for obs in data.get("observations",[])] if observations else []
+    return metamodel.fromJson(data), obsTab, data
+
+def slimMetamodelJson(data):
+    """Only the keys of a metamodel json used by metamodel.fromJson (without the observations)"""
+    return {key:data[key] for key in ["format", "version", "nbDelta", "failure", "time"] if key in data}
 
 
 ## Fit
