@@ -2158,11 +2158,13 @@ void vr_post_syscall(ThreadId tid, UInt syscallno,
    if(vr.useIOMatchCLR){
       if((syscallno==VR_WRITE_SYSCALLNO) && (vr.IOMatchFileDescriptor !=-1)){//syscall write
          int fd=(int)args[0];
-         if(fd==vr.IOMatchFileDescriptor){//sortie standard
+         if(fd==vr.IOMatchFileDescriptor && !sr_isError(res)){//sortie standard
             const HChar* buf=(HChar*)args[1];
-
-            int size=(int)args[2];
-            vr_IOmatch_checkmatch_in_syscall(buf,size);
+            //bytes actually written (partial write), not the requested size args[2]
+            SizeT size=sr_Res(res);
+            if(size>0){
+               vr_IOmatch_checkmatch_in_syscall(buf,size);
+            }
          }
       }
       if(vr.outputIOMatchFilePattern!=NULL){
