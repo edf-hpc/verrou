@@ -6,3 +6,5 @@ stencil-O3-DOUBLE
 stencil-O3-DOUBLE-FMA
 stencil-O3-FLOAT
 stencil-O3-FLOAT-FMA
+stencil-O3-DOUBLE-FMA-OMP
+stencil-O3-FLOAT-FMA-OMP

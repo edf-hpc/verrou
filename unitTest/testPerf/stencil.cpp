@@ -74,6 +74,9 @@ stencil_step(int x0, int x1,
              const RealType Ain[], RealType Aout[]) {
     int Nxy = Nx * Ny;
 
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
     for (int z = z0; z < z1; ++z) {
         for (int y = y0; y < y1; ++y) {
             for (int x = x0; x < x1; ++x) {
@@ -175,6 +178,9 @@ stencil_step(int x0, int x1,
              const RealType Ain[], RealType Aout[]) {
     int Nxy = Nx * Ny;
 
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
     for (int z = z0; z < z1; ++z) {
         for (int y = y0; y < y1; ++y) {
             for (int x = x0; x < x1; ++x) {
