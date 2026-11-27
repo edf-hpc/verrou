@@ -1,0 +1,17 @@
+full 16
+is_instrumented float=1 double=1 count_op=1 float_conv=0
+start                        kernel=0x1.96636ca7975f7p+5 instrumented=0 not_instrumented=0 rounding=6
+stop                         kernel=0x1.96636ca797627p+5 instrumented=4001 not_instrumented=2 rounding=6
+start_again                  kernel=0x1.96636ca7975f7p+5 instrumented=4001 not_instrumented=4005 rounding=6
+stop_soft                    kernel=0x1.96636ca797627p+5 instrumented=8002 not_instrumented=4007 rounding=6
+start_soft                   kernel=0x1.96636ca7975f7p+5 instrumented=8002 not_instrumented=8010 rounding=6
+set_rounding upward          kernel=0x1.96636ca7976ccp+5 instrumented=12003 not_instrumented=8012 rounding=1
+set_rounding toward_zero     kernel=0x1.96636ca79753ep+5 instrumented=16004 not_instrumented=8014 rounding=3
+get_seed after set_seed(7): 7
+random seed 7                kernel=0x1.96636ca797606p+5 instrumented=20005 not_instrumented=8016 rounding=5
+random seed 7 again          kernel=0x1.96636ca797606p+5 instrumented=24006 not_instrumented=8018 rounding=5
+random seed 8                kernel=0x1.96636ca797607p+5 instrumented=28007 not_instrumented=8020 rounding=5
+deterministic section: same result twice=1, differs from outside=1
+random_det                   kernel=0x1.96636ca7975ffp+5 instrumented=44011 not_instrumented=8024 rounding=6
+prandom_update_value 0.25    kernel=0x1.96636ca7975ffp+5 instrumented=48012 not_instrumented=8026 rounding=6
+nearest                      kernel=0x1.96636ca797627p+5 instrumented=52013 not_instrumented=8028 rounding=0

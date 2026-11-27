@@ -1,5 +1,8 @@
 valgrind: valgrind-3.28.0.verrou-dev
 gcc: gcc (Debian 14.2.0-19) 14.2.0
 seed: 42
-binary algos: 5e75bfb039913f924b80dc264050e95bfd3d55fc59e52a2d48fc2c014da20680
-binary ops: 7dcfb9bba931ccbd1f169fd9ebe20babe314ae5504bc29614630fcff9e6c2c22
+binary algos: d6b922cd58f7a92537724c33a2ddbeaeec18af14b5ada50d5bbd2c51524c9aa0
+binary clreq: b9d816c8627bf270aa4c79561f442ba8c40fb8e0ee7cdea7c65f9ddec02c72a1
+binary denorm: eff6766ac97cbc914f1dc3600c0bf4c383c4bf3c09a6e1041985aa7799fed17e
+binary naninf: 5bad6095a0e9c5cc40c7ab95e799b8653b09009fd13a0dfbcf4af176c5ba831d
+binary ops: c549c83313e137eb577692f6f1f525536126737773960301aab4e826be7cda5a

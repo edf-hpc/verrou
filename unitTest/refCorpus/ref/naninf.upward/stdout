@@ -1,0 +1,14 @@
+full 13
+nan_div            -nan
+nan_sub            -nan
+nan_mul            -nan
+nan_sqrt           -nan
+nan_propagate      -nan
+inf_div            inf
+inf_overflow_mul   inf
+inf_rounding_add   inf
+sse_nan            -nan
+avx_inf            inf
+avx_fma_nan        -nan
+fnan_div           -nan
+finf_mul           inf

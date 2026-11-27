@@ -1,0 +1,54 @@
+First seed : 42
+Backend verrou simulating UPWARD rounding mode
+New seed : 7
+New seed : 7
+New seed : 8
+Entering deterministic section <pid-dependent>: det_kernel (clreq.c:35)
+Leaving deterministic section: det_kernel (clreq.c:37)
+Entering deterministic section <pid-dependent>: det_kernel (clreq.c:35)
+Leaving deterministic section: det_kernel (clreq.c:37)
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                    32000                    28000          ( 87%)
+  `- dbl                    32000                    28000      ( 87%)
+      `- llo                    32000                    28000  ( 87%)
+ ---------------------------------------------------------------------
+ mul                    16016                    14014          ( 87%)
+  `- dbl                    16016                    14014      ( 87%)
+      `- llo                    16016                    14014  ( 87%)
+ ---------------------------------------------------------------------
+ div                    16000                    14000          ( 87%)
+  `- dbl                    16000                    14000      ( 87%)
+      `- llo                    16000                    14000  ( 87%)
+ ---------------------------------------------------------------------
+ cmp                       28                        0          (  0%)
+  `- dbl                       28                        0      (  0%)
+      `- scal                      28                        0  (  0%)
+ ---------------------------------------------------------------------
+Warning : verrou need to be compiled with --enable-verrou-profiling-exact to use the client request VERROU_PRINT_PROFILING_EXACT;
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                    32000                    28000          ( 87%)
+  `- dbl                    32000                    28000      ( 87%)
+      `- llo                    32000                    28000  ( 87%)
+ ---------------------------------------------------------------------
+ mul                    16016                    14014          ( 87%)
+  `- dbl                    16016                    14014      ( 87%)
+      `- llo                    16016                    14014  ( 87%)
+ ---------------------------------------------------------------------
+ div                    16000                    14000          ( 87%)
+  `- dbl                    16000                    14000      ( 87%)
+      `- llo                    16000                    14000  ( 87%)
+ ---------------------------------------------------------------------
+ cmp                       28                        0          (  0%)
+  `- dbl                       28                        0      (  0%)
+      `- scal                      28                        0  (  0%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

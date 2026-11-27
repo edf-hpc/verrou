@@ -17,8 +17,9 @@ options, then normalizes what it produces:
 The normalization removes what depends on the execution (pid, paths,
 addresses).
 
-The references depend on the binaries: ref/META records their SHA-256, the
-valgrind and compiler versions. check reports different binaries.
+The references depend on the binaries: ref/META records the SHA-256 of their
+code (without debug information), the valgrind and compiler versions. check
+reports different binaries.
 """
 
 import argparse
@@ -50,6 +51,16 @@ DET_MODES = ["nearest", "upward", "downward", "toward_zero", "away_zero", "farth
 # Reference specific to verrou-Valgrind: another engine may draw in another order.
 SEEDED_MODES = ["random", "nearness", "prandom", "random_instr"]
 
+# vprec backend configurations (deterministic, also with threads)
+VPREC = [("vprec_default", []),
+         ("vprec_bf16", ["--vprec-preset=bfloat16"]),
+         ("vprec_fp16", ["--vprec-preset=binary16"]),
+         ("vprec_tf32", ["--vprec-preset=tf32"]),
+         ("vprec_p30_full", ["--vprec-mode=full", "--vprec-precision-binary64=30", "--vprec-range-binary64=8"]),
+         ("vprec_p30_ib", ["--vprec-mode=ib", "--vprec-precision-binary64=30"]),
+         ("vprec_ieee", ["--vprec-mode=ieee"]),
+         ("vprec_p40_dazftz", ["--vprec-precision-binary64=40", "--vprec-daz=yes", "--vprec-ftz=yes"])]
+
 FULL_STDOUT_MAX = 200
 
 
@@ -70,6 +81,26 @@ def cases():
         modes = DET_MODES + (SEEDED_MODES if single else [])
         for m in modes:
             res.append(Case("%s.%s" % (pname, m), argv, ["--rounding-mode=" + m, "--vr-seed=" + SEED]))
+    # vprec backend
+    for vname, vopts in VPREC:
+        for pname, argv in [("ops", ["ops"]), ("algos1", ["algos", "1"])]:
+            res.append(Case("%s.%s" % (pname, vname), argv, ["--backend=vprec"] + vopts))
+    res.append(Case("algos4.vprec_bf16", ["algos", "4"], ["--backend=vprec", "--vprec-preset=bfloat16"]))
+    # client requests (verrou.h): values returned, results, log messages
+    for m, extra in [("random_det", []), ("nearest", []), ("upward", []), ("upward.instr_atstart_no", ["--instr-atstart=no"])]:
+        res.append(Case("clreq.%s" % m, ["clreq"], ["--rounding-mode=" + m.split(".")[0], "--vr-seed=" + SEED] + extra,
+                        kind="log"))
+    # NaN and Inf detection: valgrind errors with their location
+    for name, opts in [("nearest", ["--rounding-mode=nearest"]), ("upward", ["--rounding-mode=upward"]),
+                       ("random_det", ["--rounding-mode=random_det"]),
+                       ("nocheck", ["--rounding-mode=nearest", "--check-nan=no", "--check-inf=no"])]:
+        res.append(Case("naninf.%s" % name, ["naninf"], opts + ["--vr-seed=" + SEED], kind="log"))
+    # denormals: checkdenorm backend (errors, counters, generated source lines, daz/ftz)
+    cd = ["--backend=checkdenorm", "--vr-seed=" + SEED]
+    res.append(Case("denorm.check_count_gen", ["denorm"], cd + ["--check-denorm=yes", "--count-denorm=yes"], kind="denorm"))
+    res.append(Case("denorm.count", ["denorm"], cd + ["--count-denorm=yes"], kind="log"))
+    for m in ["ftz", "daz", "dazftz"]:
+        res.append(Case("denorm.%s" % m, ["denorm"], cd + ["--rounding-mode=" + m, "--count-denorm=yes"], kind="log"))
     # artefacts: generated exclusions and source lines, coverage
     res.append(Case("algos1.artefacts", ["algos", "1"], ["--rounding-mode=nearest"], kind="artefacts"))
     # exclusion of the computation kernel: the kernel results become native again
@@ -135,6 +166,45 @@ def counters(stderr):
         if l.startswith("Backend") and "rounding mode" in l:
             out.insert(0, l.strip())
             break
+    return "\n".join(out) + "\n"
+
+
+FRAME = re.compile(r"^(\s+(?:at|by)) 0x[0-9A-Fa-f]+: ")
+BACKQUOTED_PATH = re.compile(r"`(/[^']*)'")
+
+
+def log(stderr):
+    """verrou log after the header: errors with their backtrace (without
+    address), messages, counters tables, error summary. Without pid; paths
+    reduced to the file name."""
+    out = []
+    started = False
+    in_config = False
+    for raw in stderr.splitlines():
+        m = re.match(r"^(==|--)\d+(==|--) ?", raw)
+        if m is None:
+            continue
+        l = raw[m.end():]
+        if not started:
+            started = l.startswith("Command:")
+            continue
+        if l.startswith("Instrumented operations") or l.startswith("Instrumented vectorized") \
+           or l.startswith("Instrumented type"):
+            in_config = True
+            continue
+        if in_config and l.startswith("\t"):
+            continue
+        in_config = False
+        if re.match(r"^Backend \S+ : ", l) or l.startswith("For lists of detected"):
+            continue
+        l = FRAME.sub(r"\1 ", l)
+        # seed of a deterministic section: derived from the pid
+        l = re.sub(r"^(Entering deterministic section )\d+:", r"\1<pid-dependent>:", l)
+        l = BACKQUOTED_PATH.sub(lambda mm: "`" + os.path.basename(mm.group(1)) + "'", l)
+        l = re.sub(r"(EXCLUDE DETECTED: |\t)/\S+/", r"\1", l)
+        out.append(l.rstrip())
+    while out and out[0] == "":
+        out.pop(0)
     return "\n".join(out) + "\n"
 
 
@@ -287,14 +357,26 @@ def run_case(case, valgrind):
                 raise RuntimeError("verrou_dd_line: return code %d\n%s" % (p.returncode, p.stdout[-2000:]))
             files["dd_result"] = dd_result(os.path.join(tmp, "dd.line"))
             return files
+        elif case.kind == "denorm":
+            cdi, cdo = os.path.join(tmp, "cdi"), os.path.join(tmp, "cdo")
+            out, err = run_vg(valgrind, opts + ["--cdi-gen-file=" + cdi, "--cdo-gen-file=" + cdo], case.argv,
+                              case.env, tmp)
+            files["cdi_gen"] = norm_paths(open(cdi).read())
+            files["cdo_gen"] = norm_paths(open(cdo).read())
+            files["stdout"] = digest_stdout(out)
+            files["log"] = log(err)
+            return files
         elif case.kind == "iomatch":
             rep = os.path.join(tmp, "iom")
             os.mkdir(rep)
             out, err = run_vg(valgrind, opts + ["--output-IOmatch-rep=" + rep], case.argv, case.env, tmp)
             files["iomatch_log"] = iomatch_log(rep)
-        else:
+        else:  # "run" and "log"
             out, err = run_vg(valgrind, opts, case.argv, case.env, tmp)
-        if case.kind != "artefacts":
+        if case.kind == "log":
+            files["stdout"] = digest_stdout(out)
+            files["log"] = log(err)
+        elif case.kind != "artefacts":
             files["stdout"] = digest_stdout(out)
             files["counters"] = counters(err)
         else:
@@ -302,6 +384,23 @@ def run_case(case, valgrind):
         return files
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def code_hash(path):
+    """SHA-256 of a binary without debug information nor build-id: -g records
+    the build directory and the include paths, which differ between checkouts
+    while the code is the same. Raw SHA-256 if objcopy is not available."""
+    fd, tmp = tempfile.mkstemp(prefix="corpus.bin.")
+    os.close(fd)
+    try:
+        r = subprocess.run(["objcopy", "--strip-all", "--remove-section=.note.gnu.build-id", path, tmp],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        data = open(tmp if r.returncode == 0 else path, "rb").read()
+        return ("" if r.returncode == 0 else "raw ") + hashlib.sha256(data).hexdigest()
+    except OSError:
+        return "raw " + hashlib.sha256(open(path, "rb").read()).hexdigest()
+    finally:
+        os.unlink(tmp)
 
 
 def meta(valgrind):
@@ -315,8 +414,7 @@ def meta(valgrind):
              "gcc: " + out(["gcc", "--version"]),
              "seed: " + SEED]
     for b in sorted(os.listdir(BUILD)):
-        h = hashlib.sha256(open(os.path.join(BUILD, b), "rb").read()).hexdigest()
-        lines.append("binary %s: %s" % (b, h))
+        lines.append("binary %s: %s" % (b, code_hash(os.path.join(BUILD, b))))
     return "\n".join(lines) + "\n"
 
 

@@ -1,0 +1,128 @@
+First seed : 42
+Denorm Output:  (div dbl)
+   at main (denorm.c:40)
+
+Denorm Output:  (mul dbl)
+   at main (denorm.c:41)
+
+Denorm Output:  (sub dbl)
+   at main (denorm.c:42)
+
+Denorm Input:  (add dbl 2)
+   at main (denorm.c:43)
+
+Denorm Output:  (add dbl)
+   at main (denorm.c:43)
+
+Denorm Input:  (mul dbl 1)
+   at main (denorm.c:44)
+
+Denorm Output:  (div flt)
+   at main (denorm.c:45)
+
+Denorm Output:  (mul dbl)
+   at main (denorm.c:46)
+
+Denorm Input:  (add dbl 1)
+   at main (denorm.c:46)
+
+ ---------------------------------------------------------------------
+Denormalized numbers count
+op-type                Total        denorm. Input       denorm. Output
+ add
+  `-dbl                    4              4(100%)              1( 25%)
+ sub
+  `-dbl                    1              0(  0%)              1(100%)
+ mul
+  `-dbl                    7              1( 14%)              4( 57%)
+ div
+  `-flt                    1              0(  0%)              1(100%)
+  `-dbl                    1              0(  0%)              1(100%)
+ ---------------------------------------------------------------------
+Denorm Output:  (div dbl)
+   at main (denorm.c:34)
+
+Denorm Output:  (mul dbl)
+   at main (denorm.c:34)
+
+Denorm Input:  (add dbl 2)
+   at main (denorm.c:34)
+
+Denorm Output:  (add dbl)
+   at main (denorm.c:34)
+
+Denorm Output:  (sub dbl)
+   at main (denorm.c:34)
+
+Denorm Input:  (add dbl 2)
+   at main (denorm.c:34)
+
+Denorm Input:  (add dbl 2)
+   at main (denorm.c:34)
+
+Denorm Output:  (add dbl)
+   at main (denorm.c:34)
+
+Denorm Input:  (add dbl 1)
+   at main (denorm.c:34)
+
+Denorm Input:  (mul dbl 1)
+   at main (denorm.c:34)
+
+Denorm Output:  (div flt)
+   at main (denorm.c:34)
+
+Denorm Output:  (mul dbl)
+   at main (denorm.c:34)
+
+Denorm Input:  (add dbl 1)
+   at main (denorm.c:34)
+
+
+ ---------------------------------------------------------------------
+Denormalized numbers count
+op-type                Total        denorm. Input       denorm. Output
+ add
+  `-dbl                 1100            700( 63%)            200( 18%)
+ sub
+  `-dbl                  100              0(  0%)            100(100%)
+ mul
+  `-dbl                  700            100( 14%)            400( 57%)
+ div
+  `-flt                  100              0(  0%)            100(100%)
+  `-dbl                  100              0(  0%)            100(100%)
+ ---------------------------------------------------------------------
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                     1104                     1104          (100%)
+  `- dbl                     1104                     1104      (100%)
+      `- llo                     1104                     1104  (100%)
+ ---------------------------------------------------------------------
+ sub                      101                      101          (100%)
+  `- dbl                      101                      101      (100%)
+      `- llo                      101                      101  (100%)
+ ---------------------------------------------------------------------
+ mul                      707                      707          (100%)
+  `- dbl                      707                      707      (100%)
+      `- llo                      303                      303  (100%)
+      `- vec4                     404                      404  (100%)
+ ---------------------------------------------------------------------
+ div                      202                      202          (100%)
+  `- flt                      101                      101      (100%)
+      `- llo                      101                      101  (100%)
+  `- dbl                      101                      101      (100%)
+      `- llo                      101                      101  (100%)
+ ---------------------------------------------------------------------
+ cmp                       16                        0          (  0%)
+  `- dbl                       16                        0      (  0%)
+      `- scal                      16                        0  (  0%)
+ ---------------------------------------------------------------------
+ conv                     101                        0          (  0%)
+  `- flt=>dbl                 101                        0      (  0%)
+ ---------------------------------------------------------------------
+Dumping list of included sources to `cdi'... OK.
+Dumping list of included sources to `cdo'... OK.
+ERROR SUMMARY: 1713 errors from 22 contexts (suppressed: 0 from 0)

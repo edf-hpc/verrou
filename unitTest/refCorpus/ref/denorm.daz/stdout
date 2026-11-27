@@ -1,0 +1,9 @@
+full 8
+out_div        0x0.5555555555555p-1022
+out_mul        0x0.8p-1022
+out_sub        0x0.8p-1022
+in_add         0x0p+0
+in_mul_normal  0x0p+0
+fout_div       0x1.555558p-128
+avx_out        0x1p-1021
+phase          0x1.0aaaaccp-121

@@ -1,0 +1,101 @@
+First seed : 42
+Backend verrou simulating UPWARD rounding mode
+EXCLUDE DETECTED: libm.so.6
+Using exclusion rule: *	libm.so.6
+NaN:
+   at nan_div (naninf.c:15)
+   by main (naninf.c:57)
+
++/-Inf:
+   at nan_sub (naninf.c:16)
+   by main (naninf.c:57)
+
+NaN:
+   at nan_sub (naninf.c:16)
+   by main (naninf.c:57)
+
++/-Inf:
+   at nan_mul (naninf.c:17)
+   by main (naninf.c:57)
+
+NaN:
+   at nan_mul (naninf.c:17)
+   by main (naninf.c:57)
+
+NaN:
+   at nan_propagate (naninf.c:19)
+   by main (naninf.c:57)
+
++/-Inf:
+   at inf_div (naninf.c:20)
+   by main (naninf.c:57)
+
++/-Inf:
+   at inf_overflow_mul (naninf.c:21)
+   by main (naninf.c:57)
+
++/-Inf:
+   at inf_rounding_add (naninf.c:22)
+   by main (naninf.c:57)
+
+NaN:
+   at sse_nan (naninf.c:28)
+   by main (naninf.c:57)
+
++/-Inf:
+   at avx_inf (naninf.c:34)
+   by main (naninf.c:57)
+
++/-Inf:
+   at avx_fma_nan (naninf.c:40)
+   by main (naninf.c:57)
+
+NaN:
+   at avx_fma_nan (naninf.c:40)
+   by main (naninf.c:57)
+
+NaN:
+   at main (naninf.c:58)
+
++/-Inf:
+   at main (naninf.c:59)
+
+
+ ---------------------------------------------------------------------
+ Operation                            Instruction count
+  `- Precision
+      `- Vectorization          Total             Instrumented
+ ---------------------------------------------------------------------
+ add                        4                        4          (100%)
+  `- dbl                        4                        4      (100%)
+      `- llo                        4                        4  (100%)
+ ---------------------------------------------------------------------
+ sub                        1                        1          (100%)
+  `- dbl                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+ ---------------------------------------------------------------------
+ mul                        7                        7          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        6                        6      (100%)
+      `- llo                        2                        2  (100%)
+      `- vec4                       4                        4  (100%)
+ ---------------------------------------------------------------------
+ div                        9                        9          (100%)
+  `- flt                        1                        1      (100%)
+      `- llo                        1                        1  (100%)
+  `- dbl                        8                        8      (100%)
+      `- llo                        6                        6  (100%)
+      `- vec2                       2                        2  (100%)
+ ---------------------------------------------------------------------
+ mAdd                       4                        4          (100%)
+  `- dbl                        4                        4      (100%)
+ ---------------------------------------------------------------------
+ cmp                       19                        0          (  0%)
+  `- dbl                       19                        0      (  0%)
+      `- scal                      19                        0  (  0%)
+ ---------------------------------------------------------------------
+ conv                       2                        0          (  0%)
+  `- flt=>dbl                   2                        0      (  0%)
+ ---------------------------------------------------------------------
+ERROR SUMMARY: 22 errors from 15 contexts (suppressed: 0 from 0)
