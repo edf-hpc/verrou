@@ -1106,7 +1106,8 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--ratio=R</computeroutput> [default 0]</term>
-          <listitem><para>Maximal number of new samples relatively to the number of samples of the delta-debug.</para></listitem>
+          <listitem><para>Maximal number of new samples relatively to the number of samples of the delta-debug.
+	  The new samples are written in the cache (first <computeroutput>CACHE_REP</computeroutput>): a delta-debug run again on this cache counts them in the failure ratios.</para></listitem>
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--nruns=NRUNS</computeroutput></term>
@@ -1146,14 +1147,10 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
           <listitem><para>Trace file of <computeroutput>verrou_dd_* --trace-file=</computeroutput> used to get the sample durations (can be repeated).</para></listitem>
 	</varlistentry>
 	<varlistentry>
-          <term><computeroutput>--no-background</computeroutput></term>
-          <listitem><para>Ignore the diffuse background in the fitted model (<computeroutput>eps=0</computeroutput>): the nested models are the independent ddmin
-	  with and without interactions, and no ddmin is absorbed in the background. This is the default.</para></listitem>
-	</varlistentry>
-	<varlistentry>
           <term><computeroutput>--background</computeroutput></term>
           <listitem><para>Fit the diffuse background (<computeroutput>eps</computeroutput>, <computeroutput>beta</computeroutput>): the ddmin which are not
-	  significant against the background are absorbed in it. Overrides <computeroutput>--no-background</computeroutput>.</para></listitem>
+	  significant against the background are absorbed in it. By default the background is ignored (<computeroutput>eps=0</computeroutput>): the nested
+	  models are the independent ddmin with and without interactions, and no ddmin is absorbed in the background.</para></listitem>
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--no-observations</computeroutput></term>

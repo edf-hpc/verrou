@@ -21,6 +21,10 @@ _verrou_dd_metamodel()
             cur=${cur#*=}
             return
             ;;
+        --num-threads=*)
+            cur=${cur#*=}
+            return
+            ;;
         --residual-factor=*)
             cur=${cur#*=}
             return
@@ -29,7 +33,11 @@ _verrou_dd_metamodel()
             cur=${cur#*=}
             return
             ;;
-        --num-threads=*)
+        --substitution-ratio=*)
+            cur=${cur#*=}
+            return
+            ;;
+        --merge-ratio=*)
             cur=${cur#*=}
             return
             ;;
@@ -58,7 +66,7 @@ _verrou_dd_metamodel()
 
     esac
 
-    COMPREPLY=($(compgen -W ' --output= -o --ratio= --nruns= --residual-factor= --pairs-ratio= --num-threads= --seed= --penalty= --trace-file= --no-observations --dry-run' -- "$cur"))
+    COMPREPLY=($(compgen -W ' --output= -o --ratio= --nruns= --num-threads= --residual-factor= --pairs-ratio= --substitution-ratio= --merge-ratio= --seed= --penalty= --trace-file= --background --no-observations --dry-run' -- "$cur"))
 
     _filedir
 

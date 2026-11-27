@@ -81,10 +81,8 @@ class config_metamodel(gen_config.gen_config):
                          docStr="L2 penalty of the interaction terms of the fit (default 0.1)")
         self.addRegistry("traceFile",  "string", "TRACE_FILE",  ["--trace-file="],   [], "file_exists", True,
                          docStr="ddTrace file (verrou_dd_* --trace-file=) used to get the sample durations of old caches (several allowed)")
-        self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], True,
-                         docStr="ignore the diffuse background in the fitted model (no ddmin is absorbed in the background) : default")
         self.addRegistry("background", "bool", "BACKGROUND", ["--background"], False,
-                         docStr="fit the diffuse background (eps, beta) : the ddmin which are not significant against the background are absorbed in it (overrides --no-background)")
+                         docStr="fit the diffuse background (eps, beta) : the ddmin which are not significant against the background are absorbed in it (default : the background is ignored)")
         self.addRegistry("noObservations", "bool", "NO_OBSERVATIONS", ["--no-observations"], False,
                          docStr="do not save the samples in the json file (only the fitted model)")
         self.addRegistry("dryRun",     "bool",   "DRY_RUN",     ["--dry-run"],       False,
@@ -115,8 +113,6 @@ class config_metamodel(gen_config.gen_config):
         except ValueError:
             print("Error : --ratio=, --penalty=, --pairs-ratio=, --substitution-ratio= and --merge-ratio= should be float values", file=sys.stderr)
             self.failure()
-        if self.background:
-            self.noBackground=False
         if self.output==None:
             self.output=str(self.cacheRep / "metamodel.json")
         else:
@@ -308,7 +304,7 @@ def enrich(conf, cache):
     previous=None
     while mergeBudget>0:
         model=ddMetamodel.fitAll(cache.nbDelta(), clauses, list(cache.observations.values()), conf.penalty,
-                                 withBackground=not conf.noBackground)[0]
+                                 withBackground=conf.background)[0]
         toCompute=[]
         cost=0
         for c,nb in ddMetamodel.mergePlan(model, list(cache.observations.values()), nbSample):
@@ -447,7 +443,7 @@ if __name__=="__main__":
     observations=sorted(cache.observations.values(), key=lambda obs: (len(obs.conf), obs.conf))
     clauses=cache.clauses()
     model, table, removed, merged=ddMetamodel.fitAll(cache.nbDelta(), clauses, observations, conf.penalty,
-                                                     withBackground=not conf.noBackground)
+                                                     withBackground=conf.background)
     model.timeModel=ddMetamodel.fitTime(cache.nbDelta(), observations)
     diag=ddMetamodel.diagnostics(model, observations)
     nbSample=conf.nbRun if conf.nbRun!=None else cache.nbRun()
@@ -464,7 +460,7 @@ if __name__=="__main__":
           "residual":residual,
           "failure":model.failureJson(),
           "time":model.timeModel,
-          "fit":{"models":table, "penalty":conf.penalty, "noBackground":conf.noBackground, "removedDdmin":removed, "mergedDdmin":merged,
+          "fit":{"models":table, "penalty":conf.penalty, "noBackground":not conf.background, "removedDdmin":removed, "mergedDdmin":merged,
                  "nbObservation":len(observations), "nbSample":sum(obs.nbSample() for obs in observations),
                  "worst":diag[:20]},
           "links":{name:obsIndex[md5] for name,md5 in sorted(cache.links.items())}}
@@ -473,5 +469,5 @@ if __name__=="__main__":
     with open(conf.output,"w") as f:
         json.dump(data, f, indent=1)
 
-    report(model, table, removed, merged, model.timeModel, diag, cache, residual, conf.noBackground)
+    report(model, table, removed, merged, model.timeModel, diag, cache, residual, not conf.background)
     print("\nmetamodel written in %s"%(conf.output))
