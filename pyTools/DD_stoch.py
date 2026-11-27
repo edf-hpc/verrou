@@ -355,6 +355,10 @@ class DDStoch(DD.DD):
     def __init__(self, config,
                  selectBlocAndNumLine=lambda x: (x,0), joinBlocAndNumLine= lambda x,y: x,
                  parseRef=None):
+        """With config.reuseCacheOnly (verrou_dd_metamodel) the object only computes new samples in an existing
+        cache (_testTab) : the cache, the reference, the search space and cmd.last are kept unchanged
+        (no prepareCache, reference, mergeList, saveParam), ddTrace is not initialized (noTracer), the search
+        space is read on demand by getDelta0 and the caller initializes the seeds (initSeed)."""
         DD.DD.__init__(self)
         self.config_=config
         if not  self.config_.get_quiet():
@@ -368,11 +372,9 @@ class DDStoch(DD.DD):
         self.prefix_ = Path.cwd() / self.config_.get_cacheRep()
         self.relPrefix_=self.config_.get_cacheRep()
         self.ref_ = self.prefix_ / "ref"
-        if getattr(self.config_, "reuseCacheOnly", False):
-            #post-processing of an existing cache (verrou_dd_metamodel) : the cache, the reference
-            #and cmd.last are kept unchanged, only new samples are computed
+        if self.config_.reuseCacheOnly:
+            #post-processing of an existing cache (verrou_dd_metamodel, see the docstring)
             self.useRddminHeuristic=False
-            self.initSeed()
             return
         self.prepareCache()
         ddTrace.init(self.config_.get_traceFile(), self.config_.get_maxNbPROC())

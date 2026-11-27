@@ -35,6 +35,11 @@ def exponentialRange(nbRun):
 
 class ddConfig(gen_config.gen_config):
 
+    #True : the DDStoch object only computes new samples in an existing cache (set by verrou_dd_metamodel,
+    #not an option of the command line ; see DDStoch.__init__). Class attribute : also defined for the
+    #subclasses which do not call ddConfig.__init__ (verrou_dd_fake)
+    reuseCacheOnly=False
+
     def __init__(self, argv, environ,config_keys=["INTERFLOP"], prefix="dd.generic"):
         self.prefix_=prefix
         super().__init__(argv, environ, config_keys)
