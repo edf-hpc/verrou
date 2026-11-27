@@ -22,6 +22,7 @@ This version is based on Valgrind-3.28.0.
 	- Without FMA (--enable-verrou-fma=no), the sign of the rounding error of the multiplication and division is now also correct for large values (Dekker split overflow) and for the float division.
 	- With --unfused=yes, the FMA are no longer perturbed when the instrumentation is stopped with the soft instrumentation (without --float=yes).
 	- New format of the cmd.last file of the delta-debugging caches: a Cwd: line replaces the PWD variable and the arguments of the Cmd: line are quoted for the shell.
+	- post_verrou_dd no longer loops forever when the delta-debugging was run without any VERROU_* variable in the environment.
 
 ---
 

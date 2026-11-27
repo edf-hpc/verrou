@@ -115,36 +115,40 @@ def rename_pid_for_one_rep(config, rep, ignoreEmpty=True,verbose=False):
 
 
 def parseLastCmd(rep, instr_prefix="VERROU"):
+    """Parse the cmd.last file written by confToStr (gen_config.py) : the tool (first line), the variables
+    of the section ENV <instr_prefix> (missing without such variable in the environment of the delta-debug)
+    and the working directory (Cwd: line, or the PWD variable of the first section in the old format).
+    Return None if the file is missing or invalid."""
     # maybe we should use a non-human cleaner format
-    # parse the result of confToStr defined in gen_config.py
     fileName=rep/ "cmd.last"
     if not fileName.is_file():
         print(fileName, "missing")
         return None
-    res={}
-    handler=open(str(fileName),"r")
-    line=handler.readline()
-    cmd=line.replace("ENV ","").replace(":\n","")
-    res["cmd"]=cmd
-    res["env"]={}
-    line=handler.readline()
-    while line!= "ENV "+instr_prefix+":\n":
-        if line.startswith("\tPWD="):
-            res["env"]["PWD"]=line.replace("\tPWD=","").strip()
-        line=handler.readline()
-    line=handler.readline()
-    while not line.startswith("Cmd:"):
-        if line.startswith("\t"+instr_prefix+"_"):
-            spline=line.strip().split("=",1)
-            res["env"][spline[0]]=spline[1]
+    with open(str(fileName),"r") as handler:
+        lines=[line.rstrip("\n") for line in handler]
+    if len(lines)==0 or not lines[0].startswith("ENV ") or not any(line.startswith("Cmd:") for line in lines):
+        print("Parsing error", fileName)
+        return None
+    res={"cmd":lines[0][len("ENV "):].rstrip(":"), "env":{}}
+    section=res["cmd"]
+    for line in lines[1:]:
+        if line.startswith("Cmd:"):
+            break
+        if line.startswith("ENV "):
+            section=line[len("ENV "):].rstrip(":")
         elif line.startswith("Cwd: "):
             #working directory of the delta-debug (replace the PWD line of the old format)
-            res["env"]["PWD"]=line[len("Cwd: "):].rstrip("\n")
+            res["env"]["PWD"]=line[len("Cwd: "):]
+        elif line.startswith("\t") and "=" in line:
+            key,value=line.strip().split("=",1)
+            if section==instr_prefix:
+                res["env"][key]=value
+            elif key=="PWD" and section==res["cmd"]:
+                res["env"]["PWD"]=value
         else:
             print("Parsing error", fileName)
             print("line", line)
             return None
-        line=handler.readline()
     return res
 
 
