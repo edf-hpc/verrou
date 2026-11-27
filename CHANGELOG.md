@@ -8,6 +8,7 @@ This version is based on Valgrind-3.28.0.
 	- Added verrou_dd_metamodel to build from the cache of any verrou_dd_* an anonymized metamodel of the code (failure probability of the ddmin, interactions, graded and alternative clauses, residual failures, computation time), with optional new samples (--ratio=) and merge of several caches of the same search space.
 
 ### Changed
+	- verrou_control: the control protocol (commands and replies, specified in pyTools/verrouControlProtocol.py) is separated from its transport (pyTools/verrouControlTransport.py: vgdb with the Valgrind engine); the command line interface is unchanged.
 	- NaN/Inf detection is selected during the instrumentation: no cost anymore with --check-nan=no --check-inf=no.
 	- NaN/Inf detection is done after the backend call with all the backends: with --unfused=yes only the final result of a FMA is checked.
 	- The nearest operators are inlined in the instrumentation wrappers (about 10% faster).

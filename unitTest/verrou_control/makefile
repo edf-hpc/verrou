@@ -16,10 +16,14 @@ TRACE_CONTROL=trace_control.dat
 TRACE_CONTROL_FILTERED=trace_control_filtered.dat
 TRACE_CONTROL_REF=trace_control_filtered.ref
 
-.PHONY: run analyse
+.PHONY: run analyse protocol
 
-analyse: $(TRACE_CONTROL_FILTERED) $(TRACE_CONTROL_REF)
+analyse: protocol $(TRACE_CONTROL_FILTERED) $(TRACE_CONTROL_REF)
 	diff  $(TRACE_CONTROL_REF) $(TRACE_CONTROL_FILTERED) 
+
+# commands and replies of the control protocol, without a running process
+protocol:
+	./testProtocol.py
 
 $(TRACE_CONTROL_FILTERED):  $(TRACE_CONTROL)
 	./pyFilter.py $(TRACE_CONTROL) > $(TRACE_CONTROL_FILTERED)
