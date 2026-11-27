@@ -75,7 +75,7 @@ check-install:
 	source ../install/env.sh && valgrind --version
 
 	@echo "*** CHECK HELP ***"
-	source ../install/env.sh && valgrind --tool=verrou --help
+	source ../install/env.sh && verrou --help
 
 check:
 	@echo "*** BUILD TESTS ***"

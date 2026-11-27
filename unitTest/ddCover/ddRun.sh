@@ -8,5 +8,5 @@ OUTDIR=$1
 #    LIBMOPTION=manual_exclude
 #fi
 
-valgrind --tool=verrou --rounding-mode=random --libm=$LIBMOPTION\
+verrou --rounding-mode=random --libm=$LIBMOPTION\
 	 ./unitTest >${OUTDIR}/res.dat

@@ -121,7 +121,7 @@
             <programlisting>
 #!/bin/bash
 DIR="$1"
-valgrind --tool=verrou --rounding-mode=random <replaceable>program args</replaceable> &gt; ${DIR}/results.dat</programlisting>
+verrou --rounding-mode=random <replaceable>program args</replaceable> &gt; ${DIR}/results.dat</programlisting>
             </listitem>
           </varlistentry>
           <varlistentry>
@@ -864,7 +864,7 @@ verrou.set_rounding("random")
 	    <programlisting>
 #!/bin/bash
 DIR=$1
-valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonProg.py > $DIR/res.dat</programlisting>
+verrou --rounding-mode=random  trace_verrou_task.py ./myPythonProg.py > $DIR/res.dat</programlisting>
 	    </para>
 	</listitem>
 	</varlistentry>
@@ -1184,7 +1184,7 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc</programlisting>
 
 	With the <computeroutput> trace.inc</computeroutput> the BB coverage instrumentation can be activated with the <computeroutput>--trace=</computeroutput> option:
-	<programlisting>valgrind --tool=verrou --rounding-mode=random --trace=trace.inc --trace-type=bb_cover <replaceable>program args</replaceable></programlisting>
+	<programlisting>verrou --rounding-mode=random --trace=trace.inc --trace-type=bb_cover <replaceable>program args</replaceable></programlisting>
 
 	Hence two files <computeroutput>trace_bb_cov.log-PID</computeroutput> and <computeroutput>trace_bb_info.log-PID</computeroutput> are generated.
 	The first one contains counter information for each Basic Blocks and the second one contains debug information for each Basic Bloc. These two files (which must be moved together)
@@ -1207,7 +1207,7 @@ echo "*" ‘readlink -f <replaceable>program</replaceable>‘ > trace.inc</progr
       <title>Backtrace coverage comparison</title>
       The Basic Block coverage may be difficult to read. With the backtrace trace mode you can keep structure with a more expensive mode.
       <programlisting>
-	valgrind --tool=verrou --rounding-mode=random --trace=trace.inc --trace-type=back_cover <replaceable>program args</replaceable></programlisting>
+	verrou --rounding-mode=random --trace=trace.inc --trace-type=back_cover <replaceable>program args</replaceable></programlisting>
 
       Hence 3 files <computeroutput>backAddrInfo-PID</computeroutput>, <computeroutput>bbAddrInfo-PID</computeroutput>
       and  <computeroutput>backCoverInfo-PID</computeroutput> are generated.

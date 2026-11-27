@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# This file is part of Verrou, a FPU instrumentation tool.
+
+# Copyright (C) 2014-2026 EDF
+#   B. Lathuilière <bruno.lathuiliere@edf.fr>
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307, USA.
+
+# The GNU Lesser General Public License is contained in the file COPYING.
+
+# verrou : run a program under verrou.
+#
+#   verrou [OPTIONS] PROGRAM [ARGS...]
+#
+# Equivalent to "valgrind --tool=verrou [OPTIONS] PROGRAM [ARGS...]": OPTIONS
+# are the verrou options and the valgrind core options. Using this command
+# instead of valgrind keeps the scripts independent of the instrumentation
+# engine.
+#
+# valgrind used: $VERROU_VALGRIND if set, otherwise the valgrind installed
+# next to this command, otherwise the valgrind of the PATH.
+# The process is replaced by valgrind (exec): exit code and signals are the
+# ones of valgrind.
+
+for arg in "$@"; do
+    case "$arg" in
+        --tool | --tool=*)
+            echo "verrou: $arg is not accepted: the tool is verrou (use valgrind for another tool)" >&2
+            exit 1
+            ;;
+        -*)
+            ;;
+        *)
+            break # first word which is not an option: the program
+            ;;
+    esac
+done
+
+if [ -n "${VERROU_VALGRIND-}" ]; then
+    vg=$VERROU_VALGRIND
+else
+    here=$(dirname "$(readlink -f "$0")")
+    if [ -x "$here/valgrind" ]; then
+        vg=$here/valgrind
+    else
+        vg=valgrind
+    fi
+fi
+
+exec "$vg" --tool=verrou "$@"

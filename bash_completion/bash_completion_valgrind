@@ -1,4 +1,4 @@
-# valgrind(1) completion                                   -*- shell-script -*-
+# valgrind(1) and verrou completion                        -*- shell-script -*-
 # adapation from a debian distribution file : /usr/share/bash-completion/completions/valgrind
 
 #modification
@@ -209,6 +209,6 @@ _valgrind()
         return
     fi
 } &&
-    complete -F _valgrind valgrind
+    complete -F _valgrind valgrind verrou
 
 # ex: filetype=sh

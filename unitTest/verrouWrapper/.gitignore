@@ -1,0 +1,5 @@
+prog
+out.*
+err.*
+fake_valgrind
+bin/

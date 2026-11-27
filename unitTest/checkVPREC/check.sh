@@ -35,7 +35,7 @@ do
 	for precision in ${precisionlist} ;
 	do
 
-	    valGrind="valgrind --tool=verrou --backend=vprec --vprec-range-binary${bit}=${range} --vprec-precision-binary${bit}=${precision} --vprec-mode=${mode} --count-op=no --quiet --check-nan=no --check-inf=no"
+	    valGrind="verrou --backend=vprec --vprec-range-binary${bit}=${range} --vprec-precision-binary${bit}=${precision} --vprec-mode=${mode} --count-op=no --quiet --check-nan=no --check-inf=no"
 	    fileRef="./mpfr_reference/mpfr_${realType}_${mode}_E${range}M${precision} "
 	    runCmd="${valGrind} ./check_vprec_rounding ${fileRef} ${range} ${precision} ${nbSample}"
 	    #echo ${realType} ${mode} E${range} M${precision} ${valGrind} ${runCmd}

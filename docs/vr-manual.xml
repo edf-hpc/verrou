@@ -6,8 +6,12 @@
   <title>Verrou: a floating-point rounding error checker</title>
 
   <para>
-    To use this tool, you must specify <option>--tool=verrou</option> on the
-    Valgrind command line.
+    To use this tool, run your program with the <command>verrou</command>
+    command, which is equivalent to specifying <option>--tool=verrou</option>
+    on the Valgrind command line: <command>verrou</command> accepts the
+    verrou options and the Valgrind core options. Using the
+    <command>verrou</command> command keeps your scripts independent of the
+    instrumentation engine (future development).
   </para>
 
   <xi:include href="vr-overview.xml"

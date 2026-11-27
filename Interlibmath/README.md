@@ -30,15 +30,15 @@ The difference between native and nearest is that : native return the value obta
 
 ## How to use with Verrou :
 
-VERROU_ROUNDING_MODE=random LD_PRELOAD='PATH'/interlibmath.so valgrind --tool=verrou --exclude=libm.ex ./myProg
+VERROU_ROUNDING_MODE=random LD_PRELOAD='PATH'/interlibmath.so verrou --exclude=libm.ex ./myProg
 Remarks :
 - libm.ex should contain the libm and libquadmath.
 - libm functions and ./myProg operation are instrumented with random rounding
 
 To set different rounding mode to libm (random)  and to myProg (upward):
-   VERROU_LIBM_ROUNDING_MODE=random VERROU_ROUNDING_MODE=upward  LD_PRELOAD='PATH'/interlibmath.so valgrind --tool=verrou --exclude=libm.ex ./myProg	
+   VERROU_LIBM_ROUNDING_MODE=random VERROU_ROUNDING_MODE=upward  LD_PRELOAD='PATH'/interlibmath.so verrou --exclude=libm.ex ./myProg	
 or
-   VERROU_LIBM_ROUNDING_MODE=random LD_PRELOAD='PATH'/interlibmath.so valgrind --tool=verrou --exclude=libm.ex --rounding-mode=upward ./myProg		
+   VERROU_LIBM_ROUNDING_MODE=random LD_PRELOAD='PATH'/interlibmath.so verrou --exclude=libm.ex --rounding-mode=upward ./myProg		
 
 
 ## Remarks

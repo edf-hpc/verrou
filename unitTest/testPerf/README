@@ -3,4 +3,4 @@
 make
 
 #run the 4 executables with PREFIX
-PREFIX="valgrind --tool=verrou  --rounding-mode=random " ./run.sh 2>/dev/null
+PREFIX="verrou  --rounding-mode=random " ./run.sh 2>/dev/null

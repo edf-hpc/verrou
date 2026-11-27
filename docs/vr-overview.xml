@@ -22,11 +22,15 @@
 
     <para>
       To start a floating-point check for a program, execute:
-      <screen><cmdsynopsis><command>valgrind</command><arg choice="plain">--tool=verrou</arg><arg choice="opt"><replaceable>verrou options</replaceable></arg><arg choice="req"><replaceable>program</replaceable></arg><arg choice="opt"><replaceable>program options</replaceable></arg></cmdsynopsis></screen>
+      <screen><cmdsynopsis><command>verrou</command><arg choice="opt"><replaceable>verrou options</replaceable></arg><arg choice="req"><replaceable>program</replaceable></arg><arg choice="opt"><replaceable>program options</replaceable></arg></cmdsynopsis></screen>
+      The <command>verrou</command> command is equivalent to
+      <command>valgrind --tool=verrou</command>: it accepts the verrou options and the Valgrind core
+      options. It runs the <command>valgrind</command> installed next to it, or the one given by the
+      <computeroutput>VERROU_VALGRIND</computeroutput> environment variable.
     </para>
 
     <para>For example:<screen>
-	<prompt>$</prompt>  valgrind --tool=verrou --rounding-mode=random python3
+	<prompt>$</prompt>  verrou --rounding-mode=random python3
 ==20752== Verrou, Check floating-point rounding errors
 ==20752== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2023, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
 ==20752==  
@@ -149,13 +153,13 @@ Type "help", "copyright", "credits" or "license" for more information.
 <screen>
 <prompt>>>></prompt> python3 -c "print(sum([0.1*i for i in range(1000)]))"
 49950.0
-<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=nearest --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+<prompt>>>></prompt> verrou --rounding-mode=nearest --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
 49950.0
-<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+<prompt>>>></prompt> verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
 49950.00000000023
-<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+<prompt>>>></prompt> verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
 49950.0000000002
-<prompt>>>></prompt> valgrind --tool=verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
+<prompt>>>></prompt> verrou --rounding-mode=random --quiet --count-op=no   python3 -c "print(sum([0.1*i for i in range(1000)]))"
 49950.00000000016
 </screen>
     </para>
@@ -184,7 +188,7 @@ Type "help", "copyright", "credits" or "license" for more information.
       Getting back to the previous python example:
     </para>
     <screen>
-<prompt>$</prompt>  valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude python3
+<prompt>$</prompt>  verrou --rounding-mode=random --libm=manual_exclude python3
 [VERROU INIT]
 Python 3.7.3 (default, Oct 31 2022, 14:04:00) 
 [GCC 8.3.0] on linux
@@ -213,7 +217,7 @@ Type "help", "copyright", "credits" or "license" for more information.
       linkend="vr-opt.exclude"/>=<replaceable>LIST</replaceable> command-line switch in the
       following way:
     </para>
-    <screen>valgrind --tool=verrou --rounding-mode=random --libm=manual_exclude --exclude=libm.ex python3</screen>
+    <screen>verrou --rounding-mode=random --libm=manual_exclude --exclude=libm.ex python3</screen>
     <para>
       where the file <filename>libm.ex</filename> contains a list of functions to be left
       unperturbed. For example, in order to disable random rounding modes in the whole

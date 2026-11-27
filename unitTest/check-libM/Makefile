@@ -3,7 +3,7 @@ BIN=./testAster
 FLAGS=-g -O0
 
 export INSTALLPATH = $(shell bash ../installpath)
-export VALGRIND=$(INSTALLPATH)/bin/valgrind --tool=verrou
+export VALGRIND=$(INSTALLPATH)/bin/verrou
 
 
 REFERENCE=no

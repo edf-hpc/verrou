@@ -124,7 +124,7 @@ exp      /lib/x86_64-linux-gnu/libm-2.23.so</screen>
       </para>
 
       <para>For example:<screen>
-<prompt>$</prompt> valgrind --tool=verrou --gen-exclude=all.tex python3
+<prompt>$</prompt> verrou --gen-exclude=all.tex python3
 ==10469== Verrou, Check floating-point rounding errors
 ==10469== Copyright (C) 2014-2019, EDF (F. Fevotte &amp; B. Lathuiliere). 2019-2023, EDF (B. Lathuiliere). 2020-2021, TriScale innov (F. Fevotte)
 ==10469==
@@ -311,7 +311,7 @@ int main () {
 } </programlisting>
 
     This program should be run in Verrou using the following command:
-    <screen>valgrind --tool=verrou --instr-atstart=no <replaceable>program</replaceable></screen>
+    <screen>verrou --instr-atstart=no <replaceable>program</replaceable></screen>
     </para>
     <para>
       The same thing can be achieved interactively (and without the need for a recompilation of the

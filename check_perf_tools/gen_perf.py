@@ -96,34 +96,34 @@ def runPerfConfig(name):
         for (optName, opt) in verrouOptionsList:
             roundingTab=get_rounding_tab(name)
             for rounding in roundingTab:
-                cmd="valgrind --tool=verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin / binName,perfCmdParam)
+                cmd="verrou --rounding-mode=%s %s %s %s "%(rounding, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all-nc":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex --count-op=no %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --exclude=exclude.all.%s.ex --count-op=no %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="nearest-nc":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --count-op=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="tool_none":
                     cmd="valgrind --tool=none %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="fma_only":
-                    cmd="valgrind --tool=verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --vr-instr=mAdd,mSub --rounding-mode=nearest %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="gen_exclude":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-exclude=exclude.all.%s.ex %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --gen-exclude=exclude.all.%s.ex %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="gen_source":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-source=source.all.%s.inc %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --gen-source=source.all.%s.inc %s %s %s "%(binName,optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="source_nothing":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --source=source.nothing.inc %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --source=source.nothing.inc %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="gen_backtrace":
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --gen-backtrace=back-%s %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --gen-backtrace=back-%s %s %s %s "%(binName, optName, pathPerfBin / binName,perfCmdParam)
                 if rounding=="exclude_all_backtrace":
                     myPath=str( list(Path(".").glob("back-"+binName+"/backInfo-*"))[0])
-                    cmd="valgrind --tool=verrou --rounding-mode=nearest --exclude-backtrace=%s %s %s %s "%(myPath,optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --rounding-mode=nearest --exclude-backtrace=%s %s %s %s "%(myPath,optName, pathPerfBin / binName,perfCmdParam)
 
                 if rounding=="float":
-                    cmd="valgrind --tool=verrou --float=yes --vr-instr-dbl=yes --vr-instr-flt=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --float=yes --vr-instr-dbl=yes --vr-instr-flt=no %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
 
                 if rounding=="vprec_float":
-                    cmd="valgrind --tool=verrou --backend=vprec --vprec-preset=fp32  %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
+                    cmd="verrou --backend=vprec --vprec-preset=fp32  %s %s %s "%(optName, pathPerfBin / binName,perfCmdParam)
 
                 toPrint=True
                 for i in range(nbRunTuple[1]):
