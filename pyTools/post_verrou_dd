@@ -195,12 +195,7 @@ def runOneConfig(config, refDir, outputDir, envvars, nbRun, traceFile=None):
     runScript=config.get_runScript()
     cmpScript=config.get_cmpScript()
 
-    seedTab=None
-    seed=config.getSeed()
-    if seed!=None:
-        import random
-        random.seed(seed)
-        seedTab=random.sample(range(0,2**32-1), config.get_nbRUN())
+    seedTab=DD_stoch.drawSeeds(config.getSeed(), config.get_nbRUN())
 
     if traceFile!=None:
         envvars["VERROU_TRACE"]=traceFile

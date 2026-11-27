@@ -293,6 +293,20 @@ def removeDeltas(excludes, deltas):
             kept.append(line)
     return kept
 
+def drawSeeds(seed, nbRun, nbSample=None):
+    """Seeds of the samples of a configuration (seedTab[i] : seed of the i-th sample), None without seed.
+    Shared by the verrou_dd_* tools, post_verrou_dd, verrou_dd_metamodel and verrou_plot_stat : the i-th sample of a
+    configuration receives the same seed. The nbRun first seeds do not depend on nbSample : the extra
+    seeds (nbSample>nbRun, new samples of verrou_dd_metamodel) are drawn after them"""
+    if seed==None:
+        return None
+    import random
+    random.seed(seed)
+    seedTab=random.sample(range(0,2**32-1), nbRun)
+    if nbSample!=None and nbSample>nbRun:
+        seedTab+=random.sample(range(0,2**32-1), nbSample-nbRun)
+    return seedTab
+
 def md5Name(deltas):
     if len(deltas)==0:
         return hashlib.md5(b"").hexdigest()
@@ -377,13 +391,9 @@ class DDStoch(DD.DD):
         import traceback
         traceback.print_stack()
 
-    def initSeed(self):
-        if self.config_.ddSeed!=None:
-            import random
-            random.seed(self.config_.ddSeed)
-            self.seedTab=random.sample(range(0,2**32-1), self.config_.get_nbRUN())
-        else:
-            self.seedTab=None
+    def initSeed(self, nbSample=None):
+        """seedTab[i] : seed of the i-th sample of each configuration (see drawSeeds)"""
+        self.seedTab=drawSeeds(self.config_.ddSeed, self.config_.get_nbRUN(), nbSample)
 
     def symlink(self,src, dst):
         """Create a relative symlink"""

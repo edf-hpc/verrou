@@ -59,11 +59,7 @@ def verrou_run_stat(conf):
     taskTab=[]
     for roundingMode in listOfStat:
         nbSample=listOfStat[roundingMode]
-        seedTab=None
-        if conf.seed()!=None:
-            import random
-            random.seed(conf.seed())
-            seedTab=random.sample(range(0,2**32-1), nbSample)
+        seedTab=DD_stoch.drawSeeds(conf.seed(), nbSample)
         if nbSample==0:
             continue
         name=("%s")%(roundingMode)

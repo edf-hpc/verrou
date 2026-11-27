@@ -168,13 +168,7 @@ def buildDD(cache, nbSample, numThreads):
         config.maxNbPROC=numThreads
     config.reuseCacheOnly=True
     dd=ddClass(config)
-
-    if dd.seedTab!=None and len(dd.seedTab)<nbSample:
-        #same draw as DDStoch.initSeed : the extra seeds are drawn after the nbRun first ones
-        random.seed(config.ddSeed)
-        seedTab=random.sample(range(0,2**32-1), config.get_nbRUN())
-        seedTab+=random.sample(range(0,2**32-1), nbSample-config.get_nbRUN())
-        dd.seedTab=seedTab
+    dd.initSeed(nbSample) #the samples of index < --nruns keep the seeds of the delta-debug
     return dd
 
 
