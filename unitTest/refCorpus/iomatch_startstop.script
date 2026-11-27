@@ -1,0 +1,8 @@
+dump-stdout:
+cmatch: dadd 300 *
+apply: stop
+cmatch: dadd 400 *
+apply: start
+cmatch: dadd 500 *
+apply: display_counter
+apply: reset_counter

@@ -1,0 +1,14 @@
+cmatch pattern [0] : dadd 300 *
+cmatch pattern [1] : dadd 400 *
+cmatch pattern [2] : dadd 500 *
+post-init:
+match [0]: dadd 300 inf
+apply: stop
+match [1]: dadd 400 0x1.5555555555555p+0
+apply: start
+match [2]: dadd 500 inf
+apply: display_counter
+match pattern count
+	1 : dadd 300 *
+	1 : dadd 400 *
+	1 : dadd 500 *

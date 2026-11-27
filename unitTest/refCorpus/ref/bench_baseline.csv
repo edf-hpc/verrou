@@ -1,0 +1,27 @@
+# cpu: Intel(R) Core(TM) i5-4460  CPU @ 3.20GHz
+# valgrind-3.28.0.verrou-dev ; gcc (Debian 14.2.0-19) 14.2.0
+variant,configuration,seconds
+stencil-O3-DOUBLE,native,0.100
+stencil-O3-DOUBLE,none,0.541
+stencil-O3-DOUBLE,nearest,1.097
+stencil-O3-DOUBLE,random,4.261
+stencil-O3-DOUBLE,random_det,4.625
+stencil-O3-DOUBLE,float,3.246
+stencil-O3-DOUBLE-FMA,native,0.080
+stencil-O3-DOUBLE-FMA,none,0.494
+stencil-O3-DOUBLE-FMA,nearest,0.974
+stencil-O3-DOUBLE-FMA,random,3.845
+stencil-O3-DOUBLE-FMA,random_det,4.217
+stencil-O3-DOUBLE-FMA,float,2.759
+stencil-O0-DOUBLE,native,0.260
+stencil-O0-DOUBLE,none,1.739
+stencil-O0-DOUBLE,nearest,2.098
+stencil-O0-DOUBLE,random,5.276
+stencil-O0-DOUBLE,random_det,5.589
+stencil-O0-DOUBLE,float,4.346
+stencil-O3-FLOAT,native,0.082
+stencil-O3-FLOAT,none,0.520
+stencil-O3-FLOAT,nearest,1.227
+stencil-O3-FLOAT,random,4.617
+stencil-O3-FLOAT,random_det,5.097
+stencil-O3-FLOAT,float,2.421
