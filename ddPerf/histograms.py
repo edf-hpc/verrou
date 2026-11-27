@@ -17,8 +17,8 @@ The quality of the result is measured by :
                    algorithms) : probability that the final check passes although the code still fails
   efficiency     : cpu time / (wall time * number of threads)
   deltas outside : number of deltas of the ddmin outside the clauses of the metamodel (they should be in the
-                   complement rddmin-cmp) : with a metamodel without background (verrou_dd_fake --no-background
-                   or verrou_dd_metamodel --no-background) these deltas are useless for the user
+                   complement rddmin-cmp) : with a metamodel without background (verrou_dd_metamodel without
+                   --background, its default, or verrou_dd_fake --no-background) these deltas are useless for the user
   non minimal    : number of ddmin which contain a clause and other deltas
 --max-samples=M stops each simulation after M samples (verrou_dd_fake --max-samples=) : an algorithm out of
 control does not block the histograms. A stopped simulation is not counted in the complete step, only

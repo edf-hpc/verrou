@@ -81,8 +81,10 @@ class config_metamodel(gen_config.gen_config):
                          docStr="L2 penalty of the interaction terms of the fit (default 0.1)")
         self.addRegistry("traceFile",  "string", "TRACE_FILE",  ["--trace-file="],   [], "file_exists", True,
                          docStr="ddTrace file (verrou_dd_* --trace-file=) used to get the sample durations of old caches (several allowed)")
-        self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], False,
-                         docStr="ignore the diffuse background in the fitted model (no ddmin is absorbed in the background)")
+        self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], True,
+                         docStr="ignore the diffuse background in the fitted model (no ddmin is absorbed in the background) : default")
+        self.addRegistry("background", "bool", "BACKGROUND", ["--background"], False,
+                         docStr="fit the diffuse background (eps, beta) : the ddmin which are not significant against the background are absorbed in it (overrides --no-background)")
         self.addRegistry("noObservations", "bool", "NO_OBSERVATIONS", ["--no-observations"], False,
                          docStr="do not save the samples in the json file (only the fitted model)")
         self.addRegistry("dryRun",     "bool",   "DRY_RUN",     ["--dry-run"],       False,
@@ -113,6 +115,8 @@ class config_metamodel(gen_config.gen_config):
         except ValueError:
             print("Error : --ratio=, --penalty=, --pairs-ratio=, --substitution-ratio= and --merge-ratio= should be float values", file=sys.stderr)
             self.failure()
+        if self.background:
+            self.noBackground=False
         if self.output==None:
             self.output=str(self.cacheRep / "metamodel.json")
         else:
@@ -394,7 +398,7 @@ def report(model, table, removed, merged, timeModel, diag, cache, residual, noBa
             model.gammas[k], -math.expm1(-model.lambdas[k]*0.5**model.gammas[k]))
         print("\tM%i : size %3i  pFail %.3f%s  indexes %s"%(k, len(clause), -math.expm1(-model.lambdas[k]), graded, ddMetamodel.toRanges(clause)))
     if noBackground:
-        print("background : ignored (--no-background)")
+        print("background : ignored (default, --background to fit it)")
     else:
         print("background : %i deltas outside the ddmin, pFail(all) %.3f, beta %.2f"%(
             cache.nbDelta()-len(model.union), -math.expm1(-model.eps), model.beta))

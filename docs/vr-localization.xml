@@ -1050,6 +1050,7 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	(accumulation of small errors, additive with <computeroutput>gamma_k=1</computeroutput>, strict clause when <computeroutput>gamma_k</computeroutput> is large).
 	The ddmin are independent when all <computeroutput>mu_kl</computeroutput> and <computeroutput>eps</computeroutput> are null.
 	The nested models (independent ddmin, with background, with interactions) are compared with the AIC criterion.
+	By default the background is not fitted (<computeroutput>eps=0</computeroutput>, see <computeroutput>--background</computeroutput>).
 	Then, while the AIC decreases, two clauses are merged in one graded clause (the delta-debug splits an accumulation of small errors
 	in several ddmin, which are not the same ones with another seed) and a clause of size greater than one becomes graded.
 	The clauses can overlap : with the cause <computeroutput>a and (b or c)</computeroutput> the delta-debug only finds <computeroutput>{a,b}</computeroutput>
@@ -1147,7 +1148,12 @@ $ VERROU_SOURCE=./dd.sym/ddmin0/dd.line.include verrou_dd_back --nruns=6 --num-t
 	<varlistentry>
           <term><computeroutput>--no-background</computeroutput></term>
           <listitem><para>Ignore the diffuse background in the fitted model (<computeroutput>eps=0</computeroutput>): the nested models are the independent ddmin
-	  with and without interactions, and no ddmin is absorbed in the background.</para></listitem>
+	  with and without interactions, and no ddmin is absorbed in the background. This is the default.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+          <term><computeroutput>--background</computeroutput></term>
+          <listitem><para>Fit the diffuse background (<computeroutput>eps</computeroutput>, <computeroutput>beta</computeroutput>): the ddmin which are not
+	  significant against the background are absorbed in it. Overrides <computeroutput>--no-background</computeroutput>.</para></listitem>
 	</varlistentry>
 	<varlistentry>
           <term><computeroutput>--no-observations</computeroutput></term>

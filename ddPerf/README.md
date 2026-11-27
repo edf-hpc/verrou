@@ -22,7 +22,9 @@ They are not installed : they use the `pyTools` directory of this source tree.
    time model) and the thread pool is replaced by a virtual time executor. The simulated wall time thus
    takes into account `--num-threads=`, the early exits and the scheduling of the samples.
    `--trace-file=` writes a trace with the simulated time (`verrou_dd_trace_convert` works on it).
-   `--no-background` ignores the diffuse background of the metamodel (only the clauses fail).
+   By default the diffuse background of the metamodel is used : none for a metamodel fitted by
+   `verrou_dd_metamodel` without `--background` (its default). `--no-background` ignores the background of
+   a metamodel fitted with `--background` (only the clauses fail).
    `--fake-seed=` fixes the simulated samples (by default a random seed is drawn and printed), `--summary=FILE` writes the results in json :
    wall and cpu time, number of samples, ddmin found with their status (`clause` : a clause of the
    metamodel, `contains a clause`, `graded clause part` : some deltas of a graded clause (an accumulation of
@@ -67,7 +69,7 @@ found before the stop.
 - The samples of a configuration are independent (the correlation between configurations computed with
   the same `--seed=` by verrou is not modeled) : `--seed=` is not an option of `verrou_dd_fake`.
 - The clauses of a metamodel come from the ddmin found by the original delta-debug (minus the ones absorbed
-  in the background, merged in graded clauses when they are the parts of an accumulation of small errors) :
+  in the background with `verrou_dd_metamodel --background`, merged in graded clauses when they are the parts of an accumulation of small errors) :
   a cause missed by the original delta-debug is only in the metamodel if the enrichment finds it (localized
   residual, alternative clause : substitute in the residual of a part of a ddmin) or if it is a ddmin of
   another cache given to `verrou_dd_metamodel`.

@@ -254,7 +254,7 @@ class ddFakeConfig(dd_config.ddConfig):
         self.addRegistry("fakeSeed", "int",    "FAKE_SEED", ["--fake-seed="], None,
                          docStr="seed of the simulated samples (default: random seed, printed and written in the summary)")
         self.addRegistry("noBackground", "bool", "NO_BACKGROUND", ["--no-background"], False,
-                         docStr="ignore the diffuse background of the metamodel (eps=0) : only the clauses fail")
+                         docStr="ignore the diffuse background of the metamodel (eps=0) : only the clauses fail (default : the background of the metamodel, eps=0 if it was fitted without background, the default of verrou_dd_metamodel)")
         self.addRegistry("maxSamples", "int", "MAX_SAMPLES", ["--max-samples="], None,
                          docStr="stop the simulation after this number of samples (algorithm out of control) : the summary gives the ddmin found before the stop")
         self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,

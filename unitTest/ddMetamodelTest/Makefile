@@ -3,16 +3,16 @@ export BASH_ENV=$(INSTALLPATH)/env.sh
 export SHELL=bash
 
 # the code is simulated by the metamodel truth.json (ddMetamodelRun.py) : verrou_dd_metamodel should
-# find again the failure probabilities and the interaction of truth.json
+# find again the failure probabilities, the interaction and the background of truth.json (--background)
 .PHONY: clean run_check run_check_graded install
 all: run_check
 
 run_check: install
 	verrou_dd_sym --cache=clean --nruns=5 --num-threads=8 --seed=1 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.sym
-	verrou_dd_metamodel --ratio=4 --nruns=20 dd.sym > out.sym.metamodel
+	verrou_dd_metamodel --background --ratio=4 --nruns=20 dd.sym > out.sym.metamodel
 	./checkFit.py truth.json dd.sym/metamodel.json
 	verrou_dd_line --cache=clean --nruns=5 --num-threads=8 --seed=2 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.line
-	verrou_dd_metamodel --ratio=4 --nruns=20 --output=metamodel.line.json dd.line > out.line.metamodel
+	verrou_dd_metamodel --background --ratio=4 --nruns=20 --output=metamodel.line.json dd.line > out.line.metamodel
 	./checkFit.py truth.json metamodel.line.json
 	$(MAKE) run_check_graded
 
@@ -23,7 +23,7 @@ run_check_graded: export DD_METAMODEL=$(CURDIR)/truthGraded.json
 run_check_graded:
 	verrou_dd_sym --cache=clean --rep=dd.graded1 --nruns=5 --num-threads=8 --seed=1 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.graded1
 	verrou_dd_sym --cache=clean --rep=dd.graded2 --nruns=5 --num-threads=8 --seed=2 ./ddMetamodelRun.py ./ddMetamodelCmp.py > out.graded2
-	verrou_dd_metamodel --ratio=4 --nruns=10 dd.graded1 dd.graded2 > out.graded.metamodel
+	verrou_dd_metamodel --background --ratio=4 --nruns=10 dd.graded1 dd.graded2 > out.graded.metamodel
 	./checkFit.py --probe truthGraded.json dd.graded1/metamodel.json
 
 install:
