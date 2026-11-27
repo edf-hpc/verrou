@@ -2,7 +2,7 @@
 """Run script for verrou_dd_sym and verrou_dd_line simulating a code with a metamodel (json file written by
 verrou_dd_metamodel, DD_METAMODEL=file, truth.json by default) : the deltas are fake symbols or lines
 numbered with their index in the metamodel. The failure of the sample is drawn with the failure
-probability of the metamodel (reproducible with VERROU_SEED) and written for ddMetamodelCmp.py."""
+probability of the metamodel (reproducible with VERROU_SEED) and written for ddMetamodelCmp.sh."""
 import sys
 import os
 import random

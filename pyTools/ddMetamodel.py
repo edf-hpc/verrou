@@ -46,6 +46,7 @@ The samples stopped by earlyExit do not bias the likelihood (the stopping rule d
 observed results) : the fit uses the binomial likelihood of the samples in cache.
 """
 
+import importlib
 import json
 import math
 import random
@@ -54,7 +55,8 @@ import sys
 import os
 from pathlib import Path
 
-import DD_stoch
+#DD_stoch is only imported to read a cache (ddCache) : the simulation scripts of the tests, run for each
+#sample, only use the metamodel
 
 formatName="verrou_dd_metamodel"
 formatVersion=2 #2 : graded clauses (failure.gamma)
@@ -87,6 +89,7 @@ def parseCmdLast(fileName):
     """Parse the cmd.last file written by gen_config.saveParam : return a dict with the tool path,
     the command line (argv), the working directory and the recorded environment variables"""
     res={"tool":None, "argv":None, "pwd":None, "env":{}}
+    oldFormat=False
     with open(str(fileName)) as f:
         for line in f:
             line=line.rstrip("\n")
@@ -95,6 +98,7 @@ def parseCmdLast(fileName):
             elif line.startswith("\t") and res["argv"]==None and "=" in line:
                 key,value=line.strip().split("=",1)
                 if key=="PWD": #cmd.last without Cwd: line (old format)
+                    oldFormat=True
                     if res["pwd"]==None:
                         res["pwd"]=value
                 else:
@@ -102,7 +106,9 @@ def parseCmdLast(fileName):
             elif line.startswith("Cwd: "):
                 res["pwd"]=line[len("Cwd: "):]
             elif line.startswith("Cmd: "):
-                res["argv"]=shlex.split(line[len("Cmd: "):])
+                cmdLine=line[len("Cmd: "):]
+                #the old format does not quote the arguments : split on the blanks (exact without blank in an argument)
+                res["argv"]=cmdLine.split() if oldFormat else shlex.split(cmdLine)
                 break
     return res
 
@@ -112,6 +118,16 @@ def argvOption(argv, option, default=None):
     for arg in argv:
         if arg.startswith(option):
             value=arg[len(option):]
+    return value
+
+ddEnvPrefixes=["INTERFLOP_DD", "VERROU_DD"] #config_keys of the verrou_dd_* tools
+
+def cmdOption(cmd, option, envName, default=None):
+    """Value of an option of the delta-debug recorded in cmd.last (dict of parseCmdLast) : as in gen_config,
+    the environment variables <prefix>_<envName> override the command line, the last prefix wins"""
+    value=argvOption(cmd["argv"], option, default)
+    for prefix in ddEnvPrefixes:
+        value=cmd["env"].get(prefix+"_"+envName, value)
     return value
 
 
@@ -235,7 +251,7 @@ class ddCache:
     def _traceFileFromCmd(self):
         if self.cmd==None or self.cmd["argv"]==None:
             return None
-        traceFile=argvOption(self.cmd["argv"], "--trace-file=")
+        traceFile=cmdOption(self.cmd, "--trace-file=", "TRACE_FILE")
         if traceFile==None:
             return None
         tracePath=Path(traceFile)
@@ -244,6 +260,7 @@ class ddCache:
         return tracePath if tracePath.is_file() else None
 
     def _loadObservation(self, confDir):
+        import DD_stoch
         includeFile=confDir / (self.deltaFileName+".include")
         if not includeFile.is_file():
             return None
@@ -290,6 +307,7 @@ class ddCache:
 
     def md5(self, conf):
         """Name of the directory of a configuration (set of indexes)"""
+        import DD_stoch
         return DD_stoch.md5Name([self.deltas[i] for i in conf])
 
     def merge(self, other):
@@ -381,8 +399,8 @@ class ddCache:
 
     def nbRun(self):
         if self.cmd==None or self.cmd["argv"]==None:
-            return 5
-        return int(argvOption(self.cmd["argv"], "--nruns=", 5))
+            return 5 #default of dd_config
+        return int(cmdOption(self.cmd, "--nruns=", "NRUNS", 5))
 
     def sourceInfo(self):
         """Non-identifying description of the delta-debug which generated the cache"""
@@ -507,6 +525,78 @@ def logLikelihood(model, observations):
         res+=nbFail*math.log(-math.expm1(-h)) - (nbSample-nbFail)*h
     return res
 
+_scipyWarning=True
+
+def _scipy(module):
+    """Import a scipy module, None without scipy (a warning is printed once)"""
+    global _scipyWarning
+    try:
+        return importlib.import_module("scipy."+module)
+    except ImportError:
+        if _scipyWarning:
+            print("Warning : scipy not found, the internal optimizer and statistical tests are used", file=sys.stderr)
+            _scipyWarning=False
+        return None
+
+class _boxResult:
+    def __init__(self, x, fun):
+        self.x=x
+        self.fun=fun
+
+def _minimizeBox(fun, x0, lower, upper, maxIter=15000, pgtol=1e-5, ftol=2.2e-9, memory=10):
+    """Minimization of fun (return the value and the gradient) on the box [lower, upper] without scipy :
+    projected L-BFGS (the variables at a bound with a gradient pointing outside are fixed, the direction of
+    the free variables is the L-BFGS one) with a backtracking line search on the projected path. Same
+    stopping criteria as scipy L-BFGS-B (projected gradient, relative decrease of the function)"""
+    import numpy as np
+    def project(x):
+        return np.minimum(np.maximum(x, lower), upper)
+    x=project(np.array(x0, dtype=float))
+    f,g=fun(x)
+    sTab=[]
+    yTab=[]
+    for it in range(maxIter):
+        if np.max(np.abs(project(x-g)-x))<=pgtol:
+            break
+        fixed=((x<=lower) & (g>0)) | ((x>=upper) & (g<0))
+        q=np.where(fixed, 0., g)
+        coefs=[]
+        for sv,yv in reversed(list(zip(sTab, yTab))):
+            rho=1./float(yv@sv)
+            a=rho*float(sv@q)
+            coefs.append((rho, a, sv, yv))
+            q=q-a*yv
+        if len(sTab)!=0:
+            q*=float(sTab[-1]@yTab[-1])/float(yTab[-1]@yTab[-1])
+        else:
+            q/=max(np.max(np.abs(q)), 1.)
+        for rho,a,sv,yv in reversed(coefs):
+            q=q+(a-rho*float(yv@q))*sv
+        d=-np.where(fixed, 0., q)
+        if float(d@g)>=0: #not a descent direction : steepest descent and new memory
+            d=-np.where(fixed, 0., g)
+            sTab=[]
+            yTab=[]
+        step=1.
+        while True:
+            xNew=project(x+step*d)
+            fNew,gNew=fun(xNew)
+            if np.isfinite(fNew) and fNew<=f+1e-4*float(g@(xNew-x)):
+                break
+            step*=0.5
+            if step<1e-14:
+                return _boxResult(x, f)
+        sv=xNew-x
+        yv=gNew-g
+        if float(sv@yv)>1e-12*float(yv@yv):
+            sTab=(sTab+[sv])[-memory:]
+            yTab=(yTab+[yv])[-memory:]
+        decrease=(f-fNew)/max(abs(f), abs(fNew), 1.)
+        x,f,g=xNew,fNew,gNew
+        if decrease<=ftol:
+            break
+    return _boxResult(x, f)
+
 def fitFailure(nbDelta, clauses, observations, interactions=True, background=True, penalty=0.1, init=None, graded=()):
     """Maximum likelihood fit of the failure model. Return (metamodel, logLikelihood, nbParam).
     penalty : L2 penalty on the interaction terms mu (they are often defined by few samples)
@@ -514,7 +604,7 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
     init : metamodel used as warm start (parameters of the same clauses and pairs, the others at 0) :
     when init is a nested model, the fit can not be worse than init. The default start is also tried."""
     import numpy as np
-    from scipy.optimize import minimize
+    optimize=_scipy("optimize")
 
     data=_aggregate(observations)
     template=metamodel(nbDelta, clauses, [0.]*len(clauses))
@@ -593,8 +683,12 @@ def fitFailure(nbDelta, clauses, observations, interactions=True, background=Tru
                 starts+=[start]
     lower=np.array([lo for lo,hi in bounds])
     upper=np.array([hi for lo,hi in bounds])
-    res=min([minimize(negLogLik, np.clip(np.array(start), lower, upper), method="L-BFGS-B", jac=True, bounds=bounds)
-             for start in starts], key=lambda r: r.fun)
+    def minimize(start):
+        x0=np.clip(np.array(start, dtype=float), lower, upper)
+        if optimize==None:
+            return _minimizeBox(negLogLik, x0, lower, upper)
+        return optimize.minimize(negLogLik, x0, method="L-BFGS-B", jac=True, bounds=bounds)
+    res=min([minimize(start) for start in starts], key=lambda r: r.fun)
     lam,mu,gam,eps,beta=unpack(res.x)
     gammas=[None]*nbClause
     for j,k in enumerate(gradedIndex):
@@ -620,11 +714,21 @@ def fitTime(nbDelta, observations):
     return {"a":float(coef[0]), "b":float(coef[1]), "c":float(coef[2]), "sigma":sigma, "nbSample":len(rows)}
 
 
+def binomialLogPmf(k, nbSample, p):
+    """Logarithm of the probability of k failures among nbSample samples (failure probability 0<p<1)"""
+    return (math.lgamma(nbSample+1)-math.lgamma(k+1)-math.lgamma(nbSample-k+1)
+            +k*math.log(p)+(nbSample-k)*math.log1p(-p))
+
 def binomialPValue(nbFail, nbSample, p):
     """Two-sided p-value of nbFail failures among nbSample samples with the failure probability p"""
-    from scipy.stats import binomtest
     p=min(max(p, 1e-12), 1.-1e-12)
-    return float(binomtest(nbFail, nbSample, p).pvalue)
+    stats=_scipy("stats")
+    if stats!=None:
+        return float(stats.binomtest(nbFail, nbSample, p).pvalue)
+    #exact test without scipy : sum of the probabilities of the results not more likely than nbFail
+    threshold=binomialLogPmf(nbFail, nbSample, p)+math.log1p(1e-7) #relative tolerance of scipy
+    logPmfTab=[binomialLogPmf(k, nbSample, p) for k in range(nbSample+1)]
+    return min(1., sum(math.exp(lp) for lp in logPmfTab if lp<=threshold))
 
 def diagnostics(model, observations):
     """Comparison of the observations with the model, sorted by increasing p-value"""
@@ -874,10 +978,36 @@ def proportionTest(nbFail1, nbSample1, nbFail2, nbSample2):
     return 2.*(ll(nbFail1, nbSample1, nbFail1/nbSample1)+ll(nbFail2, nbSample2, nbFail2/nbSample2)
                -ll(nbFail1, nbSample1, p)-ll(nbFail2, nbSample2, p))
 
+def binomialSf(nbFail, nbSample, p):
+    """Probability of at least nbFail failures among nbSample samples (failure probability p)"""
+    if nbFail<=0:
+        return 1.
+    if p<=0.:
+        return 0.
+    if p>=1.:
+        return 1.
+    return min(1., sum(math.exp(binomialLogPmf(k, nbSample, p)) for k in range(nbFail, nbSample+1)))
+
 def clopperPearson(nbFail, nbSample, alpha=0.05):
-    from scipy.stats import beta
-    low=0. if nbFail==0 else float(beta.ppf(alpha/2, nbFail, nbSample-nbFail+1))
-    high=1. if nbFail==nbSample else float(beta.ppf(1-alpha/2, nbFail+1, nbSample-nbFail))
+    """Exact confidence interval of a failure probability"""
+    stats=_scipy("stats")
+    if stats!=None:
+        low=0. if nbFail==0 else float(stats.beta.ppf(alpha/2, nbFail, nbSample-nbFail+1))
+        high=1. if nbFail==nbSample else float(stats.beta.ppf(1-alpha/2, nbFail+1, nbSample-nbFail))
+        return low, high
+    def solve(func, target):
+        """p such that func(p)=target, func increasing (bisection)"""
+        a,b=0.,1.
+        for i in range(60):
+            mid=0.5*(a+b)
+            if func(mid)<target:
+                a=mid
+            else:
+                b=mid
+        return 0.5*(a+b)
+    #low : P(X>=nbFail | low)=alpha/2 ; high : P(X<=nbFail | high)=alpha/2, i.e. P(X>=nbFail+1 | high)=1-alpha/2
+    low=0. if nbFail==0 else solve(lambda p: binomialSf(nbFail, nbSample, p), alpha/2)
+    high=1. if nbFail==nbSample else solve(lambda p: binomialSf(nbFail+1, nbSample, p), 1.-alpha/2)
     return low, high
 
 def residualSearch(nbDelta, clauses, observations, nbSample, residualFactor=4, threshold=3.84, context=(), residual=None):

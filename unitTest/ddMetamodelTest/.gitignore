@@ -1,12 +1,9 @@
 dd.line
 dd.sym
+dd.fast.*
 metamodel.line.json
-out.line
-out.line.metamodel
-out.sym
-out.sym.metamodel
+metamodel.noScipy.json
+out.*
 dd.graded1
 dd.graded2
-out.graded1
-out.graded2
-out.graded.metamodel
+noScipy/__pycache__
