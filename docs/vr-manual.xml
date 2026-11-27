@@ -1232,7 +1232,8 @@ det2
                       xreflabel="VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)">
           <term><computeroutput>VERROU_SET_ROUNDING_MODE(ROUNDINGMODE)</computeroutput></term>
           <listitem><para>Set the rounding mode to <computeroutput>ROUNDINGMODE</computeroutput>, a string with one of the values accepted by
-	      <option>--rounding-mode</option> (for example <computeroutput>"upward"</computeroutput>).
+	      <option>--rounding-mode</option>, in lower or upper case (for example <computeroutput>"upward"</computeroutput> or
+	      <computeroutput>"UPWARD"</computeroutput>; the deprecated <computeroutput>average</computeroutput> names are not accepted).
 	      An invalid value prints a message and keeps the current rounding mode.
 	      Changing the rounding mode implies a flush of the instrumentation cache.</para></listitem>
 	</varlistentry>

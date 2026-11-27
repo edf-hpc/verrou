@@ -159,6 +159,8 @@ const char*  verrou_rounding_mode_name (enum vr_RoundingMode mode) {
 }
 
 
+// roundingStr : display name (UPWARD) or --rounding-mode= name (upward) : the
+// comparison ignores the case (ASCII, no libc in the Valgrind tool)
 enum vr_RoundingMode verrou_rounding_mode_enum(char const*const roundingStr){
   for(int i=0 ; i< (int)VR_ENUM_SIZE; i++){
     const char* toCmp=verrou_rounding_mode_name((enum vr_RoundingMode)i);
@@ -169,7 +171,11 @@ enum vr_RoundingMode verrou_rounding_mode_enum(char const*const roundingStr){
       if(roundingStr[j]==0 || toCmp[j]==0){
         break;
       }
-      if(roundingStr[j] != toCmp[j]){
+      char c=roundingStr[j];
+      if(c>='a' && c<='z'){
+        c=(char)(c-'a'+'A');
+      }
+      if(c != toCmp[j]){
 	break;
       }
     }

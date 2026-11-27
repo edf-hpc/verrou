@@ -881,19 +881,26 @@ valgrind --tool=verrou --rounding-mode=random  trace_verrou_task.py ./myPythonPr
 		</listitem>
 		<listitem>
 		  <para>
-		    Internal use of environnement variables:
+		    Internal use of environnement variables (the former names without the
+		    <computeroutput>VERROU_</computeroutput> prefix are deprecated):
 		    <itemizedlist>
 		      <listitem><para>
-			<computeroutput>DEBUG_PRINT_TASK</computeroutput>: configure the debug status
+			<computeroutput>VERROU_DEBUG_PRINT_TASK</computeroutput>: configure the debug status
 		      </para></listitem>
 		      <listitem><para>
-			<computeroutput>TASK_LIST</computeroutput>: read the file to setup which tasks are instrumented.
+			<computeroutput>VERROU_TASK_LIST</computeroutput>: read the file to setup which tasks are instrumented.
 		      </para></listitem>
 		      <listitem><para>
-			<computeroutput>GENERATE_TASK_LIST</computeroutput>: generate the file containing the list of tasks.
+			<computeroutput>VERROU_GENERATE_TASK_LIST</computeroutput>: generate the file containing the list of tasks.
 		      </para></listitem>
 		      <listitem><para>
-			<computeroutput>GENERATE_TASK_FP_LIST</computeroutput>: generate the file containing the list of tasks containing instrumented floating point operation.
+			<computeroutput>VERROU_GENERATE_TASK_FP_LIST</computeroutput>: generate the file containing the list of tasks containing instrumented floating point operation.
+		      </para></listitem>
+		      <listitem><para>
+			<computeroutput>VERROU_TASK_EXCLUDE_LIST</computeroutput>: with <computeroutput>VERROU_TASK_LIST</computeroutput>, read the file of the tasks which are not instrumented.
+		      </para></listitem>
+		      <listitem><para>
+			<computeroutput>VERROU_TASK_STOP_START</computeroutput>: <computeroutput>hard</computeroutput> or <computeroutput>soft</computeroutput> instrumentation stop and start.
 		      </para></listitem>
 		    </itemizedlist>
 		  </para>

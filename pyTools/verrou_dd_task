@@ -43,8 +43,8 @@ class DDTask(DD_stoch.DDStoch):
                 "VERROU_UNFUSED":"no",
                 "VERROU_MCA_MODE": "ieee",
                 "VERROU_VPREC_MODE": "ieee",
-                "GENERATE_TASK_LIST":  self.ref_ / "dd.task.gen",
-                "GENERATE_TASK_FP_LIST": self.ref_ / "dd.taskFP.gen",
+                "VERROU_GENERATE_TASK_LIST":  self.ref_ / "dd.task.gen",
+                "VERROU_GENERATE_TASK_FP_LIST": self.ref_ / "dd.taskFP.gen",
                 "VERROU_COUNT_OP":"yes",
                 }
 
@@ -55,9 +55,9 @@ class DDTask(DD_stoch.DDStoch):
         return "dd.task"
 
     def sampleRunEnv(self,dirName):
-        return {"TASK_LIST": dirName / (self.getDeltaFileName() +".include"),
+        return {"VERROU_TASK_LIST": dirName / (self.getDeltaFileName() +".include"),
                 "VERROU_LIBM_NOINST_ROUNDING_MODE":self.config_.referenceRounding,
-                "TASK_STOP_START": self.config_.hardOrSoft
+                "VERROU_TASK_STOP_START": self.config_.hardOrSoft
         }
 
     def coerce(self, delta_config):

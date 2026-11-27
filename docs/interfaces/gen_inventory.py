@@ -212,6 +212,7 @@ def library_env_variables():
             continue
         text = read_c(name) if name.endswith((".c", ".cxx")) else read(name)
         found = re.findall(r'getenv\s*\(\s*"(\w+)"', text) + re.findall(r"\$\{?(VERROU_\w+)", text)
+        found += ["VERROU_" + v for v in re.findall(r'getenvTask\s*\(\s*"(\w+)"', text)]
         for var in sorted(set(found)):
             rows.append((var, name))
     return rows
@@ -436,6 +437,10 @@ def generate():
         for value, msg in o["deprecated"]:
             rows.append(("verrou " + (name + value if value != name else name), msg))
     rows += python_deprecations()
+    for name in LIB_SOURCES:
+        if name.endswith((".c", ".cxx")) and os.path.exists(os.path.join(SRC, name)):
+            for v in sorted(set(re.findall(r'getenvTask\s*\(\s*"(\w+)"', read_c(name)))):
+                rows.append(("environment variable %s (%s)" % (v, name), "use VERROU_%s instead" % v))
     w(md_table(["interface", "message"], rows))
     return out.getvalue()
 

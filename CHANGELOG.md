@@ -26,6 +26,8 @@ This version is based on Valgrind-3.28.0.
 	- With --unfused=yes, the FMA are no longer perturbed when the instrumentation is stopped with the soft instrumentation (without --float=yes).
 	- New format of the cmd.last file of the delta-debugging caches: a Cwd: line replaces the PWD variable and the arguments of the Cmd: line are quoted for the shell.
 	- verrou.h can be included without any definition (vr_RoundingMode, Bool) from the program.
+	- VERROU_SET_ROUNDING_MODE and the monitor command rounding accept the name of the rounding mode in lower case (as --rounding-mode=) or upper case.
+	- The environment variables of libverrouTask are prefixed by VERROU_ (VERROU_TASK_LIST, VERROU_GENERATE_TASK_LIST...); the former names are deprecated.
 	- post_verrou_dd no longer loops forever when the delta-debugging was run without any VERROU_* variable in the environment.
 
 ---

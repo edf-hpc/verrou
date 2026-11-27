@@ -118,12 +118,12 @@ Read by `vr_env_clo` (`vr_clo.c`), equivalent to the option.
 |---|---|
 | VERROU_LIBM_ROUNDING_MODE | Interlibmath/interlibmath.cxx |
 | VERROU_ROUNDING_MODE | Interlibmath/interlibmath.cxx |
-| DEBUG_PRINT_TASK | libVerrouTask/libverrouTask.cxx |
-| GENERATE_TASK_FP_LIST | libVerrouTask/libverrouTask.cxx |
-| GENERATE_TASK_LIST | libVerrouTask/libverrouTask.cxx |
-| TASK_EXCLUDE_LIST | libVerrouTask/libverrouTask.cxx |
-| TASK_LIST | libVerrouTask/libverrouTask.cxx |
-| TASK_STOP_START | libVerrouTask/libverrouTask.cxx |
+| VERROU_DEBUG_PRINT_TASK | libVerrouTask/libverrouTask.cxx |
+| VERROU_GENERATE_TASK_FP_LIST | libVerrouTask/libverrouTask.cxx |
+| VERROU_GENERATE_TASK_LIST | libVerrouTask/libverrouTask.cxx |
+| VERROU_TASK_EXCLUDE_LIST | libVerrouTask/libverrouTask.cxx |
+| VERROU_TASK_LIST | libVerrouTask/libverrouTask.cxx |
+| VERROU_TASK_STOP_START | libVerrouTask/libverrouTask.cxx |
 
 ## Client requests (`verrou.h`)
 
@@ -555,3 +555,9 @@ gen_config (environment: DD_METAMODEL_*)
 | pyTools/rounding_tool.py (roundingToEnvVar) | WARNING: %s is deprecated use %s instead |
 | pyTools/verrou_plot_stat (normalize) | WARNING: %s is deprecated use %s instead |
 | pyTools/verrou_plot_stat (ref) | WARNING: %s is deprecated use %s instead |
+| environment variable DEBUG_PRINT_TASK (libVerrouTask/libverrouTask.cxx) | use VERROU_DEBUG_PRINT_TASK instead |
+| environment variable GENERATE_TASK_FP_LIST (libVerrouTask/libverrouTask.cxx) | use VERROU_GENERATE_TASK_FP_LIST instead |
+| environment variable GENERATE_TASK_LIST (libVerrouTask/libverrouTask.cxx) | use VERROU_GENERATE_TASK_LIST instead |
+| environment variable TASK_EXCLUDE_LIST (libVerrouTask/libverrouTask.cxx) | use VERROU_TASK_EXCLUDE_LIST instead |
+| environment variable TASK_LIST (libVerrouTask/libverrouTask.cxx) | use VERROU_TASK_LIST instead |
+| environment variable TASK_STOP_START (libVerrouTask/libverrouTask.cxx) | use VERROU_TASK_STOP_START instead |

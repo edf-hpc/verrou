@@ -114,10 +114,26 @@ void verrou_task_finalize(){
 
 //Private function
 
+// Environment variable VERROU_<name> ; the former name <name> (without the
+// VERROU_ prefix) is deprecated : still read, with a warning, if VERROU_<name>
+// is not set
+static char* getenvTask(const char* name){
+  std::string newName=std::string("VERROU_")+name;
+  char* value=getenv(newName.c_str());
+  if(value!=NULL){
+    return value;
+  }
+  value=getenv(name);
+  if(value!=NULL){
+    std::cerr<< outputPrefix<<"WARNING: "<<name<<" is deprecated: use "<<newName<<" instead"<<std::endl;
+  }
+  return value;
+}
+
 void readDebug()
   {//block debug
     char* debugStr;
-    debugStr = getenv ("DEBUG_PRINT_TASK");
+    debugStr = getenvTask("DEBUG_PRINT_TASK");
     if(debugStr==NULL){
       taskDebug=false;
     }else{
@@ -131,7 +147,7 @@ void readDebug()
 
 void verrou_task_generate_trace_init()
 {//block GENERATE TASK LIST
-  char* fileNameList = getenv ("GENERATE_TASK_LIST");
+  char* fileNameList = getenvTask("GENERATE_TASK_LIST");
   if (fileNameList==NULL){
       generateTrace=false;
   }else{
@@ -160,7 +176,7 @@ void verrou_task_generate_trace_finalize(){
 
 
 void verrou_task_generate_trace_fp_init(){
-  char* fileNameFPList = getenv ("GENERATE_TASK_FP_LIST");
+  char* fileNameFPList = getenvTask("GENERATE_TASK_FP_LIST");
   if (fileNameFPList==NULL){
     generateTraceFP=false;
   }else{
@@ -225,7 +241,7 @@ void fileToActiveInactiveStore(std::ifstream& input, storeTaskType& store){
 
 void verrou_task_activation_init(){
   char* stopOrStart;
-  stopOrStart = getenv ("TASK_STOP_START");
+  stopOrStart = getenvTask("TASK_STOP_START");
   if(stopOrStart!=NULL){
     if(std::string(stopOrStart) == std::string("hard") ){
       stopStart_hard=true;
@@ -233,14 +249,14 @@ void verrou_task_activation_init(){
       if(std::string(stopOrStart) == std::string("soft") ){
 	stopStart_hard=false;
       }else{
-	std::cerr << "TASK_STOP_START=" << stopOrStart << " not taken into account"<< std::endl;
+	std::cerr << "VERROU_TASK_STOP_START=" << stopOrStart << " not taken into account"<< std::endl;
       }
     }
   }
 
 
   char* fileNameList;
-  fileNameList = getenv ("TASK_LIST");
+  fileNameList = getenvTask("TASK_LIST");
   if (fileNameList==NULL){
     activeTask=false;
   }else{
@@ -262,7 +278,7 @@ void verrou_task_activation_init(){
 
   }
   if(activeTask){
-    fileNameList = getenv ("TASK_EXCLUDE_LIST");
+    fileNameList = getenvTask("TASK_EXCLUDE_LIST");
     if (fileNameList==NULL){
       inactiveTask=false;
     }else{

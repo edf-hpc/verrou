@@ -15,5 +15,8 @@ for prog in ./api ./api_cxx; do
     check "$prog verrou: rounding upward (VR_UPWARD=1)" "rounding 1" "$(grep ^rounding <<< "$out")"
     check "$prog verrou: double instrumented" "is_instrumented_double 1" "$(grep ^is_instrumented <<< "$out")"
     check "$prog verrou: seed" "seed 42" "$(grep ^seed <<< "$out")"
+    check "$prog verrou: set rounding in lower case (VR_DOWNWARD=2)" "set_lower 2" "$(grep ^set_lower <<< "$out")"
+    check "$prog verrou: set rounding in upper case (VR_ZERO=3)" "set_upper 3" "$(grep ^set_upper <<< "$out")"
+    check "$prog verrou: invalid rounding kept" "set_invalid 3" "$(grep ^set_invalid <<< "$out")"
 done
 exit $fail
