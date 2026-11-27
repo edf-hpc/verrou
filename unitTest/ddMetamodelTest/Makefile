@@ -49,4 +49,4 @@ install:
 	make -C ../.. install
 
 clean:
-	rm -rf dd.sym* dd.line* dd.graded* dd.fast.* out.* metamodel.line.json metamodel.noScipy.json noScipy/__pycache__
+	rm -rf dd.sym* dd.line* dd.graded* dd.fast.* out.* metamodel.line.json metamodel.noScipy.json noScipy/scipy/__pycache__

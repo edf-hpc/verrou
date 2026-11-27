@@ -6,4 +6,4 @@ metamodel.noScipy.json
 out.*
 dd.graded1
 dd.graded2
-noScipy/__pycache__
+__pycache__
