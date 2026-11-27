@@ -33,7 +33,11 @@ options>/seed<S> (the options are written in options.txt) : only the missing sim
 option set is added or when the number of seeds is increased. The cache does not know the version of
 verrou_dd_fake and DD_stoch : --recompute computes again all the simulations (after a change of the algorithms).
 A summary without a value used by the histograms (written by an older verrou_dd_fake) is computed again.
-The quantiles and a compact histogram are printed for each step."""
+The quantiles and a compact histogram are printed for each step. At the end, a compact table gives one line by
+metamodel and option set : number of seeds and of stopped simulations, means (on all the seeds, the stopped
+simulations with their values at the stop) of the wall time, cpu time, number of samples, number of ddmin, number
+of background ddmin (no clause, due to the diffuse error), clauses found (also weighted) and residual failure
+probability."""
 
 import sys
 import os
@@ -41,11 +45,12 @@ import json
 import math
 import hashlib
 import time
+import shutil
+import subprocess
 import statistics
 import concurrent.futures
 from pathlib import Path
 
-import campaign
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pyTools"))
 import ddMetamodel
 
@@ -80,6 +85,24 @@ def panels(timeUnit, nbClause):
 
 def getValue(v, key):
     return v[key[0]][key[1]]
+
+fakeCmd=str(Path(__file__).resolve().parent / "verrou_dd_fake")
+
+def runOne(metamodel, options, seed, workDir):
+    """Run one simulation of verrou_dd_fake in workDir : return its summary (None if it fails). Its cache
+    (dd.fake) is removed, its output is kept in workDir/out"""
+    workDir.mkdir(parents=True, exist_ok=True)
+    summaryFile=(workDir / "summary.json").absolute()
+    cmd=[fakeCmd, "--cache=clean", "--quiet", "--fake-seed=%i"%(seed), "--summary="+str(summaryFile)]+options.split()+[str(metamodel)]
+    with open(str(workDir / "out"),"w") as out:
+        status=subprocess.call(cmd, cwd=str(workDir), stdout=out, stderr=subprocess.STDOUT)
+    if status!=0:
+        print("Error : %s (see %s)"%(" ".join(cmd), workDir / "out"), file=sys.stderr)
+        return None
+    with open(str(summaryFile)) as f:
+        res=json.load(f)
+    shutil.rmtree(str(workDir / "dd.fake"), ignore_errors=True)
+    return res
 
 
 def parseArgs(argv):
@@ -123,6 +146,9 @@ def values(res):
                     "residualPFail":res["residualPFail"], "efficiency":res["efficiency"],
                     "deltasOutside":res["nbDeltaOutsideClauses"], "nbNonMinimal":res["nbNonMinimal"]}
     out["nbClause"]=res["nbClause"]
+    #at the end of the simulation or at its stop (--max-samples=)
+    out["summary"]={"wallTime":res["wallTime"], "cpuTime":res["cpuTime"], "nbSample":res["nbSample"], "nbDdmin":len(res["ddmin"]),
+                    "nbBackground":len([d for d in res["ddmin"] if d["status"]=="background"])}
     return out
 
 def md5Short(data):
@@ -172,7 +198,7 @@ def simulate(metamodel, optionsTab, conf):
                         future.set_result(res)
                         future.cached=True
                     else:
-                        future=executor.submit(campaign.runOne, slimMetamodel, options, seed, workDir)
+                        future=executor.submit(runOne, slimMetamodel, options, seed, workDir)
                         future.cached=False
                     tasks[workDir]=future
                 futureTab+=[tasks[workDir]]
@@ -334,10 +360,33 @@ def plot(metamodel, optionsTab, raw, nbBin, outDir, rows):
         files+=[fileName]
     return files
 
+def printTable(results):
+    """Compact table : one line by metamodel and option set (results : list of (metamodel, optionsTab, raw))"""
+    def mean(tab):
+        tab=[x for x in tab if x!=None]
+        return statistics.mean(tab) if len(tab)!=0 else None
+    def fmt(x, width, form):
+        return ("%"+str(width)+"s")%("-") if x==None else ("%"+str(width)+form)%(x)
+    columns=[("wall", lambda v: v["summary"]["wallTime"], "10", ".4g"), ("cpu", lambda v: v["summary"]["cpuTime"], "10", ".4g"),
+             ("samples", lambda v: v["summary"]["nbSample"], "9", ".1f"), ("ddmin", lambda v: v["summary"]["nbDdmin"], "6", ".2f"),
+             ("noise", lambda v: v["summary"]["nbBackground"], "6", ".2f"),
+             ("clauses%", lambda v: v["quality"]["clausesFound"], "9", ".1f"), ("weighted%", lambda v: v["quality"]["weightedRecall"], "9", ".1f"),
+             ("resPFail", lambda v: v["quality"]["residualPFail"], "9", ".3f")]
+    widthName=max([len("metamodel")]+[len(metamodel.stem) for metamodel,optionsTab,raw in results])
+    widthOptions=max([len("options")]+[len(options) for metamodel,optionsTab,raw in results for options in optionsTab])
+    print("\nmeans of all the seeds : the stopped simulations (--max-samples=) are counted with their values at the stop")
+    print("%-*s %-*s %5s %7s"%(widthName, "metamodel", widthOptions, "options", "seeds", "stopped")
+          +"".join(" %*s"%(int(width), title) for title,getter,width,form in columns))
+    for metamodel,optionsTab,raw in results:
+        for options,r in zip(optionsTab, raw):
+            print("%-*s %-*s %5i %7i"%(widthName, metamodel.stem, widthOptions, options, len(r), len([v for v in r if v["stopped"]]))
+                  +"".join(" "+fmt(mean([getter(v) for v in r]), width, form) for title,getter,width,form in columns))
+
 
 if __name__=="__main__":
     conf=parseArgs(sys.argv)
     conf["outDir"].mkdir(parents=True, exist_ok=True)
+    results=[]
     for metamodel in conf["metamodels"]:
         with open(str(metamodel)) as f:
             timeUnit="simulated seconds" if json.load(f).get("time")!=None else "simulated, 1 per sample"
@@ -350,3 +399,5 @@ if __name__=="__main__":
         printText(metamodel, conf["optionsTab"], raw, conf["bins"], rows)
         for fileName in plot(metamodel, conf["optionsTab"], raw, conf["bins"], conf["outDir"], rows):
             print("  figure written in %s"%(fileName))
+        results+=[(metamodel, conf["optionsTab"], raw)]
+    printTable(results)

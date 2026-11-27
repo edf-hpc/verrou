@@ -258,7 +258,7 @@ class ddFakeConfig(dd_config.ddConfig):
         self.addRegistry("maxSamples", "int", "MAX_SAMPLES", ["--max-samples="], None,
                          docStr="stop the simulation after this number of samples (algorithm out of control) : the summary gives the ddmin found before the stop")
         self.addRegistry("summary",  "string", "SUMMARY",   ["--summary="],   None,
-                         docStr="json file with the summary of the simulation (for the campaigns)")
+                         docStr="json file with the summary of the simulation (for histograms.py)")
 
     def usageCmd(self):
         print("Usage: "+ Path(sys.argv[0]).name + " [options] METAMODEL.json")

@@ -33,17 +33,10 @@ They are not installed : they use the `pyTools` directory of this source tree.
    The summary also gives the rddmin-cmp configuration (complement of the ddmin found) : its samples, its failure
    probability in the metamodel and the clauses it still contains (a final check passed by chance).
 
-3. Compare option sets on several metamodels and seeds :
+3. Compare option sets on one or several metamodels and seeds, histograms of the cost (option sets superposed,
+   at most 3 by figure) :
 
-       ddPerf/campaign.py --seeds=20 meta1.json meta2.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
-
-   The table gives the means of the wall time, cpu time, number of samples, number of ddmin, fraction of
-   the clauses found (recall), number of background ddmin (noise) and failure probability (in the metamodel) of the
-   rddmin-cmp configuration accepted by the final check of rddmin (cmpPFail).
-
-4. Histograms of the cost of one or several option sets (superposed, at most 3 by figure) :
-
-       ddPerf/histograms.py --seeds=100 meta.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
+       ddPerf/histograms.py --seeds=100 meta1.json meta2.json -- "--nruns=5 --num-threads=4" "--nruns=5 --num-threads=4 --rddmin=s"
 
    The number of samples and the simulated wall time are measured at the end of the delta-debug, when the
    first ddmin is found, when half of the clauses of the metamodel (rounded up) are found and when all the clauses
@@ -52,8 +45,12 @@ They are not installed : they use the `pyTools` directory of this source tree.
    clause), the failure probability of the complement of the ddmin found (probability that the final check passes
    although the code still fails), the parallel efficiency, the number of deltas of the ddmin outside the clauses
    (they should be in the complement rddmin-cmp : with `--no-background` they are useless for the user) and the
-   number of non minimal ddmin (a clause and other deltas). The figure is written in `histograms/meta.png`, the raw
-   values in `histograms/meta.values.json`, and the quantiles with a compact histogram are printed.
+   number of non minimal ddmin (a clause and other deltas). The figure is written in `histograms/<metamodel>.png`, the raw
+   values in `histograms/<metamodel>.values.json`, and the quantiles with a compact histogram are printed.
+   A compact table ends the output : one line by metamodel and option set with the number of seeds and of
+   stopped simulations, the means (on all the seeds, the stopped simulations with their values at the stop) of
+   the wall time, cpu time, number of samples, number of ddmin and of background ddmin (noise), of the clauses
+   found (also weighted) and of the failure probability of the complement of the ddmin found (resPFail).
    The instants are also in the summary of `verrou_dd_fake` (`foundTime` of each ddmin, `progress`).
    `--max-samples=M` stops each simulation after M samples, so that an algorithm out of control does not block
    the histograms : a stopped simulation is not counted in the complete step.
