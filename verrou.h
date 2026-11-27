@@ -39,6 +39,26 @@
 #include "pub_tool_clreq.h"
 #endif
 
+/* Version of the client request API defined by this file. It is incremented
+   when a request is added (the existing requests are frozen, see below).
+   VERROU_GET_API_VERSION returns the version of the running verrou: 0 when
+   the program does not run under verrou, or runs under a verrou older than
+   the request (version 1). */
+#define VERROU_API_VERSION 1
+
+/* The macros only use standard types: in a client program, this file needs
+   no definition from the user (Bool is an unsigned char, a rounding mode an
+   int: the value of enum vr_RoundingMode of interflop_verrou.h, which is the
+   type of the rounding mode when interflop_verrou.h is included before). */
+#ifndef __PUB_TOOL_BASICS_H
+#include <stdint.h>
+#endif
+#ifdef __INTERFLOP_VERROU_H
+#define VERROU_ROUNDING_MODE_TYPE enum vr_RoundingMode
+#else
+#define VERROU_ROUNDING_MODE_TYPE int
+#endif
+
 
 /* !! ABIWARNING !! ABIWARNING !! ABIWARNING !! ABIWARNING !!
    This enum comprises an ABI exported by Valgrind to programs
@@ -79,7 +99,8 @@ enum {
   VR_USERREQ__FLOAT_CONV,
   VR_USERREQ__PRINT_COUNT_DENORM,
   VR_USERREQ__RESET_COUNT_DENORM,
-  VR_USERREQ__SET_ROUNDING_MODE
+  VR_USERREQ__SET_ROUNDING_MODE,
+  VR_USERREQ__GET_API_VERSION
 } Vg_VerrouClientRequest;
 
 #define VERROU_START_INSTRUMENTATION                                 \
@@ -145,15 +166,15 @@ enum {
 				  P, 0, 0, 0, 0)
 
 #define VERROU_GET_ROUNDING \
-  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (VERROU_ROUNDING_MODE_TYPE)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
                                                 VR_USERREQ__GET_ROUNDING, \
 					    0, 0, 0, 0, 0)
 #define VERROU_GET_LIBM_ROUNDING \
-  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (VERROU_ROUNDING_MODE_TYPE)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
                                                 VR_USERREQ__GET_LIBM_ROUNDING, \
 					    0, 0, 0, 0, 0)
 #define VERROU_GET_LIBM_ROUNDING_NO_INST \
-  (vr_RoundingMode)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (VERROU_ROUNDING_MODE_TYPE)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
                                                 VR_USERREQ__GET_LIBM_ROUNDING_NO_INST, \
 					    0, 0, 0, 0, 0)
 #define VERROU_NAN_DETECTED \
@@ -163,20 +184,20 @@ enum {
   VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__INF_DETECTED,    \
                                   0, 0, 0, 0, 0)
 #define VERROU_IS_INSTRUMENTED_FLOAT \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__IS_INSTRUMENTED_FLOAT,\
 					    0, 0, 0, 0, 0)
 
 #define VERROU_IS_INSTRUMENTED_DOUBLE \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__IS_INSTRUMENTED_DOUBLE,\
 					    0, 0, 0, 0, 0)
 #define VERROU_IS_INSTRUMENTED_LDOUBLE \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__IS_INSTRUMENTED_LDOUBLE,\
 					    0, 0, 0, 0, 0)
 #define VERROU_COUNT_OP \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__COUNT_OP,\
 					    0, 0, 0, 0, 0)
 
@@ -186,7 +207,7 @@ enum {
 
 
 #define VERROU_IS_INSTRUMENTED_EXCLUDE_SOURCE(FCTNAME, LINENUM, FILENAME, OBJECT) \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
 					    VR_USERREQ__IS_INSTRUMENTED_EXCLUDE_SOURCE,\
 					FCTNAME, LINENUM, FILENAME, OBJECT, 0)
 
@@ -204,7 +225,7 @@ enum {
                                    CACHEPTR,0, 0, 0, 0)
 
 #define VERROU_FLOAT_CONV \
-  (Bool)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
+  (unsigned char)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
                                         VR_USERREQ__FLOAT_CONV,       \
                                         0, 0, 0, 0, 0)
 
@@ -216,4 +237,9 @@ enum {
   VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	         \
                                   VR_USERREQ__RESET_COUNT_DENORM,\
                                   0, 0, 0, 0, 0)
+
+#define VERROU_GET_API_VERSION \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	      \
+                                                VR_USERREQ__GET_API_VERSION, \
+                                                0, 0, 0, 0, 0)
 #endif /* __VERROU_H */

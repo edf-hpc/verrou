@@ -5,6 +5,8 @@ This version is based on Valgrind-3.28.0.
 ### Added
 	- NaN/Inf detection (--check-nan/--check-inf) is now available with all backends (vprec, mcaquad, checkdenorm).
 	- Added the rounding mode random_instr: the direction (upward or downward) of an instruction is drawn during the instrumentation and does not depend on the instrumentation status of the other instructions (with --libm=instrumented: one direction for each function and type).
+	- Added the client request VERROU_GET_API_VERSION (version of the client request API, VERROU_API_VERSION in verrou.h).
+	- Added the inventory of the interfaces (docs/interfaces: options, environment variables, client requests, monitor commands, IOMatch keys, python tools, generated from the sources) and the specification of the file formats.
 	- Added verrou_dd_metamodel to build from the cache of any verrou_dd_* an anonymized metamodel of the code (failure probability of the ddmin, interactions, graded and alternative clauses, residual failures, computation time), with optional new samples (--ratio=) and merge of several caches of the same search space.
 
 ### Changed
@@ -23,6 +25,7 @@ This version is based on Valgrind-3.28.0.
 	- Without FMA (--enable-verrou-fma=no), the sign of the rounding error of the multiplication and division is now also correct for large values (Dekker split overflow) and for the float division.
 	- With --unfused=yes, the FMA are no longer perturbed when the instrumentation is stopped with the soft instrumentation (without --float=yes).
 	- New format of the cmd.last file of the delta-debugging caches: a Cwd: line replaces the PWD variable and the arguments of the Cmd: line are quoted for the shell.
+	- verrou.h can be included without any definition (vr_RoundingMode, Bool) from the program.
 	- post_verrou_dd no longer loops forever when the delta-debugging was run without any VERROU_* variable in the environment.
 
 ---

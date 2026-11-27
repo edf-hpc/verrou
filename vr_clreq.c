@@ -559,6 +559,9 @@ Bool vr_handle_client_request (ThreadId tid, UWord *args, UWord *ret) {
   case VR_USERREQ__SET_ROUNDING_MODE:
      vr_set_rounding_mode((char const*const)args[1]);
      break;
+  case VR_USERREQ__GET_API_VERSION:
+     *ret = VERROU_API_VERSION;
+     break;
   }
   return True;
 }

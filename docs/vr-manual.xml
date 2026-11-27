@@ -1237,6 +1237,15 @@ det2
 	      Changing the rounding mode implies a flush of the instrumentation cache.</para></listitem>
 	</varlistentry>
 
+	  <varlistentry id="vr-manual.feat.get_api_version"
+                      xreflabel="VERROU_GET_API_VERSION">
+          <term><computeroutput>VERROU_GET_API_VERSION</computeroutput></term>
+          <listitem><para>Return the version of the client request API of the running verrou: 0 when the program does not run under verrou
+	      (or runs under a verrou older than this request). <computeroutput>VERROU_API_VERSION</computeroutput> is the version of
+	      the <computeroutput>verrou.h</computeroutput> used to compile the program: a request added in version N can be used when
+	      <computeroutput>VERROU_GET_API_VERSION</computeroutput> returns at least N. The existing requests do not change.</para></listitem>
+	</varlistentry>
+
       </variablelist>
     </section>
 
